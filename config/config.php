@@ -194,16 +194,12 @@ $TPL["currencyOptions"] = page::select_options($currencyOptions, config::get_con
 $db = new db_alloc();
 $display = array("", "username", ", ", "emailAddress");
 
-
 $person = new person();
-$people =& get_cached_table("person");
-foreach ($people as $p) {
-    $peeps[$p["personID"]] = $p["name"];
-}
+$people_by_id = array_column(get_cached_table("person"), "name", "personID");
 
 // get the default time sheet manager/admin options
-$TPL["defaultTimeSheetManagerListText"] = get_person_list(config::get_config_item("defaultTimeSheetManagerList"));
-$TPL["defaultTimeSheetAdminListText"] = get_person_list(config::get_config_item("defaultTimeSheetAdminList"));
+$TPL["defaultTimeSheetManagerListText"] = get_person_list(config::get_config_item("defaultTimeSheetManagerList"), $people_by_id);
+$TPL["defaultTimeSheetAdminListText"] = get_person_list(config::get_config_item("defaultTimeSheetAdminList"), $people_by_id);
 
 $days =  array("Sun" => "Sun",
                "Mon" => "Mon",
@@ -230,16 +226,8 @@ $TPL["timesheetRate_options"] = page::select_options($rate_type_array, config::g
 $TPL["main_alloc_title"] = "Setup - ".APPLICATION_NAME;
 include_template("templates/configM.tpl");
 
-function get_person_list($personID_array)
+function get_person_list(array $person_ids, array $people)
 {
-    global $peeps;
-    $people = array();
-    foreach ($personID_array as $personID) {
-        $people[] = $peeps[$personID];
-    }
-    if (count($people) > 0) {
-        return implode(", ", $people);
-    } else {
-        return "<i>none</i>";
-    }
+    $selected_people = array_intersect_key($people, array_flip($person_ids));
+    return $selected_people ? implode(", ", $selected_people) : "<i>none</i>";
 }
