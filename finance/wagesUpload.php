@@ -1,24 +1,9 @@
 <?php
 
 /*
- * Copyright (C) 2006-2020 Alex Lance, Clancy Malcolm, Cyber IT Solutions
- * Pty. Ltd.
- *
- * This file is part of the allocPSA application <info@cyber.com.au>.
- *
- * allocPSA is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * allocPSA is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
- * License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with allocPSA. If not, see <http://www.gnu.org/licenses/>.
- */
+Â * Copyright: Alex Lance, Clancy Malcolm, Cyber IT Solutions Pty. Ltd.
+Â * SPDX-License-Identifier: AGPL-3.0-or-later
+Â */
 
 require_once("../alloc.php");
 
@@ -73,7 +58,7 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
         #echo "<br>employeeNum: ".$employeeNum;
 
         // Ignore heading row, dividing lines and total rows
-        if ($transactionDate == "Date" || !$transactionDate || strpos("_____", $transactionDate) !== false || strpos("¯¯¯", $transactionDate) !== false || stripos("total", $transactionDate) !== false) {
+        if ($transactionDate == "Date" || !$transactionDate || strpos("_____", $transactionDate) !== false || strpos("ï¿½ï¿½ï¿½", $transactionDate) !== false || stripos("total", $transactionDate) !== false) {
             continue;
         }
         // If the employeeNum field is blank use the previous employeeNum
