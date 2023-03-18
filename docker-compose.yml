@@ -12,4 +12,5 @@ services:
       - "db"
   db:
     build:
+      context: .
       dockerfile: ./Dockerfile.mariadb
