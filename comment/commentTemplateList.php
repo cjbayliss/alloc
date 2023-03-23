@@ -24,5 +24,5 @@ function show_commentTemplate($template_name)
     }
 }
 
-$TPL["main_alloc_title"] = "Comment Template List - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Comment Template List - " . APPLICATION_NAME;
 include_template("templates/commentTemplateListM.tpl");

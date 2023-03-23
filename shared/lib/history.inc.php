@@ -14,11 +14,13 @@ class history extends db_entity
     public $max_to_display = 40;
 
     public $key_field = historyID;
-    public $data_fields = array("the_time",
-                                "the_place",
-                                "the_args",
-                                "the_label",
-                                "personID");
+    public $data_fields = [
+        "the_time",
+        "the_place",
+        "the_args",
+        "the_label",
+        "personID"
+    ];
 
 
     function get_history_query($order = "")
@@ -47,13 +49,13 @@ class history extends db_entity
 
     function get_ignored_files()
     {
-        $ignored_files = array();
+        $ignored_files = [];
         $query = $this->get_history_query("ASC");
         if ($query) {
             $db = new db_alloc();
             $db->query($query);
             while ($db->next_record()) {
-                $ignored_files[] = end(explode("/", $db->f("the_place").$db->f("the_args")));
+                $ignored_files[] = end(explode("/", $db->f("the_place") . $db->f("the_args")));
             }
         }
         $ignored_files[] = "index.php";
@@ -137,8 +139,8 @@ class history extends db_entity
                                     $rtn = $ID;
                                 }
                             }
-                            $rtn = ": ".$rtn;
-                            return ucwords($CLASS_NAME).$rtn;
+                            $rtn = ": " . $rtn;
+                            return ucwords($CLASS_NAME) . $rtn;
                         }
                     }
                 }
@@ -160,8 +162,8 @@ class history extends db_entity
         $query = prepare("SELECT count(*) AS total FROM history WHERE personID = %d", $current_user->get_id());
         $db->query($query);
         $row = $db->row();
-        if ($row["total"] >= (3*$this->max_to_display)) {
-            $query  = prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2*$this->max_to_display));
+        if ($row["total"] >= (3 * $this->max_to_display)) {
+            $query  = prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2 * $this->max_to_display));
             $db->query($query);
         }
 
@@ -173,10 +175,12 @@ class history extends db_entity
             $qs = preg_replace("[^\?]", "", $qs);
         }
 
-        $file = end(explode("/", $_SERVER["SCRIPT_NAME"]))."?".$qs;
+        $file = end(explode("/", $_SERVER["SCRIPT_NAME"])) . "?" . $qs;
 
-        if (is_object($current_user) && !in_array($file, $ignored_files)
-            && !$_GET["historyID"] && !$_POST["historyID"] && $the_label = $this->get_history_label($_SERVER["SCRIPT_NAME"], $qs)) {
+        if (
+            is_object($current_user) && !in_array($file, $ignored_files)
+            && !$_GET["historyID"] && !$_POST["historyID"] && $the_label = $this->get_history_label($_SERVER["SCRIPT_NAME"], $qs)
+        ) {
             $the_place = basename($_SERVER["SCRIPT_NAME"]);
 
             foreach ($TPL as $k => $v) {

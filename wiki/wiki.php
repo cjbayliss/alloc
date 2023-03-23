@@ -9,7 +9,7 @@ require_once("../alloc.php");
 
 $TPL["target"] = $_GET["target"] or $TPL["target"] = $_POST["target"];
 $TPL["rev"] = $_GET["rev"];
-$TPL["wiki_tree"] = ATTACHMENTS_DIR."wiki";
+$TPL["wiki_tree"] = ATTACHMENTS_DIR . "wiki";
 
 if ($_REQUEST['op'] == 'new') {
     $TPL['newFile'] = 'true';

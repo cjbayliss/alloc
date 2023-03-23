@@ -9,7 +9,7 @@
 class whatsnew
 {
 
-    var $folders = array();
+    public $folders = [];
 
     function __construct()
     {

@@ -17,5 +17,5 @@ if ($_GET["projectID"]) {
     $tf_sel = $project->get_value("cost_centre_tfID") or $tf_sel = config::get_config_item("mainTfID");
     $tf = new tf();
     $options = page::select_options($tf->get_assoc_array("tfID", "tfName"), $tf_sel);
-    echo "<select id=\"tfID\" name=\"tfID\">".$options."</select>";
+    echo "<select id=\"tfID\" name=\"tfID\">" . $options . "</select>";
 }

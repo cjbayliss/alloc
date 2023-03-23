@@ -26,7 +26,7 @@ class timeSheetListHomeItem extends home_item
         global $TPL;
         $ops["showShortProjectLink"] = "true";
         $ops["personID"] = $current_user->get_id();
-        $ops["status"] = array('edit','manager','admin','invoiced','rejected');
+        $ops["status"] = ['edit', 'manager', 'admin', 'invoiced', 'rejected'];
 
         $rtn = timeSheet::get_list($ops);
         $TPL["timeSheetListRows"] = $rtn["rows"];

@@ -6,16 +6,16 @@
  */
 
 
-require_once(dirname(__FILE__)."/markdown.inc.php");
+require_once(__DIR__ . "/markdown.inc.php");
 
 
 class wiki_module extends module
 {
-    var $module = "wiki";
+    public $module = "wiki";
 
     function get_wiki_path()
     {
-        return realpath(ATTACHMENTS_DIR."wiki").DIRECTORY_SEPARATOR;
+        return realpath(ATTACHMENTS_DIR . "wiki") . DIRECTORY_SEPARATOR;
     }
 
     function file_save($file, $body)
@@ -27,7 +27,7 @@ class wiki_module extends module
             fclose($handle);
 
             // Update the search index for this file, if any
-            $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR.'search/wiki');
+            $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/wiki');
             $f = str_replace(wiki_module::get_wiki_path(), "", $file);
             $hits = $index->find('id:' . $f);
             foreach ($hits as $hit) {
@@ -48,7 +48,7 @@ class wiki_module extends module
             }
 
             // Update the search index for this file, if any
-            $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR.'search/wiki');
+            $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/wiki');
             $f = str_replace(wiki_module::get_wiki_path(), "", $file);
             $hits = $index->find('id:' . $f);
             foreach ($hits as $hit) {
@@ -64,7 +64,7 @@ class wiki_module extends module
         // particular vcs's. So when we compare the two files (the one on disk and
         // the one in version control, we need to nuke trailing spaces, from every
         // line.
-        $lines or $lines = array();
+        $lines or $lines = [];
         $str = str_replace("\r\n", "\n", $str);
         $bits = explode("\n", $str);
         foreach ($bits as $line) {
@@ -77,13 +77,13 @@ class wiki_module extends module
     {
         global $TPL;
 
-        $f = realpath(wiki_module::get_wiki_path().$file);
+        $f = realpath(wiki_module::get_wiki_path() . $file);
 
         if (path_under_path(dirname($f), wiki_module::get_wiki_path())) {
             $mt = get_mimetype($f);
             if (strtolower($mt) != "text/plain") {
                 $s = "<h6>Download File</h6>";
-                $s.= "<a href='".$TPL["url_alloc_fileDownload"]."file=".urlencode($file)."'>".$file."</a>";
+                $s .= "<a href='" . $TPL["url_alloc_fileDownload"] . "file=" . urlencode($file) . "'>" . $file . "</a>";
                 $TPL["str_html"] = $s;
                 include_template("templates/fileGetM.tpl");
                 exit();
@@ -130,13 +130,13 @@ class wiki_module extends module
     {
         // Attempt to parse pdfs
         if (strtolower(substr($file, -4)) == ".pdf") {
-            $pdfstr = file_get_contents(wiki_module::get_wiki_path().$file);
+            $pdfstr = file_get_contents(wiki_module::get_wiki_path() . $file);
             $pdf_reader = new pdf_reader();
             $pdfstr = $pdf_reader->pdf2txt($pdfstr);
 
             // Else regular text
         } else {
-            $str = file_get_contents(wiki_module::get_wiki_path().$file);
+            $str = file_get_contents(wiki_module::get_wiki_path() . $file);
         }
 
         $doc = new Zend_Search_Lucene_Document();

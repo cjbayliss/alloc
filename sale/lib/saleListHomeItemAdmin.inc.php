@@ -24,7 +24,7 @@ class saleListHomeItemAdmin extends home_item
         $current_user = &singleton("current_user");
         global $TPL;
         $ops["return"] = "array";
-        $ops["status"] = array("admin");
+        $ops["status"] = ["admin"];
         $rows = productSale::get_list($ops);
         $TPL["saleListRows"] = $rows;
         if ($TPL["saleListRows"]) {

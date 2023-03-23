@@ -41,8 +41,8 @@ if (($handle = fopen("../../David_People.csv", "r")) !== false) {
         $person->save();
 
         $x++;
-        echo "<br>here: ".$person->get_id().$data[0];
-        if ($x>4) {
+        echo "<br>here: " . $person->get_id() . $data[0];
+        if ($x > 4) {
             //die();
         }
     }

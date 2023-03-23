@@ -6,13 +6,15 @@
  */
 
 
-require_once(dirname(__FILE__)."/import_export.inc.php");
+require_once(__DIR__ . "/import_export.inc.php");
 
 class project_module extends module
 {
-    var $module = "project";
-    var $db_entities = array("project",
-                             "projectPerson",
-                             "projectCommissionPerson");
-    var $home_items = array("project_list_home_item");
+    public $module = "project";
+    public $db_entities = [
+        "project",
+        "projectPerson",
+        "projectCommissionPerson"
+    ];
+    public $home_items = ["project_list_home_item"];
 }

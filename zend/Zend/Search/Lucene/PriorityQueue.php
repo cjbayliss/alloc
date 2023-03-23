@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -50,7 +51,7 @@ abstract class Zend_Search_Lucene_PriorityQueue
      *
      * @var array
      */
-    private $_heap = array();
+    private $_heap = [];
 
 
     /**
@@ -63,7 +64,7 @@ abstract class Zend_Search_Lucene_PriorityQueue
     public function put($element)
     {
         $nodeId   = count($this->_heap);
-        $parentId = ($nodeId-1) >> 1;   // floor( ($nodeId-1)/2 )
+        $parentId = ($nodeId - 1) >> 1;   // floor( ($nodeId-1)/2 )
 
         while ($nodeId != 0  &&  $this->_less($element, $this->_heap[$parentId])) {
             // Move parent node down
@@ -71,7 +72,7 @@ abstract class Zend_Search_Lucene_PriorityQueue
 
             // Move pointer to the next level of tree
             $nodeId   = $parentId;
-            $parentId = ($nodeId-1) >> 1;   // floor( ($nodeId-1)/2 )
+            $parentId = ($nodeId - 1) >> 1;   // floor( ($nodeId-1)/2 )
         }
 
         // Put new node into the tree
@@ -123,9 +124,10 @@ abstract class Zend_Search_Lucene_PriorityQueue
             $childId = 2;
         }
 
-        while ($childId < $lastId  &&
-               $this->_less($this->_heap[$childId], $this->_heap[$lastId])
-          ) {
+        while (
+            $childId < $lastId  &&
+            $this->_less($this->_heap[$childId], $this->_heap[$lastId])
+        ) {
             // Move child node up
             $this->_heap[$nodeId] = $this->_heap[$childId];
 
@@ -133,9 +135,9 @@ abstract class Zend_Search_Lucene_PriorityQueue
             $childId = ($nodeId << 1) + 1;     // First child
 
             // Choose smaller child
-            if (($childId+1) < $lastId  &&
-                $this->_less($this->_heap[$childId+1], $this->_heap[$childId])
-               ) {
+            if (($childId + 1) < $lastId  &&
+                $this->_less($this->_heap[$childId + 1], $this->_heap[$childId])
+            ) {
                 $childId++;
             }
         }
@@ -153,7 +155,7 @@ abstract class Zend_Search_Lucene_PriorityQueue
      */
     public function clear()
     {
-        $this->_heap = array();
+        $this->_heap = [];
     }
 
 
@@ -168,4 +170,3 @@ abstract class Zend_Search_Lucene_PriorityQueue
      */
     abstract protected function _less($el1, $el2);
 }
-

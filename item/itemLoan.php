@@ -9,7 +9,7 @@ require_once("../alloc.php");
 
 $current_user->check_employee();
 
-$TPL["main_alloc_title"] = "Item Loans - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Item Loans - " . APPLICATION_NAME;
 include_template("templates/itemLoanM.tpl");
 
 
@@ -24,7 +24,7 @@ function show_overdue($template_name)
 
     $db = new db_alloc();
     $temp = mktime(0, 0, 0, date("m"), date("d"), date("Y"));
-    $today = date("Y", $temp)."-".date("m", $temp)."-".date("d", $temp);
+    $today = date("Y", $temp) . "-" . date("m", $temp) . "-" . date("d", $temp);
 
     $q = prepare("SELECT itemName,itemType,item.itemID,dateBorrowed,dateToBeReturned,loan.personID
                     FROM loan,item
@@ -52,7 +52,7 @@ function show_overdue($template_name)
         $person->set_id($loan->get_value("personID"));
         $person->select();
         $TPL["person"] = $person->get_name();
-        $TPL["overdue"] = "<a href=\"".$TPL["url_alloc_item"]."itemID=".$item->get_id()."&return=true\">Overdue!</a>";
+        $TPL["overdue"] = "<a href=\"" . $TPL["url_alloc_item"] . "itemID=" . $item->get_id() . "&return=true\">Overdue!</a>";
 
         include_template($template_name);
     }

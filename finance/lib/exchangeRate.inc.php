@@ -10,11 +10,13 @@ class exchangeRate extends db_entity
     public $data_table = "exchangeRate";
     public $display_field_name = "exchangeRate";
     public $key_field = "exchangeRateID";
-    public $data_fields = array("exchangeRateCreatedDate",
-                                "exchangeRateCreatedTime",
-                                "fromCurrency",
-                                "toCurrency",
-                                "exchangeRate");
+    public $data_fields = [
+        "exchangeRateCreatedDate",
+        "exchangeRateCreatedTime",
+        "fromCurrency",
+        "toCurrency",
+        "exchangeRate"
+    ];
 
     public static function get_er($from, $to, $date = "")
     {
@@ -63,7 +65,7 @@ class exchangeRate extends db_entity
         $date or $date = date("Y-m-d");
         $destCurrency or $destCurrency = config::get_config_item("currency");
         $er = exchangeRate::get_er($currency, $destCurrency, $date);
-        return page::money($destCurrency, $amount*$er, $format);
+        return page::money($destCurrency, $amount * $er, $format);
     }
 
     public static function update_rate($from, $to)
@@ -76,9 +78,9 @@ class exchangeRate extends db_entity
             $er->set_value("toCurrency", $to);
             $er->set_value("exchangeRate", $rate);
             $er->save();
-            return $from." -> ".$to.":".$rate." ";
+            return $from . " -> " . $to . ":" . $rate . " ";
         } else {
-            echo date("Y-m-d H:i:s")."Unable to obtain exchange rate information for ".$from." to ".$to."!";
+            echo date("Y-m-d H:i:s") . "Unable to obtain exchange rate information for " . $from . " to " . $to . "!";
         }
     }
 
@@ -96,10 +98,10 @@ class exchangeRate extends db_entity
                 continue;
             }
             if ($ret = exchangeRate::update_rate($code, $default_currency)) {
-                $rtn []= $ret;
+                $rtn[] = $ret;
             }
             if ($ret = exchangeRate::update_rate($default_currency, $code)) {
-                $rtn []= $ret;
+                $rtn[] = $ret;
             }
         }
         return $rtn;

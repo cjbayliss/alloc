@@ -13,7 +13,7 @@ class search
     function by_file($file, $needle)
     {
         if (file_exists($file) && is_readable($file) && !is_dir($file)) {
-            $rtn = array();
+            $rtn = [];
             $fp = fopen($file, 'r');
             if ($fp) {
                 while (!feof($fp)) {
@@ -49,9 +49,9 @@ class search
                 $prefix = "";
             }
 
-            $str = substr($haystack, $position, strlen($needle)+100);
-            $str = str_replace($needle, "[[[".$needle."]]]", $str);
-            $str = $prefix.$str.$suffix;
+            $str = substr($haystack, $position, strlen($needle) + 100);
+            $str = str_replace($needle, "[[[" . $needle . "]]]", $str);
+            $str = $prefix . $str . $suffix;
             return $str;
         }
 
@@ -62,16 +62,16 @@ class search
 
     function get_recursive_dir_list($dir)
     {
-        $rtn = array();
-        $dir = realpath($dir).DIRECTORY_SEPARATOR;
-        $dont_search_these_dirs = array(".","..","CVS",".hg",".bzr","_darcs",".git");
+        $rtn = [];
+        $dir = realpath($dir) . DIRECTORY_SEPARATOR;
+        $dont_search_these_dirs = [".", "..", "CVS", ".hg", ".bzr", "_darcs", ".git"];
         $files = scandir($dir);
         foreach ($files as $file) {
             if (!in_array($file, $dont_search_these_dirs)) {
-                if (is_file($dir.$file) && !is_dir($dir.$file)) {
-                    $rtn[] = $dir.$file;
-                } else if (is_dir($dir.$file)) {
-                    $rtn = array_merge((array)$rtn, (array)search::get_recursive_dir_list($dir.$file));
+                if (is_file($dir . $file) && !is_dir($dir . $file)) {
+                    $rtn[] = $dir . $file;
+                } else if (is_dir($dir . $file)) {
+                    $rtn = array_merge((array)$rtn, (array)search::get_recursive_dir_list($dir . $file));
                 }
             }
         }

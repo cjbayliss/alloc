@@ -42,7 +42,7 @@ class pdf_reader
                 // look at the filter to find out which encoding has been used
                 if (strpos($chunk["filter"], "FlateDecode") !== false) {
                     // Use gzuncompress but supress error messages.
-                    $data =@ gzuncompress($chunk["data"]);
+                    $data = @gzuncompress($chunk["data"]);
                     if (trim($data) != "") {
                         // If we got data then attempt to extract it.
                         $result_data .= ' ' . $this->ps2txt($data);
@@ -125,7 +125,7 @@ class pdf_reader
     {
         $start    = 0;
         $end      = 0;
-        $a_result = array();
+        $a_result = [];
 
         while ($start !== false && $end !== false) {
             $start = strpos($data, $start_word, $end);

@@ -81,12 +81,12 @@ if ($_POST["fetch_exchange_rates"]) {
 if ($_POST["save"]) {
     if ($_POST["hoursInDay"]) {
         $db = new db_alloc();
-        $day = $_POST["hoursInDay"]*60*60;
+        $day = $_POST["hoursInDay"] * 60 * 60;
         $q = prepare("UPDATE timeUnit SET timeUnitSeconds = '%d' WHERE timeUnitName = 'day'", $day);
         $db->query($q);
-        $q = prepare("UPDATE timeUnit SET timeUnitSeconds = '%d' WHERE timeUnitName = 'week'", ($day*5));
+        $q = prepare("UPDATE timeUnit SET timeUnitSeconds = '%d' WHERE timeUnitName = 'week'", ($day * 5));
         $db->query($q);
-        $q = prepare("UPDATE timeUnit SET timeUnitSeconds = '%d' WHERE timeUnitName = 'month'", (($day*5)*4));
+        $q = prepare("UPDATE timeUnit SET timeUnitSeconds = '%d' WHERE timeUnitName = 'month'", (($day * 5) * 4));
         $db->query($q);
     }
 
@@ -103,7 +103,7 @@ if ($_POST["save"]) {
             imagejpeg($img, ALLOC_LOGO, 100);
             $x = imagesx($img);
             $y = imagesy($img);
-            $save = imagecreatetruecolor($x/($y/40), $y/($y/40));
+            $save = imagecreatetruecolor($x / ($y / 40), $y / ($y / 40));
             imagecopyresized($save, $img, 0, 0, 0, 0, imagesx($save), imagesy($save), $x, $y);
             imagejpeg($save, ALLOC_LOGO_SMALL, 100);
         }
@@ -147,14 +147,14 @@ if ($_POST["save"]) {
 
     $TPL["message"] or $TPL["message_good"] = "Saved configuration.";
 } else if ($_POST["delete_logo"]) {
-    foreach (array(ALLOC_LOGO,ALLOC_LOGO_SMALL) as $logo) {
+    foreach ([ALLOC_LOGO, ALLOC_LOGO_SMALL] as $logo) {
         if (file_exists($logo)) {
             if (unlink($logo)) {
-                $TPL["message_good"][] = "Deleted ".$logo;
+                $TPL["message_good"][] = "Deleted " . $logo;
             }
         }
         if (file_exists($logo)) {
-            alloc_error("Unable to delete ".$logo);
+            alloc_error("Unable to delete " . $logo);
         }
     }
 }
@@ -172,17 +172,19 @@ $TPL["inTfOptions"] = page::select_options($options, config::get_config_item("in
 $TPL["taxTfOptions"] = page::select_options($options, config::get_config_item("taxTfID"));
 $TPL["expenseFormTfOptions"] = page::select_options($options, config::get_config_item("expenseFormTfID"));
 
-$tabops = array("home"    => "Home",
-                "client"  => "Clients",
-                "project" => "Projects",
-                "task"    => "Tasks",
-                "time"    => "Time",
-                "invoice" => "Invoices",
-                "sale"    => "Sales",
-                "person"  => "People",
-                "wiki"    => "Wiki",
-                "inbox"   => "Inbox",
-                "tools"   => "Tools");
+$tabops = [
+    "home"    => "Home",
+    "client"  => "Clients",
+    "project" => "Projects",
+    "task"    => "Tasks",
+    "time"    => "Time",
+    "invoice" => "Invoices",
+    "sale"    => "Sales",
+    "person"  => "People",
+    "wiki"    => "Wiki",
+    "inbox"   => "Inbox",
+    "tools"   => "Tools"
+];
 
 $selected_tabops = config::get_config_item("allocTabs") or $selected_tabops = array_keys($tabops);
 $TPL["allocTabsOptions"] = page::select_options($tabops, $selected_tabops);
@@ -192,7 +194,7 @@ $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeName");
 $TPL["currencyOptions"] = page::select_options($currencyOptions, config::get_config_item("currency"));
 
 $db = new db_alloc();
-$display = array("", "username", ", ", "emailAddress");
+$display = ["", "username", ", ", "emailAddress"];
 
 $person = new person();
 $people_by_id = array_column(get_cached_table("person"), "name", "personID");
@@ -201,13 +203,7 @@ $people_by_id = array_column(get_cached_table("person"), "name", "personID");
 $TPL["defaultTimeSheetManagerListText"] = get_person_list(config::get_config_item("defaultTimeSheetManagerList"), $people_by_id);
 $TPL["defaultTimeSheetAdminListText"] = get_person_list(config::get_config_item("defaultTimeSheetAdminList"), $people_by_id);
 
-$days =  array("Sun" => "Sun",
-               "Mon" => "Mon",
-               "Tue" => "Tue",
-               "Wed" => "Wed",
-               "Thu" => "Thu",
-               "Fri" => "Fri",
-               "Sat" => "Sat");
+$days =  ["Sun" => "Sun", "Mon" => "Mon", "Tue" => "Tue", "Wed" => "Wed", "Thu" => "Thu", "Fri" => "Fri", "Sat" => "Sat"];
 $TPL["calendarFirstDayOptions"] = page::select_options($days, config::get_config_item("calendarFirstDay"));
 
 $TPL["timeSheetPrintOptions"] = page::select_options($TPL["timeSheetPrintOptions"], $TPL["timeSheetPrint"]);
@@ -223,7 +219,7 @@ if (has("timeUnit")) {
 }
 $TPL["timesheetRate_options"] = page::select_options($rate_type_array, config::get_config_item("defaultTimeSheetUnit"));
 
-$TPL["main_alloc_title"] = "Setup - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Setup - " . APPLICATION_NAME;
 include_template("templates/configM.tpl");
 
 function get_person_list(array $person_ids, array $people)

@@ -7,24 +7,24 @@
 
 class db_field
 {
-    var $classname = "db_field";
-    var $name;
-    var $value;
-    var $label;
-    var $empty_to_null = true;
+    public $classname = "db_field";
+    public $name;
+    public $value;
+    public $label;
+    public $empty_to_null = true;
 
-    var $audit = false;
+    public $audit = false;
 
-    var $write_perm_name = 0;     // Name of a permission a user must have to write to this field, if any.  E.g. "admin"
-    var $read_perm_name = 0;      // Name of the permission a user must have to read this field, if any.  E.g. "read details"
+    public $write_perm_name = 0;     // Name of a permission a user must have to write to this field, if any.  E.g. "admin"
+    public $read_perm_name = 0;      // Name of the permission a user must have to read this field, if any.  E.g. "read details"
 
-    function __construct($name = "", $options = array())
+    function __construct($name = "", $options = [])
     {
         $this->name = $name;
         $this->label = $name;
 
         if (!is_array($options)) {
-            $options = array();
+            $options = [];
             #echo "<br>".$this->name;
         }
         reset($options);
@@ -59,7 +59,7 @@ class db_field
     {
         if ($dest == DST_DATABASE) {
             if ((isset($this->value) && imp($this->value)) || $this->empty_to_null == false) {
-                return "'".db_esc($this->value)."'";
+                return "'" . db_esc($this->value) . "'";
             } else {
                 return "NULL";
             }
@@ -71,7 +71,7 @@ class db_field
                 }
 
                 if (!$c) {
-                    alloc_error("db_field::get_value(): No currency specified for ".$parent->classname.".".$this->name." (currency:".$c.")");
+                    alloc_error("db_field::get_value(): No currency specified for " . $parent->classname . "." . $this->name . " (currency:" . $c . ")");
                 } else if ($this->value == $parent->all_row_fields[$this->name]) {
                     return page::money($c, $this->value, "%mo");
                 }
@@ -96,7 +96,7 @@ class db_field
                 $c = $parent->get_value($this->currency);
             }
             if (!$c) {
-                return "db_field::validate(): No currency specified for ".$parent->classname.".".$this->name." (currency:".$c.")";
+                return "db_field::validate(): No currency specified for " . $parent->classname . "." . $this->name . " (currency:" . $c . ")";
             } else if ($this->value != $parent->all_row_fields[$this->name]) {
                 $this->set_value(page::money($c, $this->value, "%mi"));
             }

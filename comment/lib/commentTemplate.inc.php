@@ -11,10 +11,12 @@ class commentTemplate extends db_entity
     public $data_table = "commentTemplate";
     public $display_field_name = "commentTemplateName";
     public $key_field = "commentTemplateID";
-    public $data_fields = array("commentTemplateName",
-                                "commentTemplateText",
-                                "commentTemplateType",
-                                "commentTemplateModifiedTime");
+    public $data_fields = [
+        "commentTemplateName",
+        "commentTemplateText",
+        "commentTemplateType",
+        "commentTemplateModifiedTime"
+    ];
 
 
     function get_populated_template($entity, $entityID = false)
@@ -46,9 +48,9 @@ class commentTemplate extends db_entity
                 $project = $timeSheet->get_foreign_object("project");
                 $projectManagers = $project->get_timeSheetRecipients();
                 if (is_array($projectManagers) && count($projectManagers)) {
-                    $people =& get_cached_table("person");
+                    $people = &get_cached_table("person");
                     foreach ($projectManagers as $pID) {
-                        $swap["tm"].= $commar.$people[$pID]["name"];
+                        $swap["tm"] .= $commar . $people[$pID]["name"];
                         $commar = ", ";
                     }
                 }
@@ -57,7 +59,7 @@ class commentTemplate extends db_entity
             if ($timeSheet->get_value("approvedByAdminPersonID")) {
                 $swap["tc"] = person::get_fullname($timeSheet->get_value("approvedByAdminPersonID"));
             } else {
-                $people =& get_cached_table("person");
+                $people = &get_cached_table("person");
                 $timeSheetAdministrators = config::get_config_item('defaultTimeSheetAdminList');
                 if (count($timeSheetAdministrators)) {
                     $swap["tc"] = "";
@@ -77,7 +79,7 @@ class commentTemplate extends db_entity
             $swap["tf"] = $timeSheet->get_value("dateFrom");
             $swap["tt"] = $timeSheet->get_value("dateTo");
             $swap["ts"] = $timeSheet->get_timeSheet_status();
-            $swap["tu"] = config::get_config_item("allocURL")."time/timeSheet.php?timeSheetID=".$timeSheet->get_id();
+            $swap["tu"] = config::get_config_item("allocURL") . "time/timeSheet.php?timeSheetID=" . $timeSheet->get_id();
 
             $projectID = $timeSheet->get_value("projectID");
         }
@@ -93,7 +95,7 @@ class commentTemplate extends db_entity
             $swap["tc"] = person::get_fullname($task->get_value("closerID"));
             $swap["tn"] = $task->get_value("taskName");
             $swap["td"] = $task->get_value("taskDescription");
-            $swap["tu"] = config::get_config_item("allocURL")."task/task.php?taskID=".$task->get_id();
+            $swap["tu"] = config::get_config_item("allocURL") . "task/task.php?taskID=" . $task->get_id();
             $swap["tp"] = $task->get_priority_label();
             $swap["ts"] = $task->get_task_status("label");
 
@@ -131,12 +133,12 @@ class commentTemplate extends db_entity
         }
 
         $swap["cd"] = config::get_config_item("companyContactAddress");
-        $swap["cd"].= " ".config::get_config_item("companyContactAddress2");
-        $swap["cd"].= " ".config::get_config_item("companyContactAddress3");
-        $swap["cd"].= "\nP: ".config::get_config_item("companyContactPhone");
-        $swap["cd"].= "\nF: ".config::get_config_item("companyContactFax");
-        $swap["cd"].= "\nE: ".config::get_config_item("companyContactEmail");
-        $swap["cd"].= "\nW: ".config::get_config_item("companyContactHomePage");
+        $swap["cd"] .= " " . config::get_config_item("companyContactAddress2");
+        $swap["cd"] .= " " . config::get_config_item("companyContactAddress3");
+        $swap["cd"] .= "\nP: " . config::get_config_item("companyContactPhone");
+        $swap["cd"] .= "\nF: " . config::get_config_item("companyContactFax");
+        $swap["cd"] .= "\nE: " . config::get_config_item("companyContactEmail");
+        $swap["cd"] .= "\nW: " . config::get_config_item("companyContactHomePage");
 
         $swap["cn"] = config::get_config_item("companyName");
 
@@ -149,7 +151,7 @@ class commentTemplate extends db_entity
         $swap["cw"] = config::get_config_item("companyContactHomePage");
 
         foreach ($swap as $k => $v) {
-            $str = str_replace("%".$k, $v, $str);
+            $str = str_replace("%" . $k, $v, $str);
         }
         return $str;
     }

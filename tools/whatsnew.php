@@ -6,5 +6,5 @@
  */
 
 require_once("../alloc.php");
-$TPL["main_alloc_title"] = "allocPSA Deployment Changelog - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "allocPSA Deployment Changelog - " . APPLICATION_NAME;
 include_template("templates/whatsnewM.tpl");

@@ -15,7 +15,7 @@ function sort_home_items($a, $b)
 function show_home_items($width, $home_items)
 {
     global $TPL;
-    $items = array();
+    $items = [];
 
     foreach ($home_items as $item) {
         $i = new $item();
@@ -55,7 +55,7 @@ if (isset($_POST["tsiHint_item"])) {
     }
 }
 
-$TPL["main_alloc_title"]="Home Page - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Home Page - " . APPLICATION_NAME;
 if ($_GET["media"] == "print") {
     include_template("templates/homePrintableM.tpl");
 } else {

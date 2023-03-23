@@ -40,7 +40,7 @@ class announcements_home_item extends home_item
             $announcement->set_tpl_values();
             $person = $announcement->get_foreign_object("person");
             $TPL["personName"] = $person->get_name();
-            include_template($this->get_template_dir().$template_name);
+            include_template($this->get_template_dir() . $template_name);
         }
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -44,4 +45,3 @@ class Zend_Search_Lucene_Analysis_Analyzer_Common_TextNum_CaseInsensitive extend
         $this->addFilter(new Zend_Search_Lucene_Analysis_TokenFilter_LowerCase());
     }
 }
-

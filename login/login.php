@@ -23,7 +23,7 @@ if ($sess->Started()) {
     alloc_redirect($url);
     exit();
 
-// Else log the user in
+    // Else log the user in
 } else if ($_POST["login"]) {
     $person = new person();
     $row = $person->get_valid_login_row($_POST["username"], $_POST["password"]);
@@ -61,7 +61,7 @@ if ($sess->Started()) {
         $pwSource = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?";
         srand((float) microtime() * 1000000);
         for ($i = 0; $i < 8; $i++) {
-            $password.= substr($pwSource, rand(0, strlen($pwSource)), 1);
+            $password .= substr($pwSource, rand(0, strlen($pwSource)), 1);
         }
 
         $q = prepare("UPDATE person SET password = '%s' WHERE emailAddress = '%s'
@@ -69,10 +69,10 @@ if ($sess->Started()) {
         $db2 = new db_alloc();
         $db2->query($q);
 
-        $e = new email_send($_POST["email"], "New Password", "Your new temporary password: ".$password, "new_password");
+        $e = new email_send($_POST["email"], "New Password", "Your new temporary password: " . $password, "new_password");
         #echo "Your new temporary password: ".$password;
         if ($e->send()) {
-            $TPL["message_good"][] = "New password sent to: ".$_POST["email"];
+            $TPL["message_good"][] = "New password sent to: " . $_POST["email"];
         } else {
             $error = "Unable to send email.";
         }
@@ -81,7 +81,7 @@ if ($sess->Started()) {
     }
 
 
-// Else if just visiting the page
+    // Else if just visiting the page
 } else {
     if (!$sess->TestCookie()) {
         $sess->SetTestCookie();
@@ -103,11 +103,11 @@ if (isset($_GET["forward"])) {
     $TPL["forward_url"] = strip_tags($_GET["forward"]);
 }
 
-$TPL["status_line"] = APPLICATION_NAME." ".get_alloc_version()." &copy; ".date("Y")." <a href=\"http://www.cyber.com.au\">Cyber IT Solutions</a>";
+$TPL["status_line"] = APPLICATION_NAME . " " . get_alloc_version() . " &copy; " . date("Y") . " <a href=\"http://www.cyber.com.au\">Cyber IT Solutions</a>";
 
 
-if (!is_dir(ATTACHMENTS_DIR."whatsnew".DIRECTORY_SEPARATOR."0")) {
-    mkdir(ATTACHMENTS_DIR."whatsnew".DIRECTORY_SEPARATOR."0");
+if (!is_dir(ATTACHMENTS_DIR . "whatsnew" . DIRECTORY_SEPARATOR . "0")) {
+    mkdir(ATTACHMENTS_DIR . "whatsnew" . DIRECTORY_SEPARATOR . "0");
 }
 
 $files = get_attachments("whatsnew", 0);
@@ -115,13 +115,13 @@ $files = get_attachments("whatsnew", 0);
 if (is_array($files) && count($files)) {
     while ($f = array_pop($files)) {
         // Only show entries that are newer that 4 weeks old
-        if (format_date("U", basename($f["path"])) > mktime() - (60*60*24*28)) {
+        if (format_date("U", basename($f["path"])) > mktime() - (60 * 60 * 24 * 28)) {
             $x++;
-            if ($x>3) {
+            if ($x > 3) {
                 break;
             }
-            $str.= $br."<b>".$f["restore_name"]."</b>";
-            $str.= "<br><ul>".trim(file_get_contents($f["path"]))."</ul>";
+            $str .= $br . "<b>" . $f["restore_name"] . "</b>";
+            $str .= "<br><ul>" . trim(file_get_contents($f["path"])) . "</ul>";
             $br = "<br><br>";
         }
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -103,7 +104,7 @@ abstract class Zend_Search_Lucene_Analysis_Analyzer
     {
         $this->setInput($data, $encoding);
 
-        $tokenList = array();
+        $tokenList = [];
         while (($nextToken = $this->nextToken()) !== null) {
             $tokenList[] = $nextToken;
         }
@@ -172,4 +173,3 @@ abstract class Zend_Search_Lucene_Analysis_Analyzer
         return self::$_defaultImpl;
     }
 }
-

@@ -8,15 +8,15 @@
 
 class calendar
 {
-    var $person;
-    var $week_start;
-    var $weeks_to_display;
-    var $days_of_week = array();
-    var $rtp;
-    var $first_date;
-    var $last_date;
-    var $db;
-    var $first_day_of_week;
+    public $person;
+    public $week_start;
+    public $weeks_to_display;
+    public $days_of_week = [];
+    public $rtp;
+    public $first_date;
+    public $last_date;
+    public $db;
+    public $first_day_of_week;
 
 
     function __construct($week_start = 1, $weeks_to_display = 4)
@@ -43,7 +43,7 @@ class calendar
         while (date("D", mktime(0, 0, 0, date("m"), date("d") + $i, date("Y"))) != $this->first_day_of_week) {
             $i++;
         }
-        $fd = mktime(date("H"), date("i"), date("s"), date("m"), date("d")-($this->week_start*7)+($i-7), date("Y"));
+        $fd = mktime(date("H"), date("i"), date("s"), date("m"), date("d") - ($this->week_start * 7) + ($i - 7), date("Y"));
 
         // Set the first and last date on the page
         $this->first_date = date("Y-m-d", $fd);
@@ -52,7 +52,7 @@ class calendar
             date("i", $fd),
             date("s", $fd),
             date("m", $fd),
-            date("d", $fd)+(($this->weeks_to_display*7)-1),
+            date("d", $fd) + (($this->weeks_to_display * 7) - 1),
             date("Y", $fd)
         ));
     }
@@ -67,7 +67,7 @@ class calendar
                              AND (reminderRecuringInterval = 'No' OR (reminderRecuringInterval != 'No' AND reminderActive))
                         GROUP BY reminder.reminderID", $this->person->get_id());
         $this->db->query($query);
-        $reminders = array();
+        $reminders = [];
         while ($row = $this->db->row()) {
             $reminder = new reminder();
             $reminder->read_db_record($this->db);
@@ -80,13 +80,13 @@ class calendar
                     $interval = $reminder->get_value('reminderRecuringValue');
                     $intervalUnit = $reminder->get_value('reminderRecuringInterval');
 
-                    while ($reminderTime < format_date("U", $this->last_date)+86400) {
+                    while ($reminderTime < format_date("U", $this->last_date) + 86400) {
                         $row["reminderTime"] = $reminderTime;
                         $reminders[date("Y-m-d", $reminderTime)][] = $row;
                         $reminderTime = $reminder->get_next_reminder_time($reminderTime, $interval, $intervalUnit);
                     }
 
-                // Else if once off reminder
+                    // Else if once off reminder
                 } else {
                     $row["reminderTime"] = $reminderTime;
                     $reminders[date("Y-m-d", $reminderTime)][] = $row;
@@ -99,7 +99,7 @@ class calendar
 
     function get_cal_tasks_to_start()
     {
-        list($ts_open,$ts_pending,$ts_closed) = task::get_task_status_in_set_sql();
+        list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
         // Select all tasks which are targetted to start
         $query = prepare(
             "SELECT *
@@ -107,14 +107,14 @@ class calendar
               WHERE personID = %d
                 AND dateTargetStart >= '%s'
                 AND dateTargetStart < '%s'
-                AND taskStatus NOT IN (".$ts_closed.")",
+                AND taskStatus NOT IN (" . $ts_closed . ")",
             $this->person->get_id(),
             $this->first_date,
             $this->last_date
         );
 
         $this->db->query($query);
-        $tasks_to_start = array();
+        $tasks_to_start = [];
         while ($row = $this->db->next_record()) {
             $tasks_to_start[$row["dateTargetStart"]][] = $row;
         }
@@ -123,7 +123,7 @@ class calendar
 
     function get_cal_tasks_to_complete()
     {
-        list($ts_open,$ts_pending,$ts_closed) = task::get_task_status_in_set_sql();
+        list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
         // Select all tasks which are targetted for completion
         $query = prepare(
             "SELECT *
@@ -131,14 +131,14 @@ class calendar
               WHERE personID = %d
                 AND dateTargetCompletion >= '%s'
                 AND dateTargetCompletion < '%s'
-                AND taskStatus NOT IN (".$ts_closed.")",
+                AND taskStatus NOT IN (" . $ts_closed . ")",
             $this->person->get_id(),
             $this->first_date,
             $this->last_date
         );
 
         $this->db->query($query);
-        $tasks_to_complete = array();
+        $tasks_to_complete = [];
         while ($row = $this->db->next_record()) {
             $tasks_to_complete[$row["dateTargetCompletion"]][] = $row;
         }
@@ -156,10 +156,10 @@ class calendar
         );
 
         $current_user = &singleton("current_user");
-        $current_user->have_role("admin") || $current_user->have_role("manage") or $query.= prepare(" AND personID = %d", $current_user->get_id());
+        $current_user->have_role("admin") || $current_user->have_role("manage") or $query .= prepare(" AND personID = %d", $current_user->get_id());
 
         $this->db->query($query);
-        $absences = array();
+        $absences = [];
         while ($row = $this->db->row()) {
             $start_time = format_date("U", $row["dateFrom"]);
             $end_time = format_date("U", $row["dateTo"]);
@@ -168,10 +168,10 @@ class calendar
                     // Can't use timezone friendly date magic before 5.3.
                     // If the date didn't increment by a day, as is want to happen on DST days, then
                     // we manually roll it forward by one hour. Thus hopefully knocking it into the next day.
-                    $start_time+=3600;
+                    $start_time += 3600;
                 }
 
-                $row["dates"] = date("Y-m-d H:i:s", $start_time)." ---- ".date("Y-m-d H:i:s", $end_time);
+                $row["dates"] = date("Y-m-d H:i:s", $start_time) . " ---- " . date("Y-m-d H:i:s", $end_time);
                 $absences[date("Y-m-d", $start_time)][] = $row;
                 $prev_date = date("Y-m-d", $start_time);
                 $start_time += 86400;
@@ -183,8 +183,10 @@ class calendar
     function get_days_of_week_array($first_day)
     {
         // Generate a list of days, being mindful that a user may not want Sunday to be the first day of the week
-        $days = array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
-                      "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+        $days = [
+            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", 
+            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+        ];
         foreach ($days as $day) {
             if (($day == $first_day || $go) && count($days_of_week) < 7) {
                 $days_of_week[] = $day;
@@ -241,29 +243,29 @@ class calendar
                 $d = new calendar_day();
                 #$d->set_date(date("Y-m-d", mktime(0, 0, 0, $sunday_month, $sunday_day + (7 * $i + $k), $sunday_year));
                 $d->set_date($date);
-                $d->set_links($this->get_link_new_task($date).$this->get_link_new_reminder($date).$this->get_link_new_absence($date));
+                $d->set_links($this->get_link_new_task($date) . $this->get_link_new_reminder($date) . $this->get_link_new_absence($date));
 
 
                 // Tasks to be Started
-                $tasks_to_start[$date] or $tasks_to_start[$date] = array();
+                $tasks_to_start[$date] or $tasks_to_start[$date] = [];
                 foreach ($tasks_to_start[$date] as $t) {
                     unset($extra);
-                    $t["timeLimit"] and $extra = " (".sprintf("Limit %0.1fhrs", $t["timeLimit"]).")";
-                    $d->start_tasks[] = '<a href="'.$TPL["url_alloc_task"].'taskID='.$t["taskID"].'">'.page::htmlentities($t["taskName"].$extra)."</a>";
+                    $t["timeLimit"] and $extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")";
+                    $d->start_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . page::htmlentities($t["taskName"] . $extra) . "</a>";
                 }
 
                 // Tasks to be Completed
-                $tasks_to_complete[$date] or $tasks_to_complete[$date] = array();
+                $tasks_to_complete[$date] or $tasks_to_complete[$date] = [];
                 foreach ($tasks_to_complete[$date] as $t) {
                     unset($extra);
-                    $t["timeLimit"] and $extra = " (".sprintf("Limit %0.1fhrs", $t["timeLimit"]).")";
-                    $d->complete_tasks[] = '<a href="'.$TPL["url_alloc_task"].'taskID='.$t["taskID"].'">'.page::htmlentities($t["taskName"].$extra)."</a>";
+                    $t["timeLimit"] and $extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")";
+                    $d->complete_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . page::htmlentities($t["taskName"] . $extra) . "</a>";
                 }
 
                 // Reminders
-                $reminders[$date] or $reminders[$date] = array();
+                $reminders[$date] or $reminders[$date] = [];
                 foreach ($reminders[$date] as $r) {
-                  #if (date("Y-m-d",$r["reminderTime"]) == $date) {
+                    #if (date("Y-m-d",$r["reminderTime"]) == $date) {
                     unset($wrap_start, $wrap_end);
                     if (!$r["reminderActive"]) {
                         $wrap_start = "<strike>";
@@ -271,15 +273,15 @@ class calendar
                     }
 
                     $text = page::htmlentities($r["reminderSubject"]);
-                    $r["reminderTime"] and $text = date("g:ia", $r["reminderTime"])." ".$text;
-                    $d->reminders[] = '<a href="'.$TPL["url_alloc_reminder"].'&step=3&reminderID='.$r["reminderID"].'&returnToParent='.$this->rtp.'&personID='.$r["personID"].'">'.$wrap_start.$text.$wrap_end.'</a>';
-                  #}
+                    $r["reminderTime"] and $text = date("g:ia", $r["reminderTime"]) . " " . $text;
+                    $d->reminders[] = '<a href="' . $TPL["url_alloc_reminder"] . '&step=3&reminderID=' . $r["reminderID"] . '&returnToParent=' . $this->rtp . '&personID=' . $r["personID"] . '">' . $wrap_start . $text . $wrap_end . '</a>';
+                    #}
                 }
 
                 // Absences
-                $absences[$date] or $absences[$date] = array();
+                $absences[$date] or $absences[$date] = [];
                 foreach ($absences[$date] as $a) {
-                    $d->absences[] = '<a href="'.$TPL["url_alloc_absence"].'absenceID='.$a["absenceID"].'&returnToParent='.$this->rtp.'">'.person::get_fullname($a["personID"]).': '.page::htmlentities($a["absenceType"]).'</a>';
+                    $d->absences[] = '<a href="' . $TPL["url_alloc_absence"] . 'absenceID=' . $a["absenceID"] . '&returnToParent=' . $this->rtp . '">' . person::get_fullname($a["personID"]) . ': ' . page::htmlentities($a["absenceType"]) . '</a>';
                 }
 
                 $d->draw_day_html();
@@ -303,10 +305,10 @@ class calendar
     }
     function draw_body()
     {
-      # Unfortunately browser support for this seems to be quite bad. Eventually
-      # this should cause the table to have headers draw at the start of
-      # each page where the table is broken, but for now it doesn't seem to
-      # work.
+        # Unfortunately browser support for this seems to be quite bad. Eventually
+        # this should cause the table to have headers draw at the start of
+        # each page where the table is broken, but for now it doesn't seem to
+        # work.
         echo "<tbody>";
     }
     function draw_body_end()
@@ -325,7 +327,7 @@ class calendar
     {
         echo "\n<thead><tr>";
         foreach ($this->days_of_week as $day) {
-            echo "<th>".$day."</th>";
+            echo "<th>" . $day . "</th>";
         }
         echo "</tr></thead>";
     }
@@ -333,47 +335,47 @@ class calendar
     function get_link_new_task($date)
     {
         global $TPL;
-        $link = '<a href="'.$TPL["url_alloc_task"].'dateTargetStart='.$date.'&personID='.$this->person->get_id().'">';
-        $link.= $this->get_img_new_task();
-        $link.= "</a>";
+        $link = '<a href="' . $TPL["url_alloc_task"] . 'dateTargetStart=' . $date . '&personID=' . $this->person->get_id() . '">';
+        $link .= $this->get_img_new_task();
+        $link .= "</a>";
         return $link;
     }
 
     function get_link_new_reminder($date)
     {
         global $TPL;
-        $time = urlencode($date." 9:00am");
-        $link = '<a href="'.$TPL["url_alloc_reminder"].'parentType=general&step=2&returnToParent='.$this->rtp.'&reminderTime='.$time;
-        $link.= '&personID='.$this->person->get_id().'">';
-        $link.= $this->get_img_new_reminder();
-        $link.= "</a>";
+        $time = urlencode($date . " 9:00am");
+        $link = '<a href="' . $TPL["url_alloc_reminder"] . 'parentType=general&step=2&returnToParent=' . $this->rtp . '&reminderTime=' . $time;
+        $link .= '&personID=' . $this->person->get_id() . '">';
+        $link .= $this->get_img_new_reminder();
+        $link .= "</a>";
         return $link;
     }
 
     function get_link_new_absence($date)
     {
         global $TPL;
-        $link = '<a href="'.$TPL["url_alloc_absence"].'date='.$date.'&personID='.$this->person->get_id().'&returnToParent='.$this->rtp.'">';
-        $link.= $this->get_img_new_absence();
-        $link.= "</a>";
+        $link = '<a href="' . $TPL["url_alloc_absence"] . 'date=' . $date . '&personID=' . $this->person->get_id() . '&returnToParent=' . $this->rtp . '">';
+        $link .= $this->get_img_new_absence();
+        $link .= "</a>";
         return $link;
     }
 
     function get_img_new_task()
     {
         global $TPL;
-        return "<img border=\"0\" src=\"".$TPL["url_alloc_images"]."task.gif\" alt=\"New Task\" title=\"New Task\">";
+        return "<img border=\"0\" src=\"" . $TPL["url_alloc_images"] . "task.gif\" alt=\"New Task\" title=\"New Task\">";
     }
 
     function get_img_new_reminder()
     {
         global $TPL;
-        return "<img border=\"0\" src=\"".$TPL["url_alloc_images"]."reminder.gif\" alt=\"New Reminder\" title=\"New Reminder\">";
+        return "<img border=\"0\" src=\"" . $TPL["url_alloc_images"] . "reminder.gif\" alt=\"New Reminder\" title=\"New Reminder\">";
     }
 
     function get_img_new_absence()
     {
         global $TPL;
-        return "<img border=\"0\" src=\"".$TPL["url_alloc_images"]."absence.gif\" alt=\"New Absence\" title=\"New Absence\">";
+        return "<img border=\"0\" src=\"" . $TPL["url_alloc_images"] . "absence.gif\" alt=\"New Absence\" title=\"New Absence\">";
     }
 }

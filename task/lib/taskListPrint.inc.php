@@ -10,7 +10,7 @@ define("DEFAULT_SEP", "\n");
 class taskListPrint
 {
 
-    function get_printable_file($_FORM = array())
+    function get_printable_file($_FORM = [])
     {
         global $TPL;
 
@@ -24,13 +24,13 @@ class taskListPrint
         $TPL["companyContactAddress2"] = config::get_config_item("companyContactAddress2");
         $TPL["companyContactAddress3"] = config::get_config_item("companyContactAddress3");
         $email = config::get_config_item("companyContactEmail");
-        $email and $TPL["companyContactEmail"] = "Email: ".$email;
+        $email and $TPL["companyContactEmail"] = "Email: " . $email;
         $web = config::get_config_item("companyContactHomePage");
-        $web and $TPL["companyContactHomePage"] = "Web: ".$web;
+        $web and $TPL["companyContactHomePage"] = "Web: " . $web;
         $phone = config::get_config_item("companyContactPhone");
         $fax = config::get_config_item("companyContactFax");
-        $phone and $TPL["phone"] = "Ph: ".$phone;
-        $fax and $TPL["fax"] = "Fax: ".$fax;
+        $phone and $TPL["phone"] = "Ph: " . $phone;
+        $fax and $TPL["fax"] = "Fax: " . $fax;
 
 
         $taskPriorities = config::get_config_item("taskPriorities");
@@ -62,7 +62,7 @@ class taskListPrint
         $_FORM["showStatus"]      and $fields["taskStatusLabel"]      = "Status";
 
         $rows = task::get_list($_FORM);
-        $taskListRows = array();
+        $taskListRows = [];
         foreach ((array)$rows as $row) {
             $row["taskPriority"] = $taskPriorities[$row["priority"]]["label"];
             $row["projectPriority"] = $projectPriorities[$row["projectPriority"]]["label"];
@@ -74,13 +74,29 @@ class taskListPrint
 
         if ($_FORM["format"] != "html" && $_FORM["format"] != "html_plus") {
             // Build PDF document
-            $font1 = ALLOC_MOD_DIR."util/fonts/Helvetica.afm";
-            $font2 = ALLOC_MOD_DIR."util/fonts/Helvetica-Oblique.afm";
+            $font1 = ALLOC_MOD_DIR . "util/fonts/Helvetica.afm";
+            $font2 = ALLOC_MOD_DIR . "util/fonts/Helvetica-Oblique.afm";
 
-            $pdf_table_options = array("showLines"=>0,"shaded"=>0,"showHeadings"=>0,"xPos"=>"left",
-                                       "xOrientation"=>"right","fontSize"=>10,"rowGap"=>0,"fontSize"=>10);
-            $pdf_table_options3 = array("showLines"=>2,"shaded"=>0,"width"=>750, "xPos"=>"center","fontSize"=>10,
-                                        "lineCol"=>array(0.8, 0.8, 0.8),"splitRows"=>1,"protectRows"=>0);
+            $pdf_table_options = [
+                "showLines" => 0,
+                "shaded" => 0,
+                "showHeadings" => 0,
+                "xPos" => "left",
+                "xOrientation" => "right",
+                "fontSize" => 10,
+                "rowGap" => 0,
+                "fontSize" => 10
+            ];
+            $pdf_table_options3 = [
+                "showLines" => 2,
+                "shaded" => 0,
+                "width" => 750,
+                "xPos" => "center",
+                "fontSize" => 10,
+                "lineCol" => [0.8, 0.8, 0.8],
+                "splitRows" => 1,
+                "protectRows" => 0
+            ];
 
             $pdf = new Cezpdf(null, 'landscape');
             $pdf->ezSetMargins(40, 40, 40, 40);
@@ -88,19 +104,19 @@ class taskListPrint
             $pdf->ezStartPageNumbers(436, 30, 10, 'center', 'Page {PAGENUM} of {TOTALPAGENUM}');
             $pdf->ezSetY(560);
 
-            $TPL["companyContactAddress"]  and $contact_info[] = array($TPL["companyContactAddress"]);
-            $TPL["companyContactAddress2"] and $contact_info[] = array($TPL["companyContactAddress2"]);
-            $TPL["companyContactAddress3"] and $contact_info[] = array($TPL["companyContactAddress3"]);
-            $TPL["companyContactEmail"]    and $contact_info[] = array($TPL["companyContactEmail"]);
-            $TPL["companyContactHomePage"] and $contact_info[] = array($TPL["companyContactHomePage"]);
-            $TPL["phone"]                  and $contact_info[] = array($TPL["phone"]);
-            $TPL["fax"]                    and $contact_info[] = array($TPL["fax"]);
+            $TPL["companyContactAddress"]  and $contact_info[] = [$TPL["companyContactAddress"]];
+            $TPL["companyContactAddress2"] and $contact_info[] = [$TPL["companyContactAddress2"]];
+            $TPL["companyContactAddress3"] and $contact_info[] = [$TPL["companyContactAddress3"]];
+            $TPL["companyContactEmail"]    and $contact_info[] = [$TPL["companyContactEmail"]];
+            $TPL["companyContactHomePage"] and $contact_info[] = [$TPL["companyContactHomePage"]];
+            $TPL["phone"]                  and $contact_info[] = [$TPL["phone"]];
+            $TPL["fax"]                    and $contact_info[] = [$TPL["fax"]];
 
             $pdf->selectFont($font2);
             $y = $pdf->ezTable($contact_info, false, "", $pdf_table_options);
             $pdf->selectFont($font1);
 
-            $line_y = $y-10;
+            $line_y = $y - 10;
             $pdf->setLineStyle(1, "round");
             $pdf->line(40, $line_y, 801, $line_y);
 
@@ -111,21 +127,21 @@ class taskListPrint
                 $pdf->ezImage($image_jpg, 0, sprintf("%d", config::get_config_item("logoScaleX")), 'none');
                 $y = 700;
             } else {
-                $y = $pdf->ezText($TPL["companyName"], 27, array("justification"=>"right"));
+                $y = $pdf->ezText($TPL["companyName"], 27, ["justification" => "right"]);
             }
             $nos_y = $line_y + 22;
             $TPL["companyNos2"] and $nos_y = $line_y + 34;
             $pdf->ezSetY($nos_y);
-            $TPL["companyNos1"] and $y = $pdf->ezText($TPL["companyNos1"], 10, array("justification"=>"right"));
-            $TPL["companyNos2"] and $y = $pdf->ezText($TPL["companyNos2"], 10, array("justification"=>"right"));
+            $TPL["companyNos1"] and $y = $pdf->ezText($TPL["companyNos1"], 10, ["justification" => "right"]);
+            $TPL["companyNos2"] and $y = $pdf->ezText($TPL["companyNos2"], 10, ["justification" => "right"]);
 
-            $pdf->ezSetY($line_y -10);
-            $y = $pdf->ezText("Task List", 20, array("justification"=>"center"));
-            $pdf->ezSetY($y -20);
+            $pdf->ezSetY($line_y - 10);
+            $y = $pdf->ezText("Task List", 20, ["justification" => "center"]);
+            $pdf->ezSetY($y - 20);
 
             $y = $pdf->ezTable($taskListRows, $fields, "", $pdf_table_options3);
 
-            $pdf->ezSetY($y -20);
+            $pdf->ezSetY($y - 20);
             $pdf->ezStream();
 
             // Else HTML format

@@ -13,15 +13,15 @@ $db = new db_alloc();
 $product = $_GET["product"];
 $quantity = $_GET["quantity"];
 
-$p= new product();
+$p = new product();
 $p->set_id($product);
 $p->select();
 $p->set_tpl_values();
 
 // Probably not valid XML, but jQuery will parse it.
 echo "<data>\n";
-echo "<price>".page::money($TPL["sellPriceCurrencyTypeID"], $TPL["sellPrice"]*$quantity, "%m")."</price>\n";
-echo "<priceCurrency>".$TPL["sellPriceCurrencyTypeID"]."</priceCurrency>\n";
-echo "<priceTax>".($TPL["sellPriceIncTax"] ? "1" : "")."</priceTax>\n";
-echo "<description>".$TPL["description"]."</description>\n";
+echo "<price>" . page::money($TPL["sellPriceCurrencyTypeID"], $TPL["sellPrice"] * $quantity, "%m") . "</price>\n";
+echo "<priceCurrency>" . $TPL["sellPriceCurrencyTypeID"] . "</priceCurrency>\n";
+echo "<priceTax>" . ($TPL["sellPriceIncTax"] ? "1" : "") . "</priceTax>\n";
+echo "<description>" . $TPL["description"] . "</description>\n";
 echo "</data>\n";

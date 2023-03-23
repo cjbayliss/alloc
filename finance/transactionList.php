@@ -28,13 +28,15 @@ if (!$startDate && !$endDate && !$monthDate && !$applyFilter) {
     $monthDate = date("Y-m-d");
 }
 
-$defaults = array("url_form_action" => $TPL["url_alloc_transactionList"],
-                  "form_name"       => "transactionList_filter",
-                  "applyFilter"     => $applyFilter,
-                  "tfID"            => $tfID,
-                  "startDate"       => $startDate,
-                  "endDate"         => $endDate,
-                  "monthDate"       => $monthDate);
+$defaults = [
+    "url_form_action" => $TPL["url_alloc_transactionList"],
+    "form_name"       => "transactionList_filter",
+    "applyFilter"     => $applyFilter,
+    "tfID"            => $tfID,
+    "startDate"       => $startDate,
+    "endDate"         => $endDate,
+    "monthDate"       => $monthDate
+];
 
 if ($download) {
     $_FORM = transaction::load_form_data($defaults);
@@ -43,8 +45,8 @@ if ($download) {
     $rows = $rtn["rows"];
     $csv = transaction::arr_to_csv($rows);
     header('Content-Type: application/octet-stream');
-    header("Content-Length: ".strlen($csv));
-    header('Content-Disposition: attachment; filename="'.date("Ymd_His").'.csv"');
+    header("Content-Length: " . strlen($csv));
+    header('Content-Disposition: attachment; filename="' . date("Ymd_His") . '.csv"');
     echo $csv;
     exit();
 }
@@ -65,10 +67,10 @@ $TPL["transactionListRows"] = $rtn["rows"];
 $TPL["balance"] = $tf->get_balance();
 
 // Total balance pending
-$TPL["pending_amount"] = $tf->get_balance(array("status"=>"pending"));
+$TPL["pending_amount"] = $tf->get_balance(["status" => "pending"]);
 
 // Page and header title
-$TPL["title"] = "Statement for tagged fund: ".$tf->get_value("tfName");
-$TPL["main_alloc_title"] =  "TF: ".$tf->get_value("tfName"). " - " .APPLICATION_NAME;
+$TPL["title"] = "Statement for tagged fund: " . $tf->get_value("tfName");
+$TPL["main_alloc_title"] =  "TF: " . $tf->get_value("tfName") . " - " . APPLICATION_NAME;
 
 include_template("templates/transactionListM.tpl");

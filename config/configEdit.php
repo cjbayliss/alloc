@@ -50,10 +50,10 @@ if ($_POST["save"]) {
 }
 
 
-if (file_exists("templates/configEdit_".$configName.".tpl")) {
-    include_template("templates/configEdit_".$configName.".tpl");
-} else if (file_exists("templates/configEdit_".$configType.".tpl")) {
-    include_template("templates/configEdit_".$configType.".tpl");
+if (file_exists("templates/configEdit_" . $configName . ".tpl")) {
+    include_template("templates/configEdit_" . $configName . ".tpl");
+} else if (file_exists("templates/configEdit_" . $configType . ".tpl")) {
+    include_template("templates/configEdit_" . $configType . ".tpl");
 } else {
     include_template("templates/configEdit.tpl");
 }

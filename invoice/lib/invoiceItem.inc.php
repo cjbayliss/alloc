@@ -10,19 +10,21 @@ class invoiceItem extends db_entity
     public $data_table = "invoiceItem";
     public $display_field_name = "iiMemo";
     public $key_field = "invoiceItemID";
-    public $data_fields = array("invoiceID",
-                                "timeSheetID",
-                                "timeSheetItemID",
-                                "expenseFormID",
-                                "transactionID",
-                                "productSaleID",
-                                "productSaleItemID",
-                                "iiMemo",
-                                "iiQuantity",
-                                "iiUnitPrice" => array("type"=>"money"),
-                                "iiAmount" => array("type"=>"money"),
-                                "iiTax",
-                                "iiDate");
+    public $data_fields = [
+        "invoiceID",
+        "timeSheetID",
+        "timeSheetItemID",
+        "expenseFormID",
+        "transactionID",
+        "productSaleID",
+        "productSaleItemID",
+        "iiMemo",
+        "iiQuantity",
+        "iiUnitPrice" => ["type" => "money"],
+        "iiAmount" => ["type" => "money"],
+        "iiTax",
+        "iiDate"
+    ];
 
     function is_owner($person = "")
     {
@@ -135,10 +137,10 @@ class invoiceItem extends db_entity
                              ", $timeSheet->get_id());
                 $db->query($q);
                 $row = $db->row();
-                if ($row["num_transactions"]==0) {
-                        $_POST["create_transactions_default"] = true;
-                        $timeSheet->createTransactions($status);
-                        $TPL["message_good"][] = "Automatically created time sheet transactions.";
+                if ($row["num_transactions"] == 0) {
+                    $_POST["create_transactions_default"] = true;
+                    $timeSheet->createTransactions($status);
+                    $TPL["message_good"][] = "Automatically created time sheet transactions.";
                 }
 
                 // Get total of all time sheet transactions.
@@ -153,14 +155,14 @@ class invoiceItem extends db_entity
                 $total_timeSheet = $row["total"];
 
                 if ($total >= $total_timeSheet) {
-                        $timeSheet->pending_transactions_to_approved();
-                        $timeSheet->change_status("forwards");
-                        $TPL["message_good"][] = "Closed Time Sheet #".$timeSheet->get_id()." and marked its Transactions: ".$status;
+                    $timeSheet->pending_transactions_to_approved();
+                    $timeSheet->change_status("forwards");
+                    $TPL["message_good"][] = "Closed Time Sheet #" . $timeSheet->get_id() . " and marked its Transactions: " . $status;
                 } else {
-                    $TPL["message_help"][] = "Unable to close Time Sheet #".$timeSheet->get_id()." the sum of the Time Sheet's *Transactions* ("
-                                   .page::money($timeSheet->get_value("currencyTypeID"), $total_timeSheet, "%s%mo %c")
-                                   .") is greater than the Invoice Item Transaction ("
-                                   .page::money($currency, $total, "%s%mo %c").")";
+                    $TPL["message_help"][] = "Unable to close Time Sheet #" . $timeSheet->get_id() . " the sum of the Time Sheet's *Transactions* ("
+                        . page::money($timeSheet->get_value("currencyTypeID"), $total_timeSheet, "%s%mo %c")
+                        . ") is greater than the Invoice Item Transaction ("
+                        . page::money($currency, $total, "%s%mo %c") . ")";
                 }
             }
         } else if ($expenseFormID) {
@@ -171,9 +173,9 @@ class invoiceItem extends db_entity
 
             if ($total == $total_expenseForm) {
                 $expenseForm->set_status("approved");
-                $TPL["message_good"][] = "Approved Expense Form #".$expenseForm->get_id().".";
+                $TPL["message_good"][] = "Approved Expense Form #" . $expenseForm->get_id() . ".";
             } else {
-                $TPL["message_help"][] = "Unable to approve Expense Form #".$expenseForm->get_id()." the sum of Expense Form Transactions does not equal the Invoice Item Transaction.";
+                $TPL["message_help"][] = "Unable to approve Expense Form #" . $expenseForm->get_id() . " the sum of Expense Form Transactions does not equal the Invoice Item Transaction.";
             }
         }
     }
@@ -213,8 +215,8 @@ class invoiceItem extends db_entity
             );
             $db->query($q);
             if ($db->row()) {
-                  $transaction->set_id($db->f("transactionID"));
-                  $transaction->select();
+                $transaction->set_id($db->f("transactionID"));
+                $transaction->select();
             }
         }
 
@@ -232,7 +234,7 @@ class invoiceItem extends db_entity
         $transaction->save();
     }
 
-    function get_list_filter($filter = array())
+    function get_list_filter($filter = [])
     {
         // Filter on invoiceID
         if ($filter["invoiceID"] && is_array($filter["invoiceID"])) {
@@ -247,12 +249,12 @@ class invoiceItem extends db_entity
     {
         $filter = invoiceItem::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
-            $f = " WHERE ".implode(" AND ", $filter);
+            $f = " WHERE " . implode(" AND ", $filter);
         }
         $q = prepare("SELECT * FROM invoiceItem
                    LEFT JOIN invoice ON invoice.invoiceID = invoiceItem.invoiceID
                    LEFT JOIN client ON client.clientID = invoice.clientID
-                     ".$f);
+                     " . $f);
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {

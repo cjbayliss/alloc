@@ -17,10 +17,11 @@ function show_filter()
     include_template("templates/productSaleListFilterS.tpl");
 }
 
-
-$defaults = array("url_form_action"=>$TPL["url_alloc_productSaleList"],
-                  "form_name"=>"productSaleList_filter",
-                  "return" => "array");
+$defaults = [
+    "url_form_action" => $TPL["url_alloc_productSaleList"],
+    "form_name" => "productSaleList_filter",
+    "return" => "array"
+];
 
 $_FORM = productSale::load_form_data($defaults);
 $TPL["productSaleListRows"] = productSale::get_list($_FORM);
@@ -42,5 +43,5 @@ in the top-right hand corner of the box below.";
 
 
 
-$TPL["main_alloc_title"] = "Sales List - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Sales List - " . APPLICATION_NAME;
 include_template("templates/productSaleListM.tpl");

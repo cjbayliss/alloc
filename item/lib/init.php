@@ -8,6 +8,6 @@
 
 class item_module extends module
 {
-    var $module = "item";
-    var $db_entities = array("item", "loan");
+    public $module = "item";
+    public $db_entities = ["item", "loan"];
 }

@@ -8,6 +8,6 @@
 
 class invoice_module extends module
 {
-    var $module = "invoice";
-    var $db_entities = array("invoice", "invoiceItem", "invoiceEntity");
+    public $module = "invoice";
+    public $db_entities = ["invoice", "invoiceItem", "invoiceEntity"];
 }

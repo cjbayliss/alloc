@@ -17,11 +17,13 @@ function show_filter()
     include_template("templates/timeSheetListFilterS.tpl");
 }
 
-$defaults = array("url_form_action"    => $TPL["url_alloc_timeSheetList"],
-                  "form_name"          => "timeSheetList_filter",
-                  "showFinances"       => $_REQUEST["showFinances"],
-                  "dateFromComparator" => ">=",
-                  "dateToComparator"   => "<=");
+$defaults = [
+    "url_form_action"    => $TPL["url_alloc_timeSheetList"],
+    "form_name"          => "timeSheetList_filter",
+    "showFinances"       => $_REQUEST["showFinances"],
+    "dateFromComparator" => ">=",
+    "dateToComparator"   => "<="
+];
 
 $_FORM = timeSheet::load_form_data($defaults);
 $rtn = timeSheet::get_list($_FORM);
@@ -45,5 +47,5 @@ in the top-right hand corner of the box below.";
 
 
 
-$TPL["main_alloc_title"] = "Timesheet List - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Timesheet List - " . APPLICATION_NAME;
 include_template("templates/timeSheetListM.tpl");

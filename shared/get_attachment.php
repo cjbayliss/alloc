@@ -16,7 +16,7 @@ if (isset($_GET["id"]) && $file && !bad_filename($file)) {
     $entity->set_id(sprintf("%d", $_GET["id"]));
     $entity->select();
 
-    $file = ATTACHMENTS_DIR.$_GET["entity"]."/".$_GET["id"]."/".$file;
+    $file = ATTACHMENTS_DIR . $_GET["entity"] . "/" . $_GET["id"] . "/" . $file;
 
     if ($entity->has_attachment_permission($current_user)) {
         if (file_exists($file)) {
@@ -26,12 +26,12 @@ if (isset($_GET["id"]) && $file && !bad_filename($file)) {
             // Forge html for the whatsnew files
             if (basename(dirname(dirname($file))) == "whatsnew") {
                 $forged_suffix = ".html";
-                $mimetype="text/html";
+                $mimetype = "text/html";
             }
 
-            header('Content-Type: '.$mimetype);
-            header("Content-Length: ".filesize($file));
-            header('Content-Disposition: inline; filename="'.basename($file).$forged_suffix.'"');
+            header('Content-Type: ' . $mimetype);
+            header("Content-Length: " . filesize($file));
+            header('Content-Disposition: inline; filename="' . basename($file) . $forged_suffix . '"');
             fpassthru($fp);
             exit;
         } else {

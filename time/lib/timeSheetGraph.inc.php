@@ -13,13 +13,14 @@ class timeSheetGraph
     }
     function get_list_vars()
     {
-        return array(
+        return [
             //"projectIDs" => "An array of projectIDs"
             "dateFrom"    => "From Date",
             "dateTo"      => "To Date",
             "personID"    => "The person assigned to the task",
             "groupBy"     => "Group the results by day or month",
-            "applyFilter" => "Store the filter settings");
+            "applyFilter" => "Store the filter settings",
+        ];
     }
 
     function load_filter($defaults)
@@ -51,7 +52,7 @@ class timeSheetGraph
         $rtn["groupBy"] = $_FORM["groupBy"];
 
         // GET
-        $rtn["FORM"] = "FORM=".urlencode(serialize($_FORM));
+        $rtn["FORM"] = "FORM=" . urlencode(serialize($_FORM));
         return $rtn;
     }
 }

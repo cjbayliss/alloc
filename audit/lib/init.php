@@ -8,6 +8,6 @@
 
 class audit_module extends module
 {
-    var $module = "audit";
-    var $db_entities = array("audit");
+    public $module = "audit";
+    public $db_entities = ["audit"];
 }

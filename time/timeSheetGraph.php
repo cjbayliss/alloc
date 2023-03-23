@@ -7,7 +7,7 @@
 
 require_once("../alloc.php");
 
-$current_user =& singleton("current_user");
+$current_user = &singleton("current_user");
 
 function show_filter()
 {
@@ -18,10 +18,12 @@ function show_filter()
     include_template("templates/timeSheetGraphFilterS.tpl");
 }
 
-$defaults = array("url_form_action" => $TPL["url_alloc_timeSheetGraph"],
-                  "form_name"       => "timeSheetGraph_filter",
-                  "groupBy"         => "day",
-                  "personID"        => $current_user->get_id());
+$defaults = [
+    "url_form_action" => $TPL["url_alloc_timeSheetGraph"],
+    "form_name"       => "timeSheetGraph_filter",
+    "groupBy"         => "day",
+    "personID"        => $current_user->get_id()
+];
 
 
 $_FORM = timeSheetGraph::load_filter($defaults);

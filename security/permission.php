@@ -30,14 +30,14 @@ $permission->set_values();
 
 if (!$permission->get_value("tableName")) {
     global $modules;
-    $entities = array();
+    $entities = [];
     reset($modules);
     while (list($module_name, $module) = each($modules)) {
         $mod_entities = $module->db_entities;
         $entities = array_merge($entities, $mod_entities);
     }
 
-    $table_names = array();
+    $table_names = [];
     reset($entities);
     while (list(, $entity_name) = each($entities)) {
         $entity = new $entity_name;
@@ -80,6 +80,6 @@ foreach ($entity->permissions as $value => $label) {
 
 $TPL["actionOptions"] = page::select_options($entity->permissions, $sel);
 
-$TPL["main_alloc_title"] = "Edit Permission - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Edit Permission - " . APPLICATION_NAME;
 
 include_template("templates/permissionM.tpl");

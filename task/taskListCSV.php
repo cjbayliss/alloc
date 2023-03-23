@@ -37,7 +37,7 @@ $taskPriorities = config::get_config_item("taskPriorities");
 $projectPriorities = config::get_config_item("projectPriorities");
 
 $rows = task::get_list($_FORM);
-$taskListRows = array();
+$taskListRows = [];
 foreach ((array)$rows as $row) {
     $row["taskPriority"] = $taskPriorities[$row["priority"]]["label"];
     $row["projectPriority"] = $projectPriorities[$row["projectPriority"]]["label"];
@@ -48,7 +48,7 @@ foreach ((array)$rows as $row) {
 
 if ($taskListRows) {
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment;filename=tasklist'.time().'.csv');
+    header('Content-Disposition: attachment;filename=tasklist' . time() . '.csv');
     $fp = fopen('php://output', 'w');
 
     // header row

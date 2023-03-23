@@ -7,7 +7,7 @@
 
 ////IMPORT FUNCTIONS
 
-define('CSV_EXPIRY', 60*30); //30 mins
+define('CSV_EXPIRY', 60 * 30); //30 mins
 
 function store_csv($file)
 {
@@ -51,12 +51,11 @@ function add_ips($parties, $taskID, $projectID)
     // their name can't be changed later.
 
     foreach ($parties as $party) {
-        $ipdata = array('entity' => 'task',
-                        'entityID' => $taskID);
+        $ipdata = ['entity' => 'task', 'entityID' => $taskID];
         // same logic as the real interested parties code - if the name contains an
         // '@', it's an email address. Otherwise, it's a login.
         if (strpos($party, '@') === false) {
-            $person = import_find_username(array($party));
+            $person = import_find_username([$party]);
             if (!$person) {
                 continue;
             }
@@ -81,8 +80,8 @@ function import_csv($infile, $mapping, $header = true)
      * filename.
      */
 
-    $rp = realpath(ATTACHMENTS_DIR.'tmp'.DIRECTORY_SEPARATOR.$infile);
-    if ($rp === false || strpos($rp, ATTACHMENTS_DIR.'tmp'.DIRECTORY_SEPARATOR) !== 0) {
+    $rp = realpath(ATTACHMENTS_DIR . 'tmp' . DIRECTORY_SEPARATOR . $infile);
+    if ($rp === false || strpos($rp, ATTACHMENTS_DIR . 'tmp' . DIRECTORY_SEPARATOR) !== 0) {
         alloc_error("Illegal file path.", true); //should occur through user dodginess
     }
 
@@ -93,8 +92,8 @@ function import_csv($infile, $mapping, $header = true)
     $project->select();
 
     $filename = $rp;
-    $result = array();
-    $result[0] = array();
+    $result = [];
+    $result[0] = [];
     $fh = @fopen($filename, 'rb');
     if ($fh === false) {
         $result[0] = "There was a problem reading the uploaded file.";
@@ -110,10 +109,10 @@ function import_csv($infile, $mapping, $header = true)
         while ($row = fgetcsv($fh, 8192)) {
             $warning = false;
 
-            $task_result = array();
+            $task_result = [];
 
             $task = new task();
-            $ips = array();
+            $ips = [];
             for ($i = 0; $i < count($row); $i++) {
                 switch ($mapping[$i]) {
                     case 'ignore':
@@ -125,23 +124,23 @@ function import_csv($infile, $mapping, $header = true)
                         $task->set_value('taskDescription', $row[$i]);
                         break;
                     case 'assignee':
-                        $assignee = import_find_username(array($row[$i]));
+                        $assignee = import_find_username([$row[$i]]);
                         if ($assignee) {
                             $task->set_value('personID', $assignee->get_id());
                         } else {
                             //We don't know who the manager is, so assign it to the project manager
                             $task->set_value('personID', $projectManager);
-                            $task_result []= sprintf('Warning: Unable to find a username corresponding to "%s", assigning task to project manager.', $row[$i]);
+                            $task_result[] = sprintf('Warning: Unable to find a username corresponding to "%s", assigning task to project manager.', $row[$i]);
                         }
                         break;
                     case 'manager':
-                        $manager = import_find_username(array($row[$i]));
+                        $manager = import_find_username([$row[$i]]);
                         if ($manager) {
                             $task->set_value('managerID', $manager->get_id());
                         } else {
                             //We don't know who the manager is, so assign it to the project manager
                             $task->set_value('managerID', $projectManager);
-                            $task_result []= sprintf('Warning: Unable to find a username corresponding to "%s", setting task manager to project manager.', $row[$i]);
+                            $task_result[] = sprintf('Warning: Unable to find a username corresponding to "%s", setting task manager to project manager.', $row[$i]);
                         }
                         break;
                     case 'limit':
@@ -177,7 +176,7 @@ function import_csv($infile, $mapping, $header = true)
                 $task->set_value('personID', $projectManager);
             }
             if (!$task->get_value('taskName')) {
-                $result[0] []= "Line " . $line . ": Task has no name, creation failed.";
+                $result[0][] = "Line " . $line . ": Task has no name, creation failed.";
                 $line++;
                 continue;
             }
@@ -190,7 +189,7 @@ function import_csv($infile, $mapping, $header = true)
             $task->set_value('taskStatus', 'open_notstarted');
             $task->save();
 
-            $task_result []= "Task ".$task->get_value('taskName') . " created";
+            $task_result[] = "Task " . $task->get_value('taskName') . " created";
 
             // can only add interested parties after the task has an ID
             if ($ips) {
@@ -214,7 +213,7 @@ function import_gnome_planner($infile)
     $current_user = &singleton("current_user");
     //Import a GNOME Planner XML file
     $filename = $_FILES[$infile]['tmp_name'];
-    $result = array();
+    $result = [];
     $fileIsValid = true;
     if (is_uploaded_file($filename)) {
         $doc = get_xml_document();
@@ -228,11 +227,11 @@ function import_gnome_planner($infile)
         // If it is, the function then actually imports the data.
         $result[] = "<li>Checking the file for validity...</li>";
         // Check that every <resource /> element has a short-name that corresponds to the user id of a user we know about
-        $resource_people = array();
+        $resource_people = [];
         $resources = $doc->getElementsByTagName("resource");
         for ($i = 0; $i < $resources->length; $i++) {
             $resource = $resources->item($i);
-            $user = import_find_username(array($resource->getAttribute("name"), $resource->getAttribute("short-name")));
+            $user = import_find_username([$resource->getAttribute("name"), $resource->getAttribute("short-name")]);
             if (!$user) {
                 $result[] = sprintf("Couldn't find the person who corresponds to %s (%s).", $resource->getAttribute("short-name"), $resource->getAttribute("name"));
                 $fileIsValid = false;
@@ -243,7 +242,7 @@ function import_gnome_planner($infile)
         }
         $result[] = "<li>Done checking resource names.</li>";
         // Check that at most one person is assigned to each task
-        $task_allocation = array();
+        $task_allocation = [];
         $allocations = $doc->getElementsByTagName("allocation");
         for ($i = 0; $i < $allocations->length; $i++) {
             $allocation = $allocations->item($i);
@@ -255,7 +254,10 @@ function import_gnome_planner($infile)
                     $task_allocation[$taskid][] = $allocation->getAttribute("resource-id");
                 } else {
                     // 2 people assigned to the task (so far), convert to an array
-                    $task_allocation[$taskid] = array($task_allocation[$taskid], $allocation->getAttribute("resource-id"));
+                    $task_allocation[$taskid] = [
+                        $task_allocation[$taskid],
+                        $allocation->getAttribute("resource-id")
+                    ];
                 }
             } else {
                 $task_allocation[$allocation->getAttribute("task-id")] = $allocation->getAttribute("resource-id");
@@ -289,7 +291,7 @@ function import_planner_tasks($parentNode, $parentTaskId, $depth, $task_allocati
     //Recursively imports tasks from GNOME Planner, given the parentNode.
     global $projectID;
     $current_user = &singleton("current_user");
-    $result = array();
+    $result = [];
     // our dodgy DOM_NodeList doesn't support foreach....
     for ($i = 0; $i < $parentNode->childNodes->length; $i++) {
         $taskXML = $parentNode->childNodes->item($i);
@@ -339,7 +341,7 @@ function import_planner_tasks($parentNode, $parentTaskId, $depth, $task_allocati
                     // The user doing the import is (implicitly) the user creating the comment
                     $comment->set_value("commentCreatedUser", $current_user->get_id());
                     // Get the relevant usernames
-                    $names = array();
+                    $names = [];
                     foreach ($task_allocation[$planner_taskid] as $assignee) {
                         $names[] = person::get_fullname($assignee);
                     }
@@ -377,7 +379,7 @@ function export_gnome_planner($projectID)
 
     // Note: DOM_Document is a wrapper that wraps DOMDocument for PHP5 and DomDocument for PHP4
     $doc = get_xml_document();
-    $doc->load(ALLOC_MOD_DIR."shared".DIRECTORY_SEPARATOR."export_templates".DIRECTORY_SEPARATOR."template.planner");
+    $doc->load(ALLOC_MOD_DIR . "shared" . DIRECTORY_SEPARATOR . "export_templates" . DIRECTORY_SEPARATOR . "template.planner");
     // General metadata
     $rootNode = $doc->getElementsByTagName("project");
     $rootNode = $rootNode->item(0);
@@ -393,9 +395,9 @@ function export_gnome_planner($projectID)
     }
     $rootNode->setAttribute("project-start", $projectStartDate);
 
-    $resourcesUsed = array();
+    $resourcesUsed = [];
     // Export all tasks in the project
-    $taskOptions["projectIDs"] = array($project->get_id());
+    $taskOptions["projectIDs"] = [$project->get_id()];
     $taskOptions["return"] = "array";
     $taskOptions["taskView"] = "byProject";
 
@@ -470,7 +472,7 @@ function export_gnome_planner($projectID)
     $allocationsRootNode = $doc->getElementsByTagName("allocations");
     $allocationsRootNode = $allocationsRootNode->item(0);
 
-    $resources = array();       //Store the users that need to be added to <resources>
+    $resources = [];       //Store the users that need to be added to <resources>
 
     foreach ($resourcesUsed as $taskID => $resourceID) {
         if (isset($resources[$resourceID])) {
@@ -513,7 +515,7 @@ function export_csv($projectID)
 
     $retstr = '"Task Name","Estimated Time","Assignee"';
     // Export all tasks in the project
-    $taskOptions["projectIDs"] = array($project->get_id());
+    $taskOptions["projectIDs"] = [$project->get_id()];
     $taskOptions["return"] = "array";
     $taskOptions["taskView"] = "byProject";
     $tasks = task::get_list($taskOptions);
@@ -531,7 +533,7 @@ function export_csv($projectID)
         $estimatedHours = $task['timeExpected'];
         is_numeric($estimatedHours) or $estimatedHours = 0;
 
-        $retstr .= "\n" . export_escape_csv($task['taskName']) . ',' . export_escape_csv($estimatedHours) . ',' . export_escape_csv($assignee->get_name(array("format"=>"nick")));
+        $retstr .= "\n" . export_escape_csv($task['taskName']) . ',' . export_escape_csv($estimatedHours) . ',' . export_escape_csv($assignee->get_name(["format" => "nick"]));
     }
 
     return $retstr;

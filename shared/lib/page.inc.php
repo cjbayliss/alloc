@@ -18,18 +18,18 @@ class page
         $current_user = &singleton("current_user");
 
         if ($current_user->prefs["showFilters"]) {
-            $TPL["onLoad"] []= "show_filter();";
+            $TPL["onLoad"][] = "show_filter();";
         }
 
-        $TPL["onLoad"] or $TPL["onLoad"] = array();
+        $TPL["onLoad"] or $TPL["onLoad"] = [];
 
-        include_template(ALLOC_MOD_DIR."shared/templates/headerS.tpl");
+        include_template(ALLOC_MOD_DIR . "shared/templates/headerS.tpl");
     }
     public static function footer()
     {
         $current_user = &singleton("current_user");
 
-        include_template(ALLOC_MOD_DIR."shared/templates/footerS.tpl");
+        include_template(ALLOC_MOD_DIR . "shared/templates/footerS.tpl");
         // close page
         $sess = new session();
         $sess->Save();
@@ -44,34 +44,78 @@ class page
         $c = new config();
         $tabs = config::get_config_item("allocTabs");
 
-        $menu_links["home"]    = array("name"=>"Home",    "url"=>$TPL["url_alloc_home"],           "module"=>"home");
-        $menu_links["client"]  = array("name"=>"Clients", "url"=>$TPL["url_alloc_clientList"],     "module"=>"client");
-        $menu_links["project"] = array("name"=>"Projects","url"=>$TPL["url_alloc_projectList"],    "module"=>"project");
-        $menu_links["task"]    = array("name"=>"Tasks",   "url"=>$TPL["url_alloc_taskList"],       "module"=>"task");
-        $menu_links["time"]    = array("name"=>"Time",    "url"=>$TPL["url_alloc_timeSheetList"],  "module"=>"time");
-        $menu_links["invoice"] = array("name"=>"Invoices","url"=>$TPL["url_alloc_invoiceList"],    "module"=>"invoice");
-        $menu_links["sale"]    = array("name"=>"Sales",   "url"=>$TPL["url_alloc_productSaleList"],"module"=>"sale");
-        $menu_links["person"]  = array("name"=>"People",  "url"=>$TPL["url_alloc_personList"],     "module"=>"person");
-        $menu_links["wiki"]    = array("name"=>"Wiki",    "url"=>$TPL["url_alloc_wiki"],           "module"=>"wiki");
+        $menu_links["home"]    = [
+            "name" => "Home",
+            "url" => $TPL["url_alloc_home"],
+            "module" => "home"
+        ];
+        $menu_links["client"]  = [
+            "name" => "Clients",
+            "url" => $TPL["url_alloc_clientList"],
+            "module" => "client"
+        ];
+        $menu_links["project"] = [
+            "name" => "Projects",
+            "url" => $TPL["url_alloc_projectList"],
+            "module" => "project"
+        ];
+        $menu_links["task"]    = [
+            "name" => "Tasks",
+            "url" => $TPL["url_alloc_taskList"],
+            "module" => "task"
+        ];
+        $menu_links["time"]    = [
+            "name" => "Time",
+            "url" => $TPL["url_alloc_timeSheetList"],
+            "module" => "time"
+        ];
+        $menu_links["invoice"] = [
+            "name" => "Invoices",
+            "url" => $TPL["url_alloc_invoiceList"],
+            "module" => "invoice"
+        ];
+        $menu_links["sale"]    = [
+            "name" => "Sales",
+            "url" => $TPL["url_alloc_productSaleList"],
+            "module" => "sale"
+        ];
+        $menu_links["person"]  = [
+            "name" => "People",
+            "url" => $TPL["url_alloc_personList"],
+            "module" => "person"
+        ];
+        $menu_links["wiki"]    = [
+            "name" => "Wiki",
+            "url" => $TPL["url_alloc_wiki"],
+            "module" => "wiki"
+        ];
         if (have_entity_perm("inbox", PERM_READ, $current_user) && config::get_config_item("allocEmailHost")) {
-            $menu_links["inbox"] = array("name"=>"Inbox",   "url"=>$TPL["url_alloc_inbox"],          "module"=>"email");
+            $menu_links["inbox"] = [
+                "name" => "Inbox",
+                "url" => $TPL["url_alloc_inbox"],
+                "module" => "email"
+            ];
         }
-        $menu_links["tools"]   = array("name"=>"Tools",   "url"=>$TPL["url_alloc_tools"],          "module"=>"tools");
+        $menu_links["tools"]   = [
+            "name" => "Tools",
+            "url" => $TPL["url_alloc_tools"],
+            "module" => "tools"
+        ];
 
         $x = -1;
         foreach ($menu_links as $key => $arr) {
             if (in_array($key, $tabs) && has($key)) {
                 $name = $arr["name"];
                 $TPL["x"] = $x;
-                $x+=70;
+                $x += 70;
                 $TPL["url"] = $arr["url"];
                 $TPL["name"] = $name;
                 unset($TPL["active"]);
-                if (preg_match("/".str_replace("/", "\\/", $_SERVER["PHP_SELF"])."/", $url) || preg_match("/".$arr["module"]."/", $_SERVER["PHP_SELF"]) && !$done) {
+                if (preg_match("/" . str_replace("/", "\\/", $_SERVER["PHP_SELF"]) . "/", $url) || preg_match("/" . $arr["module"] . "/", $_SERVER["PHP_SELF"]) && !$done) {
                     $TPL["active"] = " active";
                     $done = true;
                 }
-                include_template(ALLOC_MOD_DIR."shared/templates/tabR.tpl");
+                include_template(ALLOC_MOD_DIR . "shared/templates/tabR.tpl");
             }
         }
     }
@@ -80,52 +124,52 @@ class page
         global $TPL;
         $current_user = &singleton("current_user");
         $db = new db_alloc();
-        has("task") and $str[] = "<option value=\"create_".$TPL["url_alloc_task"]."\">New Task</option>";
-        has("time") and $str[] = "<option value=\"create_".$TPL["url_alloc_timeSheet"]."\">New Time Sheet</option>";
-        has("task") and $str[] = "<option value=\"create_".$TPL["url_alloc_task"]."tasktype=Fault\">New Fault</option>";
-        has("task") and $str[] = "<option value=\"create_".$TPL["url_alloc_task"]."tasktype=Message\">New Message</option>";
+        has("task") and $str[] = "<option value=\"create_" . $TPL["url_alloc_task"] . "\">New Task</option>";
+        has("time") and $str[] = "<option value=\"create_" . $TPL["url_alloc_timeSheet"] . "\">New Time Sheet</option>";
+        has("task") and $str[] = "<option value=\"create_" . $TPL["url_alloc_task"] . "tasktype=Fault\">New Fault</option>";
+        has("task") and $str[] = "<option value=\"create_" . $TPL["url_alloc_task"] . "tasktype=Message\">New Message</option>";
         if (has("project") && have_entity_perm("project", PERM_CREATE, $current_user)) {
-            $str[] = "<option value=\"create_".$TPL["url_alloc_project"]."\">New Project</option>";
+            $str[] = "<option value=\"create_" . $TPL["url_alloc_project"] . "\">New Project</option>";
         }
-        has("client")   and $str[] = "<option value=\"create_".$TPL["url_alloc_client"]."\">New Client</option>";
-        has("finance")  and $str[] = "<option value=\"create_".$TPL["url_alloc_expenseForm"]."\">New Expense Form</option>";
-        has("reminder") and $str[] = "<option value=\"create_".$TPL["url_alloc_reminder"]."parentType=general&step=2\">New Reminder</option>";
+        has("client")   and $str[] = "<option value=\"create_" . $TPL["url_alloc_client"] . "\">New Client</option>";
+        has("finance")  and $str[] = "<option value=\"create_" . $TPL["url_alloc_expenseForm"] . "\">New Expense Form</option>";
+        has("reminder") and $str[] = "<option value=\"create_" . $TPL["url_alloc_reminder"] . "parentType=general&step=2\">New Reminder</option>";
         if (has("person") && have_entity_perm("person", PERM_CREATE, $current_user)) {
-            $str[] = "<option value=\"create_".$TPL["url_alloc_person"]."\">New Person</option>";
+            $str[] = "<option value=\"create_" . $TPL["url_alloc_person"] . "\">New Person</option>";
         }
-        has("item") and $str[] = "<option value=\"create_".$TPL["url_alloc_loanAndReturn"]."\">New Item Loan</option>";
+        has("item") and $str[] = "<option value=\"create_" . $TPL["url_alloc_loanAndReturn"] . "\">New Item Loan</option>";
         $str[] = "<option value=\"\" disabled=\"disabled\">--------------------";
         $history = new history();
         $q = $history->get_history_query("DESC");
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {
-            $r["history_".$row["value"]] = $row["the_label"];
+            $r["history_" . $row["value"]] = $row["the_label"];
         }
         $str[] = page::select_options($r, $_POST["search_action"]);
         $TPL["history_options"] = implode("\n", $str);
         $TPL["category_options"] = page::get_category_options($_POST["search_action"]);
         $TPL["needle"] = $_POST["needle"];
-        include_template(ALLOC_MOD_DIR."shared/templates/toolbarS.tpl");
+        include_template(ALLOC_MOD_DIR . "shared/templates/toolbarS.tpl");
     }
     public static function extra_links()
     {
         $current_user = &singleton("current_user");
         global $TPL;
         global $sess;
-        $str = "<a href=\"".$TPL["url_alloc_starList"]."\" class=\"icon-star\"></a>&nbsp;&nbsp;&nbsp;";
-        $str.= $current_user->get_link()."&nbsp;&nbsp;&nbsp;";
+        $str = "<a href=\"" . $TPL["url_alloc_starList"] . "\" class=\"icon-star\"></a>&nbsp;&nbsp;&nbsp;";
+        $str .= $current_user->get_link() . "&nbsp;&nbsp;&nbsp;";
         if (defined("PAGE_IS_PRINTABLE") && PAGE_IS_PRINTABLE) {
             $sess or $sess = new session();
-            $str.= "<a href=\"".$sess->url($_SERVER["REQUEST_URI"])."media=print\">Print</a>&nbsp;&nbsp;&nbsp;";
+            $str .= "<a href=\"" . $sess->url($_SERVER["REQUEST_URI"]) . "media=print\">Print</a>&nbsp;&nbsp;&nbsp;";
         }
         if (have_entity_perm("config", PERM_UPDATE, $current_user, true)) {
-            $str.= "<a href=\"".$TPL["url_alloc_config"]."\">Setup</a>&nbsp;&nbsp;&nbsp;";
+            $str .= "<a href=\"" . $TPL["url_alloc_config"] . "\">Setup</a>&nbsp;&nbsp;&nbsp;";
         }
-        $url = $sess->url("../help/help.php?topic=".$TPL["alloc_help_link_name"]);
-        $str.= "<a href=\"".$url."\">Help</a>&nbsp;&nbsp;&nbsp;";
+        $url = $sess->url("../help/help.php?topic=" . $TPL["alloc_help_link_name"]);
+        $str .= "<a href=\"" . $url . "\">Help</a>&nbsp;&nbsp;&nbsp;";
         $url = $TPL["url_alloc_logout"];
-        $str.= "<a href=\"".$url."\">Logout</a>";
+        $str .= "<a href=\"" . $url . "\">Logout</a>";
         return $str;
     }
     public static function messages()
@@ -136,15 +180,30 @@ class page
         $class_to_icon["bad"] = "icon-exclamation-sign";
         $class_to_icon["help"] = "icon-info-sign";
 
-        $search  = array("&lt;br&gt;","&lt;br /&gt;","&lt;b&gt;","&lt;/b&gt;","&lt;u&gt;","&lt;/u&gt;",'\\');
-        $replace = array("<br>"      ,"<br />"      ,"<b>"      ,"</b>"      ,"<u>"      ,"</u>"      ,'');
+        $search  = [
+            "&lt;br&gt;",
+            "&lt;br /&gt;",
+            "&lt;b&gt;",
+            "&lt;/b&gt;",
+            "&lt;u&gt;",
+            "&lt;/u&gt;", '\\'
+        ];
+        $replace = [
+            "<br>",
+            "<br />",
+            "<b>",
+            "</b>",
+            "<u>",
+            "</u>", ''
+        ];
 
-        $types = array("message"             => "bad",
-                       "message_good"        => "good",
-                       "message_help"        => "help",
-                       "message_good_no_esc" => "good",
-                       "message_help_no_esc" => "help",
-        );
+        $types = [
+            "message"             => "bad",
+            "message_good"        => "good",
+            "message_help"        => "help",
+            "message_good_no_esc" => "good",
+            "message_help_no_esc" => "help"
+        ];
 
         foreach ($types as $type => $class) {
             $str = "";
@@ -159,16 +218,16 @@ class page
 
         if (is_array($msg) && count($msg)) {
             $str = "<div style=\"text-align:center;\"><div class=\"message corner\" style=\"width:60%;\">";
-            $str.= "<table cellspacing=\"0\">";
+            $str .= "<table cellspacing=\"0\">";
             foreach ($msg as $type => $info) {
                 $class = $types[$type];
-                $str.= "<tr>";
-                $str.= "<td class='".$class."' width='1%' style='vertical-align:top;padding:6px;font-size:150%;'>";
-                $str.= "<i class='".$class_to_icon[$class]."'></i><td/>";
-                $str.= "<td class='".$class."' width='99%' style='vertical-align:top;padding-top:11px;text-align:left;font-weight:bold;'>".$info."</td></tr>";
+                $str .= "<tr>";
+                $str .= "<td class='" . $class . "' width='1%' style='vertical-align:top;padding:6px;font-size:150%;'>";
+                $str .= "<i class='" . $class_to_icon[$class] . "'></i><td/>";
+                $str .= "<td class='" . $class . "' width='99%' style='vertical-align:top;padding-top:11px;text-align:left;font-weight:bold;'>" . $info . "</td></tr>";
             }
-            $str.= "</table>";
-            $str.= "</div></div>";
+            $str .= "</table>";
+            $str .= "</div></div>";
         }
         return $str;
     }
@@ -187,22 +246,22 @@ class page
     public static function help($topic, $hovertext = false)
     {
         global $TPL;
-        $str = page::prepare_help_string(@file_get_contents($TPL["url_alloc_help"].$topic.".html"));
+        $str = page::prepare_help_string(@file_get_contents($TPL["url_alloc_help"] . $topic . ".html"));
         if (strlen($str)) {
-            $img = "<div id='help_button_".$topic."' style='display:inline;'><a href=\"".$TPL["url_alloc_getHelp"]."topic=".$topic."\" target=\"_blank\">";
-            $img.= "<img border='0' class='help_button' onmouseover=\"help_text_on('help_button_".$topic."','".$str."');\" onmouseout=\"help_text_off('help_button_".$topic."');\" src=\"";
-            $img.= $TPL["url_alloc_images"]."help.gif\" alt=\"Help\" /></a></div>";
+            $img = "<div id='help_button_" . $topic . "' style='display:inline;'><a href=\"" . $TPL["url_alloc_getHelp"] . "topic=" . $topic . "\" target=\"_blank\">";
+            $img .= "<img border='0' class='help_button' onmouseover=\"help_text_on('help_button_" . $topic . "','" . $str . "');\" onmouseout=\"help_text_off('help_button_" . $topic . "');\" src=\"";
+            $img .= $TPL["url_alloc_images"] . "help.gif\" alt=\"Help\" /></a></div>";
         } else if ($topic) {
             $str = page::prepare_help_string($topic);
-            $img = "<div id='help_button_".md5($topic)."' style='display:inline;'>";
+            $img = "<div id='help_button_" . md5($topic) . "' style='display:inline;'>";
             if ($hovertext) {
-                $img.= "<span onmouseover=\"help_text_on('help_button_".md5($topic)."','".$str."');\" onmouseout=\"help_text_off('help_button_".md5($topic)."');\">";
-                $img.= $hovertext."</span>";
+                $img .= "<span onmouseover=\"help_text_on('help_button_" . md5($topic) . "','" . $str . "');\" onmouseout=\"help_text_off('help_button_" . md5($topic) . "');\">";
+                $img .= $hovertext . "</span>";
             } else {
-                $img.= "<img border='0' class='help_button' onmouseover=\"help_text_on('help_button_".md5($topic)."','".$str."');\" ";
-                $img.= "onmouseout=\"help_text_off('help_button_".md5($topic)."');\" src=\"".$TPL["url_alloc_images"]."help.gif\" alt=\"Help\" />";
+                $img .= "<img border='0' class='help_button' onmouseover=\"help_text_on('help_button_" . md5($topic) . "','" . $str . "');\" ";
+                $img .= "onmouseout=\"help_text_off('help_button_" . md5($topic) . "');\" src=\"" . $TPL["url_alloc_images"] . "help.gif\" alt=\"Help\" />";
             }
-            $img.= "</div>";
+            $img .= "</div>";
         }
         return $img;
     }
@@ -213,9 +272,14 @@ class page
         $str = str_replace("\n", " ", $str);
         return $str;
     }
-    public static function textarea($name, $default_value = "", $ops = array())
+    public static function textarea($name, $default_value = "", $ops = [])
     {
-        $heights = array("small"=>40, "medium"=>100, "large"=>340, "jumbo"=>440);
+        $heights = [
+            "small" => 40,
+            "medium" => 100,
+            "large" => 340,
+            "jumbo" => 440
+        ];
         $height = $ops["height"] or $height = "small";
 
         $cols = $ops["cols"];
@@ -225,15 +289,15 @@ class page
         $attrs["name"] = $name;
         $attrs["wrap"] = "virtual";
         $cols            and $attrs["cols"]     = $cols;
-        $attrs["style"]    = "height:".$heights[$height]."px";
-        $ops["width"]    and $attrs["style"]   .= "; width:".$ops["width"];
+        $attrs["style"]    = "height:" . $heights[$height] . "px";
+        $ops["width"]    and $attrs["style"]   .= "; width:" . $ops["width"];
         $ops["class"]    and $attrs["class"]    = $ops["class"];
         $ops["tabindex"] and $attrs["tabindex"] = $ops["tabindex"];
 
         foreach ($attrs as $k => $v) {
-            $str.= sprintf(' %s="%s"', $k, $v);
+            $str .= sprintf(' %s="%s"', $k, $v);
         }
-        return "<textarea".$str.">".page::htmlentities($default_value)."</textarea>\n";
+        return "<textarea" . $str . ">" . page::htmlentities($default_value) . "</textarea>\n";
     }
     public static function calendar($name, $default_value = "")
     {
@@ -299,13 +363,13 @@ EOD;
 
                 $label = str_replace("&nbsp;", " ", $label);
                 if (strlen((string)$label) > $max_length) {
-                    $label = substr($label, 0, $max_length - 3)."...";
+                    $label = substr($label, 0, $max_length - 3) . "...";
                 }
 
                 $escape and $label = page::htmlentities($label);
                 $label = str_replace(" ", "&nbsp;", $label);
 
-                $str.= "\n<option value=\"".$value."\"".$sel.">".$label."</option>";
+                $str .= "\n<option value=\"" . $value . "\"" . $sel . ">" . $label . "</option>";
             }
         }
         return $str;
@@ -313,24 +377,24 @@ EOD;
     public static function expand_link($id, $text = "New ", $id_to_hide = "")
     {
         global $TPL;
-        $id_to_hide and $extra = "$('#".$id_to_hide."').slideToggle('fast');";
-        $str = "<a class=\"growshrink nobr\" href=\"#x\" onClick=\"$('#".$id."').fadeToggle();".$extra."\">".$text."</a>";
+        $id_to_hide and $extra = "$('#" . $id_to_hide . "').slideToggle('fast');";
+        $str = "<a class=\"growshrink nobr\" href=\"#x\" onClick=\"$('#" . $id . "').fadeToggle();" . $extra . "\">" . $text . "</a>";
         return $str;
     }
-    public static function side_by_side_links($items = array(), $url, $redraw = "", $title = "")
+    public static function side_by_side_links($items = [], $url, $redraw = "", $title = "")
     {
         $url = preg_replace("/[&?]+$/", "", $url);
         if (strpos($url, "?")) {
-            $url.= "&";
+            $url .= "&";
         } else {
-            $url.= "?";
+            $url .= "?";
         }
         foreach ($items as $id => $label) {
-            $str.= $sp."<a id=\"sbs_link_".$id."\" data-sbs-redraw='".$redraw."' href=\"".$url."sbs_link=".$id."\" class=\"sidebyside noselect\" unselectable=\"on\">".$label."</a>";
+            $str .= $sp . "<a id=\"sbs_link_" . $id . "\" data-sbs-redraw='" . $redraw . "' href=\"" . $url . "sbs_link=" . $id . "\" class=\"sidebyside noselect\" unselectable=\"on\">" . $label . "</a>";
             $sp = "&nbsp;";
         }
-        $s = "<div class='noprint' style='margin:20px 0px; text-align:center;'>".$str."</div>";
-        $title and $s.= "<span style='font-size:140%;'>".$title."</span>";
+        $s = "<div class='noprint' style='margin:20px 0px; text-align:center;'>" . $str . "</div>";
+        $title and $s .= "<span style='font-size:140%;'>" . $title . "</span>";
         return $s;
     }
     public static function mandatory($field = "")
@@ -340,7 +404,7 @@ EOD;
             $star = "*";
         }
         if ($field == "") {
-            return "<b style=\"font-weight:bold;font-size:100%;color:red;display:inline;top:-5px !important;top:-3px;position:relative;\">".$star."</b>";
+            return "<b style=\"font-weight:bold;font-size:100%;color:red;display:inline;top:-5px !important;top:-3px;position:relative;\">" . $star . "</b>";
         }
     }
     public static function exclaim($field = "")
@@ -350,7 +414,7 @@ EOD;
             $star = "*";
         }
         if ($field == "") {
-            return "<b style=\"font-weight:bold;font-size:100%;color:green;display:inline;top:-5px !important;top:-3px;position:relative;\">".$star."</b>";
+            return "<b style=\"font-weight:bold;font-size:100%;color:green;display:inline;top:-5px !important;top:-3px;position:relative;\">" . $star . "</b>";
         }
     }
     public static function warn()
@@ -359,7 +423,7 @@ EOD;
         if (stristr($_SERVER["HTTP_USER_AGENT"], "MSIE")) {
             $star = "*";
         }
-        return "<b style=\"font-weight:bold;font-size:100%;color:orange;display:inline;top:-5px !important;top:-3px;position:relative;\">".$star."</b>";
+        return "<b style=\"font-weight:bold;font-size:100%;color:orange;display:inline;top:-5px !important;top:-3px;position:relative;\">" . $star . "</b>";
     }
     public static function stylesheet()
     {
@@ -372,7 +436,7 @@ EOD;
                 $current_user->prefs["customizedTheme2"] = 4;
             }
             $style = strtolower($themes[sprintf("%d", $current_user->prefs["customizedTheme2"])]);
-            return "style_".$style.".css";
+            return "style_" . $style . ".css";
         }
     }
     public static function default_font_size()
@@ -381,18 +445,29 @@ EOD;
         $fonts  = page::get_customizedFont_array();
         $font = $fonts[sprintf("%d", $current_user->prefs["customizedFont"])];
         $font or $font = 4;
-        $font+= 8;
+        $font += 8;
         return $font;
     }
     public static function get_customizedFont_array()
     {
-        return array("-3"=>1, "-2"=>2, "-1"=>3, "0"=>"4", "1"=>5, "2"=>6, "3"=>7, "4"=>8, "5"=>9, "6"=>10);
+        return [
+            "-3" => 1,
+            "-2" => 2,
+            "-1" => 3,
+            "0" => "4",
+            "1" => 5,
+            "2" => 6,
+            "3" => 7,
+            "4" => 8,
+            "5" => 9,
+            "6" => 10
+        ];
     }
     public static function get_customizedTheme_array()
     {
         global $TPL;
         $dir = $TPL["url_alloc_styles"];
-        $rtn = array();
+        $rtn = [];
         if (is_dir($dir)) {
             $handle = opendir($dir);
             // TODO add icons to files attachaments in general
@@ -418,10 +493,10 @@ EOD;
     }
     public static function money_fmt($c, $amount = null)
     {
-        $currencies =& get_cached_table("currencyType");
+        $currencies = &get_cached_table("currencyType");
         $n = $currencies[$c]["numberToBasic"];
-        $num = sprintf("%0.".$n."f", $amount);
-        $num == sprintf("%0.".$n."f", -0) and $num = sprintf("%0.".$n."f", 0); // *sigh* to prevent -0.00
+        $num = sprintf("%0." . $n . "f", $amount);
+        $num == sprintf("%0." . $n . "f", -0) and $num = sprintf("%0." . $n . "f", 0); // *sigh* to prevent -0.00
         return $num;
     }
     public static function money_out($c, $amount = null)
@@ -430,7 +505,7 @@ EOD;
         // AUD,0|''|false -> 0.00
         if (imp($amount)) {
             $c or alloc_error("page::money(): no currency specified for amount $amount.");
-            $currencies =& get_cached_table("currencyType");
+            $currencies = &get_cached_table("currencyType");
             $n = $currencies[$c]["numberToBasic"];
 
             // We can use foo * 10^-n to move the decimal point left
@@ -446,7 +521,7 @@ EOD;
         // AUD        ->
         if (imp($amount)) {
             $c or alloc_error("page::money_in(): no currency specified for amount $amount.");
-            $currencies =& get_cached_table("currencyType");
+            $currencies = &get_cached_table("currencyType");
             $n = $currencies[$c]["numberToBasic"];
 
             // We can use foo * 10^n to move the decimal point right
@@ -459,7 +534,7 @@ EOD;
     {
         // Money print
         $c or $c = config::get_config_item('currency');
-        $currencies =& get_cached_table("currencyType");
+        $currencies = &get_cached_table("currencyType");
         $fmt = str_replace("%mo", page::money_out($c, $amount), $fmt);                          //%mo = money_out        eg: 150.21
         $fmt = str_replace("%mi", page::money_in($c, $amount), $fmt);                           //%mi = money_in         eg: 15021
         $fmt = str_replace("%m", page::money_fmt($c, $amount), $fmt);                          // %m = format           eg: 150.2 => 150.20
@@ -469,10 +544,10 @@ EOD;
         imp($amount) and $fmt = str_replace("%c", $c, $fmt);                                   // %c = optional code    eg: AUD
         $fmt = str_replace("%N", $currencies[$c]["currencyTypeName"], $fmt);  // %N = mandatory name   eg: Australian dollars
         imp($amount) and $fmt = str_replace("%n", $currencies[$c]["currencyTypeName"], $fmt);  // %n = optional name    eg: Australian dollars
-        $fmt = str_replace(array("%mo","%mi","%m","%S","%s","%C","%c","%N","%n"), "", $fmt); // strip leftovers away
+        $fmt = str_replace(["%mo", "%mi", "%m", "%S", "%s", "%C", "%c", "%N", "%n"], "", $fmt); // strip leftovers away
         return $fmt;
     }
-    public static function money_print($rows = array())
+    public static function money_print($rows = [])
     {
         $mainCurrency = config::get_config_item("currency");
         foreach ((array)$rows as $row) {
@@ -487,7 +562,7 @@ EOD;
 
         // Else if there's more than one currency, we'll provide a tooltip of the aggregation.
         foreach ((array)$sums as $currency => $amount) {
-            $str.= $sep.page::money($currency, $amount, "%s%m %c");
+            $str .= $sep . page::money($currency, $amount, "%s%m %c");
             $sep = " + ";
             if ($mainCurrency == $currency) {
                 $total += $amount;
@@ -497,7 +572,7 @@ EOD;
         }
         $total = page::money($mainCurrency, $total, "%s%m %c");
         if ($str && $str != $total) {
-            $rtn = page::help(page::exclaim()."<b>Approximate currency conversion</b><br>".$str." = ".$total, page::exclaim().$total);
+            $rtn = page::help(page::exclaim() . "<b>Approximate currency conversion</b><br>" . $str . " = " . $total, page::exclaim() . $total);
         } else if ($str) {
             $rtn = $str;
         }
@@ -516,8 +591,8 @@ EOD;
             $star_icon = "icon-star-empty";
             $star_text = "<b style='display:none'>.</b>";
         }
-        return '<a class="star'.$star_hot.'" href="'.$TPL["url_alloc_star"]
-            .'entity='.$entity.'&entityID='.$entityID.'"><b class="'.$star_icon.'">'.$star_text.'</b></a>';
+        return '<a class="star' . $star_hot . '" href="' . $TPL["url_alloc_star"]
+            . 'entity=' . $entity . '&entityID=' . $entityID . '"><b class="' . $star_icon . '">' . $star_text . '</b></a>';
     }
     public static function star_sorter($entity, $entityID)
     {

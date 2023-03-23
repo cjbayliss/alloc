@@ -21,9 +21,9 @@ foreach ($t as $k => $v) {
             $task = new task();
             $task->set_id($v);
             if ($task->select()) {
-                $v = $task->get_id()." ".$task->get_link();
+                $v = $task->get_id() . " " . $task->get_link();
             } else {
-                $v = "Task ".$v." not found.";
+                $v = "Task " . $v . " not found.";
             }
         } else if ($k == "username") {
             $name = $people[$v]["name"] or $name = $people[$v]["username"];
@@ -38,9 +38,9 @@ foreach ($t as $k => $v) {
 
 
 $str[] = "<table>";
-$str[] = "<tr><td>".$name." ".$rtn["date"]." </td><td class='nobr bold'> ".$rtn["duration"]." Hours</td><td class='nobr'></td></tr>";
-$rtn["taskID"]  and $str[] = "<tr><td colspan='3'>".$rtn["taskID"]."</td></tr>";
-$rtn["comment"] and $str[] = "<tr><td colspan='3'>".$rtn["comment"]."</td></tr>";
+$str[] = "<tr><td>" . $name . " " . $rtn["date"] . " </td><td class='nobr bold'> " . $rtn["duration"] . " Hours</td><td class='nobr'></td></tr>";
+$rtn["taskID"]  and $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
+$rtn["comment"] and $str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>";
 $str[] = "</table>";
 
 print implode("\n", $str);

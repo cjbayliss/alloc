@@ -26,12 +26,12 @@ function get_all_source_files($dir = "")
                 continue;
             }
 
-            if (is_file($dir.DIRECTORY_SEPARATOR.$file)) {
-                $image = "<img border=\"0\" alt=\"icon\" src=\"".$TPL["url_alloc_images"]."/fileicons/unknown.gif\">";
-                $files[$file] = "<a href=\"".$TPL["url_alloc_sourceCodeView"]."dir=".urlencode($dir)."&file=".urlencode($file)."\">".$image.$file."</a>";
-            } else if (is_dir($dir.DIRECTORY_SEPARATOR.$file)) {
-                $image = "<img border=\"0\" alt=\"icon\" src=\"".$TPL["url_alloc_images"]."/fileicons/directory.gif\">";
-                $dirs[$file] = "<a href=\"".$TPL["url_alloc_sourceCodeList"]."dir=".urlencode($dir.DIRECTORY_SEPARATOR.$file)."\">".$image.$file."</a>";
+            if (is_file($dir . DIRECTORY_SEPARATOR . $file)) {
+                $image = "<img border=\"0\" alt=\"icon\" src=\"" . $TPL["url_alloc_images"] . "/fileicons/unknown.gif\">";
+                $files[$file] = "<a href=\"" . $TPL["url_alloc_sourceCodeView"] . "dir=" . urlencode($dir) . "&file=" . urlencode($file) . "\">" . $image . $file . "</a>";
+            } else if (is_dir($dir . DIRECTORY_SEPARATOR . $file)) {
+                $image = "<img border=\"0\" alt=\"icon\" src=\"" . $TPL["url_alloc_images"] . "/fileicons/directory.gif\">";
+                $dirs[$file] = "<a href=\"" . $TPL["url_alloc_sourceCodeList"] . "dir=" . urlencode($dir . DIRECTORY_SEPARATOR . $file) . "\">" . $image . $file . "</a>";
             } else {
                 #echo "<br>wtf: ".$dir.DIRECTORY_SEPARATOR.$file;
             }
@@ -39,8 +39,8 @@ function get_all_source_files($dir = "")
     }
 
 
-    $files or $files = array();
-    $dirs or $dirs = array();
+    $files or $files = [];
+    $dirs or $dirs = [];
     asort($files);
     asort($dirs);
     $rtn = array_merge($dirs, $files);
@@ -51,7 +51,7 @@ function get_all_source_files($dir = "")
 $files = get_all_source_files($_GET["dir"]);
 if (is_array($files)) {
     foreach ($files as $file => $link) {
-        $TPL["results"].= "<p style=\"padding:0px; margin:4px\">".$link."</p>";
+        $TPL["results"] .= "<p style=\"padding:0px; margin:4px\">" . $link . "</p>";
     }
 }
 

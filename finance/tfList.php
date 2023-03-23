@@ -19,7 +19,7 @@ if ($_REQUEST["showall"]) {
     $TPL["showall_checked"] = " checked";
 }
 
-$TPL["main_alloc_title"] = "TF List - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "TF List - " . APPLICATION_NAME;
 
 $TPL["tfListRows"] = tf::get_list($_REQUEST);
 

@@ -1,24 +1,10 @@
 <?php
 
 /*
- * Copyright (C) 2006-2020 Alex Lance, Clancy Malcolm, Cyber IT Solutions
- * Pty. Ltd.
- *
- * This file is part of the allocPSA application <info@cyber.com.au>.
- *
- * allocPSA is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * allocPSA is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
- * License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with allocPSA. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright: Alex Lance, Clancy Malcolm, Cyber IT Solutions Pty. Ltd.
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 
 require_once("../alloc.php");
 
@@ -31,14 +17,14 @@ function show_perm_select()
         foreach ($ops as $p => $l) {
             unset($sel);
             in_array($p, $selected) and $sel = " checked";
-            echo $br."<input type=\"checkbox\" name=\"perm_select[]\" value=\"".$p."\"".$sel."> ".$l;
+            echo $br . "<input type=\"checkbox\" name=\"perm_select[]\" value=\"" . $p . "\"" . $sel . "> " . $l;
             $br = "<br>";
         }
     } else {
         $selected = explode(",", $person->get_value("perms"));
         $ops = role::get_roles_array("person");
         foreach ($selected as $sel) {
-            echo $br.$ops[$sel];
+            echo $br . $ops[$sel];
             $br = "<br>";
         }
     }
@@ -94,14 +80,20 @@ function show_person_areasOfExpertise($template)
        <button type="submit" name="personExpertiseItem_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
        <button type="submit" name="personExpertiseItem_save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
          ';
-    $proficiencys = array("Novice"=>"Novice", "Junior"=>"Junior", "Intermediate"=>"Intermediate", "Advanced"=>"Advanced", "Senior"=>"Senior");
+    $proficiencys = [
+        "Novice" => "Novice",
+        "Junior" => "Junior",
+        "Intermediate" => "Intermediate",
+        "Advanced" => "Advanced",
+        "Senior" => "Senior"
+    ];
 
     # step through the list of skills ordered by skillclass
     $db = new db_alloc();
     // $query = "SELECT * FROM skill ORDER BY skillClass,skillName";
     $query = "SELECT * FROM skill LEFT JOIN proficiency ON skill.skillID=proficiency.skillID";
-    $query.= prepare(" WHERE proficiency.personID=%d", $personID);
-    $query.= " ORDER BY skillClass,skillName";
+    $query .= prepare(" WHERE proficiency.personID=%d", $personID);
+    $query .= " ORDER BY skillClass,skillName";
     $db->query($query);
     $currSkillClass = null;
     while ($db->next_record()) {
@@ -138,7 +130,7 @@ function show_skills_list()
     $db = new db_alloc();
     $query = prepare("SELECT * FROM proficiency WHERE personID=%d", $personID);
     $db->query($query);
-    $skills_got = array();
+    $skills_got = [];
     while ($db->next_record()) {
         $skill = new skill();
         $skill->read_db_record($db);
@@ -207,7 +199,7 @@ if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $
 
                 $db = new db_alloc();
                 $query = prepare("SELECT * FROM proficiency WHERE personID = %d", $personID);
-                $query.= prepare(" AND skillID = %d", $_POST["skillID"][$i]);
+                $query .= prepare(" AND skillID = %d", $_POST["skillID"][$i]);
                 $db->query($query);
                 if (!$db->next_record()) {
                     $proficiency->save();
@@ -221,7 +213,7 @@ if ($_POST["save"]) {
     $person->read_globals();
 
     if ($person->can_write_field("perms")) {
-        $_POST["perm_select"] or $_POST["perm_select"] = array();
+        $_POST["perm_select"] or $_POST["perm_select"] = [];
         $person->set_value("perms", implode(",", $_POST["perm_select"]));
     }
 
@@ -292,7 +284,7 @@ if ($person->get_id()) {
     $tf->select();
 }
 
-$TPL["absence_url"] = $TPL["url_alloc_absence"]."personID=".$personID;
+$TPL["absence_url"] = $TPL["url_alloc_absence"] . "personID=" . $personID;
 $TPL["personActive"] = (!$person->get_id() || $person->get_value("personActive")) ? " checked" : "";
 
 if (has("time")) {
@@ -303,9 +295,9 @@ $TPL["timeSheetRateUnit_select"] = page::select_options($rate_type_array, $perso
 $TPL["timeSheetRateUnit_label"] = $rate_type_array[$person->get_value("defaultTimeSheetRateUnitID")];
 
 if ($personID) {
-    $TPL["main_alloc_title"] = "Person Details: " . $person->get_value("username")." - ".APPLICATION_NAME;
+    $TPL["main_alloc_title"] = "Person Details: " . $person->get_value("username") . " - " . APPLICATION_NAME;
 } else {
-    $TPL["main_alloc_title"] = "New Person - ".APPLICATION_NAME;
+    $TPL["main_alloc_title"] = "New Person - " . APPLICATION_NAME;
 }
 
 include_template("templates/personM.tpl");

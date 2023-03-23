@@ -11,7 +11,14 @@ class pendingApprovalTimeSheetListHomeItem extends home_item
 
     function __construct()
     {
-        parent::__construct("pending_time_list", "Time Sheets Pending Manager", "time", "pendingApprovalTimeSheetHomeM.tpl", "narrow", 23);
+        parent::__construct(
+            "pending_time_list",
+            "Time Sheets Pending Manager",
+            "time",
+            "pendingApprovalTimeSheetHomeM.tpl",
+            "narrow",
+            23
+        );
     }
 
     function visible()
@@ -42,7 +49,7 @@ function show_time_sheets_list_for_classes($template_name, $doAdmin = false)
         $db = get_pending_timesheet_db();
     }
 
-    $people =& get_cached_table("person");
+    $people = &get_cached_table("person");
 
     while ($db->next_record()) {
         $timeSheet = new timeSheet();
@@ -58,15 +65,15 @@ function show_time_sheets_list_for_classes($template_name, $doAdmin = false)
         unset($TPL["warning"]);
 
         // older than $current_user->prefs["timeSheetDaysWarn"] days
-        if ($date && imp($current_user->prefs["timeSheetDaysWarn"]) && (mktime()-format_date("U", $date))/60/60/24 > $current_user->prefs["timeSheetDaysWarn"]) {
-            $TPL["warning"] = page::help("This time sheet was submitted to you over ".$current_user->prefs["timeSheetDaysWarn"]." days ago.", page::warn());
+        if ($date && imp($current_user->prefs["timeSheetDaysWarn"]) && (mktime() - format_date("U", $date)) / 60 / 60 / 24 > $current_user->prefs["timeSheetDaysWarn"]) {
+            $TPL["warning"] = page::help("This time sheet was submitted to you over " . $current_user->prefs["timeSheetDaysWarn"] . " days ago.", page::warn());
         }
 
-        $TPL["date"] = "<a href=\"".$TPL["url_alloc_timeSheet"]."timeSheetID=".$timeSheet->get_id()."\">".$date."</a>";
+        $TPL["date"] = "<a href=\"" . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . "\">" . $date . "</a>";
         $TPL["user"] = $people[$timeSheet->get_value("personID")]["name"];
         $TPL["projectName"] = $db->f("projectName");
 
-        include_template("../time/templates/".$template_name);
+        include_template("../time/templates/" . $template_name);
     }
 }
 

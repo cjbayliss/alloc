@@ -9,14 +9,11 @@ class role extends db_entity
 {
     public $data_table = "role";
     public $key_field = "roleID";
-    public $data_fields = array("roleHandle",
-                                "roleName",
-                                "roleLevel",
-                                "roleSequence");
+    public $data_fields = ["roleHandle", "roleName", "roleLevel", "roleSequence"];
 
     function get_roles_array($level = "person")
     {
-        $rows = array();
+        $rows = [];
         $db = new db_alloc();
         $q = prepare("SELECT * FROM role WHERE roleLevel = '%s' ORDER BY roleSequence", $level);
         $db->query($q);

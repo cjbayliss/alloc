@@ -16,8 +16,8 @@ class db_entity
     public $classname = "db_entity";   // Support phplib session variables
     public $data_table = "";           // Set this to the name of the data base table
     public $key_field = "";            // Set this to the table's primary key
-    public $data_fields = array();     // Set this to the data fields using array("field_name1","field_name2");
-    public $all_row_fields = array();  // This gets set to all fields from the row of the query result used to load this entity
+    public $data_fields = [];     // Set this to the data fields using array("field_name1","field_name2");
+    public $all_row_fields = [];  // This gets set to all fields from the row of the query result used to load this entity
     public $db_class = "db_alloc";
     public $db;
     public $debug = false;
@@ -80,11 +80,11 @@ class db_entity
         if (is_object($person) && method_exists($person, "get_id") && $person->get_id()) {
             $person_id = $person->get_id();
             $person_type = $person->classname;
-            $person_id and $person_flag = $person_type."_".$person_id;
+            $person_id and $person_flag = $person_type . "_" . $person_id;
         }
 
-        $record_cache_key = $this->data_table.":".$entity_id.":".$action.":".$person_flag.":".$assume_owner;
-        $table_cache_key = $this->data_table.":T:".$action.":".$person_flag.":".$assume_owner;
+        $record_cache_key = $this->data_table . ":" . $entity_id . ":" . $action . ":" . $person_flag . ":" . $assume_owner;
+        $table_cache_key = $this->data_table . ":T:" . $action . ":" . $person_flag . ":" . $assume_owner;
 
         if (isset($permission_cache[$table_cache_key])) {
             return $permission_cache[$table_cache_key];
@@ -136,7 +136,7 @@ class db_entity
             return false;
         }
         if ($this->data_table && $this->key_field) {
-            $query = "SELECT * FROM ".db_esc($this->data_table)." WHERE ".$this->get_name_equals_value(array($this->key_field), " AND ");
+            $query = "SELECT * FROM " . db_esc($this->data_table) . " WHERE " . $this->get_name_equals_value([$this->key_field], " AND ");
             if ($this->debug) {
                 echo "db_entity->select query: $query<br>\n";
             }
@@ -149,11 +149,11 @@ class db_entity
         }
     }
 
-    function perm_cleanup(&$row = array())
+    function perm_cleanup(&$row = [])
     {
         foreach ($row as $field_name => $object) {
             if (!$this->can_read_field($field_name)) {
-                $str = "Permission denied to ".$this->permissions[$this->data_fields[$field_name]->read_perm_name]." of ".$this->data_table.".".$field_name;
+                $str = "Permission denied to " . $this->permissions[$this->data_fields[$field_name]->read_perm_name] . " of " . $this->data_table . "." . $field_name;
                 $row[$field_name] = $str;
             }
         }
@@ -176,7 +176,7 @@ class db_entity
         if (!$this->has_key_values()) {
             return false;
         }
-        $query = "DELETE FROM ".db_esc($this->data_table)." WHERE ".$this->get_name_equals_value(array($this->key_field), " AND ");
+        $query = "DELETE FROM " . db_esc($this->data_table) . " WHERE " . $this->get_name_equals_value([$this->key_field], " AND ");
         if ($this->debug) {
             echo "db_entity->delete query: $query<br>\n";
         }
@@ -209,16 +209,16 @@ class db_entity
             return false;
         }
 
-        if (isset($this->data_fields[$this->data_table."CreatedUser"]) && $current_user_id) {
-            $this->set_value($this->data_table."CreatedUser", $current_user_id);
+        if (isset($this->data_fields[$this->data_table . "CreatedUser"]) && $current_user_id) {
+            $this->set_value($this->data_table . "CreatedUser", $current_user_id);
         }
-        if (isset($this->data_fields[$this->data_table."CreatedTime"])) {
-            $this->set_value($this->data_table."CreatedTime", date("Y-m-d H:i:s"));
+        if (isset($this->data_fields[$this->data_table . "CreatedTime"])) {
+            $this->set_value($this->data_table . "CreatedTime", date("Y-m-d H:i:s"));
         }
-        if (isset($this->data_fields[$this->data_table."ModifiedUser"])) {
+        if (isset($this->data_fields[$this->data_table . "ModifiedUser"])) {
             #$this->set_value($this->data_table."ModifiedUser", $current_user_id);
         }
-        if (isset($this->data_fields[$this->data_table."ModifiedTime"])) {
+        if (isset($this->data_fields[$this->data_table . "ModifiedTime"])) {
             #$this->set_value($this->data_table."ModifiedTime", date("Y-m-d H:i:s"));
         }
 
@@ -227,12 +227,12 @@ class db_entity
             $this->data_fields[] = $this->key_field;
         }
 
-        $query = "INSERT INTO ".db_esc($this->data_table)." (";
-        $query.= $this->get_insert_fields($this->data_fields);
-        $query.= ") VALUES (";
-        $query.= $this->get_insert_values($this->data_fields);
-        $query.= ")";
-        $this->debug and print "<br>db_entity->insert() query: ".$query;
+        $query = "INSERT INTO " . db_esc($this->data_table) . " (";
+        $query .= $this->get_insert_fields($this->data_fields);
+        $query .= ") VALUES (";
+        $query .= $this->get_insert_values($this->data_fields);
+        $query .= ")";
+        $this->debug and print "<br>db_entity->insert() query: " . $query;
         $db = $this->get_db();
         $db->query($query);
 
@@ -242,7 +242,7 @@ class db_entity
         } else if ($id === false) {
             $this->debug and print "<br>db_entity->insert(): No MySQL connection was established";
         } else {
-            $this->debug and print "<br>db_entity->insert(): New ID: ".$id;
+            $this->debug and print "<br>db_entity->insert(): New ID: " . $id;
         }
         $this->key_field->set_value($id);
 
@@ -279,15 +279,15 @@ class db_entity
         }
 
         if (!$this->skip_modified_fields) {
-            if (isset($this->data_fields[$this->data_table."ModifiedUser"]) && $current_user_id) {
-                $this->set_value($this->data_table."ModifiedUser", $current_user_id);
+            if (isset($this->data_fields[$this->data_table . "ModifiedUser"]) && $current_user_id) {
+                $this->set_value($this->data_table . "ModifiedUser", $current_user_id);
             }
-            if (isset($this->data_fields[$this->data_table."ModifiedTime"])) {
-                $this->set_value($this->data_table."ModifiedTime", date("Y-m-d H:i:s"));
+            if (isset($this->data_fields[$this->data_table . "ModifiedTime"])) {
+                $this->set_value($this->data_table . "ModifiedTime", date("Y-m-d H:i:s"));
             }
         }
 
-        $write_fields = array();
+        $write_fields = [];
 
         reset($this->data_fields);
         while (list(, $field) = each($this->data_fields)) {
@@ -296,10 +296,10 @@ class db_entity
             }
         }
 
-        $query = "UPDATE ".db_esc($this->data_table)." SET ".$this->get_name_equals_value($write_fields)." WHERE ";
-        $query.= $this->get_name_equals_value(array($this->key_field));
+        $query = "UPDATE " . db_esc($this->data_table) . " SET " . $this->get_name_equals_value($write_fields) . " WHERE ";
+        $query .= $this->get_name_equals_value([$this->key_field]);
         $db = $this->get_db();
-        $this->debug and print "<br>db_entity->update() query: ".$query;
+        $this->debug and print "<br>db_entity->update() query: " . $query;
         $db->query($query);
         return true;
     }
@@ -310,9 +310,9 @@ class db_entity
             return true;
         } else if ($this->key_field->has_value() && $this->key_field->get_name() && $this->key_field->get_value()) {
             $db = $this->get_db();
-            $row = $db->qr("SELECT ".db_esc($this->key_field->get_name())."
-                              FROM ".db_esc($this->data_table)."
-                             WHERE ".db_esc($this->key_field->get_name())." = '".db_esc($this->key_field->get_value())."'");
+            $row = $db->qr("SELECT " . db_esc($this->key_field->get_name()) . "
+                              FROM " . db_esc($this->data_table) . "
+                             WHERE " . db_esc($this->key_field->get_name()) . " = '" . db_esc($this->key_field->get_value()) . "'");
             return !$row;
         }
     }
@@ -337,7 +337,7 @@ class db_entity
         }
 
         // Update the search index for this entity, if any
-        if ($rtn && $this->get_id() && $this->classname && is_dir(ATTACHMENTS_DIR.'search/'.$this->classname)) {
+        if ($rtn && $this->get_id() && $this->classname && is_dir(ATTACHMENTS_DIR . 'search/' . $this->classname)) {
             // Update the index asynchronously (later from a job running search/updateIndex.php)
             if ($this->updateSearchIndexLater) {
                 $db = $this->get_db();
@@ -345,7 +345,7 @@ class db_entity
 
                 // Update the index right now
             } else {
-                $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR.'search/'.$this->classname);
+                $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
                 $this->delete_search_index_doc($index);
                 $this->update_search_index_doc($index);
                 $index->commit();
@@ -355,7 +355,7 @@ class db_entity
         return $rtn;
     }
 
-    function validate($message = array())
+    function validate($message = [])
     {
         $c = $this->currency;
         if (isset($this->data_fields["currencyTypeID"]) && imp($this->data_fields["currencyTypeID"]->get_value())) {
@@ -388,14 +388,14 @@ class db_entity
 
         // Data fields
         foreach ($this->data_fields as $field_index => $field) {
-            $source_index = $source_prefix.$field->get_name();
+            $source_index = $source_prefix . $field->get_name();
             $this->set_field_value($this->data_fields[$field_index], $array[$source_index], $source);
         }
 
         // Key field
-        $source_index = $source_prefix.$this->key_field->get_name();
+        $source_index = $source_prefix . $this->key_field->get_name();
         $this->key_field->set_value($array[$source_index], $source);
-        $this->debug and print "db_entity->read_array key_field->set_value(".$array[$source_index].", $source)<br>\n";
+        $this->debug and print "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", $source)<br>\n";
         $this->fields_loaded = true;
     }
 
@@ -405,12 +405,12 @@ class db_entity
         // Data fields
         reset($this->data_fields);
         while (list($field_name) = each($this->data_fields)) {
-            $array_index = $array_index_prefix.$field_name;
+            $array_index = $array_index_prefix . $field_name;
             $array[$array_index] = $this->get_value($field_name, $dest);
         }
 
         // Key field
-        $array_index = $array_index_prefix.$this->key_field->get_name();
+        $array_index = $array_index_prefix . $this->key_field->get_name();
         $array[$array_index] = $this->key_field->get_value($dest);
     }
 
@@ -479,7 +479,7 @@ class db_entity
         if (is_object($this->data_fields[$field_name])) {
             $this->set_field_value($this->data_fields[$field_name], $value, $source);
         } else {
-            alloc_error("Cannot set field value - field not found: ".$field_name);
+            alloc_error("Cannot set field value - field not found: " . $field_name);
         }
     }
 
@@ -487,12 +487,12 @@ class db_entity
     {
         $field = $this->data_fields[$field_name];
         if (!is_object($field)) {
-            $msg = "Field $field_name does not exist in ".$this->data_table;
+            $msg = "Field $field_name does not exist in " . $this->data_table;
             alloc_error($msg);
             return $msg;
         }
         if (!$this->can_read_field($field_name)) {
-            return "Permission denied to ".$this->permissions[$this->data_fields[$field_name]->read_perm_name]." of ".$this->data_table.".".$field_name;
+            return "Permission denied to " . $this->permissions[$this->data_fields[$field_name]->read_perm_name] . " of " . $this->data_table . "." . $field_name;
         }
 
         $c = $this->currency;
@@ -521,7 +521,7 @@ class db_entity
     function get_foreign_object($class_name, $key_name = "")
     {
         if ($key_name == "") {
-            $key_name = $class_name."ID";
+            $key_name = $class_name . "ID";
         }
         $object = new $class_name;
         $object->set_id($this->get_value($key_name, DST_VARIABLE));
@@ -534,7 +534,7 @@ class db_entity
         if ($key_name == "") {
             $key_name = $this->key_field->get_name();
         }
-        $foreign_objects = array();
+        $foreign_objects = [];
         $query = prepare("SELECT * FROM %s WHERE %s = %d", $class_name, $key_name, $this->get_id());
         $db = new db_alloc();
         $db->query($query);
@@ -562,7 +562,7 @@ class db_entity
             }
             return $this->get_value($this->display_field_name, $dst);
         } else {
-            return "#".$this->get_id();
+            return "#" . $this->get_id();
         }
     }
 
@@ -594,7 +594,7 @@ class db_entity
             } else if ($this->key_field->get_name() == "personID") {
                 return $this->get_id() == $person->get_id();
             } else {
-                echo "Warning: could not determine owner for ".$this->data_table."<br>";
+                echo "Warning: could not determine owner for " . $this->data_table . "<br>";
             }
         }
     }
@@ -611,7 +611,7 @@ class db_entity
         // Key field
         $this->key_field->clear_value();
         if ($this->debug) {
-            echo "db_entity->read_array key_field->set_value(".$array[$source_index].", $source)<br>\n";
+            echo "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", $source)<br>\n";
         }
         $this->fields_loaded = false;
     }
@@ -632,7 +632,7 @@ class db_entity
     {
         foreach ((array)$fields as $k => $field) {
             if (strtolower($field->get_value(DST_DATABASE)) != "null") {
-                $rtn.= $comma.$field->get_name();
+                $rtn .= $comma . $field->get_name();
                 $comma = ",";
             }
         }
@@ -642,7 +642,7 @@ class db_entity
     {
         foreach ((array)$fields as $k => $field) {
             if (strtolower($field->get_value(DST_DATABASE)) != "null") {
-                $rtn.= $comma.$field->get_value(DST_DATABASE);
+                $rtn .= $comma . $field->get_value(DST_DATABASE);
                 $comma = ",";
             }
         }
@@ -654,18 +654,18 @@ class db_entity
         reset($fields);
         while (list(, $field) = each($fields)) {
             if ($query) {
-                $query.= $glue;
+                $query .= $glue;
             }
-            $query.= $field->get_name()." = ".$field->get_value(DST_DATABASE);
+            $query .= $field->get_name() . " = " . $field->get_value(DST_DATABASE);
         }
         return $query;
     }
 
-    function get_assoc_array($key = false, $value = false, $sel = false, $where = array())
+    function get_assoc_array($key = false, $value = false, $sel = false, $where = [])
     {
         $key or $key = $this->key_field->get_name();
         $value or $value = "*";
-        $value != "*" and $key_sql = $key.",";
+        $value != "*" and $key_sql = $key . ",";
 
         $q = sprintf(
             'SELECT %s %s FROM %s WHERE 1=1 ',
@@ -674,44 +674,44 @@ class db_entity
             db_esc($this->data_table)
         );
 
-        $pkey_sql = " OR ".$this->key_field->get_name()." = ";
+        $pkey_sql = " OR " . $this->key_field->get_name() . " = ";
         if (is_array($sel) && count($sel)) {
             foreach ($sel as $s) {
-                $extra.= $pkey_sql.sprintf("%d", $s);
+                $extra .= $pkey_sql . sprintf("%d", $s);
             }
         } else if ($sel) {
-            $extra = $pkey_sql.db_esc($sel);
+            $extra = $pkey_sql . db_esc($sel);
         }
 
         // If they haven't specifically asked for inactive or all
         // records, we default to giving them only active records.
-        if (is_object($this->data_fields[$this->data_table."Active"]) && !isset($where[$this->data_table."Active"])) {
-            $where[$this->data_table."Active"] = 1;
+        if (is_object($this->data_fields[$this->data_table . "Active"]) && !isset($where[$this->data_table . "Active"])) {
+            $where[$this->data_table . "Active"] = 1;
 
             // Else get all records
-        } else if ($where[$this->data_table."Active"] == "all") {
-            unset($where[$this->data_table."Active"]);
+        } else if ($where[$this->data_table . "Active"] == "all") {
+            unset($where[$this->data_table . "Active"]);
         }
 
         if (is_array($where) && count($where)) {
             foreach ($where as $colname => $colvalue) {
-                $q.= " AND ".$colname." = '".db_esc($colvalue)."'";
+                $q .= " AND " . $colname . " = '" . db_esc($colvalue) . "'";
             }
         }
 
-        $q.= $extra;
+        $q .= $extra;
 
-        if (is_object($this->data_fields[$this->data_table."Sequence"])) {
-            $q.= " ORDER BY ".db_esc($this->data_table)."Sequence";
-        } else if (is_object($this->data_fields[$this->data_table."Seq"])) {
-            $q.= " ORDER BY ".db_esc($this->data_table)."Seq";
+        if (is_object($this->data_fields[$this->data_table . "Sequence"])) {
+            $q .= " ORDER BY " . db_esc($this->data_table) . "Sequence";
+        } else if (is_object($this->data_fields[$this->data_table . "Seq"])) {
+            $q .= " ORDER BY " . db_esc($this->data_table) . "Seq";
         } else if ($value != "*") {
-            $q.= " ORDER BY ".db_esc($value);
+            $q .= " ORDER BY " . db_esc($value);
         }
 
         $db = new db_alloc();
         $db->query($q);
-        $rows = array();
+        $rows = [];
         while ($row = $db->row()) {
             if ($this->read_db_record($db)) {
                 if ($value && $value != "*") {
@@ -736,7 +736,7 @@ class db_entity
             } else if ($field) {
                 $label = $this->get_value($field, DST_HTML_DISPLAY);
             }
-            return "<a href=\"".$TPL["url_alloc_".$this->classname].$this->key_field->get_name()."=".$this->get_id()."\">".$label."</a>";
+            return "<a href=\"" . $TPL["url_alloc_" . $this->classname] . $this->key_field->get_name() . "=" . $this->get_id() . "\">" . $label . "</a>";
         }
     }
 

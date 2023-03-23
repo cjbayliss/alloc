@@ -17,5 +17,5 @@ if ($_REQUEST["entity"] && $_REQUEST["entityID"]) {
     $current_user->prefs["stars"] = $stars;
     $current_user->store_prefs();
 
-    alloc_redirect($TPL["url_alloc_".$_REQUEST["entity"]."List"]);
+    alloc_redirect($TPL["url_alloc_" . $_REQUEST["entity"] . "List"]);
 }

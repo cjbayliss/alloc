@@ -78,7 +78,7 @@ while ($row = $db->row($id)) {
     if ($row["message"]) {
         $ips = interestedParty::get_interested_parties("invoiceRepeat", $row["invoiceRepeatID"]);
 
-        $recipients = array();
+        $recipients = [];
         foreach ($ips as $email => $info) {
             $recipients[$email] = $info;
             $recipients[$email]["addIP"] = true;
@@ -91,7 +91,7 @@ while ($row = $db->row($id)) {
 
             // Re-email the comment out, including any attachments
             if (!comment::send_comment($commentID, $emailRecipients)) {
-                alloc_error("Failed to email invoice: ".$i->get_id());
+                alloc_error("Failed to email invoice: " . $i->get_id());
             }
         }
     }

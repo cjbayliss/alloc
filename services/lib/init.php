@@ -8,5 +8,5 @@
 
 class services_module extends module
 {
-    var $module = "services";
+    public $module = "services";
 }

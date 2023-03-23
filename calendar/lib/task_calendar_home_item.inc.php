@@ -7,7 +7,7 @@
 
 class task_calendar_home_item extends home_item
 {
-    var $date;
+    public $date;
 
     function __construct()
     {

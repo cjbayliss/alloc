@@ -17,4 +17,4 @@ if ($_GET['current']) {
 }
 $query = prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
 
-echo '<select name="projectID[]" multiple="true" style="width:100%">'.page::select_options($query, null, 70).'</select>';
+echo '<select name="projectID[]" multiple="true" style="width:100%">' . page::select_options($query, null, 70) . '</select>';

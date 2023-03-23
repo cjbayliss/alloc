@@ -76,9 +76,9 @@ class services
      * @param integer $entityID the id of the related entity
      * @return array an array of people, indexed by their email address
      */
-    public function get_people($options = array(), $entity = "", $entityID = "")
+    public function get_people($options = [], $entity = "", $entityID = "")
     {
-        $person_table =& get_cached_table("person");
+        $person_table = &get_cached_table("person");
         $people = $options;
 
         if ($entity && $entityID) {
@@ -90,7 +90,7 @@ class services
         }
 
         // remove default and internal from the array
-        $clean_people = array_diff($people, array("default", "internal"));
+        $clean_people = array_diff($people, ["default", "internal"]);
 
         if (is_object($e)) {
             $projectID = $e->get_project_id();
@@ -146,7 +146,7 @@ class services
 
                 // If we get here, then return the email address entered
                 list($e, $n) = parse_email_address($person);
-                $rtn[$e] = array("emailAddress"=>$e, "name"=>$n);
+                $rtn[$e] = ["emailAddress" => $e, "name" => $n];
                 $bad_person = false;
                 continue;
 
@@ -162,7 +162,7 @@ class services
                 }
                 foreach ($person_table as $pid => $data) {
                     // If matches name
-                    if (strtolower($person) == strtolower($data["firstName"]." ".$data["surname"]) && $data["personActive"]) {
+                    if (strtolower($person) == strtolower($data["firstName"] . " " . $data["surname"]) && $data["personActive"]) {
                         $rtn[$data["emailAddress"]] = $data;
                         $bad_person = false;
                         continue 2;
@@ -170,7 +170,7 @@ class services
                 }
                 foreach ($person_table as $pid => $data) {
                     // If matches a section of name, eg: a search for "Ale" will match the full name "Alex Lance"
-                    if (strtolower($person) == strtolower(substr(strtolower($data["firstName"]." ".$data["surname"]), 0, strlen($person))) && $data["personActive"]) {
+                    if (strtolower($person) == strtolower(substr(strtolower($data["firstName"] . " " . $data["surname"]), 0, strlen($person))) && $data["personActive"]) {
                         $rtn[$data["emailAddress"]] = $data;
                         $bad_person = false;
                         continue 2;
@@ -205,7 +205,7 @@ class services
             }
 
             if ($bad_person) {
-                die("Unable to find person: ".$person);
+                die("Unable to find person: " . $person);
             }
         }
 
@@ -272,7 +272,7 @@ class services
      * @param array $options the various filter options to apply see: ${entity}/lib/${entity}.inc.php -> get_list_filter().
      * @return array the list of entities
      */
-    public function get_list($entity, $options = array())
+    public function get_list($entity, $options = [])
     {
         $current_user = &singleton("current_user");
         if (class_exists($entity)) {
@@ -283,7 +283,7 @@ class services
                 $rtn = $entity::get_list($options);
                 $echoed = ob_get_contents();
                 if (!$rtn && $echoed) {
-                    return array("error"=>$echoed);
+                    return ["error" => $echoed];
                 } else {
                     if (isset($rtn["rows"])) {
                         return $rtn["rows"];
@@ -292,10 +292,10 @@ class services
                     }
                 }
             } else {
-                die("Entity method '".$entity."::get_list()' does not exist.");
+                die("Entity method '" . $entity . "::get_list()' does not exist.");
             }
         } else {
-            die("Entity '".$entity."' does not exist.");
+            die("Entity '" . $entity . "' does not exist.");
         }
     }
 
@@ -309,7 +309,7 @@ class services
         if ($str) {
             $uids = $this->get_comment_email_uids_search($str);
             foreach ((array)$uids as $uid) {
-                $emails.= $this->get_email($uid);
+                $emails .= $this->get_email($uid);
             }
         }
         return $emails;
@@ -326,19 +326,19 @@ class services
         $current_user = &singleton("current_user");
         $entity or $entity = "task";
         if ($taskID) {
-            $folder = config::get_config_item("allocEmailFolder")."/".$entity.$taskID;
+            $folder = config::get_config_item("allocEmailFolder") . "/" . $entity . $taskID;
             $info = $this->init_email_info();
             $mail = new email_receive($info);
             $mail->open_mailbox($folder, OP_READONLY);
             $uids = $mail->get_all_email_msg_uids();
             foreach ((array)$uids as $uid) {
-                list($header,$body) = $mail->get_raw_email_by_msg_uid($uid);
+                list($header, $body) = $mail->get_raw_email_by_msg_uid($uid);
                 if ($header && $body) {
                     $m = new email_send();
                     $m->set_headers($header);
                     $timestamp = $m->get_header('Date');
-                    $str = "\r\nFrom allocPSA ".date('D M  j G:i:s Y', strtotime($timestamp))."\r\n".$header.$body;
-                    $emails.= utf8_encode(str_replace("\r\n", "\n", $str));
+                    $str = "\r\nFrom allocPSA " . date('D M  j G:i:s Y', strtotime($timestamp)) . "\r\n" . $header . $body;
+                    $emails .= utf8_encode(str_replace("\r\n", "\n", $str));
                 }
             }
             $mail->close();
@@ -353,16 +353,16 @@ class services
      */
     public function get_timeSheetItem_comments($taskID)
     {
-        $people =& get_cached_table("person");
+        $people = &get_cached_table("person");
         has("time") and $rows = timeSheetItem::get_timeSheetItemComments($taskID);
         foreach ((array)$rows as $row) {
             $d = $row["timeSheetItemCreatedTime"] or $d = $row["date"];
             $timestamp = format_date("U", $d);
             $name = $people[$row["personID"]]["name"];
-            $str.= $br."From allocPSA ".date('D M  j G:i:s Y', $timestamp);
-            $str.= "\nFrom: ".$name;
-            $str.= "\nDate: ".date("D, d M Y H:i:s O", $timestamp);
-            $str.= "\n\n".$name." ".$row["duration"]." ".$row["comment"];
+            $str .= $br . "From allocPSA " . date('D M  j G:i:s Y', $timestamp);
+            $str .= "\nFrom: " . $name;
+            $str .= "\nDate: " . date("D, d M Y H:i:s O", $timestamp);
+            $str .= "\n\n" . $name . " " . $row["duration"] . " " . $row["comment"];
             $br = "\n\n";
         }
         return $str;
@@ -395,12 +395,12 @@ class services
             $info = $this->init_email_info();
             $mail = new email_receive($info);
             $mail->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
-            list($header,$body) = $mail->get_raw_email_by_msg_uid($emailUID);
+            list($header, $body) = $mail->get_raw_email_by_msg_uid($emailUID);
             $mail->close();
             $m = new email_send();
             $m->set_headers($header);
             $timestamp = $m->get_header('Date');
-            $str = "From allocPSA ".date('D M  j G:i:s Y', strtotime($timestamp))."\r\n".$header.$body;
+            $str = "From allocPSA " . date('D M  j G:i:s Y', strtotime($timestamp)) . "\r\n" . $header . $body;
             return utf8_encode(str_replace("\r\n", "\n", $str));
         }
     }
@@ -434,19 +434,19 @@ class services
 
         if (!$topic) {
             foreach ($this_methods as $method) {
-                $m = $method."_help";
+                $m = $method . "_help";
                 if (method_exists($this, $m)) {
-                    $available_topics.= $commar.$method;
+                    $available_topics .= $commar . $method;
                     $commar = ", ";
                 }
             }
-            die("Help is available for the following methods: ".$available_topics);
+            die("Help is available for the following methods: " . $available_topics);
         } else {
-            $m = $topic."_help";
+            $m = $topic . "_help";
             if (method_exists($this, $m)) {
                 return $this->$m();
             } else {
-                die("No help exists for this method: ".$topic);
+                die("No help exists for this method: " . $topic);
             }
         }
     }
@@ -500,12 +500,12 @@ class services
                     if (class_exists($entity)) {
                         $e = new $entity;
                         if (method_exists($e, "get_list")) {
-                            $rtn.= "\n\nEntity: ".$entity."\nOptions:\n";
+                            $rtn .= "\n\nEntity: " . $entity . "\nOptions:\n";
                             if (method_exists($e, "get_list_vars")) {
                                 $options = $entity::get_list_vars();
                                 foreach ($options as $option => $help) {
                                     $padding = 30 - strlen($option);
-                                    $rtn.= $commar2."    ".$option.str_repeat(" ", $padding).$help;
+                                    $rtn .= $commar2 . "    " . $option . str_repeat(" ", $padding) . $help;
                                     $commar2 = "\n";
                                 }
                             }
@@ -514,7 +514,7 @@ class services
                 }
             }
         }
-        die("Usage: get_list(entity, options). The following entities are available: ".$rtn);
+        die("Usage: get_list(entity, options). The following entities are available: " . $rtn);
     }
 
     /**
@@ -528,7 +528,7 @@ class services
     {
         $options[$entity] = $id;
         if (strtolower($options[$entity]) == "help") {
-            return array("status"=>"msg","message"=>command::get_help($entity));
+            return ["status" => "msg", "message" => command::get_help($entity)];
         } else if ($options) {
             $command = new command();
             return $command->run_commands($options);

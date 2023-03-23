@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -61,26 +62,7 @@ class Zend_Search_Lucene_Search_QueryToken
      */
     public static function getTypes()
     {
-        return array(   self::TT_WORD,
-                        self::TT_PHRASE,
-                        self::TT_FIELD,
-                        self::TT_FIELD_INDICATOR,
-                        self::TT_REQUIRED,
-                        self::TT_PROHIBITED,
-                        self::TT_FUZZY_PROX_MARK,
-                        self::TT_BOOSTING_MARK,
-                        self::TT_RANGE_INCL_START,
-                        self::TT_RANGE_INCL_END,
-                        self::TT_RANGE_EXCL_START,
-                        self::TT_RANGE_EXCL_END,
-                        self::TT_SUBQUERY_START,
-                        self::TT_SUBQUERY_END,
-                        self::TT_AND_LEXEME,
-                        self::TT_OR_LEXEME,
-                        self::TT_NOT_LEXEME,
-                        self::TT_TO_LEXEME,
-                        self::TT_NUMBER
-                     );
+        return [self::TT_WORD, self::TT_PHRASE, self::TT_FIELD, self::TT_FIELD_INDICATOR, self::TT_REQUIRED, self::TT_PROHIBITED, self::TT_FUZZY_PROX_MARK, self::TT_BOOSTING_MARK, self::TT_RANGE_INCL_START, self::TT_RANGE_INCL_END, self::TT_RANGE_EXCL_START, self::TT_RANGE_EXCL_END, self::TT_SUBQUERY_START, self::TT_SUBQUERY_END, self::TT_AND_LEXEME, self::TT_OR_LEXEME, self::TT_NOT_LEXEME, self::TT_TO_LEXEME, self::TT_NUMBER];
     }
 
 
@@ -129,7 +111,7 @@ class Zend_Search_Lucene_Search_QueryToken
 
         switch ($tokenCategory) {
             case self::TC_WORD:
-                if (  strtolower($tokenText) == 'and') {
+                if (strtolower($tokenText) == 'and') {
                     $this->type = self::TT_AND_LEXEME;
                 } else if (strtolower($tokenText) == 'or') {
                     $this->type = self::TT_OR_LEXEME;

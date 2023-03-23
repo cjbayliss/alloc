@@ -10,15 +10,17 @@ class tf extends db_entity
     public $data_table = "tf";
     public $display_field_name = "tfName";
     public $key_field = "tfID";
-    public $data_fields = array("tfName",
-                                "tfComments",
-                                "tfModifiedUser",
-                                "tfModifiedTime",
-                                "qpEmployeeNum",
-                                "quickenAccount",
-                                "tfActive");
+    public $data_fields = [
+        "tfName",
+        "tfComments",
+        "tfModifiedUser",
+        "tfModifiedTime",
+        "qpEmployeeNum",
+        "quickenAccount",
+        "tfActive"
+    ];
 
-    function get_balance($where = array(), $debug = "")
+    function get_balance($where = [], $debug = "")
     {
         $current_user = &singleton("current_user");
 
@@ -48,7 +50,7 @@ class tf extends db_entity
                 $op = $value[0];
                 $value = $value[1];
             }
-            $query.= " AND ".$column_name.$op." '".db_esc($value)."'";
+            $query .= " AND " . $column_name . $op . " '" . db_esc($value) . "'";
         }
 
         #echo "<br>".$debug." q: ".$query;
@@ -93,14 +95,14 @@ class tf extends db_entity
         global $TPL;
         $current_user = &singleton("current_user");
 
-        $nav_links = array();
+        $nav_links = [];
 
         // Alla melded the have entity perm for transactionRepeat into the
         // have entity perm for transaction because I figured they were the
         // same and it nukes the error message!
 
         if (have_entity_perm("tf", PERM_UPDATE, $current_user, $this->is_owner())) {
-            $statement_url = $TPL["url_alloc_tf"]."tfID=".$this->get_id();
+            $statement_url = $TPL["url_alloc_tf"] . "tfID=" . $this->get_id();
             $statement_link = "<a href=\"$statement_url\">Edit TF</a>";
             $nav_links[] = $statement_link;
         }
@@ -113,7 +115,7 @@ class tf extends db_entity
         $current_user = &singleton("current_user");
         global $TPL;
         if (have_entity_perm("transaction", PERM_READ, $current_user, $this->is_owner())) {
-            return "<a href=\"".$TPL["url_alloc_transactionList"]."tfID=".$this->get_id()."\">".$this->get_value("tfName", DST_HTML_DISPLAY)."</a>";
+            return "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $this->get_id() . "\">" . $this->get_value("tfName", DST_HTML_DISPLAY) . "</a>";
         } else {
             return $this->get_value("tfName", DST_HTML_DISPLAY);
         }
@@ -133,7 +135,7 @@ class tf extends db_entity
     {
         if ($name) {
             $db = new db_alloc();
-            $q = "SELECT tfID FROM tf WHERE ".sprintf_implode("tfName = '%s'", $name);
+            $q = "SELECT tfID FROM tf WHERE " . sprintf_implode("tfName = '%s'", $name);
             $db->query($q);
             while ($row = $db->row()) {
                 $rtn[] = $row["tfID"];
@@ -142,14 +144,14 @@ class tf extends db_entity
         return (array)$rtn;
     }
 
-    public static function get_permitted_tfs($requested_tfs = array())
+    public static function get_permitted_tfs($requested_tfs = [])
     {
         $current_user = &singleton("current_user");
         // If admin, just use the requested tfs
         if ($current_user->have_role('admin')) {
             $rtn = $requested_tfs;
 
-        // If not admin, then remove the items from $requested_tfs that the user can't access
+            // If not admin, then remove the items from $requested_tfs that the user can't access
         } else {
             $allowed_tfs = (array)tf::get_tfs_for_person($current_user->get_id());
             foreach ((array)$requested_tfs as $tf) {
@@ -166,7 +168,7 @@ class tf extends db_entity
         return (array)array_unique((array)$r);
     }
 
-    public static function get_list_filter($_FORM = array())
+    public static function get_list_filter($_FORM = [])
     {
         $current_user = &singleton("current_user");
 
@@ -181,20 +183,20 @@ class tf extends db_entity
         $_FORM["showall"] or $filter1[] = "(tf.tfActive = 1)";
         $_FORM["showall"] or $filter2[] = "(tf.tfActive = 1)";
 
-        return array($filter1,$filter2);
+        return [$filter1, $filter2];
     }
 
-    public static function get_list($_FORM = array())
+    public static function get_list($_FORM = [])
     {
         $current_user = &singleton("current_user");
 
-        list($filter1,$filter2) = tf::get_list_filter($_FORM);
+        list($filter1, $filter2) = tf::get_list_filter($_FORM);
 
         if (is_array($filter1) && count($filter1)) {
-            $f = " AND ".implode(" AND ", $filter1);
+            $f = " AND " . implode(" AND ", $filter1);
         }
         if (is_array($filter2) && count($filter2)) {
-            $f2 = " AND ".implode(" AND ", $filter2);
+            $f2 = " AND " . implode(" AND ", $filter2);
         }
 
         $db = new db_alloc();
@@ -203,7 +205,7 @@ class tf extends db_entity
                         FROM transaction
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                    LEFT JOIN tf on transaction.tfID = tf.tfID
-                       WHERE 1 AND transaction.status != 'rejected' ".$f2."
+                       WHERE 1 AND transaction.status != 'rejected' " . $f2 . "
                     GROUP BY transaction.status,transaction.tfID");
         $db->query($q);
         while ($row = $db->row()) {
@@ -220,7 +222,7 @@ class tf extends db_entity
                         FROM transaction
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                    LEFT JOIN tf on transaction.fromTfID = tf.tfID
-                       WHERE 1 AND transaction.status != 'rejected' ".$f2."
+                       WHERE 1 AND transaction.status != 'rejected' " . $f2 . "
                     GROUP BY transaction.status,transaction.fromTfID");
         $db->query($q);
         while ($row = $db->row()) {
@@ -234,7 +236,7 @@ class tf extends db_entity
         $q = prepare("SELECT tf.*
                         FROM tf
                    LEFT JOIN tfPerson ON tf.tfID = tfPerson.tfID
-                       WHERE 1 ".$f."
+                       WHERE 1 " . $f . "
                     GROUP BY tf.tfID
                     ORDER BY tf.tfName");
 

@@ -1,38 +1,27 @@
 <?php
 
 /*
- *
- * Copyright (C) 2006-2020 Alex Lance, Clancy Malcolm, Cyber IT Solutions Pty. Ltd.
- *
- * This file is part of allocPSA <info@cyber.com.au>.
- *
- * allocPSA is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- *
- * allocPSA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * allocPSA; if not, write to the Free Software Foundation, Inc., 51 Franklin
- * St, Fifth Floor, Boston, MA 02110-1301 USA
- *
- */
+ * Copyright: Alex Lance, Clancy Malcolm, Cyber IT Solutions Pty. Ltd.
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
 
 class productSaleItem extends db_entity
 {
     public $classname = "productSaleItem";
     public $data_table = "productSaleItem";
     public $key_field = "productSaleItemID";
-    public $data_fields = array("productID",
-                                "productSaleID",
-                                "sellPrice" => array("type"=>"money", "currency"=>"sellPriceCurrencyTypeID"),
-                                "sellPriceCurrencyTypeID",
-                                "sellPriceIncTax" => array("empty_to_null"=>false),
-                                "quantity",
-                                "description");
+    public $data_fields = [
+        "productID",
+        "productSaleID",
+        "sellPrice" => [
+            "type" => "money",
+            "currency" => "sellPriceCurrencyTypeID"
+        ],
+        "sellPriceCurrencyTypeID",
+        "sellPriceIncTax" => ["empty_to_null" => false],
+        "quantity",
+        "description"
+    ];
     function is_owner()
     {
         $productSale = $this->get_foreign_object("productSale");
@@ -66,7 +55,7 @@ class productSaleItem extends db_entity
             $this->get_id()
         );
         $db->query($q);
-        $rows = array();
+        $rows = [];
         while ($row = $db->row()) {
             $rows[] = $row;
         }
@@ -91,7 +80,7 @@ class productSaleItem extends db_entity
             $this->get_id()
         );
         $db->query($q);
-        $rows = array();
+        $rows = [];
         while ($row = $db->row()) {
             $rows[] = $row;
         }
@@ -122,7 +111,7 @@ class productSaleItem extends db_entity
             $this->get_id()
         );
         $db->query($q);
-        $rows = array();
+        $rows = [];
         while ($row = $db->row()) {
             $rows[] = $row;
         }
@@ -192,7 +181,7 @@ class productSaleItem extends db_entity
             config::get_config_item("inTfID"),
             $mainTfID,
             page::money($this->get_value("sellPriceCurrencyTypeID"), $this->get_value("sellPrice"), "%mo"),
-            "Product Sale: ".$productName,
+            "Product Sale: " . $productName,
             $this->get_value("sellPriceCurrencyTypeID")
         );
 
@@ -215,7 +204,7 @@ class productSaleItem extends db_entity
                 $productCost_row["tfID"],
                 config::get_config_item("outTfID"),
                 $amount,
-                "Product Cost: ".$productCost_row["productName"]." ".$productCost_row["description"],
+                "Product Cost: " . $productCost_row["productName"] . " " . $productCost_row["description"],
                 $productCost_row["currencyTypeID"],
                 $productCost_row["productCostID"]
             );
@@ -238,12 +227,12 @@ class productSaleItem extends db_entity
 
         $db2->query($query);
         while ($productComm_row = $db2->next_record()) {
-            $amount = page::money($productComm_row["currencyTypeID"], $totalUnallocated * $productComm_row["amount"]/100, "%mo");
+            $amount = page::money($productComm_row["currencyTypeID"], $totalUnallocated * $productComm_row["amount"] / 100, "%mo");
             $this->create_transaction(
                 $mainTfID,
                 $productComm_row["tfID"],
                 $amount,
-                "Product Commission: ".$productComm_row["productName"]." ".$productComm_row["description"],
+                "Product Commission: " . $productComm_row["productName"] . " " . $productComm_row["description"],
                 config::get_config_item("currency"),
                 $productComm_row["productCostID"]
             );
@@ -265,13 +254,13 @@ class productSaleItem extends db_entity
 
 
         // If this price includes tax, then perform a tax transfer
-        $amount_of_tax = $this->get_value("sellPrice") * ($taxPercent/100);
+        $amount_of_tax = $this->get_value("sellPrice") * ($taxPercent / 100);
         $amount_of_tax = exchangeRate::convert($this->get_value("sellPriceCurrencyTypeID"), $amount_of_tax, null, null, "%mo");
         $this->create_transaction(
             $mainTfID,
             $taxTfID,
             $amount_of_tax,
-            "Product Sale ".$taxName.": ".$productName,
+            "Product Sale " . $taxName . ": " . $productName,
             false,
             false,
             'tax'
@@ -291,14 +280,14 @@ class productSaleItem extends db_entity
 
         $db2->query($query);
         while ($productCost_row = $db2->next_record()) {
-            $amount_of_tax = $productCost_row["amount"] * ($taxPercent/100);
+            $amount_of_tax = $productCost_row["amount"] * ($taxPercent / 100);
             $amount_of_tax = exchangeRate::convert($productCost_row["currencyTypeID"], $amount_of_tax, null, null, "%mo");
             $productCost_row["amount"] = $amount_minus_tax;
             $this->create_transaction(
                 $mainTfID,
                 $taxTfID,
                 $amount_of_tax * $this->get_value("quantity"),
-                "Product Cost ".$taxName.": ".$productCost_row["productName"]." ".$productCost_row["description"],
+                "Product Cost " . $taxName . ": " . $productCost_row["productName"] . " " . $productCost_row["description"],
                 false,
                 $productCost_row["productCostID"],
                 'tax'

@@ -78,7 +78,7 @@ $TPL["transactionGroupID"] = $transactionGroupID;
 
 
 if ($_POST["save_transactions"]) {
-    is_array($_POST["deleteTransaction"]) or $_POST["deleteTransaction"] = array();
+    is_array($_POST["deleteTransaction"]) or $_POST["deleteTransaction"] = [];
 
     if (is_array($_POST["transactionID"]) && count($_POST["transactionID"])) {
         foreach ($_POST["transactionID"] as $k => $transactionID) {
@@ -88,21 +88,23 @@ if ($_POST["save_transactions"]) {
                 $transaction->set_id($transactionID);
                 $transaction->select();
                 $transaction->delete();
-                $deleted.= $commar1.$transactionID;
+                $deleted .= $commar1 . $transactionID;
                 $commar1 = ", ";
 
-            // Save
+                // Save
             } else if ($_POST["amount"][$k]) {
-                $a = array("amount"             => $_POST["amount"][$k]
-                  ,"tfID"               => $_POST["tfID"][$k]
-                  ,"fromTfID"           => $_POST["fromTfID"][$k]
-                  ,"product"            => $_POST["product"][$k]
-                  ,"description"        => $_POST["description"][$k]
-                  ,"transactionType"    => $_POST["transactionType"][$k]
-                  ,"transactionDate"    => $_POST["transactionDate"][$k]
-                  ,"status"             => $_POST["status"][$k]
-                  ,"transactionGroupID" => $transactionGroupID
-                  ,"transactionID"      => $_POST["transactionID"][$k]);
+                $a = [
+                    "amount"             => $_POST["amount"][$k],
+                    "tfID"               => $_POST["tfID"][$k],
+                    "fromTfID"           => $_POST["fromTfID"][$k],
+                    "product"            => $_POST["product"][$k],
+                    "description"        => $_POST["description"][$k],
+                    "transactionType"    => $_POST["transactionType"][$k],
+                    "transactionDate"    => $_POST["transactionDate"][$k],
+                    "status"             => $_POST["status"][$k],
+                    "transactionGroupID" => $transactionGroupID,
+                    "transactionID"      => $_POST["transactionID"][$k]
+                ];
 
                 $transaction = new transaction();
                 if ($_POST["transactionID"][$k]) {
@@ -113,7 +115,7 @@ if ($_POST["save_transactions"]) {
                 $v = $transaction->validate();
                 if ($v == "") {
                     $transaction->save();
-                    $saved.= $commar2.$transaction->get_id();
+                    $saved .= $commar2 . $transaction->get_id();
                     $commar2 = ", ";
                 } else {
                     alloc_error(implode("<br>", $v));
@@ -121,11 +123,11 @@ if ($_POST["save_transactions"]) {
             }
         }
     }
-    $saved and $TPL["message_good"][] = "Transaction ".$saved." saved.";
-    $deleted and $TPL["message_good"][] = "Transaction ".$deleted." deleted.";
-    alloc_redirect($TPL["url_alloc_transactionGroup"]."transactionGroupID=".$transactionGroupID);
+    $saved and $TPL["message_good"][] = "Transaction " . $saved . " saved.";
+    $deleted and $TPL["message_good"][] = "Transaction " . $deleted . " deleted.";
+    alloc_redirect($TPL["url_alloc_transactionGroup"] . "transactionGroupID=" . $transactionGroupID);
 }
 
 
-$TPL["main_alloc_title"] = "Edit Transactions - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Edit Transactions - " . APPLICATION_NAME;
 include_template("templates/transactionGroupM.tpl");

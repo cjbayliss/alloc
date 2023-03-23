@@ -66,7 +66,7 @@ $itemType = new meta("itemType");
 $TPL["itemTypes"] = page::select_options($itemType->get_assoc_array("itemTypeID", "itemTypeID"), $item->get_value("itemType"));
 
 // setup item list (for removals)
-$item_list = array();
+$item_list = [];
 $db = new db_alloc();
 $db->query("SELECT * FROM item ORDER BY itemName");
 while ($db->next_record()) {
@@ -89,25 +89,25 @@ if ($_POST["edit_items"]) {
             alloc_error("Can Only Edit 1 Item At A Time");
         }
         $TPL["edit_options"] =
-        "<table><tr>\n"
-        ."  <td>Name: </td>\n"
-        ."  <td colspan=\"2\"><input size=\"40\" type=\"text\" name=\"update_itemName\" value=\"".$item->get_value("itemName")."\"></td>\n"
-        ."</tr><tr>\n"
-        ."  <td>Notes: </td>\n"
-        ."  <td colspan=\"2\"><input size=\"40\" type=\"text\" name=\"update_itemNotes\" value=\"".$item->get_value("itemNotes")."\"></td>\n"
-        ."</tr><tr>\n"
-        ."  <td>Type: </td>\n"
-        ."  <td><select name=\"update_itemType\" value=\"".$item->get_value("itemType")."\">"
-        .        page::select_options($itemType->get_assoc_array("itemTypeID", "itemTypeID"), $item->get_value("itemType"))
-        ."       </select>"
-        ."    <input type=\"hidden\" name=\"update_itemID\" value=\"".$item->get_id()."\"></td>"
-        ."  <td align=\"right\">"
-        .'    <button type="submit" name="update_item" value="1" class="save_button">Save Changes<i class="icon-ok-sign"></i></button>'
-        ." </td>\n"
-        ."</tr><td colspan=\"3\"><hr></td></tr>\n"
-        ."</tr></table>\n";
+            "<table><tr>\n"
+            . "  <td>Name: </td>\n"
+            . "  <td colspan=\"2\"><input size=\"40\" type=\"text\" name=\"update_itemName\" value=\"" . $item->get_value("itemName") . "\"></td>\n"
+            . "</tr><tr>\n"
+            . "  <td>Notes: </td>\n"
+            . "  <td colspan=\"2\"><input size=\"40\" type=\"text\" name=\"update_itemNotes\" value=\"" . $item->get_value("itemNotes") . "\"></td>\n"
+            . "</tr><tr>\n"
+            . "  <td>Type: </td>\n"
+            . "  <td><select name=\"update_itemType\" value=\"" . $item->get_value("itemType") . "\">"
+            .        page::select_options($itemType->get_assoc_array("itemTypeID", "itemTypeID"), $item->get_value("itemType"))
+            . "       </select>"
+            . "    <input type=\"hidden\" name=\"update_itemID\" value=\"" . $item->get_id() . "\"></td>"
+            . "  <td align=\"right\">"
+            . '    <button type="submit" name="update_item" value="1" class="save_button">Save Changes<i class="icon-ok-sign"></i></button>'
+            . " </td>\n"
+            . "</tr><td colspan=\"3\"><hr></td></tr>\n"
+            . "</tr></table>\n";
     }
 }
 
-$TPL["main_alloc_title"] = "Edit Items - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Edit Items - " . APPLICATION_NAME;
 include_template("templates/addItemM.tpl");

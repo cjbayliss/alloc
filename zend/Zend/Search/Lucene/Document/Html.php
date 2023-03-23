@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -41,14 +42,14 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
      *
      * @var array
      */
-    private $_links = array();
+    private $_links = [];
 
     /**
      * List of document header links
      *
      * @var array
      */
-    private $_headerLinks = array();
+    private $_headerLinks = [];
 
     /**
      * Stored DOM representation
@@ -73,10 +74,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
      *
      * @var array
      */
-    private $_inlineTags = array('a', 'abbr', 'acronym', 'dfn', 'em', 'strong', 'code',
-                                'samp', 'kbd', 'var', 'b', 'i', 'big', 'small', 'strike',
-                                'tt', 'u', 'font', 'span', 'bdo', 'cite', 'del', 'ins',
-                                'q', 'sub', 'sup');
+    private $_inlineTags = ['a', 'abbr', 'acronym', 'dfn', 'em', 'strong', 'code', 'samp', 'kbd', 'var', 'b', 'i', 'big', 'small', 'strike', 'tt', 'u', 'font', 'span', 'bdo', 'cite', 'del', 'ins', 'q', 'sub', 'sup'];
 
     /**
      * Object constructor
@@ -108,8 +106,8 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
                 $htmlTagOffset = $matches[0][1] + strlen($matches[0][0]);
 
                 @$this->_doc->loadHTML(iconv($defaultEncoding, 'UTF-8//IGNORE', substr($htmlData, 0, $htmlTagOffset))
-                                     . '<head><META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8"/></head>'
-                                     . iconv($defaultEncoding, 'UTF-8//IGNORE', substr($htmlData, $htmlTagOffset)));
+                    . '<head><META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8"/></head>'
+                    . iconv($defaultEncoding, 'UTF-8//IGNORE', substr($htmlData, $htmlTagOffset)));
 
                 // Remove additional HEAD section
                 $xpath = new DOMXPath($this->_doc);
@@ -118,10 +116,9 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
             } else {
                 // It's an HTML fragment
                 @$this->_doc->loadHTML('<html><head><META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8"/></head><body>'
-                                     . iconv($defaultEncoding, 'UTF-8//IGNORE', $htmlData)
-                                     . '</body></html>');
+                    . iconv($defaultEncoding, 'UTF-8//IGNORE', $htmlData)
+                    . '</body></html>');
             }
-
         }
         /** @todo Add correction of wrong HTML encoding recognition processing
          * The case is:
@@ -141,9 +138,11 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
 
         $metaNodes = $xpath->query('/html/head/meta[@name]');
         foreach ($metaNodes as $metaNode) {
-            $this->addField(Zend_Search_Lucene_Field::Text($metaNode->getAttribute('name'),
-                                                           $metaNode->getAttribute('content'),
-                                                           'UTF-8'));
+            $this->addField(Zend_Search_Lucene_Field::Text(
+                $metaNode->getAttribute('name'),
+                $metaNode->getAttribute('content'),
+                'UTF-8'
+            ));
         }
 
         $docBody = '';
@@ -161,16 +160,16 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         $linkNodes = $this->_doc->getElementsByTagName('a');
         foreach ($linkNodes as $linkNode) {
             if (($href = $linkNode->getAttribute('href')) != '' &&
-                (!self::$_excludeNoFollowLinks  ||  strtolower($linkNode->getAttribute('rel')) != 'nofollow' )
-               ) {
+                (!self::$_excludeNoFollowLinks  ||  strtolower($linkNode->getAttribute('rel')) != 'nofollow')
+            ) {
                 $this->_links[] = $href;
             }
         }
         $linkNodes = $this->_doc->getElementsByTagName('area');
         foreach ($linkNodes as $linkNode) {
             if (($href = $linkNode->getAttribute('href')) != '' &&
-                (!self::$_excludeNoFollowLinks  ||  strtolower($linkNode->getAttribute('rel')) != 'nofollow' )
-               ) {
+                (!self::$_excludeNoFollowLinks  ||  strtolower($linkNode->getAttribute('rel')) != 'nofollow')
+            ) {
                 $this->_links[] = $href;
             }
         }
@@ -217,7 +216,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
     {
         if ($node->nodeType == XML_TEXT_NODE) {
             $text .= $node->nodeValue;
-            if(!in_array($node->parentNode->tagName, $this->_inlineTags)) {
+            if (!in_array($node->parentNode->tagName, $this->_inlineTags)) {
                 $text .= ' ';
             }
         } else if ($node->nodeType == XML_ELEMENT_NODE  &&  $node->nodeName != 'script') {
@@ -291,7 +290,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         $analyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
         $analyzer->setInput($node->nodeValue, 'UTF-8');
 
-        $matchedTokens = array();
+        $matchedTokens = [];
 
         while (($token = $analyzer->nextToken()) !== null) {
             if (isset($wordsToHighlight[$token->getTermText()])) {
@@ -320,10 +319,9 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
             // Transform HTML string to a DOM representation and automatically transform retrieved string
             // into valid XHTML (It's automatically done by loadHTML() method)
             $highlightedWordNodeSetDomDocument = new DOMDocument('1.0', 'UTF-8');
-            $success = @$highlightedWordNodeSetDomDocument->
-                                loadHTML('<html><head><meta http-equiv="Content-type" content="text/html; charset=UTF-8"/></head><body>'
-                                       . $highlightedWordNodeSetHtml
-                                       . '</body></html>');
+            $success = @$highlightedWordNodeSetDomDocument->loadHTML('<html><head><meta http-equiv="Content-type" content="text/html; charset=UTF-8"/></head><body>'
+                    . $highlightedWordNodeSetHtml
+                    . '</body></html>');
             if (!$success) {
                 require_once 'Zend/Search/Lucene/Exception.php';
                 throw new Zend_Search_Lucene_Exception("Error occured while loading highlighted text fragment: '$highlightedWordNodeSetHtml'.");
@@ -333,8 +331,10 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
 
             for ($count = 0; $count < $highlightedWordNodeSet->length; $count++) {
                 $nodeToImport = $highlightedWordNodeSet->item($count);
-                $node->parentNode->insertBefore($this->_doc->importNode($nodeToImport, true /* deep copy */),
-                                                $matchedWordNode);
+                $node->parentNode->insertBefore(
+                    $this->_doc->importNode($nodeToImport, true /* deep copy */),
+                    $matchedWordNode
+                );
             }
 
             $node->parentNode->removeChild($matchedWordNode);
@@ -352,7 +352,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
      */
     protected function _highlightNodeRecursive(DOMNode $contextNode, $wordsToHighlight, $callback, $params)
     {
-        $textNodes = array();
+        $textNodes = [];
 
         if (!$contextNode->hasChildNodes()) {
             return;
@@ -396,7 +396,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
      */
     public function highlight($words, $colour = '#66ffff')
     {
-        return $this->highlightExtended($words, array($this, 'applyColour'), array($colour));
+        return $this->highlightExtended($words, [$this, 'applyColour'], [$colour]);
     }
 
 
@@ -411,16 +411,16 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
      * @return string
      * @throws Zend_Search_Lucene_Exception
      */
-    public function highlightExtended($words, $callback, $params = array())
+    public function highlightExtended($words, $callback, $params = [])
     {
         /** Zend_Search_Lucene_Analysis_Analyzer */
         require_once 'Zend/Search/Lucene/Analysis/Analyzer.php';
 
         if (!is_array($words)) {
-            $words = array($words);
+            $words = [$words];
         }
 
-        $wordsToHighlightList = array();
+        $wordsToHighlightList = [];
         $analyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
         foreach ($words as $wordString) {
             $wordsToHighlightList[] = $analyzer->tokenize($wordString);
@@ -431,7 +431,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
             return $this->_doc->saveHTML();
         }
 
-        $wordsToHighlightFlipped = array();
+        $wordsToHighlightFlipped = [];
         foreach ($wordsToHighlight as $id => $token) {
             $wordsToHighlightFlipped[$token->getTermText()] = $id;
         }
@@ -470,7 +470,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         $xpath = new DOMXPath($this->_doc);
         $bodyNodes = $xpath->query('/html/body')->item(0)->childNodes;
 
-        $outputFragments = array();
+        $outputFragments = [];
         for ($count = 0; $count < $bodyNodes->length; $count++) {
             $outputFragments[] = $this->_doc->saveXML($bodyNodes->item($count));
         }
@@ -478,4 +478,3 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         return implode($outputFragments);
     }
 }
-

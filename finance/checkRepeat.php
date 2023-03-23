@@ -35,7 +35,7 @@ $db = new db_alloc();
 $dbMaxDate = new db_alloc();
 $today = mktime(0, 0, 0, date("m"), date("d"), date("Y"));
 
-echo("<br>".date("Y-m-d")."<br>");
+echo ("<br>" . date("Y-m-d") . "<br>");
 
 $db->query("select * from transactionRepeat WHERE status = 'approved'");
 
@@ -59,7 +59,7 @@ while ($db->next_record()) {
         $nextScheduled = timeWarp($mostRecentTransactionDate, $timeBasisString);
     }
 
-    echo "<br>Attempting repeating transaction: ".$transactionRepeat->get_value("product")." ... ";
+    echo "<br>Attempting repeating transaction: " . $transactionRepeat->get_value("product") . " ... ";
     //echo '<br><br>$nextScheduled <= $today && $nextScheduled >= $startDate && $nextScheduled <= $finishDate';
     //echo "<br>".$nextScheduled." <= ".$today." && ".$nextScheduled." >= ".$startDate." && ".$nextScheduled." <= ".$finishDate;
     while ($nextScheduled <= $today && $nextScheduled >= $startDate && $nextScheduled <= $finishDate) {
@@ -67,7 +67,7 @@ while ($db->next_record()) {
         $tf->set_id($transactionRepeat->get_value("tfID"));
         $tf->select();
         if (!$tf->get_value("tfActive")) {
-            echo "<br>Skipping because tf not active: ".$tf->get_value("tfName");
+            echo "<br>Skipping because tf not active: " . $tf->get_value("tfName");
             continue 2;
         }
 
@@ -75,7 +75,7 @@ while ($db->next_record()) {
         $tf->set_id($transactionRepeat->get_value("fromTfID"));
         $tf->select();
         if (!$tf->get_value("tfActive")) {
-            echo "<br>Skipping because tf not active: ".$tf->get_value("tfName");
+            echo "<br>Skipping because tf not active: " . $tf->get_value("tfName");
             continue 2;
         }
 
@@ -94,13 +94,13 @@ while ($db->next_record()) {
         $transaction->set_value("transactionDate", date("Y-m-d", $nextScheduled));
         $transaction->save();
 
-        echo "\n<br>".$transaction->get_value("transactionDate");
-        echo " ".$transactionRepeat->get_value("paymentBasis")." $".$transaction->get_value("amount")." for TF: ".tf::get_name($transaction->get_value("tfID"));
-        echo " (transactionID: ".$transaction->get_id()." transactionRepeatID:".$transactionRepeat->get_id()." name:".$transactionRepeat->get_value("product").")";
+        echo "\n<br>" . $transaction->get_value("transactionDate");
+        echo " " . $transactionRepeat->get_value("paymentBasis") . " $" . $transaction->get_value("amount") . " for TF: " . tf::get_name($transaction->get_value("tfID"));
+        echo " (transactionID: " . $transaction->get_id() . " transactionRepeatID:" . $transactionRepeat->get_id() . " name:" . $transactionRepeat->get_value("product") . ")";
 
         $nextScheduled = timeWarp($nextScheduled, $timeBasisString);
     }
 }
 
-$TPL["main_alloc_title"] = "Execute Repeating Expenses - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Execute Repeating Expenses - " . APPLICATION_NAME;
 include_template("templates/checkRepeatM.tpl");

@@ -9,7 +9,7 @@ $show_project = config::get_config_item('rssShowProject');
 // output will be
 
 $db = new db_alloc();
-$events = array();
+$events = [];
 
 // create an artifical sort key. Creation/audit date is not unique, and creation should
 // come before any status changes.
@@ -29,7 +29,7 @@ function escape_xml($string)
     return str_replace('&', '&amp;', $string);
 }
 
-$people =& get_cached_table('person');
+$people = &get_cached_table('person');
 
 // summary mode is the abbreviated version for the IRC bot
 $summary = $_GET['summary'] ? true : false;
@@ -48,7 +48,7 @@ $db->query($query);
 
 while ($row = $db->next_record()) {
     $key = $row['dateChanged'] . gen_key(1);
-    $el = array("date" => $row['dateChanged']);
+    $el = ["date" => $row['dateChanged']];
 
     if (!$row['personID']) {
         $name = "Unassigned";

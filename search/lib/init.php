@@ -8,5 +8,5 @@
 
 class search_module extends module
 {
-    var $module = "search";
+    public $module = "search";
 }

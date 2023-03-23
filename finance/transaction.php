@@ -47,18 +47,18 @@ if (!$invoice->get_id()) {
 }
 $invoice->set_values();
 if ($invoice->get_id()) {
-    $TPL["invoice_link"] = "<a href=\"".$TPL["url_alloc_invoice"]."invoiceID=".$invoice->get_id()."\">#".$invoice->get_value("invoiceNum");
-    $TPL["invoice_link"].= " ".$invoice->get_value("invoiceDateFrom")." to ". $invoice->get_value("invoiceDateTo")."</a>";
+    $TPL["invoice_link"] = "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $invoice->get_id() . "\">#" . $invoice->get_value("invoiceNum");
+    $TPL["invoice_link"] .= " " . $invoice->get_value("invoiceDateFrom") . " to " . $invoice->get_value("invoiceDateTo") . "</a>";
 }
 
 $expenseForm = $transaction->get_foreign_object("expenseForm");
 if ($expenseForm->get_id()) {
-    $TPL["expenseForm_link"] = "<a href=\"".$TPL["url_alloc_expenseForm"]."expenseFormID=".$expenseForm->get_id()."\">#".$expenseForm->get_id()."</a>";
+    $TPL["expenseForm_link"] = "<a href=\"" . $TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id() . "\">#" . $expenseForm->get_id() . "</a>";
 }
 
 $timeSheet = $transaction->get_foreign_object("timeSheet");
 if ($timeSheet->get_id()) {
-    $TPL["timeSheet_link"] = "<a href=\"".$TPL["url_alloc_timeSheet"]."timeSheetID=".$timeSheet->get_id()."\">#".$timeSheet->get_id()."</a>";
+    $TPL["timeSheet_link"] = "<a href=\"" . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . "\">#" . $timeSheet->get_id() . "</a>";
 }
 
 $transaction->set_values();
@@ -67,7 +67,7 @@ $transaction->set_values();
 
 
 if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
-/*
+    /*
   if ($transaction->get_value("status") != "pending") {
     alloc_error("This transaction is no longer editable.");
   }
@@ -87,24 +87,24 @@ if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
     #$transaction->get_value("companyDetails")  or alloc_error("You must enter the company details");
 
     if (!count($TPL["message"])) {
-        $transaction->set_value("amount", str_replace(array("$",","), "", $transaction->get_value("amount")));
+        $transaction->set_value("amount", str_replace(["$", ","], "", $transaction->get_value("amount")));
         if ($transaction->save()) { // need to check this again as transaction->save might have triggered an error
             $TPL["message_good"][] = "Transaction Saved";
 
             if ($_POST["saveAndNew"]) {
-                alloc_redirect($TPL["url_alloc_transaction"]."new=true");
+                alloc_redirect($TPL["url_alloc_transaction"] . "new=true");
             }
 
             if ($_POST["saveGoTf"]) {
-                alloc_redirect($TPL["url_alloc_transactionList"]."tfID=".$transaction->get_value("tfID"));
+                alloc_redirect($TPL["url_alloc_transactionList"] . "tfID=" . $transaction->get_value("tfID"));
             }
 
-            alloc_redirect($TPL["url_alloc_transaction"]."transactionID=".$transaction->get_id());
+            alloc_redirect($TPL["url_alloc_transaction"] . "transactionID=" . $transaction->get_id());
         }
     }
 } else if ($_POST["delete"]) {
     $transaction->delete();
-    alloc_redirect($TPL["url_alloc_transactionList"]."tfID=".$transaction->get_value("tfID"));
+    alloc_redirect($TPL["url_alloc_transactionList"] . "tfID=" . $transaction->get_value("tfID"));
 }
 
 $transaction->set_tpl_values();
@@ -113,7 +113,7 @@ $t = new meta("currencyType");
 $currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
 $TPL["currencyOptions"] = page::select_options($currency_array, $transaction->get_value("currencyTypeID"));
 $TPL["product"] = page::htmlentities($transaction->get_value("product"));
-$TPL["statusOptions"] = page::select_options(array("pending"=>"Pending", "rejected"=>"Rejected", "approved"=>"Approved"), $transaction->get_value("status"));
+$TPL["statusOptions"] = page::select_options(["pending" => "Pending", "rejected" => "Rejected", "approved" => "Approved"], $transaction->get_value("status"));
 $transactionTypes = transaction::get_transactionTypes();
 $TPL["transactionTypeOptions"] = page::select_options($transactionTypes, $transaction->get_value("transactionType"));
 
@@ -152,10 +152,10 @@ $TPL["project_link"] = $p->get_link();
 
 $TPL["taxName"] = config::get_config_item("taxName");
 
-if (is_object($current_user) && !$current_user->have_role("admin") && is_object($transaction) && in_array($transaction->get_value("status"), array("approved","rejected"))) {
-    $TPL["main_alloc_title"] = "View Transaction - ".APPLICATION_NAME;
+if (is_object($current_user) && !$current_user->have_role("admin") && is_object($transaction) && in_array($transaction->get_value("status"), ["approved", "rejected"])) {
+    $TPL["main_alloc_title"] = "View Transaction - " . APPLICATION_NAME;
     include_template("templates/viewTransactionM.tpl");
 } else {
-    $TPL["main_alloc_title"] = "Create Transaction - ".APPLICATION_NAME;
+    $TPL["main_alloc_title"] = "Create Transaction - " . APPLICATION_NAME;
     include_template("templates/editTransactionM.tpl");
 }

@@ -11,7 +11,7 @@ $ALLOC_CONFIG_PATH = $_POST["ALLOC_CONFIG_PATH"] or $ALLOC_CONFIG_PATH = $_GET["
 if ($ALLOC_CONFIG_PATH) {
     define("ALLOC_CONFIG_PATH", $ALLOC_CONFIG_PATH);
 } else {
-    define("ALLOC_CONFIG_PATH", realpath(dirname(__FILE__)."/../..")."/alloc_config.php");
+    define("ALLOC_CONFIG_PATH", realpath(__DIR__ . "/../..") . "/alloc_config.php");
 }
 unset($ALLOC_CONFIG_PATH);
 
@@ -19,18 +19,18 @@ unset($ALLOC_CONFIG_PATH);
 
 class installation_module extends module
 {
-    var $module = "installation";
+    public $module = "installation";
 }
 
 function get_patch_file_list()
 {
-    $dir = ALLOC_MOD_DIR."patches/";
-    $files = array();
+    $dir = ALLOC_MOD_DIR . "patches/";
+    $files = [];
     if (is_dir($dir)) {
         $dh = opendir($dir);
         if ($dh) {
             while (($file = readdir($dh)) !== false) {
-                if (filetype($dir.$file) == "file" && substr($file, 0, 1) != ".") {
+                if (filetype($dir . $file) == "file" && substr($file, 0, 1) != ".") {
                     $files[] = $file;
                 }
             }
@@ -49,7 +49,7 @@ function get_patch_file_list()
 
 function get_applied_patches()
 {
-    $rows = array();
+    $rows = [];
     $db = new db_alloc();
     $db->query("SELECT patchName FROM patchLog ORDER BY patchDate DESC,patchName DESC");
     while ($row = $db->row()) {
@@ -61,7 +61,7 @@ function get_applied_patches()
 function perform_test($test)
 {
     global $_FORM;
-    $arr = array();
+    $arr = [];
     $extensions = get_loaded_extensions();
 
     switch ($test) {
@@ -77,15 +77,15 @@ function perform_test($test)
             break;
         case "php_memory":
             $arr["value"] = get_cfg_var("memory_limit");
-            if (str_replace(array("m","M"), "", $arr["value"]) < 32) {
-                $arr["remedy"] = "Your installation of PHP may not have enough memory enabled. It is recommended to change the memory limit in the PHP config file: ".get_cfg_var("cfg_file_path");
+            if (str_replace(["m", "M"], "", $arr["value"]) < 32) {
+                $arr["remedy"] = "Your installation of PHP may not have enough memory enabled. It is recommended to change the memory limit in the PHP config file: " . get_cfg_var("cfg_file_path");
             }
             break;
         case "php_gd":
             if (function_exists("gd_info")) {
                 $gd_info = gd_info();
             } else {
-                $gd_info = array();
+                $gd_info = [];
             }
             $arr["value"] = $gd_info["GD Version"];
             if (!in_array("gd", $extensions)) {
@@ -110,8 +110,8 @@ function perform_test($test)
             $arr["value"] = $_FORM["ATTACHMENTS_DIR"];
             if ($_FORM["ATTACHMENTS_DIR"] == "" || !is_dir($_FORM["ATTACHMENTS_DIR"]) || !is_writeable($_FORM["ATTACHMENTS_DIR"])) {
                 $arr["remedy"] = "The directory specified for file uploads is either not defined or not writeable by the webserver process. Run:";
-                $arr["remedy"].= "<br>mkdir ".$_FORM["ATTACHMENTS_DIR"];
-                $arr["remedy"].= "<br>chmod a+w ".$_FORM["ATTACHMENTS_DIR"];
+                $arr["remedy"] .= "<br>mkdir " . $_FORM["ATTACHMENTS_DIR"];
+                $arr["remedy"] .= "<br>chmod a+w " . $_FORM["ATTACHMENTS_DIR"];
             }
             break;
     }

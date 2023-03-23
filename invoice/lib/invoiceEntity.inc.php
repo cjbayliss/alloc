@@ -11,11 +11,13 @@ class invoiceEntity extends db_entity
     public $classname = "invoiceEntity";
     public $data_table = "invoiceEntity";
     public $key_field = "invoiceEntityID";
-    public $data_fields = array("invoiceID",
-                                "timeSheetID",
-                                "expenseFormID",
-                                "productSaleID",
-                                "useItems");
+    public $data_fields = [
+        "invoiceID",
+        "timeSheetID",
+        "expenseFormID",
+        "productSaleID",
+        "useItems"
+    ];
 
     function create($invoiceID, $entity, $entityID, $useItems = 0)
     {
@@ -28,7 +30,7 @@ class invoiceEntity extends db_entity
             $ie->set_id($row["invoiceEntityID"]);
         }
         $ie->set_value("invoiceID", $invoiceID);
-        $ie->set_value($entity."ID", $entityID);
+        $ie->set_value($entity . "ID", $entityID);
         $ie->set_value("useItems", sprintf("%d", $useItems));
         $ie->save();
     }
@@ -68,9 +70,9 @@ class invoiceEntity extends db_entity
             }
         }
 
-        $timeSheet_links and $rtn[] = "Time Sheet: ".implode(", ", (array)$timeSheet_links);
-        $expenseForm_links and $rtn[] = "Expense Form: ".implode(", ", (array)$expenseForm_links);
-        $productSale_links and $rtn[] = "Product Sale: ".implode(", ", (array)$productSale_links);
+        $timeSheet_links and $rtn[] = "Time Sheet: " . implode(", ", (array)$timeSheet_links);
+        $expenseForm_links and $rtn[] = "Expense Form: " . implode(", ", (array)$expenseForm_links);
+        $productSale_links and $rtn[] = "Product Sale: " . implode(", ", (array)$productSale_links);
         return implode(" / ", (array)$rtn);
     }
 
@@ -105,11 +107,11 @@ class invoiceEntity extends db_entity
             $row = $db->row();
             $ii = new invoiceItem();
             if ($row) {
-                  $ii->set_id($row["invoiceItemID"]);
+                $ii->set_id($row["invoiceItemID"]);
             }
             $ii->set_value("invoiceID", $invoiceID);
             $ii->set_value("timeSheetID", $timeSheet->get_id());
-            $ii->set_value("iiMemo", "Time Sheet #".$timeSheet->get_id()." for ".person::get_fullname($timeSheet->get_value("personID")).", Project: ".$project->get_value("projectName"));
+            $ii->set_value("iiMemo", "Time Sheet #" . $timeSheet->get_id() . " for " . person::get_fullname($timeSheet->get_value("personID")) . ", Project: " . $project->get_value("projectName"));
             $ii->set_value("iiQuantity", $iiQuantity);
             $ii->set_value("iiUnitPrice", $iiUnitPrice);
             $ii->set_value("iiAmount", $amount);
@@ -118,7 +120,7 @@ class invoiceEntity extends db_entity
             $ii->currency = $timeSheet->get_value("currencyTypeID");
             $ii->save();
         } else {
-            alloc_error("Unable to update related Invoice (ID:".$invoiceID.").");
+            alloc_error("Unable to update related Invoice (ID:" . $invoiceID . ").");
         }
     }
 
@@ -163,13 +165,13 @@ class invoiceEntity extends db_entity
 
             $ii = new invoiceItem();
             if ($r2["invoiceItemID"]) {
-                  $ii->set_id($r2["invoiceItemID"]);
+                $ii->set_id($r2["invoiceItemID"]);
             }
             $ii->currency = $currency;
             $ii->set_value("invoiceID", $invoiceID);
             $ii->set_value("timeSheetID", $timeSheet->get_id());
             $ii->set_value("timeSheetItemID", $row["timeSheetItemID"]);
-            $ii->set_value("iiMemo", "Time Sheet for ".person::get_fullname($timeSheet->get_value("personID")).", Project: ".$project->get_value("projectName").", ".$row["description"]."\n".$str);
+            $ii->set_value("iiMemo", "Time Sheet for " . person::get_fullname($timeSheet->get_value("personID")) . ", Project: " . $project->get_value("projectName") . ", " . $row["description"] . "\n" . $str);
             $ii->set_value("iiQuantity", $row["timeSheetItemDuration"] * $row["multiplier"]);
             $ii->set_value("iiUnitPrice", $iiUnitPrice);
             $ii->set_value("iiAmount", $iiUnitPrice * $row["timeSheetItemDuration"] * $row["multiplier"]);
@@ -201,7 +203,7 @@ class invoiceEntity extends db_entity
         }
         $ii->set_value("invoiceID", $invoiceID);
         $ii->set_value("expenseFormID", $expenseForm->get_id());
-        $ii->set_value("iiMemo", "Expense Form #".$expenseForm->get_id()." for ".person::get_fullname($expenseForm->get_value("expenseFormCreatedUser")));
+        $ii->set_value("iiMemo", "Expense Form #" . $expenseForm->get_id() . " for " . person::get_fullname($expenseForm->get_value("expenseFormCreatedUser")));
         $ii->set_value("iiQuantity", 1);
         $ii->set_value("iiUnitPrice", $amount);
         $ii->set_value("iiAmount", $amount);
@@ -232,9 +234,9 @@ class invoiceEntity extends db_entity
             $ii->set_value("invoiceID", $invoiceID);
             $ii->set_value("expenseFormID", $expenseForm->get_id());
             $ii->set_value("transactionID", $row["transactionID"]);
-            $ii->set_value("iiMemo", "Expenses for ".person::get_fullname($expenseForm->get_value("expenseFormCreatedUser")).", ".$row["product"]);
+            $ii->set_value("iiMemo", "Expenses for " . person::get_fullname($expenseForm->get_value("expenseFormCreatedUser")) . ", " . $row["product"]);
             $ii->set_value("iiQuantity", $row["quantity"]);
-            $ii->set_value("iiUnitPrice", $amount/$row["quantity"]);
+            $ii->set_value("iiUnitPrice", $amount / $row["quantity"]);
             $ii->set_value("iiAmount", $amount);
             $ii->set_value("iiDate", $row["transactionDate"]);
             $ii->set_value("iiTax", config::get_config_item("taxPercent"));
@@ -264,7 +266,7 @@ class invoiceEntity extends db_entity
         }
         $ii->set_value("invoiceID", $invoiceID);
         $ii->set_value("productSaleID", $productSale->get_id());
-        $ii->set_value("iiMemo", "Sale #".$productSale->get_id()." for ".person::get_fullname($productSale->get_value("personID")));
+        $ii->set_value("iiMemo", "Sale #" . $productSale->get_id() . " for " . person::get_fullname($productSale->get_value("personID")));
         $ii->set_value("iiQuantity", 1);
         $ii->set_value("iiUnitPrice", $amounts["total_sellPrice_value"]);
         $ii->set_value("iiAmount", $amounts["total_sellPrice_value"]);
@@ -294,11 +296,11 @@ class invoiceEntity extends db_entity
             $ii->set_value("invoiceID", $invoiceID);
             $ii->set_value("productSaleID", $productSale->get_id());
             $ii->set_value("productSaleItemID", $row["productSaleItemID"]);
-            $ii->set_value("iiMemo", "Sale (".$productSale->get_id().") item for ".person::get_fullname($productSale->get_value("personID")).", ".$row["description"]);
+            $ii->set_value("iiMemo", "Sale (" . $productSale->get_id() . ") item for " . person::get_fullname($productSale->get_value("personID")) . ", " . $row["description"]);
             $ii->set_value("iiQuantity", $row["quantity"]);
-            $row["sellPrice"] = page::money($ii->currency, $row["sellPrice"]/$row["quantity"], "%mo");
+            $row["sellPrice"] = page::money($ii->currency, $row["sellPrice"] / $row["quantity"], "%mo");
             $ii->set_value("iiUnitPrice", $row["sellPrice"]);
-            $ii->set_value("iiAmount", $row["sellPrice"]*$row["quantity"]);
+            $ii->set_value("iiAmount", $row["sellPrice"] * $row["quantity"]);
             $d = $productSale->get_value("productSaleDate") or $d = $productSale->get_value("productSaleModifiedTime") or $d = $productSale->get_value("productSaleCreatedTime");
             $ii->set_value("iiDate", $d);
             //$ii->set_value("iiTax",config::get_config_item("taxPercent")); // product sale items are always excl GST

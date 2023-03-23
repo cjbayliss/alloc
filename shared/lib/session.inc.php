@@ -8,11 +8,11 @@
 class session
 {
 
-    var $key;          # the unique key for the session
-    var $db;           # database object
-    var $session_data; # assoc array which holds all session data
-    var $session_life; # number of seconds the session is alive for
-    var $mode;         # whether to use get or cookies
+    public $key;          # the unique key for the session
+    public $db;           # database object
+    public $session_data; # assoc array which holds all session data
+    public $session_life; # number of seconds the session is alive for
+    public $mode;         # whether to use get or cookies
 
 
     // * * * * * * * * * * * * * * * * *//
@@ -31,7 +31,7 @@ class session
         $TPL["sessID"]       = $_GET["sess"];
         $this->db            = new db_alloc();
         #$this->session_life  = (5);
-        $this->session_life  = (config::get_config_item("allocSessionMinutes")*60);
+        $this->session_life  = (config::get_config_item("allocSessionMinutes") * 60);
         $this->session_life < 1 and $this->session_life = 10000; // just in case.
         $this->session_data  = $this->UnEncode($this->GetSessionData());
         $this->mode          = $this->Get("session_mode");
@@ -46,7 +46,7 @@ class session
     // Call this in a login page to start session
     function Start($row, $nuke_prev_sessions = true)
     {
-        $this->key = md5($row["personID"]."mix it up#@!".md5(mktime().md5(microtime())));
+        $this->key = md5($row["personID"] . "mix it up#@!" . md5(mktime() . md5(microtime())));
         $this->Put("session_started", mktime());
         if ($nuke_prev_sessions && config::get_config_item("singleSession")) {
             $this->db->query("DELETE FROM sess WHERE personID = %d", $row["personID"]);
@@ -150,17 +150,17 @@ class session
 
         if ($this->mode == "get") {
             if (!strpos($url, "sess=") && $this->key) {
-                $extra = "sess=".$this->key."&";
+                $extra = "sess=" . $this->key . "&";
             }
         }
 
         if (strpos($url, "?")) {
-            $url.= "&";
+            $url .= "&";
         } else {
-            $url.= "?";
+            $url .= "?";
         }
 
-        return $url.$extra;
+        return $url . $extra;
     }
 
     function UseGet()
@@ -196,7 +196,7 @@ class session
     // if $this->session_life seconds have passed then session has expired
     function Expired()
     {
-        if ($this->Get("session_started") && (mktime() > ($this->Get("session_started")+$this->session_life))) {
+        if ($this->Get("session_started") && (mktime() > ($this->Get("session_started") + $this->session_life))) {
             return true;
         }
     }

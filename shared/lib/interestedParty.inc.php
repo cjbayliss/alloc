@@ -9,16 +9,18 @@ class interestedParty extends db_entity
 {
     public $data_table = "interestedParty";
     public $key_field = "interestedPartyID";
-    public $data_fields = array("entityID",
-                                "entity",
-                                "fullName",
-                                "emailAddress",
-                                "personID",
-                                "clientContactID",
-                                "external",
-                                "interestedPartyCreatedUser",
-                                "interestedPartyCreatedTime",
-                                "interestedPartyActive");
+    public $data_fields = [
+        "entityID",
+        "entity",
+        "fullName",
+        "emailAddress",
+        "personID",
+        "clientContactID",
+        "external",
+        "interestedPartyCreatedUser",
+        "interestedPartyCreatedTime",
+        "interestedPartyActive"
+    ];
 
     function delete()
     {
@@ -34,13 +36,13 @@ class interestedParty extends db_entity
 
     function save()
     {
-        $this->set_value("emailAddress", str_replace(array("<",">"), "", $this->get_value("emailAddress")));
+        $this->set_value("emailAddress", str_replace(["<", ">"], "", $this->get_value("emailAddress")));
         return parent::save();
     }
 
     function exists($entity, $entityID, $email)
     {
-        $email = str_replace(array("<",">"), "", $email);
+        $email = str_replace(["<", ">"], "", $email);
         $db = new db_alloc();
         $db->query("SELECT *
                       FROM interestedParty
@@ -53,7 +55,7 @@ class interestedParty extends db_entity
 
     function active($entity, $entityID, $email)
     {
-        list($email,$name) = parse_email_address($email);
+        list($email, $name) = parse_email_address($email);
         $db = new db_alloc();
         $db->query("SELECT *
                       FROM interestedParty
@@ -65,7 +67,7 @@ class interestedParty extends db_entity
         return $db->row();
     }
 
-    function make_interested_parties($entity, $entityID, $encoded_parties = array())
+    function make_interested_parties($entity, $entityID, $encoded_parties = [])
     {
         // Nuke entries from interestedParty
         $db = new db_alloc();
@@ -86,7 +88,7 @@ class interestedParty extends db_entity
                          SET interestedPartyActive = 0
                        WHERE entity = '%s'
                          AND entityID = %d", $entity, $entityID);
-        $ipIDs and $q.= " AND ".sprintf_implode(" AND ", "interestedPartyID != %d", $ipIDs);
+        $ipIDs and $q .= " AND " . sprintf_implode(" AND ", "interestedPartyID != %d", $ipIDs);
         $db->query($q);
 
         $db->commit();
@@ -94,16 +96,16 @@ class interestedParty extends db_entity
 
     function abbreviate($str)
     {
-        $rtn = array();
+        $rtn = [];
         $bits = explode(",", $str);
         foreach ((array)$bits as $bit) {
             if ($bit) {
-                list($name,$address) = explode("<", $bit);
-                $rtn[] = page::htmlentities(trim($name))."<span class='hidden'> ".page::htmlentities("<".$address)."</span>";
+                list($name, $address) = explode("<", $bit);
+                $rtn[] = page::htmlentities(trim($name)) . "<span class='hidden'> " . page::htmlentities("<" . $address) . "</span>";
             }
         }
         if ($rtn) {
-            return "<span>".implode(", ", $rtn)."&nbsp;&nbsp;<a href='' onClick='$(this).parent().find(\"span\").slideToggle(\"fast\"); return false;'>Show</a></span>";
+            return "<span>" . implode(", ", $rtn) . "&nbsp;&nbsp;<a href='' onClick='$(this).parent().find(\"span\").slideToggle(\"fast\"); return false;'>Show</a></span>";
         }
     }
 
@@ -120,9 +122,9 @@ class interestedParty extends db_entity
         return strtolower($a["name"]) > strtolower($b["name"]);
     }
 
-    public static function get_interested_parties($entity, $entityID = false, $ops = array(), $dont_select = false)
+    public static function get_interested_parties($entity, $entityID = false, $ops = [], $dont_select = false)
     {
-        $rtn = array();
+        $rtn = [];
 
         if ($entityID) {
             $db = new db_alloc();
@@ -152,12 +154,12 @@ class interestedParty extends db_entity
                 }
             }
 
-            uasort($rtn, array("interestedParty","sort_interested_parties"));
+            uasort($rtn, ["interestedParty", "sort_interested_parties"]);
         }
         return $rtn;
     }
 
-    public static function get_encoded_interested_party_identifier($info = array())
+    public static function get_encoded_interested_party_identifier($info = [])
     {
         return base64_encode(serialize($info));
     }
@@ -167,7 +169,7 @@ class interestedParty extends db_entity
         return unserialize(base64_decode($blob));
     }
 
-    function get_interested_parties_html($parties = array())
+    function get_interested_parties_html($parties = [])
     {
         $current_user = &singleton("current_user");
         if (is_object($current_user) && $current_user->get_id()) {
@@ -184,10 +186,10 @@ class interestedParty extends db_entity
                 }
 
                 $info["selected"] and $sel = " checked";
-                !$info["internal"] && $info["external"] and $c.= " warn";
-                $str.= "<span width=\"150px\" class=\"nobr ".$c."\" id=\"td_ect_".$counter."\" style=\"float:left; width:150px; margin-bottom:5px;\">";
-                $str.= "<input id=\"ect_".$counter."\" type=\"checkbox\" name=\"commentEmailRecipients[]\" value=\"".$info["identifier"]."\"".$sel."> ";
-                $str.= "<label for=\"ect_".$counter."\" title=\"" . $info["name"] . " &lt;" . $info["email"] . "&gt;\">".page::htmlentities($info["name"])."</label></span>";
+                !$info["internal"] && $info["external"] and $c .= " warn";
+                $str .= "<span width=\"150px\" class=\"nobr " . $c . "\" id=\"td_ect_" . $counter . "\" style=\"float:left; width:150px; margin-bottom:5px;\">";
+                $str .= "<input id=\"ect_" . $counter . "\" type=\"checkbox\" name=\"commentEmailRecipients[]\" value=\"" . $info["identifier"] . "\"" . $sel . "> ";
+                $str .= "<label for=\"ect_" . $counter . "\" title=\"" . $info["name"] . " &lt;" . $info["email"] . "&gt;\">" . page::htmlentities($info["name"]) . "</label></span>";
             }
         }
         return $str;
@@ -196,7 +198,7 @@ class interestedParty extends db_entity
     function delete_interested_party($entity, $entityID, $email)
     {
         // Delete existing entries
-        list($email,$name) = parse_email_address($email);
+        list($email, $name) = parse_email_address($email);
         $row = interestedParty::active($entity, $entityID, $email);
         if ($row) {
             $ip = new interestedParty();
@@ -208,7 +210,7 @@ class interestedParty extends db_entity
     function add_interested_party($data)
     {
         static $people;
-        $data["emailAddress"] = str_replace(array("<",">"), "", $data["emailAddress"]);
+        $data["emailAddress"] = str_replace(["<", ">"], "", $data["emailAddress"]);
         // Add new entry
 
         $ip = new interestedParty();
@@ -226,7 +228,7 @@ class interestedParty extends db_entity
             $ip->set_value("personID", $data["personID"]);
             $ip->set_value("fullName", person::get_fullname($data["personID"]));
         } else {
-            $people or $people =& get_cached_table("person");
+            $people or $people = &get_cached_table("person");
             foreach ($people as $personID => $p) {
                 if ($data["emailAddress"] && same_email_address($p["emailAddress"], $data["emailAddress"])) {
                     $ip->set_value("personID", $personID);
@@ -258,8 +260,8 @@ class interestedParty extends db_entity
         $subject = trim($email_receive->mail_headers["subject"]);
         $body = $email_receive->get_converted_encoding();
         $msg_uid = $email_receive->msg_uid;
-        list($emailAddress,$fullName) = parse_email_address($email_receive->mail_headers["from"]);
-        list($personID,$clientContactID,$fullName) = comment::get_person_and_client($emailAddress, $fullName, $e->get_project_id());
+        list($emailAddress, $fullName) = parse_email_address($email_receive->mail_headers["from"]);
+        list($personID, $clientContactID, $fullName) = comment::get_person_and_client($emailAddress, $fullName, $e->get_project_id());
 
         // Load up the parent object that this comment refers to, be it task or timeSheet etc
         if ($entity == "comment" && $entityID) {
@@ -280,7 +282,7 @@ class interestedParty extends db_entity
 
         foreach ((array)$commands as $command) {
             $command = strtolower($command);
-            list($command,$command2) = explode(":", $command); // for eg: duplicate:1234
+            list($command, $command2) = explode(":", $command); // for eg: duplicate:1234
 
             // If "quiet" in the subject line, then the email/comment won't be re-emailed out again
             if ($command == "quiet") {
@@ -297,12 +299,14 @@ class interestedParty extends db_entity
                 $ip = interestedParty::exists($entity, $entityID, $emailAddress);
 
                 if (!$ip) {
-                    $data = array("entity"          => $entity,
-                                  "entityID"        => $entityID,
-                                  "fullName"        => $fullName,
-                                  "emailAddress"    => $emailAddress,
-                                  "personID"        => $personID,
-                                  "clientContactID" => $clientContactID);
+                    $data = [
+                        "entity"          => $entity,
+                        "entityID"        => $entityID,
+                        "fullName"        => $fullName,
+                        "emailAddress"    => $emailAddress,
+                        "personID"        => $personID,
+                        "clientContactID" => $clientContactID
+                    ];
                     interestedParty::add_interested_party($data);
 
                     // Else reactivate existing IP
@@ -322,7 +326,14 @@ class interestedParty extends db_entity
                 if (is_numeric($duration)) {
                     if (is_object($object) && $object->classname == "task" && $object->get_id() && $current_user->get_id()) {
                         $timeSheet = new timeSheet();
-                        $tsi_row = $timeSheet->add_timeSheetItem(array("taskID"=>$object->get_id(), "duration"=>$duration, "comment"=>$body, "msg_uid"=>$msg_uid, "msg_id"=>$email_receive->mail_headers["message-id"], "multiplier"=>1));
+                        $tsi_row = $timeSheet->add_timeSheetItem([
+                            "taskID" => $object->get_id(),
+                            "duration" => $duration,
+                            "comment" => $body,
+                            "msg_uid" => $msg_uid,
+                            "msg_id" => $email_receive->mail_headers["message-id"],
+                            "multiplier" => 1
+                        ]);
                         $timeUnit = new timeUnit();
                         $units = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
                         $unitLabel = $units[$tsi_row["timeSheetItemDurationUnitID"]];
@@ -345,9 +356,9 @@ class interestedParty extends db_entity
         return $quiet;
     }
 
-    function get_list_filter($filter = array())
+    function get_list_filter($filter = [])
     {
-        $filter["emailAddress"] = str_replace(array("<",">"), "", $filter["emailAddress"]);
+        $filter["emailAddress"] = str_replace(["<", ">"], "", $filter["emailAddress"]);
         $filter["emailAddress"]    and $sql[] = prepare("(interestedParty.emailAddress LIKE '%%%s%%')", $filter["emailAddress"]);
         $filter["fullName"]        and $sql[] = prepare("(interestedParty.fullName LIKE '%%%s%%')", $filter["fullName"]);
         $filter["personID"]        and $sql[] = prepare("(interestedParty.personID = %d)", $filter["personID"]);
@@ -371,11 +382,11 @@ class interestedParty extends db_entity
         $_FORM["return"] or $_FORM["return"] = "html";
 
         if (is_array($filter) && count($filter)) {
-            $f = " WHERE ".implode(" AND ", $filter);
+            $f = " WHERE " . implode(" AND ", $filter);
         }
 
         $db = new db_alloc();
-        $q = "SELECT * FROM interestedParty ".$join.$f.$groupby;
+        $q = "SELECT * FROM interestedParty " . $join . $f . $groupby;
 
         $db->query($q);
         while ($row = $db->next_record()) {
@@ -407,14 +418,14 @@ class interestedParty extends db_entity
         // username
         $people or $people = person::get_people_by_username();
         if (preg_match("/^\w+$/i", $ip)) {
-            return array($people[$ip]["personID"],$people[$ip]["name"],$people[$ip]["emailAddress"]);
+            return [$people[$ip]["personID"], $people[$ip]["name"], $people[$ip]["emailAddress"]];
         }
 
         // email address
         $people = person::get_people_by_username("emailAddress");
-        list($email,$name) = parse_email_address($ip);
+        list($email, $name) = parse_email_address($ip);
         if ($people[$email]) {
-            return array($people[$email]["personID"],$people[$email]["name"],$people[$email]["emailAddress"]);
+            return [$people[$email]["personID"], $people[$email]["name"], $people[$email]["emailAddress"]];
         }
 
         // Jon smith
@@ -422,7 +433,7 @@ class interestedParty extends db_entity
             $personID = person::find_by_name($ip, 100);
             if ($personID) {
                 $people = person::get_people_by_username("personID");
-                return array($personID,$people[$personID]["name"],$people[$personID]["emailAddress"]);
+                return [$personID, $people[$personID]["name"], $people[$personID]["emailAddress"]];
             }
 
             $ccid = clientContact::find_by_name($ip, $projectID, 100);
@@ -434,7 +445,7 @@ class interestedParty extends db_entity
                 $email = $cc->get_value("clientContactEmail");
             }
         }
-        return array(null,$name,$email);
+        return [null, $name, $email];
     }
 
     function add_remove_ips($ip, $entity, $entityID, $projectID = null)
@@ -445,20 +456,22 @@ class interestedParty extends db_entity
 
             // remove an ip
             if ($party[0] == "%") {
-                list($personID,$name,$email) = interestedParty::expand_ip(implode("", array_slice(str_split($party), 1)), $projectID);
+                list($personID, $name, $email) = interestedParty::expand_ip(implode("", array_slice(str_split($party), 1)), $projectID);
                 interestedParty::delete_interested_party($entity, $entityID, $email);
 
                 // add an ip
             } else {
-                list($personID,$name,$email) = interestedParty::expand_ip($party, $projectID);
+                list($personID, $name, $email) = interestedParty::expand_ip($party, $projectID);
                 if (!$email || strpos($email, "@") === false) {
-                    alloc_error("Unable to add interested party: ".$party);
+                    alloc_error("Unable to add interested party: " . $party);
                 } else {
-                    interestedParty::add_interested_party(array("entity"       => $entity,
-                                                                "entityID"     => $entityID,
-                                                                "fullName"     => $name,
-                                                                "emailAddress" => $email,
-                                                                "personID"     => $personID));
+                    interestedParty::add_interested_party([
+                        "entity"       => $entity,
+                        "entityID"     => $entityID,
+                        "fullName"     => $name,
+                        "emailAddress" => $email,
+                        "personID"     => $personID
+                    ]);
                 }
             }
         }

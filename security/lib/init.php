@@ -8,6 +8,6 @@
 
 class security_module extends module
 {
-    var $module = "security";
-    var $db_entities = array("permission", "role");
+    public $module = "security";
+    public $db_entities = ["permission", "role"];
 }

@@ -7,15 +7,15 @@
 
 class home_item
 {
-    var $name;
-    var $label;
-    var $module;
-    var $template;
-    var $library;
-    var $width = "standard";
-    var $help_topic;
-    var $seq;
-    var $print;
+    public $name;
+    public $label;
+    public $module;
+    public $template;
+    public $library;
+    public $width = "standard";
+    public $help_topic;
+    public $seq;
+    public $print;
 
     function __construct($name, $label, $module, $template, $width = "standard", $seq = 0, $print = true)
     {
@@ -30,7 +30,7 @@ class home_item
 
     function get_template_dir()
     {
-        return ALLOC_MOD_DIR.$this->module."/templates/";
+        return ALLOC_MOD_DIR . $this->module . "/templates/";
     }
 
     function get_seq()
@@ -42,9 +42,9 @@ class home_item
     {
         global $TPL;
         if ($this->template) {
-          //$TPL["this"] = $this;
+            //$TPL["this"] = $this;
             $TPL[$this->module] = $this;
-            include_template($this->get_template_dir().$this->template);
+            include_template($this->get_template_dir() . $this->template);
         }
     }
 

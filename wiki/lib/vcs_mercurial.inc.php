@@ -14,8 +14,8 @@ class vcs_mercurial extends vcs
         $current_user = &singleton("current_user");
         $this->name = "hg ";
         $this->repodir = $repo;
-        $this->repoprefix = " --cwd '".$repo."' ";
-        $this->commit = " commit --user='".$current_user->get_name()." <".$current_user->get_value("emailAddress").">' -m ";
+        $this->repoprefix = " --cwd '" . $repo . "' ";
+        $this->commit = " commit --user='" . $current_user->get_name() . " <" . $current_user->get_value("emailAddress") . ">' -m ";
         $this->metadir = ".hg";
         $this->add_everything = " add ";
         $this->cat = ' cat -r %2$s %1$s ';
@@ -39,7 +39,7 @@ class vcs_mercurial extends vcs
 
     function file_in_vcs($file)
     {
-        $output = $this->run("log ".$file);
+        $output = $this->run("log " . $file);
         if (count($output) > 0) {
             return true;
         }
@@ -47,16 +47,16 @@ class vcs_mercurial extends vcs
 
     function juggle_command_order($name, $command, $repo)
     {
-        return $name." ".$repo." ".$command;
+        return $name . " " . $repo . " " . $command;
     }
 
     function format_log($msg)
     {
         $msg = parent::format_log($msg);
-        $msg or $msg = array();
+        $msg or $msg = [];
         foreach ($msg as $id => $arr) {
             $a = explode(" ", $arr["author"]); // need to strip the email address from the author field
-            count($a) >1 and array_pop($a);
+            count($a) > 1 and array_pop($a);
             $msg[$id]["author"] = implode(" ", $a);
         }
         return $msg;
@@ -65,9 +65,9 @@ class vcs_mercurial extends vcs
     function log($file)
     {
 
-        if (is_file(wiki_module::get_wiki_path().DIRECTORY_SEPARATOR.$file)) {
-            $this->log.= " -f "; // follow renames to files
+        if (is_file(wiki_module::get_wiki_path() . DIRECTORY_SEPARATOR . $file)) {
+            $this->log .= " -f "; // follow renames to files
         }
-        return $this->run($this->log." ".escapeshellarg($file));
+        return $this->run($this->log . " " . escapeshellarg($file));
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -46,7 +47,7 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
      * @param string $filename
      * @param string $mode
      */
-    public function __construct($filename, $mode='r+b')
+    public function __construct($filename, $mode = 'r+b')
     {
         global $php_errormsg;
 
@@ -88,7 +89,7 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
      * @param integer $whence
      * @return integer
      */
-    public function seek($offset, $whence=SEEK_SET)
+    public function seek($offset, $whence = SEEK_SET)
     {
         return fseek($this->_fileHandle, $offset, $whence);
     }
@@ -121,7 +122,7 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
      */
     public function close()
     {
-        if ($this->_fileHandle !== null ) {
+        if ($this->_fileHandle !== null) {
             @fclose($this->_fileHandle);
             $this->_fileHandle = null;
         }
@@ -137,7 +138,7 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
         $position = ftell($this->_fileHandle);
         fseek($this->_fileHandle, 0, SEEK_END);
         $size = ftell($this->_fileHandle);
-        fseek($this->_fileHandle,$position);
+        fseek($this->_fileHandle, $position);
 
         return $size;
     }
@@ -148,7 +149,7 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
      * @param integer $length
      * @return string
      */
-    protected function _fread($length=1)
+    protected function _fread($length = 1)
     {
         if ($length == 0) {
             return '';
@@ -163,7 +164,7 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
             $nextBlock = fread($this->_fileHandle, $length);
             if ($nextBlock === false) {
                 require_once 'Zend/Search/Lucene/Exception.php';
-                throw new Zend_Search_Lucene_Exception( "Error occured while file reading." );
+                throw new Zend_Search_Lucene_Exception("Error occured while file reading.");
             }
 
             $data .= $nextBlock;
@@ -171,7 +172,7 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
         }
         if ($length != 0) {
             require_once 'Zend/Search/Lucene/Exception.php';
-            throw new Zend_Search_Lucene_Exception( "Error occured while file reading." );
+            throw new Zend_Search_Lucene_Exception("Error occured while file reading.");
         }
 
         return $data;
@@ -185,9 +186,9 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
      * @param string $data
      * @param integer $length
      */
-    protected function _fwrite($data, $length=null)
+    protected function _fwrite($data, $length = null)
     {
-        if ($length === null ) {
+        if ($length === null) {
             fwrite($this->_fileHandle, $data);
         } else {
             fwrite($this->_fileHandle, $data, $length);
@@ -221,11 +222,10 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
      */
     public function unlock()
     {
-        if ($this->_fileHandle !== null ) {
+        if ($this->_fileHandle !== null) {
             return flock($this->_fileHandle, LOCK_UN);
         } else {
             return true;
         }
     }
 }
-

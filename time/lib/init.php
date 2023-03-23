@@ -8,12 +8,14 @@
 
 class time_module extends module
 {
-    var $module = "time";
-    var $db_entities = array("timeSheet", "timeSheetItem","timeUnit");
-    var $home_items = array("timeSheetHomeItem",
-                            "tsiHintHomeItem",
-                            "timeSheetListHomeItem",
-                            "pendingApprovalTimeSheetListHomeItem",
-                            "timeSheetStatusHomeItem",
-                            "pendingAdminApprovalTimeSheetListHomeItem");
+    public $module = "time";
+    public $db_entities = ["timeSheet", "timeSheetItem", "timeUnit"];
+    public $home_items = [
+        "timeSheetHomeItem",
+        "tsiHintHomeItem",
+        "timeSheetListHomeItem",
+        "pendingApprovalTimeSheetListHomeItem",
+        "timeSheetStatusHomeItem",
+        "pendingAdminApprovalTimeSheetListHomeItem"
+    ];
 }

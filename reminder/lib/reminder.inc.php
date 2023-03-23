@@ -14,22 +14,24 @@ class reminder extends db_entity
     public $data_table = "reminder";
     public $display_field_name = "reminderSubject";
     public $key_field = "reminderID";
-    public $data_fields = array("reminderType",
-                                "reminderLinkID",
-                                "reminderTime",
-                                "reminderHash",
-                                "reminderRecuringInterval",
-                                "reminderRecuringValue",
-                                "reminderAdvNoticeSent",
-                                "reminderAdvNoticeInterval",
-                                "reminderAdvNoticeValue",
-                                "reminderSubject",
-                                "reminderContent",
-                                "reminderCreatedTime",
-                                "reminderCreatedUser",
-                                "reminderModifiedTime",
-                                "reminderModifiedUser",
-                                "reminderActive" => array("empty_to_null"=>true));
+    public $data_fields = [
+        "reminderType",
+        "reminderLinkID",
+        "reminderTime",
+        "reminderHash",
+        "reminderRecuringInterval",
+        "reminderRecuringValue",
+        "reminderAdvNoticeSent",
+        "reminderAdvNoticeInterval",
+        "reminderAdvNoticeValue",
+        "reminderSubject",
+        "reminderContent",
+        "reminderCreatedTime",
+        "reminderCreatedUser",
+        "reminderModifiedTime",
+        "reminderModifiedUser",
+        "reminderActive" => ["empty_to_null" => true]
+    ];
 
     // set the modified time to now
     function set_modified_time()
@@ -57,8 +59,7 @@ class reminder extends db_entity
                             ORDER BY person.username", $this->get_value('reminderLinkID'));
         } else if ($type == "task") {
             // Modified query option: to send to all people on the project that this task is from.
-            $recipients = array("-3" => "Task Manager",
-                                "-2" => "Task Assignee");
+            $recipients = ["-3" => "Task Manager", "-2" => "Task Assignee"];
 
             $db->query("SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID'));
             $db->next_record();
@@ -92,7 +93,7 @@ class reminder extends db_entity
         $recipients = $this->get_recipients();
         $type = $this->get_value('reminderType');
 
-        $selected = array();
+        $selected = [];
         $db = new db_alloc();
         $query = "SELECT * from reminderRecipient WHERE reminderID = %d";
         $db->query($query, $this->get_id());
@@ -110,12 +111,25 @@ class reminder extends db_entity
         if (!$this->get_id()) {
             $selected[] = $current_user->get_id();
         }
-        return array($recipients, $selected);
+        return [$recipients, $selected];
     }
 
     function get_hour_options()
     {
-        $hours = array("1"=>"1", "2"=>"2", "3"=>"3", "4"=>"4", "5"=>"5", "6"=>"6", "7"=>"7", "8"=>"8", "9"=>"9", "10"=>"10", "11"=>"11", "12"=>"12");
+        $hours = [
+            "1" => "1",
+            "2" => "2",
+            "3" => "3",
+            "4" => "4",
+            "5" => "5",
+            "6" => "6",
+            "7" => "7",
+            "8" => "8",
+            "9" => "9",
+            "10" => "10",
+            "11" => "11",
+            "12" => "12"
+        ];
         if ($this->get_value('reminderTime') != "") {
             $date = strtotime($this->get_value('reminderTime'));
             $hour = date("h", $date);
@@ -127,7 +141,14 @@ class reminder extends db_entity
 
     function get_minute_options()
     {
-        $minutes = array("0"=>"00", "10"=>"10", "20"=>"20", "30"=>"30", "40"=>"40", "50"=>"50");
+        $minutes = [
+            "0" => "00",
+            "10" => "10",
+            "20" => "20",
+            "30" => "30",
+            "40" => "40",
+            "50" => "50"
+        ];
         if ($this->get_value('reminderTime') != "") {
             $date = strtotime($this->get_value('reminderTime'));
             $minute = date("i", $date);
@@ -139,7 +160,10 @@ class reminder extends db_entity
 
     function get_meridian_options()
     {
-        $meridians = array("am"=>"AM", "pm"=>"PM");
+        $meridians = [
+            "am" => "AM",
+            "pm" => "PM"
+        ];
         if ($this->get_value('reminderTime') != "") {
             $date = strtotime($this->get_value('reminderTime'));
             $meridian = date("a", $date);
@@ -151,7 +175,13 @@ class reminder extends db_entity
 
     function get_recuring_interval_options()
     {
-        $recuring_interval_options = array("Hour"=>"Hour(s)", "Day"=>"Day(s)", "Week"=>"Week(s)", "Month"=>"Month(s)", "Year"=>"Year(s)");
+        $recuring_interval_options = [
+            "Hour" => "Hour(s)",
+            "Day" => "Day(s)",
+            "Week" => "Week(s)",
+            "Month" => "Month(s)",
+            "Year" => "Year(s)"
+        ];
         $recuring_interval = $this->get_value('reminderRecuringInterval');
         if ($recuring_interval == "") {
             $recuring_interval = "Week";
@@ -161,7 +191,14 @@ class reminder extends db_entity
 
     function get_advnotice_interval_options()
     {
-        $advnotice_interval_options = array("Minute"=>"Minute(s)", "Hour"=>"Hour(s)", "Day"=>"Day(s)", "Week"=>"Week(s)", "Month"=>"Month(s)", "Year"=>"Year(s)");
+        $advnotice_interval_options = [
+            "Minute" => "Minute(s)",
+            "Hour" => "Hour(s)",
+            "Day" => "Day(s)",
+            "Week" => "Week(s)",
+            "Month" => "Month(s)",
+            "Year" => "Year(s)"
+        ];
         $advnotice_interval = $this->get_value('reminderAdvNoticeInterval');
         if ($advnotice_interval == "") {
             $advnotice_interval = "Hour";
@@ -217,7 +254,7 @@ class reminder extends db_entity
         if ($this->get_value("reminderHash")) {
             $token = new token();
             if ($token->set_hash($this->get_value("reminderHash"))) {
-                list($entity,$method) = $token->execute();
+                list($entity, $method) = $token->execute();
                 if (is_object($entity) && $entity->get_id()) {
                     if (!$entity->$method()) {
                         $token->decrement_tokenUsed(); // next time, gadget
@@ -240,9 +277,9 @@ class reminder extends db_entity
                     $this->get_value('reminderLinkID')
                 );
                 # Repackage the recipients to become IPs of the new comment
-                $ips = array();
+                $ips = [];
                 foreach ((array)$recipients as $id => $person) {
-                    $ip = array();
+                    $ip = [];
                     $ip['name'] = $person['name'];
                     $ip['addIP'] = true;
                     $ip['addContact'] = false;
@@ -253,7 +290,7 @@ class reminder extends db_entity
 
                 comment::add_interested_parties($commentID, false, $ips);
                 # email_receive false or true? false for now... maybe true is better?
-                comment::send_comment($commentID, array("interested"));
+                comment::send_comment($commentID, ["interested"]);
             } else {
                 foreach ((array)$recipients as $person) {
                     if ($person['emailAddress']) {
@@ -319,8 +356,10 @@ class reminder extends db_entity
     {
         $date = strtotime($this->get_value('reminderTime'));
         // if no advanced notice needs to be sent then dont bother
-        if ($this->get_value('reminderAdvNoticeInterval') != "No"
-            &&  $this->get_value('reminderAdvNoticeSent') == 0 && !$this->get_value("reminderHash")) {
+        if (
+            $this->get_value('reminderAdvNoticeInterval') != "No"
+            &&  $this->get_value('reminderAdvNoticeSent') == 0 && !$this->get_value("reminderHash")
+        ) {
             $date = strtotime($this->get_value('reminderTime'));
             $interval = -$this->get_value('reminderAdvNoticeValue');
             $intervalUnit = $this->get_value('reminderAdvNoticeInterval');
@@ -387,7 +426,7 @@ class reminder extends db_entity
     // gets a human-friendly description of the recipient, either the recipient name or in the form Task Manager (Bob)
     function get_recipient_description()
     {
-        $people =& get_cached_table("person");
+        $people = &get_cached_table("person");
         $name = $people[$this->get_effective_person_id()]["name"];
         if ($this->get_value("metaPerson") === null) {
             return $name;
@@ -414,8 +453,8 @@ class reminder extends db_entity
         $db = new db_alloc();
         $query = "SELECT * FROM reminderRecipient WHERE reminderID = %d";
         $db->query($query, $this->get_id());
-        $people =& get_cached_table("person");
-        $recipients = array();
+        $people = &get_cached_table("person");
+        $recipients = [];
         $person = new reminderRecipient();
         while ($db->next_record()) {
             $person->read_db_record($db);
@@ -445,7 +484,7 @@ class reminder extends db_entity
         return;
     }
 
-    function get_list_filter($filter = array())
+    function get_list_filter($filter = [])
     {
         $filter["type"] and $sql[] = prepare("reminderType='%s'", $filter["type"]);
         $filter["id"]   and $sql[] = prepare("reminderLinkID=%d", $filter["id"]);
@@ -460,7 +499,7 @@ class reminder extends db_entity
     {
         $filter = reminder::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
-            $f = " WHERE ".implode(" AND ", $filter);
+            $f = " WHERE " . implode(" AND ", $filter);
         }
         $db = new db_alloc();
         $q = "SELECT reminder.*,reminderRecipient.*,token.*,tokenAction.*, reminder.reminderID as rID
@@ -468,7 +507,7 @@ class reminder extends db_entity
            LEFT JOIN reminderRecipient ON reminder.reminderID = reminderRecipient.reminderID
            LEFT JOIN token ON reminder.reminderHash = token.tokenHash
            LEFT JOIN tokenAction ON token.tokenActionID = tokenAction.tokenActionID
-             ".$f."
+             " . $f . "
             GROUP BY reminder.reminderID
             ORDER BY reminderTime,reminderType";
         $db->query($q);
@@ -488,6 +527,6 @@ class reminder extends db_entity
         $TPL["reminderRows"] = reminder::get_list($_REQUEST);
         $type and $TPL["returnToParent"] = $type;
         $type or  $TPL["returnToParent"] = "list";
-        include_template(dirname(__FILE__)."/../templates/reminderListS.tpl");
+        include_template(__DIR__ . "/../templates/reminderListS.tpl");
     }
 }

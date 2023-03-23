@@ -11,7 +11,7 @@ function show_announcements($template_name)
 {
     global $TPL;
 
-    $people =& get_cached_table("person");
+    $people = &get_cached_table("person");
     $query = "SELECT announcement.*
                 FROM announcement
             ORDER BY displayFromDate DESC";
@@ -27,6 +27,6 @@ function show_announcements($template_name)
     }
 }
 
-$TPL["main_alloc_title"] = "Announcement List - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Announcement List - " . APPLICATION_NAME;
 
 include_template("templates/announcementListM.tpl");

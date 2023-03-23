@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -164,9 +165,9 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
     {
         if (isset($this->_docVector[$docId])) {
             return $reader->getSimilarity()->tf($this->_termFreqs[$docId]) *
-                   $this->_weight->getValue() *
-                   $reader->norm($docId, $this->_term->field) *
-                   $this->getBoost();
+                $this->_weight->getValue() *
+                $reader->norm($docId, $this->_term->field) *
+                $this->getBoost();
         } else {
             return 0;
         }
@@ -179,7 +180,7 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
      */
     public function getQueryTerms()
     {
-        return array($this->_term);
+        return [$this->_term];
     }
 
     /**
@@ -225,4 +226,3 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
         return $query;
     }
 }
-

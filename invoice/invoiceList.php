@@ -9,16 +9,18 @@ require_once("../alloc.php");
 
 $current_user->check_employee();
 
-$defaults = array("showHeader"            => true,
-                  "showInvoiceNumber"     => true,
-                  "showInvoiceClient"     => true,
-                  "showInvoiceName"       => true,
-                  "showInvoiceAmount"     => true,
-                  "showInvoiceAmountPaid" => true,
-                  "showInvoiceDate"       => true,
-                  "showInvoiceStatus"     => true,
-                  "url_form_action"       => $TPL["url_alloc_invoiceList"],
-                  "form_name"             => "invoiceList_filter");
+$defaults = [
+    "showHeader"            => true,
+    "showInvoiceNumber"     => true,
+    "showInvoiceClient"     => true,
+    "showInvoiceName"       => true,
+    "showInvoiceAmount"     => true,
+    "showInvoiceAmountPaid" => true,
+    "showInvoiceDate"       => true,
+    "showInvoiceStatus"     => true,
+    "url_form_action"       => $TPL["url_alloc_invoiceList"],
+    "form_name"             => "invoiceList_filter"
+];
 
 
 function show_filter()
@@ -31,7 +33,7 @@ function show_filter()
 
     $payment_statii = invoice::get_invoice_statii_payment();
     foreach ($payment_statii as $payment_status => $label) {
-        $summary.= "\n".$nbsp.invoice::get_invoice_statii_payment_image($payment_status)." ".$label;
+        $summary .= "\n" . $nbsp . invoice::get_invoice_statii_payment_image($payment_status) . " " . $label;
         $nbsp = "&nbsp;&nbsp;";
     }
     $TPL["status_legend"] = $summary;
@@ -66,5 +68,5 @@ in the top-right hand corner of the box below.";
 
 
 
-$TPL["main_alloc_title"] = "Invoice List - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Invoice List - " . APPLICATION_NAME;
 include_template("templates/invoiceListM.tpl");

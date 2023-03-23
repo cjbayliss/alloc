@@ -8,6 +8,6 @@
 
 class comment_module extends module
 {
-    var $module = "comment";
-    var $db_entities = array("comment","commentTemplate");
+    public $module = "comment";
+    public $db_entities = ["comment", "commentTemplate"];
 }

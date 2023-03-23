@@ -9,17 +9,19 @@ class expenseForm extends db_entity
 {
     public $data_table = "expenseForm";
     public $key_field = "expenseFormID";
-    public $data_fields = array("expenseFormModifiedUser",
-                                "expenseFormModifiedTime",
-                                "paymentMethod",
-                                "reimbursementRequired"=>array("empty_to_null"=>false),
-                                "seekClientReimbursement"=>array("empty_to_null"=>false),
-                                "transactionRepeatID",
-                                "clientID",
-                                "expenseFormCreatedUser",
-                                "expenseFormCreatedTime",
-                                "expenseFormFinalised"=>array("empty_to_null"=>false),
-                                "expenseFormComment");
+    public $data_fields = [
+        "expenseFormModifiedUser",
+        "expenseFormModifiedTime",
+        "paymentMethod",
+        "reimbursementRequired" => ["empty_to_null" => false],
+        "seekClientReimbursement" => ["empty_to_null" => false],
+        "transactionRepeatID",
+        "clientID",
+        "expenseFormCreatedUser",
+        "expenseFormCreatedTime",
+        "expenseFormFinalised" => ["empty_to_null" => false],
+        "expenseFormComment"
+    ];
 
     function is_owner($person = "")
     {
@@ -45,7 +47,7 @@ class expenseForm extends db_entity
                 }
             }
 
-        // If no expenseForm ID, then it hasn't been created yet...
+            // If no expenseForm ID, then it hasn't been created yet...
         } else {
             return true;
         }
@@ -59,9 +61,7 @@ class expenseForm extends db_entity
 
     public static function get_reimbursementRequired_array()
     {
-        return array("0" => "Unpaid",
-                     "1" => "Paid by me",
-                     "2" => "Paid by company");
+        return ["0" => "Unpaid", "1" => "Paid by me", "2" => "Paid by company"];
     }
 
     function set_status($status)
@@ -85,9 +85,9 @@ class expenseForm extends db_entity
         while ($row = $db->row()) {
             $arr[$row["status"]] = 1;
         }
-        $arr or $arr = array();
+        $arr or $arr = [];
         foreach ($arr as $s => $v) {
-            $return .= $sp.$s;
+            $return .= $sp . $s;
             $sp = "&nbsp;&amp;&nbsp;";
         }
         return $return;
@@ -101,7 +101,7 @@ class expenseForm extends db_entity
 
         $db = new db_alloc();
         if ($this->is_owner()) {
-            $db->query(prepare("DELETE FROM transaction WHERE expenseFormID = %d ".$extra_sql, $this->get_id()));
+            $db->query(prepare("DELETE FROM transaction WHERE expenseFormID = %d " . $extra_sql, $this->get_id()));
             $transactionID and $TPL["message_good"][] = "Expense Form Line Item deleted.";
         }
     }
@@ -113,7 +113,7 @@ class expenseForm extends db_entity
         if ($this->get_id()) {
             $db->query("SELECT invoice.* FROM invoiceItem LEFT JOIN invoice on invoice.invoiceID = invoiceItem.invoiceID WHERE expenseFormID = %d", $this->get_id());
             while ($row = $db->next_record()) {
-                $str.= $sp."<a href=\"".$TPL["url_alloc_invoice"]."invoiceID=".$row["invoiceID"]."\">".$row["invoiceNum"]."</a>";
+                $str .= $sp . "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $row["invoiceID"] . "\">" . $row["invoiceNum"] . "</a>";
                 $sp = "&nbsp;&nbsp;";
             }
             return $str;
@@ -127,7 +127,7 @@ class expenseForm extends db_entity
             $invoiceID and $extra = prepare(" AND invoiceID = %d", $invoiceID);
             $client = $this->get_foreign_object("client");
             $db = new db_alloc();
-            $q = prepare("SELECT * FROM invoice WHERE clientID = %d AND invoiceStatus = 'edit' ".$extra, $this->get_value("clientID"));
+            $q = prepare("SELECT * FROM invoice WHERE clientID = %d AND invoiceStatus = 'edit' " . $extra, $this->get_value("clientID"));
             $db->query($q);
 
             // Create invoice
@@ -142,7 +142,7 @@ class expenseForm extends db_entity
                 $invoice->save();
                 $invoiceID = $invoice->get_id();
 
-            // Use existing invoice
+                // Use existing invoice
             } else {
                 $invoiceID = $db->f("invoiceID");
             }
@@ -179,16 +179,16 @@ class expenseForm extends db_entity
         global $sess;
         $sess or $sess = new session();
 
-        $url = "finance/expenseForm.php?expenseFormID=".$this->get_id();
+        $url = "finance/expenseForm.php?expenseFormID=" . $this->get_id();
 
         if ($sess->Started()) {
-            $url = $sess->url(SCRIPT_PATH.$url);
+            $url = $sess->url(SCRIPT_PATH . $url);
 
-        // This for urls that are emailed
+            // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");
-            $url = $prefix.$url;
+            $url = $prefix . $url;
         }
         return $url;
     }
@@ -208,7 +208,7 @@ class expenseForm extends db_entity
         return $row["amount"];
     }
 
-    public static function get_list_filter($filter = array())
+    public static function get_list_filter($filter = [])
     {
         $filter["projectID"] and $sql[] = prepare("transaction.projectID = %d", $filter["projectID"]);
         $filter["status"]    and $sql[] = prepare("transaction.status = '%s'", $filter["status"]);
@@ -216,12 +216,12 @@ class expenseForm extends db_entity
         return $sql;
     }
 
-    public static function get_list($_FORM = array())
+    public static function get_list($_FORM = [])
     {
         global $TPL;
         $filter = expenseForm::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
-            $f = " AND ".implode(" AND ", $filter);
+            $f = " AND " . implode(" AND ", $filter);
         }
 
         $db = new db_alloc();
@@ -237,14 +237,14 @@ class expenseForm extends db_entity
                         FROM expenseForm, transaction
                    LEFT JOIN currencyType on transaction.currencyTypeID = currencyType.currencyTypeID
                        WHERE expenseForm.expenseFormID = transaction.expenseFormID
-                             ".$f."
+                             " . $f . "
                     GROUP BY expenseForm.expenseFormID, transaction.currencyTypeID
                     ORDER BY expenseFormID");
 
         $db->query($q);
 
         while ($row = $db->row()) {
-            $amounts[$row["expenseFormID"]].= $sp[$row["expenseFormID"]].page::money($row["currencyTypeID"], $row["formTotal"], "%s%m");
+            $amounts[$row["expenseFormID"]] .= $sp[$row["expenseFormID"]] . page::money($row["currencyTypeID"], $row["formTotal"], "%s%m");
             $sp[$row["expenseFormID"]] = " + ";
             $allrows[$row["expenseFormID"]] = $row;
         }
@@ -258,8 +258,8 @@ class expenseForm extends db_entity
                 $row["expenseFormCreatedUser"] = person::get_fullname($expenseForm->get_value("expenseFormCreatedUser"));
                 $row["expenseFormCreatedTime"] = $expenseForm->get_value("expenseFormCreatedTime");
                 unset($extra);
-                $expenseForm->get_value("paymentMethod") and $extra = " (".$expenseForm->get_value("paymentMethod").")";
-                $row["rr_label"] = $rr_options[$expenseForm->get_value("reimbursementRequired")].$extra;
+                $expenseForm->get_value("paymentMethod") and $extra = " (" . $expenseForm->get_value("paymentMethod") . ")";
+                $row["rr_label"] = $rr_options[$expenseForm->get_value("reimbursementRequired")] . $extra;
                 $rows[] = $row;
             }
         }

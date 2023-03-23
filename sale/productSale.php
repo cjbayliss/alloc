@@ -62,17 +62,17 @@ function show_productSale_list($productSaleID, $template)
         $TPL["itemTotalUnallocated"] = $productSaleItem->get_amount_unallocated();
 
         $TPL["productList_dropdown"] = page::select_options($ops, $productSaleItem->get_value("productID"));
-        $TPL["productLink"] = "<a href=\"".$TPL["url_alloc_product"]."productID=".$productSaleItem->get_value("productID")."\">".page::htmlentities($ops[$productSaleItem->get_value("productID")])."</a>";
+        $TPL["productLink"] = "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $productSaleItem->get_value("productID") . "\">" . page::htmlentities($ops[$productSaleItem->get_value("productID")]) . "</a>";
         $TPL["transactions"] = $productSale->get_transactions($productSaleItem->get_id());
 
         if ($taxName) {
             $TPL["sellPriceTax_check"] = sprintf(
                 " <input type='checkbox' name='sellPriceIncTax[]' value='%d'%s> inc %s",
                 $productSaleItem->get_id(),
-                $productSaleItem->get_value("sellPriceIncTax") ? ' checked':'',
+                $productSaleItem->get_value("sellPriceIncTax") ? ' checked' : '',
                 $taxName
             );
-            $TPL["sellPriceTax_label"] = $productSaleItem->get_value("sellPriceIncTax") ? " inc ".$taxName : " ex ".$taxName;
+            $TPL["sellPriceTax_label"] = $productSaleItem->get_value("sellPriceIncTax") ? " inc " . $taxName : " ex " . $taxName;
         }
         include_template($template);
     }
@@ -93,7 +93,7 @@ function show_productSale_new($template)
     if ($taxName) {
         $TPL["sellPriceTax_check"] = sprintf(
             " <input type='checkbox' name='sellPriceIncTax[]' value='1'%s> inc %s",
-            $productSaleItem->get_value("sellPriceIncTax") ? ' checked':'',
+            $productSaleItem->get_value("sellPriceIncTax") ? ' checked' : '',
             $taxName
         );
     }
@@ -101,7 +101,7 @@ function show_productSale_new($template)
     include_template($template);
 }
 
-function show_transaction_list($transactions = array(), $template)
+function show_transaction_list($transactions = [], $template)
 {
     global $TPL;
     global $tflist;
@@ -121,7 +121,7 @@ function show_transaction_list($transactions = array(), $template)
         $TPL["fromTfID_label"] = $tflist[$transaction->get_value("fromTfID")];
         if (CAN_APPROVE_TRANSACTIONS && $TPL["productSale_status"] == "admin") {
             $TPL["status"] = "<select name='status[]' class='txStatus'>";
-            $TPL["status"].= page::select_options(transaction::get_transactionStatii(), $transaction->get_value("status"))."</select>";
+            $TPL["status"] .= page::select_options(transaction::get_transactionStatii(), $transaction->get_value("status")) . "</select>";
         }
 
         $TPL["pc_productCostID"] = $row["pc_productCostID"];
@@ -147,7 +147,7 @@ function show_transaction_new($template)
     $TPL["fromTfList_dropdown"] = page::select_options($tflist);
     if (CAN_APPROVE_TRANSACTIONS && $TPL["productSale_status"] == "admin") {
         $TPL["status"] = "<select name='status[]' class='txStatus'>";
-        $TPL["status"].= page::select_options(transaction::get_transactionStatii())."</select>";
+        $TPL["status"] .= page::select_options(transaction::get_transactionStatii()) . "</select>";
     }
     $TPL["pc_productCostID"] = '';
     $TPL["pc_amount"]        = '';
@@ -169,10 +169,10 @@ function show_comments()
         $TPL["entityID"] = $productSale->get_id();
         $project = $productSale->get_foreign_object('project');
         $TPL["clientID"] = $project->get_value("clientID");
-        $TPL["allParties"] = $productSale->get_all_parties($productSale->get_value("projectID")) or $TPL["allParties"] = array();
+        $TPL["allParties"] = $productSale->get_all_parties($productSale->get_value("projectID")) or $TPL["allParties"] = [];
         $commentTemplate = new commentTemplate();
-        $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", array("commentTemplateType"=>"productSale"));
-        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>".page::select_options($ops);
+        $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "productSale"]);
+        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
         include_template("../comment/templates/commentM.tpl");
     }
 }
@@ -217,12 +217,12 @@ if (!$TPL["message"] && $_POST["save"]) {
     $productSale->read_globals();
     $productSale->save();
     $productSaleID = $productSale->get_id();
-    alloc_redirect($TPL["url_alloc_productSale"]."productSaleID=".$productSaleID);
+    alloc_redirect($TPL["url_alloc_productSale"] . "productSaleID=" . $productSaleID);
 } else if ($_POST["save_items"] && $productSaleID) {
-    is_array($_POST["deleteProductSaleItem"]) or $_POST["deleteProductSaleItem"] = array();
+    is_array($_POST["deleteProductSaleItem"]) or $_POST["deleteProductSaleItem"] = [];
 
     if (is_array($_POST["productSaleItemID"]) && count($_POST["productSaleItemID"])) {
-        is_array($_POST["sellPriceIncTax"]) or $_POST["sellPriceIncTax"] = array();
+        is_array($_POST["sellPriceIncTax"]) or $_POST["sellPriceIncTax"] = [];
 
         foreach ($_POST["productSaleItemID"] as $k => $productSaleItemID) {
             // Delete
@@ -233,12 +233,14 @@ if (!$TPL["message"] && $_POST["save"]) {
 
                 // Save
             } else {
-                $a = array("productID"               => $_POST["productID"][$k],
-                           "sellPrice"               => $_POST["sellPrice"][$k],
-                           "sellPriceCurrencyTypeID" => $_POST["sellPriceCurrencyTypeID"][$k],
-                           "quantity"                => $_POST["quantity"][$k],
-                           "description"             => $_POST["description"][$k],
-                           "productSaleID"           => $productSaleID);
+                $a = [
+                    "productID"               => $_POST["productID"][$k],
+                    "sellPrice"               => $_POST["sellPrice"][$k],
+                    "sellPriceCurrencyTypeID" => $_POST["sellPriceCurrencyTypeID"][$k],
+                    "quantity"                => $_POST["quantity"][$k],
+                    "description"             => $_POST["description"][$k],
+                    "productSaleID"           => $productSaleID
+                ];
 
                 if ($productSaleItemID) {
                     $a["sellPriceIncTax"] = sprintf("%d", in_array($productSaleItemID, $_POST["sellPriceIncTax"]));
@@ -259,9 +261,9 @@ if (!$TPL["message"] && $_POST["save"]) {
             }
         }
     }
-    alloc_redirect($TPL["url_alloc_productSale"]."productSaleID=".$productSaleID);
+    alloc_redirect($TPL["url_alloc_productSale"] . "productSaleID=" . $productSaleID);
 } else if ($_POST["save_transactions"]) {
-    is_array($_POST["deleteTransaction"]) or $_POST["deleteTransaction"] = array();
+    is_array($_POST["deleteTransaction"]) or $_POST["deleteTransaction"] = [];
 
     if (is_array($_POST["transactionID"]) && count($_POST["transactionID"])) {
         foreach ($_POST["transactionID"] as $k => $transactionID) {
@@ -276,19 +278,21 @@ if (!$TPL["message"] && $_POST["save"]) {
             } else if (imp($_POST["amount"][$k])) {
                 $type = $_POST["transactionType"][$k] or $type = 'sale';
 
-                $a = array("amount"            => $_POST["amount"][$k],
-                           "tfID"              => $_POST["tfID"][$k],
-                           "fromTfID"          => $_POST["fromTfID"][$k],
-                           "product"           => $_POST["product"][$k],
-                           "description"       => $_POST["description"][$k],
-                           "productSaleID"     => $productSaleID,
-                           "productSaleItemID" => $_POST["productSaleItemID"],
-                           "productCostID"     => $_POST["productCostID"][$k],
-                           "transactionType"   => $type,
-                           "transactionDate"   => date("Y-m-d"),
-                           "status"            => 'pending',
-                           "currencyTypeID"    => $_POST["currencyTypeID"][$k],
-                           "transactionID"     => $transactionID);
+                $a = [
+                    "amount"            => $_POST["amount"][$k],
+                    "tfID"              => $_POST["tfID"][$k],
+                    "fromTfID"          => $_POST["fromTfID"][$k],
+                    "product"           => $_POST["product"][$k],
+                    "description"       => $_POST["description"][$k],
+                    "productSaleID"     => $productSaleID,
+                    "productSaleItemID" => $_POST["productSaleItemID"],
+                    "productCostID"     => $_POST["productCostID"][$k],
+                    "transactionType"   => $type,
+                    "transactionDate"   => date("Y-m-d"),
+                    "status"            => 'pending',
+                    "currencyTypeID"    => $_POST["currencyTypeID"][$k],
+                    "transactionID"     => $transactionID
+                ];
 
                 if (CAN_APPROVE_TRANSACTIONS && $_POST["status"][$k]) {
                     $a["status"] = $_POST["status"][$k];
@@ -302,7 +306,7 @@ if (!$TPL["message"] && $_POST["save"]) {
             }
         }
     }
-    alloc_redirect($TPL["url_alloc_productSale"]."productSaleID=".$productSaleID);
+    alloc_redirect($TPL["url_alloc_productSale"] . "productSaleID=" . $productSaleID);
 } else if ($_POST["create_default_transactions"] && $_POST["productSaleItemID"]) {
     $productSaleItem = new productSaleItem();
     $productSaleItem->set_id($_POST["productSaleItemID"]);
@@ -331,7 +335,7 @@ if ($productSale->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS)) {
 }
 
 $statuses = productSale::get_statii();
-$statuses[$TPL["status"]] = "<b>".$statuses[$TPL["status"]]."</b>";
+$statuses[$TPL["status"]] = "<b>" . $statuses[$TPL["status"]] . "</b>";
 $TPL["statusText"] = implode("&nbsp;&nbsp;|&nbsp;&nbsp;", $statuses);
 $TPL["productSaleID"] = $productSale->get_id();
 
@@ -354,7 +358,7 @@ if ($productSale->get_value("tfID")) {
     $tf_sel = $productSale->get_value("tfID");
 }
 $tf_sel or $tf_sel = config::get_config_item("mainTfID");
-$tf_select = "<select name='tfID'>".page::select_options($tflist, $tf_sel)."</select>";
+$tf_select = "<select name='tfID'>" . page::select_options($tflist, $tf_sel) . "</select>";
 $TPL["show_person_options"] = person::get_fullname($productSale->get_value("personID"));
 $TPL["show_date"] = $productSale->get_value("productSaleDate");
 
@@ -367,10 +371,10 @@ if (!$productSale->get_id() || $productSale->get_value("status") != "finished" &
     $TPL["show_tf_options"] = $tf_select;
 
     $personID = $productSale->get_value("personID") or $personID = $current_user->get_id();
-    $TPL["show_person_options"] = "<select name='personID'>".page::select_options(person::get_username_list($personID), $personID)."</select>";
+    $TPL["show_person_options"] = "<select name='personID'>" . page::select_options(person::get_username_list($personID), $personID) . "</select>";
 
     $TPL["show_date"] = page::calendar("productSaleDate", $productSale->get_value("productSaleDate"));
-    $TPL["show_extRef"] = "<input type='text' name='extRef' value='".$productSale->get_value("extRef")."' size='10'>";
+    $TPL["show_extRef"] = "<input type='text' name='extRef' value='" . $productSale->get_value("extRef") . "' size='10'>";
     $TPL["show_extRefDate"] = page::calendar("extRefDate", $productSale->get_value("extRefDate"));
 }
 
@@ -428,12 +432,12 @@ if ($productSale->get_value("projectID")) {
     $project->set_id($productSale->get_value("projectID"));
     $project->select();
     $ptf = $project->get_value("cost_centre_tfID");
-    $ptf and $TPL["project_tfID"] = " (TF: ".tf::get_name($ptf).")";
+    $ptf and $TPL["project_tfID"] = " (TF: " . tf::get_name($ptf) . ")";
     $ptf or $TPL["project_tfID"] = " (No project TF)";
 }
 
 $TPL["taxName"] = config::get_config_item("taxName");
 
-$TPL["main_alloc_title"] = "Sale - ".APPLICATION_NAME;
-$productSale->get_id() and $TPL["main_alloc_title"] = "Sale " . $productSale->get_id()." - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Sale - " . APPLICATION_NAME;
+$productSale->get_id() and $TPL["main_alloc_title"] = "Sale " . $productSale->get_id() . " - " . APPLICATION_NAME;
 include_template("templates/productSaleM.tpl");

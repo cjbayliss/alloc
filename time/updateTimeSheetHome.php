@@ -27,9 +27,9 @@ foreach ($t as $k => $v) {
             $task = new task();
             $task->set_id($v);
             if ($task->select()) {
-                $v = $task->get_id()." ".$task->get_link();
+                $v = $task->get_id() . " " . $task->get_link();
             } else {
-                $v = "Task ".$v." not found.";
+                $v = "Task " . $v . " not found.";
             }
         } else if ($k == "unit") {
             $v = $units[$v];
@@ -43,9 +43,9 @@ foreach ($t as $k => $v) {
 //2010-10-01  1 Days x Double Time
 //Task: 102 This is the task
 //Comment: This is the comment
-$str[] = "<tr><td>".$rtn["date"]." </td><td class='nobr bold'> ".$rtn["duration"]." ".$rtn["unit"]."</td><td class='nobr'>&times; ".$rtn["multiplier"]."</td></tr>";
-$rtn["taskID"]  and $str[] = "<tr><td colspan='3'>".$rtn["taskID"]."</td></tr>";
-$rtn["comment"] and $str[] = "<tr><td colspan='3'>".$rtn["comment"]."</td></tr>";
+$str[] = "<tr><td>" . $rtn["date"] . " </td><td class='nobr bold'> " . $rtn["duration"] . " " . $rtn["unit"] . "</td><td class='nobr'>&times; " . $rtn["multiplier"] . "</td></tr>";
+$rtn["taskID"]  and $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
+$rtn["comment"] and $str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>";
 
 if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
     $t = timeSheetItem::parse_time_string($_REQUEST["time_item"]);
@@ -64,15 +64,15 @@ if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
 
         if ($TPL["message"]) {
             $status = "bad";
-            $extra = "Time not added.<br>".implode("<br>", $TPL["message"]);
+            $extra = "Time not added.<br>" . implode("<br>", $TPL["message"]);
         } else {
             $status = "good";
             $tsid = $tsi_row["message"];
-            $extra = "Added time to time sheet <a href='".$TPL["url_alloc_timeSheet"]."timeSheetID=".$tsid."'>#".$tsid."</a>";
+            $extra = "Added time to time sheet <a href='" . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $tsid . "'>#" . $tsid . "</a>";
         }
     }
 }
 
 #$extra and array_unshift($str, "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>");
-$extra and $str[] = "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>";
-print alloc_json_encode(array("status"=>$status,"table"=>"<table class='".$status."'>".implode("\n", $str)."</table>"));
+$extra and $str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>";
+print alloc_json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"]);

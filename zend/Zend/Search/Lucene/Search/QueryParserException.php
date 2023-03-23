@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -37,5 +38,5 @@ require_once 'Zend/Search/Lucene/Exception.php';
  * Special exception type, which may be used to intercept wrong user input
  */
 class Zend_Search_Lucene_Search_QueryParserException extends Zend_Search_Lucene_Exception
-{}
-
+{
+}

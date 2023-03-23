@@ -10,9 +10,11 @@ require_once("../alloc.php");
 $download = $_GET["download"] or $download = $_POST["download"];
 $applyFilter = $_GET["applyFilter"] or $applyFilter = $_POST["applyFilter"];
 
-$defaults = array("url_form_action" => $TPL["url_alloc_searchTransaction"],
-                  "form_name"       => "searchTransaction_filter",
-                  "applyFilter"     => $applyFilter);
+$defaults = [
+    "url_form_action" => $TPL["url_alloc_searchTransaction"],
+    "form_name"       => "searchTransaction_filter",
+    "applyFilter"     => $applyFilter
+];
 
 function show_filter()
 {
@@ -31,8 +33,8 @@ if ($download) {
     $rows = $rtn["rows"];
     $csv = transaction::arr_to_csv($rows);
     header('Content-Type: application/octet-stream');
-    header("Content-Length: ".strlen($csv));
-    header('Content-Disposition: attachment; filename="'.date("Ymd_His").'.csv"');
+    header("Content-Length: " . strlen($csv));
+    header('Content-Disposition: attachment; filename="' . date("Ymd_His") . '.csv"');
     echo $csv;
     exit();
 }
@@ -44,5 +46,5 @@ if ($applyFilter) {
     $TPL["transactionListRows"] = $rtn["rows"];
 }
 
-$TPL["main_alloc_title"] = "Search Transactions - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Search Transactions - " . APPLICATION_NAME;
 include_template("templates/searchTransactionM.tpl");

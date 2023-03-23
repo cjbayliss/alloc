@@ -19,17 +19,17 @@ class wiki
         foreach ($files as $row) {
             $file = str_replace($wiki_path, "", $row);
             if ($_FORM["starred"] && $current_user->prefs["stars"]["wiki"][base64_encode($file)]) {
-                $rows[] = array("filename"=>$file);
+                $rows[] = ["filename" => $file];
             }
         }
         return (array)$rows;
     }
 
-    function get_list_html($rows = array(), $ops = array())
+    function get_list_html($rows = [], $ops = [])
     {
         global $TPL;
         $TPL["wikiListRows"] = $rows;
         $TPL["_FORM"] = $ops;
-        include_template(dirname(__FILE__)."/../templates/wikiListS.tpl");
+        include_template(__DIR__ . "/../templates/wikiListS.tpl");
     }
 }

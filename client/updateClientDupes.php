@@ -9,17 +9,17 @@
 define("NO_REDIRECT", 1);
 require_once("../alloc.php");
 
-$index = new Zend_Search_Lucene(ATTACHMENTS_DIR.'search/client');
+$index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/client');
 $index->setResultSetLimit(10);
-$needle = 'name:'.$_GET["clientName"];
+$needle = 'name:' . $_GET["clientName"];
 $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
 $hits = $index->find($needle);
 
 foreach ($hits as $hit) {
     $d = $hit->getDocument();
-    $str.= "<div style='padding-bottom:3px'>";
-    $str.= "<a href=\"".$TPL["url_alloc_client"]."clientID=".$d->getFieldValue('id')."\">".$d->getFieldValue('id')." ".$d->getFieldValue('name')."</a>";
-    $str.= "</div>";
+    $str .= "<div style='padding-bottom:3px'>";
+    $str .= "<a href=\"" . $TPL["url_alloc_client"] . "clientID=" . $d->getFieldValue('id') . "\">" . $d->getFieldValue('id') . " " . $d->getFieldValue('name') . "</a>";
+    $str .= "</div>";
 }
 
 if ($str) {

@@ -10,23 +10,25 @@ class token extends db_entity
     public $classname = "token";
     public $data_table = "token";
     public $key_field = "tokenID";
-    public $data_fields = array("tokenHash",
-                                "tokenEntity",
-                                "tokenEntityID",
-                                "tokenActionID",
-                                "tokenExpirationDate",
-                                "tokenUsed",
-                                "tokenMaxUsed",
-                                "tokenActive",
-                                "tokenCreatedBy",
-                                "tokenCreatedDate");
+    public $data_fields = [
+        "tokenHash",
+        "tokenEntity",
+        "tokenEntityID",
+        "tokenActionID",
+        "tokenExpirationDate",
+        "tokenUsed",
+        "tokenMaxUsed",
+        "tokenActive",
+        "tokenCreatedBy",
+        "tokenCreatedDate"
+    ];
 
 
     function set_hash($hash, $validate = true)
     {
         $validate and $extra = " AND tokenActive = 1";
-        $validate and $extra.= " AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)";
-        $validate and $extra.= prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s"));
+        $validate and $extra .= " AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)";
+        $validate and $extra .= prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s"));
 
 
         $q = prepare("SELECT * FROM token
@@ -61,11 +63,11 @@ class token extends db_entity
                 $method = $tokenAction->get_value("tokenActionMethod");
                 $this->increment_tokenUsed();
                 if ($entity->get_id()) {
-                    return array($entity,$method);
+                    return [$entity, $method];
                 }
             }
         }
-        return array(false,false);
+        return [false, false];
     }
 
     function increment_tokenUsed()
@@ -98,7 +100,7 @@ class token extends db_entity
         // Make an eight character base 36 garbage fds3ys79 / also check that we haven't used this ID already
         $randval = $this->get_hash_str();
         while (strlen($randval) < 8 || $this->set_hash($randval, false)) {
-            $randval.= $this->get_hash_str();
+            $randval .= $this->get_hash_str();
             $randval = substr($randval, -8);
         }
         return $randval;
@@ -122,7 +124,7 @@ class token extends db_entity
         }
     }
 
-    function get_list_filter($filter = array())
+    function get_list_filter($filter = [])
     {
         $filter["tokenEntity"]   and $sql[] = sprintf_implode("token.tokenEntity = '%s'", $filter["tokenEntity"]);
         $filter["tokenEntityID"] and $sql[] = sprintf_implode("token.tokenEntityID = %d", $filter["tokenEntityID"]);
@@ -135,10 +137,10 @@ class token extends db_entity
         $filter = token::get_list_filter($_FORM);
 
         if (is_array($filter) && count($filter)) {
-            $filter = " WHERE ".implode(" AND ", $filter);
+            $filter = " WHERE " . implode(" AND ", $filter);
         }
 
-        $q = "SELECT * FROM token ".$filter;
+        $q = "SELECT * FROM token " . $filter;
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->next_record()) {

@@ -13,7 +13,7 @@ $db = new db_alloc();
 $TPL["tfID"] = $_GET["tfID"];
 
 
-$TPL["main_alloc_title"] = "Repeating Expenses List - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Repeating Expenses List - " . APPLICATION_NAME;
 include_template("templates/transactionRepeatListM.tpl");
 
 function show_expenseFormList($template_name)
@@ -33,7 +33,7 @@ function show_expenseFormList($template_name)
         $sql = prepare("WHERE tfID = %d", $_GET["tfID"]);
     }
 
-    $db->query("select * FROM transactionRepeat ".$sql);
+    $db->query("select * FROM transactionRepeat " . $sql);
 
     while ($db->next_record()) {
         $i++;

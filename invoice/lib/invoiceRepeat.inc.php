@@ -11,10 +11,7 @@ class invoiceRepeat extends db_entity
     public $data_table = "invoiceRepeat";
     public $display_field_name = "invoiceRepeatID";
     public $key_field = "invoiceRepeatID";
-    public $data_fields = array("invoiceID",
-                                "personID",
-                                "message",
-                                "active");
+    public $data_fields = ["invoiceID", "personID", "message", "active"];
     function save($dates = "")
     {
         $rtn = parent::save();
@@ -38,7 +35,7 @@ class invoiceRepeat extends db_entity
         while ($row = $db->row()) {
             $rows[] = $row["invoiceDate"];
         }
-        $TPL[$prefix."frequency"] = implode(" ", (array)$rows);
+        $TPL[$prefix . "frequency"] = implode(" ", (array)$rows);
         return parent::set_values($prefix);
     }
 

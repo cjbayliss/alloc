@@ -37,13 +37,13 @@ if ($_REQUEST["commentID"]) {
     $entityID = $c->get_value("commentMasterID");
 
     $mail = new email_receive($info);
-    $mail->open_mailbox(config::get_config_item("allocEmailFolder")."/".$entity.$entityID);
+    $mail->open_mailbox(config::get_config_item("allocEmailFolder") . "/" . $entity . $entityID);
 
     if ($_REQUEST["uid"]) {
         header('Content-Type: text/plain; charset=utf-8');
-        list($h,$b) = $mail->get_raw_email_by_msg_uid($_REQUEST["uid"]);
+        list($h, $b) = $mail->get_raw_email_by_msg_uid($_REQUEST["uid"]);
         $mail->close();
-        echo $h.$b;
+        echo $h . $b;
         exit();
     }
 
@@ -58,7 +58,7 @@ if ($_REQUEST["commentID"]) {
         $str = sprintf('TEXT "%s"', $c->get_value("commentEmailMessageID"));
         $uids = $mail->get_emails_UIDs_search($str);
         if (count($uids) == 1) {
-            alloc_redirect($TPL["url_alloc_downloadEmail"]."commentID=".$_REQUEST["commentID"]."&uid=".$uids[0]);
+            alloc_redirect($TPL["url_alloc_downloadEmail"] . "commentID=" . $_REQUEST["commentID"] . "&uid=" . $uids[0]);
         } else if (count($uids) > 1) {
             $all_uids += $uids;
         }
@@ -73,7 +73,7 @@ if ($_REQUEST["commentID"]) {
 
 
     $str = sprintf('FROM "%s" ', $c->get_value("commentCreatedUserText"));
-    $str.= sprintf(' ON "%s"', format_date("d-M-Y", $c->get_value("commentCreatedTime")));
+    $str .= sprintf(' ON "%s"', format_date("d-M-Y", $c->get_value("commentCreatedTime")));
     $uids = $mail->get_emails_UIDs_search($str);
     $uids and $all_uids += $uids;
 

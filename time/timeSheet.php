@@ -40,14 +40,14 @@ function show_transaction_list($template_name)
             $p_button = "<input style=\"padding:1px 4px\" type=\"submit\" name=\"p_button\" value=\"P\" title=\"Mark transactions pending\">&nbsp;";
             $a_button = "<input style=\"padding:1px 4px\" type=\"submit\" name=\"a_button\" value=\"A\" title=\"Mark transactions approved\">&nbsp;";
             $r_button = "<input style=\"padding:1px 4px\" type=\"submit\" name=\"r_button\" value=\"R\" title=\"Mark transactions rejected\">&nbsp;";
-            $session  = "<input type=\"hidden\" name=\"sessID\" value=\"".$TPL["sessID"]."\">";
-            $TPL["p_a_r_buttons"] = "<form action=\"".$TPL["url_alloc_timeSheet"]."timeSheetID=".$timeSheet->get_id()."\" method=\"post\">".$p_button.$a_button.$r_button.$session."</form>";
+            $session  = "<input type=\"hidden\" name=\"sessID\" value=\"" . $TPL["sessID"] . "\">";
+            $TPL["p_a_r_buttons"] = "<form action=\"" . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . "\" method=\"post\">" . $p_button . $a_button . $r_button . $session . "</form>";
 
 
             $TPL["create_transaction_buttons"] = "<tr><td colspan=\"8\" align=\"center\" style=\"padding:10px;\">";
-            $TPL["create_transaction_buttons"].= "<form action=\"".$TPL["url_alloc_timeSheet"]."timeSheetID=".$timeSheet->get_id()."\" method=\"post\">";
+            $TPL["create_transaction_buttons"] .= "<form action=\"" . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . "\" method=\"post\">";
 
-            $TPL["create_transaction_buttons"].= '
+            $TPL["create_transaction_buttons"] .= '
          <button type="submit" name="create_transactions_default" value="1" class="save_button">Create Default Transactions<i class="icon-cogs"></i></button>
         ';
 
@@ -55,7 +55,7 @@ function show_transaction_list($template_name)
         <button type="submit" name="delete_all_transactions" value="1" class="delete_button">Delete Transactions<i class="icon-trash"></i></button>
         ';
 
-            $TPL["create_transaction_buttons"].= "<input type=\"hidden\" name=\"sessID\" value=\"".$TPL["sessID"]."\"></form></tr></tr>";
+            $TPL["create_transaction_buttons"] .= "<input type=\"hidden\" name=\"sessID\" value=\"" . $TPL["sessID"] . "\"></form></tr></tr>";
         }
 
 
@@ -90,7 +90,11 @@ function show_transaction_listR($template_name)
         while ($db->row()) {
             $tf_array[$db->f("tfID")] = $db->f("tfName");
         }
-        $status_options = array("pending"=>"Pending", "approved"=>"Approved", "rejected"=>"Rejected");
+        $status_options = [
+            "pending" => "Pending",
+            "approved" => "Approved",
+            "rejected" => "Rejected"
+        ];
         $transactionType_options = transaction::get_transactionTypes();
 
 
@@ -165,7 +169,11 @@ function show_new_transaction($template)
         $transactionType_options = transaction::get_transactionTypes();
         $TPL["transactionType_options"] = page::select_options($transactionType_options);
 
-        $status_options = array("pending"=>"Pending", "approved"=>"Approved", "rejected"=>"Rejected");
+        $status_options = [
+            "pending" => "Pending",
+            "approved" => "Approved",
+            "rejected" => "Rejected"
+        ];
         $TPL["status_options"] = page::select_options($status_options);
         $TPL["transaction_timeSheetID"] = $timeSheet->get_id();
         $TPL["transaction_transactionDate"] = date("Y-m-d");
@@ -220,14 +228,14 @@ function show_timeSheet_list($template)
     $item_query = prepare("SELECT * from timeSheetItem WHERE timeSheetID=%d", $timeSheetID);
     // If editing a timeSheetItem then don't display it in the list
     $timeSheetItemID = $_POST["timeSheetItemID"] or $timeSheetItemID = $_GET["timeSheetItemID"];
-    $timeSheetItemID and $item_query.= prepare(" AND timeSheetItemID != %d", $timeSheetItemID);
-    $item_query.= prepare(" GROUP BY timeSheetItemID ORDER BY dateTimeSheetItem, timeSheetItemID");
+    $timeSheetItemID and $item_query .= prepare(" AND timeSheetItemID != %d", $timeSheetItemID);
+    $item_query .= prepare(" GROUP BY timeSheetItemID ORDER BY dateTimeSheetItem, timeSheetItemID");
     $db->query($item_query);
 
     if (is_object($timeSheet)) {
         $project = $timeSheet->get_foreign_object("project");
         $row_projectPerson = projectPerson::get_projectPerson_row($project->get_id(), $timeSheet->get_value("personID"));
-        $default_rate = array();
+        $default_rate = [];
         if ($row_projectPerson && $row_projectPerson['rate'] > 0) {
             $default_rate['rate'] = $row_projectPerson['rate'];
             $default_rate['unit'] = $row_projectPerson['rateUnitID'];
@@ -253,9 +261,9 @@ function show_timeSheet_list($template)
             $commentPrivateText = "<b>[Private Comment]</b> ";
         }
 
-        $text and $TPL["timeSheetItem_description"] = "<a href=\"".$TPL["url_alloc_task"]."taskID=".$timeSheetItem->get_value('taskID')."\">".$text."</a>";
+        $text and $TPL["timeSheetItem_description"] = "<a href=\"" . $TPL["url_alloc_task"] . "taskID=" . $timeSheetItem->get_value('taskID') . "\">" . $text . "</a>";
         $text && $timeSheetItem->get_value("comment") and $br = "<br>";
-        $timeSheetItem->get_value("comment") and $TPL["timeSheetItem_comment"] = $br.$commentPrivateText.page::to_html($timeSheetItem->get_value("comment"));
+        $timeSheetItem->get_value("comment") and $TPL["timeSheetItem_comment"] = $br . $commentPrivateText . page::to_html($timeSheetItem->get_value("comment"));
         $TPL["timeSheetItem_unit_times_rate"] = $timeSheetItem->calculate_item_charge($timeSheet->get_value("currencyTypeID"), $timeSheetItem->get_value("rate"));
 
         $m = new meta("timeSheetItemMultiplier");
@@ -265,7 +273,7 @@ function show_timeSheet_list($template)
         // Check to see if this tsi is part of an overrun
         $TPL["timeSheetItem_class"] = "panel";
         $TPL["timeSheetItem_status"] = "";
-        $row_messages = array();
+        $row_messages = [];
         if ($timeSheetItem->get_value('taskID')) {
             $task = new task();
             $task->set_id($timeSheetItem->get_value('taskID'));
@@ -273,16 +281,18 @@ function show_timeSheet_list($template)
             if ($task->get_value('timeLimit') > 0) {
                 $total_billed_time = ($task->get_time_billed(false)) / 3600;    // get_time_billed returns seconds, limit hours is in hours
                 if ($total_billed_time > $task->get_value('timeLimit')) {
-                    $row_messages []= "<em class='faint warn nobr'>[ Exceeds Limit ]</em>";
+                    $row_messages[] = "<em class='faint warn nobr'>[ Exceeds Limit ]</em>";
                 }
             }
         }
 
         // Highlight the rate if the project person has a non-zero rate and it doesn't match the item's rate
         if ($default_rate) {
-            if ($timeSheetItem->get_value('rate') != $default_rate['rate'] ||
-                $timeSheetItem->get_value('timeSheetItemDurationUnitID') != $default_rate['unit']) {
-                $row_messages []= "<em class='faint warn nobr'>[ Modified rate ]</em>";
+            if (
+                $timeSheetItem->get_value('rate') != $default_rate['rate'] ||
+                $timeSheetItem->get_value('timeSheetItemDurationUnitID') != $default_rate['unit']
+            ) {
+                $row_messages[] = "<em class='faint warn nobr'>[ Modified rate ]</em>";
             }
         }
 
@@ -310,8 +320,10 @@ function show_new_timeSheet($template)
     }
 
 
-    if (is_object($timeSheet) && ($timeSheet->get_value("status") == 'edit' || $timeSheet->get_value("status") == 'rejected')
-        && ($timeSheet->get_value("personID") == $current_user->get_id() || $timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS))) {
+    if (
+        is_object($timeSheet) && ($timeSheet->get_value("status") == 'edit' || $timeSheet->get_value("status") == 'rejected')
+        && ($timeSheet->get_value("personID") == $current_user->get_id() || $timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS))
+    ) {
         $TPL["currency"] = page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
         // If we are editing an existing timeSheetItem
         $timeSheetItem_edit = $_POST["timeSheetItem_edit"] or $timeSheetItem_edit = $_GET["timeSheetItem_edit"];
@@ -378,24 +390,24 @@ function show_comments()
     if ($timeSheetID) {
         $TPL["commentsR"] = comment::util_get_comments("timeSheet", $timeSheetID);
         $TPL["class_new_comment"] = "hidden";
-        $TPL["allParties"] = $timeSheet->get_all_parties($timeSheet->get_value("projectID")) or $TPL["allParties"] = array();
+        $TPL["allParties"] = $timeSheet->get_all_parties($timeSheet->get_value("projectID")) or $TPL["allParties"] = [];
         $TPL["entity"] = "timeSheet";
         $TPL["entityID"] = $timeSheet->get_id();
         $p = $timeSheet->get_foreign_object('project');
         $TPL["clientID"] = $p->get_value("clientID");
         $commentTemplate = new commentTemplate();
-        $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", array("commentTemplateType"=>"timeSheet"));
-        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>".page::select_options($ops);
+        $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "timeSheet"]);
+        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
 
         $timeSheetPrintOptions = config::get_config_item("timeSheetPrintOptions");
         $timeSheetPrint = config::get_config_item("timeSheetPrint");
-        $ops = array(""=>"Format as...");
+        $ops = ["" => "Format as..."];
         foreach ($timeSheetPrint as $value) {
             $ops[$value] = $timeSheetPrintOptions[$value];
         }
         $TPL["attach_extra_files"] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-        $TPL["attach_extra_files"].= "Attach Time Sheet ";
-        $TPL["attach_extra_files"].= '<select name="attach_timeSheet">'.page::select_options($ops).'</select><br>';
+        $TPL["attach_extra_files"] .= "Attach Time Sheet ";
+        $TPL["attach_extra_files"] .= '<select name="attach_timeSheet">' . page::select_options($ops) . '</select><br>';
         include_template("../comment/templates/commentM.tpl");
     }
 }
@@ -461,12 +473,14 @@ if ($_REQUEST["updateRate"] && $timeSheet->get_id() && $timeSheet->can_edit_rate
 }
 
 
-if ($_POST["save"]
+if (
+    $_POST["save"]
     || $_POST["save_and_new"]
     || $_POST["save_and_returnToList"]
     || $_POST["save_and_returnToProject"]
     || $_POST["save_and_MoveForward"]
-    || $_POST["save_and_MoveBack"]) {
+    || $_POST["save_and_MoveBack"]
+) {
     // Saving a record
     $timeSheet->read_globals();
     $timeSheet->read_globals("timeSheet_");
@@ -485,7 +499,7 @@ if ($_POST["save"]
             $timeSheet->set_value("currencyTypeID", $project->get_value("currencyTypeID"));
         }
     } else {
-        $save_error=true;
+        $save_error = true;
         $TPL["message_help"][] = "Begin a Time Sheet by selecting a Project and clicking the Create Time Sheet button. A manager must add you to the project before you can create time sheets for it.";
         alloc_error("Please select a Project and then click the Create Time Sheet button.");
     }
@@ -503,9 +517,9 @@ if ($_POST["save"]
     }
 
     if ($_POST["save_and_MoveForward"]) {
-        $msg.= $timeSheet->change_status("forwards");
+        $msg .= $timeSheet->change_status("forwards");
     } else if ($_POST["save_and_MoveBack"]) {
-        $msg.= $timeSheet->change_status("backwards");
+        $msg .= $timeSheet->change_status("backwards");
     }
 
     $timeSheet->set_value("billingNote", rtrim($timeSheet->get_value("billingNote")));
@@ -528,12 +542,12 @@ if ($_POST["save"]
         } else if ($_POST["save_and_returnToList"]) {
             $url = $TPL["url_alloc_timeSheetList"];
         } else if ($_POST["save_and_returnToProject"]) {
-            $url = $TPL["url_alloc_project"]."projectID=".$timeSheet->get_value("projectID");
+            $url = $TPL["url_alloc_project"] . "projectID=" . $timeSheet->get_value("projectID");
         } else {
             $msg = page::htmlentities(urlencode($msg));
-            $url = $TPL["url_alloc_timeSheet"]."timeSheetID=".$timeSheet->get_id()."&msg=".$msg."&dont_send_email=".$_POST["dont_send_email"];
+            $url = $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . "&msg=" . $msg . "&dont_send_email=" . $_POST["dont_send_email"];
             # Pass the taskID forward if we came from a task
-            $url .= "&taskID=".$_POST["taskID"];
+            $url .= "&taskID=" . $_POST["taskID"];
         }
         alloc_redirect($url);
         exit();
@@ -572,9 +586,9 @@ if (!$timeSheetID) {
 
 
 if ($_POST["create_transactions_default"] && $timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
-    $msg.= $timeSheet->createTransactions();
+    $msg .= $timeSheet->createTransactions();
 } else if ($_POST["delete_all_transactions"] && $timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
-    $msg.= $timeSheet->destroyTransactions();
+    $msg .= $timeSheet->destroyTransactions();
 }
 
 
@@ -644,19 +658,19 @@ $projectID = $timeSheet->get_value("projectID");
 
 // If we are entering the page from a project link: New time sheet
 if ($_GET["newTimeSheet_projectID"] && !$projectID) {
-    $_GET["taskID"] and $tid = "&taskID=".$_GET["taskID"];
+    $_GET["taskID"] and $tid = "&taskID=" . $_GET["taskID"];
 
     $projectID = $_GET["newTimeSheet_projectID"];
     $db = new db_alloc();
     $q = prepare("SELECT * FROM timeSheet WHERE status = 'edit' AND personID = %d AND projectID = %d", $current_user->get_id(), $projectID);
     $db->query($q);
     if ($db->next_record()) {
-        alloc_redirect($TPL["url_alloc_timeSheet"]."timeSheetID=".$db->f("timeSheetID").$tid);
+        alloc_redirect($TPL["url_alloc_timeSheet"] . "timeSheetID=" . $db->f("timeSheetID") . $tid);
     }
 }
 
 if ($_GET["newTimeSheet_projectID"] && !$db->qr("SELECT * FROM projectPerson WHERE personID = %d AND projectID = %d", $current_user->get_id(), $_GET["newTimeSheet_projectID"])) {
-    alloc_error("You are not a member of the project (id:".page::htmlentities($_GET["newTimeSheet_projectID"])."), please get a manager to add you to the project.");
+    alloc_error("You are not a member of the project (id:" . page::htmlentities($_GET["newTimeSheet_projectID"]) . "), please get a manager to add you to the project.");
 }
 
 $db->query($query);
@@ -684,10 +698,10 @@ if ($projectID != 0) {
         $TPL["timeSheet_dateSubmittedToManager"] = "N/A";
         $TPL["timeSheet_approvedByManagerPersonID_username"] = "N/A";
     } else {
-        count($projectManagers)>1 and $TPL["manager_plural"] = "s";
-        $people =& get_cached_table("person");
+        count($projectManagers) > 1 and $TPL["manager_plural"] = "s";
+        $people = &get_cached_table("person");
         foreach ($projectManagers as $pID) {
-            $TPL["managers"].= $commar.$people[$pID]["name"];
+            $TPL["managers"] .= $commar . $people[$pID]["name"];
             $commar = ", ";
         }
     }
@@ -708,11 +722,11 @@ list($client_select, $client_link, $project_select, $project_link)
 
 
 $TPL["invoice_link"] = $timeSheet->get_invoice_link();
-list($amount_used,$amount_allocated) = $timeSheet->get_amount_allocated();
+list($amount_used, $amount_allocated) = $timeSheet->get_amount_allocated();
 if ($amount_allocated) {
     $TPL["amount_allocated_label"] = "Amount Used / Allocated:";
     $TPL["amount_allocated"] = $amount_allocated;
-    $TPL["amount_used"] = $amount_used." / ";
+    $TPL["amount_used"] = $amount_used . " / ";
 }
 
 
@@ -762,25 +776,27 @@ if ($_POST["dont_send_email"]) {
 $timeSheet->load_pay_info();
 
 
-$percent_array = array(""=>"Calculate %",
-                       "A"=>"Standard",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 1)=>"100%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.715)=>"71.5%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.665)=>"66.5%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.615)=>"61.5%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.285)=>"28.5%",
-                       "B"=>"Agency",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.765)=>"76.5%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.715)=>"71.5%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.665)=>"66.5%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.235)=>"23.5%",
-                       "C"=>"Commission",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.050)=>"5.0%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.025)=>"2.5%",
-                       "D"=>"Old Rates",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.772)=>"77.2%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.722)=>"72.2%",
-                       sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.228)=>"22.8%");
+$percent_array = [
+    "" => "Calculate %",
+    "A" => "Standard",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 1) => "100%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.715) => "71.5%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.665) => "66.5%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.615) => "61.5%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.285) => "28.5%",
+    "B" => "Agency",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.765) => "76.5%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.715) => "71.5%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.665) => "66.5%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.235) => "23.5%",
+    "C" => "Commission",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.050) => "5.0%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.025) => "2.5%",
+    "D" => "Old Rates",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.772) => "77.2%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.722) => "72.2%",
+    sprintf("%0.2f", $timeSheet->pay_info["total_dollars"] * 0.228) => "22.8%"
+];
 
 
 
@@ -790,7 +806,7 @@ if (!$timeSheet->get_id()) {
     $TPL["timeSheet_ChangeStatusButton"] = '<button type="submit" name="save" value="1" class="save_button">Create Time Sheet<i class="icon-ok-sign"></i></button>';
 }
 
-$radio_email = "<input type=\"checkbox\" id=\"dont_send_email\" name=\"dont_send_email\" value=\"1\"".$TPL["dont_send_email_checked"]."> <label for=\"dont_send_email\">Don't send email</label><br>";
+$radio_email = "<input type=\"checkbox\" id=\"dont_send_email\" name=\"dont_send_email\" value=\"1\"" . $TPL["dont_send_email_checked"] . "> <label for=\"dont_send_email\">Don't send email</label><br>";
 
 $statii = timeSheet::get_timeSheet_statii();
 
@@ -799,7 +815,7 @@ if (!$projectManagers) {
 }
 
 foreach ($statii as $s => $label) {
-    unset($pre, $suf);// prefix and suffix
+    unset($pre, $suf); // prefix and suffix
     $status = $timeSheet->get_value("status");
     unset($red);
     $status == "rejected" and $red = true;
@@ -810,13 +826,13 @@ foreach ($statii as $s => $label) {
 
     if ($s == $status) {
         $red and $red = ' class="warn"';
-        $pre = "<b".$red.">";
+        $pre = "<b" . $red . ">";
         $suf = "</b>";
     }
     if ($s == "rejected") {
         continue;
     }
-    $TPL["timeSheet_status_text"].= $sep.$pre.$label.$suf;
+    $TPL["timeSheet_status_text"] .= $sep . $pre . $label . $suf;
     $sep = "&nbsp;&nbsp;|&nbsp;&nbsp;";
 }
 
@@ -830,19 +846,21 @@ switch ($timeSheet->get_value("status")) {
             $TPL["timeSheet_ChangeStatusButton"] = '
         <button type="submit" name="delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
         <button type="submit" name="save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
-        <button type="submit" name="save_and_MoveForward" value="1" class="save_button">Time Sheet to '.$destlabel.'<i class="icon-arrow-right"></i></button>';
+        <button type="submit" name="save_and_MoveForward" value="1" class="save_button">Time Sheet to ' . $destlabel . '<i class="icon-arrow-right"></i></button>';
         }
         break;
 
     case 'manager':
-        if (in_array($current_user->get_id(), $projectManagers)
-            || ($timeSheet->have_perm(PERM_TIME_APPROVE_TIMESHEETS))) {
+        if (
+            in_array($current_user->get_id(), $projectManagers)
+            || ($timeSheet->have_perm(PERM_TIME_APPROVE_TIMESHEETS))
+        ) {
             $TPL["timeSheet_ChangeStatusButton"] = '
         <button type="submit" name="save_and_MoveBack" value="1" class="save_button"><i class="icon-arrow-left" style="margin:0px; margin-right:5px"></i>Back</button>
         <button type="submit" name="save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
         <button type="submit" name="save_and_MoveForward" value="1" class="save_button">Time Sheet to Admin<i class="icon-arrow-right"></i></button>';
 
-                $TPL["radio_email"] = $radio_email;
+            $TPL["radio_email"] = $radio_email;
         }
         break;
 
@@ -853,7 +871,7 @@ switch ($timeSheet->get_value("status")) {
         <button type="submit" name="save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
         <button type="submit" name="save_and_MoveForward" value="1" class="save_button">Time Sheet to Invoiced<i class="icon-arrow-right"></i></button>';
 
-                $TPL["radio_email"] = $radio_email;
+            $TPL["radio_email"] = $radio_email;
         }
         break;
 
@@ -864,7 +882,7 @@ switch ($timeSheet->get_value("status")) {
         <button type="submit" name="save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
         <button type="submit" name="save_and_MoveForward" value="1" class="save_button">Time Sheet Complete<i class="icon-arrow-right"></i></button>';
 
-                $TPL["radio_email"] = $radio_email;
+            $TPL["radio_email"] = $radio_email;
         }
         break;
 
@@ -915,7 +933,7 @@ if ($timeSheet->pay_info["total_customerBilledDollars"]) {
     $TPL["total_customerBilledDollars"] = page::money($timeSheet->get_value("currencyTypeID"), $timeSheet->pay_info["total_customerBilledDollars"], "%s%m %c");
     config::get_config_item("taxPercent") and
 
-        $TPL["ex_gst"] = " (".$timeSheet->pay_info["currency"].$timeSheet->pay_info["total_customerBilledDollars_minus_gst"]." excl ".config::get_config_item("taxPercent")."% ".config::get_config_item("taxName").")";
+        $TPL["ex_gst"] = " (" . $timeSheet->pay_info["currency"] . $timeSheet->pay_info["total_customerBilledDollars_minus_gst"] . " excl " . config::get_config_item("taxPercent") . "% " . config::get_config_item("taxName") . ")";
 }
 if ($timeSheet->pay_info["total_dollars"]) {
     $TPL["total_dollars"] = page::money($timeSheet->get_value("currencyTypeID"), $timeSheet->pay_info["total_dollars"], "%s%m %c");
@@ -926,7 +944,7 @@ $TPL["total_units"] = $timeSheet->pay_info["summary_unit_totals"];
 
 
 if ($timeSheetID) {
-    $TPL["period"] = $timeSheet->get_value("dateFrom")." to ".$timeSheet->get_value("dateTo");
+    $TPL["period"] = $timeSheet->get_value("dateFrom") . " to " . $timeSheet->get_value("dateTo");
 
     if ($timeSheet->get_value("status") == "edit" && $db->f("count") == 0) {
         $TPL["message_help"][] = "Enter Time Sheet Items and click the Add Time Sheet Item Button.";
@@ -936,9 +954,9 @@ if ($timeSheetID) {
 }
 
 if ($timeSheetID) {
-    $TPL["main_alloc_title"] = "Time Sheet " . $timeSheet->get_id() . " - ".APPLICATION_NAME;
+    $TPL["main_alloc_title"] = "Time Sheet " . $timeSheet->get_id() . " - " . APPLICATION_NAME;
 } else {
-    $TPL["main_alloc_title"] = "New Time Sheet - ".APPLICATION_NAME;
+    $TPL["main_alloc_title"] = "New Time Sheet - " . APPLICATION_NAME;
 }
 
 $TPL["taxName"] = config::get_config_item("taxName");

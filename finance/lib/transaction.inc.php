@@ -12,33 +12,35 @@ class transaction extends db_entity
     public $data_table = "transaction";
     public $display_field_name = "product";
     public $key_field = "transactionID";
-    public $data_fields = array("companyDetails" => array("empty_to_null"=>false),
-                                "product" => array("empty_to_null"=>false),
-                                "amount" => array("type"=>"money"),
-                                "currencyTypeID",
-                                "destCurrencyTypeID",
-                                "exchangeRate",
-                                "status",
-                                "dateApproved",
-                                "expenseFormID",
-                                "invoiceID",
-                                "invoiceItemID",
-                                "tfID",
-                                "fromTfID",
-                                "projectID",
-                                "transactionModifiedUser",
-                                "transactionModifiedTime",
-                                "transactionCreatedTime",
-                                "transactionCreatedUser",
-                                "quantity",
-                                "transactionDate",
-                                "transactionType",
-                                "timeSheetID",
-                                "productSaleID",
-                                "productSaleItemID",
-                                "productCostID",
-                                "transactionRepeatID",
-                                "transactionGroupID");
+    public $data_fields = [
+        "companyDetails" => ["empty_to_null" => false],
+        "product" => ["empty_to_null" => false],
+        "amount" => ["type" => "money"],
+        "currencyTypeID",
+        "destCurrencyTypeID",
+        "exchangeRate",
+        "status",
+        "dateApproved",
+        "expenseFormID",
+        "invoiceID",
+        "invoiceItemID",
+        "tfID",
+        "fromTfID",
+        "projectID",
+        "transactionModifiedUser",
+        "transactionModifiedTime",
+        "transactionCreatedTime",
+        "transactionCreatedUser",
+        "quantity",
+        "transactionDate",
+        "transactionType",
+        "timeSheetID",
+        "productSaleID",
+        "productSaleItemID",
+        "productCostID",
+        "transactionRepeatID",
+        "transactionGroupID"
+    ];
 
     function save()
     {
@@ -67,7 +69,7 @@ class transaction extends db_entity
         // If there already is an exchange rate set for an approved
         // transaction, then there's no need to update the exchange rate
         if ($this->get_value("exchangeRate") && $this->get_value("dateApproved") && !$field_changed) {
-        // Else update the transaction's exchange rate
+            // Else update the transaction's exchange rate
         } else {
             $this->get_value("transactionCreatedTime")  and $date = format_date("Y-m-d", $this->get_value("transactionCreatedTime"));
             $this->get_value("transactionModifiedTime") and $date = format_date("Y-m-d", $this->get_value("transactionModifiedTime"));
@@ -76,7 +78,7 @@ class transaction extends db_entity
 
             $er = exchangeRate::get_er($this->get_value("currencyTypeID"), $this->get_value("destCurrencyTypeID"), $date);
             if (!$er) {
-                alloc_error("Unable to determine exchange rate for ".$this->get_value("currencyTypeID")." to ".$this->get_value("destCurrencyTypeID")." for date: ".$date);
+                alloc_error("Unable to determine exchange rate for " . $this->get_value("currencyTypeID") . " to " . $this->get_value("destCurrencyTypeID") . " for date: " . $date);
             } else {
                 $this->set_value("exchangeRate", $er);
             }
@@ -90,7 +92,7 @@ class transaction extends db_entity
         $current_user = &singleton("current_user");
 
         $this->get_value("fromTfID") or $err[] = "Unable to save transaction without a Source TF.";
-        $this->get_value("fromTfID") && $this->get_value("fromTfID") == $this->get_value("tfID") and $err[] = "Unable to save transaction with Source TF (".tf::get_name($this->get_value("fromTfID")).") being the same as the Destination TF (".tf::get_name($this->get_value("tfID")).") \"".$this->get_value("product")."\"";
+        $this->get_value("fromTfID") && $this->get_value("fromTfID") == $this->get_value("tfID") and $err[] = "Unable to save transaction with Source TF (" . tf::get_name($this->get_value("fromTfID")) . ") being the same as the Destination TF (" . tf::get_name($this->get_value("tfID")) . ") \"" . $this->get_value("product") . "\"";
         $this->get_value("quantity") or $this->set_value("quantity", 1);
         $this->get_value("transactionDate") or $this->set_value("transactionDate", date("Y-m-d"));
 
@@ -140,19 +142,12 @@ class transaction extends db_entity
     function get_transactionTypes()
     {
         $taxName = config::get_config_item("taxName") or $taxName = "Tax";
-        return array('invoice'    => 'Invoice',
-                     'expense'    => 'Expense',
-                     'salary'     => 'Salary',
-                     'commission' => 'Commission',
-                     'timesheet'  => 'Time Sheet',
-                     'adjustment' => 'Adjustment',
-                     'sale'       => 'Sale',
-                     'tax'        => $taxName);
+        return ['invoice'    => 'Invoice', 'expense'    => 'Expense', 'salary'     => 'Salary', 'commission' => 'Commission', 'timesheet'  => 'Time Sheet', 'adjustment' => 'Adjustment', 'sale'       => 'Sale', 'tax'        => $taxName];
     }
 
     function get_transactionStatii()
     {
-        return array("pending"=>"Pending", "approved"=>"Approved", "rejected"=>"Rejected");
+        return ["pending" => "Pending", "approved" => "Approved", "rejected" => "Rejected"];
     }
 
     function get_url()
@@ -160,30 +155,30 @@ class transaction extends db_entity
         global $sess;
         $sess or $sess = new session();
 
-        $url = "finance/transaction.php?transactionID=".$this->get_id();
+        $url = "finance/transaction.php?transactionID=" . $this->get_id();
 
         if ($sess->Started()) {
-            $url = $sess->url(SCRIPT_PATH.$url);
+            $url = $sess->url(SCRIPT_PATH . $url);
 
-        // This for urls that are emailed
+            // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");
-            $url = $prefix.$url;
+            $url = $prefix . $url;
         }
         return $url;
     }
 
-    function get_transaction_link($_FORM = array())
+    function get_transaction_link($_FORM = [])
     {
         $_FORM["return"] or $_FORM["return"] = "html";
-        $rtn = "<a href=\"".$this->get_url()."\">";
-        $rtn.= $this->get_name($_FORM);
-        $rtn.= "</a>";
+        $rtn = "<a href=\"" . $this->get_url() . "\">";
+        $rtn .= $this->get_name($_FORM);
+        $rtn .= "</a>";
         return $rtn;
     }
 
-    function get_name($_FORM = array())
+    function get_name($_FORM = [])
     {
         if ($_FORM["return"] == "html") {
             return $this->get_value("product", DST_HTML_DISPLAY);
@@ -205,31 +200,31 @@ class transaction extends db_entity
                 $invoiceItem = $this->get_foreign_object("invoiceItem");
                 $invoice = $invoiceItem->get_foreign_object("invoice");
             }
-            $invoice->get_id() and $str = "<a href=\"".$invoice->get_url()."\">".$transactionTypes[$type]." ".$invoice->get_value("invoiceNum")."</a>";
+            $invoice->get_id() and $str = "<a href=\"" . $invoice->get_url() . "\">" . $transactionTypes[$type] . " " . $invoice->get_value("invoiceNum") . "</a>";
 
-        // Transaction is from an expenseform
+            // Transaction is from an expenseform
         } else if ($type == "expense") {
             $expenseForm = $this->get_foreign_object("expenseForm");
             if ($expenseForm->get_id() && $expenseForm->have_perm(PERM_READ_WRITE)) {
-                $str = "<a href=\"".$expenseForm->get_url()."\">".$transactionTypes[$type]." ".$this->get_value("expenseFormID")."</a>";
+                $str = "<a href=\"" . $expenseForm->get_url() . "\">" . $transactionTypes[$type] . " " . $this->get_value("expenseFormID") . "</a>";
             }
 
-        // Had to rewrite this so that people who had transactions on other peoples timesheets
-        // could see their own transactions, but not the other persons timesheet.
+            // Had to rewrite this so that people who had transactions on other peoples timesheets
+            // could see their own transactions, but not the other persons timesheet.
         } else if ($type == "timesheet" && $this->get_value("timeSheetID")) {
             $timeSheet = new timeSheet();
             $timeSheet->set_id($this->get_value("timeSheetID"));
-            $str = "<a href=\"".$timeSheet->get_url()."\">".$transactionTypes[$type]." ".$this->get_value("timeSheetID")."</a>";
+            $str = "<a href=\"" . $timeSheet->get_url() . "\">" . $transactionTypes[$type] . " " . $this->get_value("timeSheetID") . "</a>";
         } else if (($type == "commission" || $type == "tax") && $this->get_value("timeSheetID")) {
             $timeSheet = new timeSheet();
             $timeSheet->set_id($this->get_value("timeSheetID"));
-            $str = "<a href=\"".$timeSheet->get_url()."\">".$transactionTypes[$type]." (Time Sheet ".$this->get_value("timeSheetID").")</a>";
+            $str = "<a href=\"" . $timeSheet->get_url() . "\">" . $transactionTypes[$type] . " (Time Sheet " . $this->get_value("timeSheetID") . ")</a>";
         } else {
             $str = $transactionTypes[$type];
         }
 
         if ($this->get_value("transactionGroupID")) {
-            $str.= " <a href=\"".$TPL["url_alloc_transactionGroup"]."transactionGroupID=".$this->get_value("transactionGroupID")."\">Group ".$this->get_value("transactionGroupID")."</a>";
+            $str .= " <a href=\"" . $TPL["url_alloc_transactionGroup"] . "transactionGroupID=" . $this->get_value("transactionGroupID") . "\">Group " . $this->get_value("transactionGroupID") . "</a>";
         }
 
         return $str;
@@ -262,9 +257,9 @@ class transaction extends db_entity
         }
 
         if ($_FORM["monthDate"]) {
-            $_FORM["startDate"] = format_date("Y-m-", $_FORM["monthDate"])."01";
+            $_FORM["startDate"] = format_date("Y-m-", $_FORM["monthDate"]) . "01";
             $t = format_date("U", $_FORM["monthDate"]);
-            $_FORM["endDate"] = date("Y-m-d", mktime(1, 1, 1, date("m", $t)+1, 1, date("Y", $t)));
+            $_FORM["endDate"] = date("Y-m-d", mktime(1, 1, 1, date("m", $t) + 1, 1, date("Y", $t)));
         }
 
         $_FORM["sortTransactions"] or $_FORM["sortTransactions"] = "transactionDate";
@@ -307,8 +302,8 @@ class transaction extends db_entity
 
         $filter = transaction::get_list_filter($_FORM);
         $debug = $_FORM["debug"];
-        $debug and print "\n<pre>_FORM: ".print_r($_FORM, 1)."</pre>";
-        $debug and print "\n<pre>filter: ".print_r($filter, 1)."</pre>";
+        $debug and print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
+        $debug and print "\n<pre>filter: " . print_r($filter, 1) . "</pre>";
 
         $_FORM["return"] or $_FORM["return"] = "html";
 
@@ -318,14 +313,14 @@ class transaction extends db_entity
         unset($filter["prevBalance"]);
 
         if (is_array($filter2) && count($filter2)) {
-            $filter2 = " WHERE ".implode(" AND ", $filter2);
+            $filter2 = " WHERE " . implode(" AND ", $filter2);
         }
         if (is_array($filter) && count($filter)) {
-            $filter = " WHERE ".implode(" AND ", $filter);
+            $filter = " WHERE " . implode(" AND ", $filter);
         }
 
         $_FORM["sortTransactions"] or $_FORM["sortTransactions"] = "transactionDate";
-        $order_by = "ORDER BY ".$_FORM["sortTransactions"];
+        $order_by = "ORDER BY " . $_FORM["sortTransactions"];
 
 
         // Determine opening balance
@@ -333,8 +328,8 @@ class transaction extends db_entity
             $q = prepare("SELECT SUM( IF(fromTfID IN (%s),-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                             FROM transaction
                       LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
-                         ".$filter2, $_FORM['tfIDs']);
-            $debug and print "\n<br>QUERY: ".$q;
+                         " . $filter2, $_FORM['tfIDs']);
+            $debug and print "\n<br>QUERY: " . $q;
             $db = new db_alloc();
             $db->query($q);
             $db->row();
@@ -352,10 +347,10 @@ class transaction extends db_entity
            LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
            LEFT JOIN tf tf1 ON transaction.fromTfID = tf1.tfID
            LEFT JOIN tf tf2 ON transaction.tfID = tf2.tfID
-             ".$filter."
-             ".$order_by;
+             " . $filter . "
+             " . $order_by;
 
-        $debug and print "\n<br>QUERY2: ".$q;
+        $debug and print "\n<br>QUERY2: " . $q;
         $db = new db_alloc();
         $db->query($q);
         $for_cyber = config::for_cyber();
@@ -383,8 +378,8 @@ class transaction extends db_entity
             $row["transactionTypeLink"] = $t->get_transaction_type_link() or $row["transactionTypeLink"] = $row["transactionType"];
             $row["transactionSortDate"] = format_date("Y-m-d", $row["transactionSortDate"]);
 
-            $row["fromTfIDLink"] = "<a href=\"".$TPL["url_alloc_transactionList"]."tfID=".$row["fromTfID"]."\">".page::htmlentities($row["fromTfName"])."</a>";
-            $row["tfIDLink"] = "<a href=\"".$TPL["url_alloc_transactionList"]."tfID=".$row["tfID"]."\">".page::htmlentities($row["tfName"])."</a>";
+            $row["fromTfIDLink"] = "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $row["fromTfID"] . "\">" . page::htmlentities($row["fromTfName"]) . "</a>";
+            $row["tfIDLink"] = "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $row["tfID"] . "\">" . page::htmlentities($row["tfName"]) . "</a>";
 
             if ($t->get_value("status") == "approved") {
                 $running_balance += $amount;
@@ -404,7 +399,7 @@ class transaction extends db_entity
                 $ps = new productSale();
                 $ps->set_id($row["productSaleID"]);
                 if ($ps->select()) {
-                    $ps->get_value("extRef") and $row["product"].= " (Ext ref: ".$ps->get_value("extRef").")";
+                    $ps->get_value("extRef") and $row["product"] .= " (Ext ref: " . $ps->get_value("extRef") . ")";
                 }
             }
 
@@ -415,63 +410,47 @@ class transaction extends db_entity
         $_FORM["total_amount_negative"] = page::money(config::get_config_item("currency"), $total_amount_negative, "%s%m %c");
         $_FORM["running_balance"] =       page::money(config::get_config_item("currency"), $running_balance, "%s%m %c");
 
-        return array("totals"=>$_FORM, "rows"=>(array)$transactions);
+        return ["totals" => $_FORM, "rows" => (array)$transactions];
     }
 
-    function arr_to_csv($rows = array())
+    function arr_to_csv($rows = [])
     {
 
-        $csvHeaders = array("transactionID",
-                            "transactionType",
-                            "fromTfID",
-                            "tfID",
-                            "transactionDate",
-                            "transactionSortDate",
-                            "product",
-                            "status",
-                            "currencyTypeID",
-                            "exchangeRate",
-                            "destCurrencyTypeID",
-                            "amount_positive",
-                            "amount_negative",
-                            "running_balance");
+        $csvHeaders = [
+            "transactionID",
+            "transactionType",
+            "fromTfID",
+            "tfID",
+            "transactionDate",
+            "transactionSortDate",
+            "product",
+            "status",
+            "currencyTypeID",
+            "exchangeRate",
+            "destCurrencyTypeID",
+            "amount_positive",
+            "amount_negative",
+            "running_balance"
+        ];
 
         foreach ((array)$rows as $row) {
-            $csv_data = array();
+            $csv_data = [];
             foreach ($csvHeaders as $header) {
                 $csv_data[] = $row[$header];
             }
-            $csv.= $nl.implode(",", array_map('export_escape_csv', $csv_data));
+            $csv .= $nl . implode(",", array_map('export_escape_csv', $csv_data));
             $nl = "\n";
         }
-        return implode(",", array_map('export_escape_csv', $csvHeaders))."\n".$csv;
+        return implode(",", array_map('export_escape_csv', $csvHeaders)) . "\n" . $csv;
     }
 
     function get_list_vars()
     {
 
-        return array("return"            => "[MANDATORY] eg: html | csv | array",
-                     "tfID"              => "Transactions that are for this TF",
-                     "tfIDs"             => "Transactions that are for this array of TF's",
-                     "tfName"            => "Transactions that are for this TF name",
-                     "status"            => "Transaction status eg: pending | rejected | approved",
-                     "startDate"         => "Transactions with dates after this start date eg: 2002-07-07",
-                     "endDate"           => "Transactions with dates before this end date eg: 2007-07-07",
-                     "monthDate"         => "Transactions for a particular month, by date, eg july: 2008-07-07",
-                     "sortTransactions"  => "Sort transactions eg: transactionSortDate | transactionDate",
-                     "transactionType"   => "Eg: invoice | expense | salary | commission | timesheet | adjustment | tax | sale",
-                     "applyFilter"       => "Saves this filter as the persons preference",
-                     "url_form_action"   => "The submit action for the filter form",
-                     "form_name"         => "The name of this form, i.e. a handle for referring to this saved form",
-                     "dontSave"          => "Specify that the filter preferences should not be saved this time",
-                     "fromTfID"          => "Transactions that have a source of this TF",
-                     "expenseFormID"     => "Transactions for a particular Expense Form",
-                     "transactionID"     => "A Transaction by ID",
-                     "product"           => "Transactions with a description like *something* (fuzzy)",
-                     "amount"            => "Get Transactions that are for a certain amount");
+        return ["return"            => "[MANDATORY] eg: html | csv | array", "tfID"              => "Transactions that are for this TF", "tfIDs"             => "Transactions that are for this array of TF's", "tfName"            => "Transactions that are for this TF name", "status"            => "Transaction status eg: pending | rejected | approved", "startDate"         => "Transactions with dates after this start date eg: 2002-07-07", "endDate"           => "Transactions with dates before this end date eg: 2007-07-07", "monthDate"         => "Transactions for a particular month, by date, eg july: 2008-07-07", "sortTransactions"  => "Sort transactions eg: transactionSortDate | transactionDate", "transactionType"   => "Eg: invoice | expense | salary | commission | timesheet | adjustment | tax | sale", "applyFilter"       => "Saves this filter as the persons preference", "url_form_action"   => "The submit action for the filter form", "form_name"         => "The name of this form, i.e. a handle for referring to this saved form", "dontSave"          => "Specify that the filter preferences should not be saved this time", "fromTfID"          => "Transactions that have a source of this TF", "expenseFormID"     => "Transactions for a particular Expense Form", "transactionID"     => "A Transaction by ID", "product"           => "Transactions with a description like *something* (fuzzy)", "amount"            => "Get Transactions that are for a certain amount"];
     }
 
-    function load_form_data($defaults = array())
+    function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
 
@@ -502,7 +481,7 @@ class transaction extends db_entity
     {
         global $TPL;
 
-        $rtn["statusOptions"] = page::select_options(array(""=>"","pending"=>"Pending","approved"=>"Approved","rejected"=>"Rejected"), $_FORM["status"]);
+        $rtn["statusOptions"] = page::select_options(["" => "", "pending" => "Pending", "approved" => "Approved", "rejected" => "Rejected"], $_FORM["status"]);
 
         $transactionTypeOptions = transaction::get_transactionTypes();
         $rtn["transactionTypeOptions"] = page::select_options($transactionTypeOptions, $_FORM["transactionType"]);
@@ -511,9 +490,9 @@ class transaction extends db_entity
         $rtn["endDate"] = $_FORM["endDate"];
 
         if ($_FORM["monthDate"]) {
-            $rtn["startDate"] = format_date("Y-m-", $_FORM["monthDate"])."01";
+            $rtn["startDate"] = format_date("Y-m-", $_FORM["monthDate"]) . "01";
             $t = format_date("U", $_FORM["monthDate"]);
-            $rtn["endDate"] = date("Y-m-d", mktime(1, 1, 1, date("m", $t)+1, 1, date("Y", $t)));
+            $rtn["endDate"] = date("Y-m-d", mktime(1, 1, 1, date("m", $t) + 1, 1, date("Y", $t)));
         }
 
         $display_format = "M";
@@ -543,9 +522,9 @@ class transaction extends db_entity
                 $bold = true;
             }
 
-            $link = $TPL["url_alloc_transactionList"]."tfID=".$_FORM["tfID"]."&monthDate=".$monthDate."&applyFilter=true";
+            $link = $TPL["url_alloc_transactionList"] . "tfID=" . $_FORM["tfID"] . "&monthDate=" . $monthDate . "&applyFilter=true";
             $bold and $rtn["month_links"] .= "<b>";
-            $rtn["month_links"] .= $sp."<a href=\"".$link."\">".$label."</a>";
+            $rtn["month_links"] .= $sp . "<a href=\"" . $link . "\">" . $label . "</a>";
             $bold and $rtn["month_links"] .= "</b>";
             $sp = "&nbsp;&nbsp;";
 
@@ -575,7 +554,7 @@ class transaction extends db_entity
         return $rtn;
     }
 
-    function get_actual_amount_used($rows = array())
+    function get_actual_amount_used($rows = [])
     {
 
         /*
@@ -600,15 +579,15 @@ class transaction extends db_entity
          *
          */
 
-        $rows or $rows = array();
-        $tallies or $tallies = array();
+        $rows or $rows = [];
+        $tallies or $tallies = [];
         foreach ($rows as $k => $row) {
             $tallies[$row["fromTfID"]] -= $row["amount"];
             $tallies[$row["tfID"]] += $row["amount"];
         }
 
         foreach ($tallies as $tfID => $amount) {
-            $amount >0 and $sum+=$amount;
+            $amount > 0 and $sum += $amount;
         }
 
         return $sum;

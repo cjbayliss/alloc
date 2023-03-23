@@ -11,21 +11,23 @@ class item extends db_entity
     public $data_table = "item";
     public $display_field_name = "itemName";
     public $key_field = "itemID";
-    public $data_fields = array("itemModifiedUser",
-                                "itemName",
-                                "itemAuthor",
-                                "itemNotes",
-                                "itemModifiedTime",
-                                "itemType",
-                                "personID");
+    public $data_fields = [
+        "itemModifiedUser",
+        "itemName",
+        "itemAuthor",
+        "itemNotes",
+        "itemModifiedTime",
+        "itemType",
+        "personID"
+    ];
 
     function update_search_index_doc(&$index)
     {
-        $p =& get_cached_table("person");
+        $p = &get_cached_table("person");
         $personID = $this->get_value("personID");
-        $person_field = $personID." ".$p[$personID]["username"]." ".$p[$personID]["name"];
+        $person_field = $personID . " " . $p[$personID]["username"] . " " . $p[$personID]["name"];
         $itemModifiedUser = $this->get_value("itemModifiedUser");
-        $itemModifiedUser_field = $itemModifiedUser." ".$p[$itemModifiedUser]["username"]." ".$p[$itemModifiedUser]["name"];
+        $itemModifiedUser_field = $itemModifiedUser . " " . $p[$itemModifiedUser]["username"] . " " . $p[$itemModifiedUser]["name"];
 
         $doc = new Zend_Search_Lucene_Document();
         $doc->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));

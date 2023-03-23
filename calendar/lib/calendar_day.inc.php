@@ -8,15 +8,15 @@
 
 class calendar_day
 {
-    var $date;          // Y-m-d
-    var $day;           // Mon
-    var $display_date;  // m-Y
-    var $links;
-    var $class;
-    var $absences = array();
-    var $start_tasks = array();
-    var $complete_tasks = array();
-    var $reminders = array();
+    public $date;          // Y-m-d
+    public $day;           // Mon
+    public $display_date;  // m-Y
+    public $links;
+    public $class;
+    public $absences = [];
+    public $start_tasks = [];
+    public $complete_tasks = [];
+    public $reminders = [];
 
     function __construct()
     {
@@ -31,7 +31,7 @@ class calendar_day
         if ($this->date == date("Y-m-d")) {
             $this->class = "today";
 
-        // Toggle every second month to have slightly different coloured shading
+            // Toggle every second month to have slightly different coloured shading
         } else if (date("n", format_date("U", $this->date)) % 2 == 0) {
             $this->class = "even";
         }
@@ -65,8 +65,8 @@ class calendar_day
             $rows[] = implode("<br>", $this->reminders);
         }
 
-        echo "\n<td class=\"calendar_day ".$this->class."\">";
-        echo "<h1>".$this->links.$this->display_date."</h1>";
+        echo "\n<td class=\"calendar_day " . $this->class . "\">";
+        echo "<h1>" . $this->links . $this->display_date . "</h1>";
 
         if (count($rows)) {
             echo implode("<br>", $rows);

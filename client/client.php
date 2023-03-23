@@ -55,14 +55,14 @@ function show_client_contacts()
         $vcard_img = "icon_vcard.png";
         $clientContact->get_value("clientContactActive") or $vcard_img = "icon_vcard_faded.png";
 
-        $vcard = '<a href="'.$TPL["url_alloc_client"].'clientContactID='.$clientContact->get_id().'&get_vcard=1"><img style="vertical-align:middle; padding:3px 6px 3px 3px;border: none" src="'.$TPL["url_alloc_images"].$vcard_img.'" alt="Download VCard" ></a>';
+        $vcard = '<a href="' . $TPL["url_alloc_client"] . 'clientContactID=' . $clientContact->get_id() . '&get_vcard=1"><img style="vertical-align:middle; padding:3px 6px 3px 3px;border: none" src="' . $TPL["url_alloc_images"] . $vcard_img . '" alt="Download VCard" ></a>';
 
-        $col1 = array();
-        $clientContact->get_value('clientContactName') and $col1[] = "<h2 style='margin:0px; display:inline;'>".$vcard.$clientContact->get_value('clientContactName', DST_HTML_DISPLAY)."</h2>".$pc;
+        $col1 = [];
+        $clientContact->get_value('clientContactName') and $col1[] = "<h2 style='margin:0px; display:inline;'>" . $vcard . $clientContact->get_value('clientContactName', DST_HTML_DISPLAY) . "</h2>" . $pc;
         $clientContact->get_value('clientContactStreetAddress') and $col1[] = $clientContact->get_value('clientContactStreetAddress', DST_HTML_DISPLAY);
 
         $clientContact->get_value('clientContactSuburb') || $clientContact->get_value('clientContactState') || $clientContact->get_value('clientContactPostcode') and
-        $col1[] = $clientContact->get_value('clientContactSuburb', DST_HTML_DISPLAY).' '.$clientContact->get_value('clientContactState', DST_HTML_DISPLAY)." ".$clientContact->get_value('clientContactPostcode', DST_HTML_DISPLAY);
+            $col1[] = $clientContact->get_value('clientContactSuburb', DST_HTML_DISPLAY) . ' ' . $clientContact->get_value('clientContactState', DST_HTML_DISPLAY) . " " . $clientContact->get_value('clientContactPostcode', DST_HTML_DISPLAY);
 
         $clientContact->get_value('clientContactCountry') and $col1[] = $clientContact->get_value('clientContactCountry', DST_HTML_DISPLAY);
 
@@ -78,7 +78,7 @@ function show_client_contacts()
         $ico_m = "M: ";
         $ico_f = "F: ";
 
-        $col2 = array();
+        $col2 = [];
         $email = $clientContact->get_value("clientContactEmail", DST_HTML_DISPLAY);
         $email = str_replace("<", "", $email);
         $email = str_replace(">", "", $email);
@@ -91,16 +91,16 @@ function show_client_contacts()
         } else {
             $mailto = $email;
         }
-        $email and $col2[] = $ico_e."<a href='mailto:".rawurlencode($mailto)."'>".$email."</a>";
+        $email and $col2[] = $ico_e . "<a href='mailto:" . rawurlencode($mailto) . "'>" . $email . "</a>";
 
         $phone = $clientContact->get_value('clientContactPhone', DST_HTML_DISPLAY);
-        $phone and $col2[] = $ico_p.$phone;
+        $phone and $col2[] = $ico_p . $phone;
 
         $mobile = $clientContact->get_value('clientContactMobile', DST_HTML_DISPLAY);
-        $mobile and $col2[] = $ico_m.$mobile;
+        $mobile and $col2[] = $ico_m . $mobile;
 
         $fax = $clientContact->get_value('clientContactFax', DST_HTML_DISPLAY);
-        $fax and $col2[] = $ico_f.$fax;
+        $fax and $col2[] = $ico_f . $fax;
 
         if ($clientContact->get_value("clientContactActive")) {
             $class_extra = " loud";
@@ -113,21 +113,21 @@ function show_client_contacts()
       <button type="submit" name="clientContact_edit" value="1"">Edit<i class="icon-edit"></i></button>
       </nobr>';
 
-        $rtn[] =  '<form action="'.$TPL["url_alloc_client"].'" method="post">';
-        $rtn[] =  '<input type="hidden" name="clientContactID" value="'.$clientContact->get_id().'">';
-        $rtn[] =  '<input type="hidden" name="clientID" value="'.$clientID.'">';
-        $rtn[] =  '<div class="panel'.$class_extra.' corner">';
+        $rtn[] =  '<form action="' . $TPL["url_alloc_client"] . '" method="post">';
+        $rtn[] =  '<input type="hidden" name="clientContactID" value="' . $clientContact->get_id() . '">';
+        $rtn[] =  '<input type="hidden" name="clientID" value="' . $clientID . '">';
+        $rtn[] =  '<div class="panel' . $class_extra . ' corner">';
         $rtn[] =  '<table width="100%" cellspacing="0" border="0">';
         $rtn[] =  '<tr>';
-        $rtn[] =  '  <td width="25%" valign="top"><span class="nobr">'.implode('</span><br><span class="nobr">', $col1).'</span>&nbsp;</td>';
-        $rtn[] =  '  <td width="20%" valign="top"><span class="nobr">'.implode('</span><br><span class="nobr">', $col2).'</span>&nbsp;</td>';
-        $rtn[] =  '  <td width="50%" align="left" valign="top">'.nl2br($clientContact->get_value('clientContactOther', DST_HTML_DISPLAY)).'&nbsp;</td>';
-        $rtn[] =  '  <td align="right" class="right nobr">'.$buttons.'</td>';
-        $rtn[] =  '  <td align="right" class="right nobr" width="1%">'.page::star("clientContact", $clientContact->get_id()).'</td>';
+        $rtn[] =  '  <td width="25%" valign="top"><span class="nobr">' . implode('</span><br><span class="nobr">', $col1) . '</span>&nbsp;</td>';
+        $rtn[] =  '  <td width="20%" valign="top"><span class="nobr">' . implode('</span><br><span class="nobr">', $col2) . '</span>&nbsp;</td>';
+        $rtn[] =  '  <td width="50%" align="left" valign="top">' . nl2br($clientContact->get_value('clientContactOther', DST_HTML_DISPLAY)) . '&nbsp;</td>';
+        $rtn[] =  '  <td align="right" class="right nobr">' . $buttons . '</td>';
+        $rtn[] =  '  <td align="right" class="right nobr" width="1%">' . page::star("clientContact", $clientContact->get_id()) . '</td>';
         $rtn[] =  '</tr>';
         $rtn[] =  '</table>';
         $rtn[] =  '</div>';
-        $rtn[] =  '<input type="hidden" name="sessID" value="'.$TPL["sessID"].'">';
+        $rtn[] =  '<input type="hidden" name="sessID" value="' . $TPL["sessID"] . '">';
         $rtn[] =  '</form>';
     }
 
@@ -175,14 +175,14 @@ function show_comments()
         $client->get_id(),
         $interestedPartyOptions
     );
-    $TPL["allParties"] = $interestedPartyOptions or $TPL["allParties"] = array();
+    $TPL["allParties"] = $interestedPartyOptions or $TPL["allParties"] = [];
     $TPL["entity"] = "client";
     $TPL["entityID"] = $client->get_id();
     $TPL["clientID"] = $client->get_id();
 
     $commentTemplate = new commentTemplate();
-    $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", array("commentTemplateType"=>"client"));
-    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>".page::select_options($ops);
+    $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "client"]);
+    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
     include_template("../comment/templates/commentM.tpl");
 }
 
@@ -238,7 +238,7 @@ if ($_POST["save"]) {
     }
 } else if ($_POST["save_attachment"]) {
     move_attachment("client", $clientID);
-    alloc_redirect($TPL["url_alloc_client"]."clientID=".$clientID."&sbs_link=attachments");
+    alloc_redirect($TPL["url_alloc_client"] . "clientID=" . $clientID . "&sbs_link=attachments");
 } else if ($_GET["get_vcard"]) {
     $clientContact = new clientContact();
     $clientContact->set_id($_GET["clientContactID"]);
@@ -262,7 +262,7 @@ $m = new meta("clientStatus");
 $clientStatus_array = $m->get_assoc_array("clientStatusID", "clientStatusID");
 $TPL["clientStatusOptions"] = page::select_options($clientStatus_array, $client->get_value("clientStatus"));
 
-$clientCategories = config::get_config_item("clientCategories") or $clientCategories = array();
+$clientCategories = config::get_config_item("clientCategories") or $clientCategories = [];
 foreach ($clientCategories as $k => $v) {
     $cc[$v["value"]] = $v["label"];
 }
@@ -287,19 +287,19 @@ if ($_POST["clientContact_save"] || $_POST["clientContact_delete"]) {
 
 if (!$clientID) {
     $TPL["message_help"][] = "Create a new Client by inputting the Client Name and other details and clicking the Create New Client button.";
-    $TPL["main_alloc_title"] = "New Client - ".APPLICATION_NAME;
+    $TPL["main_alloc_title"] = "New Client - " . APPLICATION_NAME;
     $TPL["clientSelfLink"] = "New Client";
 } else {
-    $TPL["main_alloc_title"] = "Client " . $client->get_id() . ": " . $client->get_name()." - ".APPLICATION_NAME;
-    $TPL["clientSelfLink"] = sprintf("<a href=\"%s\">%d %s</a>", $client->get_url(), $client->get_id(), $client->get_name(array("return"=>"html")));
+    $TPL["main_alloc_title"] = "Client " . $client->get_id() . ": " . $client->get_name() . " - " . APPLICATION_NAME;
+    $TPL["clientSelfLink"] = sprintf("<a href=\"%s\">%d %s</a>", $client->get_url(), $client->get_id(), $client->get_name(["return" => "html"]));
 }
 
 
 if ($current_user->have_role("admin")) {
-    $TPL["invoice_links"].= "<a href=\"".$TPL["url_alloc_invoice"]."clientID=".$clientID."\">New Invoice</a>";
+    $TPL["invoice_links"] .= "<a href=\"" . $TPL["url_alloc_invoice"] . "clientID=" . $clientID . "\">New Invoice</a>";
 }
 
-$projectListOps = array("showProjectType"=>true, "clientID"=>$client->get_id());
+$projectListOps = ["showProjectType" => true, "clientID" => $client->get_id()];
 
 $TPL["projectListRows"] = project::get_list($projectListOps);
 

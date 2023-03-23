@@ -32,8 +32,8 @@ errors_on();
 $timeZone = @date_default_timezone_get();
 date_default_timezone_set($timeZone);
 
-define("IMG_TICK", "<img src=\"".$TPL["url_alloc_images"]."tick.gif\" alt=\"Good\">");
-define("IMG_CROSS", "<img src=\"".$TPL["url_alloc_images"]."cross.gif\" alt=\"Bad\">");
+define("IMG_TICK", "<img src=\"" . $TPL["url_alloc_images"] . "tick.gif\" alt=\"Good\">");
+define("IMG_CROSS", "<img src=\"" . $TPL["url_alloc_images"] . "cross.gif\" alt=\"Bad\">");
 $TPL["IMG_TICK"] = IMG_TICK;
 $TPL["IMG_CROSS"] = IMG_CROSS;
 
@@ -65,31 +65,54 @@ function show_tab_4()
 $server_user = getenv("APACHE_RUN_USER") or $server_user = "apache";
 
 
-$default_allocURL = "http://".$_SERVER["SERVER_NAME"].SCRIPT_PATH;
+$default_allocURL = "http://" . $_SERVER["SERVER_NAME"] . SCRIPT_PATH;
 
-$config_vars = array("ALLOC_DB_NAME"     => array("default"=>"alloc",              "info"=>"Database name"),
-                     "ALLOC_DB_USER"     => array("default"=>"alloc",              "info"=>"Database username"),
-                     "ALLOC_DB_PASS"     => array("default"=>"changeme",           "info"=>"Database password"),
-                     "ALLOC_DB_HOST"     => array("default"=>"localhost",          "info"=>"Database hostname"),
-                     "ATTACHMENTS_DIR"   => array("default"=>"/var/local/alloc/",  "info"=>"Enter a folder that can be used for file upload storage (outside webroot)"),
-                     "allocURL"          => array("default"=>$default_allocURL,    "info"=>"The URL for allocPSA, eg: http://example.com/alloc/"),
-                     "currency"          => array("default"=>"USD",                "info"=>"The default currency"));
+$config_vars = [
+    "ALLOC_DB_NAME"     => [
+        "default" => "alloc",
+        "info" => "Database name"
+    ],
+    "ALLOC_DB_USER"     => [
+        "default" => "alloc",
+        "info" => "Database username"
+    ],
+    "ALLOC_DB_PASS"     => [
+        "default" => "changeme",
+        "info" => "Database password"
+    ],
+    "ALLOC_DB_HOST"     => [
+        "default" => "localhost",
+        "info" => "Database hostname"
+    ],
+    "ATTACHMENTS_DIR"   => [
+        "default" => "/var/local/alloc/",
+        "info" => "Enter a folder that can be used for file upload storage (outside webroot)"
+    ],
+    "allocURL"          => [
+        "default" => $default_allocURL,
+        "info" => "The URL for allocPSA, eg: http://example.com/alloc/"
+    ],
+    "currency"          => [
+        "default" => "USD",
+        "info" => "The default currency"
+    ]
+];
 
 
 foreach ($config_vars as $name => $arr) {
     $val = $_POST[$name] or $val = $_GET[$name];
     $val == "" && !isset($_GET[$name]) && !isset($_POST[$name]) and $val = $arr["default"];
-    $name == "ATTACHMENTS_DIR" && $val and $val = rtrim($val, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
-    $name == "allocURL" && $val and $val = rtrim($val, "/")."/";
+    $name == "ATTACHMENTS_DIR" && $val and $val = rtrim($val, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    $name == "allocURL" && $val and $val = rtrim($val, "/") . "/";
     $name == "currency" and $val = trim(strtoupper($val));
     $_FORM[$name] = $val;
-    $get[] = $name."=".urlencode($val);
-    $hidden[] = "<input type='hidden' name='".$name."' value='".$val."'>";
+    $get[] = $name . "=" . urlencode($val);
+    $hidden[] = "<input type='hidden' name='" . $name . "' value='" . $val . "'>";
     $TPL[$name] = $val;
 }
 $TPL["config_vars"] = $config_vars;
 $TPL["_FORM"] = $_FORM;
-$TPL["get"] = "&".implode("&", $get);
+$TPL["get"] = "&" . implode("&", $get);
 $TPL["hidden"] = implode("\n", $hidden);
 
 
@@ -97,30 +120,30 @@ if ($_POST["submit_stage_2"]) {
     foreach ($config_vars as $name => $arr) {
         $val = $_POST[$name] or $val = $_GET[$name];
         if (!$val) {
-            $text_tab_2a[] = "Missing a value for ".$arr["info"];
+            $text_tab_2a[] = "Missing a value for " . $arr["info"];
             $failed = 1;
         }
     }
 
     if (!is_dir($_FORM["ATTACHMENTS_DIR"])) {
-        $text_tab_2a[] = "This directory does not exist, please create it: ".$_FORM["ATTACHMENTS_DIR"];
+        $text_tab_2a[] = "This directory does not exist, please create it: " . $_FORM["ATTACHMENTS_DIR"];
         $failed = 1;
     }
 
     if (!$failed && !is_writeable($_FORM["ATTACHMENTS_DIR"])) {
-        $text_tab_2a[] = "This directory is not writeable by the webserver: ".$_FORM["ATTACHMENTS_DIR"];
+        $text_tab_2a[] = "This directory is not writeable by the webserver: " . $_FORM["ATTACHMENTS_DIR"];
         $failed = 1;
     } else if (!$failed) {
         // Create directories under attachment dir and chmod them
         $dirs = $external_storage_directories; // something like array("task","client","project","invoice","comment","backups");
         foreach ($dirs as $dir) {
-            $d = $_FORM["ATTACHMENTS_DIR"].$dir;
+            $d = $_FORM["ATTACHMENTS_DIR"] . $dir;
             @mkdir($d, 0777);
             if (!is_dir($d)) {
-                $text_tab_2a[] = "<b>Unable to create directory: ".$d."</b>";
+                $text_tab_2a[] = "<b>Unable to create directory: " . $d . "</b>";
                 $failed = 1;
             } else if (!is_writeable($d)) {
-                $text_tab_2a[] = "This directory is not writeable by the webserver: ".$d;
+                $text_tab_2a[] = "This directory is not writeable by the webserver: " . $d;
                 $failed = 1;
             }
         }
@@ -128,9 +151,17 @@ if ($_POST["submit_stage_2"]) {
 
     if (!$failed) {
         // Create search indexes
-        $search_item_indexes = array("client", "comment", "item", "project", "task", "timeSheet", "wiki");
+        $search_item_indexes = [
+            "client",
+            "comment",
+            "item",
+            "project",
+            "task",
+            "timeSheet",
+            "wiki"
+        ];
         foreach ($search_item_indexes as $i) {
-            $index = Zend_Search_Lucene::create($_FORM["ATTACHMENTS_DIR"].'search'.DIRECTORY_SEPARATOR.$i);
+            $index = Zend_Search_Lucene::create($_FORM["ATTACHMENTS_DIR"] . 'search' . DIRECTORY_SEPARATOR . $i);
             $index->commit();
         }
 
@@ -142,7 +173,7 @@ if ($_POST["submit_stage_2"]) {
         $query[] = sprintf("UPDATE person SET password = '%s' WHERE personID = 1;", password_hash("alloc", PASSWORD_BCRYPT));
         $query[] = sprintf("UPDATE config SET value = '%s' WHERE name = 'allocTimezone';", $timeZone);
 
-        file_put_contents($_FORM["ATTACHMENTS_DIR"]."db_config.sql", implode("\n", $query));
+        file_put_contents($_FORM["ATTACHMENTS_DIR"] . "db_config.sql", implode("\n", $query));
     }
 
 
@@ -166,17 +197,17 @@ if ($_POST["test_db"]) {
 
     // Test supplied credentials
     if ($db->connect()) {
-        $text_tab_3b[] = "Connected to MySQL database server as user '".$_FORM["ALLOC_DB_USER"]."'.";
+        $text_tab_3b[] = "Connected to MySQL database server as user '" . $_FORM["ALLOC_DB_USER"] . "'.";
     } else {
-        $text_tab_3b[] = "<b>Unable to connect to MySQL database server! (".$db->get_error().").</b>";
+        $text_tab_3b[] = "<b>Unable to connect to MySQL database server! (" . $db->get_error() . ").</b>";
         $failed = 1;
     }
 
     if (!$failed) {
         if ($db->select_db($_FORM["ALLOC_DB_NAME"])) {
-            $text_tab_3b[] = "Connected to database '".$_FORM["ALLOC_DB_NAME"]."'.";
+            $text_tab_3b[] = "Connected to database '" . $_FORM["ALLOC_DB_NAME"] . "'.";
         } else {
-            $text_tab_3b[] = "<b>Unable to select database '".$_FORM["ALLOC_DB_NAME"]."'. (".$db->get_error().").</b>";
+            $text_tab_3b[] = "<b>Unable to select database '" . $_FORM["ALLOC_DB_NAME"] . "'. (" . $db->get_error() . ").</b>";
             $failed = 1;
         }
     }
@@ -186,7 +217,7 @@ if ($_POST["test_db"]) {
         if ($db->query($query)) {
             $text_tab_3b[] = "Created table 'test'.";
         } else {
-            $text_tab_3b[] = "<b>Unable to create table 'test'! (".$db->get_error().").</b>";
+            $text_tab_3b[] = "<b>Unable to create table 'test'! (" . $db->get_error() . ").</b>";
             $failed = 1;
         }
     }
@@ -196,7 +227,7 @@ if ($_POST["test_db"]) {
         if ($db->query($query)) {
             $text_tab_3b[] = "Deleted table 'test'.";
         } else {
-            $text_tab_3b[] = "<b>Unable to delete table 'test'! (".$db->get_error().").</b>";
+            $text_tab_3b[] = "<b>Unable to delete table 'test'! (" . $db->get_error() . ").</b>";
             $failed = 1;
         }
     }
@@ -231,9 +262,9 @@ if ($_POST["test_db"]) {
 
     if (!$failed) {
         if ($install_data["num_tables"] == $num_tables) {
-            $text_tab_3b[] = "Checked db_structure.sql (".$num_tables." out of ".$install_data["num_tables"]." tables).";
+            $text_tab_3b[] = "Checked db_structure.sql (" . $num_tables . " out of " . $install_data["num_tables"] . " tables).";
         } else {
-            $text_tab_3b[] = "<b>Not all tables imported (".$num_tables." out of ".$install_data["num_tables"]."). Try re-importing db_structure.sql.</b>";
+            $text_tab_3b[] = "<b>Not all tables imported (" . $num_tables . " out of " . $install_data["num_tables"] . "). Try re-importing db_structure.sql.</b>";
             $failed = 1;
         }
     }
@@ -312,33 +343,33 @@ if ($_POST["test_db"]) {
 // Tab 2 Text
 if ($_FORM["ALLOC_DB_NAME"] && $_FORM["ALLOC_DB_USER"]) {
     $text_tab_3[] = "&nbsp;";
-    $text_tab_3[] = "DROP DATABASE IF EXISTS ".$_FORM["ALLOC_DB_NAME"].";";
-    $text_tab_3[] = "CREATE DATABASE ".$_FORM["ALLOC_DB_NAME"].";";
+    $text_tab_3[] = "DROP DATABASE IF EXISTS " . $_FORM["ALLOC_DB_NAME"] . ";";
+    $text_tab_3[] = "CREATE DATABASE " . $_FORM["ALLOC_DB_NAME"] . ";";
 
     if ($_FORM["ALLOC_DB_USER"] != 'root') {
         // grant all on alloc14.* to 'heydiddle'@'localhost' IDENTIFIED BY 'hey';
         $text_tab_3[] = "";
-        $text_tab_3[] = "GRANT ALL ON ".$_FORM["ALLOC_DB_NAME"].".* TO '".$_FORM["ALLOC_DB_USER"]."'@'".$_FORM["ALLOC_DB_HOST"]."' IDENTIFIED BY '".$_FORM["ALLOC_DB_PASS"]."';";
+        $text_tab_3[] = "GRANT ALL ON " . $_FORM["ALLOC_DB_NAME"] . ".* TO '" . $_FORM["ALLOC_DB_USER"] . "'@'" . $_FORM["ALLOC_DB_HOST"] . "' IDENTIFIED BY '" . $_FORM["ALLOC_DB_PASS"] . "';";
     }
 
     $text_tab_3[] = "FLUSH PRIVILEGES;";
     $text_tab_3[] = "";
-    $text_tab_3[] = "USE ".$_FORM["ALLOC_DB_NAME"].";";
+    $text_tab_3[] = "USE " . $_FORM["ALLOC_DB_NAME"] . ";";
     $text_tab_3[] = "";
-    $text_tab_3[] = "SOURCE ".dirname(__FILE__).DIRECTORY_SEPARATOR."db_structure.sql;";
-    $text_tab_3[] = "SOURCE ".dirname(__FILE__).DIRECTORY_SEPARATOR."db_patches.sql;";
-    $text_tab_3[] = "SOURCE ".dirname(__FILE__).DIRECTORY_SEPARATOR."db_data.sql;";
-    $text_tab_3[] = "SOURCE ".dirname(__FILE__).DIRECTORY_SEPARATOR."db_constraints.sql;";
-    $text_tab_3[] = "SOURCE ".dirname(__FILE__).DIRECTORY_SEPARATOR."db_triggers.sql;";
+    $text_tab_3[] = "SOURCE " . __DIR__ . DIRECTORY_SEPARATOR . "db_structure.sql;";
+    $text_tab_3[] = "SOURCE " . __DIR__ . DIRECTORY_SEPARATOR . "db_patches.sql;";
+    $text_tab_3[] = "SOURCE " . __DIR__ . DIRECTORY_SEPARATOR . "db_data.sql;";
+    $text_tab_3[] = "SOURCE " . __DIR__ . DIRECTORY_SEPARATOR . "db_constraints.sql;";
+    $text_tab_3[] = "SOURCE " . __DIR__ . DIRECTORY_SEPARATOR . "db_triggers.sql;";
     $text_tab_3[] = "";
-    $text_tab_3[] = "SOURCE ".$_FORM["ATTACHMENTS_DIR"]."db_config.sql;";
+    $text_tab_3[] = "SOURCE " . $_FORM["ATTACHMENTS_DIR"] . "db_config.sql;";
     $text_tab_3[] = "&nbsp;";
 }
 
 
 // Tab 1 Text
 foreach ($config_vars as $name => $arr) {
-    $text_tab_1[] = "<tr><td>".$arr["info"]."</td><td><input type='text' name='".$name."' size='30' value='".$_FORM[$name]."'></td></tr>";
+    $text_tab_1[] = "<tr><td>" . $arr["info"] . "</td><td><input type='text' name='" . $name . "' size='30' value='" . $_FORM[$name] . "'></td></tr>";
 }
 
 

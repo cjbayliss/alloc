@@ -10,7 +10,7 @@ class inbox extends db_entity
 
     function change_current_user($from)
     {
-        list($from_address,$from_name) = parse_email_address($from);
+        list($from_address, $from_name) = parse_email_address($from);
         $person = new person();
         $personID = $person->find_by_email($from_address);
         $personID or $personID = $person->find_by_name($from_name);
@@ -33,25 +33,25 @@ class inbox extends db_entity
         $email_receive->set_msg($id);
         $email_receive->get_msg_header();
         $rtn = ($hash == md5($email_receive->mail_headers["date"]
-                        .$email_receive->get_printable_from_address()
-                        .$email_receive->mail_headers["subject"]));
+            . $email_receive->get_printable_from_address()
+            . $email_receive->mail_headers["subject"]));
         $email_receive->close();
         return $rtn;
     }
 
-    function archive_email($req = array())
+    function archive_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
         $email_receive = new email_receive($info);
         $email_receive->open_mailbox($info["folder"]);
-        $mailbox = "INBOX/archive".date("Y");
-        $email_receive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: ".$mailbox;
-        $email_receive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email ".$req["id"]." to ".$mailbox;
+        $mailbox = "INBOX/archive" . date("Y");
+        $email_receive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
+        $email_receive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
         $email_receive->close();
     }
 
-    function download_email($req = array())
+    function download_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -60,16 +60,16 @@ class inbox extends db_entity
         $email_receive->set_msg($req["id"]);
         $new_nums = $email_receive->get_new_email_msg_uids();
         in_array($req["id"], (array)$new_nums) and $new = true;
-        list($h,$b) = $email_receive->get_raw_header_and_body();
+        list($h, $b) = $email_receive->get_raw_header_and_body();
         $new and $email_receive->set_unread(); // might have to "unread" the email, if it was new, i.e. set it back to new
         $email_receive->close();
         header('Content-Type: text/plain');
-        header('Content-Disposition: attachment; filename="email'.$req["id"].'.txt"');
-        echo $h.$b;
+        header('Content-Disposition: attachment; filename="email' . $req["id"] . '.txt"');
+        echo $h . $b;
         exit();
     }
 
-    function process_email($req = array())
+    function process_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -82,7 +82,7 @@ class inbox extends db_entity
         $email_receive->close();
     }
 
-    function process_email_to_task($req = array())
+    function process_email_to_task($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -160,24 +160,24 @@ class inbox extends db_entity
         $task->save();
 
         if (!$TPL["message"] && $task->get_id()) {
-            $dir = ATTACHMENTS_DIR.DIRECTORY_SEPARATOR."task".DIRECTORY_SEPARATOR.$task->get_id();
+            $dir = ATTACHMENTS_DIR . DIRECTORY_SEPARATOR . "task" . DIRECTORY_SEPARATOR . $task->get_id();
             if (!is_dir($dir)) {
                 mkdir($dir);
                 foreach ((array)$email_receive->mimebits as $file) {
-                    $fh = fopen($dir.DIRECTORY_SEPARATOR.$file["name"], "wb");
+                    $fh = fopen($dir . DIRECTORY_SEPARATOR . $file["name"], "wb");
                     fputs($fh, $file["blob"]);
                     fclose($fh);
                 }
             }
-            rmdir_if_empty(ATTACHMENTS_DIR.DIRECTORY_SEPARATOR."task".DIRECTORY_SEPARATOR.$task->get_id());
+            rmdir_if_empty(ATTACHMENTS_DIR . DIRECTORY_SEPARATOR . "task" . DIRECTORY_SEPARATOR . $task->get_id());
 
-            $msg = "Created task ".$task->get_task_link(array("prefixTaskID"=>true))." and moved the email to the task's mail folder.";
-            $mailbox = "INBOX/task".$task->get_id();
-            $email_receive->create_mailbox($mailbox) and $msg.= "\nCreated mailbox: ".$mailbox;
-            $email_receive->archive($mailbox) and $msg.= "\nMoved email to ".$mailbox;
+            $msg = "Created task " . $task->get_task_link(["prefixTaskID" => true]) . " and moved the email to the task's mail folder.";
+            $mailbox = "INBOX/task" . $task->get_id();
+            $email_receive->create_mailbox($mailbox) and $msg .= "\nCreated mailbox: " . $mailbox;
+            $email_receive->archive($mailbox) and $msg .= "\nMoved email to " . $mailbox;
             $msg and $TPL["message_good_no_esc"][] = $msg;
 
-            list($from_address,$from_name) = parse_email_address($email_receive->mail_headers["from"]);
+            list($from_address, $from_name) = parse_email_address($email_receive->mail_headers["from"]);
             $ip["emailAddress"] = $from_address;
             $ip["name"] = $from_name;
             $ip["personID"] = $personID;
@@ -190,7 +190,7 @@ class inbox extends db_entity
         singleton("current_user", $current_user);
     }
 
-    function attach_email_to_existing_task($req = array())
+    function attach_email_to_existing_task($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -209,10 +209,10 @@ class inbox extends db_entity
 
             $c = comment::add_comment_from_email($email_receive, $task);
             $commentID = $c->get_id();
-            $commentID and $TPL["message_good_no_esc"][] = "Created comment ".$commentID." on task ".$task->get_task_link(array("prefixTaskID"=>true));
+            $commentID and $TPL["message_good_no_esc"][] = "Created comment " . $commentID . " on task " . $task->get_task_link(["prefixTaskID" => true]);
 
             // Possibly change the identity of current_user
-            list($from_address,$from_name) = parse_email_address($email_receive->mail_headers["from"]);
+            list($from_address, $from_name) = parse_email_address($email_receive->mail_headers["from"]);
             $person = new person();
             $personID = $person->find_by_email($from_address);
             $personID or $personID = $person->find_by_name($from_name);
@@ -227,7 +227,7 @@ class inbox extends db_entity
             singleton("current_user", $current_user);
 
             // manually add task manager and assignee to ip list
-            $extraips = array();
+            $extraips = [];
             if ($task->get_value("personID")) {
                 $p = new person($task->get_value("personID"));
                 if ($p->get_value("emailAddress")) {
@@ -255,28 +255,28 @@ class inbox extends db_entity
                 $inf["email"] and $inf["emailAddress"] = $inf["email"];
                 if ($req["emailto"] == "internal" && !$inf["external"] && !$inf["clientContactID"]) {
                     $id = interestedParty::add_interested_party($inf);
-                    $recipients[] = $inf["name"]." ".add_brackets($k);
+                    $recipients[] = $inf["name"] . " " . add_brackets($k);
                 } else if ($req["emailto"] == "default") {
                     $id = interestedParty::add_interested_party($inf);
-                    $recipients[] = $inf["name"]." ".add_brackets($k);
+                    $recipients[] = $inf["name"] . " " . add_brackets($k);
                 }
             }
 
             $recipients and $recipients = implode(", ", (array)$recipients);
-            $recipients and $TPL["message_good"][] = "Sent email to ".$recipients;
+            $recipients and $TPL["message_good"][] = "Sent email to " . $recipients;
 
             // Re-email the comment out
-            comment::send_comment($commentID, array("interested"), $email_receive);
+            comment::send_comment($commentID, ["interested"], $email_receive);
 
             // File email away in the task's mail folder
-            $mailbox = "INBOX/task".$task->get_id();
-            $email_receive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: ".$mailbox;
-            $email_receive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email ".$req["id"]." to ".$mailbox;
+            $mailbox = "INBOX/task" . $task->get_id();
+            $email_receive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
+            $email_receive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
             $email_receive->close();
         }
     }
 
-    function unread_email($req = array())
+    function unread_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -287,14 +287,14 @@ class inbox extends db_entity
         $email_receive->close();
     }
 
-    function read_email($req = array())
+    function read_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
         $email_receive = new email_receive($info);
         $email_receive->open_mailbox($info["folder"]);
         $email_receive->set_msg($req["id"]);
-        list($h,$b) = $email_receive->get_raw_header_and_body();
+        list($h, $b) = $email_receive->get_raw_header_and_body();
         $email_receive->close();
     }
 
@@ -321,7 +321,7 @@ class inbox extends db_entity
 
         if ($msg_nums) {
             foreach ($msg_nums as $num) {
-                $row = array();
+                $row = [];
                 $email_receive->set_msg($num);
                 $email_receive->get_msg_header();
                 $row["from"] = $email_receive->get_printable_from_address();

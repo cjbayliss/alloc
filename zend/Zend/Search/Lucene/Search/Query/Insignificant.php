@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -91,7 +92,7 @@ class Zend_Search_Lucene_Search_Query_Insignificant extends Zend_Search_Lucene_S
      */
     public function matchedDocs()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -113,7 +114,7 @@ class Zend_Search_Lucene_Search_Query_Insignificant extends Zend_Search_Lucene_S
      */
     public function getQueryTerms()
     {
-        return array();
+        return [];
     }
 
     /**
@@ -136,4 +137,3 @@ class Zend_Search_Lucene_Search_Query_Insignificant extends Zend_Search_Lucene_S
         return '<InsignificantQuery>';
     }
 }
-

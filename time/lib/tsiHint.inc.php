@@ -11,15 +11,17 @@ class tsiHint extends db_entity
     public $data_table = "tsiHint";
     public $display_field_name = "projectID";
     public $key_field = "tsiHintID";
-    public $data_fields = array("taskID",
-                                "personID",
-                                "duration",
-                                "date",
-                                "comment",
-                                "tsiHintCreatedTime",
-                                "tsiHintCreatedUser",
-                                "tsiHintModifiedTime",
-                                "tsiHintModifiedUser");
+    public $data_fields = [
+        "taskID",
+        "personID",
+        "duration",
+        "date",
+        "comment",
+        "tsiHintCreatedTime",
+        "tsiHintCreatedUser",
+        "tsiHintModifiedTime",
+        "tsiHintModifiedUser"
+    ];
 
     function add_tsiHint($stuff)
     {
@@ -29,7 +31,7 @@ class tsiHint extends db_entity
 
         $people = person::get_people_by_username();
         $personID = $people[$username]["personID"];
-        $personID or alloc_error("Person ".$username." not found.");
+        $personID or alloc_error("Person " . $username . " not found.");
 
         $taskID = $stuff["taskID"];
         $projectID = $stuff["projectID"];
@@ -42,13 +44,13 @@ class tsiHint extends db_entity
             $task->set_id($taskID);
             $task->select();
             $projectID = $task->get_value("projectID");
-            $extra = " for task ".$taskID;
+            $extra = " for task " . $taskID;
         }
 
-        $projectID or alloc_error(sprintf($errstr."No project found%s.", $extra));
+        $projectID or alloc_error(sprintf($errstr . "No project found%s.", $extra));
 
         $row_projectPerson = projectPerson::get_projectPerson_row($projectID, $current_user->get_id());
-        $row_projectPerson or alloc_error($errstr."The person(".$current_user->get_id().") has not been added to the project(".$projectID.").");
+        $row_projectPerson or alloc_error($errstr . "The person(" . $current_user->get_id() . ") has not been added to the project(" . $projectID . ").");
 
         if ($row_projectPerson && $projectID) {
             // Add new time sheet item
@@ -66,25 +68,28 @@ class tsiHint extends db_entity
         }
 
         if ($ID) {
-            return array("status"=>"yay","message"=>$ID);
+            return [
+                "status" => "yay",
+                "message" => $ID
+            ];
         } else {
-            alloc_error($errstr."Time hint not added.");
+            alloc_error($errstr . "Time hint not added.");
         }
     }
 
     function parse_tsiHint_string($str)
     {
         preg_match("/^"
-                   ."([a-zA-Z0-9]+)"                      # username
-                   ."\s*"
-                   ."(\d\d\d\d\-\d\d?\-\d\d?\s+)?"   # date
-                   ."([\d\.]+)?"          # duration
-                   ."\s*"
-                   ."(\d+)?"             # task id
-                   ."\s*"
-                   ."(.*)"               # comment
-                   ."\s*"
-                   ."$/i", $str, $m);
+            . "([a-zA-Z0-9]+)"                      # username
+            . "\s*"
+            . "(\d\d\d\d\-\d\d?\-\d\d?\s+)?"   # date
+            . "([\d\.]+)?"          # duration
+            . "\s*"
+            . "(\d+)?"             # task id
+            . "\s*"
+            . "(.*)"               # comment
+            . "\s*"
+            . "$/i", $str, $m);
 
         $rtn["username"] = $m[1];
         $rtn["date"] = trim($m[2]) or $rtn["date"] = date("Y-m-d");

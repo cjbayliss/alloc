@@ -27,7 +27,7 @@ if ($_POST["save"]) {
     $announcement->save();
     alloc_redirect($TPL["url_alloc_announcementList"]);
 
-// process submission of the form using the delete button
+    // process submission of the form using the delete button
 } else if ($_POST["delete"]) {
     $announcement->delete();
     alloc_redirect($TPL["url_alloc_announcementList"]);
@@ -37,7 +37,7 @@ if ($_POST["save"]) {
 // load data for display in the template
 $announcement->set_values();
 
-$TPL["main_alloc_title"] = "Edit Announcement - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Edit Announcement - " . APPLICATION_NAME;
 
 // invoke the page's main template
 include_template("templates/announcementM.tpl");

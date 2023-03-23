@@ -25,7 +25,7 @@ class saleListHomeItem extends home_item
         global $TPL;
         $ops["return"] = "array";
         $ops["personID"] = $current_user->get_id();
-        $ops["status"] = array("admin","allocate","edit");
+        $ops["status"] = ["admin", "allocate", "edit"];
         $rows = productSale::get_list($ops);
         $TPL["saleListRows"] = $rows;
         if ($TPL["saleListRows"]) {

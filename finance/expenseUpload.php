@@ -11,14 +11,16 @@ if (!config::get_config_item("mainTfID")) {
     alloc_error("This functionality will not work until you set a Finance TF on the Setup -> Finance screen.");
 }
 
-$field_map = array("date"        => 0,
-                   "account"     => 1,
-                   "num"         => 2,
-                   "description" => 3,
-                   "memo"        => 4,
-                   "category"    => 5,
-                   "clr"         => 6,
-                   "amount"      => 7);
+$field_map = [
+    "date"        => 0,
+    "account"     => 1,
+    "num"         => 2,
+    "description" => 3,
+    "memo"        => 4,
+    "category"    => 5,
+    "clr"         => 6,
+    "amount"      => 7
+];
 
 if ($_POST["upload"]) {
     $db = new db_alloc();
@@ -51,21 +53,21 @@ if ($_POST["upload"]) {
         }
         // Convert the date to yyyy-mm-dd
         if (!preg_match("|^([0-9]{1,2})/([0-9]{1,2})'([0-9])$|i", $date, $matches)) {
-            $msg.= "<b>Warning: Could not convert date '$date'</b><br>";
+            $msg .= "<b>Warning: Could not convert date '$date'</b><br>";
             continue;
         }
         $date = sprintf("200%d-%02d-%02d", $matches[3], $matches[2], $matches[1]);
 
 
         // Strip $ and , from amount
-        $amount = str_replace(array('$',','), array(), $amount);
+        $amount = str_replace(['$', ','], [], $amount);
         if (!preg_match("/^-?[0-9]+(\\.[0-9]+)?$/", $amount)) {
-            $msg.= "<b>Warning: Could not convert amount '$amount'</b><br>";
+            $msg .= "<b>Warning: Could not convert amount '$amount'</b><br>";
             continue;
         }
         // Ignore positive amounts
         if ($amount > 0) {
-            $msg.= "<b>Warning: Ignored positive '$amount' for $memo on $date</b><br>";
+            $msg .= "<b>Warning: Ignored positive '$amount' for $memo on $date</b><br>";
             continue;
         }
         // Find the TF ID for the expense
@@ -75,7 +77,7 @@ if ($_POST["upload"]) {
         if ($db->next_record()) {
             $fromTfID = $db->f("tfID");
         } else {
-            $msg.= "<b>Warning: Could not find active TF for account '$account'</b><br>";
+            $msg .= "<b>Warning: Could not find active TF for account '$account'</b><br>";
             continue;
         }
 
@@ -83,7 +85,7 @@ if ($_POST["upload"]) {
         $query = prepare("SELECT * FROM transaction WHERE transactionType='expense' AND transactionDate='%s' AND product='%s' AND amount > %0.3f and amount < %0.3f", $date, $memo, $amount - 0.004, $amount + 0.004);
         $db->query($query);
         if ($db->next_record()) {
-            $msg.= "Warning: Expense '$memo' on $date already exixsts.<br>";
+            $msg .= "Warning: Expense '$memo' on $date already exixsts.<br>";
             continue;
         }
         // Create a transaction object and then save it
@@ -101,7 +103,7 @@ if ($_POST["upload"]) {
         $transaction->set_value("transactionDate", "$date");
         $transaction->save();
 
-        $msg.= "Expense '$memo' on $date saved.<br>";
+        $msg .= "Expense '$memo' on $date saved.<br>";
     }
     $TPL["msg"] = $msg;
 }

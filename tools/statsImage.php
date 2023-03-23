@@ -13,12 +13,10 @@ $projects = $stats->project_stats();
 $tasks = $stats->task_stats();
 $comments = $stats->comment_stats();
 
-
 $id = $_GET["id"];
 $width = $_GET["width"];
 $multiplier = $_GET["multiplier"];
 $labels = $_GET["labels"];
-
 
 $db = new db_alloc();
 $start_date = mktime(0, 0, 0, date("m") - 1, date("d"), date("Y"));
@@ -31,8 +29,8 @@ $right_margin = 0;
 
 for ($date = $start_date; $date < time(); $date += 86400) {
     $count = ($projects["new"][$id][date("Y-m-d", $date)]
-              + $tasks["new"][$id][date("Y-m-d", $date)]
-              + $comments["new"][$id][date("Y-m-d", $date)]);
+        + $tasks["new"][$id][date("Y-m-d", $date)]
+        + $comments["new"][$id][date("Y-m-d", $date)]);
     if ($height < $count) {
         $height = $count;
     }
@@ -69,9 +67,9 @@ $color_foreground = imageColorAllocate($image, 0, 0, 0);
 imageFilledRectangle($image, 0, 0, $width - 1, $height - 1, $colors_background);
 imagecolortransparent($image, $color_background);
 
-$projects_points = array(0=>$left_margin, 1=>$height - $bottom_margin - 1);
-$tasks_points = array(0=>$left_margin, 1=>$height - $bottom_margin - 1);
-$comments_points = array(0=>$left_margin, 1=>$height - $bottom_margin - 1);
+$projects_points = [0 => $left_margin, 1 => $height - $bottom_margin - 1];
+$tasks_points = [0 => $left_margin, 1 => $height - $bottom_margin - 1];
+$comments_points = [0 => $left_margin, 1 => $height - $bottom_margin - 1];
 $count = 2;
 $x_pos = $left_margin;
 for ($date = $start_date; $date < time(); $date += 86400) {

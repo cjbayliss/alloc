@@ -9,13 +9,15 @@ class audit extends db_entity
 {
     public $data_table = "audit";
     public $key_field = "auditID";
-    public $data_fields = array("auditID",
-                                "taskID",
-                                "projectID",
-                                "personID",
-                                "dateChanged",
-                                "field",
-                                "value");
+    public $data_fields = [
+        "auditID",
+        "taskID",
+        "projectID",
+        "personID",
+        "dateChanged",
+        "field",
+        "value"
+    ];
 
     /**
      * Get a list of task history items with sophisticated filtering and
@@ -51,7 +53,7 @@ class audit extends db_entity
                     $where_clause
                   ORDER BY dateChanged");
 
-        $items = array();
+        $items = [];
         while ($row = $db->next_record()) {
             $audit = new audit();
             $audit->read_db_record($db);
@@ -76,7 +78,9 @@ class audit extends db_entity
 
     function get_list_vars()
     {
-        return array("taskID"           => "The task id to find audit records for",
-                     "projectID"        => "The project id to find audit records for");
+        return [
+            "taskID"    => "The task id to find audit records for",
+            "projectID" => "The project id to find audit records for"
+        ];
     }
 }

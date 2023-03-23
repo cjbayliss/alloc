@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -44,4 +45,3 @@ abstract class Zend_Search_Lucene_Analysis_TokenFilter
      */
     abstract public function normalize(Zend_Search_Lucene_Analysis_Token $srcToken);
 }
-

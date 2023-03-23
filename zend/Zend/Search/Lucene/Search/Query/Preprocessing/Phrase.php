@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -121,13 +122,13 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
      */
     public function rewrite(Zend_Search_Lucene_Interface $index)
     {
-// Allow to use wildcards within phrases
-// They are either removed by text analyzer or used as a part of keyword for keyword fields
-//
-//        if (strpos($this->_phrase, '?') !== false || strpos($this->_phrase, '*') !== false) {
-//            require_once 'Zend/Search/Lucene/Search/QueryParserException.php';
-//            throw new Zend_Search_Lucene_Search_QueryParserException('Wildcards are only allowed in a single terms.');
-//        }
+        // Allow to use wildcards within phrases
+        // They are either removed by text analyzer or used as a part of keyword for keyword fields
+        //
+        //        if (strpos($this->_phrase, '?') !== false || strpos($this->_phrase, '*') !== false) {
+        //            require_once 'Zend/Search/Lucene/Search/QueryParserException.php';
+        //            throw new Zend_Search_Lucene_Search_QueryParserException('Wildcards are only allowed in a single terms.');
+        //        }
 
         // Split query into subqueries if field name is not specified
         if ($this->_field === null) {
@@ -139,13 +140,15 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
             if (Zend_Search_Lucene::getDefaultSearchField() === null) {
                 $searchFields = $index->getFieldNames(true);
             } else {
-                $searchFields = array(Zend_Search_Lucene::getDefaultSearchField());
+                $searchFields = [Zend_Search_Lucene::getDefaultSearchField()];
             }
 
             foreach ($searchFields as $fieldName) {
-                $subquery = new Zend_Search_Lucene_Search_Query_Preprocessing_Phrase($this->_phrase,
-                                                                                     $this->_phraseEncoding,
-                                                                                     $fieldName);
+                $subquery = new Zend_Search_Lucene_Search_Query_Preprocessing_Phrase(
+                    $this->_phrase,
+                    $this->_phraseEncoding,
+                    $fieldName
+                );
                 $subquery->setSlop($this->getSlop());
 
                 $query->addSubquery($subquery->rewrite($index));
@@ -174,7 +177,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
         $tokens = Zend_Search_Lucene_Analysis_Analyzer::getDefault()->tokenize($this->_phrase, $this->_phraseEncoding);
 
         if (count($tokens) == 0) {
-            $this->_matches = array();
+            $this->_matches = [];
             require_once 'Zend/Search/Lucene/Search/Query/Insignificant.php';
             return new Zend_Search_Lucene_Search_Query_Insignificant();
         }
@@ -234,7 +237,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
         }
 
         //It's non-trivial phrase query
-        $words = array();
+        $words = [];
         foreach ($tokens as $token) {
             $words[] = $token->getTermText();
         }

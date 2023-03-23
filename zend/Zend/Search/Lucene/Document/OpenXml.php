@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -80,7 +81,7 @@ abstract class Zend_Search_Lucene_Document_OpenXml extends Zend_Search_Lucene_Do
     protected function extractMetaData(ZipArchive $package)
     {
         // Data holders
-        $coreProperties = array();
+        $coreProperties = [];
 
         // Read relations and search for core properties
         $relations = simplexml_load_string($package->getFromName("_rels/.rels"));
@@ -112,10 +113,11 @@ abstract class Zend_Search_Lucene_Document_OpenXml extends Zend_Search_Lucene_Do
      * @param string $path
      * @return string
      */
-    protected function absoluteZipPath($path) {
-        $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+    protected function absoluteZipPath($path)
+    {
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
         $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
-        $absolutes = array();
+        $absolutes = [];
         foreach ($parts as $part) {
             if ('.' == $part) continue;
             if ('..' == $part) {

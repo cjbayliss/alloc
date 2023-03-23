@@ -21,7 +21,7 @@ function fix_curly_braces($matches)
     $str = preg_replace('/^}/m', "TPL_END_BRACE", $str);
 
     // added because windows doesn't always respect $
-    $str = preg_replace('/{'.PHP_EOL.'/m', "TPL_START_BRACE", $str);
+    $str = preg_replace('/{' . PHP_EOL . '/m', "TPL_START_BRACE", $str);
 
     return $str;
 }
@@ -45,13 +45,13 @@ function echo_var($matches)
     // array_shift returns the 0th element, and shortens the array by one
     $var = array_shift($bits);
     foreach ($bits as $b) {
-        $var.= substr($b, 0, 1)=='$' ? '['.$b.']' : '["'.$b.'"]';
+        $var .= substr($b, 0, 1) == '$' ? '[' . $b . ']' : '["' . $b . '"]';
     }
 
     if ($var && $starts_with_equals) {
-        return '<?php echo page::htmlentities('.$var.'); ?>';
+        return '<?php echo page::htmlentities(' . $var . '); ?>';
     } else if ($var) {
-        return '<?php echo '.$var.'; ?>';
+        return '<?php echo ' . $var . '; ?>';
     }
 }
 
@@ -60,7 +60,7 @@ function get_template($filename)
 {
 
     $template = implode("", (@file($filename)));
-    if ((!$template) or(empty($template))) {
+    if ((!$template) or (empty($template))) {
         echo "get_template() failure: [$filename]";
     }
 
@@ -104,13 +104,15 @@ function get_template($filename)
     $template = preg_replace($pattern, $replace, $template);
 
 
-    $sr = array("{/}"             => "<?php TPL_END_BRACE ?>",
-                "{page::"         => "<?php echo page::",
-                "{"               => "<?php ",
-                "}"               => " ?>",
-                "TPL_END_BRACE"   => "}",
-                "TPL_START_BRACE" => "{",
-                ".php&"           => ".php?");
+    $sr = [
+        "{/}"             => "<?php TPL_END_BRACE ?>",
+        "{page::"         => "<?php echo page::",
+        "{"               => "<?php ",
+        "}"               => " ?>",
+        "TPL_END_BRACE"   => "}",
+        "TPL_START_BRACE" => "{",
+        ".php&"           => ".php?"
+    ];
 
     foreach ($sr as $s => $r) {
         $searches[] = $s;
@@ -145,14 +147,14 @@ function include_template($filename, $getString = false)
     if ($rtn === false && ($error = error_get_last())) {
         $s = DIRECTORY_SEPARATOR;
         $f = $filename;
-        echo "<b style='color:red'>Error line ".$error['line']." in template: ";
-        echo basename(dirname(dirname($f))).$s.basename(dirname($f)).$s.basename($f)."</b>";
+        echo "<b style='color:red'>Error line " . $error['line'] . " in template: ";
+        echo basename(dirname(dirname($f))) . $s . basename(dirname($f)) . $s . basename($f) . "</b>";
 
 
         $bits = explode("\n", $template);
 
         foreach ($bits as $k => $bit) {
-            echo "<br>".$k."&nbsp;&nbsp;&nbsp;&nbsp;".page::htmlentities($bit);
+            echo "<br>" . $k . "&nbsp;&nbsp;&nbsp;&nbsp;" . page::htmlentities($bit);
         }
 
 

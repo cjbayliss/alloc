@@ -9,7 +9,7 @@
 class backups
 {
 
-    var $folders = array();
+    public $folders = [];
 
     function __construct()
     {
@@ -80,14 +80,14 @@ class backups
         $db->dump_db($dumpfile);
 
         if (!file_exists($dumpfile)) {
-            alloc_error("Couldn't backup database to ".$dumpfile);
+            alloc_error("Couldn't backup database to " . $dumpfile);
         } else {
             // database dump
             $files[] = $dumpfile;
 
             // load up all the attachment dirs
             foreach ($this->folders as $folder) {
-                $files[] = ATTACHMENTS_DIR.$folder;
+                $files[] = ATTACHMENTS_DIR . $folder;
             }
 
             // add everything to the archive
@@ -106,7 +106,7 @@ class backups
     {
         global $TPL;
 
-        $file = ATTACHMENTS_DIR . "backups" . DIRECTORY_SEPARATOR . "0" . DIRECTORY_SEPARATOR. $archivename;
+        $file = ATTACHMENTS_DIR . "backups" . DIRECTORY_SEPARATOR . "0" . DIRECTORY_SEPARATOR . $archivename;
 
         $archive = new PclZip($file);
 
@@ -122,7 +122,7 @@ class backups
         $db = new db_alloc();
         foreach ($sql as $q) {
             if (!$db->query($q)) {
-                $errors[] = "Error! (".$db->get_error().").";
+                $errors[] = "Error! (" . $db->get_error() . ").";
             }
         }
 

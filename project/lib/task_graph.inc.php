@@ -8,7 +8,7 @@
 define("TICK_SIZE", 7); // Days between tick marks along the axis
 define("LARGE_TICK_SIZE", 60);  // Days between tick marks along the axis
 define("MAX_TICKS", 20);        // Days between tick marks along the axis
-define("ALLOC_FONT", ALLOC_MOD_DIR."util/fonts/Vera.ttf");
+define("ALLOC_FONT", ALLOC_MOD_DIR . "util/fonts/Vera.ttf");
 define("ALLOC_FONT_SIZE", "8");
 
 // Set the enviroment variable for GD
@@ -34,7 +34,7 @@ function image_die($s = "")
     imageFilledRectangle($image, 0, 0, 700, 40, $color_background);
     imagettftext($image, ALLOC_FONT_SIZE, 0, 6, 23, $color_text, ALLOC_FONT, $s);
 
-    imageRectangle($image, 0, 0, 700-1, 40-1, $color_grid);
+    imageRectangle($image, 0, 0, 700 - 1, 40 - 1, $color_grid);
 
     if (ALLOC_GD_IMAGE_TYPE == "PNG") {
         header("Content-type: image/png");
@@ -51,36 +51,36 @@ class task_graph
     // 'public' variables
 
     // size parameters (all in pixels)
-    var $width = 700;             // Width of the image
-    var $top_margin = 50;         // Distance of first bar from top of image
-    var $left_margin = 330;
-    var $right_margin = 20;
-    var $bottom_margin = 100;
-    var $task_padding = 2;        // Whitespace above and below each task bar
-    var $bar_height = 10;          // Height of each task bar
-    var $indent_increment = 20;   // Increase in whitespace to left of task for child tasks
-    var $title;
+    public $width = 700;             // Width of the image
+    public $top_margin = 50;         // Distance of first bar from top of image
+    public $left_margin = 330;
+    public $right_margin = 20;
+    public $bottom_margin = 100;
+    public $task_padding = 2;        // Whitespace above and below each task bar
+    public $bar_height = 10;          // Height of each task bar
+    public $indent_increment = 20;   // Increase in whitespace to left of task for child tasks
+    public $title;
 
     // 'private' variables
-    var $y;                       // current y position
-    var $image;                   // image handle
-    var $task_colors;             // color handles for task bars
-    var $height;                  // image height - set dynamically according to number of tasks and other variables such as bar_height
-    var $color_background;        // Background colour of image
-    var $color_text;              // Colour of text on image
-    var $color_grid;              // Colour of grid lines behind bars
-    var $color_milestone;         // Colour of milestone lines
-    var $color_today;             // Colour of current date line
-    var $milestones = array();    // Milestones are stored and then drawn over the top of the tasks
+    public $y;                       // current y position
+    public $image;                   // image handle
+    public $task_colors;             // color handles for task bars
+    public $height;                  // image height - set dynamically according to number of tasks and other variables such as bar_height
+    public $color_background;        // Background colour of image
+    public $color_text;              // Colour of text on image
+    public $color_grid;              // Colour of grid lines behind bars
+    public $color_milestone;         // Colour of milestone lines
+    public $color_today;             // Colour of current date line
+    public $milestones = [];    // Milestones are stored and then drawn over the top of the tasks
 
-    function init($tasks = array())
+    function init($tasks = [])
     {
         global $graph_start_date;
         global $graph_completion_date;
         global $graph_type;
 
         if (count($tasks) == 0) {
-            image_die("No Tasks Found for ".$this->title);
+            image_die("No Tasks Found for " . $this->title);
         }
 
         // Set the enviroment variable for GD
@@ -94,10 +94,16 @@ class task_graph
         $this->image = imageCreate($this->width, $this->height);
 
         // 'Constant' colours for task types
-        $this->task_colors = array('Task'   => array("actual"=>imageColorAllocate($this->image, 133, 164, 241),
-                                                     "target"=>imageColorAllocate($this->image, 190, 219, 255)),
-                                   'Parent' => array("actual"=>imageColorAllocate($this->image, 153, 153, 153),
-                                                     "target"=>imageColorAllocate($this->image, 204, 204, 204)));
+        $this->task_colors = [
+            'Task'   => [
+                "actual" => imageColorAllocate($this->image, 133, 164, 241),
+                "target" => imageColorAllocate($this->image, 190, 219, 255)
+            ],
+            'Parent' => [
+                "actual" => imageColorAllocate($this->image, 153, 153, 153),
+                "target" => imageColorAllocate($this->image, 204, 204, 204)
+            ]
+        ];
 
         // allocate all required colors
         $this->color_background = imageColorAllocate($this->image, 255, 255, 255);
@@ -111,7 +117,7 @@ class task_graph
 
         imageRectangle($this->image, 0, 0, $this->width - 1, $this->height - 1, $this->color_grid);
 
-        imagettftext($this->image, ALLOC_FONT_SIZE+3, 0, 6, 28, $this->color_text, ALLOC_FONT, $this->title);
+        imagettftext($this->image, ALLOC_FONT_SIZE + 3, 0, 6, 28, $this->color_text, ALLOC_FONT, $this->title);
 
         $this->y = $this->top_margin;
     }
@@ -227,12 +233,12 @@ class task_graph
             echo_debug("Drawing completion date<br>");
             $x_completion = $this->date_to_x($date_completion);
             echo_debug("Completion date x=$x_completion<br>");
-            $this->draw_polygon(array($x_completion, $y, $x_completion, $y + $this->bar_height, $x_completion - 4, $y + 4), 3, $color, $filled);
+            $this->draw_polygon([$x_completion, $y, $x_completion, $y + $this->bar_height, $x_completion - 4, $y + 4], 3, $color, $filled);
         } else if ($date_start) {
             // We can only show the start date - draw a triangle
             echo_debug("Drawing start date<br>");
             $x_start = $this->date_to_x($date_start);
-            $this->draw_polygon(array($x_start, $y, $x_start, $y + $this->bar_height, $x_start + 4, $y + 4), 3, $color, $filled);
+            $this->draw_polygon([$x_start, $y, $x_start, $y + $this->bar_height, $x_start + 4, $y + 4], 3, $color, $filled);
         }
     }
 
@@ -298,13 +304,13 @@ class task_graph
         $legend_bar_width = 30;
         $x2 = $x + $legend_bar_width;
         if ($start) {
-            $points = array($x, $y, $x, $y + 8, $x + 4, $y + 4);
+            $points = [$x, $y, $x, $y + 8, $x + 4, $y + 4];
         } else {
-            $points = array($x + 4, $y, $x + 4, $y + 8, $x, $y + 4);
+            $points = [$x + 4, $y, $x + 4, $y + 8, $x, $y + 4];
         }
         $this->draw_polygon($points, 3, $color, true);
         $x = $x2 + $this->task_padding;
-        imagettftext($this->image, ALLOC_FONT_SIZE, 0, $x, $y +10, $this->color_text, ALLOC_FONT, $text);
+        imagettftext($this->image, ALLOC_FONT_SIZE, 0, $x, $y + 10, $this->color_text, ALLOC_FONT, $text);
     }
 
     function draw_legend()
@@ -315,7 +321,7 @@ class task_graph
 
         $y = $this->height - $this->bottom_margin + 20;
 
-        imagettftext($this->image, ALLOC_FONT_SIZE, 0, $this->task_padding, $y+10, $this->color_text, ALLOC_FONT, "Legend:");
+        imagettftext($this->image, ALLOC_FONT_SIZE, 0, $this->task_padding, $y + 10, $this->color_text, ALLOC_FONT, "Legend:");
         $y += 20;
 
         $this->draw_legend_bar($left_x, $y, "Target task period", $this->task_colors['Task']["target"], true);
@@ -374,7 +380,7 @@ class task_graph
     }
 }
 
-function get_date_range($tasks = array())
+function get_date_range($tasks = [])
 {
     global $graph_start_date;
     global $graph_completion_date;

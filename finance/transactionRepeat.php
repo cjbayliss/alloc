@@ -49,7 +49,7 @@ if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"
     if ($_POST["delete"] && $transactionRepeatID) {
         $transactionRepeat->set_id($transactionRepeatID);
         $transactionRepeat->delete();
-        alloc_redirect($TPL["url_alloc_transactionRepeatList"]."tfID=".$_POST["tfID"]);
+        alloc_redirect($TPL["url_alloc_transactionRepeatList"] . "tfID=" . $_POST["tfID"]);
     }
 
     $_POST["product"]  or alloc_error("Please enter a Product");
@@ -65,7 +65,7 @@ if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"
         !$transactionRepeat->get_value("status") && $transactionRepeat->set_value("status", "pending");
         $transactionRepeat->set_value("companyDetails", rtrim($transactionRepeat->get_value("companyDetails")));
         $transactionRepeat->save();
-        alloc_redirect($TPL["url_alloc_transactionRepeat"]."transactionRepeatID=".$transactionRepeat->get_id());
+        alloc_redirect($TPL["url_alloc_transactionRepeat"] . "transactionRepeatID=" . $transactionRepeat->get_id());
     }
     $transactionRepeat->set_values();
 }
@@ -132,18 +132,14 @@ $TPL["currencyTypeOptions"] = page::select_options($currencyOps, $transactionRep
 $TPL["tfOptions"] = page::select_options($q, $transactionRepeat->get_value("tfID"));
 $TPL["fromTfOptions"] = page::select_options($q, $transactionRepeat->get_value("fromTfID"));
 $TPL["basisOptions"] = page::select_options(
-    array("weekly"      => "weekly",
-          "fortnightly" => "fortnightly",
-          "monthly"     => "monthly",
-          "quarterly"   => "quarterly",
-          "yearly"      => "yearly"),
+    ["weekly"      => "weekly", "fortnightly" => "fortnightly", "monthly"     => "monthly", "quarterly"   => "quarterly", "yearly"      => "yearly"],
     $transactionRepeat->get_value("paymentBasis")
 );
 
 $TPL["transactionTypeOptions"] = page::select_options(transaction::get_transactionTypes(), $transactionRepeat->get_value("transactionType"));
 
 if (is_object($transactionRepeat) && $transactionRepeat->get_id() && $current_user->have_role("admin")) {
-    $TPL["adminButtons"].= '
+    $TPL["adminButtons"] .= '
   <select name="changeTransactionStatus"><option value="">Transaction Status<option value="approved">Approve<option value="rejected">Reject<option value="pending">Pending</select>
   ';
 }
@@ -154,9 +150,9 @@ if (is_object($transactionRepeat) && $transactionRepeat->get_id() && $transactio
     $TPL["message_help"][] = "Complete all the details and click the Save button to create an automatically Repeating Expense";
 }
 
-$transactionRepeat->get_value("status") and $TPL["statusLabel"] = " - ".ucwords($transactionRepeat->get_value("status"));
+$transactionRepeat->get_value("status") and $TPL["statusLabel"] = " - " . ucwords($transactionRepeat->get_value("status"));
 
 $TPL["taxName"] = config::get_config_item("taxName");
 
-$TPL["main_alloc_title"] = "Create Repeating Expense - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Create Repeating Expense - " . APPLICATION_NAME;
 include_template("templates/transactionRepeatM.tpl");

@@ -10,9 +10,7 @@ class projectCommissionPerson extends db_entity
     public $data_table = "projectCommissionPerson";
     public $display_field_name = "projectID";
     public $key_field = "projectCommissionPersonID";
-    public $data_fields = array("projectID",
-                                "tfID",
-                                "commissionPercent");
+    public $data_fields = ["projectID", "tfID", "commissionPercent"];
 
     function is_owner($person = "")
     {

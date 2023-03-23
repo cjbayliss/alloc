@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Zend Framework
  *
@@ -104,14 +105,14 @@ class Zend_Search_Lucene_Index_Writer
      *
      * @var array
      */
-    private $_newSegments = array();
+    private $_newSegments = [];
 
     /**
      * List of segments to be deleted on commit
      *
      * @var array
      */
-    private $_segmentsToDelete = array();
+    private $_segmentsToDelete = [];
 
     /**
      * Current segment to add documents
@@ -141,20 +142,7 @@ class Zend_Search_Lucene_Index_Writer
      *
      * @var array
      */
-    private static $_indexExtensions = array('.cfs' => '.cfs',
-                                             '.cfx' => '.cfx',
-                                             '.fnm' => '.fnm',
-                                             '.fdx' => '.fdx',
-                                             '.fdt' => '.fdt',
-                                             '.tis' => '.tis',
-                                             '.tii' => '.tii',
-                                             '.frq' => '.frq',
-                                             '.prx' => '.prx',
-                                             '.tvx' => '.tvx',
-                                             '.tvd' => '.tvd',
-                                             '.tvf' => '.tvf',
-                                             '.del' => '.del',
-                                             '.sti' => '.sti' );
+    private static $_indexExtensions = ['.cfs' => '.cfs', '.cfx' => '.cfx', '.fnm' => '.fnm', '.fdx' => '.fdx', '.fdt' => '.fdt', '.tis' => '.tis', '.tii' => '.tii', '.frq' => '.frq', '.prx' => '.prx', '.tvx' => '.tvx', '.tvd' => '.tvd', '.tvf' => '.tvf', '.del' => '.del', '.sti' => '.sti'];
 
 
     /**
@@ -169,12 +157,14 @@ class Zend_Search_Lucene_Index_Writer
         if ($generation == 0) {
             // Create index in pre-2.1 mode
             foreach ($directory->fileList() as $file) {
-                if ($file == 'deletable' ||
+                if (
+                    $file == 'deletable' ||
                     $file == 'segments'  ||
-                    isset(self::$_indexExtensions[ substr($file, strlen($file)-4)]) ||
-                    preg_match('/\.f\d+$/i', $file) /* matches <segment_name>.f<decimal_nmber> file names */) {
-                        $directory->deleteFile($file);
-                    }
+                    isset(self::$_indexExtensions[substr($file, strlen($file) - 4)]) ||
+                    preg_match('/\.f\d+$/i', $file) /* matches <segment_name>.f<decimal_nmber> file names */
+                ) {
+                    $directory->deleteFile($file);
+                }
             }
 
             $segmentsFile = $directory->createFile('segments');
@@ -260,12 +250,12 @@ class Zend_Search_Lucene_Index_Writer
      */
     private function _hasAnythingToMerge()
     {
-        $segmentSizes = array();
+        $segmentSizes = [];
         foreach ($this->_segmentInfos as $segName => $segmentInfo) {
             $segmentSizes[$segName] = $segmentInfo->count();
         }
 
-        $mergePool   = array();
+        $mergePool   = [];
         $poolSize    = 0;
         $sizeToMerge = $this->maxBufferedDocs;
         asort($segmentSizes, SORT_NUMERIC);
@@ -276,7 +266,7 @@ class Zend_Search_Lucene_Index_Writer
                 if ($poolSize >= $sizeToMerge) {
                     return true;
                 }
-                $mergePool   = array();
+                $mergePool   = [];
                 $poolSize    = 0;
 
                 $sizeToMerge *= $this->mergeFactor;
@@ -324,12 +314,12 @@ class Zend_Search_Lucene_Index_Writer
         $this->_updateSegments();
 
         // Perform standard auto-optimization procedure
-        $segmentSizes = array();
+        $segmentSizes = [];
         foreach ($this->_segmentInfos as $segName => $segmentInfo) {
             $segmentSizes[$segName] = $segmentInfo->count();
         }
 
-        $mergePool   = array();
+        $mergePool   = [];
         $poolSize    = 0;
         $sizeToMerge = $this->maxBufferedDocs;
         asort($segmentSizes, SORT_NUMERIC);
@@ -340,7 +330,7 @@ class Zend_Search_Lucene_Index_Writer
                 if ($poolSize >= $sizeToMerge) {
                     $this->_mergeSegments($mergePool);
                 }
-                $mergePool   = array();
+                $mergePool   = [];
                 $poolSize    = 0;
 
                 $sizeToMerge *= $this->mergeFactor;
@@ -375,8 +365,10 @@ class Zend_Search_Lucene_Index_Writer
 
         /** Zend_Search_Lucene_Index_SegmentMerger */
         require_once 'Zend/Search/Lucene/Index/SegmentMerger.php';
-        $merger = new Zend_Search_Lucene_Index_SegmentMerger($this->_directory,
-                                                             $newName);
+        $merger = new Zend_Search_Lucene_Index_SegmentMerger(
+            $this->_directory,
+            $newName
+        );
         foreach ($segments as $segmentInfo) {
             $merger->addSource($segmentInfo);
             $this->_segmentsToDelete[$segmentInfo->getName()] = $segmentInfo->getName();
@@ -459,7 +451,7 @@ class Zend_Search_Lucene_Index_Writer
             // Read number of segemnts
             $segmentsCount = $segmentsFile->readInt();
 
-            $segments = array();
+            $segments = [];
             for ($count = 0; $count < $segmentsCount; $count++) {
                 $segName = $segmentsFile->readString();
                 $segSize = $segmentsFile->readInt();
@@ -481,9 +473,7 @@ class Zend_Search_Lucene_Index_Writer
                             $docStoreSegment        = $segmentsFile->readString();
                             $docStoreIsCompoundFile = $segmentsFile->readByte();
 
-                            $docStoreOptions = array('offset'     => $docStoreOffset,
-                                                     'segment'    => $docStoreSegment,
-                                                     'isCompound' => ($docStoreIsCompoundFile == 1));
+                            $docStoreOptions = ['offset'     => $docStoreOffset, 'segment'    => $docStoreSegment, 'isCompound' => ($docStoreIsCompoundFile == 1)];
                         } else {
                             $docStoreOptions = null;
                         }
@@ -494,7 +484,7 @@ class Zend_Search_Lucene_Index_Writer
                     $hasSingleNormFile = $segmentsFile->readByte();
                     $numField          = $segmentsFile->readInt();
 
-                    $normGens = array();
+                    $normGens = [];
                     if ($numField != (int)0xFFFFFFFF) {
                         for ($count1 = 0; $count1 < $numField; $count1++) {
                             $normGens[] = $segmentsFile->readLong();
@@ -520,13 +510,15 @@ class Zend_Search_Lucene_Index_Writer
                         /** Zend_Search_Lucene_Index_SegmentInfo */
                         require_once 'Zend/Search/Lucene/Index/SegmentInfo.php';
                         $this->_segmentInfos[$segName] =
-                                    new Zend_Search_Lucene_Index_SegmentInfo($this->_directory,
-                                                                             $segName,
-                                                                             $segSize,
-                                                                             $delGen,
-                                                                             $docStoreOptions,
-                                                                             $hasSingleNormFile,
-                                                                             $isCompound);
+                            new Zend_Search_Lucene_Index_SegmentInfo(
+                                $this->_directory,
+                                $segName,
+                                $segSize,
+                                $delGen,
+                                $docStoreOptions,
+                                $hasSingleNormFile,
+                                $isCompound
+                            );
                     } else {
                         // Retrieve actual deletions file generation number
                         $delGen = $this->_segmentInfos[$segName]->getDelGen();
@@ -572,7 +564,8 @@ class Zend_Search_Lucene_Index_Writer
                 $newSegmentFile->writeInt($segmentInfo->count());
 
                 // delete file generation: -1 (there is no delete file yet)
-                $newSegmentFile->writeInt((int)0xFFFFFFFF);$newSegmentFile->writeInt((int)0xFFFFFFFF);
+                $newSegmentFile->writeInt((int)0xFFFFFFFF);
+                $newSegmentFile->writeInt((int)0xFFFFFFFF);
                 if ($this->_targetFormatVersion == Zend_Search_Lucene::FORMAT_2_3) {
                     // docStoreOffset: -1 (segment doesn't use shared doc store)
                     $newSegmentFile->writeInt((int)0xFFFFFFFF);
@@ -587,7 +580,7 @@ class Zend_Search_Lucene_Index_Writer
                 $segments[$segmentInfo->getName()] = $segmentInfo->count();
                 $this->_segmentInfos[$segName] = $segmentInfo;
             }
-            $this->_newSegments = array();
+            $this->_newSegments = [];
 
             $newSegmentFile->seek($numOfSegmentsOffset);
             $newSegmentFile->writeInt($segmentsCount);  // Update segments count
@@ -597,7 +590,8 @@ class Zend_Search_Lucene_Index_Writer
             $generation--;
             $genFile->seek(4, SEEK_SET);
             // Write generation number twice
-            $genFile->writeLong($generation); $genFile->writeLong($generation);
+            $genFile->writeLong($generation);
+            $genFile->writeLong($generation);
 
             // Release index write lock
             Zend_Search_Lucene_LockManager::releaseWriteLock($this->_directory);
@@ -617,14 +611,14 @@ class Zend_Search_Lucene_Index_Writer
             /**
              * Clean-up directory
              */
-            $filesToDelete = array();
-            $filesTypes    = array();
-            $filesNumbers  = array();
+            $filesToDelete = [];
+            $filesTypes    = [];
+            $filesNumbers  = [];
 
             // list of .del files of currently used segments
             // each segment can have several generations of .del files
             // only last should not be deleted
-            $delFiles = array();
+            $delFiles = [];
 
             foreach ($this->_directory->fileList() as $file) {
                 if ($file == 'deletable') {
@@ -664,19 +658,21 @@ class Zend_Search_Lucene_Index_Writer
                         $segmentNumber = (int)base_convert($matches[2], 36, 10);
                         $delGeneration = (int)base_convert($matches[4], 36, 10);
                         if (!isset($delFiles[$segmentNumber])) {
-                            $delFiles[$segmentNumber] = array();
+                            $delFiles[$segmentNumber] = [];
                         }
                         $delFiles[$segmentNumber][$delGeneration] = $file;
                     }
-                } else if (isset(self::$_indexExtensions[substr($file, strlen($file)-4)])) {
+                } else if (isset(self::$_indexExtensions[substr($file, strlen($file) - 4)])) {
                     // one of per segment files ('<segment_name>.<ext>')
                     $segmentName = substr($file, 0, strlen($file) - 4);
                     // Check if it's not one of the segments in the current segments set
-                    if (!isset($segments[$segmentName])  &&
-                        ($this->_currentSegment === null  ||  $this->_currentSegment->getName() != $segmentName)) {
+                    if (
+                        !isset($segments[$segmentName])  &&
+                        ($this->_currentSegment === null  ||  $this->_currentSegment->getName() != $segmentName)
+                    ) {
                         $filesToDelete[] = $file;
                         $filesTypes[]    = 3; // second group of files for deletions
-                        $filesNumbers[]  = (int)base_convert(substr($file, 1 /* skip '_' */, strlen($file)-5), 36, 10); // order by segment number
+                        $filesNumbers[]  = (int)base_convert(substr($file, 1 /* skip '_' */, strlen($file) - 5), 36, 10); // order by segment number
                     }
                 }
             }
@@ -695,22 +691,30 @@ class Zend_Search_Lucene_Index_Writer
             }
             foreach ($delFiles as $segmentNumber => $segmentDelFiles) {
                 foreach ($segmentDelFiles as $delGeneration => $file) {
-                        $filesToDelete[] = $file;
-                        $filesTypes[]    = 4; // third group of files for deletions
-                        $filesNumbers[]  = $segmentNumber*$maxGenNumber + $delGeneration; // order by <segment_number>,<del_generation> pair
+                    $filesToDelete[] = $file;
+                    $filesTypes[]    = 4; // third group of files for deletions
+                    $filesNumbers[]  = $segmentNumber * $maxGenNumber + $delGeneration; // order by <segment_number>,<del_generation> pair
                 }
             }
 
             // Reorder files for deleting
-            array_multisort($filesTypes,    SORT_ASC, SORT_NUMERIC,
-                            $filesNumbers,  SORT_ASC, SORT_NUMERIC,
-                            $filesToDelete, SORT_ASC, SORT_STRING);
+            array_multisort(
+                $filesTypes,
+                SORT_ASC,
+                SORT_NUMERIC,
+                $filesNumbers,
+                SORT_ASC,
+                SORT_NUMERIC,
+                $filesToDelete,
+                SORT_ASC,
+                SORT_STRING
+            );
 
             foreach ($filesToDelete as $file) {
                 try {
                     /** Skip shared docstore segments deleting */
                     /** @todo Process '.cfx' files to check if them are already unused */
-                    if (substr($file, strlen($file)-4) != '.cfx') {
+                    if (substr($file, strlen($file) - 4) != '.cfx') {
                         $this->_directory->deleteFile($file);
                     }
                 } catch (Zend_Search_Lucene_Exception $e) {
@@ -734,7 +738,7 @@ class Zend_Search_Lucene_Index_Writer
         }
 
         // Clean-up _segmentsToDelete container
-        $this->_segmentsToDelete = array();
+        $this->_segmentsToDelete = [];
 
 
         // Release index write lock
@@ -837,5 +841,4 @@ class Zend_Search_Lucene_Index_Writer
 
         return '_' . base_convert($segmentNameCounter, 10, 36);
     }
-
 }

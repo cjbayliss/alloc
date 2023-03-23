@@ -20,4 +20,4 @@ if ($_POST["save"]) {
     interestedParty::make_interested_parties("invoiceRepeat", $invoiceRepeat->get_id(), $_POST["commentEmailRecipients"]);
 }
 
-alloc_redirect($TPL["url_alloc_invoice"]."invoiceID=".$_POST["invoiceID"]);
+alloc_redirect($TPL["url_alloc_invoice"] . "invoiceID=" . $_POST["invoiceID"]);

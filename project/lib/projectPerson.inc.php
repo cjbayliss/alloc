@@ -12,14 +12,16 @@ class projectPerson extends db_entity
     public $data_table = "projectPerson";
     public $display_field_name = "projectID";
     public $key_field = "projectPersonID";
-    public $data_fields = array("personID",
-                                "projectID",
-                                "emailType",
-                                "emailDateRegex",
-                                "rate" => array("type"=>"money"),
-                                "rateUnitID",
-                                "projectPersonModifiedUser",
-                                "roleID");
+    public $data_fields = [
+        "personID",
+        "projectID",
+        "emailType",
+        "emailDateRegex",
+        "rate" => ["type" => "money"],
+        "rateUnitID",
+        "projectPersonModifiedUser",
+        "roleID"
+    ];
 
     function date_regex_matches()
     {
@@ -76,8 +78,7 @@ class projectPerson extends db_entity
 
         // First check the project for a rate
         $project = new project($projectID);
-        $row = array('rate' => $project->get_value("defaultTimeSheetRate"),
-                     'unit' => $project->get_value("defaultTimeSheetRateUnitID"));
+        $row = ['rate' => $project->get_value("defaultTimeSheetRate"), 'unit' => $project->get_value("defaultTimeSheetRateUnitID")];
         if (imp($row['rate']) && $row['unit']) {
             return $row;
         }
@@ -101,7 +102,7 @@ class projectPerson extends db_entity
             if (config::get_config_item("currency") && $project->get_value("currencyTypeID")) {
                 $rate = exchangeRate::convert(config::get_config_item("currency"), $rate, $project->get_value("currencyTypeID"));
             }
-            return array('rate'=>$rate, 'unit'=>$unit);
+            return ['rate' => $rate, 'unit' => $unit];
         }
     }
 }

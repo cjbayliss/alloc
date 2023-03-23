@@ -25,7 +25,7 @@ $item->set_values();
 
 // new crap
 if ($current_user->have_role("admin") || $current_user->have_role("manage")) {
-    $users = array();
+    $users = [];
     $_db = new db_alloc();
     $_db->query("SELECT * FROM person ORDER BY username");
     while ($_db->next_record()) {
@@ -33,17 +33,17 @@ if ($current_user->have_role("admin") || $current_user->have_role("manage")) {
         $person->read_db_record($_db);
         $users[$person->get_id()] = $person->get_value('username');
     }
-    $TPL["userSelect"] = "<select name=\"userID\">".page::select_options($users, $current_user->get_id())."</select><br>\n";
+    $TPL["userSelect"] = "<select name=\"userID\">" . page::select_options($users, $current_user->get_id()) . "</select><br>\n";
 } else {
     $TPL["userSelect"] = "";
 }
 
 $temp = mktime(0, 0, 0, date("m") + $_POST["timePeriod"], date("d"), date("Y"));
-$whenToReturn = date("Y", $temp)."-".date("m", $temp)."-".date("d", $temp);
+$whenToReturn = date("Y", $temp) . "-" . date("m", $temp) . "-" . date("d", $temp);
 
 
 
-$today = date("Y")."-".date("m")."-".date("d");
+$today = date("Y") . "-" . date("m") . "-" . date("d");
 
 if ($loanID) {
     $loan->set_id($loanID);
@@ -55,7 +55,7 @@ if ($_POST["borrowItem"]) {
     $db->query("select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID);
 
     if ($db->next_record()) {     // if the item is already borrowed
-        alloc_redirect($TPL["url_alloc_item"]."itemID=$itemID&badBorrow=true&error=already_borrowed");
+        alloc_redirect($TPL["url_alloc_item"] . "itemID=$itemID&badBorrow=true&error=already_borrowed");
         exit();
     } else {                      // else lets make a new loan!
         $loan = new loan();

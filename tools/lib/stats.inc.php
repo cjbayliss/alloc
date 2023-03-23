@@ -7,30 +7,28 @@
 
 class stats
 {
-    var $classname = "stats";
+    public $classname = "stats";
 
-    // FIXME:: I didn't reindent this because it is too messey 😞 -- cjb, 2019-01
-    var $projects = array("all"=>array("total"=>array( /* <date>=> <number> */ )
-                                       // <uid>=> array( <date>=> <number>, .. ),
-                        ), "new"=>array("total"=>array( /* <date>=> <number> */ )
-                                          // <uid>=> array( <date>=> <number>, .. ),
-                        ), "current"=>array("total"=>0 /* <uid>=> <number>, .. */ ),
-                        "archived"=>array("total"=>0 /* <uid>=> <number>, .. */ ),
-                        "total"=>array("total"=>0)
-    );
-    var $tasks = array("all"=>array("total"=>array( /* <date>=> <number> */ )
-                                    // <uid>=> array( <date>=> <number>, .. ),
-                     ), "new"=>array("total"=>array( /* <date>=> <number> */ )
-                                       // <uid>=> array( <date>=> <number>, .. ),
-                     ), "current"=>array("total"=>0), "completed"=>array("total"=>0), "total"=>array("total"=>0)
-    );
-    var $comments = array("all"=>array("total"=>array( /* <date>=> <number> */ )
-                                       // <uid>=> array( <date>=> <number>, .. ),
-                        ), "new"=>array("total"=>array( /* <date>=> <number> */ )
-                                          // <uid>=> array( <date>=> <number>, .. ),
-                        ), "total"=>array("total"=>0)
-    );
-    var $persons = array();
+    public $projects = [
+        "all" => ["total" => []],
+        "new" => ["total" => []],
+        "current" => ["total" => 0],
+        "archived" => ["total" => 0],
+        "total" => ["total" => 0]
+    ];
+    public $tasks = [
+        "all" => ["total" => []],
+        "new" => ["total" => []],
+        "current" => ["total" => 0],
+        "completed" => ["total" => 0],
+        "total" => ["total" => 0]
+    ];
+    public $comments = [
+        "all" => ["total" => []],
+        "new" => ["total" => []],
+        "total" => ["total" => 0]
+    ];
+    public $persons = [];
 
     function stats()
     {
@@ -78,7 +76,7 @@ class stats
                 }
                 if ($project->get_value("dateActualStart") != "") {
                     if (!isset($this->projects["all"][$projectPerson->get_value("personID")])) {
-                        $this->projects["all"][$projectPerson->get_value("personID")] = array();
+                        $this->projects["all"][$projectPerson->get_value("personID")] = [];
                     }
                     $this->projects["all"][$projectPerson->get_value("personID")][$project->get_value("dateActualStart")]++;
                     $this->projects["all"][$projectPerson->get_value("personID")]["total"]++;
@@ -86,7 +84,7 @@ class stats
 
                     if (strcmp($date, $project->get_value("dateActualStart")) <= 0) {
                         if (!isset($this->projects["new"][$projectPerson->get_value("personID")])) {
-                            $this->projects["new"][$projectPerson->get_value("personID")] = array();
+                            $this->projects["new"][$projectPerson->get_value("personID")] = [];
                         }
                         $this->projects["new"][$projectPerson->get_value("personID")][$project->get_value("dateActualStart")]++;
                         $this->projects["new"][$projectPerson->get_value("personID")]["total"]++;
@@ -102,12 +100,12 @@ class stats
     {
         $db = new db_alloc();
 
-        list($ts_open,$ts_pending,$ts_closed) = task::get_task_status_in_set_sql();
+        list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
         // Get total amount of current tasks for every person
         $q = "SELECT person.personID, person.username, count(taskID) as tally
                 FROM task
            LEFT JOIN person ON task.personID = person.personID
-               WHERE task.taskStatus NOT IN (".$ts_closed.")
+               WHERE task.taskStatus NOT IN (" . $ts_closed . ")
             GROUP BY person.personID";
 
         $db->query($q);
@@ -120,7 +118,7 @@ class stats
         $q = "SELECT person.personID, person.username, count(taskID) as tally
                 FROM task
            LEFT JOIN person ON task.personID = person.personID
-               WHERE task.taskStatus NOT IN (".$ts_closed.")
+               WHERE task.taskStatus NOT IN (" . $ts_closed . ")
             GROUP BY person.personID";
 
         $db->query($q);
@@ -181,7 +179,7 @@ class stats
             $this->comments["total"]["total"]++;
             if ($comment->get_value("commentModifiedTime") != "") {
                 if (!isset($this->comments["all"][$comment->get_value("commentModifiedUser")])) {
-                    $this->comments["all"][$comment->get_value("commentModifiedUser")] = array();
+                    $this->comments["all"][$comment->get_value("commentModifiedUser")] = [];
                 }
                 $this->comments["all"][$comment->get_value("commentModifiedUser")][date("Y-m-d", strtotime($comment->get_value("commentModifiedTime")))]++;
                 $this->comments["all"][$comment->get_value("commentModifiedUser")]["total"]++;
@@ -189,7 +187,7 @@ class stats
 
                 if (strcmp($date, $comment->get_value("commentModifiedTime")) <= 0) {
                     if (!isset($this->comments["new"][$comment->get_value("commentModifiedUser")])) {
-                        $this->comments["new"][$comment->get_value("commentModifiedUser")] = array();
+                        $this->comments["new"][$comment->get_value("commentModifiedUser")] = [];
                     }
                     $this->comments["new"][$comment->get_value("commentModifiedUser")][date("Y-m-d", strtotime($comment->get_value("commentModifiedTime")))]++;
                     $this->comments["new"][$comment->get_value("commentModifiedUser")]["total"]++;
@@ -232,12 +230,20 @@ class stats
                 // + $this->projects["all"][$person->get_id()][$date]
                 // + $this->comments["all"][$person->get_id()][$date];
                 if ($value > 0) {
-                    array_push($this->persons, array("id"=>$person->get_id(), "username"=>$person->get_value('username'), "count_back"=>$i, "value"=>$value));
+                    array_push($this->persons, [
+                        "id" => $person->get_id(),
+                        "username" => $person->get_value('username'),
+                        "count_back" => $i,
+                        "value" => $value
+                    ]);
                 }
             }
         }
 
-        usort($this->persons, array($this, "compare"));
+        usort($this->persons, [
+            $this,
+            "compare"
+        ]);
     }
 
     function get_stats_for_email($format)
@@ -245,15 +251,15 @@ class stats
 
         if ($format == "html") {
             $msg = "<br><br><h4>Alloc Stats For Today</h4>";
-            $msg.= sprintf("%d New and %d Active Projects<br><br>", $this->projects["new"]["total"], $this->projects["current"]["total"]);
-            $msg.= "<table >";
+            $msg .= sprintf("%d New and %d Active Projects<br><br>", $this->projects["new"]["total"], $this->projects["current"]["total"]);
+            $msg .= "<table >";
         } else {
             $msg = "\n- - - - - - - - - -\n";
-            $msg.= "Alloc Stats For Today\n";
-            $msg.= "\n";
-            $msg.= sprintf("%d New and %d Active Projects\n", $this->projects["new"]["total"], $this->projects["current"]["total"]);
-            $msg.= "\n";
-            $msg.= "Top Users:\n";
+            $msg .= "Alloc Stats For Today\n";
+            $msg .= "\n";
+            $msg .= sprintf("%d New and %d Active Projects\n", $this->projects["new"]["total"], $this->projects["current"]["total"]);
+            $msg .= "\n";
+            $msg .= "Top Users:\n";
         }
 
         $num_users = 3;
@@ -263,21 +269,21 @@ class stats
             $person->select();
 
             if ($format == "html") {
-                $msg.= "<tr>";
-                $msg.= sprintf("<td>%s has</td>", $person->get_value("username"));
-                $msg.= sprintf("<td>%d New and</td>", $this->tasks["new"][$person->get_id()]["total"]);
-                $msg.= sprintf("<td>%d Active Tasks</td>", $this->tasks["current"][$person->get_id()]);
-                $msg.= "</tr>";
+                $msg .= "<tr>";
+                $msg .= sprintf("<td>%s has</td>", $person->get_value("username"));
+                $msg .= sprintf("<td>%d New and</td>", $this->tasks["new"][$person->get_id()]["total"]);
+                $msg .= sprintf("<td>%d Active Tasks</td>", $this->tasks["current"][$person->get_id()]);
+                $msg .= "</tr>";
             } else {
-                $msg.= sprintf("* %-15s %-15s %s\n", sprintf("%s has", $person->get_value("username")), sprintf("%d New and", $this->tasks["new"][$person->get_id()]["total"]), sprintf("%d Active Tasks", $this->tasks["current"][$person->get_id()]));
+                $msg .= sprintf("* %-15s %-15s %s\n", sprintf("%s has", $person->get_value("username")), sprintf("%d New and", $this->tasks["new"][$person->get_id()]["total"]), sprintf("%d Active Tasks", $this->tasks["current"][$person->get_id()]));
             }
         }
 
         if ($format == "html") {
-            $msg.= "<hr />\nTo disable these daily emails, change the \"Daily Email\" setting on the Personal page.\n";
-            $msg.= "</table>";
+            $msg .= "<hr />\nTo disable these daily emails, change the \"Daily Email\" setting on the Personal page.\n";
+            $msg .= "</table>";
         } else {
-            $msg.= "\n- - - - - - - - - -\nTo disable these daily emails, change the \"Daily Email\" setting on the Personal page.\n";
+            $msg .= "\n- - - - - - - - - -\nTo disable these daily emails, change the \"Daily Email\" setting on the Personal page.\n";
         }
 
         return $msg;

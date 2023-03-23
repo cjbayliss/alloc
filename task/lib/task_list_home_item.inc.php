@@ -7,7 +7,7 @@
 
 class task_list_home_item extends home_item
 {
-    var $date;
+    public $date;
 
     function __construct()
     {
@@ -32,12 +32,14 @@ class task_list_home_item extends home_item
     {
         global $TPL;
 
-        $defaults = array("showHeader"      => true,
-                          "showTaskID"      => true,
-                          "taskView"        => "prioritised",
-                          "showStatus"      => "true",
-                          "url_form_action" => $TPL["url_alloc_home"],
-                          "form_name"       => "taskListHome_filter");
+        $defaults = [
+            "showHeader"      => true,
+            "showTaskID"      => true,
+            "taskView"        => "prioritised",
+            "showStatus"      => "true",
+            "url_form_action" => $TPL["url_alloc_home"],
+            "form_name"       => "taskListHome_filter"
+        ];
 
         $current_user = &singleton("current_user");
         if (!$current_user->prefs["taskListHome_filter"]) {

@@ -10,5 +10,5 @@ class invoiceRepeatDate extends db_entity
     public $classname = "invoiceRepeatDate";
     public $data_table = "invoiceRepeatDate";
     public $key_field = "invoiceRepeatDateID";
-    public $data_fields = array("invoiceRepeatID", "invoiceDate");
+    public $data_fields = ["invoiceRepeatID", "invoiceDate"];
 }

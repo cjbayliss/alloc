@@ -2,24 +2,10 @@
 <?php
 
 /*
- * Copyright (C) 2006-2020 Alex Lance, Clancy Malcolm, Cyber IT Solutions
- * Pty. Ltd.
- *
- * This file is part of the allocPSA application <info@cyber.com.au>.
- *
- * allocPSA is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * allocPSA is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
- * License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with allocPSA. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright: Alex Lance, Clancy Malcolm, Cyber IT Solutions Pty. Ltd.
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 
 /*
  * This script may need to be run via:
@@ -40,7 +26,7 @@
 
 define("NO_AUTH", 1);
 //require_once(dirname(__FILE__)."/../alloc.php");
-require_once(dirname($_SERVER["SUDO_COMMAND"])."/../alloc.php");
+require_once(dirname($_SERVER["SUDO_COMMAND"]) . "/../alloc.php");
 singleton("errors_fatal", true);
 singleton("errors_format", "text");
 singleton("errors_logged", true);
@@ -88,7 +74,7 @@ try {
             $email_receive->archive();
         }
 
-    // Else if we have a key, append to comment
+        // Else if we have a key, append to comment
     } else {
         // Skip over emails that are from alloc. These emails are kept only for
         // posterity and should not be parsed and downloaded and re-emailed etc.
@@ -108,12 +94,12 @@ try {
         $email_receive->forward(
             config::get_config_item("allocEmailAdmin"),
             "Email command failed",
-            "\n".$e->getMessage()."\n\n".$e->getTraceAsString()
+            "\n" . $e->getMessage() . "\n\n" . $e->getTraceAsString()
         );
 
-    // If that fails, try last-ditch email send
+        // If that fails, try last-ditch email send
     } catch (Exception $e) {
-        mail(config::get_config_item("allocEmailAdmin"), "Email command failed(2)", "\n".$e->getMessage()."\n\n".$e->getTraceAsString());
+        mail(config::get_config_item("allocEmailAdmin"), "Email command failed(2)", "\n" . $e->getMessage() . "\n\n" . $e->getTraceAsString());
     }
 }
 

@@ -25,7 +25,7 @@ if ($_POST["save"]) {
     $commentTemplate->save();
     alloc_redirect($TPL["url_alloc_commentTemplateList"]);
 
-// Process submission of the form using the delete button
+    // Process submission of the form using the delete button
 } else if ($_POST["delete"]) {
     $commentTemplate->delete();
     alloc_redirect($TPL["url_alloc_commentTemplateList"]);
@@ -34,15 +34,17 @@ if ($_POST["save"]) {
 // Load data for display in the template
 $commentTemplate->set_values();
 
-$ops = array(""            => "Comment Template Type",
-             "task"        => "Task",
-             "timeSheet"   => "Time Sheet",
-             "project"     => "Project",
-             "client"      => "Client",
-             "invoice"     => "Invoice",
-             "productSale" => "Sale");
+$ops = [
+    ""            => "Comment Template Type",
+    "task"        => "Task",
+    "timeSheet"   => "Time Sheet",
+    "project"     => "Project",
+    "client"      => "Client",
+    "invoice"     => "Invoice",
+    "productSale" => "Sale"
+];
 $TPL["commentTemplateTypeOptions"] = page::select_options($ops, $commentTemplate->get_value("commentTemplateType"));
 
-$TPL["main_alloc_title"] = "Edit Comment Template - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Edit Comment Template - " . APPLICATION_NAME;
 // Invoke the page's main template
 include_template("templates/commentTemplateM.tpl");

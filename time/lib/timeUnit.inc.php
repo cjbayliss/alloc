@@ -12,12 +12,14 @@ class timeUnit extends db_entity
     public $data_table = "timeUnit";
     public $display_field_name = "timeUnitLabelA";
     public $key_field = "timeUnitID";
-    public $data_fields = array("timeUnitName",
-                                "timeUnitLabelA",
-                                "timeUnitLabelB",
-                                "timeUnitSeconds",
-                                "timeUnitActive",
-                                "timeUnitSequence");
+    public $data_fields = [
+        "timeUnitName",
+        "timeUnitLabelA",
+        "timeUnitLabelB",
+        "timeUnitSeconds",
+        "timeUnitActive",
+        "timeUnitSequence"
+    ];
 
     function seconds_to_display_time_unit($seconds)
     {

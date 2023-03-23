@@ -9,14 +9,14 @@
 class db
 {
 
-    var $username;
-    var $password;
-    var $hostname;
-    var $database;
-    var $pdo;
-    var $pdo_statement;
-    var $row = array();
-    var $error;
+    public $username;
+    public $password;
+    public $hostname;
+    public $database;
+    public $pdo;
+    public $pdo_statement;
+    public $row = [];
+    public $error;
     public static $started_transaction = false;
     public static $stop_doing_queries = false;
 
@@ -32,15 +32,15 @@ class db
     function connect($force = false)
     {
         if ($force || !isset($this->pdo)) {
-            $this->hostname and $h = "host=".$this->hostname.";";
-            $this->database and $d = "dbname=".$this->database.";";
+            $this->hostname and $h = "host=" . $this->hostname . ";";
+            $this->database and $d = "dbname=" . $this->database . ";";
             try {
                 $this->pdo = new PDO(sprintf('mysql:%s%scharset=UTF8', $h, $d), $this->username, $this->password);
                 $this->pdo->exec("SET CHARACTER SET utf8");
                 $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 return true;
             } catch (PDOException $e) {
-                $this->error("Unable to connect to database: ".$e->getMessage());
+                $this->error("Unable to connect to database: " . $e->getMessage());
             }
         }
     }
@@ -77,17 +77,17 @@ class db
     function error($msg = false, $errno = false)
     {
         if ($errno == 1451 || $errno == 1217) {
-            $m = "Error: ".$errno." There are other records in the database that depend on the item you just tried to delete.
+            $m = "Error: " . $errno . " There are other records in the database that depend on the item you just tried to delete.
             Remove those other records first and then try to delete this item again.
-            <br><br>".$msg;
+            <br><br>" . $msg;
         } else if ($errno == 1216) {
-            $m = "Error: ".$errno." The parent record of the item you just tried to create does not exist in the database.
+            $m = "Error: " . $errno . " The parent record of the item you just tried to create does not exist in the database.
             Create that other record first and then try to create this item again.
-            <br><br>".$msg;
+            <br><br>" . $msg;
         } else if (preg_match("/(ALLOC ERROR:([^']*)')/m", $msg, $matches)) {
-            $m = "Error: ".$matches[2];
+            $m = "Error: " . $matches[2];
         } else if ($msg) {
-            $m = "Error: ".$msg;
+            $m = "Error: " . $msg;
         }
 
         if ($m) {
@@ -145,7 +145,7 @@ class db
             try {
                 return $this->pdo->query($query);
             } catch (PDOException $e) {
-                $this->error("Error executing query: ".$e->getMessage());
+                $this->error("Error executing query: " . $e->getMessage());
             }
         }
     }
@@ -170,7 +170,7 @@ class db
 
             if (!$rtn) {
                 $info = $this->pdo->errorInfo();
-                $this->error("Query failed: ".$info[0]." ".$info[1]."\n".$query, $info[2]);
+                $this->error("Query failed: " . $info[0] . " " . $info[1] . "\n" . $query, $info[2]);
                 $this->rollback();
                 unset($this->pdo_statement);
             } else {
@@ -184,7 +184,7 @@ class db
             $TPL["slowest_query"] = $query;
             $TPL["slowest_query_time"] = $result;
         }
-        $TPL["all_page_queries"][] = array("time"=>$result, "query"=>$query);
+        $TPL["all_page_queries"][] = ["time" => $result, "query" => $query];
         return $rtn;
     }
 
@@ -253,13 +253,13 @@ class db
         }
         $database = $this->database;
         if (strstr($table, ".")) {
-            list($database,$table) = explode(".", $table);
+            list($database, $table) = explode(".", $table);
         }
-        $this->query("SHOW COLUMNS FROM ".$table);
+        $this->query("SHOW COLUMNS FROM " . $table);
         while ($row = $this->row()) {
             $fields[$table][] = $row["Field"];
         }
-        $fields[$table] or $fields[$table] = array();
+        $fields[$table] or $fields[$table] = [];
         return $fields[$table];
     }
 
@@ -279,9 +279,9 @@ class db
         return $keys[$table];
     }
 
-    function save($table, $row = array(), $debug = 0)
+    function save($table, $row = [], $debug = 0)
     {
-        $table_keys = $this->get_table_keys($table) or $table_keys = array();
+        $table_keys = $this->get_table_keys($table) or $table_keys = [];
         foreach ($table_keys as $k) {
             $row[$k] and $do_update = true;
             $keys[$k] = $row[$k];
@@ -295,8 +295,8 @@ class db
                 $this->get_update_str($row),
                 $this->get_update_str($keys, " AND ")
             );
-            $debug &&  sizeof($row) and print ("<br>SAVE -> UPDATE -> Would have executed this query: <br>".$q);
-            $debug && !sizeof($row) and print ("<br>SAVE -> UPDATE -> Would NOT have executed this query: <br>".$q);
+            $debug &&  sizeof($row) and print("<br>SAVE -> UPDATE -> Would have executed this query: <br>" . $q);
+            $debug && !sizeof($row) and print("<br>SAVE -> UPDATE -> Would NOT have executed this query: <br>" . $q);
             !$debug && sizeof($row) and $this->query($q);
             reset($keys);
             return current($keys);
@@ -307,14 +307,14 @@ class db
                 $this->get_insert_str_fields($row),
                 $this->get_insert_str_values($row)
             );
-            $debug &&  sizeof($row) and print ("<br>SAVE -> INSERT -> Would have executed this query: <br>".$q);
-            $debug && !sizeof($row) and print ("<br>SAVE -> INSERT -> Would NOT have executed this query: <br>".$q);
+            $debug &&  sizeof($row) and print("<br>SAVE -> INSERT -> Would have executed this query: <br>" . $q);
+            $debug && !sizeof($row) and print("<br>SAVE -> INSERT -> Would NOT have executed this query: <br>" . $q);
             !$debug && sizeof($row) and $this->query($q);
             return $this->get_insert_id();
         }
     }
 
-    function delete($table, $row = array(), $debug = 0)
+    function delete($table, $row = [], $debug = 0)
     {
         $row = $this->unset_invalid_field_names($table, $row);
         $q = sprintf(
@@ -322,8 +322,8 @@ class db
             $table,
             $this->get_update_str($row, " AND ")
         );
-        $debug &&  sizeof($row) and print ("<br>DELETE -> WILL execute this query: <br>".$q);
-        $debug && !sizeof($row) and print ("<br>DELETE -> WONT execute this query: <br>".$q);
+        $debug &&  sizeof($row) and print("<br>DELETE -> WILL execute this query: <br>" . $q);
+        $debug && !sizeof($row) and print("<br>DELETE -> WONT execute this query: <br>" . $q);
         if (sizeof($row)) {
             $pdo_statement = $this->query($q);
             return $pdo_statement->rowCount();
@@ -333,7 +333,7 @@ class db
     function get_insert_str_fields($row)
     {
         foreach ($row as $fieldname => $value) {
-            $rtn .= $commar.$fieldname;
+            $rtn .= $commar . $fieldname;
             $commar = ", ";
         }
         return $rtn;
@@ -342,7 +342,7 @@ class db
     function get_insert_str_values($row)
     {
         foreach ($row as $fieldname => $value) {
-            $rtn .= $commar.$this->esc($value);
+            $rtn .= $commar . $this->esc($value);
             $commar = ", ";
         }
         return $rtn;
@@ -351,13 +351,13 @@ class db
     function get_update_str($row, $glue = ", ")
     {
         foreach ($row as $fieldname => $value) {
-            $rtn .= $commar." ".$fieldname." = ".$this->esc($value);
+            $rtn .= $commar . " " . $fieldname . " = " . $this->esc($value);
             $commar = $glue;
         }
         return $rtn;
     }
 
-    function unset_invalid_field_names($table, $row, $keys = array())
+    function unset_invalid_field_names($table, $row, $keys = [])
     {
         $valid_field_names = $this->get_table_fields($table);
         $keys = array_keys($keys);
@@ -367,7 +367,7 @@ class db
                 unset($row[$field_name]);
             }
         }
-        $row or $row = array();
+        $row or $row = [];
         return $row;
     }
 

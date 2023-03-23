@@ -1,33 +1,18 @@
 <?php
 
 /*
- * Copyright (C) 2006-2020 Alex Lance, Clancy Malcolm, Cyber IT Solutions
- * Pty. Ltd.
- *
- * This file is part of the allocPSA application <info@cyber.com.au>.
- *
- * allocPSA is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at
- * your option) any later version.
- *
- * allocPSA is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
- * License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with allocPSA. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright: Alex Lance, Clancy Malcolm, Cyber IT Solutions Pty. Ltd.
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 
 require_once("../alloc.php");
 
-
-
-
-$defaults = array("showProjectType" => true,
-                  "url_form_action" => $TPL["url_alloc_projectList"],
-                  "form_name"       => "projectList_filter");
+$defaults = [
+    "showProjectType" => true,
+    "url_form_action" => $TPL["url_alloc_projectList"],
+    "form_name"       => "projectList_filter"
+];
 
 function show_filter()
 {
@@ -64,5 +49,5 @@ in the top-right hand corner of the box below.";
 
 
 
-$TPL["main_alloc_title"] = "Project List - ".APPLICATION_NAME;
+$TPL["main_alloc_title"] = "Project List - " . APPLICATION_NAME;
 include_template("templates/projectListM.tpl");

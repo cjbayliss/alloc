@@ -10,7 +10,7 @@ require_once("../alloc.php");
 
 $file = $_GET["file"];
 $rev = $_GET["rev"];
-$pathfile = realpath(wiki_module::get_wiki_path().$file);
+$pathfile = realpath(wiki_module::get_wiki_path() . $file);
 
 if (path_under_path(dirname($pathfile), wiki_module::get_wiki_path())) {
     // Check if we're using a VCS
@@ -25,9 +25,9 @@ if (path_under_path(dirname($pathfile), wiki_module::get_wiki_path())) {
                 $rev == $id and $class = "highlighted";
                 !$rev && !$done and $done = $class = "highlighted";
             }
-            echo "<div class=\"".$class."\" style=\"padding:3px; margin-bottom:10px;\">";
+            echo "<div class=\"" . $class . "\" style=\"padding:3px; margin-bottom:10px;\">";
             is_file($pathfile) and print sprintf("<a href='%starget=%s&rev=%s'>", $TPL["url_alloc_wiki"], urlencode($file), urlencode($id));
-            echo $bits["author"]." ".$bits["date"]."<br>".$bits["msg"];
+            echo $bits["author"] . " " . $bits["date"] . "<br>" . $bits["msg"];
             is_file($pathfile) and print "</a>";
             echo "</div>";
         }
