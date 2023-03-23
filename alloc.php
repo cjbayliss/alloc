@@ -127,8 +127,16 @@ $TPL = array("url_alloc_index"        => SCRIPT_PATH."index.php",
              "main_alloc_title"       => end(explode("/", $_SERVER["SCRIPT_NAME"])));
 
 
-if (file_exists(ALLOC_MOD_DIR."alloc_config.php")) {
-    require_once(ALLOC_MOD_DIR."alloc_config.php");
+if (file_exists(ALLOC_MOD_DIR . "alloc_config.php")) {
+    require_once(ALLOC_MOD_DIR . "alloc_config.php");
+} else {
+    // if unconfigured, set define these constants
+    // IMPORTANT: please keep these so that linting is possible in IDEs
+    define('ATTACHMENTS_DIR', '/var/local/alloc/');
+    define("ALLOC_DB_NAME", "alloc");
+    define("ALLOC_DB_USER", "alloc");
+    define("ALLOC_DB_PASS", "changeme");
+    define("ALLOC_DB_HOST", "db");
 }
 
 $db = new db_alloc();
