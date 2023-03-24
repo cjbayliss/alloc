@@ -30,6 +30,7 @@ class productSale extends db_entity
 
     function validate()
     {
+        $rtn = [];
         if ($this->get_value("status") == "admin" || $this->get_value("status") == "finished") {
             $orig = new $this->classname;
             $orig->set_id($this->get_id());
@@ -133,6 +134,12 @@ class productSale extends db_entity
     function get_amounts()
     {
 
+        $show = null;
+        $label = null;
+        $total_sellPrice = null;
+        $sellPrice_label = null;
+        $total_margin = null;
+        $total_unallocated = null;
         $rows = $this->get_productSaleItems();
         $rows or $rows = [];
         $rtn = [];
@@ -198,6 +205,13 @@ class productSale extends db_entity
 
     function move_forwards()
     {
+        $taskDesc = [];
+        $extra = null;
+        $hasItems = null;
+        $recipients = [];
+        $ids = [];
+        $order_the_hardware_taskID = null;
+        $pay_the_supplier_taskID = null;
         $current_user = &singleton("current_user");
         global $TPL;
         $status = $this->get_value("status");
@@ -409,6 +423,7 @@ class productSale extends db_entity
 
     function get_transactions($productSaleItemID = false)
     {
+        $done = null;
         $rows = [];
         $query = prepare(
             "SELECT transaction.*
@@ -455,6 +470,7 @@ class productSale extends db_entity
 
     public static function get_list_filter($filter = [])
     {
+        $sql = [];
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the productSaleID filter element
@@ -493,6 +509,7 @@ class productSale extends db_entity
     public static function get_list($_FORM = [])
     {
 
+        $f = null;
         $filter = productSale::get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
@@ -640,6 +657,9 @@ class productSale extends db_entity
 
     function load_productSale_filter($_FORM)
     {
+        $filter = null;
+        $rtn = [];
+        $options = [];
         $current_user = &singleton("current_user");
 
         // display the list of project name.

@@ -15,6 +15,7 @@ function check_optional_client_exists()
 
 function show_client_contacts()
 {
+    $rtn = [];
     global $TPL;
     global $clientID;
 
@@ -188,6 +189,7 @@ function show_comments()
 
 function show_invoices()
 {
+    $_FORM = [];
     $current_user = &singleton("current_user");
     global $clientID;
 

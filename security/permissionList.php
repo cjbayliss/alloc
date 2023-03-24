@@ -9,6 +9,7 @@ require_once("../alloc.php");
 
 function show_permission_list($template_name)
 {
+    $where = null;
     global $TPL;
 
     $roles = permission::get_roles();

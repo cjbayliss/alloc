@@ -326,6 +326,7 @@ class Zend_Search_Lucene_Search_Query_MultiTerm extends Zend_Search_Lucene_Searc
      */
     private function _calculateConjunctionResult(Zend_Search_Lucene_Interface $reader)
     {
+        $termDocs = null;
         $this->_resVector = null;
 
         if (count($this->_terms) == 0) {

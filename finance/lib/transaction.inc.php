@@ -44,6 +44,8 @@ class transaction extends db_entity
 
     function save()
     {
+        $field_changed = null;
+        $date = null;
         // These need to be in here instead of validate(), because
         // validate is called after save() and we need these values set for save().
         $this->get_value("currencyTypeID") or $this->set_value("currencyTypeID", config::get_config_item("currency"));
@@ -89,6 +91,7 @@ class transaction extends db_entity
 
     function validate()
     {
+        $err = [];
         $current_user = &singleton("current_user");
 
         $this->get_value("fromTfID") or $err[] = "Unable to save transaction without a Source TF.";
@@ -189,6 +192,7 @@ class transaction extends db_entity
 
     function get_transaction_type_link()
     {
+        $str = null;
         global $TPL;
         $type = $this->get_value("transactionType");
         $transactionTypes = transaction::get_transactionTypes();
@@ -232,6 +236,7 @@ class transaction extends db_entity
 
     function reduce_tfs($_FORM)
     {
+        $tfIDs = [];
         if ($_FORM["tfName"]) {
             $q = prepare("SELECT * FROM tf WHERE tfName = '%s'", $_FORM["tfName"]);
             $db = new db_alloc();
@@ -250,6 +255,7 @@ class transaction extends db_entity
 
     function get_list_filter($_FORM)
     {
+        $sql = [];
         $current_user = &singleton("current_user");
 
         if (is_array($_FORM["tfIDs"]) && count($_FORM["tfIDs"])) {
@@ -285,6 +291,12 @@ class transaction extends db_entity
 
     public static function get_list($_FORM)
     {
+        $filter2 = [];
+        $i = null;
+        $running_balance = null;
+        $total_amount_positive = null;
+        $total_amount_negative = null;
+        $transactions = [];
         $current_user = &singleton("current_user");
         global $TPL;
 
@@ -416,6 +428,7 @@ class transaction extends db_entity
     function arr_to_csv($rows = [])
     {
 
+        $csv = null;
         $csvHeaders = [
             "transactionID",
             "transactionType",
@@ -479,6 +492,8 @@ class transaction extends db_entity
 
     function load_transaction_filter($_FORM)
     {
+        $rtn = [];
+        $sp = null;
         global $TPL;
 
         $rtn["statusOptions"] = page::select_options(["" => "", "pending" => "Pending", "approved" => "Approved", "rejected" => "Rejected"], $_FORM["status"]);
@@ -557,6 +572,8 @@ class transaction extends db_entity
     function get_actual_amount_used($rows = [])
     {
 
+        $tallies = [];
+        $sum = null;
         /*
          *  The purpose of this function is to turn the below three transactions
          *  not into their sum of $48 but into the amount used, which is $10.

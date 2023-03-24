@@ -236,6 +236,7 @@ class invoiceItem extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $sql = [];
         // Filter on invoiceID
         if ($filter["invoiceID"] && is_array($filter["invoiceID"])) {
             $sql[] = prepare("(invoice.invoiceID in (%s))", $filter["invoiceID"]);
@@ -247,6 +248,8 @@ class invoiceItem extends db_entity
 
     public static function get_list($_FORM)
     {
+        $f = null;
+        $rows = [];
         $filter = invoiceItem::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);

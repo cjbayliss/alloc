@@ -295,6 +295,7 @@ function o_viewerPreferences($id,$action,$options=''){
 * define the document catalog, the overall controller for the document
 */
 function o_catalog($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -345,6 +346,7 @@ function o_catalog($id,$action,$options=''){
 * object which is a parent to the pages in the document
 */
 function o_pages($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -443,6 +445,7 @@ function o_pages($id,$action,$options=''){
 * define the outlines in the doc, empty for now
 */
 function o_outlines($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -473,6 +476,7 @@ function o_outlines($id,$action,$options=''){
 * an object to hold the font description
 */
 function o_font($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -608,6 +612,7 @@ function o_fontDescriptor($id,$action,$options=''){
 * the font encoding
 */
 function o_fontEncoding($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -645,6 +650,7 @@ function o_fontEncoding($id,$action,$options=''){
 * the document procset, solves some problems with printing to old PS printers
 */
 function o_procset($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -680,6 +686,7 @@ function o_procset($id,$action,$options=''){
 * define the document information
 */
 function o_info($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -724,6 +731,7 @@ function o_info($id,$action,$options=''){
 * an action object, used to link to URLS initially
 */
 function o_action($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -819,6 +827,7 @@ function o_annotation($id,$action,$options=''){
 * a page object, it also creates a contents object to hold its contents
 */
 function o_page($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -888,6 +897,7 @@ function o_page($id,$action,$options=''){
 * the contents objects hold all of the content which appears on pages
 */
 function o_contents($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -938,6 +948,7 @@ function o_contents($id,$action,$options=''){
 * an image object, will be an XObject in the document, includes description and data
 */
 function o_image($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -1013,6 +1024,7 @@ function o_image($id,$action,$options=''){
 * encryption object.
 */
 function o_encryption($id,$action,$options=''){
+  $o = [];
   if ($action!='new'){
     $o =& $this->objects[$id];
   }
@@ -1517,9 +1529,9 @@ function selectFont($fontName,$encoding='',$set=1){
         $pfbid = $this->numObj;
         // determine flags (more than a little flakey, hopefully will not matter much)
         $flags=0;
-        if ($this->fonts[$fontName]['ItalicAngle']!=0){ $flags+=pow(2,6); }
+        if ($this->fonts[$fontName]['ItalicAngle']!=0){ $flags+=2 ** 6; }
         if ($this->fonts[$fontName]['IsFixedPitch']=='true'){ $flags+=1; }
-        $flags+=pow(2,5); // assume non-sybolic
+        $flags+=2 ** 5; // assume non-sybolic
 
         $list = ['Ascent'=>'Ascender', 'CapHeight'=>'CapHeight', 'Descent'=>'Descender', 'FontBBox'=>'FontBBox', 'ItalicAngle'=>'ItalicAngle'];
         $fdopt = ['Flags'=>$flags, 'FontName'=>$adobeFontName, 'StemV'=>100];
@@ -2619,6 +2631,9 @@ function PRVT_getBytes(&$data,$pos,$num){
 * this should work with remote files
 */
 function addPngFromFile($file,$x,$y,$w=0,$h=0){
+  $data = [];
+  $info = [];
+  $errormsg = null;
   // read in a png file, interpret it, then add to the system
   $error=0;
   $tmp = get_magic_quotes_runtime();

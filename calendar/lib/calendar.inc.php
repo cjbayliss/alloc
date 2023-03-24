@@ -36,6 +36,7 @@ class calendar
 
     function set_cal_date_range($week_start, $weeks_to_display)
     {
+        $i = null;
         $this->week_start = $week_start;
         $this->weeks_to_display = $weeks_to_display;
 
@@ -147,6 +148,7 @@ class calendar
 
     function get_cal_absences()
     {
+        $prev_date = null;
         $query = prepare(
             "SELECT *
                FROM absence
@@ -182,6 +184,7 @@ class calendar
 
     function get_days_of_week_array($first_day)
     {
+        $days_of_week = [];
         // Generate a list of days, being mindful that a user may not want Sunday to be the first day of the week
         $days = [
             "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", 
@@ -203,6 +206,7 @@ class calendar
 
     function draw()
     {
+        $dates_of_week = [];
         global $TPL;
 
         $this->draw_canvas();

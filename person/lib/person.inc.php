@@ -56,6 +56,7 @@ class person extends db_entity
 
     function get_tasks_for_email()
     {
+        $s = [];
         $options = [];
         #$options["projectType"] = "mine";
         $options["limit"] = 3;
@@ -126,6 +127,7 @@ class person extends db_entity
 
     function get_announcements_for_email()
     {
+        $announcement = [];
         $db = new db_alloc();
         $db->query("SELECT * FROM announcement WHERE CURDATE() <= displayToDate AND CURDATE() >= displayFromDate");
 
@@ -166,6 +168,7 @@ class person extends db_entity
 
     function get_skills($proficiency)
     {
+        $rtn = null;
         // Return a string of skills with a given proficiency
         $query = "SELECT * FROM proficiency LEFT JOIN skill on proficiency.skillID=skill.skillID";
         $query .= prepare(" WHERE personID=%d AND skillProficiency='%s' ORDER BY skillName", $this->get_id(), $proficiency);
@@ -185,6 +188,7 @@ class person extends db_entity
 
     public static function get_username_list($push_personID = "")
     {
+        $rtn = [];
         static $rows;
 
         // Cache rows
@@ -246,6 +250,7 @@ class person extends db_entity
 
     function get_tfIDs()
     {
+        $tfIDs = [];
         $db = new db_alloc();
         $db->query("SELECT tfID FROM tfPerson WHERE personID = %d", $this->get_id());
         while ($row = $db->row()) {
@@ -307,6 +312,7 @@ class person extends db_entity
 
     function store_prefs()
     {
+        $save = null;
         $p = new person();
         $p->set_id($this->get_id());
         $p->select();
@@ -388,6 +394,7 @@ class person extends db_entity
 
     function get_from()
     {
+        $end = null;
         $name = $this->get_name();
         $name and $name = '"' . $name . '"';
         $email = $this->get_value("emailAddress");
@@ -401,6 +408,8 @@ class person extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $sql = [];
+        $sql2 = [];
         $filter["username"]     and $sql[] = sprintf_implode("username = '%s'", $filter["username"]);
         $filter["personActive"] and $sql[] = sprintf_implode("personActive = %d", $filter["personActive"]);
         $filter["firstName"]    and $sql[] = sprintf_implode("firstName = '%s'", $filter["firstName"]);
@@ -427,6 +436,11 @@ class person extends db_entity
 
     public static function get_list($_FORM = [])
     {
+        $summary = null;
+        $ts_hrs_col_1 = [];
+        $ts_hrs_col_2 = [];
+        $rows = [];
+        $print = null;
         global $TPL;
         $current_user = &singleton("current_user");
         list($filter, $filter2) = person::get_list_filter($_FORM);
@@ -524,6 +538,7 @@ class person extends db_entity
 
     function get_list_tr_header($_FORM)
     {
+        $summary = [];
         if ($_FORM["showHeader"]) {
             $summary[] = "<tr>";
             $_FORM["showName"]    and $summary[] = "<th>Name</th>";
@@ -604,6 +619,8 @@ class person extends db_entity
 
     function load_person_filter($_FORM)
     {
+        $rtn = [];
+        $skill_class = null;
         global $TPL;
         $current_user = &singleton("current_user");
 
@@ -645,6 +662,7 @@ class person extends db_entity
 
     function get_people_by_username($field = "username")
     {
+        $people_by_username = [];
         $people = &get_cached_table("person");
         foreach ($people as $personID => $person) {
             $people_by_username[$person[$field]] = $person;

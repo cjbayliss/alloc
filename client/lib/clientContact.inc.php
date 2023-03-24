@@ -40,6 +40,7 @@ class clientContact extends db_entity
 
     function find_by_name($name = false, $projectID = false, $percent = 90)
     {
+        $extra = null;
         $stack1 = [];
         $people = [];
         $db = new db_alloc();
@@ -76,6 +77,7 @@ class clientContact extends db_entity
 
     function find_by_partial_name($name = false, $projectID = false)
     {
+        $extra = null;
         $stack1 = [];
         $people = [];
         $db = new db_alloc();
@@ -161,6 +163,7 @@ class clientContact extends db_entity
 
     function format_contact()
     {
+        $str = null;
         $this->get_value("clientContactName")          and $str .= $this->get_value("clientContactName", DST_HTML_DISPLAY) . "<br>";
         $this->get_value("clientContactStreetAddress") and $str .= $this->get_value("clientContactStreetAddress", DST_HTML_DISPLAY) . "<br>";
         $this->get_value("clientContactSuburb")        and $str .= $this->get_value("clientContactSuburb", DST_HTML_DISPLAY) . "<br>";
@@ -227,6 +230,7 @@ class clientContact extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $sql = [];
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the clientContactID filter element
@@ -252,6 +256,7 @@ class clientContact extends db_entity
 
     public static function get_list($_FORM)
     {
+        $rows = [];
         global $TPL;
         $filter = clientContact::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {

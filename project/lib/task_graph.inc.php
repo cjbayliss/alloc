@@ -134,6 +134,7 @@ class task_graph
 
     function draw_task($t)
     {
+        $date_forecast_completion = null;
         $y = $this->y;              // Store y in local variable for quick access
         $y += $this->task_padding;
 
@@ -355,6 +356,7 @@ class task_graph
     // Converts from a unix time stamp to an X coordinate
     function date_stamp_to_x($date)
     {
+        $decimal_pos = null;
         global $graph_start_date;
         global $graph_completion_date;
 

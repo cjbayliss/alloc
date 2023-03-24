@@ -55,6 +55,7 @@ class email_receive
 
     function open_mailbox($folder = "", $ops = OP_HALFOPEN, $fatal = true)
     {
+        $rtn = null;
         if ($this->connection && is_resource($this->connection)) {
             imap_close($this->connection);
         }
@@ -122,6 +123,7 @@ class email_receive
 
     function create_mailbox($name)
     {
+        $rtn = null;
         if (!imap_status($this->connection, $this->connect_string . $name, SA_ALL)) {
             $rtn = imap_createmailbox($this->connection, imap_utf7_encode($this->connect_string . $name));
         }
@@ -193,6 +195,7 @@ class email_receive
 
     function parse_headers($headers = "")
     {
+        $rtn = [];
         $lines = preg_split("/\r?\n/", $headers);
         foreach ($lines as $line) {
             // start new header
@@ -231,6 +234,7 @@ class email_receive
 
     function load_structure()
     {
+        $params = [];
         if ($this->msg_uid && !$this->mail_structure) {
             $this->mail_structure = imap_fetchstructure($this->connection, $this->msg_uid, FT_UID);
         } else if ($this->msg_text) {
@@ -274,6 +278,8 @@ class email_receive
 
     function fetch_mail_text()
     {
+        $mail_text = null;
+        $mail_html = null;
         $this->load_structure();
         $this->load_parts($this->mail_structure);
         foreach ($this->mail_parts as $v) {
@@ -344,6 +350,7 @@ class email_receive
 
     function parse_mime($structure)
     {
+        $plain = null;
         foreach ((array)$structure->parts as $part) {
             if ($part->disposition == 'attachment') {
                 $i++;
@@ -415,6 +422,8 @@ class email_receive
 
     function forward($address, $subject, $text = '')
     {
+        $header_obj = [];
+        $s = null;
         list($header, $body) = $this->get_raw_header_and_body();
         $header and $header_obj = $this->parse_headers($header);
         $orig_subject = $header_obj["subject"];
@@ -548,6 +557,8 @@ class email_receive
 
     function get_commands($commands = [])
     {
+        $header_obj = [];
+        $r = [];
         list($header, $body) = $this->get_raw_header_and_body();
         $header and $header_obj = $this->parse_headers($header);
         $subject = $header_obj["subject"];
@@ -666,6 +677,7 @@ class email_receive
 
     function add_part_to_array($struct, $partno)
     {
+        $prefix = null;
         $this->mail_parts[] = [
             'part_number' => $partno,
             'part_object' => $struct
@@ -722,6 +734,7 @@ class email_receive
 
     function get_parameter_attribute_value($parameters, $needle)
     {
+        $rtn = null;
         foreach ((array)$parameters as $v) {
             if (strtolower($v->attribute) == $needle) {
                 $rtn = $v->value;
@@ -747,6 +760,7 @@ class email_receive
 
     function get_printable_from_address()
     {
+        $f = null;
         list($from_address, $from_name) = parse_email_address($this->mail_headers["from"]);
         if ($from_address && $from_name) {
             $f = $from_name . " <" . $from_address . ">";

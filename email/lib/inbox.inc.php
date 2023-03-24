@@ -53,6 +53,7 @@ class inbox extends db_entity
 
     function download_email($req = [])
     {
+        $new = null;
         global $TPL;
         $info = inbox::get_mail_info();
         $email_receive = new email_receive($info);
@@ -97,6 +98,8 @@ class inbox extends db_entity
 
     function process_one_email($email_receive)
     {
+        $failed = null;
+        $TPL = [];
         $current_user = &singleton("current_user");
         $orig_current_user = &$current_user;
 
@@ -137,6 +140,7 @@ class inbox extends db_entity
 
     function convert_email_to_new_task($email_receive, $change_user = false)
     {
+        $ip = [];
         global $TPL;
         $current_user = &singleton("current_user");
         $orig_current_user = &$current_user;
@@ -192,6 +196,7 @@ class inbox extends db_entity
 
     function attach_email_to_existing_task($req = [])
     {
+        $recipients = [];
         global $TPL;
         $info = inbox::get_mail_info();
         $current_user = &singleton("current_user");
@@ -300,6 +305,7 @@ class inbox extends db_entity
 
     function get_mail_info()
     {
+        $info = [];
         $info["host"] = config::get_config_item("allocEmailHost");
         $info["port"] = config::get_config_item("allocEmailPort");
         $info["username"] = config::get_config_item("allocEmailUsername");
@@ -311,6 +317,7 @@ class inbox extends db_entity
 
     public static function get_list()
     {
+        $rows = [];
         // Get list of emails
         $info = inbox::get_mail_info();
         $email_receive = new email_receive($info);

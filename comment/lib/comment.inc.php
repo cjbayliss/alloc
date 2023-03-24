@@ -134,6 +134,12 @@ class comment extends db_entity
 
     function get_one_comment_array($v = [], $all_parties = [])
     {
+        $recipient_ops = [];
+        $recipient_selected = [];
+        $entity = null;
+        $id = null;
+        $options = [];
+        $files = null;
         global $TPL;
         $current_user = &singleton("current_user");
         $new = $v;
@@ -227,6 +233,7 @@ class comment extends db_entity
 
     function util_get_comments_array($entity, $id, $options = [])
     {
+        $rows2 = null;
         global $TPL;
         $current_user = &singleton("current_user");
         $rows = [];
@@ -263,6 +270,7 @@ class comment extends db_entity
 
     function util_get_comments($entity, $id, $options = [])
     {
+        $rtn = null;
         global $TPL;
         $current_user = &singleton("current_user");
         $rows = comment::util_get_comments_array($entity, $id, $options);
@@ -274,6 +282,7 @@ class comment extends db_entity
 
     function get_comment_html_table($row = [])
     {
+        $rtn = [];
         global $TPL;
         $comment = comment::add_shrinky_divs(page::htmlentities($row["comment"]), $row["commentID"]);
         $rtn[] = '<div class="panel' . $row["external"] . ' corner pcomment" data-comment-id="' . $row["commentID"] . '">';
@@ -321,6 +330,8 @@ class comment extends db_entity
 
     function add_shrinky_divs($html = "", $commentID)
     {
+        $sig_start_position = null;
+        $sig_started = null;
         if ($_GET["media"] == "print") {
             return $html;
         }
@@ -389,6 +400,7 @@ class comment extends db_entity
 
     function get_comment_author($comment = [])
     {
+        $author = null;
         if ($comment["commentCreatedUserText"]) {
             $author = page::htmlentities($comment["commentCreatedUserText"]);
         } else if ($comment["clientContactID"]) {
@@ -528,6 +540,9 @@ class comment extends db_entity
 
     function get_email_recipient_headers($recipients, $from_address)
     {
+        $to_address = [];
+        $bcc = [];
+        $successful_recipients = [];
         $current_user = &singleton("current_user");
 
         $emailMethod = config::get_config_item("allocEmailAddressMethod");
@@ -584,6 +599,10 @@ class comment extends db_entity
 
     function send_emails($selected_option, $email_receive = false, $hash = "", $is_a_reply_comment = false, $files = [])
     {
+        $from_address = null;
+        $subject = null;
+        $prefix = null;
+        $from_name = null;
         $current_user = &singleton("current_user");
 
         $e = $this->get_parent_object();
@@ -694,6 +713,7 @@ class comment extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $sql = [];
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the commentID filter element
@@ -719,6 +739,7 @@ class comment extends db_entity
 
     public static function get_list($_FORM = [])
     {
+        $rows = [];
         // Two modes, 1: get all comments for an entity, eg a task
         if ($_FORM["entity"] && in_array($_FORM["entity"], ["project", "client", "task", "timeSheet"]) && $_FORM["entityID"]) {
             $e = new $_FORM["entity"];
@@ -798,6 +819,7 @@ class comment extends db_entity
 
     function update_search_index_doc(&$index)
     {
+        $arr = [];
         $arr["commentCreatedUserText"] = $this->get_value("commentCreatedUserText");
         $arr["clientContactID"]        = $this->get_value("commentCreatedUserClientContactID");
         $arr["personID"]               = $this->get_value("commentCreatedUser");
@@ -839,6 +861,10 @@ class comment extends db_entity
 
     function get_list_summary_filter($filter = [])
     {
+        $projectIDs = null;
+        $sql1 = [];
+        $sql2 = [];
+        $sql3 = [];
         // This takes care of projectID singular and plural
         has("project") and $projectIDs = project::get_projectID_sql($filter, "task");
         $projectIDs and $sql1["projectIDs"] = $projectIDs;
@@ -866,6 +892,13 @@ class comment extends db_entity
 
     function get_list_summary($_FORM = [])
     {
+        $client_fields = null;
+        $client_join = null;
+        $tasks = [];
+        $rows = [];
+        $totals = [];
+        $totals_tsiHint = [];
+        $rtn = null;
         //$_FORM["fromDate"] = "2010-08-20";
         //$_FORM["projectID"] = "22";
 
@@ -1028,6 +1061,7 @@ class comment extends db_entity
     function get_list_summary_header($task, $totals, $totals_tsiHint, $_FORM = [])
     {
 
+        $rtn = [];
         if ($_FORM["showTaskHeader"]) {
             $rtn[] = "<table class='list' style='border-bottom:0;'>";
             $rtn[] = "<tr>";
@@ -1056,12 +1090,14 @@ class comment extends db_entity
 
     function get_list_summary_footer($rows, $tasks)
     {
+        $rtn = [];
         $rtn[] = "</table>";
         return implode("\n", $rtn);
     }
 
     function get_project_id()
     {
+        $projectID = null;
         $this->select();
         if ($this->get_value("commentType") == "task" && $this->get_value("commentLinkID")) {
             $t = new task();
@@ -1137,6 +1173,7 @@ class comment extends db_entity
 
     function add_interested_parties($commentID, $ip = [], $op = [])
     {
+        $emailRecipients = [];
         // We send this email to the default from address, so that a copy of the
         // original email is kept. The receiveEmail.php script will see that this
         // email is *from* the same address, and will then skip over it, when going
@@ -1198,6 +1235,11 @@ class comment extends db_entity
     function send_comment($commentID, $emailRecipients, $email_receive = false, $files = [])
     {
 
+        $hash = null;
+        $is_a_reply_comment = null;
+        $successful_recipients = null;
+        $message_good = null;
+        $email_sent = null;
         $comment = new comment();
         $comment->set_id($commentID);
         $comment->select();
@@ -1245,6 +1287,7 @@ class comment extends db_entity
 
     function attach_timeSheet($commentID, $entityID, $options)
     {
+        $rtn = [];
         // Begin buffering output to halt anything being sent to the web browser.
         ob_start();
         $t = new timeSheetPrint();
@@ -1265,6 +1308,7 @@ class comment extends db_entity
 
     function attach_invoice($commentID, $entityID, $verbose)
     {
+        $rtn = [];
         $invoice = new invoice();
         $invoice->set_id($entityID);
         $invoice->select();
@@ -1277,6 +1321,7 @@ class comment extends db_entity
 
     function attach_tasks($commentID, $projectID, $options)
     {
+        $rtn = [];
         if ($projectID) {
             // Begin buffering output to halt anything being sent to the web browser.
             ob_start();
@@ -1398,6 +1443,7 @@ class comment extends db_entity
 
     function update_mime_parts($commentID, $files)
     {
+        $mimebits = [];
         $x = 2; // mime part 1 will be the message text
         foreach ((array)$files as $file) {
             $bits = [];

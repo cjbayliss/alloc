@@ -20,6 +20,7 @@ class exchangeRate extends db_entity
 
     public static function get_er($from, $to, $date = "")
     {
+        $row = [];
         static $cache;
         if (imp($cache[$from][$to][$date])) {
             return $cache[$from][$to][$date];
@@ -86,6 +87,7 @@ class exchangeRate extends db_entity
 
     public static function download()
     {
+        $rtn = [];
         // Get default currency
         $default_currency = config::get_config_item("currency");
 

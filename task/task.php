@@ -10,6 +10,7 @@ define("PAGE_IS_PRINTABLE", 1);
 
 function show_task_children($template)
 {
+    $options = [];
     global $TPL;
     global $task;
     if ($task->get_value("taskTypeID") == "Parent") {
@@ -40,6 +41,7 @@ function show_task_children($template)
 
 function get_parent_taskIDs($taskID)
 {
+    $rtn = [];
     $q = prepare(
         "SELECT taskID,taskName,parentTaskID
            FROM task
@@ -100,6 +102,7 @@ function show_comments()
 
 function show_taskCommentsPrinter()
 {
+    $options = null;
     global $taskID;
     global $TPL;
     $TPL["commentsR"] = comment::util_get_comments("task", $taskID, $options);

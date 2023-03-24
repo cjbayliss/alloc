@@ -389,6 +389,10 @@ class Zend_Search_Lucene_Index_Writer
      */
     private function _updateSegments()
     {
+        $isCompound = null;
+        $docStoreOffset = null;
+        $docStoreSegment = null;
+        $docStoreIsCompoundFile = null;
         // Get an exclusive index lock
         Zend_Search_Lucene_LockManager::obtainWriteLock($this->_directory);
 

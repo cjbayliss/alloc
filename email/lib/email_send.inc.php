@@ -101,6 +101,7 @@ class email_send
     function send($use_default_headers = true)
     {
 
+        $return_path = null;
         if ($use_default_headers) {
             $this->set_to_address();
             $this->set_body();
@@ -173,6 +174,7 @@ class email_send
     }
     function is_valid_url()
     {
+        $dont_send = null;
         // Validate against particular hosts
         in_array($_SERVER["SERVER_NAME"], $this->no_email_hosts) and $dont_send = true;
         $this->ignore_no_email_hosts and $dont_send = false;

@@ -22,6 +22,7 @@ class tf extends db_entity
 
     function get_balance($where = [], $debug = "")
     {
+        $tfID = null;
         $current_user = &singleton("current_user");
 
         // If no status is requested then default to approved.
@@ -81,6 +82,7 @@ class tf extends db_entity
 
     function get_tfs_for_person($personID)
     {
+        $owners = [];
         $query = prepare("SELECT * FROM tfPerson WHERE personID=%d", $personID);
         $db = new db_alloc();
         $db->query($query);
@@ -133,6 +135,7 @@ class tf extends db_entity
 
     function get_tfID($name)
     {
+        $rtn = [];
         if ($name) {
             $db = new db_alloc();
             $q = "SELECT tfID FROM tf WHERE " . sprintf_implode("tfName = '%s'", $name);
@@ -146,6 +149,7 @@ class tf extends db_entity
 
     public static function get_permitted_tfs($requested_tfs = [])
     {
+        $r = [];
         $current_user = &singleton("current_user");
         // If admin, just use the requested tfs
         if ($current_user->have_role('admin')) {
@@ -170,6 +174,8 @@ class tf extends db_entity
 
     public static function get_list_filter($_FORM = [])
     {
+        $filter1 = [];
+        $filter2 = [];
         $current_user = &singleton("current_user");
 
         if (!$_FORM["tfIDs"] && !$current_user->have_role('admin')) {
@@ -188,6 +194,13 @@ class tf extends db_entity
 
     public static function get_list($_FORM = [])
     {
+        $f2 = null;
+        $adds = [];
+        $pending_adds = [];
+        $subs = [];
+        $pending_subs = [];
+        $f = null;
+        $rows = [];
         $current_user = &singleton("current_user");
 
         list($filter1, $filter2) = tf::get_list_filter($_FORM);

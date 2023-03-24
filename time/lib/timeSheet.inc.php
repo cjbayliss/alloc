@@ -111,6 +111,9 @@ class timeSheet extends db_entity
     function load_pay_info()
     {
 
+        $extra_sql = [];
+        $timeUnitRows = [];
+        $sql = null;
         /***************************************************************************
          *                                                                         *
          * load_pay_info() loads these vars:                                       *
@@ -236,6 +239,8 @@ class timeSheet extends db_entity
     function createTransactions($status = "pending")
     {
 
+        $errmsg = null;
+        $rtnmsg = null;
         // So this will only create transaction if:
         // - The timesheet status is admin
         // - There is a recipient_tfID - that is the money is going to a TF
@@ -420,6 +425,8 @@ class timeSheet extends db_entity
     function get_task_list_dropdown($status, $timeSheetID, $taskID = "")
     {
 
+        $options = [];
+        $tasks = [];
         if (is_object($this)) {
             $personID = $this->get_value('personID');
             $projectID = $this->get_value('projectID');
@@ -454,6 +461,7 @@ class timeSheet extends db_entity
 
     public static function get_list_filter($filter = [])
     {
+        $sql = [];
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the timeSheetID filter element
@@ -491,6 +499,12 @@ class timeSheet extends db_entity
 
     public static function get_list($_FORM)
     {
+        $extra = [];
+        $amount_tallies = [];
+        $billed_tallies = [];
+        $rows = [];
+        $pos_tallies = [];
+        $neg_tallies = [];
         /*
          * This is the definitive method of getting a list of timeSheets that need a sophisticated level of filtering
          *
@@ -609,6 +623,8 @@ class timeSheet extends db_entity
     function get_transaction_totals()
     {
 
+        $pos = [];
+        $neg = [];
         $db = new db_alloc();
         $q = prepare("SELECT amount * pow(10,-currencyType.numberToBasic) AS amount,
                              transaction.currencyTypeID as currency
@@ -706,6 +722,8 @@ class timeSheet extends db_entity
 
     function load_timeSheet_filter($_FORM)
     {
+        $filter = null;
+        $rtn = [];
         $current_user = &singleton("current_user");
 
         // display the list of project name.
@@ -751,6 +769,7 @@ class timeSheet extends db_entity
 
     function get_invoice_link()
     {
+        $str = null;
         global $TPL;
         $rows = invoiceEntity::get("timeSheet", $this->get_id());
         foreach ($rows as $row) {
@@ -762,6 +781,7 @@ class timeSheet extends db_entity
 
     function change_status($direction)
     {
+        $steps = [];
         // access controls are partially disabled for timesheets. Make sure time sheet is really accessible by checking
         // user ID - it's restricted to being NOT NULL in the DB. Not doing this check allows a user to overwrite
         // an existing timesheet with a new one assigned to themself.
@@ -801,6 +821,7 @@ class timeSheet extends db_entity
 
     function email_move_status_to_edit($direction, $info)
     {
+        $msg = [];
         // is possible to move backwards to "edit", from both "manager" and "admin"
         // requires manager or APPROVE_TIMESHEET permission
         $current_user = &singleton("current_user");
@@ -841,6 +862,8 @@ EOD;
 
     function email_move_status_to_manager($direction, $info)
     {
+        $hasItems = null;
+        $msg = [];
         $current_user = &singleton("current_user");
         $project = $this->get_foreign_object("project");
         $projectManagers = $project->get_timeSheetRecipients();
@@ -932,6 +955,7 @@ EOD;
 
     function email_move_status_to_admin($direction, $info)
     {
+        $msg = [];
         $current_user = &singleton("current_user");
         $project = $this->get_foreign_object("project");
         $projectManagers = $project->get_timeSheetRecipients();
@@ -1018,6 +1042,7 @@ EOD;
 
     function email_move_status_to_finished($direction, $info)
     {
+        $msg = [];
         if ($direction == "forwards") {
             //requires INVOICE_TIMESHEETS
             if (!$this->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
@@ -1103,6 +1128,9 @@ EOD;
 
     function add_timeSheetItem($stuff)
     {
+        $extra = null;
+        $task = null;
+        $ID = null;
         $current_user = &singleton("current_user");
 
         $errstr = "Failed to record new time sheet item. ";
@@ -1317,6 +1345,9 @@ EOD;
 
     function update_search_index_doc(&$index)
     {
+        $desc = null;
+        $br = null;
+        $projectName = null;
         $p = &get_cached_table("person");
         $personID = $this->get_value("personID");
         $person_field = $personID . " " . $p[$personID]["username"] . " " . $p[$personID]["name"];

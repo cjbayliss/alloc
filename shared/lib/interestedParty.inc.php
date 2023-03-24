@@ -69,6 +69,7 @@ class interestedParty extends db_entity
 
     function make_interested_parties($entity, $entityID, $encoded_parties = [])
     {
+        $ipIDs = [];
         // Nuke entries from interestedParty
         $db = new db_alloc();
         $db->start_transaction();
@@ -171,6 +172,7 @@ class interestedParty extends db_entity
 
     function get_interested_parties_html($parties = [])
     {
+        $str = null;
         $current_user = &singleton("current_user");
         if (is_object($current_user) && $current_user->get_id()) {
             $current_user_email = $current_user->get_value("emailAddress");
@@ -253,6 +255,7 @@ class interestedParty extends db_entity
 
     function adjust_by_email_subject($email_receive, $e)
     {
+        $quiet = null;
         $current_user = &singleton("current_user");
 
         $entity = $e->classname;
@@ -358,6 +361,7 @@ class interestedParty extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $sql = [];
         $filter["emailAddress"] = str_replace(["<", ">"], "", $filter["emailAddress"]);
         $filter["emailAddress"]    and $sql[] = prepare("(interestedParty.emailAddress LIKE '%%%s%%')", $filter["emailAddress"]);
         $filter["fullName"]        and $sql[] = prepare("(interestedParty.fullName LIKE '%%%s%%')", $filter["fullName"]);
@@ -373,6 +377,10 @@ class interestedParty extends db_entity
     public static function get_list($_FORM)
     {
 
+        $join = null;
+        $f = null;
+        $groupby = null;
+        $rows = [];
         if ($_FORM["taskID"]) {
             $join = " LEFT JOIN comment ON ((interestedParty.entity = comment.commentType AND interestedParty.entityID = comment.commentLinkID) OR (interestedParty.entity = 'comment' and interestedParty.entityID = comment.commentID))";
             $groupby = ' GROUP BY interestedPartyID';
@@ -410,6 +418,7 @@ class interestedParty extends db_entity
     function expand_ip($ip, $projectID = null)
     {
 
+        $people = [];
         // jon               alloc username
         // jon@jon.com       alloc username or client or stranger
         // Jon <jon@jon.com> alloc username or client or stranger

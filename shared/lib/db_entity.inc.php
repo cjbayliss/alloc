@@ -63,6 +63,7 @@ class db_entity
 
     function have_perm($action = 0, $person = "", $assume_owner = false)
     {
+        $person_flag = null;
         $current_user = &singleton("current_user");
         global $permission_cache;
         if (defined("IS_GOD")) {
@@ -188,6 +189,7 @@ class db_entity
 
     function insert()
     {
+        $this_id = null;
         $current_user = &singleton("current_user");
         if (is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id()) {
             $current_user_id = $current_user->get_id();
@@ -602,6 +604,9 @@ class db_entity
     function clear()
     {
 
+        $array = [];
+        $source_index = null;
+        $source = null;
         // Data fields
         reset($this->data_fields);
         while (list($field_index,) = each($this->data_fields)) {
@@ -630,6 +635,7 @@ class db_entity
     }
     function get_insert_fields($fields)
     {
+        $rtn = null;
         foreach ((array)$fields as $k => $field) {
             if (strtolower($field->get_value(DST_DATABASE)) != "null") {
                 $rtn .= $comma . $field->get_name();
@@ -640,6 +646,7 @@ class db_entity
     }
     function get_insert_values($fields)
     {
+        $rtn = null;
         foreach ((array)$fields as $k => $field) {
             if (strtolower($field->get_value(DST_DATABASE)) != "null") {
                 $rtn .= $comma . $field->get_value(DST_DATABASE);
@@ -663,6 +670,8 @@ class db_entity
 
     function get_assoc_array($key = false, $value = false, $sel = false, $where = [])
     {
+        $key_sql = null;
+        $extra = null;
         $key or $key = $this->key_field->get_name();
         $value or $value = "*";
         $value != "*" and $key_sql = $key . ",";

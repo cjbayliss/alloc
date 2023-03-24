@@ -24,6 +24,7 @@ class pendingAdminExpenseForm extends home_item
 
     function render()
     {
+        $ops = [];
         global $TPL;
         $ops["status"] = "pending";
         $ops["finalised"] = 1;

@@ -39,6 +39,7 @@ class page
     }
     public static function tabs()
     {
+        $menu_links = [];
         global $TPL;
         $current_user = &singleton("current_user");
         $c = new config();
@@ -116,6 +117,8 @@ class page
     }
     public static function toolbar()
     {
+        $str = [];
+        $r = [];
         global $TPL;
         $current_user = &singleton("current_user");
         $db = new db_alloc();
@@ -169,6 +172,8 @@ class page
     }
     public static function messages()
     {
+        $class_to_icon = [];
+        $msg = [];
         global $TPL;
 
         $class_to_icon["good"] = "icon-ok-sign";
@@ -228,6 +233,7 @@ class page
     }
     public static function get_category_options($category = "")
     {
+        $category_options = [];
         has("task")    and $category_options["search_tasks"] = "Search Tasks";
         has("project") and $category_options["search_projects"] = "Search Projects";
         has("time")    and $category_options["search_time"] = "Search Time Sheets";
@@ -239,6 +245,7 @@ class page
     }
     public static function help($topic, $hovertext = false)
     {
+        $img = null;
         global $TPL;
         $str = page::prepare_help_string(@file_get_contents($TPL["url_alloc_help"] . $topic . ".html"));
         if (strlen($str)) {
@@ -268,6 +275,7 @@ class page
     }
     public static function textarea($name, $default_value = "", $ops = [])
     {
+        $attrs = [];
         $heights = [
             "small" => 40,
             "medium" => 100,
@@ -305,6 +313,8 @@ EOD;
     }
     public static function select_options($options, $selected_value = null, $max_length = 45, $escape = true)
     {
+        $rows = [];
+        $selected_values = [];
         /**
          * Builds up options for use in a html select widget (works with multiple selected too)
          *
@@ -370,6 +380,7 @@ EOD;
     }
     public static function expand_link($id, $text = "New ", $id_to_hide = "")
     {
+        $extra = null;
         global $TPL;
         $id_to_hide and $extra = "$('#" . $id_to_hide . "').slideToggle('fast');";
         $str = "<a class=\"growshrink nobr\" href=\"#x\" onClick=\"$('#" . $id . "').fadeToggle();" . $extra . "\">" . $text . "</a>";
@@ -377,6 +388,7 @@ EOD;
     }
     public static function side_by_side_links($items = [], $url, $redraw = "", $title = "")
     {
+        $str = null;
         $url = preg_replace("/[&?]+$/", "", $url);
         if (strpos($url, "?")) {
             $url .= "&";
@@ -505,7 +517,7 @@ EOD;
             // We can use foo * 10^-n to move the decimal point left
             // Eg: sprintf(%0.2f, $amount * 10^-2) => 15000 becomes 150.00
             // We use the numberToBasic number (eg 2) to a) move the decimal point, and b) dictate the sprintf string
-            return page::money_fmt($c, ($amount * pow(10, -$n)));
+            return page::money_fmt($c, ($amount * 10 ** (-$n)));
         }
     }
     public static function money_in($c, $amount = null)
@@ -521,7 +533,7 @@ EOD;
             // We can use foo * 10^n to move the decimal point right
             // Eg: $amount * 10^-2 => 150.00 becomes 15000
             // We use the numberToBasic number (eg 2) to move the decimal point
-            return $amount * pow(10, $n);
+            return $amount * 10 ** $n;
         }
     }
     public static function money($c, $amount = null, $fmt = "%s%mo")
@@ -543,6 +555,10 @@ EOD;
     }
     public static function money_print($rows = [])
     {
+        $sums = [];
+        $k = null;
+        $total = null;
+        $str = null;
         $mainCurrency = config::get_config_item("currency");
         foreach ((array)$rows as $row) {
             $sums[$row["currency"]] += $row["amount"];

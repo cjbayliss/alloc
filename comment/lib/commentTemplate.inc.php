@@ -28,6 +28,9 @@ class commentTemplate extends db_entity
 
     function populate_string($str, $entity, $entityID = false)
     {
+        $swap = [];
+        $projectID = null;
+        $clientID = null;
         // Actually do the text substitution
         $current_user = &singleton("current_user");
         is_object($current_user) and $swap["cu"] = person::get_fullname($current_user->get_id());

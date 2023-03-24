@@ -153,6 +153,7 @@ class project extends db_entity
 
     function has_project_permission($person = "", $permissions = [])
     {
+        $p = null;
         // Check that user has permission for this project
         $current_user = &singleton("current_user");
         $person or $person = $current_user;
@@ -218,6 +219,8 @@ class project extends db_entity
 
     function get_navigation_links($ops = [])
     {
+        $links = [];
+        $extra = null;
         global $taskID;
         global $TPL;
         $current_user = &singleton("current_user");
@@ -275,6 +278,8 @@ class project extends db_entity
 
     public static function get_project_type_query($type = "mine", $personID = false, $projectStatus = false)
     {
+        $projectStatus_sql = null;
+        $q = null;
         $current_user = &singleton("current_user");
         $type or $type = "mine";
         $personID or $personID = $current_user->get_id();
@@ -337,6 +342,7 @@ class project extends db_entity
 
     function get_list_by_client($clientID = false, $onlymine = false)
     {
+        $options = [];
         $current_user = &singleton("current_user");
         $clientID and $options["clientID"] = $clientID;
         $options["projectStatus"] = "Current";
@@ -356,6 +362,7 @@ class project extends db_entity
 
     function get_list_dropdown_options($type = "mine", $projectIDs = [], $maxlength = 35)
     {
+        $ops = [];
         $db = new db_alloc();
         $q = project::get_project_type_query($type);
         // Project dropdown
@@ -395,6 +402,7 @@ class project extends db_entity
 
     public static function get_list_filter($filter = [])
     {
+        $sql = [];
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the projectID filter element
@@ -434,6 +442,8 @@ class project extends db_entity
 
     public static function get_list($_FORM)
     {
+        $from = null;
+        $rows = [];
         /*
          * This is the definitive method of getting a list of projects that need a sophisticated level of filtering
          *
@@ -533,6 +543,7 @@ class project extends db_entity
     function load_project_filter($_FORM)
     {
 
+        $rtn = [];
         global $TPL;
         $current_user = &singleton("current_user");
 
@@ -573,6 +584,7 @@ class project extends db_entity
 
     function get_prepaid_invoice()
     {
+        $invoiceID = null;
         $db = new db_alloc();
 
         $q = prepare(
@@ -610,6 +622,7 @@ class project extends db_entity
 
     function update_search_index_doc(&$index)
     {
+        $clientName = null;
         $p = &get_cached_table("person");
         $projectModifiedUser = $this->get_value("projectModifiedUser");
         $projectModifiedUser_field = $projectModifiedUser . " " . $p[$projectModifiedUser]["username"] . " " . $p[$projectModifiedUser]["name"];
@@ -645,6 +658,7 @@ class project extends db_entity
 
     function format_client_old()
     {
+        $str = null;
         $this->get_value("projectClientName")    and $str .= $this->get_value("projectClientName", DST_HTML_DISPLAY) . "<br>";
         $this->get_value("projectClientAddress") and $str .= $this->get_value("projectClientAddress", DST_HTML_DISPLAY) . "<br>";
         $this->get_value("projectClientPhone")   and $str .= $this->get_value("projectClientPhone", DST_HTML_DISPLAY) . "<br>";
@@ -656,6 +670,7 @@ class project extends db_entity
     public static function get_projectID_sql($filter, $table = "project")
     {
 
+        $firstOption = null;
         if (!$filter["projectID"] && $filter["projectType"] && $filter["projectType"] != "all") {
             $db = new db_alloc();
             $q = project::get_project_type_query($filter["projectType"], $filter["current_user"], "current");
@@ -688,6 +703,7 @@ class project extends db_entity
 
     function get_cc_list_select($projectID = "")
     {
+        $options = [];
         $interestedParty = [];
         $interestedPartyOptions = [];
 
@@ -720,6 +736,8 @@ class project extends db_entity
 
     function get_all_parties($projectID = false, $task_exists = false)
     {
+        $interestedPartyOptions = [];
+        $name = null;
         $current_user = &singleton("current_user");
         if (!$projectID && is_object($this)) {
             $projectID = $this->get_id();

@@ -584,6 +584,8 @@ class Services_JSON
      */
     function decode($str)
     {
+        $arr = null;
+        $obj = [];
         $str = $this->reduce_string($str);
 
         switch (strtolower($str)) {

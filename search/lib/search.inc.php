@@ -12,6 +12,7 @@ class search
 
     function by_file($file, $needle)
     {
+        $rtn = [];
         if (file_exists($file) && is_readable($file) && !is_dir($file)) {
             $rtn = [];
             $fp = fopen($file, 'r');

@@ -79,6 +79,7 @@ class timeSheetItem extends db_entity
 
     function parse_time_string($str)
     {
+        $rtn = [];
         preg_match("/^"
             . "(\d\d\d\d\-\d\d?\-\d\d?\s+)?"   # date
             . "([\d\.]+)?"          # duration
@@ -144,6 +145,11 @@ class timeSheetItem extends db_entity
     function get_fortnightly_average($personID = false)
     {
 
+        $fortnight = null;
+        $fortnights = [];
+        $personID_sql = null;
+        $done = [];
+        $how_many_fortnights = [];
         // Need an array of the past years fortnights
         $x = 0;
         while ($x < 365) {
@@ -208,6 +214,8 @@ class timeSheetItem extends db_entity
     public static function get_list_filter($filter = [])
     {
 
+        $timeSheetIDs = [];
+        $sql = [];
         // If timeSheetID is an array
         if ($filter["timeSheetID"] && is_array($filter["timeSheetID"])) {
             $timeSheetIDs = $filter["timeSheetID"];
@@ -255,6 +263,8 @@ class timeSheetItem extends db_entity
 
     public static function get_list($_FORM)
     {
+        $rows = [];
+        $print = null;
         /*
          * This is the definitive method of getting a list of timeSheetItems that need a sophisticated level of filtering
          *
@@ -335,6 +345,8 @@ class timeSheetItem extends db_entity
     function get_averages($dateTimeSheetItem, $personID = false, $divisor = "", $endDate = null)
     {
 
+        $personID_sql = null;
+        $endDate_sql = null;
         $personID and $personID_sql = prepare(" AND timeSheetItem.personID = %d", $personID);
         $endDate and $endDate_sql = prepare(" AND timeSheetItem.dateTimeSheetItem <= '%s'", $endDate);
 
@@ -380,6 +392,7 @@ class timeSheetItem extends db_entity
 
     function get_timeSheetItemComments($taskID = "", $starred = false)
     {
+        $where = null;
         // Init
         $rows = [];
 
@@ -425,6 +438,8 @@ class timeSheetItem extends db_entity
 
     function get_total_hours_worked_per_day($personID, $start = null, $end = null)
     {
+        $info = [];
+        $points = [];
         $current_user = &singleton("current_user");
 
         $personID or $personID = $current_user->get_id();
@@ -464,6 +479,8 @@ class timeSheetItem extends db_entity
 
     function get_total_hours_worked_per_month($personID, $start = null, $end = null)
     {
+        $info = [];
+        $points = [];
         $current_user = &singleton("current_user");
 
         $personID or $personID = $current_user->get_id();

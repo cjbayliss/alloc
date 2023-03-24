@@ -37,6 +37,7 @@ class invoiceEntity extends db_entity
 
     function get($entity, $entityID)
     {
+        $rows = [];
         $q = prepare("SELECT invoiceEntity.*,invoice.invoiceNum
                         FROM invoiceEntity
                    LEFT JOIN invoice ON invoiceEntity.invoiceID = invoice.invoiceID
@@ -52,6 +53,10 @@ class invoiceEntity extends db_entity
 
     function get_links($invoiceID)
     {
+        $timeSheet_links = [];
+        $rtn = [];
+        $expenseForm_links = [];
+        $productSale_links = [];
         $rows = invoiceEntity::get("invoice", $invoiceID); // cheating :)
         foreach ($rows as $row) {
             if ($row["timeSheetID"]) {
@@ -126,6 +131,7 @@ class invoiceEntity extends db_entity
 
     function save_invoice_timeSheetItems($invoiceID, $timeSheetID)
     {
+        $str = null;
         $timeSheet = new timeSheet();
         $timeSheet->set_id($timeSheetID);
         $timeSheet->select();

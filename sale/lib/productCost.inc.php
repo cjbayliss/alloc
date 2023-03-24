@@ -23,6 +23,7 @@ class productCost extends db_entity
 
     function validate()
     {
+        $err = [];
         $this->get_value("productID")    or $err[] = "Missing a Product.";
         $this->get_value("tfID")         or $err[] = "Missing a Destination TF.";
         $this->get_value("amount")       or $err[] = "Missing an amount.";

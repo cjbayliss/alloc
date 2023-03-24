@@ -34,6 +34,7 @@ class invoice extends db_entity
 
     function save()
     {
+        $currencyTypeID = null;
         if (!$this->get_value("currencyTypeID")) {
             if ($this->get_value("projectID")) {
                 $project = $this->get_foreign_object("project");
@@ -150,6 +151,11 @@ class invoice extends db_entity
 
     function get_invoiceItem_list_for_file($verbose = false)
     {
+        $rows = [];
+        $info = [];
+        $str = [];
+        $task_info = [];
+        $sep = null;
         $currency = $this->get_value("currencyTypeID");
 
         $q = prepare("SELECT * from invoiceItem WHERE invoiceID=%d ", $this->get_id());
@@ -232,6 +238,13 @@ class invoice extends db_entity
 
     function generate_invoice_file($verbose = false, $getfile = false)
     {
+        $cols_settings = [];
+        $cols_settings2 = [];
+        $contact_info = [];
+        $companyContactEmail = null;
+        $companyContactHomePage = null;
+        $ts_info = [];
+        $totals = [];
         // Build PDF document
         $font1 = ALLOC_MOD_DIR . "util/fonts/Helvetica.afm";
         $font2 = ALLOC_MOD_DIR . "util/fonts/Helvetica-Oblique.afm";
@@ -476,6 +489,8 @@ class invoice extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $valid_clientIDs = [];
+        $approved_clientIDs = [];
         $current_user = &singleton("current_user");
         $sql = [];
 
@@ -550,6 +565,9 @@ class invoice extends db_entity
 
     public static function get_list($_FORM)
     {
+        $f1_where = null;
+        $f2_having = null;
+        $rows = [];
         /*
          * This is the definitive method of getting a list of invoices that need a sophisticated level of filtering
          *
@@ -693,6 +711,8 @@ class invoice extends db_entity
 
     function load_invoice_filter($_FORM)
     {
+        $rtn = [];
+        $options = [];
         global $TPL;
 
         // Load up the forms action url
@@ -766,6 +786,7 @@ class invoice extends db_entity
     function next_status($direction)
     {
 
+        $steps = [];
         $steps["forwards"][""] = "edit";
         $steps["forwards"]["edit"] = "reconcile";
         $steps["forwards"]["reconcile"] = "finished";
@@ -782,6 +803,7 @@ class invoice extends db_entity
 
     function change_status($direction)
     {
+        $m = null;
         $newstatus = $this->next_status($direction);
         if ($newstatus) {
             if ($this->can_move($direction, $newstatus)) {

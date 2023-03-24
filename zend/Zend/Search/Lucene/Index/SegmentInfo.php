@@ -223,6 +223,8 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     public function __construct(Zend_Search_Lucene_Storage_Directory $directory, $name, $docCount, $delGen = 0, $docStoreOptions = null, $hasSingleNormFile = false, $isCompound = null)
     {
+        $fileName = null;
+        $dataOffset = null;
         $this->_directory = $directory;
         $this->_name      = $name;
         $this->_docCount  = $docCount;
@@ -501,6 +503,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     public function openCompoundFile($extension, $shareHandler = true)
     {
+        $fdtFile = null;
         if (($extension == '.fdx'  || $extension == '.fdt')  &&  $this->_usesSharedDocStore) {
             $fdxFName = $this->_sharedDocStoreOptions['segment'] . '.fdx';
             $fdtFName = $this->_sharedDocStoreOptions['segment'] . '.fdt';
@@ -816,6 +819,8 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     public function getTermInfo(Zend_Search_Lucene_Index_Term $term)
     {
+        $docFreq = null;
+        $skipOffset = null;
         $termKey = $term->key();
         if (isset($this->_termInfoCache[$termKey])) {
             $termInfo = $this->_termInfoCache[$termKey];

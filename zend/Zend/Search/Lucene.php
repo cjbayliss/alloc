@@ -414,6 +414,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      */
     private function _readSegmentsFile()
     {
+        $isCompound = null;
         $segmentsFile = $this->_directory->getFileObject(self::getSegmentFileName($this->_generation));
 
         $format = $segmentsFile->readInt();
@@ -714,6 +715,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      */
     public function isDeleted($id)
     {
+        $segmentInfo = null;
         $this->commit();
 
         if ($id >= $this->_docCount) {
@@ -1113,6 +1115,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      */
     public function getDocument($id)
     {
+        $segmentInfo = null;
         if ($id instanceof Zend_Search_Lucene_Search_QueryHit) {
             /* @var $id Zend_Search_Lucene_Search_QueryHit */
             $id = $id->id;
@@ -1237,6 +1240,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      */
     public function termDocsFilter(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
     {
+        $subResults = [];
         $segmentStartDocId = 0;
         $result = new Zend_Search_Lucene_Index_DocsFilter();
 
@@ -1346,6 +1350,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      */
     public function norm($id, $fieldName)
     {
+        $segInfo = null;
         if ($id >= $this->_docCount) {
             return null;
         }
@@ -1392,6 +1397,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      */
     public function delete($id)
     {
+        $segmentInfo = null;
         if ($id instanceof Zend_Search_Lucene_Search_QueryHit) {
             /* @var $id Zend_Search_Lucene_Search_QueryHit */
             $id = $id->id;

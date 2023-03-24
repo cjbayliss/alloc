@@ -29,6 +29,7 @@ class invoiceRepeat extends db_entity
 
     function set_values($prefix)
     {
+        $rows = [];
         global $TPL;
         $db = new db_alloc();
         $db->query("SELECT * FROM invoiceRepeatDate WHERE invoiceRepeatID = %d", $this->get_id());
@@ -41,6 +42,7 @@ class invoiceRepeat extends db_entity
 
     function get_all_parties($invoiceID)
     {
+        $interestedPartyOptions = null;
         if ($invoiceID) {
             $invoice = new invoice();
             $invoice->set_id($invoiceID);

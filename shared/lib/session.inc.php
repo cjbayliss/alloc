@@ -146,6 +146,7 @@ class session
 
     function url($url = "")
     {
+        $extra = null;
         $url = preg_replace("/[&?]+$/", "", $url);
 
         if ($this->mode == "get") {

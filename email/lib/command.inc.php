@@ -86,6 +86,8 @@ class command
     function run_commands($commands = [], $email_receive = false)
     {
 
+        $s = null;
+        $m = null;
         if ($commands["command"] == "edit_timeSheetItem") {
             list($s, $m) = $this->edit_timeSheetItem($commands);
         } else if ($commands["command"] == "edit_task") {
@@ -115,6 +117,10 @@ class command
 
     function edit_task($commands, $email_receive)
     {
+        $changes = [];
+        $rr_bits = [];
+        $status = [];
+        $message = [];
         $task_fields = $this->get_fields("task");
         // Task commands
         if ($commands["task"]) {
@@ -256,6 +262,10 @@ class command
 
     function edit_timeSheetItem($commands)
     {
+        $changes = [];
+        $status = [];
+        $message = [];
+        $err = [];
         $item_fields = $this->get_fields("item");
 
         // Time Sheet Item commands
@@ -329,6 +339,8 @@ class command
 
     function edit_reminder($commands)
     {
+        $status = [];
+        $message = [];
         $id = $commands["reminder"];
         $options = $commands;
         $reminder = new reminder();
@@ -497,6 +509,7 @@ class command
 
     function condense_changes($changes, $fields)
     {
+        $str = null;
         foreach ((array)$changes as $label => $field) {
             $v = $fields[$field] or $v = $field;
             $str .= $sep . $label . ": " . $v;

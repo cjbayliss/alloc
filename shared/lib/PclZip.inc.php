@@ -2490,6 +2490,8 @@
   // --------------------------------------------------------------------------------
   function privAddFile($p_filedescr, &$p_header, &$p_options)
   {
+    $v_content = null;
+    $v_file = null;
     //--(MAGIC-PclTrace)--//PclTraceFctStart(__FILE__, __LINE__, "PclZip::privAddFile", "filename='".$p_filedescr['filename']."'");
     $v_result=1;
     
@@ -3535,6 +3537,7 @@
   // --------------------------------------------------------------------------------
   function privExtractFile(&$p_entry, $p_path, $p_remove_path, $p_remove_all_path, &$p_options)
   {
+    $v_buffer = null;
     //--(MAGIC-PclTrace)--//PclTraceFctStart(__FILE__, __LINE__, 'PclZip::privExtractFile', "path='$p_path', remove_path='$p_remove_path', remove_all_path='".($p_remove_all_path?'true':'false')."'");
     $v_result=1;
 
@@ -4434,6 +4437,7 @@
   // --------------------------------------------------------------------------------
   function privReadEndCentralDir(&$p_central_dir)
   {
+    $v_pos = null;
     //--(MAGIC-PclTrace)--//PclTraceFctStart(__FILE__, __LINE__, "PclZip::privReadEndCentralDir", "");
     $v_result=1;
 

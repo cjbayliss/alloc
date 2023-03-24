@@ -98,6 +98,7 @@ class stats
 
     function task_stats()
     {
+        $v = null;
         $db = new db_alloc();
 
         list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();

@@ -6,7 +6,8 @@
  */
 
 // The order of file processing usually goes:
-// requested_script.php -> alloc.php -> alloc_config.php -> more includes -> back to requested_script.php
+// requested_script.php -> alloc.php -> alloc_config.php -> more includes 
+// -> back to requested_script.php
 
 function &singleton($name, $thing = null)
 {
@@ -16,20 +17,26 @@ function &singleton($name, $thing = null)
 }
 
 ini_set("error_reporting", E_ALL & ~E_NOTICE & ~E_STRICT);
-ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . dirname(__FILE__) . DIRECTORY_SEPARATOR . "zend");
+ini_set(
+    'include_path',
+    ini_get('include_path') . PATH_SEPARATOR . __DIR__ . DIRECTORY_SEPARATOR . "zend"
+);
 singleton("errors_fatal", false);
 singleton("errors_format", "html");
 singleton("errors_logged", false);
 singleton("errors_thrown", false);
 singleton("errors_haltdb", false);
 
-// Set the charset for Zend Lucene search indexer http://framework.zend.com/manual/en/zend.search.lucene.charset.html
+// Set the charset for Zend Lucene search indexer 
+// http://framework.zend.com/manual/en/zend.search.lucene.charset.html
 require_once("Zend" . DIRECTORY_SEPARATOR . "Search" . DIRECTORY_SEPARATOR . "Lucene.php");
-Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
+Zend_Search_Lucene_Analysis_Analyzer::setDefault(
+    new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive()
+);
 Zend_Search_Lucene_Search_Query_Wildcard::setMinPrefixLength(0);
 
 // Get the alloc directory
-$f = trim(dirname(__FILE__));
+$f = trim(__DIR__);
 substr($f, -1, 1) != DIRECTORY_SEPARATOR and $f .= DIRECTORY_SEPARATOR;
 define("ALLOC_MOD_DIR", $f);
 unset($f);
@@ -95,8 +102,11 @@ $external_storage_directories = [
 require_once(ALLOC_MOD_DIR . "shared" . DIRECTORY_SEPARATOR . "util.inc.php");
 
 foreach ($m as $module_name) {
-    if (file_exists(ALLOC_MOD_DIR . $module_name . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "init.php")) {
-        require_once(ALLOC_MOD_DIR . $module_name . DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "init.php");
+    $module_path = ALLOC_MOD_DIR . $module_name .
+        DIRECTORY_SEPARATOR . "lib" .
+        DIRECTORY_SEPARATOR . "init.php";
+    if (file_exists($module_path)) {
+        require_once($module_path);
         $module_class = $module_name . "_module";
         $module = new $module_class();
         $modules[$module_name] = $module;
@@ -115,7 +125,7 @@ define("SCRIPT_PATH", $path);
 
 unset($m);
 
-$TPL = array(
+$TPL = [
     "url_alloc_index"        => SCRIPT_PATH . "index.php",
     "url_alloc_login"        => SCRIPT_PATH . "login/login.php",
     "url_alloc_installation" => SCRIPT_PATH . "installation/install.php",
@@ -128,7 +138,7 @@ $TPL = array(
     "alloc_help_link_name"   => end(array_slice(explode("/", $_SERVER["PHP_SELF"]), -2, 1)),
     "script_path"            => SCRIPT_PATH,
     "main_alloc_title"       => end(explode("/", $_SERVER["SCRIPT_NAME"]))
-);
+];
 
 
 if (file_exists(ALLOC_MOD_DIR . "alloc_config.php")) {
@@ -153,19 +163,32 @@ define("ALLOC_LOGO_SMALL", ATTACHMENTS_DIR . "logos/logo_small.jpg");
 // If we're inside the installation process
 if (defined("IN_INSTALL_RIGHT_NOW")) {
     // Re-direct home if an alloc_config.php already exists
-    if (!defined("ALLOCPSA_PLATFORM") && file_exists(ALLOC_MOD_DIR . "alloc_config.php") && is_readable(ALLOC_MOD_DIR . "alloc_config.php") && filesize(ALLOC_MOD_DIR . "alloc_config.php") >= 2 && defined("ALLOC_DB_NAME")) {
+    if (
+        !defined("ALLOCPSA_PLATFORM") &&
+        file_exists(ALLOC_MOD_DIR . "alloc_config.php") &&
+        is_readable(ALLOC_MOD_DIR . "alloc_config.php") &&
+        filesize(ALLOC_MOD_DIR . "alloc_config.php") >= 2 &&
+        defined("ALLOC_DB_NAME")
+    ) {
         alloc_redirect($TPL["url_alloc_login"]);
         exit();
     }
 
-    // Else if were not in the installation process and there's no alloc_config.php file then redirect to the installation directory
-} else if (!file_exists(ALLOC_MOD_DIR . "alloc_config.php") || !is_readable(ALLOC_MOD_DIR . "alloc_config.php") || filesize(ALLOC_MOD_DIR . "alloc_config.php") < 5 || !defined("ALLOC_DB_NAME")) {
+    // Else if were not in the installation process and there's no 
+    // alloc_config.php file then redirect to the installation directory
+} else if (
+    !file_exists(ALLOC_MOD_DIR . "alloc_config.php") ||
+    !is_readable(ALLOC_MOD_DIR . "alloc_config.php") ||
+    filesize(ALLOC_MOD_DIR . "alloc_config.php") < 5 ||
+    !defined("ALLOC_DB_NAME")
+) {
     alloc_redirect($TPL["url_alloc_installation"]);
     exit();
 
     // Else include the alloc_config.php file and begin with proceedings..
 } else {
-    // The timezone must be dealt with before anything else uses it or php will emit a warning
+    // The timezone must be dealt with before anything else uses it or php will
+    // emit a warning
     $timezone = config::get_config_item("allocTimezone");
     date_default_timezone_set($timezone);
 
@@ -176,12 +199,14 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
 
     // The default From: email address
     if (config::get_config_item("AllocFromEmailAddress")) {
-        define("ALLOC_DEFAULT_FROM_ADDRESS", add_brackets(config::get_config_item("AllocFromEmailAddress")));
+        define(
+            "ALLOC_DEFAULT_FROM_ADDRESS",
+            add_brackets(config::get_config_item("AllocFromEmailAddress"))
+        );
     }
 
     // The default email bounce address
     define("ALLOC_DEFAULT_RETURN_PATH_ADDRESS", config::get_config_item("allocEmailAdmin"));
-
 
     // If a script has NO_AUTH enabled, then it will perform its own
     // authentication. And will be responsible for setting up any of:
@@ -192,8 +217,13 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
 
         // If session hasn't been started re-direct to login page
         if (!$sess->Started()) {
-            defined("NO_REDIRECT") && exit("Session expired. Please <a href='" . $TPL["url_alloc_login"] . "'>log in</a> again.");
-            alloc_redirect($TPL["url_alloc_login"] . ($_SERVER['REQUEST_URI'] != '/' ? '?forward=' . urlencode($_SERVER['REQUEST_URI']) : ''));
+            defined("NO_REDIRECT") &&
+                exit("Session expired. Please <a href='" .
+                    $TPL["url_alloc_login"] .
+                    "'>log in</a> again.");
+            alloc_redirect($TPL["url_alloc_login"] . ($_SERVER['REQUEST_URI'] != '/'
+                ? '?forward=' . urlencode($_SERVER['REQUEST_URI'])
+                : ''));
 
             // Else load up the current_user and continue
         } else if ($sess->Get("personID")) {

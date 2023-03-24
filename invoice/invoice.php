@@ -9,6 +9,10 @@ require_once("../alloc.php");
 
 function show_new_invoiceItem($template)
 {
+    $timeSheetOptions = [];
+    $expenseFormOptions = [];
+    $id = null;
+    $productSaleOptions = [];
     global $TPL;
     global $invoice;
     global $invoiceID;
@@ -144,6 +148,15 @@ function show_new_invoiceItem($template)
 
 function show_invoiceItem_list()
 {
+    $other_peoples_transactions = null;
+    $amounts = [];
+    $transaction_sum = null;
+    $transaction_info = null;
+    $br = null;
+    $one_rejected = null;
+    $one_pending = null;
+    $one_approved = null;
+    $sel = [];
     global $invoiceID;
     global $TPL;
     global $invoice;
@@ -353,6 +366,7 @@ function show_invoiceItem_list()
 
 function show_attachments($invoiceID)
 {
+    $options = [];
     global $TPL;
     $options["hide_buttons"] = true;
     util_show_attachments("invoice", $invoiceID, $options);
@@ -360,6 +374,7 @@ function show_attachments($invoiceID)
 
 function show_comments()
 {
+    $interestedPartyOptions = null;
     global $invoiceID;
     global $TPL;
     global $invoice;

@@ -69,6 +69,7 @@ function get_timezone_array()
 function format_date($format = "Y/m/d", $date = "")
 {
 
+    $t = null;
     // If looks like this: 2003-07-07 21:37:01
     if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2} [\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
         list($d, $t) = explode(" ", $date);
@@ -259,6 +260,7 @@ function get_filesize_label($file)
 
 function get_size_label($size)
 {
+    $rtn = null;
     $size > 1023 and $rtn = sprintf("%dK", $size / 1024);
     $size < 1024 and $rtn = sprintf("%d", $size);
     $size > (1024 * 1024) and $rtn = sprintf("%0.1fM", $size / (1024 * 1024));
@@ -267,6 +269,7 @@ function get_size_label($size)
 
 function get_file_type_image($file)
 {
+    $types = [];
     global $TPL;
     // hardcoded types ...
     $types["pdf"] = "pdf.gif";
@@ -295,6 +298,8 @@ function get_file_type_image($file)
 function get_attachments($entity, $id, $ops = [])
 {
 
+    $row = [];
+    $sessID = null;
     global $TPL;
     $rows = [];
     $dir = ATTACHMENTS_DIR . $entity . DIRECTORY_SEPARATOR . $id;
@@ -344,6 +349,7 @@ function get_attachments($entity, $id, $ops = [])
 
 function rejig_files_array($f)
 {
+    $files = [];
     // Re-jig the $_FILES array so that it can handle <input type="file" name="many_files[]">
     if ($f) {
         foreach ($f as $key => $thing) {
@@ -565,6 +571,7 @@ function get_num_alloc_users()
 
 function alloc_redirect($url)
 {
+    $str = [];
     global $TPL;
 
     $sep = "&";
@@ -620,6 +627,7 @@ function query_string_to_array($str = "")
 if (!function_exists('mime_content_type')) {
     function mime_content_type($filename = "")
     {
+        $ext = null;
         $mime_types = [
             'txt'  => 'text/plain',
             'mdwn' => 'text/plain',
@@ -753,6 +761,8 @@ function operator_comparison($operator, $figure, $subject)
 
 function parse_operator_comparison($str, $figure)
 {
+    $alive = null;
+    $dead = null;
     $operator_regex = "/\s*([><=!]*)\s*([\d\.]+)\s*/";
 
     // 5
@@ -834,6 +844,7 @@ function get_exchange_rate($from, $to)
 
 function array_kv($arr, $k, $v)
 {
+    $rtn = [];
     foreach ((array)$arr as $key => $value) {
         if (is_array($v)) {
             $sep = '';
@@ -867,6 +878,7 @@ function rmdir_if_empty($dir)
 
 function dir_is_empty($dir)
 {
+    $num_files = null;
     if (is_dir($dir)) {
         $handle = opendir($dir);
         clearstatcache();
@@ -944,6 +956,9 @@ function alloc_error($str = "", $force = null)
 
 function sprintf_implode()
 {
+    $f = [];
+    $rtn = null;
+    $comma = null;
     // I am crippling this function to make its purpose clearer, max 6 arguments.
     //
     // $numbers = array(20,21,22);
@@ -1006,6 +1021,7 @@ function sprintf_implode()
 
 function prepare()
 {
+    $clean_args = [];
     $args = func_get_args();
 
     if (count($args) == 1) {

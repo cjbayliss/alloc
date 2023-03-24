@@ -31,6 +31,7 @@ function fix_curly_braces($matches)
 // array. $var can also be html entity protected if prefixed with the equals sign.
 function echo_var($matches)
 {
+    $starts_with_equals = null;
     $str = $matches[1];
     if (substr($str, 0, 1) == "=") {
         $str = preg_replace("/^=/", "", $str);

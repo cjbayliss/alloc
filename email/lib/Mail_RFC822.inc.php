@@ -635,6 +635,7 @@ class Mail_RFC822
      */
     function validateMailbox(&$mailbox)
     {
+        $addr_spec = [];
         // A couple of defaults.
         $phrase  = '';
         $comment = '';
@@ -724,6 +725,7 @@ class Mail_RFC822
      */
     function _validateRouteAddr($route_addr)
     {
+        $return = [];
         // Check for colon.
         if (strpos($route_addr, ':') !== false) {
             $parts = explode(':', $route_addr);
@@ -797,6 +799,7 @@ class Mail_RFC822
      */
     function _validateDomain($domain)
     {
+        $sub_domains = [];
         // Note the different use of $subdomains and $sub_domains
         $subdomains = explode('.', $domain);
 

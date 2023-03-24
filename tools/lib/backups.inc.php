@@ -63,6 +63,7 @@ class backups
 
     function backup()
     {
+        $files = [];
         global $TPL;
 
         if (!is_dir(ATTACHMENTS_DIR . "backups" . DIRECTORY_SEPARATOR . "0")) {
@@ -104,6 +105,7 @@ class backups
 
     function restore($archivename)
     {
+        $errors = [];
         global $TPL;
 
         $file = ATTACHMENTS_DIR . "backups" . DIRECTORY_SEPARATOR . "0" . DIRECTORY_SEPARATOR . $archivename;

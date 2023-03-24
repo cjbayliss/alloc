@@ -40,6 +40,7 @@ class pendingApprovalTimeSheetListHomeItem extends home_item
 
 function show_time_sheets_list_for_classes($template_name, $doAdmin = false)
 {
+    $date = null;
     $current_user = &singleton("current_user");
     global $TPL;
 
@@ -134,6 +135,7 @@ function get_pending_timesheet_db()
 
 function get_pending_admin_timesheet_db()
 {
+    $query = null;
     $current_user = &singleton("current_user");
     $db = new db_alloc();
 

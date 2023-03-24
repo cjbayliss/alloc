@@ -78,6 +78,8 @@ class services
      */
     public function get_people($options = [], $entity = "", $entityID = "")
     {
+        $e = null;
+        $rtn = [];
         $person_table = &get_cached_table("person");
         $people = $options;
 
@@ -217,6 +219,7 @@ class services
 
     private function reduce_person_info($person)
     {
+        $rtn = [];
         $rtn["personID"] = $person["personID"];
         $rtn["username"] = $person["username"];
         $rtn["name"]     = $person["name"]             or $rtn["name"] = $person["clientContactName"];
@@ -306,6 +309,7 @@ class services
      */
     public function search_emails($str)
     {
+        $emails = null;
         if ($str) {
             $uids = $this->get_comment_email_uids_search($str);
             foreach ((array)$uids as $uid) {
@@ -323,6 +327,7 @@ class services
      */
     public function get_task_emails($taskID, $entity = "task")
     {
+        $emails = null;
         $current_user = &singleton("current_user");
         $entity or $entity = "task";
         if ($taskID) {
@@ -353,6 +358,7 @@ class services
      */
     public function get_timeSheetItem_comments($taskID)
     {
+        $str = null;
         $people = &get_cached_table("person");
         has("time") and $rows = timeSheetItem::get_timeSheetItemComments($taskID);
         foreach ((array)$rows as $row) {
@@ -370,6 +376,7 @@ class services
 
     private function init_email_info()
     {
+        $info = [];
         $current_user = &singleton("current_user");
         $info["host"] = config::get_config_item("allocEmailHost");
         $info["port"] = config::get_config_item("allocEmailPort");
@@ -412,6 +419,7 @@ class services
      */
     public function get_comment_email_uids_search($str)
     {
+        $rtn = null;
         if ($str) {
             $current_user = &singleton("current_user");
             $info = $this->init_email_info();
@@ -430,6 +438,7 @@ class services
      */
     public function get_help($topic = "")
     {
+        $available_topics = null;
         $this_methods = get_class_methods($this);
 
         if (!$topic) {
@@ -457,6 +466,7 @@ class services
      */
     public function save_interestedParty($options)
     {
+        $data = [];
         // Python will submit None instead of ''
         foreach ($options as $k => $v) {
             strtolower($v) != 'none' and $data[$k] = $v;
@@ -475,6 +485,7 @@ class services
      */
     public function delete_interestedParty($options)
     {
+        $data = [];
         // Python will submit None instead of ''
         foreach ($options as $k => $v) {
             strtolower($v) != 'none' and $data[$k] = $v;
@@ -492,6 +503,7 @@ class services
      */
     private function get_list_help()
     {
+        $rtn = null;
         global $modules;
         foreach ($modules as $name => $object) {
             if (is_object($object) && is_array($object->db_entities)) {

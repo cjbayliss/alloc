@@ -29,6 +29,7 @@ function show_filter()
 
 function show_projects($template_name)
 {
+    $defaults = null;
     global $TPL;
     global $default;
     $_FORM = task::load_form_data($defaults);

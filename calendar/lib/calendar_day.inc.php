@@ -44,6 +44,7 @@ class calendar_day
 
     function draw_day_html()
     {
+        $rows = [];
         global $TPL;
 
         if ($this->absences) {

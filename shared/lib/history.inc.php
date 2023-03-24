@@ -25,6 +25,7 @@ class history extends db_entity
 
     function get_history_query($order = "")
     {
+        $query = null;
         $current_user = &singleton("current_user");
         if (is_object($current_user)) {
             $db = new db_alloc();
@@ -151,6 +152,8 @@ class history extends db_entity
 
     function save_history()
     {
+        $qs = null;
+        $arr = [];
         $current_user = &singleton("current_user");
         global $TPL;
 

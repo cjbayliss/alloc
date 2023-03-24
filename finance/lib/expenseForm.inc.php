@@ -79,6 +79,8 @@ class expenseForm extends db_entity
 
     function get_status()
     {
+        $arr = [];
+        $return = null;
         $q = prepare("SELECT status FROM transaction WHERE expenseFormID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
@@ -95,6 +97,7 @@ class expenseForm extends db_entity
 
     function delete_transactions($transactionID = "")
     {
+        $extra_sql = null;
         global $TPL;
 
         $transactionID and $extra_sql = prepare("AND transactionID = %d", $transactionID);
@@ -108,6 +111,8 @@ class expenseForm extends db_entity
 
     function get_invoice_link()
     {
+        $str = null;
+        $sp = null;
         global $TPL;
         $db = new db_alloc();
         if ($this->get_id()) {
@@ -123,6 +128,7 @@ class expenseForm extends db_entity
     function save_to_invoice($invoiceID = false)
     {
 
+        $extra = null;
         if ($this->get_value("clientID")) {
             $invoiceID and $extra = prepare(" AND invoiceID = %d", $invoiceID);
             $client = $this->get_foreign_object("client");
@@ -210,6 +216,7 @@ class expenseForm extends db_entity
 
     public static function get_list_filter($filter = [])
     {
+        $sql = [];
         $filter["projectID"] and $sql[] = prepare("transaction.projectID = %d", $filter["projectID"]);
         $filter["status"]    and $sql[] = prepare("transaction.status = '%s'", $filter["status"]);
         isset($filter["finalised"]) and $sql[] = prepare("expenseForm.expenseFormFinalised = %d", $filter["finalised"]);
@@ -218,6 +225,11 @@ class expenseForm extends db_entity
 
     public static function get_list($_FORM = [])
     {
+        $f = null;
+        $amounts = [];
+        $sp = [];
+        $allrows = [];
+        $rows = [];
         global $TPL;
         $filter = expenseForm::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
@@ -268,6 +280,7 @@ class expenseForm extends db_entity
 
     function get_pending_repeat_transaction_list()
     {
+        $rows = [];
         global $TPL;
         $transactionTypes = transaction::get_transactionTypes();
         $q = "SELECT * FROM transaction

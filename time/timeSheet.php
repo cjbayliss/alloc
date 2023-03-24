@@ -14,6 +14,8 @@ if (!$current_user->is_employee()) {
 
 function show_transaction_list($template_name)
 {
+    $rows = [];
+    $has_transactions = null;
     global $timeSheet;
     global $TPL;
 
@@ -68,6 +70,8 @@ function show_transaction_list($template_name)
 function show_transaction_listR($template_name)
 {
 
+    $tf_array = [];
+    $empty = null;
     global $timeSheet;
     global $TPL;
     $current_user = &singleton("current_user");
@@ -156,6 +160,8 @@ function show_transaction_listR($template_name)
 
 function show_new_transaction($template)
 {
+    $none = null;
+    $empty = null;
     global $timeSheet;
     global $TPL;
     global $db;
@@ -205,6 +211,7 @@ function show_main_list()
 
 function show_timeSheet_list($template)
 {
+    $default_rate = [];
     global $TPL;
     global $timeSheet;
     global $db;
@@ -309,6 +316,9 @@ function show_timeSheet_list($template)
 
 function show_new_timeSheet($template)
 {
+    $taskID = null;
+    $multiplier_array = [];
+    $timeSheetItemMultiplier = null;
     global $TPL;
     global $timeSheet;
     global $timeSheetID;

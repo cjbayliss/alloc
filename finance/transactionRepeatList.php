@@ -18,6 +18,8 @@ include_template("templates/transactionRepeatListM.tpl");
 
 function show_expenseFormList($template_name)
 {
+    $sql = null;
+    $i = null;
     global $db;
     global $TPL;
     global $transactionRepeat;

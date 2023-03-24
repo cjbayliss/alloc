@@ -21,6 +21,7 @@ class saleListHomeItem extends home_item
 
     function render()
     {
+        $ops = [];
         $current_user = &singleton("current_user");
         global $TPL;
         $ops["return"] = "array";

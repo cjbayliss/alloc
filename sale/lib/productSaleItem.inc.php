@@ -30,6 +30,7 @@ class productSaleItem extends db_entity
 
     function validate()
     {
+        $err = [];
         $this->get_value("productID")     or $err[] = "Please select a Product.";
         $this->get_value("productSaleID") or $err[] = "Please select a Product Sale.";
         $this->get_value("sellPrice")     or $err[] = "Please enter a Sell Price.";
@@ -121,6 +122,8 @@ class productSaleItem extends db_entity
     function get_amount_margin()
     {
 
+        $sellPrice = null;
+        $costs = null;
         $productSale = $this->get_foreign_object("productSale");
         $transactions = $productSale->get_transactions($this->get_id());
 

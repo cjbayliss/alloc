@@ -186,6 +186,7 @@ function has_whatsnew_files()
 
 function show_misc_options($template)
 {
+    $current_user = null;
     global $misc_options;
     global $TPL;
 

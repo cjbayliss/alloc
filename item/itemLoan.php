@@ -18,6 +18,7 @@ include_template("templates/itemLoanM.tpl");
 function show_overdue($template_name)
 {
 
+    $i = null;
     global $db;
     global $TPL;
     $current_user = &singleton("current_user");

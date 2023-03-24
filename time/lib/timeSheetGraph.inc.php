@@ -25,6 +25,7 @@ class timeSheetGraph
 
     function load_filter($defaults)
     {
+        $rtn = [];
         $current_user = &singleton("current_user");
 
         // display the list of project name.

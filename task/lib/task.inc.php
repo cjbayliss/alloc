@@ -86,6 +86,7 @@ class task extends db_entity
 
     function validate()
     {
+        $err = [];
         // Validate/coerce the fields
         $coerce = [
             "inprogress" => "open_inprogress",
@@ -189,6 +190,7 @@ class task extends db_entity
 
     function get_pending_tasks($invert = false)
     {
+        $rows = [];
         $db = new db_alloc();
         $q = prepare("SELECT * FROM pendingTask WHERE %s = %d", ($invert ? "pendingTaskID" : "taskID"), $this->get_id());
         $db->query($q);
@@ -200,6 +202,7 @@ class task extends db_entity
 
     function get_reopen_reminders()
     {
+        $rows = [];
         $q = prepare("SELECT reminder.*,token.*,tokenAction.*, reminder.reminderID as rID
                         FROM reminder
                    LEFT JOIN token ON reminder.reminderHash = token.tokenHash
@@ -222,6 +225,8 @@ class task extends db_entity
 
     function add_reopen_reminder($date)
     {
+        $check_date = null;
+        $maxUsed = null;
         $rows = $this->get_reopen_reminders();
         // If this reopen event already exists, do nothing
         // Allows the form to be saved without changing anything
@@ -265,6 +270,7 @@ class task extends db_entity
 
     function create_task_reminder()
     {
+        $people = [];
         // Create a reminder for this task based on the priority.
         $current_user = &singleton("current_user");
 
@@ -310,6 +316,7 @@ class task extends db_entity
     function is_owner($person = "")
     {
 
+        $p = null;
         if (!is_object($person)) {
             return false;
         }
@@ -376,6 +383,7 @@ class task extends db_entity
 
     function get_parent_task_select($projectID = "")
     {
+        $options = null;
         global $TPL;
 
         if (is_object($this)) {
@@ -404,6 +412,9 @@ class task extends db_entity
     function get_task_cc_list_select($projectID = "")
     {
 
+        $interestedPartyOptions = [];
+        $options = [];
+        $selected = [];
         // If task exists, grab existing IPs
         if (is_object($this)) {
             $interestedPartyOptions = $this->get_all_parties($projectID);
@@ -491,6 +502,10 @@ class task extends db_entity
 
     function get_personList_dropdown($projectID, $field, $selected = null)
     {
+        $manager_sql = null;
+        $managers_only = null;
+        $ops = [];
+        $current_user_is_manager = null;
         $current_user = &singleton("current_user");
 
         $db = new db_alloc();
@@ -558,6 +573,7 @@ class task extends db_entity
 
     function set_option_tpl_values()
     {
+        $p = null;
         // Set template values to provide options for edit selects
         global $TPL;
         $current_user = &singleton("current_user");
@@ -681,6 +697,7 @@ class task extends db_entity
     function get_name($_FORM = [])
     {
 
+        $id = null;
         $_FORM["prefixTaskID"] and $id = $this->get_id() . " ";
 
         if ($this->get_value("taskTypeID") == "Parent" && $_FORM["return"] == "html") {
@@ -714,6 +731,7 @@ class task extends db_entity
 
     public static function get_task_statii_array($flat = false)
     {
+        $taskStatiiArray = [];
         // This gets an array that is useful for building the two types of dropdown lists that taskStatus uses
         $taskStatii = task::get_task_statii();
         if ($flat) {
@@ -736,6 +754,7 @@ class task extends db_entity
 
     function get_task_statii()
     {
+        $rtn = [];
         // looks like:
         //$arr["open"]["notstarted"] = array("label"=>"Not Started","colour"=>"#ffffff");
         //$arr["open"]["inprogress"] = array("label"=>"In Progress","colour"=>"#ffffff");
@@ -791,6 +810,7 @@ class task extends db_entity
 
     public static function get_taskStatus_sql($status)
     {
+        $lengths = [];
         if (!is_array($status)) {
             $status = [$status];
         }
@@ -802,6 +822,9 @@ class task extends db_entity
 
     public static function get_list_filter($filter = [])
     {
+        $sql = [];
+        $projectIDs = null;
+        $tags = [];
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the taskID filter element
@@ -951,6 +974,7 @@ class task extends db_entity
 
     function build_recursive_task_list($t = [], $_FORM = [])
     {
+        $tasks = null;
         $tasks or $tasks = [];
         foreach ($t as $r) {
             $row = $r["row"];
@@ -968,6 +992,7 @@ class task extends db_entity
 
     function get_overall_priority($projectPriority = 0, $taskPriority = 0, $dateTargetCompletion)
     {
+        $daysUntilDue = null;
         $spread = sprintf("%d", config::get_config_item("taskPrioritySpread"));
         $scale = sprintf("%d", config::get_config_item("taskPriorityScale"));
         $scale_halved = sprintf("%d", config::get_config_item("taskPriorityScale") / 2);
@@ -979,11 +1004,15 @@ class task extends db_entity
             $mult = 8;
         }
         $daysUntilDue and $daysUntilDue = sprintf("%d", ceil($daysUntilDue));
-        return [sprintf("%0.2f", ($taskPriority * pow($projectPriority, 2)) * $mult / 10), $daysUntilDue];
+        return [sprintf("%0.2f", ($taskPriority * $projectPriority ** 2) * $mult / 10), $daysUntilDue];
     }
 
     public static function get_list($_FORM)
     {
+        $limit = null;
+        $f = null;
+        $rows = [];
+        $tasks = null;
         $current_user = &singleton("current_user");
 
         /*
@@ -1144,6 +1173,7 @@ class task extends db_entity
 
     function get_task_priority_dropdown($priority = false)
     {
+        $tp = [];
         $taskPriorities = config::get_config_item("taskPriorities") or $taskPriorities = [];
         foreach ($taskPriorities as $k => $v) {
             $tp[$k] = $v["label"];
@@ -1187,6 +1217,8 @@ class task extends db_entity
     function get_percentComplete($get_num = false)
     {
 
+        $closed_text = null;
+        $closed_text_end = null;
         $timeActual = sprintf("%0.2f", $this->get_time_billed());
         $timeExpected = sprintf("%0.2f", $this->get_value("timeLimit") * 60 * 60);
 
@@ -1356,6 +1388,7 @@ class task extends db_entity
 
     function load_task_filter($_FORM)
     {
+        $rtn = [];
         $current_user = &singleton("current_user");
 
         $db = new db_alloc();
@@ -1590,6 +1623,7 @@ class task extends db_entity
 
     function update_search_index_doc(&$index)
     {
+        $projectName = null;
         $p = &get_cached_table("person");
         $creatorID = $this->get_value("creatorID");
         $creator_field = $creatorID . " " . $p[$creatorID]["username"] . " " . $p[$creatorID]["name"];

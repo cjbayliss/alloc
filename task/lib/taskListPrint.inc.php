@@ -12,6 +12,8 @@ class taskListPrint
 
     function get_printable_file($_FORM = [])
     {
+        $fields = [];
+        $contact_info = [];
         global $TPL;
 
         $db = new db_alloc();

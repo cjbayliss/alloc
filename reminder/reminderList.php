@@ -10,6 +10,7 @@ require_once("../alloc.php");
 
 function show_reminder_filter($template)
 {
+    $recipientOptions = [];
     $current_user = &singleton("current_user");
     global $TPL;
     if ($current_user->have_role("admin") || $current_user->have_role("manage")) {

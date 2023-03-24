@@ -25,6 +25,9 @@ class tsiHint extends db_entity
 
     function add_tsiHint($stuff)
     {
+        $extra = null;
+        $task = null;
+        $ID = null;
         $current_user = &singleton("current_user");
         $errstr = "Failed to record new time sheet item hint. ";
         $username = $stuff["username"];
@@ -79,6 +82,7 @@ class tsiHint extends db_entity
 
     function parse_tsiHint_string($str)
     {
+        $rtn = [];
         preg_match("/^"
             . "([a-zA-Z0-9]+)"                      # username
             . "\s*"

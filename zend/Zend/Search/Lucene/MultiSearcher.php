@@ -647,6 +647,7 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
      */
     public function termPositions(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
     {
+        $termPositions = [];
         if ($docsFilter != null) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('Document filters could not used with multi-searcher');

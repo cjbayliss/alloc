@@ -64,6 +64,7 @@ function show_transaction($template)
 
 function show_invoices()
 {
+    $_FORM = [];
     $current_user = &singleton("current_user");
     global $project;
     $clientID = $project->get_value("clientID");
@@ -285,6 +286,7 @@ function show_comments()
 
 function show_tasks()
 {
+    $options = [];
     global $TPL;
     global $project;
     $options["showHeader"] = true;
@@ -601,6 +603,7 @@ $TPL["clientHidden"] .= "<input type=\"hidden\" id=\"clientContactID\" name=\"cl
 // Gets $ per hour, even if user uses metric like $200 Daily
 function get_projectPerson_hourly_rate($personID, $projectID)
 {
+    $hourly_rate = null;
     $db = new db_alloc();
     $q = prepare("SELECT rate,rateUnitID FROM projectPerson WHERE personID = %d AND projectID = %d", $personID, $projectID);
     $db->query($q);

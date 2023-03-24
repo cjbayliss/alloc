@@ -32,6 +32,7 @@ class product extends db_entity
 
     function get_list_filter($filter)
     {
+        $sql = null;
         // stub function for one day when you can filter products
         return $sql;
     }
@@ -39,6 +40,8 @@ class product extends db_entity
     public static function get_list($_FORM = [])
     {
 
+        $f = null;
+        $rows = [];
         $filter = product::get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
@@ -85,6 +88,7 @@ class product extends db_entity
 
     function get_buy_cost($id = false)
     {
+        $amount = null;
         $id or $id = $this->get_id();
         $db = new db_alloc();
         $q = prepare("SELECT amount, currencyTypeID, tax

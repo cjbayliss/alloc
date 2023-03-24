@@ -27,6 +27,7 @@ class task_message_list_home_item extends home_item
 
     function show_tasks()
     {
+        $br = null;
         $current_user = &singleton("current_user");
         global $tasks_date;
 

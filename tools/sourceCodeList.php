@@ -10,6 +10,8 @@ require_once("../alloc.php");
 
 function get_all_source_files($dir = "")
 {
+    $files = [];
+    $dirs = [];
     global $TPL;
     $dir or $dir = ALLOC_MOD_DIR;
 

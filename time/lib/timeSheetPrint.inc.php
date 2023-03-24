@@ -33,6 +33,12 @@ class timeSheetPrint
 
     function get_timeSheetItem_list_money($timeSheetID)
     {
+        $rows = [];
+        $info = [];
+        $units = [];
+        $str = [];
+        $d2s = [];
+        $i = [];
         global $TPL;
         list($db, $customerBilledDollars, $timeSheet, $unit_array, $currency) = $this->get_timeSheetItem_vars($timeSheetID);
 
@@ -119,6 +125,13 @@ class timeSheetPrint
 
     function get_timeSheetItem_list_units($timeSheetID)
     {
+        $units = [];
+        $rows = [];
+        $str = [];
+        $d2s = [];
+        $cs = [];
+        $i = [];
+        $info = [];
         global $TPL;
         list($db, $customerBilledDollars, $timeSheet, $unit_array, $currency) = $this->get_timeSheetItem_vars($timeSheetID);
 
@@ -186,6 +199,11 @@ class timeSheetPrint
 
     function get_timeSheetItem_list_items($timeSheetID)
     {
+        $row_num = null;
+        $info = [];
+        $rows = [];
+        $str = [];
+        $d2s = [];
         global $TPL;
         list($db, $customerBilledDollars, $timeSheet, $unit_array, $currency) = $this->get_timeSheetItem_vars($timeSheetID);
 
@@ -236,6 +254,11 @@ class timeSheetPrint
 
     function get_printable_timeSheet_file($timeSheetID, $timeSheetPrintMode, $printDesc, $format)
     {
+        $cols_settings = [];
+        $cols_settings2 = [];
+        $contact_info = [];
+        $ts_info = [];
+        $totals = [];
         global $TPL;
 
         $TPL["timeSheetID"] = $timeSheetID;

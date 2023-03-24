@@ -15,6 +15,7 @@ include_template("templates/loanAndReturnM.tpl");
 
 function show_items($template_name)
 {
+    $i = null;
     global $TPL;
     global $db;
     global $db2;

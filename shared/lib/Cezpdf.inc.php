@@ -26,7 +26,8 @@ public $ezPageCount=0;
 // ------------------------------------------------------------------------------
 
 function Cezpdf($paper='a4',$orientation='portrait'){
-	// Assuming that people don't want to specify the paper size using the absolute coordinates
+	$size = [];
+ // Assuming that people don't want to specify the paper size using the absolute coordinates
 	// allow a couple of options:
 	// orientation can be 'portrait' or 'landscape'
 	// or, to actually set the coordinates, then pass an array in as the first parameter.
@@ -600,6 +601,7 @@ function ezPrvtGetTextWidth($size,$text){
 // ------------------------------------------------------------------------------
 
 function ezTable(&$data,$cols='',$title='',$options=''){
+  $dx = null;
   // add a table of information to the pdf document
   // $data is a two dimensional array
   // $cols (optional) is an associative array, the keys are the names of the columns from $data
@@ -1293,7 +1295,10 @@ function ezText($text,$size=0,$options=[],$test=0){
 // ------------------------------------------------------------------------------
 
 function ezImage($image,$pad = 5,$width = 0,$resize = 'full',$just = 'center',$border = ''){
-	//beta ezimage function
+	$cont = null;
+ $offset = null;
+ $temp = null;
+ //beta ezimage function
 	if (stristr($image,'://'))//copy to temp file
 	{
 		$fp = @fopen($image,"rb");

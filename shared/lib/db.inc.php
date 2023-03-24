@@ -31,6 +31,8 @@ class db
 
     function connect($force = false)
     {
+        $h = null;
+        $d = null;
         if ($force || !isset($this->pdo)) {
             $this->hostname and $h = "host=" . $this->hostname . ";";
             $this->database and $d = "dbname=" . $this->database . ";";
@@ -76,6 +78,7 @@ class db
 
     function error($msg = false, $errno = false)
     {
+        $m = null;
         if ($errno == 1451 || $errno == 1217) {
             $m = "Error: " . $errno . " There are other records in the database that depend on the item you just tried to delete.
             Remove those other records first and then try to delete this item again.
@@ -152,6 +155,7 @@ class db
 
     function query()
     {
+        $rtn = null;
         global $TPL;
         $current_user = &singleton("current_user");
         $start = microtime();
@@ -230,6 +234,7 @@ class db
     // Return true if a particular table exists
     function table_exists($table, $db = "")
     {
+        $yep = null;
         $db or $db = $this->database;
         $prev_db = $this->database;
         $this->select_db($db);
@@ -281,6 +286,8 @@ class db
 
     function save($table, $row = [], $debug = 0)
     {
+        $keys = [];
+        $do_update = null;
         $table_keys = $this->get_table_keys($table) or $table_keys = [];
         foreach ($table_keys as $k) {
             $row[$k] and $do_update = true;
@@ -332,6 +339,7 @@ class db
 
     function get_insert_str_fields($row)
     {
+        $rtn = null;
         foreach ($row as $fieldname => $value) {
             $rtn .= $commar . $fieldname;
             $commar = ", ";
@@ -341,6 +349,7 @@ class db
 
     function get_insert_str_values($row)
     {
+        $rtn = null;
         foreach ($row as $fieldname => $value) {
             $rtn .= $commar . $this->esc($value);
             $commar = ", ";
@@ -350,6 +359,7 @@ class db
 
     function get_update_str($row, $glue = ", ")
     {
+        $rtn = null;
         foreach ($row as $fieldname => $value) {
             $rtn .= $commar . " " . $fieldname . " = " . $this->esc($value);
             $commar = $glue;
@@ -390,6 +400,7 @@ class db
 
     function dump_db($filename)
     {
+        $pw = null;
         if ($this->password) {
             $pw = " -p" . $this->password;
         }

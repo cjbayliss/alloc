@@ -62,6 +62,7 @@ class meta extends db_entity
 
     function get_list($include_inactive = false)
     {
+        $where = [];
         if ($this->data_table) {
             $include_inactive and $where[$this->data_table . "Active"] = "all"; // active and inactive
             return $this->get_assoc_array(false, false, false, $where);
@@ -77,6 +78,7 @@ class meta extends db_entity
 
     function validate()
     {
+        $err = [];
         $this->get_id() or $err[] = "Please enter a Value/ID for the " . $this->get_label();
         $this->get_value($this->t . "Seq") or $err[] = "Please enter a Sequence Number for the " . $this->get_label();
         return parent::validate($err);

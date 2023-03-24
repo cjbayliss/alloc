@@ -37,6 +37,7 @@ class task_calendar_home_item extends home_item
 
     function show_task_calendar_recursive()
     {
+        $template = null;
         $current_user = &singleton("current_user");
         $tasksGraphPlotHomeStart = $current_user->prefs["tasksGraphPlotHomeStart"];
         $tasksGraphPlotHome = $current_user->prefs["tasksGraphPlotHome"];

@@ -26,6 +26,7 @@ class token extends db_entity
 
     function set_hash($hash, $validate = true)
     {
+        $extra = null;
         $validate and $extra = " AND tokenActive = 1";
         $validate and $extra .= " AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)";
         $validate and $extra .= prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s"));
@@ -47,6 +48,7 @@ class token extends db_entity
 
     function execute()
     {
+        $tokenAction = null;
         if ($this->get_id()) {
             if ($this->get_value("tokenActionID")) {
                 $tokenAction = new tokenAction();
@@ -126,6 +128,7 @@ class token extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $sql = [];
         $filter["tokenEntity"]   and $sql[] = sprintf_implode("token.tokenEntity = '%s'", $filter["tokenEntity"]);
         $filter["tokenEntityID"] and $sql[] = sprintf_implode("token.tokenEntityID = %d", $filter["tokenEntityID"]);
         $filter["tokenHash"]     and $sql[] = sprintf_implode("token.tokenHash = '%s'", $filter["tokenHash"]);
@@ -134,6 +137,7 @@ class token extends db_entity
 
     public static function get_list($_FORM)
     {
+        $rows = [];
         $filter = token::get_list_filter($_FORM);
 
         if (is_array($filter) && count($filter)) {

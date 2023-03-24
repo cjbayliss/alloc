@@ -49,6 +49,7 @@ class reminder extends db_entity
 
     function get_recipients()
     {
+        $recipients = [];
         $db = new db_alloc();
         $type = $this->get_value('reminderType');
         if ($type == "project") {
@@ -486,6 +487,7 @@ class reminder extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $sql = [];
         $filter["type"] and $sql[] = prepare("reminderType='%s'", $filter["type"]);
         $filter["id"]   and $sql[] = prepare("reminderLinkID=%d", $filter["id"]);
         $filter["reminderID"] and $sql[] = prepare("reminder.reminderID=%d", $filter["reminderID"]);
@@ -497,6 +499,8 @@ class reminder extends db_entity
 
     public static function get_list($_FORM)
     {
+        $f = null;
+        $rows = [];
         $filter = reminder::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);

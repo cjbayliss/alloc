@@ -30,6 +30,7 @@ class project_list_home_item extends home_item
 
     function render()
     {
+        $options = [];
         $current_user = &singleton("current_user");
         global $TPL;
         if (isset($current_user->prefs["projectListNum"]) && $current_user->prefs["projectListNum"] != "all") {

@@ -8,6 +8,7 @@ use Rector\Set\ValueObject\LevelSetList;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
+        __DIR__ . 'alloc.php',
         __DIR__ . '/announcement',
         __DIR__ . '/audit',
         __DIR__ . '/calendar',
@@ -22,7 +23,6 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/invoice',
         __DIR__ . '/item',
         __DIR__ . '/login',
-        __DIR__ . '/patches',
         __DIR__ . '/person',
         __DIR__ . '/project',
         __DIR__ . '/reminder',
@@ -39,11 +39,11 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/zend',
     ]);
 
-    // // register a single rule
+    // register a single rule
     // $rectorConfig->rule(InlineConstructorDefaultToPropertyRector::class);
 
     // define sets of rules
     $rectorConfig->sets([
-        LevelSetList::UP_TO_PHP_54,
+        LevelSetList::UP_TO_PHP_56,
     ]);
 };

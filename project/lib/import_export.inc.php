@@ -373,6 +373,8 @@ function import_planner_tasks($parentNode, $parentTaskId, $depth, $task_allocati
 ////EXPORT FUNCTIONS
 function export_gnome_planner($projectID)
 {
+    $taskOptions = [];
+    $taskIDs = [];
     $project = new project();
     $project->set_id($projectID);
     $project->select();
@@ -509,6 +511,8 @@ function export_gnome_planner($projectID)
 
 function export_csv($projectID)
 {
+    $taskOptions = [];
+    $taskIDs = [];
     $project = new project();
     $project->set_id($projectID);
     $project->select();

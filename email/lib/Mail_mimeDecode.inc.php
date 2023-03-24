@@ -197,8 +197,9 @@ class Mail_mimeDecode
      */
     function decode($params = null)
     {
+        $structure = null;
         // determine if this method has been called statically
-        $isStatic = !(isset($this) && get_class($this) == __CLASS__);
+        $isStatic = !(isset($this) && get_class($this) == self::class);
 
         // Have we been called statically?
         // If so, create an object and pass details to that.
@@ -471,6 +472,7 @@ class Mail_mimeDecode
     function _parseHeaderValue($input)
     {
 
+        $return = [];
         if (($pos = strpos($input, ';')) !== false) {
 
             $return['value'] = trim(substr($input, 0, $pos));
@@ -622,7 +624,9 @@ class Mail_mimeDecode
         $input = preg_replace("/=\r?\n/", '', $input);
 
         // Replace encoded characters
-        $input = preg_replace('/=([a-f0-9]{2})/ie', "chr(hexdec('\\1'))", $input);
+        $input = preg_replace_callback('/=([a-f0-9]{2})/i', function ($matches) {
+            return chr(hexdec($matches[1]));
+        }, $input);
 
         return $input;
     }
@@ -644,6 +648,7 @@ class Mail_mimeDecode
      */
     function &uudecode($input)
     {
+        $files = [];
         // Find all uuencoded sections
         preg_match_all("/begin ([0-7]{3}) (.+)\r?\n(.+)\r?\nend/Us", $input, $matches);
 
@@ -836,6 +841,7 @@ class Mail_mimeDecode
      */
     function _getXML_helper($hdr_name, $hdr_value, $indent)
     {
+        $params = [];
         $htab   = "\t";
         $crlf   = "\r\n";
         $return = '';

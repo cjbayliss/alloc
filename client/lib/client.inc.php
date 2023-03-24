@@ -76,6 +76,8 @@ class client extends db_entity
 
     function get_client_select($clientStatus = "", $clientID = "")
     {
+        $options = null;
+        $q = null;
         global $TPL;
         $db = new db_alloc();
         if ($clientStatus) {
@@ -123,6 +125,7 @@ class client extends db_entity
 
     function get_list_filter($filter = [])
     {
+        $sql = [];
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the clientID filter element
@@ -157,6 +160,8 @@ class client extends db_entity
 
     public static function get_list($_FORM)
     {
+        $clientCategories = [];
+        $rows = [];
         /*
        * This is the definitive method of getting a list of clients that need a sophisticated level of filtering
        *
@@ -245,6 +250,8 @@ class client extends db_entity
 
     function load_client_filter($_FORM)
     {
+        $rtn = [];
+        $cc = [];
         global $TPL;
 
         $db = new db_alloc();
@@ -315,6 +322,7 @@ class client extends db_entity
 
     function get_client_and_project_dropdowns_and_links($clientID = false, $projectID = false, $onlymine = false)
     {
+        $options = [];
         // This function returns dropdown lists and links for both client and
         // project. The two dropdown lists are linked, in that if you change the
         // client, then the project dropdown dynamically updates
@@ -349,6 +357,13 @@ class client extends db_entity
 
     function update_search_index_doc(&$index)
     {
+        $postal = [];
+        $street = [];
+        $ph = null;
+        $fx = null;
+        $c = null;
+        $nl = null;
+        $contacts = null;
         $person = &get_cached_table("person");
         $clientModifiedUser = $this->get_value("clientModifiedUser");
         $clientModifiedUser_field = $clientModifiedUser . " " . $person[$clientModifiedUser]["username"] . " " . $person[$clientModifiedUser]["name"];
@@ -418,6 +433,9 @@ class client extends db_entity
     function format_address($type = "street", $map_link = true)
     {
 
+        $str = null;
+        $f3 = null;
+        $f5 = null;
         if ($type == "postal") {
             $f1 = $this->get_value("clientStreetAddressOne", DST_HTML_DISPLAY);
             $f2 = $this->get_value("clientSuburbOne", DST_HTML_DISPLAY);
@@ -452,6 +470,7 @@ class client extends db_entity
 
     function get_all_parties($clientID = false)
     {
+        $interestedPartyOptions = [];
         if (!$clientID && is_object($this)) {
             $clientID = $this->get_id();
         }
