@@ -569,13 +569,15 @@ function get_num_alloc_users()
     return $row["total"];
 }
 
-function alloc_redirect($url)
+function alloc_redirect($target_url)
 {
-    $str = [];
+    $params = [];
     global $TPL;
 
-    $sep = "&";
-    strpos($url, "?") === false and $sep = "?";
+    $seperator = "&";
+    if (strpos($target_url, "?") === false) {
+        $seperator = "?";
+    }
 
     foreach ([
         "message",
@@ -585,13 +587,22 @@ function alloc_redirect($url)
         "message_good_no_esc"
     ] as $type) {
         if ($TPL[$type]) {
-            is_array($TPL[$type]) and $TPL[$type] = implode("<br>", $TPL[$type]);
-            is_string($TPL[$type]) && strlen($TPL[$type]) and $str[] = $type . "=" . urlencode($TPL[$type]);
+            if (is_array($TPL[$type])) {
+                $TPL[$type] = implode("<br>", $TPL[$type]);
+            }
+            if (is_string($TPL[$type]) && strlen($TPL[$type])) {
+                $params[] = $type . "=" . urlencode($TPL[$type]);
+            }
         }
     }
 
-    $str and $str = $sep . implode("&", $str);
-    header("Location: " . $url . $str);
+    // the first argument of header() must be a string
+    if (!empty($params)) {
+        $params = $seperator . implode("&", $params);
+    } else {
+        $params = '';
+    }
+    header("Location: " . $target_url . $params);
     exit();
 }
 
