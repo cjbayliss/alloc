@@ -76,9 +76,6 @@ if(jQuery) (function($){
 				function bindTree(t) {
 					$(t).find('LI A').bind(o.folderEvent, function() {
 
-            //if (document_contents != $("#wikitext").value()) {  
-              //window.confirm("The document has not been saved. Continue?");
-            //}
             $(".highlighted").removeClass('highlighted'); // added by alla
             $(this).addClass('highlighted');            // added by alla
 						if( $(this).parent().hasClass('directory') ) {

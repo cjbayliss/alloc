@@ -20,7 +20,7 @@ define("ALLOC_DB_PASS","changeme"); \n\
 define("ALLOC_DB_HOST","db"); \n\
 define("ATTACHMENTS_DIR","/var/local/alloc/");' > /var/www/html/alloc_config.php
 
-RUN for i in task client project invoice comment backups whatsnew wiki logos search tmp; do \
+RUN for i in task client project invoice comment backups whatsnew logos search tmp; do \
   mkdir /var/local/alloc/${i} && \
   chmod 775 /var/local/alloc/${i} && \
   chgrp www-data /var/local/alloc/${i}; \

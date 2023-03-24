@@ -201,16 +201,6 @@ Syntax::
     >   click save
     <   should add a new person
 
-#. Wiki tests::
-
-    |   go to the Wiki page
-    <   choosing files and folders should work
-    <   creating new files and folders should work
-
-    |   go to the Tools page
-    >   click on all the links
-    <   they should work
-
 #. ★ tests::
 
     |   go to the ★

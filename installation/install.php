@@ -158,7 +158,6 @@ if ($_POST["submit_stage_2"]) {
             "project",
             "task",
             "timeSheet",
-            "wiki"
         ];
         foreach ($search_item_indexes as $i) {
             $index = Zend_Search_Lucene::create($_FORM["ATTACHMENTS_DIR"] . 'search' . DIRECTORY_SEPARATOR . $i);

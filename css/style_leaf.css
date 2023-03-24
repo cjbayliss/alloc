@@ -51,7 +51,7 @@ div#main {
 }
 
 /* Hack to ensure certain div encapsulate all the stuff inside them */
-div#main:after, .edit:after, .view:after, .enclose:after, .wikidoc:after {
+div#main:after, .edit:after, .view:after, .enclose:after {
   content:"";
   display:block;
   height:0;

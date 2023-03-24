@@ -48,7 +48,7 @@ define("DST_VARIABLE", 2);  // For use within the PHP script itself
 define("DST_HTML_DISPLAY", 4);  // For display to the user as non-editable HTML text
 
 // The list of all the modules that are enabled for this install of alloc
-$m = array(
+$m = [
     "shared",
     "home",
     "project",
@@ -73,13 +73,12 @@ $m = array(
     "help",
     "email",
     "sale",
-    "wiki",
     "audit",
     "calendar"
-);
+];
 
 // Sub-dirs under ATTACHMENTS_DIR where upload, email and backup data can be stored
-$external_storage_directories = array(
+$external_storage_directories = [
     "task",
     "client",
     "project",
@@ -87,11 +86,10 @@ $external_storage_directories = array(
     "comment",
     "backups",
     "whatsnew",
-    "wiki",
     "logos",
     "search",
     "tmp"
-);
+];
 
 // Helper functions
 require_once(ALLOC_MOD_DIR . "shared" . DIRECTORY_SEPARATOR . "util.inc.php");
@@ -225,7 +223,14 @@ if (!function_exists("ace_augment")) {
 
 // Setup search indices if they don't already exist
 if (!file_exists(ATTACHMENTS_DIR . "search/task")) {
-    $search_item_indexes = array("client", "comment", "item", "project", "task", "timeSheet", "wiki");
+    $search_item_indexes = [
+        "client",
+        "comment",
+        "item",
+        "project",
+        "task",
+        "timeSheet",
+    ];
     foreach ($search_item_indexes as $i) {
         $index = Zend_Search_Lucene::create(ATTACHMENTS_DIR . 'search' . DIRECTORY_SEPARATOR . $i);
         $index->commit();

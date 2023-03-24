@@ -12,7 +12,6 @@ $clientContact_defaults = ["starred" => true];
 $project_defaults = ["starred" => true];
 $comment_defaults = ["starred" => true];
 $productSale_defaults = ["starred" => true];
-$wiki_defaults = ["starred" => true];
 
 $task_defaults = [
     "showHeader"  => true,
@@ -73,10 +72,6 @@ $star_entities = [
         "label" => "Sales",
         "form" => $productSale_defaults
     ],
-    "wiki"          => [
-        "label" => "Wiki Documents",
-        "form" => $wiki_defaults
-    ]
 ];
 
 $TPL["star_entities"] = $star_entities;
