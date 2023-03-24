@@ -13,3 +13,5 @@ help/documentation.css
 help/help.html
 help/html-images
 vendor/*
+composer.json
+composer.lock
