@@ -538,30 +538,6 @@ function same_email_address($addy1, $addy2)
     }
 }
 
-function get_max_alloc_users()
-{
-    if (function_exists("ace_get_max_alloc_users")) {
-        return ace_get_max_alloc_users();
-    }
-    return 0;
-}
-
-function get_max_alloc_users_message()
-{
-    if (function_exists("ace_get_max_alloc_users_message")) {
-        return ace_get_max_alloc_users_message();
-    }
-    return "The number of active allocPSA user accounts has exceeded the maximum allowed.";
-}
-
-function get_num_alloc_users()
-{
-    $db = new db_alloc();
-    $db->query("SELECT COUNT(*) AS total FROM person WHERE personActive = 1");
-    $row = $db->row();
-    return $row["total"];
-}
-
 function alloc_redirect($target_url)
 {
     $params = [];

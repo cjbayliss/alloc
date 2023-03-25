@@ -37,16 +37,4 @@ function show_people()
 
 $TPL["main_alloc_title"] = "People - " . APPLICATION_NAME;
 
-$max_alloc_users = get_max_alloc_users();
-$num_alloc_users = get_num_alloc_users();
-if ($max_alloc_users && $num_alloc_users > $max_alloc_users) {
-    alloc_error("Maximum number of active user accounts: " . $max_alloc_users);
-    alloc_error("Current number of active user accounts: " . $num_alloc_users . "<br>");
-    alloc_error(get_max_alloc_users_message());
-} else if ($max_alloc_users) {
-    $TPL["message_help"][] = "Maximum number of active user accounts: " . $max_alloc_users;
-    $TPL["message_help"][] = "Current number of active user accounts: " . $num_alloc_users;
-}
-
-
 include_template("templates/personListM.tpl");

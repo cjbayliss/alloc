@@ -242,11 +242,6 @@ if ($_POST["save"]) {
 
     $person->set_value("personActive", $_POST["personActive"] ? 1 : "0");
 
-    $max_alloc_users = get_max_alloc_users();
-    if (!$person->get_id() && $max_alloc_users && get_num_alloc_users() >= $max_alloc_users && $_POST["personActive"]) {
-        alloc_error(get_max_alloc_users_message());
-    }
-
     if (!$TPL["message"]) {
         $person->set_value("availability", rtrim($person->get_value("availability")));
         $person->set_value("areasOfInterest", rtrim($person->get_value("areasOfInterest")));
