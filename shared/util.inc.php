@@ -959,22 +959,6 @@ function prepare()
     return $query;
 }
 
-function refcount(&$var)
-{
-    ob_start();
-    debug_zval_dump([&$var]);
-    $rtn = preg_replace("/^.+?refcount\((\d+)\).+$/ms", '$1', substr(ob_get_clean(), 24), 1) - 4;
-    echo "<br>refcount:" . $rtn;
-    return $rtn;
-}
-
-function reference(&$a, &$b)
-{
-    $d = refcount($b);
-    $e = &$a;
-    return refcount($b) != $d;
-}
-
 function has($module)
 {
     $modules = &singleton("modules");
