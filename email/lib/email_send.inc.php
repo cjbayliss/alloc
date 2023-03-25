@@ -239,7 +239,7 @@ class email_send
             $data = fread($fh, filesize($file));
             fclose($fh);
 
-            $mimetype = get_mimetype($file);
+            $mimetype = mime_content_type($file);
 
             // Base64 encode the file data
             $data = chunk_split(base64_encode($data));

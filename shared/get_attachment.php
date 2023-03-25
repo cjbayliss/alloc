@@ -21,7 +21,7 @@ if (isset($_GET["id"]) && $file && !bad_filename($file)) {
     if ($entity->has_attachment_permission($current_user)) {
         if (file_exists($file)) {
             $fp = fopen($file, "rb");
-            $mimetype = get_mimetype($file);
+            $mimetype = mime_content_type($file);
 
             // Forge html for the whatsnew files
             if (basename(dirname(dirname($file))) == "whatsnew") {
