@@ -12,18 +12,18 @@ class clientContact extends db_entity
     public $display_field_name = "clientContactName";
     public $key_field = "clientContactID";
     public $data_fields = [
-        "clientID", 
-        "clientContactName", 
-        "clientContactStreetAddress", 
-        "clientContactSuburb", 
-        "clientContactState", 
-        "clientContactPostcode", 
-        "clientContactCountry", 
-        "clientContactPhone", 
-        "clientContactMobile", 
-        "clientContactFax", 
-        "clientContactEmail", 
-        "clientContactOther", 
+        "clientID",
+        "clientContactName",
+        "clientContactStreetAddress",
+        "clientContactSuburb",
+        "clientContactState",
+        "clientContactPostcode",
+        "clientContactCountry",
+        "clientContactPhone",
+        "clientContactMobile",
+        "clientContactFax",
+        "clientContactEmail",
+        "clientContactOther",
         "primaryContact",
         "clientContactActive",
     ];
@@ -31,91 +31,89 @@ class clientContact extends db_entity
     function save()
     {
         $rtn = parent::save();
-        $c = new client();
-        $c->set_id($this->get_value("clientID"));
-        $c->select();
-        $c->save();
+        $client = new client();
+        $client->set_id($this->get_value("clientID"));
+        $client->select();
+        $client->save();
         return $rtn;
+    }
+
+    /**
+     * Get a list of people from the database
+     *
+     * @param boolean $projectID The project ID to look in
+     * @param string $extra Extra SQL to be appended to the client contact query
+     * @return array
+     */
+    private function get_people($projectID = false, $extra = '')
+    {
+        $people = [];
+        $database = new db_alloc();
+
+        if ($projectID) {
+            $database->query(
+                "SELECT clientID FROM project WHERE projectID = %d",
+                $projectID
+            );
+            $row = $database->qr(); // FIXME: ??
+            if ($row["clientID"]) {
+                $extra = prepare("AND clientID = %d", $row["clientID"]);
+            }
+        }
+
+        $clientsQuery = "SELECT clientContactID, clientContactName 
+                           FROM clientContact WHERE 1=1 " . $extra;
+        $database->query($clientsQuery);
+        while ($row = $database->row()) {
+            $people[$database->f("clientContactID")] = $row;
+        }
+
+        return (array)$people;
+    }
+
+    /**
+     * Find the closest matching person
+     *
+     * @param array $people List of people to check
+     * @param string $name Name of person to find
+     * @param int $percent Required similarity (e.g.: 90)
+     * @return string
+     */
+    private function get_closest_matching_person($people, $name, $percent)
+    {
+        $similarityScores = [];
+
+        foreach ($people as $personID => $row) {
+            similar_text(
+                strtolower($row["clientContactName"]),
+                strtolower($name),
+                $score
+            );
+            $similarityScores[$personID] = $score;
+        }
+
+        asort($similarityScores);
+        end($similarityScores);
+        $personWithHighestSimilarity = key($similarityScores);
+        $highestSimilarityScore = current($similarityScores);
+
+        if ($percent === 0) {
+            return $personWithHighestSimilarity;
+        } else if ($personWithHighestSimilarity && $highestSimilarityScore >= $percent) {
+            return $personWithHighestSimilarity;
+        }
     }
 
     function find_by_name($name = false, $projectID = false, $percent = 90)
     {
-        $extra = null;
-        $stack1 = [];
-        $people = [];
-        $db = new db_alloc();
-
-        if ($projectID) {
-            $db->query("SELECT clientID FROM project WHERE projectID = %d", $projectID);
-            $row = $db->qr();
-            if ($row["clientID"]) {
-                $extra = prepare("AND clientID = %d", $row["clientID"]);
-            }
-        }
-        $extra or $extra = prepare("AND clientContactName = '%s'", $name);
-
-        $q = "SELECT clientContactID, clientContactName FROM clientContact WHERE 1=1 " . $extra;
-        $db->query($q);
-        while ($row = $db->row()) {
-            $people[$db->f("clientContactID")] = $row;
-        }
-
-        foreach ($people as $personID => $row) {
-            similar_text(strtolower($row["clientContactName"]), strtolower($name), $percent1);
-            $stack1[$personID] = $percent1;
-        }
-
-        asort($stack1);
-        end($stack1);
-        $probable1_clientContactID = key($stack1);
-        $person_percent1 = current($stack1);
-
-        if ($probable1_clientContactID && $person_percent1 >= $percent) {
-            return $probable1_clientContactID;
-        }
+        $extra = $name ? prepare("AND clientContactName = '%s'", $name) : null;
+        $people = self::get_people($projectID, $extra);
+        return self::get_closest_matching_person($people, $name, $percent);
     }
 
     function find_by_partial_name($name = false, $projectID = false)
     {
-        $extra = null;
-        $stack1 = [];
-        $people = [];
-        $db = new db_alloc();
-
-        if ($projectID) {
-            $db->query("SELECT clientID FROM project WHERE projectID = %d", $projectID);
-            $row = $db->qr();
-            if ($row["clientID"]) {
-                $extra = prepare("AND clientID = %d", $row["clientID"]);
-            }
-        }
-
-        $q = prepare(
-            "SELECT clientContactID, clientContactName
-               FROM clientContact
-              WHERE 1=1
-                AND clientContactName like '%s%%'"
-                . $extra,
-            $name
-        );
-        $db->query($q);
-        while ($row = $db->row()) {
-            $people[$db->f("clientContactID")] = $row;
-        }
-
-        foreach ($people as $personID => $row) {
-            similar_text(strtolower($row["clientContactName"]), strtolower($name), $percent1);
-            $stack1[$personID] = $percent1;
-        }
-
-        asort($stack1);
-        end($stack1);
-        $probable1_clientContactID = key($stack1);
-        $person_percent1 = current($stack1);
-
-        if ($probable1_clientContactID) {
-            return $probable1_clientContactID;
-        }
+        return self::find_by_name($name, $projectID, 0);
     }
 
     function find_by_nick($name = false, $clientID = false)
@@ -148,15 +146,32 @@ class clientContact extends db_entity
 
     function delete()
     {
-        // have to null out any records that point to this clientContact first to satisfy the referential integrity constraints
-        if ($this->get_id()) {
-            $db = new db_alloc();
-            $q = prepare("UPDATE interestedParty SET clientContactID = NULL where clientContactID = %d", $this->get_id());
-            $db->query($q);
-            $q = prepare("UPDATE comment SET commentCreatedUserClientContactID = NULL where commentCreatedUserClientContactID = %d", $this->get_id());
-            $db->query($q);
-            $q = prepare("UPDATE project SET clientContactID = NULL where clientContactID = %d", $this->get_id());
-            $db->query($q);
+        // have to null out any records that point to this clientContact first
+        // to satisfy the referential integrity constraints
+        $currentClientID = $this->get_id();
+        if (!empty($currentClientID)) {
+            $database = new db_alloc();
+            $nullifyClientContactIDQuery = prepare(
+                "UPDATE interestedParty 
+                    SET clientContactID = NULL where clientContactID = %d",
+                $currentClientID
+            );
+            $database->query($nullifyClientContactIDQuery);
+
+            $nullifyCommentCreatedUserClientContactIDQuery = prepare(
+                "UPDATE comment 
+                    SET commentCreatedUserClientContactID = NULL 
+                  where commentCreatedUserClientContactID = %d",
+                $currentClientID
+            );
+            $database->query($nullifyCommentCreatedUserClientContactIDQuery);
+
+            $nullifyProjectClientContactIDQuery = prepare(
+                "UPDATE project 
+                    SET clientContactID = NULL where clientContactID = %d",
+                $currentClientID
+            );
+            $database->query($nullifyProjectClientContactIDQuery);
         }
         return parent::delete();
     }
@@ -164,14 +179,28 @@ class clientContact extends db_entity
     function format_contact()
     {
         $str = null;
-        $this->get_value("clientContactName")          and $str .= $this->get_value("clientContactName", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("clientContactStreetAddress") and $str .= $this->get_value("clientContactStreetAddress", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("clientContactSuburb")        and $str .= $this->get_value("clientContactSuburb", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("clientContactPostcode")      and $str .= $this->get_value("clientContactPostcode", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("clientContactPhone")         and $str .= $this->get_value("clientContactPhone", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("clientContactMobile")        and $str .= $this->get_value("clientContactMobile", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("clientContactFax")           and $str .= $this->get_value("clientContactFax", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("clientContactEmail")         and $str .= "<a href='mailto:\"" . $this->get_value("clientContactName", DST_HTML_DISPLAY) . "\" <" . $this->get_value("clientContactEmail", DST_HTML_DISPLAY) . ">'>" . $this->get_value("clientContactEmail", DST_HTML_DISPLAY) . "</a><br>";
+
+        $fields = [
+            "clientContactName",
+            "clientContactStreetAddress",
+            "clientContactSuburb",
+            "clientContactPostcode",
+            "clientContactPhone",
+            "clientContactMobile",
+            "clientContactFax",
+        ];
+
+        foreach ($fields as $field) {
+            if ($this->get_value($field)) {
+                $str .= $this->get_value($field, DST_HTML_DISPLAY) . "<br>";
+            }
+        }
+
+        if ($email = $this->get_value("clientContactEmail")) {
+            $name = $this->get_value("clientContactName", DST_HTML_DISPLAY);
+            $str .= "<a href='mailto:\"{$name}\" <{$email}>'>{$email}</a><br>";
+        }
+
         return $str;
     }
 
@@ -223,6 +252,7 @@ class clientContact extends db_entity
         print("END:VCARD\n");
     }
 
+    // FIXME: ??
     function have_role($role = "")
     {
         return in_array($role, ["", "client"]);
@@ -231,21 +261,31 @@ class clientContact extends db_entity
     function get_list_filter($filter = [])
     {
         $sql = [];
-        $current_user = &singleton("current_user");
 
         // If they want starred, load up the clientContactID filter element
         if ($filter["starred"]) {
-            foreach ((array)$current_user->prefs["stars"]["clientContact"] as $k => $v) {
-                $filter["clientContactID"][] = $k;
+            $current_user = &singleton("current_user");
+            $starredContacts = array_keys((array)$current_user->prefs["stars"]["clientContact"]);
+            foreach ($starredContacts as $clientContactId) {
+                $filter["clientContactID"][] = $clientContactId;
             }
-            is_array($filter["clientContactID"]) or $filter["clientContactID"][] = -1;
+
+            if (!is_array($filter["clientContactID"])) {
+                $filter["clientContactID"][] = -1;
+            }
         }
 
         // Filter on clientContactID
         if ($filter["clientContactID"] && is_array($filter["clientContactID"])) {
-            $sql[] = prepare("(clientContact.clientContactID in (%s))", $filter["clientContactID"]);
+            $sql[] = prepare(
+                "(clientContact.clientContactID in (%s))",
+                $filter["clientContactID"]
+            );
         } else if ($filter["clientContactID"]) {
-            $sql[] = prepare("(clientContact.clientContactID = %d)", $filter["clientContactID"]);
+            $sql[] = prepare(
+                "(clientContact.clientContactID = %d)",
+                $filter["clientContactID"]
+            );
         }
 
         // No point continuing if primary key specified, so return
@@ -256,28 +296,35 @@ class clientContact extends db_entity
 
     public static function get_list($_FORM)
     {
-        $rows = [];
         global $TPL;
         $filter = clientContact::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
         }
 
-        $q = "SELECT clientContact.*, client.*
-                FROM clientContact
-           LEFT JOIN client ON client.clientID = clientContact.clientID
-                     " . $filter . "
-            GROUP BY clientContact.clientContactID
-            ORDER BY clientContactName,clientContact.primaryContact asc";
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->next_record()) {
-            $c = new client();
-            $c->read_db_record($db);
-            $row["clientLink"] = $c->get_client_link($_FORM);
-            $row["clientContactEmail"] and $row["clientContactEmail"] = "<a href=\"mailto:" . page::htmlentities($row["clientContactName"] . " <" . $row["clientContactEmail"] . ">") . "\">" . page::htmlentities($row["clientContactEmail"]) . "</a>";
+        $clientContactQuery =
+            "SELECT clientContact.*, client.*
+               FROM clientContact
+          LEFT JOIN client ON client.clientID = clientContact.clientID
+                    " . $filter . "
+           GROUP BY clientContact.clientContactID
+           ORDER BY clientContactName,clientContact.primaryContact asc";
+        $database = new db_alloc();
+        $database->query($clientContactQuery);
+
+        $rows = [];
+        while ($row = $database->next_record()) {
+            $client = new client();
+            $client->read_db_record($database);
+            $row["clientLink"] = $client->get_client_link($_FORM);
+            if ($row["clientContactEmail"]) {
+                $email = page::htmlentities($row["clientContactEmail"]);
+                $name = page::htmlentities($row["clientContactName"]);
+                $row["clientContactEmail"] = "<a href=\"mailto:{$name} &lt;{$email}&gt;\">{$email}</a>";
+            }
             $rows[] = $row;
         }
+
         return $rows;
     }
 

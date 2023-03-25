@@ -914,7 +914,7 @@ class invoice extends db_entity
         return $interestedPartyOptions;
     }
 
-    function get_list_html($rows = [], $ops = [])
+    public static function get_list_html($rows = [], $ops = [])
     {
         global $TPL;
         $TPL["invoiceListRows"] = $rows;

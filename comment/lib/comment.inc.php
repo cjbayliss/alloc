@@ -268,7 +268,7 @@ class comment extends db_entity
         return (array)$new_rows;
     }
 
-    function util_get_comments($entity, $id, $options = [])
+    public static function util_get_comments($entity, $id, $options = [])
     {
         $rtn = null;
         global $TPL;

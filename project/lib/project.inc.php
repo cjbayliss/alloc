@@ -462,8 +462,13 @@ class project extends db_entity
             $from .= " LEFT JOIN projectPerson on projectPerson.projectID = project.projectID ";
         }
 
+        // IMPORTANT: ensure $filter is a string!
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
+        } else if ($filter === []) {
+            $filter = '';
+        } else if (!is_string($filter)) {
+            throw new ErrorException("$filter is not a string!");
         }
 
         $q = "SELECT project.*, client.*
