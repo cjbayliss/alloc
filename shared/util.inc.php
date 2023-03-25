@@ -593,18 +593,6 @@ function obj2array($obj)
     return $out;
 }
 
-function query_string_to_array($str = "")
-{
-    $pairs = explode("&", $str);
-    foreach ($pairs as $pair) {
-        $nv = explode("=", $pair);
-        $name = urldecode($nv[0]);
-        $value = urldecode($nv[1]);
-        $vars[$name] = $value;
-    }
-    return (array)$vars;
-}
-
 function alloc_json_encode($arr = [])
 {
     $sj = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
@@ -624,7 +612,13 @@ function image_create_from_file($path)
         echo "unable to determine getimagesize($path)";
         return false;
     }
-    $functions = [IMAGETYPE_GIF  => 'imagecreatefromgif', IMAGETYPE_JPEG => 'imagecreatefromjpeg', IMAGETYPE_PNG  => 'imagecreatefrompng', IMAGETYPE_WBMP => 'imagecreatefromwbmp', IMAGETYPE_XBM  => 'imagecreatefromwxbm'];
+    $functions = [
+        IMAGETYPE_GIF  => 'imagecreatefromgif',
+        IMAGETYPE_JPEG => 'imagecreatefromjpeg',
+        IMAGETYPE_PNG  => 'imagecreatefrompng',
+        IMAGETYPE_WBMP => 'imagecreatefromwbmp',
+        IMAGETYPE_XBM  => 'imagecreatefromwxbm'
+    ];
 
     if (!$functions[$info[2]]) {
         echo "no function to handle $info[2]";

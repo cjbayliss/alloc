@@ -1287,23 +1287,36 @@ class comment extends db_entity
 
     function attach_timeSheet($commentID, $entityID, $options)
     {
-        $rtn = [];
         // Begin buffering output to halt anything being sent to the web browser.
         ob_start();
-        $t = new timeSheetPrint();
-        $ops = query_string_to_array($options);
+        $timeSheet = new timeSheetPrint();
 
-        $t->get_printable_timeSheet_file($entityID, $ops["timeSheetPrintMode"], $ops["printDesc"], $ops["format"]);
+        $optionsArray = [];
+        $pairs = explode("&", $options);
+        foreach ($pairs as $pair) {
+            $keyValuePair = explode("=", $pair);
+            $optionsArray[urldecode($keyValuePair[0])] = urldecode($keyValuePair[1]);
+        }
 
-        // Capture the output into $str
-        $str = (string)ob_get_clean();
+        $timeSheet->get_printable_timeSheet_file(
+            $entityID,
+            $optionsArray["timeSheetPrintMode"],
+            $optionsArray["printDesc"],
+            $optionsArray["format"]
+        );
+
+        // Capture the output into $outputBuffer
+        $outputBuffer = (string)ob_get_clean();
         $suffix = ".html";
-        $ops["format"] != "html" and $suffix = ".pdf";
+        if ($optionsArray["format"] != "html") {
+            $suffix = ".pdf";
+        }
 
-        $rtn["name"] = "timeSheet_" . $entityID . $suffix;
-        $rtn["blob"] = $str;
-        $rtn["size"] = strlen($str);
-        return $rtn;
+        $result = [];
+        $result["name"] = "timeSheet_" . $entityID . $suffix;
+        $result["blob"] = $outputBuffer;
+        $result["size"] = strlen($outputBuffer);
+        return $result;
     }
 
     function attach_invoice($commentID, $entityID, $verbose)
