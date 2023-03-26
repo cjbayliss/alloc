@@ -57,7 +57,7 @@ class productSale extends db_entity
         return parent::validate($rtn);
     }
 
-    function is_owner()
+    function is_owner($ignored = null)
     {
         $current_user = &singleton("current_user");
         return !$this->get_id()

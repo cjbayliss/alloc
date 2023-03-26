@@ -28,7 +28,7 @@ class interestedParty extends db_entity
         $this->save();
     }
 
-    function is_owner()
+    function is_owner($ignored = null)
     {
         $current_user = &singleton("current_user");
         return same_email_address($this->get_value("emailAddress"), $current_user->get_value("emailAddress"));

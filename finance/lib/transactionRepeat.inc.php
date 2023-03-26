@@ -34,7 +34,7 @@ class transactionRepeat extends db_entity
     ];
 
 
-    function is_owner()
+    function is_owner($ignored = null)
     {
         $tf = new tf();
         $tf->set_id($this->get_value("tfID"));

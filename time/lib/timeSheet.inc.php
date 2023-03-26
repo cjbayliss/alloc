@@ -33,7 +33,7 @@ class timeSheet extends db_entity
 
     public $permissions = [PERM_TIME_APPROVE_TIMESHEETS => "approve", PERM_TIME_INVOICE_TIMESHEETS => "invoice"];
 
-    function is_owner()
+    function is_owner($ignored = null)
     {
         $current_user = &singleton("current_user");
 

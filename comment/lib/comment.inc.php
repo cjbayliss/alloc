@@ -64,7 +64,7 @@ class comment extends db_entity
         parent::delete();
     }
 
-    function is_owner()
+    function is_owner($ignored = null)
     {
         $current_user = &singleton("current_user");
         $entity = $this->get_value("commentMaster");

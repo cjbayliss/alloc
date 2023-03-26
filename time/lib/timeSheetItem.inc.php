@@ -201,7 +201,7 @@ class timeSheetItem extends db_entity
         return [$rtn, $rtn_dollars];
     }
 
-    function is_owner()
+    function is_owner($ignored = null)
     {
         if ($this->get_value("timeSheetID")) {
             $timeSheet = new timeSheet();

@@ -22,7 +22,7 @@ class productSaleItem extends db_entity
         "quantity",
         "description"
     ];
-    function is_owner()
+    function is_owner($ignored = null)
     {
         $productSale = $this->get_foreign_object("productSale");
         return $productSale->is_owner();
