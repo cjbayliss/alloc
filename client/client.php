@@ -15,7 +15,6 @@ function check_optional_client_exists()
 
 function show_client_contacts()
 {
-    $rtn = [];
     global $TPL;
     global $clientID;
 
@@ -31,110 +30,141 @@ function show_client_contacts()
     $client->set_id($clientID);
     $client->select();
 
-    // other contacts
-    $query = prepare("SELECT *
-                        FROM clientContact
-                       WHERE clientID=%d
-                    ORDER BY clientContactActive DESC, primaryContact DESC, clientContactName", $clientID);
+    $clientContactsQuery = prepare(
+        "SELECT *
+           FROM clientContact
+          WHERE clientID=%d
+       ORDER BY clientContactActive DESC, primaryContact DESC, clientContactName",
+        $clientID
+    );
 
-    $db = new db_alloc();
-    $db->query($query);
-    while ($db->next_record()) {
+    $database = new db_alloc();
+    $database->query($clientContactsQuery);
+    $buildHTML = [];
+    while ($database->next_record()) {
         $clientContact = new clientContact();
-        $clientContact->read_db_record($db);
+        $clientContact->read_db_record($database);
 
-        if ($_POST["clientContact_edit"] && $_POST["clientContactID"] == $clientContact->get_id()) {
+        if (
+            $_POST["clientContact_edit"] &&
+            $_POST["clientContactID"] == $clientContact->get_id()
+        ) {
             continue;
         }
 
-
-        $pc = "";
-        if ($clientContact->get_value("primaryContact")) {
-            $pc = " [Primary]";
+        $vcardIcon = "icon_vcard.png";
+        if (!$clientContact->get_value("clientContactActive")) {
+            $vcardIcon = "icon_vcard_faded.png";
         }
 
-        $vcard_img = "icon_vcard.png";
-        $clientContact->get_value("clientContactActive") or $vcard_img = "icon_vcard_faded.png";
+        $vcardHTML = <<<HTML
+        <a href="{$TPL['url_alloc_client']}clientContactID={$clientContact->get_id()}&get_vcard=1"><img style="vertical-align:middle; padding:3px 6px 3px 3px;border: none" src="{$TPL['url_alloc_images']}{$vcardIcon}" alt="Download VCard" ></a>
+HTML;
 
-        $vcard = '<a href="' . $TPL["url_alloc_client"] . 'clientContactID=' . $clientContact->get_id() . '&get_vcard=1"><img style="vertical-align:middle; padding:3px 6px 3px 3px;border: none" src="' . $TPL["url_alloc_images"] . $vcard_img . '" alt="Download VCard" ></a>';
+        // FIXME: this comment prevents inteliphese breaking HEREDOC on format,
+        // remove once PHP 7.3 is supported
 
-        $col1 = [];
-        $clientContact->get_value('clientContactName') and $col1[] = "<h2 style='margin:0px; display:inline;'>" . $vcard . $clientContact->get_value('clientContactName', DST_HTML_DISPLAY) . "</h2>" . $pc;
-        $clientContact->get_value('clientContactStreetAddress') and $col1[] = $clientContact->get_value('clientContactStreetAddress', DST_HTML_DISPLAY);
+        $firstColumnContactfields = [
+            'clientContactName',
+            'clientContactStreetAddress',
+            'clientContactSuburb',
+            'clientContactState',
+            'clientContactPostcode',
+            'clientContactCountry',
+        ];
 
-        $clientContact->get_value('clientContactSuburb') || $clientContact->get_value('clientContactState') || $clientContact->get_value('clientContactPostcode') and
-            $col1[] = $clientContact->get_value('clientContactSuburb', DST_HTML_DISPLAY) . ' ' . $clientContact->get_value('clientContactState', DST_HTML_DISPLAY) . " " . $clientContact->get_value('clientContactPostcode', DST_HTML_DISPLAY);
+        $generatedFirstColumnHTMLArray = [];
+        foreach ($firstColumnContactfields as $field) {
+            $fieldValue = $clientContact->get_value($field, DST_HTML_DISPLAY);
 
-        $clientContact->get_value('clientContactCountry') and $col1[] = $clientContact->get_value('clientContactCountry', DST_HTML_DISPLAY);
+            if (!empty($fieldValue) && $field === 'clientContactName') {
+                $primaryContact = '';
+                if ($clientContact->get_value("primaryContact")) {
+                    $primaryContact = " [Primary]";
+                }
 
+                $generatedFirstColumnHTMLArray[] = <<<HTML
+                <h2 style='margin:0px; display:inline;'>{$vcardHTML}{$fieldValue}</h2>{$primaryContact}
+HTML;
 
-        // find some gpl icons!
-        #$ico_e = "<img src=\"".$TPL["url_alloc_images"]."/icon_email.gif\">";
-        #$ico_p = "<img src=\"".$TPL["url_alloc_images"]."/icon_phone.gif\">";
-        #$ico_m = "<img src=\"".$TPL["url_alloc_images"]."/icon_mobile.gif\">";
-        #$ico_f = "<img src=\"".$TPL["url_alloc_images"]."/icon_fax.gif\">";
-
-        $ico_e = "E: ";
-        $ico_p = "P: ";
-        $ico_m = "M: ";
-        $ico_f = "F: ";
-
-        $col2 = [];
-        $email = $clientContact->get_value("clientContactEmail", DST_HTML_DISPLAY);
-        $email = str_replace("<", "", $email);
-        $email = str_replace(">", "", $email);
-        $email = str_replace("&lt;", "", $email);
-        $email = str_replace("&gt;", "", $email);
-
-        $userName = $clientContact->get_value('clientContactName', DST_HTML_DISPLAY);
-        if ($userName) {
-            $mailto = '"' . $userName . '" <' . $email . ">";
-        } else {
-            $mailto = $email;
+                // FIXME: this comment prevents inteliphese breaking HEREDOC on
+                // format, remove once PHP 7.3 is supported
+            } else if (!empty($field)) {
+                $generatedFirstColumnHTMLArray[] = $fieldValue;
+            }
         }
-        $email and $col2[] = $ico_e . "<a href='mailto:" . rawurlencode($mailto) . "'>" . $email . "</a>";
 
-        $phone = $clientContact->get_value('clientContactPhone', DST_HTML_DISPLAY);
-        $phone and $col2[] = $ico_p . $phone;
+        $seconContactColumnFields = [
+            'clientContactEmail',
+            'clientContactName',
+            'clientContactPhone',
+            'clientContactMobile',
+            'clientContactFax',
+        ];
 
-        $mobile = $clientContact->get_value('clientContactMobile', DST_HTML_DISPLAY);
-        $mobile and $col2[] = $ico_m . $mobile;
+        $generatedSecondColumnHTMLArray = [];
+        foreach ($seconContactColumnFields as $field) {
+            $value = $clientContact->get_value($field, DST_HTML_DISPLAY);
+            // get first letter of field type, e.g. P for clientContactPhone
+            $label = strtoupper(str_replace('clientContact', '', $field)[0]);
 
-        $fax = $clientContact->get_value('clientContactFax', DST_HTML_DISPLAY);
-        $fax and $col2[] = $ico_f . $fax;
+            if (!empty($value) && $field === 'clientContactEmail') {
+                $value = str_replace(['<', '>', '&lt;', '&gt;'], '', $value);
+                $contactName = $clientContact->get_value('clientContactName', DST_HTML_DISPLAY);
+                $mailto = rawurlencode($contactName ? "\"{$contactName}\" <{$value}>" : $value);
+                $generatedSecondColumnHTMLArray[] = "{$label}: <a href='mailto:{$mailto}'>{$value}</a>";
+            } else if (!empty($value)) {
+                $generatedSecondColumnHTMLArray[] = "{$label}: {$value}";
+            }
+        }
 
         if ($clientContact->get_value("clientContactActive")) {
-            $class_extra = " loud";
+            $class_extra = "loud";
         } else {
-            $class_extra = " quiet";
+            $class_extra = "quiet";
         }
 
-        $buttons = '<nobr>
-      <button type="submit" name="clientContact_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
-      <button type="submit" name="clientContact_edit" value="1"">Edit<i class="icon-edit"></i></button>
-      </nobr>';
+        $firstColumnHTML = implode('</span><br><span class="nobr">', $generatedFirstColumnHTMLArray);
+        $secondColumnHTML = implode('</span><br><span class="nobr">', $generatedSecondColumnHTMLArray);
+        $otherClientContact = nl2br($clientContact->get_value('clientContactOther', DST_HTML_DISPLAY));
+        $starredClientContact = page::star("clientContact", $clientContact->get_id());
+        $buttons = <<<HTML
+        <nobr>
+            <button type="submit" name="clientContact_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
+            <button type="submit" name="clientContact_edit" value="1"">Edit<i class="icon-edit"></i></button>
+        </nobr> 
+HTML;
 
-        $rtn[] =  '<form action="' . $TPL["url_alloc_client"] . '" method="post">';
-        $rtn[] =  '<input type="hidden" name="clientContactID" value="' . $clientContact->get_id() . '">';
-        $rtn[] =  '<input type="hidden" name="clientID" value="' . $clientID . '">';
-        $rtn[] =  '<div class="panel' . $class_extra . ' corner">';
-        $rtn[] =  '<table width="100%" cellspacing="0" border="0">';
-        $rtn[] =  '<tr>';
-        $rtn[] =  '  <td width="25%" valign="top"><span class="nobr">' . implode('</span><br><span class="nobr">', $col1) . '</span>&nbsp;</td>';
-        $rtn[] =  '  <td width="20%" valign="top"><span class="nobr">' . implode('</span><br><span class="nobr">', $col2) . '</span>&nbsp;</td>';
-        $rtn[] =  '  <td width="50%" align="left" valign="top">' . nl2br($clientContact->get_value('clientContactOther', DST_HTML_DISPLAY)) . '&nbsp;</td>';
-        $rtn[] =  '  <td align="right" class="right nobr">' . $buttons . '</td>';
-        $rtn[] =  '  <td align="right" class="right nobr" width="1%">' . page::star("clientContact", $clientContact->get_id()) . '</td>';
-        $rtn[] =  '</tr>';
-        $rtn[] =  '</table>';
-        $rtn[] =  '</div>';
-        $rtn[] =  '<input type="hidden" name="sessID" value="' . $TPL["sessID"] . '">';
-        $rtn[] =  '</form>';
+        // FIXME: this comment prevents inteliphese breaking HEREDOC on format,
+        // remove once PHP 7.3 is supported
+
+        $buildHTML[] = <<<HTML
+            <form action="{$TPL['url_alloc_client']}" method="post">
+            <input type="hidden" name="clientContactID" value="{$clientContact->get_id()}">
+            <input type="hidden" name="clientID" value="{$clientID}">
+            <div class="panel {$class_extra} corner">
+            <table width="100%" cellspacing="0" border="0">
+                <tr>
+                    <td width="25%" valign="top"><span class="nobr">{$firstColumnHTML}</span>&nbsp;</td>
+                    <td width="20%" valign="top"><span class="nobr">{$secondColumnHTML}</span>&nbsp;</td>
+                    <td width="50%" align="left" valign="top">{$otherClientContact}&nbsp;</td>
+                    <td align="right" class="right nobr">{$buttons}</td>
+                    <td align="right" class="right nobr" width="1%">{$starredClientContact}</td>
+                </tr>
+            </table>
+            </div>
+            <input type="hidden" name="sessID" value="{$TPL['sessID']}">
+            </form>
+HTML;
+
+        // FIXME: this comment prevents inteliphese breaking HEREDOC on format,
+        // remove once PHP 7.3 is supported
     }
 
-    if (is_array($rtn)) {
-        $TPL["clientContacts"] = implode("\n", $rtn);
+    if (is_array($buildHTML)) {
+        $TPL["clientContacts"] = implode("\n", $buildHTML);
     }
+
     if ($_POST["clientContact_edit"] && $_POST["clientContactID"]) {
         $clientContact = new clientContact();
         $clientContact->set_id($_POST["clientContactID"]);
@@ -146,7 +176,7 @@ function show_client_contacts()
         if ($clientContact->get_value("clientContactActive")) {
             $TPL["clientContactActive_checked"] = " checked";
         }
-    } else if ($rtn) {
+    } else if ($buildHTML) {
         $TPL["class_new_client_contact"] = "hidden";
     }
 
