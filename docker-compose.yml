@@ -14,3 +14,8 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.mariadb
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
