@@ -212,8 +212,14 @@ function show_comments()
     $TPL["clientID"] = $client->get_id();
 
     $commentTemplate = new commentTemplate();
-    $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "client"]);
-    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
+    $ops = $commentTemplate->get_assoc_array(
+        "commentTemplateID",
+        "commentTemplateName",
+        "",
+        ["commentTemplateType" => "client"]
+    );
+    $TPL["commentTemplateOptions"] =
+        "<option value=\"\">Comment Templates</option>{page::select_options($ops)}";
     include_template("../comment/templates/commentM.tpl");
 }
 
@@ -243,10 +249,8 @@ function show_invoices()
 }
 
 
-
 $client = new client();
 $clientID = $_POST["clientID"] or $clientID = $_GET["clientID"];
-
 
 if ($_POST["save"]) {
     if (!$_POST["clientName"]) {
@@ -270,7 +274,7 @@ if ($_POST["save"]) {
     }
 } else if ($_POST["save_attachment"]) {
     move_attachment("client", $clientID);
-    alloc_redirect($TPL["url_alloc_client"] . "clientID=" . $clientID . "&sbs_link=attachments");
+    alloc_redirect("{$TPL['url_alloc_client']}clientID={$clientID}&sbs_link=attachments");
 } else if ($_GET["get_vcard"]) {
     $clientContact = new clientContact();
     $clientContact->set_id($_GET["clientContactID"]);
@@ -292,15 +296,23 @@ if ($_POST["save"]) {
 
 $m = new meta("clientStatus");
 $clientStatus_array = $m->get_assoc_array("clientStatusID", "clientStatusID");
-$TPL["clientStatusOptions"] = page::select_options($clientStatus_array, $client->get_value("clientStatus"));
+$TPL["clientStatusOptions"] = page::select_options(
+    $clientStatus_array,
+    $client->get_value("clientStatus")
+);
 
-$clientCategories = config::get_config_item("clientCategories") or $clientCategories = [];
-foreach ($clientCategories as $k => $v) {
-    $cc[$v["value"]] = $v["label"];
+$clientCategories = config::get_config_item("clientCategories") ?: [];
+
+foreach ($clientCategories as $cateagory) {
+    $categoryOptions[$cateagory["value"]] = $cateagory["label"];
 }
-$TPL["clientCategoryOptions"] = page::select_options($cc, $client->get_value("clientCategory"));
-$client->get_value("clientCategory") and $TPL["client_clientCategoryLabel"] = $cc[$client->get_value("clientCategory")];
 
+$selectedCategory = $client->get_value("clientCategory");
+$TPL["clientCategoryOptions"] = page::select_options($categoryOptions, $selectedCategory);
+
+if ($selectedCategory) {
+    $TPL["client_clientCategoryLabel"] = $categoryOptions[$selectedCategory];
+}
 
 // client contacts
 if ($_POST["clientContact_save"] || $_POST["clientContact_delete"]) {
@@ -308,7 +320,6 @@ if ($_POST["clientContact_save"] || $_POST["clientContact_delete"]) {
     $clientContact->read_globals();
 
     if ($_POST["clientContact_save"]) {
-        #$clientContact->set_value('clientID', $_POST["clientID"]);
         $clientContact->save();
     }
 
@@ -318,17 +329,18 @@ if ($_POST["clientContact_save"] || $_POST["clientContact_delete"]) {
 }
 
 if (!$clientID) {
-    $TPL["message_help"][] = "Create a new Client by inputting the Client Name and other details and clicking the Create New Client button.";
+    $TPL["message_help"][] =
+        "Create a new Client by inputting the Client Name and other details and clicking the Create New Client button.";
     $TPL["main_alloc_title"] = "New Client - " . APPLICATION_NAME;
     $TPL["clientSelfLink"] = "New Client";
 } else {
-    $TPL["main_alloc_title"] = "Client " . $client->get_id() . ": " . $client->get_name() . " - " . APPLICATION_NAME;
-    $TPL["clientSelfLink"] = sprintf("<a href=\"%s\">%d %s</a>", $client->get_url(), $client->get_id(), $client->get_name(["return" => "html"]));
+    $TPL["main_alloc_title"] = "Client {$client->get_id()}: {$client->get_name()} - " . APPLICATION_NAME;
+    $TPL["clientSelfLink"] =
+        "<a href=\"{$client->get_url()}\">{$client->get_id()} {$client->get_name(["return" => "html"])}</a>";
 }
 
-
 if ($current_user->have_role("admin")) {
-    $TPL["invoice_links"] .= "<a href=\"" . $TPL["url_alloc_invoice"] . "clientID=" . $clientID . "\">New Invoice</a>";
+    $TPL["invoice_links"] .= "<a href=\"{$TPL['url_alloc_invoice']}clientID={$clientID}\">New Invoice</a>";
 }
 
 $projectListOps = ["showProjectType" => true, "clientID" => $client->get_id()];
