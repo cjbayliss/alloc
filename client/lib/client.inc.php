@@ -278,7 +278,7 @@ class client extends db_entity
         ];
     }
 
-    function load_form_data($defaults = [])
+    public static function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
 
@@ -302,7 +302,7 @@ class client extends db_entity
         return $_FORM;
     }
 
-    function load_client_filter($_FORM)
+    public static function load_client_filter($_FORM)
     {
         $rtn = [];
         global $TPL;

@@ -7,9 +7,10 @@
 
 require_once("../alloc.php");
 
-
-$defaults = ["url_form_action" => $TPL["url_alloc_clientList"], "form_name" => "clientList_filter"];
-
+$defaults = [
+    "url_form_action" => $TPL["url_alloc_clientList"],
+    "form_name" => "clientList_filter"
+];
 
 function show_filter()
 {

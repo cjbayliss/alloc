@@ -11,17 +11,25 @@ require_once("../alloc.php");
 
 $index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/client');
 $index->setResultSetLimit(10);
-$needle = 'name:' . $_GET["clientName"];
+$needle = "name:{$_GET['clientName']}";
 $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
-$hits = $index->find($needle);
+$matches = $index->find($needle);
 
-foreach ($hits as $hit) {
-    $d = $hit->getDocument();
-    $str .= "<div style='padding-bottom:3px'>";
-    $str .= "<a href=\"" . $TPL["url_alloc_client"] . "clientID=" . $d->getFieldValue('id') . "\">" . $d->getFieldValue('id') . " " . $d->getFieldValue('name') . "</a>";
-    $str .= "</div>";
+$result = null;
+foreach ($matches as $match) {
+    $document = $match->getDocument();
+    $clientID = $document->getFieldValue('id');
+    $clientName = $document->getFieldValue('name');
+    $result = <<<HTML
+    <div style='padding-bottom:3px'>
+    <a href="{$TPL['url_alloc_client']}clientID={$clientID}">{$clientID} {$clientName}</a>
+    </div>
+HTML;
+
+    // FIXME: this comment prevents inteliphese breaking HEREDOC on format,
+    // remove once PHP 7.3 is supported
 }
 
-if ($str) {
-    echo $str;
+if (!empty($result)) {
+    echo $result;
 }
