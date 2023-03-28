@@ -227,6 +227,12 @@ class client extends db_entity
             $clientCategories[$category["value"]] = $category["label"];
         }
 
+        // IMPORTANT: passing empty PHP arrays to SQL queries will put the type
+        // keyword 'Array' in the query
+        if (empty($filter)) {
+            $filter = null;
+        }
+
         $clientInfoQuery =
             "SELECT client.*,
                     clientContactName,
@@ -237,7 +243,7 @@ class client extends db_entity
           LEFT JOIN clientContact
                  ON client.clientID = clientContact.clientID
                 AND clientContact.clientContactActive = 1
-                    " . $filter . "
+                    {$filter}
            GROUP BY client.clientID
            ORDER BY clientName,clientContact.primaryContact asc";
 
