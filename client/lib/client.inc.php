@@ -405,7 +405,7 @@ class client extends db_entity
         $client->set_id($clientID);
         $client->select();
 
-        $options = client::get_list([["clientStatus"] => "Current"]);
+        $options = client::get_list(["clientStatus" => "Current"]);
         $options = array_kv($options, "clientID", "clientName");
         $client->get_id() and $options[$client->get_id()] = $client->get_value("clientName");
         $client_select = "<select id=\"clientID\" name=\"clientID\" onChange=\"makeAjaxRequest('"
