@@ -70,13 +70,13 @@ class client extends db_entity
         return $current_user->is_employee();
     }
 
-    function has_attachment_permission($person)
+    public static function has_attachment_permission($person)
     {
         // Placeholder for security check in shared/get_attchment.php
         return true;
     }
 
-    function has_attachment_permission_delete($person)
+    public static function has_attachment_permission_delete($person)
     {
         // Placeholder for security check in shared/get_attchment.php
         return true;
