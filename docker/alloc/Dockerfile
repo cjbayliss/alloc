@@ -6,18 +6,16 @@ RUN apt-get install --no-install-recommends -y libpng-dev make python
 RUN docker-php-ext-install gd pdo_mysql
 
 RUN rm -rvf /var/www/html/*
-
-ADD . /var/www/html/
+ADD ../../ /var/www/html/
 WORKDIR /var/www/html
+RUN make patches; make css
 
-RUN cd /var/www/html/; make patches; make css
 RUN mkdir -p /var/local/alloc; chown www-data /var/local/alloc/
-
 RUN echo '<?php\n\
 define("ALLOC_DB_NAME","alloc"); \n\
 define("ALLOC_DB_USER","alloc"); \n\
 define("ALLOC_DB_PASS","changeme"); \n\
-define("ALLOC_DB_HOST","db"); \n\
+define("ALLOC_DB_HOST","database"); \n\
 define("ATTACHMENTS_DIR","/var/local/alloc/");' > /var/www/html/alloc_config.php
 
 RUN for i in task client project invoice comment backups whatsnew logos search tmp; do \

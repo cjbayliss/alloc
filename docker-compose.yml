@@ -1,21 +1,21 @@
 version: "3.9"
 services:
-  web:
+  alloc:
     build:
       context: .
-      dockerfile: ./Dockerfile.alloc
+      dockerfile: docker/alloc/Dockerfile
     ports:
       - 4000:80
     links:
-      - db:db
+      - database:database
     depends_on:
-      - "db"
-  db:
+      - "database"
+  database:
     build:
       context: .
-      dockerfile: ./Dockerfile.mariadb
+      dockerfile: docker/database/Dockerfile
     volumes:
-      - db_data:/var/lib/mysql
+      - database_data:/var/lib/mysql
 
 volumes:
-  db_data:
+  database_data:
