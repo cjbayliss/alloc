@@ -6,13 +6,12 @@
     <meta http-equiv="Pragma" content="no-cache">
     <title>{=$main_alloc_title}</title>
     <style type="text/css" media="screen">body { font-size:{page::default_font_size()}px }</style>
-    <link rel="StyleSheet" href="{$url_alloc_cache}{page::stylesheet()}" type="text/css" media="screen">
-    <link rel="StyleSheet" href="{$url_alloc_cache}calendar.css" type="text/css" media="screen">
-    <link rel="StyleSheet" href="{$url_alloc_cache}jqplot.css" type="text/css" media="screen">
-    <link rel="StyleSheet" href="{$url_alloc_cache}font.css" type="text/css" media="screen">
-    <link rel="StyleSheet" href="{$url_alloc_cache}print.css" type="text/css" media="print">
-    <!--[if IE 7]><link rel="stylesheet" href="{$url_alloc_cache}font-awesome-ie7.css"><![endif]-->
-    <script type="text/javascript" src="{$url_alloc_cache}javascript.js"></script>
+    <link rel="StyleSheet" href="/css/{page::stylesheet()}" type="text/css" media="screen">
+    <link rel="StyleSheet" href="/css/calendar.css" type="text/css" media="screen">
+    <link rel="StyleSheet" href="/css/jqplot.css" type="text/css" media="screen">
+    <link rel="StyleSheet" href="/css/font.css" type="text/css" media="screen">
+    <link rel="StyleSheet" href="/css/print.css" type="text/css" media="print">
+    <script type="text/javascript" src="/javascript/jumbo.js"></script>
     <script type="text/javascript">
       // return a value to be used in javascript, that is set from PHP
       function get_alloc_var(key) {

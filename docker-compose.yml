@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: docker/alloc/Dockerfile
+    volumes:
+      - .:/var/www/html
     ports:
       - 4000:80
     links:
