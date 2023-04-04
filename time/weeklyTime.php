@@ -25,7 +25,7 @@ function show_timeSheetItems($template_name)
     global $date_to_view;
     $current_user = &singleton("current_user");
     global $TPL;
-    $query = prepare("SELECT *
+    $query = unsafe_prepare("SELECT *
                         FROM timeSheetItem
                              LEFT JOIN timeSheet ON timeSheetItem.timeSheetID = timeSheet.timeSheetID
                              LEFT JOIN project ON timeSheet.projectID = project.projectID

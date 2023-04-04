@@ -61,10 +61,10 @@ class project extends db_entity
 
         // If we're archiving the project, then archive the tasks.
         if ($old["projectStatus"] != "Archived" && $this->get_value("projectStatus") == "Archived") {
-            $q = prepare("SELECT taskID FROM task WHERE projectID = %d AND SUBSTRING(taskStatus,1,6) != 'closed'", $this->get_id());
+            $q = unsafe_prepare("SELECT taskID FROM task WHERE projectID = %d AND SUBSTRING(taskStatus,1,6) != 'closed'", $this->get_id());
             $q1 = $db->query($q);
             while ($row = $db->row($q1)) {
-                $q = prepare("call change_task_status(%d,'closed_archived')", $row["taskID"]);
+                $q = unsafe_prepare("call change_task_status(%d,'closed_archived')", $row["taskID"]);
                 $db->query($q);
                 $ids .= $commar . $row["taskID"];
                 $commar = ", ";
@@ -73,10 +73,10 @@ class project extends db_entity
 
             // Else if we're un-archiving the project, then un-archive the tasks.
         } else if ($old["projectStatus"] == "Archived" && $this->get_value("projectStatus") != "Archived") {
-            $q = prepare("SELECT taskID FROM task WHERE projectID = %d AND taskStatus = 'closed_archived'", $this->get_id());
+            $q = unsafe_prepare("SELECT taskID FROM task WHERE projectID = %d AND taskStatus = 'closed_archived'", $this->get_id());
             $q1 = $db->query($q);
             while ($row = $db->row($q1)) {
-                $q = prepare("call change_task_status(%d,get_most_recent_non_archived_taskStatus(%d))", $row["taskID"], $row["taskID"]);
+                $q = unsafe_prepare("call change_task_status(%d,get_most_recent_non_archived_taskStatus(%d))", $row["taskID"], $row["taskID"]);
                 $db->query($q);
                 $ids .= $commar . $row["taskID"];
                 $commar = ", ";
@@ -90,7 +90,7 @@ class project extends db_entity
 
     function delete()
     {
-        $q = prepare("DELETE from projectPerson WHERE projectID = %d", $this->get_id());
+        $q = unsafe_prepare("DELETE from projectPerson WHERE projectID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
         return parent::delete();
@@ -160,7 +160,7 @@ class project extends db_entity
         if (is_object($person)) {
             $permissions and $p = " AND " . sprintf_implode("ppr.roleHandle = '%s'", $permissions);
 
-            $query = prepare(
+            $query = unsafe_prepare(
                 "SELECT personID, projectID, pp.roleID, ppr.roleName, ppr.roleHandle
                    FROM projectPerson pp
               LEFT JOIN role ppr ON ppr.roleID = pp.roleID
@@ -191,7 +191,7 @@ class project extends db_entity
     function get_project_people_by_role($role = "")
     {
         $rows = [];
-        $q = prepare("SELECT projectPerson.personID as personID
+        $q = unsafe_prepare("SELECT projectPerson.personID as personID
                         FROM projectPerson
                    LEFT JOIN role ON projectPerson.roleID = role.roleID
                        WHERE projectPerson.projectID = %d AND role.roleHandle = '%s'", $this->get_id(), $role);
@@ -283,10 +283,10 @@ class project extends db_entity
         $current_user = &singleton("current_user");
         $type or $type = "mine";
         $personID or $personID = $current_user->get_id();
-        $projectStatus and $projectStatus_sql = prepare(" AND project.projectStatus = '%s' ", $projectStatus);
+        $projectStatus and $projectStatus_sql = unsafe_prepare(" AND project.projectStatus = '%s' ", $projectStatus);
 
         if ($type == "mine") {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT project.projectID, project.projectName
                    FROM project
               LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
@@ -297,7 +297,7 @@ class project extends db_entity
                 $personID
             );
         } else if ($type == "pm") {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT project.projectID, project.projectName
                    FROM project
               LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
@@ -309,7 +309,7 @@ class project extends db_entity
                 $personID
             );
         } else if ($type == "tsm") {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT project.projectID, project.projectName
                    FROM project
               LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
@@ -321,7 +321,7 @@ class project extends db_entity
                 $personID
             );
         } else if ($type == "pmORtsm") {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT project.projectID, project.projectName
                    FROM project
               LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
@@ -333,9 +333,9 @@ class project extends db_entity
                 $personID
             );
         } else if ($type == "all") {
-            $q = prepare("SELECT projectID,projectName FROM project ORDER BY projectName");
+            $q = unsafe_prepare("SELECT projectID,projectName FROM project ORDER BY projectName");
         } else if ($type) {
-            $q = prepare("SELECT projectID,projectName FROM project WHERE project.projectStatus = '%s' ORDER BY projectName", $type);
+            $q = unsafe_prepare("SELECT projectID,projectName FROM project WHERE project.projectStatus = '%s' ORDER BY projectName", $type);
         }
         return $q;
     }
@@ -480,7 +480,7 @@ class project extends db_entity
 
         // Zero is a valid limit
         if ($_FORM["limit"] || $_FORM["limit"] === 0 || $_FORM["limit"] === "0") {
-            $q .= prepare(" LIMIT %d", $_FORM["limit"]);
+            $q .= unsafe_prepare(" LIMIT %d", $_FORM["limit"]);
         }
 
         $debug and print "Query: " . $q;
@@ -592,7 +592,7 @@ class project extends db_entity
         $invoiceID = null;
         $db = new db_alloc();
 
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT *
                FROM invoice
               WHERE projectID = %d
@@ -606,7 +606,7 @@ class project extends db_entity
         if ($row = $db->row()) {
             $invoiceID = $row["invoiceID"];
         } else if ($this->get_value("clientID")) {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT *
                    FROM invoice
                   WHERE clientID = %d
@@ -755,14 +755,14 @@ class project extends db_entity
 
             // Get primary client contact from Project page
             $db = new db_alloc();
-            $q = prepare("SELECT projectClientName,projectClientEMail FROM project WHERE projectID = %d", $projectID);
+            $q = unsafe_prepare("SELECT projectClientName,projectClientEMail FROM project WHERE projectID = %d", $projectID);
             $db->query($q);
             $db->next_record();
             $interestedPartyOptions[$db->f("projectClientEMail")]["name"] = $db->f("projectClientName");
             $interestedPartyOptions[$db->f("projectClientEMail")]["external"] = "1";
 
             // Get all other client contacts from the Client pages for this Project
-            $q = prepare("SELECT clientID FROM project WHERE projectID = %d", $projectID);
+            $q = unsafe_prepare("SELECT clientID FROM project WHERE projectID = %d", $projectID);
             $db->query($q);
             $db->next_record();
             $clientID = $db->f("clientID");
@@ -772,7 +772,7 @@ class project extends db_entity
             }
 
             // Get all the project people for this tasks project
-            $q = prepare("SELECT emailAddress, firstName, surname, person.personID, username
+            $q = unsafe_prepare("SELECT emailAddress, firstName, surname, person.personID, username
                             FROM projectPerson
                        LEFT JOIN person on projectPerson.personID = person.personID
                            WHERE projectPerson.projectID = %d AND person.personActive = 1 ", $projectID);

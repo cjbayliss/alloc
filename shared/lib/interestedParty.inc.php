@@ -85,7 +85,7 @@ class interestedParty extends db_entity
             }
         }
 
-        $q = prepare("UPDATE interestedParty
+        $q = unsafe_prepare("UPDATE interestedParty
                          SET interestedPartyActive = 0
                        WHERE entity = '%s'
                          AND entityID = %d", $entity, $entityID);
@@ -112,7 +112,7 @@ class interestedParty extends db_entity
 
     function get_interested_parties_string($entity, $entityID)
     {
-        $q = prepare("SELECT get_interested_parties_string('%s',%d) as parties", $entity, $entityID);
+        $q = unsafe_prepare("SELECT get_interested_parties_string('%s',%d) as parties", $entity, $entityID);
         $db = new db_alloc();
         $row = $db->qr($q);
         return $row["parties"];
@@ -129,7 +129,7 @@ class interestedParty extends db_entity
 
         if ($entityID) {
             $db = new db_alloc();
-            $q = prepare("SELECT *
+            $q = unsafe_prepare("SELECT *
                            FROM interestedParty
                           WHERE entity='%s'
                             AND entityID = %d
@@ -241,7 +241,7 @@ class interestedParty extends db_entity
         $extra_interested_parties = config::get_config_item("defaultInterestedParties");
         if (!$ip->get_value("personID") && !in_array($data["emailAddress"], (array)$extra_interested_parties)) {
             $ip->set_value("external", 1);
-            $q = prepare("SELECT * FROM clientContact WHERE clientContactEmail = '%s'", $data["emailAddress"]);
+            $q = unsafe_prepare("SELECT * FROM clientContact WHERE clientContactEmail = '%s'", $data["emailAddress"]);
             $db = new db_alloc();
             $db->query($q);
             if ($row = $db->row()) {
@@ -363,14 +363,14 @@ class interestedParty extends db_entity
     {
         $sql = [];
         $filter["emailAddress"] = str_replace(["<", ">"], "", $filter["emailAddress"]);
-        $filter["emailAddress"]    and $sql[] = prepare("(interestedParty.emailAddress LIKE '%%%s%%')", $filter["emailAddress"]);
-        $filter["fullName"]        and $sql[] = prepare("(interestedParty.fullName LIKE '%%%s%%')", $filter["fullName"]);
-        $filter["personID"]        and $sql[] = prepare("(interestedParty.personID = %d)", $filter["personID"]);
-        $filter["clientContactID"] and $sql[] = prepare("(interestedParty.clientContactID = %d)", $filter["clientContactID"]);
-        $filter["entity"]          and $sql[] = prepare("(interestedParty.entity = '%s')", $filter["entity"]);
-        $filter["entityID"]        and $sql[] = prepare("(interestedParty.entityID = %d)", $filter["entityID"]);
-        $filter["active"]          and $sql[] = prepare("(interestedParty.interestedPartyActive = %d)", $filter["active"]);
-        $filter["taskID"]          and $sql[] = prepare("(comment.commentMaster='task' AND comment.commentMasterID=%d)", $filter["taskID"]);
+        $filter["emailAddress"]    and $sql[] = unsafe_prepare("(interestedParty.emailAddress LIKE '%%%s%%')", $filter["emailAddress"]);
+        $filter["fullName"]        and $sql[] = unsafe_prepare("(interestedParty.fullName LIKE '%%%s%%')", $filter["fullName"]);
+        $filter["personID"]        and $sql[] = unsafe_prepare("(interestedParty.personID = %d)", $filter["personID"]);
+        $filter["clientContactID"] and $sql[] = unsafe_prepare("(interestedParty.clientContactID = %d)", $filter["clientContactID"]);
+        $filter["entity"]          and $sql[] = unsafe_prepare("(interestedParty.entity = '%s')", $filter["entity"]);
+        $filter["entityID"]        and $sql[] = unsafe_prepare("(interestedParty.entityID = %d)", $filter["entityID"]);
+        $filter["active"]          and $sql[] = unsafe_prepare("(interestedParty.interestedPartyActive = %d)", $filter["active"]);
+        $filter["taskID"]          and $sql[] = unsafe_prepare("(comment.commentMaster='task' AND comment.commentMasterID=%d)", $filter["taskID"]);
         return $sql;
     }
 

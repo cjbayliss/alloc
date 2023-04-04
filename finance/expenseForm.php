@@ -18,13 +18,13 @@ function show_all_exp($template)
 
     if ($expenseForm->get_id()) {
         if ($_POST["transactionID"] && ($_POST["edit"] || (is_object($transaction_to_edit) && $transaction_to_edit->get_id()))) {   // if edit is clicked OR if we've rejected changes made to something so are still editing it
-            $query = prepare(
+            $query = unsafe_prepare(
                 "SELECT * FROM transaction WHERE expenseFormID=%d AND transactionID<>%d ORDER BY transactionID DESC",
                 $expenseForm->get_id(),
                 $_POST["transactionID"]
             );
         } else {
-            $query = prepare("SELECT * FROM transaction WHERE expenseFormID=%d ORDER BY transactionID DESC", $expenseForm->get_id());
+            $query = unsafe_prepare("SELECT * FROM transaction WHERE expenseFormID=%d ORDER BY transactionID DESC", $expenseForm->get_id());
         }
 
         $db->query($query);
@@ -94,7 +94,7 @@ function check_optional_has_line_items()
     global $expenseForm;
     if (is_object($expenseForm) && $expenseForm->get_id()) {
         $db = new db_alloc();
-        $q = prepare("SELECT COUNT(*) as tally FROM transaction WHERE expenseFormID = %d", $expenseForm->get_id());
+        $q = unsafe_prepare("SELECT COUNT(*) as tally FROM transaction WHERE expenseFormID = %d", $expenseForm->get_id());
         $db->query($q);
         $db->next_record();
         return $db->f("tally");
@@ -185,7 +185,7 @@ if ($transaction_to_edit->get_value("fromTfID")) {
     $selectedTfID = $transaction_to_edit->get_value("fromTfID");
     $selectedProjectID = $transaction_to_edit->get_value("projectID");
 } else {
-    $query = prepare("SELECT tfID FROM tfPerson WHERE personID=%d LIMIT 1", $current_user->get_id());
+    $query = unsafe_prepare("SELECT tfID FROM tfPerson WHERE personID=%d LIMIT 1", $current_user->get_id());
     $db->query($query);
 
     if ($db->next_record()) {
@@ -206,7 +206,7 @@ $TPL["currencyTypeOptions"] = page::select_options($currencyOps, $transaction_to
 
 
 if (is_object($expenseForm) && $expenseForm->get_value("clientID")) {
-    $clientID_sql = prepare(" AND clientID = %d", $expenseForm->get_value("clientID"));
+    $clientID_sql = unsafe_prepare(" AND clientID = %d", $expenseForm->get_value("clientID"));
 }
 
 $q = "SELECT projectID AS value, projectName AS label
@@ -394,7 +394,7 @@ if (is_object($expenseForm) && $expenseForm->get_id() && check_optional_allow_ed
 
 if (is_object($expenseForm) && $expenseForm->get_id()) {
     $db = new db_alloc();
-    $db->query(prepare("SELECT SUM(amount * pow(10,-currencyType.numberToBasic)) AS amount,
+    $db->query(unsafe_prepare("SELECT SUM(amount * pow(10,-currencyType.numberToBasic)) AS amount,
                              transaction.currencyTypeID as currency
                         FROM transaction
                    LEFT JOIN currencyType on transaction.currencyTypeID = currencyType.currencyTypeID
@@ -415,7 +415,7 @@ if (
     $ops["clientID"] = $expenseForm->get_value("clientID");
     $invoice_list = invoice::get_list($ops);
     $invoice_list = array_kv($invoice_list, "invoiceID", ["invoiceNum", "invoiceName"]);
-    $q = prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d", $expenseForm->get_id());
+    $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d", $expenseForm->get_id());
     $db = new db_alloc();
     $db->query($q);
     $row = $db->row();

@@ -31,7 +31,7 @@ if ($sess->Started()) {
     if ($row) {
         $sess->Start($row);
 
-        $q = prepare(
+        $q = unsafe_prepare(
             "UPDATE person SET lastLoginDate = '%s' WHERE personID = %d",
             date("Y-m-d H:i:s"),
             $row["personID"]
@@ -64,7 +64,7 @@ if ($sess->Started()) {
             $password .= substr($pwSource, rand(0, strlen($pwSource)), 1);
         }
 
-        $q = prepare("UPDATE person SET password = '%s' WHERE emailAddress = '%s'
+        $q = unsafe_prepare("UPDATE person SET password = '%s' WHERE emailAddress = '%s'
                  ", password_hash($password, PASSWORD_BCRYPT), $_POST["email"]);
         $db2 = new db_alloc();
         $db2->query($q);

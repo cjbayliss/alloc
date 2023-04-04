@@ -59,7 +59,7 @@ class stats
                     break;
             }
 
-            $query = prepare("SELECT * FROM projectPerson WHERE projectID=%d", $project->get_id());
+            $query = unsafe_prepare("SELECT * FROM projectPerson WHERE projectID=%d", $project->get_id());
             $db_sub->query($query);
             while ($db_sub->next_record()) {
                 $projectPerson = new projectPerson();
@@ -145,7 +145,7 @@ class stats
         $days = date("w") == 1 ? 3 : 1;
         $date = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - $days, date("Y")));
         // Get total amount of completed tasks for every person
-        $q = prepare("SELECT person.personID, person.username, count(taskID) as tally, task.dateCreated
+        $q = unsafe_prepare("SELECT person.personID, person.username, count(taskID) as tally, task.dateCreated
                         FROM task
                    LEFT JOIN person ON task.personID = person.personID
                        WHERE ('%s' <= task.dateCreated)

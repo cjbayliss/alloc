@@ -42,7 +42,7 @@ function show_task_children($template)
 function get_parent_taskIDs($taskID)
 {
     $rtn = [];
-    $q = prepare(
+    $q = unsafe_prepare(
         "SELECT taskID,taskName,parentTaskID
            FROM task
           WHERE taskID = %d
@@ -297,7 +297,7 @@ $parent_task->set_values("parentTask_");
 
 $TPL["taskType_taskTypeID"] = $task->get_value("taskTypeID");
 
-$q = prepare("SELECT clientID FROM project LEFT JOIN task ON task.projectID = project.projectID WHERE taskID = %d", $task->get_id());
+$q = unsafe_prepare("SELECT clientID FROM project LEFT JOIN task ON task.projectID = project.projectID WHERE taskID = %d", $task->get_id());
 $db->query($q);
 $db->next_record();
 if ($db->f("clientID")) {
@@ -334,7 +334,7 @@ if ($dupeID) {
 }
 
 // Link off to the duplicate tasks, if this task is the source task
-$q = prepare("SELECT taskID FROM task WHERE duplicateTaskID = %d", $task->get_id());
+$q = unsafe_prepare("SELECT taskID FROM task WHERE duplicateTaskID = %d", $task->get_id());
 $db->query($q);
 while ($row = $db->row()) {
     $realtask = new task();
@@ -418,7 +418,7 @@ if ($taskID) {
     $TPL["main_alloc_title"] = "Task " . $task->get_id() . ": " . $task->get_name() . " - " . APPLICATION_NAME;
     $TPL["task_exists"] = true;
 
-    $q = prepare("SELECT GROUP_CONCAT(pendingTaskID) as pendingTaskIDs FROM pendingTask WHERE taskID = %d", $task->get_id());
+    $q = unsafe_prepare("SELECT GROUP_CONCAT(pendingTaskID) as pendingTaskIDs FROM pendingTask WHERE taskID = %d", $task->get_id());
     $db->query($q);
     $row = $db->row();
     $TPL["task_pendingTaskIDs"] = $row["pendingTaskIDs"];

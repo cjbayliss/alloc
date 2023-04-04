@@ -25,7 +25,7 @@ class projectCommissionPerson extends db_entity
         $fail = null;
         // Just ensure multiple 0 entries cannot be saved.
         if ($this->get_value("commissionPercent") == 0) {
-            $q = prepare("SELECT * FROM projectCommissionPerson WHERE projectID = %d AND commissionPercent = 0 AND projectCommissionPersonID != %d", $this->get_value("projectID"), $this->get_id());
+            $q = unsafe_prepare("SELECT * FROM projectCommissionPerson WHERE projectID = %d AND commissionPercent = 0 AND projectCommissionPersonID != %d", $this->get_value("projectID"), $this->get_id());
             $db = new db_alloc();
             $db->query($q);
             if ($db->next_record()) {

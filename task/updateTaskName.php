@@ -12,7 +12,7 @@ require_once("../alloc.php");
 
 
 if ($_REQUEST["taskID"]) {
-    $q = prepare("SELECT taskID, taskName FROM task WHERE taskID = %d", $_REQUEST["taskID"]);
+    $q = unsafe_prepare("SELECT taskID, taskName FROM task WHERE taskID = %d", $_REQUEST["taskID"]);
     $db = new db_alloc();
     $row = $db->qr($q);
     echo page::htmlentities($row["taskID"] . " " . $row["taskName"]);

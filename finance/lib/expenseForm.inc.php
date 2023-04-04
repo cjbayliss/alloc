@@ -38,7 +38,7 @@ class expenseForm extends db_entity
         if ($this->get_id()) {
             // Return true if any of the transactions on the expense form are accessible by the current user
             $current_user_tfIDs = $current_user->get_tfIDs();
-            $query = prepare("SELECT * FROM transaction WHERE expenseFormID=%d", $this->get_id());
+            $query = unsafe_prepare("SELECT * FROM transaction WHERE expenseFormID=%d", $this->get_id());
             $db = new db_alloc();
             $db->query($query);
             while ($db->next_record()) {
@@ -81,7 +81,7 @@ class expenseForm extends db_entity
     {
         $arr = [];
         $return = null;
-        $q = prepare("SELECT status FROM transaction WHERE expenseFormID = %d", $this->get_id());
+        $q = unsafe_prepare("SELECT status FROM transaction WHERE expenseFormID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {
@@ -100,11 +100,11 @@ class expenseForm extends db_entity
         $extra_sql = null;
         global $TPL;
 
-        $transactionID and $extra_sql = prepare("AND transactionID = %d", $transactionID);
+        $transactionID and $extra_sql = unsafe_prepare("AND transactionID = %d", $transactionID);
 
         $db = new db_alloc();
         if ($this->is_owner()) {
-            $db->query(prepare("DELETE FROM transaction WHERE expenseFormID = %d " . $extra_sql, $this->get_id()));
+            $db->query(unsafe_prepare("DELETE FROM transaction WHERE expenseFormID = %d " . $extra_sql, $this->get_id()));
             $transactionID and $TPL["message_good"][] = "Expense Form Line Item deleted.";
         }
     }
@@ -130,10 +130,10 @@ class expenseForm extends db_entity
 
         $extra = null;
         if ($this->get_value("clientID")) {
-            $invoiceID and $extra = prepare(" AND invoiceID = %d", $invoiceID);
+            $invoiceID and $extra = unsafe_prepare(" AND invoiceID = %d", $invoiceID);
             $client = $this->get_foreign_object("client");
             $db = new db_alloc();
-            $q = prepare("SELECT * FROM invoice WHERE clientID = %d AND invoiceStatus = 'edit' " . $extra, $this->get_value("clientID"));
+            $q = unsafe_prepare("SELECT * FROM invoice WHERE clientID = %d AND invoiceStatus = 'edit' " . $extra, $this->get_value("clientID"));
             $db->query($q);
 
             // Create invoice
@@ -165,7 +165,7 @@ class expenseForm extends db_entity
     function get_min_date()
     {
         $db = new db_alloc();
-        $q = prepare("SELECT min(transactionDate) as date FROM transaction WHERE expenseFormID = %d", $this->get_id());
+        $q = unsafe_prepare("SELECT min(transactionDate) as date FROM transaction WHERE expenseFormID = %d", $this->get_id());
         $db->query($q);
         $db->next_record();
         return $db->f('date');
@@ -174,7 +174,7 @@ class expenseForm extends db_entity
     function get_max_date()
     {
         $db = new db_alloc();
-        $q = prepare("SELECT max(transactionDate) as date FROM transaction WHERE expenseFormID = %d", $this->get_id());
+        $q = unsafe_prepare("SELECT max(transactionDate) as date FROM transaction WHERE expenseFormID = %d", $this->get_id());
         $db->query($q);
         $db->next_record();
         return $db->f('date');
@@ -205,7 +205,7 @@ class expenseForm extends db_entity
             $id = $this->get_id();
         }
         $db = new db_alloc();
-        $q = prepare("SELECT sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS amount
+        $q = unsafe_prepare("SELECT sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS amount
                         FROM transaction
                    LEFT JOIN currencyType on transaction.currencyTypeID = currencyType.currencyTypeID
                        WHERE expenseFormID = %d", $id);
@@ -217,9 +217,9 @@ class expenseForm extends db_entity
     public static function get_list_filter($filter = [])
     {
         $sql = [];
-        $filter["projectID"] and $sql[] = prepare("transaction.projectID = %d", $filter["projectID"]);
-        $filter["status"]    and $sql[] = prepare("transaction.status = '%s'", $filter["status"]);
-        isset($filter["finalised"]) and $sql[] = prepare("expenseForm.expenseFormFinalised = %d", $filter["finalised"]);
+        $filter["projectID"] and $sql[] = unsafe_prepare("transaction.projectID = %d", $filter["projectID"]);
+        $filter["status"]    and $sql[] = unsafe_prepare("transaction.status = '%s'", $filter["status"]);
+        isset($filter["finalised"]) and $sql[] = unsafe_prepare("expenseForm.expenseFormFinalised = %d", $filter["finalised"]);
         return $sql;
     }
 
@@ -243,7 +243,7 @@ class expenseForm extends db_entity
         $transaction = new transaction();
         $rr_options = expenseForm::get_reimbursementRequired_array();
 
-        $q = prepare("SELECT expenseForm.*
+        $q = unsafe_prepare("SELECT expenseForm.*
                             ,SUM(transaction.amount * pow(10,-currencyType.numberToBasic)) as formTotal
                             ,transaction.currencyTypeID
                         FROM expenseForm, transaction

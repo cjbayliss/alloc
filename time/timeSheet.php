@@ -135,7 +135,7 @@ function show_transaction_listR($template_name)
             // If you don't have perm INVOICE TIMESHEETS then only select
             // transactions which you have permissions to see.
 
-            $query = prepare("SELECT *
+            $query = unsafe_prepare("SELECT *
                             FROM transaction
                            WHERE timeSheetID = %d
                         ORDER BY transactionID", $timeSheet->get_id());
@@ -201,7 +201,7 @@ function show_main_list()
     }
 
     $db = new db_alloc();
-    $q = prepare("SELECT COUNT(*) AS tally FROM timeSheetItem WHERE timeSheetID = %d AND timeSheetItemID != %d", $timeSheet->get_id(), $_POST["timeSheetItem_timeSheetItemID"]);
+    $q = unsafe_prepare("SELECT COUNT(*) AS tally FROM timeSheetItem WHERE timeSheetID = %d AND timeSheetItemID != %d", $timeSheet->get_id(), $_POST["timeSheetItem_timeSheetItemID"]);
     $db->query($q);
     $db->next_record();
     if ($db->f("tally")) {
@@ -232,11 +232,11 @@ function show_timeSheet_list($template)
     $timeUnit = new timeUnit();
     $unit_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
 
-    $item_query = prepare("SELECT * from timeSheetItem WHERE timeSheetID=%d", $timeSheetID);
+    $item_query = unsafe_prepare("SELECT * from timeSheetItem WHERE timeSheetID=%d", $timeSheetID);
     // If editing a timeSheetItem then don't display it in the list
     $timeSheetItemID = $_POST["timeSheetItemID"] or $timeSheetItemID = $_GET["timeSheetItemID"];
-    $timeSheetItemID and $item_query .= prepare(" AND timeSheetItemID != %d", $timeSheetItemID);
-    $item_query .= prepare(" GROUP BY timeSheetItemID ORDER BY dateTimeSheetItem, timeSheetItemID");
+    $timeSheetItemID and $item_query .= unsafe_prepare(" AND timeSheetItemID != %d", $timeSheetItemID);
+    $item_query .= unsafe_prepare(" GROUP BY timeSheetItemID ORDER BY dateTimeSheetItem, timeSheetItemID");
     $db->query($item_query);
 
     if (is_object($timeSheet)) {
@@ -462,7 +462,7 @@ if ($_REQUEST["updateRate"] && $timeSheet->get_id() && $timeSheet->can_edit_rate
     if (!$row_projectPerson) {
         alloc_error("The person has not been added to the project.");
     } else {
-        $q = prepare("SELECT timeSheetItemID from timeSheetItem WHERE timeSheetID = %d", $timeSheet->get_id());
+        $q = unsafe_prepare("SELECT timeSheetItemID from timeSheetItem WHERE timeSheetID = %d", $timeSheet->get_id());
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {
@@ -614,7 +614,7 @@ if (($_POST["p_button"] || $_POST["a_button"] || $_POST["r_button"]) && $timeShe
         $status = "rejected";
     }
 
-    $query = prepare("UPDATE transaction SET status = '%s' WHERE timeSheetID = %d AND transactionType != 'invoice'", $status, $timeSheet->get_id());
+    $query = unsafe_prepare("UPDATE transaction SET status = '%s' WHERE timeSheetID = %d AND transactionType != 'invoice'", $status, $timeSheet->get_id());
     $db = new db_alloc();
     $db->query($query);
 
@@ -656,11 +656,11 @@ if ($timeSheet->get_value("approvedByAdminPersonID")) {
 
 // display the project name.
 if (($timeSheet->get_value("status") == 'edit' || $timeSheet->get_value("status") == 'rejected') && !$timeSheet->get_value("projectID")) {
-    $query = prepare("SELECT * FROM project WHERE projectStatus = 'Current' ORDER by projectName");
-    #.prepare("  LEFT JOIN projectPerson on projectPerson.projectID = project.projectID ")
-    #.prepare("WHERE projectPerson.personID = '%d' ORDER BY projectName", $current_user->get_id());
+    $query = unsafe_prepare("SELECT * FROM project WHERE projectStatus = 'Current' ORDER by projectName");
+    #.unsafe_prepare("  LEFT JOIN projectPerson on projectPerson.projectID = project.projectID ")
+    #.unsafe_prepare("WHERE projectPerson.personID = '%d' ORDER BY projectName", $current_user->get_id());
 } else {
-    $query = prepare("SELECT * FROM project ORDER by projectName");
+    $query = unsafe_prepare("SELECT * FROM project ORDER by projectName");
 }
 
 // This needs to be just above the newTimeSheet_projectID logic
@@ -672,7 +672,7 @@ if ($_GET["newTimeSheet_projectID"] && !$projectID) {
 
     $projectID = $_GET["newTimeSheet_projectID"];
     $db = new db_alloc();
-    $q = prepare("SELECT * FROM timeSheet WHERE status = 'edit' AND personID = %d AND projectID = %d", $current_user->get_id(), $projectID);
+    $q = unsafe_prepare("SELECT * FROM timeSheet WHERE status = 'edit' AND personID = %d AND projectID = %d", $current_user->get_id(), $projectID);
     $db->query($q);
     if ($db->next_record()) {
         alloc_redirect($TPL["url_alloc_timeSheet"] . "timeSheetID=" . $db->f("timeSheetID") . $tid);
@@ -755,7 +755,7 @@ if (is_object($timeSheet) && $timeSheet->get_id() && $timeSheet->have_perm(PERM_
     $ops["clientID"] = $p->get_value("clientID");
     $ops["return"] = "dropdown_options";
     $invoice_list = invoice::get_list($ops);
-    $q = prepare("SELECT * FROM invoiceItem WHERE timeSheetID = %d", $timeSheet->get_id());
+    $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE timeSheetID = %d", $timeSheet->get_id());
     $db = new db_alloc();
     $db->query($q);
     $row = $db->row();

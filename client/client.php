@@ -30,7 +30,7 @@ function show_client_contacts()
     $client->set_id($clientID);
     $client->select();
 
-    $clientContactsQuery = prepare(
+    $clientContactsQuery = unsafe_prepare(
         "SELECT *
            FROM clientContact
           WHERE clientID=%d

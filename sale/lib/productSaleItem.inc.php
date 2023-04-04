@@ -41,7 +41,7 @@ class productSaleItem extends db_entity
     function get_amount_spent()
     {
         $db = new db_alloc();
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
                     (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount
                FROM transaction
@@ -66,7 +66,7 @@ class productSaleItem extends db_entity
     function get_amount_earnt()
     {
         $db = new db_alloc();
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
                     (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount
                FROM transaction
@@ -92,7 +92,7 @@ class productSaleItem extends db_entity
     {
         $db = new db_alloc();
         // Don't need to do numberToBasic conversion here
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
                     (amount * exchangeRate) as amount
                FROM transaction
@@ -189,7 +189,7 @@ class productSaleItem extends db_entity
         );
 
         // Now loop through all the productCosts for the sale items product.
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT productCost.*, product.productName
                FROM productCost
           LEFT JOIN product ON product.productID = productCost.productID
@@ -217,7 +217,7 @@ class productSaleItem extends db_entity
         $totalUnallocated = page::money(config::get_config_item("currency"), $this->get_amount_unallocated(), "%mo");
 
         // Now loop through all the productCosts % COMMISSIONS for the sale items product.
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT productCost.*, product.productName
                FROM productCost
           LEFT JOIN product ON product.productID = productCost.productID
@@ -270,7 +270,7 @@ class productSaleItem extends db_entity
         );
 
         // Now loop through all the productCosts for the sale items product.
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT productCost.*, product.productName
                FROM productCost
           LEFT JOIN product ON product.productID = productCost.productID
@@ -300,7 +300,7 @@ class productSaleItem extends db_entity
 
     function delete_transactions()
     {
-        $q = prepare("SELECT * FROM transaction WHERE productSaleItemID = %d", $this->get_id());
+        $q = unsafe_prepare("SELECT * FROM transaction WHERE productSaleItemID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
         while ($db->row()) {

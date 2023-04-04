@@ -70,14 +70,14 @@ function show_new_invoiceItem($template)
         if ($invoice->get_value("clientID")) {
             // Time Sheet dropdown
             $db = new db_alloc();
-            $q = prepare("SELECT projectID FROM project WHERE clientID = %d", $invoice->get_value("clientID"));
+            $q = unsafe_prepare("SELECT projectID FROM project WHERE clientID = %d", $invoice->get_value("clientID"));
             $db->query($q);
             $projectIDs = [];
             while ($row = $db->row()) {
                 $projectIDs[] = $row["projectID"];
             }
             if ($projectIDs) {
-                $q = prepare("SELECT timeSheet.*, project.projectName
+                $q = unsafe_prepare("SELECT timeSheet.*, project.projectName
                                 FROM timeSheet
                            LEFT JOIN project ON project.projectID = timeSheet.projectID
                                WHERE timeSheet.projectID IN (%s)
@@ -102,7 +102,7 @@ function show_new_invoiceItem($template)
 
             // Expense Form dropdown
             $db = new db_alloc();
-            $q = prepare("SELECT expenseFormID, expenseFormCreatedUser
+            $q = unsafe_prepare("SELECT expenseFormID, expenseFormCreatedUser
                             FROM expenseForm
                            WHERE expenseFormFinalised = 1
                              AND seekClientReimbursement = 1
@@ -119,12 +119,12 @@ function show_new_invoiceItem($template)
             $TPL["expenseFormOptions"] = page::select_options($expenseFormOptions, $id, 90);
 
 
-            $q = prepare("SELECT *
+            $q = unsafe_prepare("SELECT *
                             FROM productSale
                            WHERE clientID = %d
                              AND status = 'admin'
                          ", $invoice->get_value("clientID"));
-            $invoice->get_value("projectID") and $q .= prepare(" AND projectID = %d", $invoice->get_value("projectID"));
+            $invoice->get_value("projectID") and $q .= unsafe_prepare(" AND projectID = %d", $invoice->get_value("projectID"));
             $db->query($q);
             while ($row = $db->row()) {
                 $productSale = new productSale();
@@ -166,7 +166,7 @@ function show_invoiceItem_list()
 
     $db = new db_alloc();
     $db2 = new db_alloc();
-    $q = prepare(
+    $q = unsafe_prepare(
         "SELECT *
            FROM invoiceItem
           WHERE invoiceItem.invoiceID = %d
@@ -199,7 +199,7 @@ function show_invoiceItem_list()
             continue;
         }
 
-        $q = prepare("SELECT *
+        $q = unsafe_prepare("SELECT *
                            , transaction.amount * pow(10,-currencyType.numberToBasic) AS transaction_amount
                            , transaction.tfID AS transaction_tfID
                            , transaction.fromTfID AS transaction_fromTfID
@@ -455,8 +455,8 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
         #alloc_error("Please enter a unique Invoice Number.");
         $invoice->set_value("invoiceNum", invoice::get_next_invoiceNum());
     } else {
-        $invoiceID and $invoiceID_sql = prepare(" AND invoiceID != %d", $invoiceID);
-        $q = prepare("SELECT * FROM invoice WHERE invoiceNum = '%s' " . $invoiceID_sql, $invoice->get_value("invoiceNum"));
+        $invoiceID and $invoiceID_sql = unsafe_prepare(" AND invoiceID != %d", $invoiceID);
+        $q = unsafe_prepare("SELECT * FROM invoice WHERE invoiceNum = '%s' " . $invoiceID_sql, $invoice->get_value("invoiceNum"));
         $db->query($q);
         if ($db->row()) {
             alloc_error("Please enter a unique Invoice Number (that number is already taken).");
@@ -507,9 +507,9 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
 } else if ($_POST["delete"] && $invoice->get_value("invoiceStatus") == "edit") {
     if ($invoiceItemIDs) {
         $db = new db_alloc();
-        $q = prepare("DELETE FROM transaction WHERE invoiceItemID in (%s)", $invoiceItemIDs);
+        $q = unsafe_prepare("DELETE FROM transaction WHERE invoiceItemID in (%s)", $invoiceItemIDs);
         $db->query($q);
-        $q = prepare("DELETE FROM invoiceItem WHERE invoiceItemID in (%s)", $invoiceItemIDs);
+        $q = unsafe_prepare("DELETE FROM invoiceItem WHERE invoiceItemID in (%s)", $invoiceItemIDs);
         $db->query($q);
     }
 
@@ -590,7 +590,7 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
 
 if ($invoiceID && $invoiceItemIDs) {
     $currency = $invoice->get_value("currencyTypeID");
-    $q = prepare("SELECT SUM(IF((iiTax IS NULL OR iiTax = 0) AND value,
+    $q = unsafe_prepare("SELECT SUM(IF((iiTax IS NULL OR iiTax = 0) AND value,
                             (value/100+1) * iiAmount * pow(10,-currencyType.numberToBasic),
                             iiAmount * pow(10,-currencyType.numberToBasic)
                         )) as sum_iiAmount
@@ -602,7 +602,7 @@ if ($invoiceID && $invoiceItemIDs) {
     $db->query($q);
     $db->next_record() and $TPL["invoiceTotal"] = page::money($currency, $db->f("sum_iiAmount"), "%S%m %c");
 
-    $q = prepare("SELECT sum(amount * pow(10,-currencyType.numberToBasic)) as sum_transaction_amount
+    $q = unsafe_prepare("SELECT sum(amount * pow(10,-currencyType.numberToBasic)) as sum_transaction_amount
                     FROM transaction
                LEFT JOIN currencyType on transaction.currencyTypeID = currencyType.currencyTypeID
                    WHERE status = 'approved'
@@ -757,7 +757,7 @@ if ($invoiceID) {
 
 $invoiceRepeat = new invoiceRepeat();
 if (is_object($invoice) && $invoice->get_id()) {
-    $q = prepare("SELECT * FROM invoiceRepeat WHERE invoiceID = %d LIMIT 1", $invoice->get_id());
+    $q = unsafe_prepare("SELECT * FROM invoiceRepeat WHERE invoiceID = %d LIMIT 1", $invoice->get_id());
     $qid1 = $db->query($q);
     if ($db->row($qid1)) {
         $invoiceRepeat->read_db_record($db);

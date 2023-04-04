@@ -44,7 +44,7 @@ function show_skills()
     $skills = ["" => "Any skill"];
     $query = "SELECT * FROM skill";
     if ($skill_class != "") {
-        $query .= prepare(" WHERE skillClass='%s'", $skill_class);
+        $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
     }
     $query .= " ORDER BY skillClass,skillName";
     $db->query($query);
@@ -75,9 +75,9 @@ function get_people_header()
     $query .= " LEFT JOIN proficiency ON person.personID=proficiency.personID";
     $query .= " LEFT JOIN skill ON proficiency.skillID=skill.skillID WHERE personActive = 1 ";
     if ($talent) {
-        $query .= prepare(" AND skill.skillID=%d", $talent);
+        $query .= unsafe_prepare(" AND skill.skillID=%d", $talent);
     } else if ($skill_class) {
-        $query .= prepare(" AND skill.skillClass='%s'", $skill_class);
+        $query .= unsafe_prepare(" AND skill.skillClass='%s'", $skill_class);
     }
     $query .= " GROUP BY username ORDER BY username";
     $db->query($query);
@@ -104,9 +104,9 @@ function show_skill_expertise()
     $query .= " LEFT JOIN skill ON proficiency.skillID=skill.skillID";
     if ($talent != "" || $skill_class != "") {
         if ($talent != "") {
-            $query .= prepare(" WHERE proficiency.skillID=%d", $talent);
+            $query .= unsafe_prepare(" WHERE proficiency.skillID=%d", $talent);
         } else {
-            $query .= prepare(" WHERE skillClass='%s'", $skill_class);
+            $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
         }
     }
     $query .= " GROUP BY skillName ORDER BY skillClass,skillName";
@@ -127,7 +127,7 @@ function show_skill_expertise()
         for ($i = 0; $i < count($people_ids); $i++) {
             $db2 = new db_alloc();
             $query = "SELECT * FROM proficiency";
-            $query .= prepare(" WHERE skillID=%d AND personID=%d", $skill->get_id(), $people_ids[$i]);
+            $query .= unsafe_prepare(" WHERE skillID=%d AND personID=%d", $skill->get_id(), $people_ids[$i]);
             $db2->query($query);
             if ($db2->next_record()) {
                 $proficiency = new proficiency();

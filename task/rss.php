@@ -38,7 +38,7 @@ $summary = $_GET['summary'] ? true : false;
 $status_types = config::get_config_item('rssStatusFilter');
 
 // find the last max_events audit events that are status change or reassignment
-$query = prepare("SELECT audit.taskID, field, dateChanged, value, taskName, task.personID, task.projectID
+$query = unsafe_prepare("SELECT audit.taskID, field, dateChanged, value, taskName, task.personID, task.projectID
                     FROM audit
                LEFT JOIN task AS task ON audit.taskID = task.taskID
                    WHERE field IN ('taskStatus', 'personID')

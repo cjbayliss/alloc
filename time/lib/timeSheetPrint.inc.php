@@ -20,8 +20,8 @@ class timeSheetPrint
         $timeUnit = new timeUnit();
         $unit_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
 
-        $q = prepare("SELECT * from timeSheetItem WHERE timeSheetID=%d ", $timeSheetID);
-        $q .= prepare("GROUP BY timeSheetItemID ORDER BY dateTimeSheetItem, timeSheetItemID");
+        $q = unsafe_prepare("SELECT * from timeSheetItem WHERE timeSheetID=%d ", $timeSheetID);
+        $q .= unsafe_prepare("GROUP BY timeSheetItemID ORDER BY dateTimeSheetItem, timeSheetItemID");
         $db = new db_alloc();
         $db->query($q);
 
@@ -304,7 +304,7 @@ class timeSheetPrint
 
             $timeSheet->load_pay_info();
 
-            $db->query(prepare("SELECT max(dateTimeSheetItem) AS maxDate
+            $db->query(unsafe_prepare("SELECT max(dateTimeSheetItem) AS maxDate
                                       ,min(dateTimeSheetItem) AS minDate
                                       ,count(timeSheetItemID) as count
                                   FROM timeSheetItem

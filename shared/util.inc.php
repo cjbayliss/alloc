@@ -914,10 +914,19 @@ function sprintf_implode()
     return "(" . $rtn . ")";
 }
 
-function prepare()
+/**
+ * This function should NOT be used. It is unsafe.
+ * 
+ * FIXME: delete this function.
+ * 
+ * @deprecated
+ *
+ * @param mixed $args
+ * @return void
+ */
+function unsafe_prepare(...$args)
 {
     $clean_args = [];
-    $args = func_get_args();
 
     if (count($args) == 1) {
         return $args[0];

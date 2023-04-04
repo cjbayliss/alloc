@@ -238,7 +238,7 @@ class transaction extends db_entity
     {
         $tfIDs = [];
         if ($_FORM["tfName"]) {
-            $q = prepare("SELECT * FROM tf WHERE tfName = '%s'", $_FORM["tfName"]);
+            $q = unsafe_prepare("SELECT * FROM tf WHERE tfName = '%s'", $_FORM["tfName"]);
             $db = new db_alloc();
             $db->query($q);
             $db->next_record();
@@ -274,17 +274,17 @@ class transaction extends db_entity
             $_FORM["sortTransactions"] = "if(transactionModifiedTime,transactionModifiedTime,transactionCreatedTime)";
         }
 
-        $_FORM["startDate"]       and $sql["startDate"]       = prepare("(%s >= '%s')", $_FORM["sortTransactions"], $_FORM["startDate"]);
-        $_FORM["startDate"]       and $sql["prevBalance"]     = prepare("(%s < '%s')", $_FORM["sortTransactions"], $_FORM["startDate"]);
-        $_FORM["endDate"]         and $sql["endDate"]         = prepare("(%s < '%s')", $_FORM["sortTransactions"], $_FORM["endDate"]);
-        $_FORM["status"]          and $sql["status"]          = prepare("(status = '%s')", $_FORM["status"]);
-        $_FORM["transactionType"] and $sql["transactionType"] = prepare("(transactionType = '%s')", $_FORM["transactionType"]);
+        $_FORM["startDate"]       and $sql["startDate"]       = unsafe_prepare("(%s >= '%s')", $_FORM["sortTransactions"], $_FORM["startDate"]);
+        $_FORM["startDate"]       and $sql["prevBalance"]     = unsafe_prepare("(%s < '%s')", $_FORM["sortTransactions"], $_FORM["startDate"]);
+        $_FORM["endDate"]         and $sql["endDate"]         = unsafe_prepare("(%s < '%s')", $_FORM["sortTransactions"], $_FORM["endDate"]);
+        $_FORM["status"]          and $sql["status"]          = unsafe_prepare("(status = '%s')", $_FORM["status"]);
+        $_FORM["transactionType"] and $sql["transactionType"] = unsafe_prepare("(transactionType = '%s')", $_FORM["transactionType"]);
 
-        $_FORM["fromTfID"]        and $sql["fromTfID"]        = prepare("(fromTfID=%d)", $_FORM["fromTfID"]);
-        $_FORM["expenseFormID"]   and $sql["expenseFormID"]   = prepare("(expenseFormID=%d)", $_FORM["expenseFormID"]);
-        $_FORM["transactionID"]   and $sql["transactionID"]   = prepare("(transactionID=%d)", $_FORM["transactionID"]);
-        $_FORM["product"]         and $sql["product"]         = prepare("(product LIKE \"%%%s%%\")", $_FORM["product"]);
-        $_FORM["amount"]          and $sql["amount"]          = prepare("(amount = '%s')", $_FORM["amount"]);
+        $_FORM["fromTfID"]        and $sql["fromTfID"]        = unsafe_prepare("(fromTfID=%d)", $_FORM["fromTfID"]);
+        $_FORM["expenseFormID"]   and $sql["expenseFormID"]   = unsafe_prepare("(expenseFormID=%d)", $_FORM["expenseFormID"]);
+        $_FORM["transactionID"]   and $sql["transactionID"]   = unsafe_prepare("(transactionID=%d)", $_FORM["transactionID"]);
+        $_FORM["product"]         and $sql["product"]         = unsafe_prepare("(product LIKE \"%%%s%%\")", $_FORM["product"]);
+        $_FORM["amount"]          and $sql["amount"]          = unsafe_prepare("(amount = '%s')", $_FORM["amount"]);
 
         return $sql;
     }
@@ -337,7 +337,7 @@ class transaction extends db_entity
 
         // Determine opening balance
         if (is_array($_FORM['tfIDs']) && count($_FORM['tfIDs'])) {
-            $q = prepare("SELECT SUM( IF(fromTfID IN (%s),-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
+            $q = unsafe_prepare("SELECT SUM( IF(fromTfID IN (%s),-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                             FROM transaction
                       LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                          " . $filter2, $_FORM['tfIDs']);

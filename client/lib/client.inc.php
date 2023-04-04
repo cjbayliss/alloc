@@ -39,7 +39,7 @@ class client extends db_entity
         // delete all contacts and comments linked with this client as well
         $database = new db_alloc();
 
-        $clientContactQuery = prepare(
+        $clientContactQuery = unsafe_prepare(
             "SELECT * FROM clientContact WHERE clientID=%d",
             $this->get_id()
         );
@@ -50,7 +50,7 @@ class client extends db_entity
             $clientContact->delete();
         }
 
-        $commentQuery = prepare(
+        $commentQuery = unsafe_prepare(
             "SELECT * FROM comment WHERE commentType = 'client' and commentLinkID=%d",
             $this->get_id()
         );
@@ -90,7 +90,7 @@ class client extends db_entity
         $db = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
 
         if ($clientStatus) {
-            $clientNamesQuery = prepare(
+            $clientNamesQuery = unsafe_prepare(
                 "SELECT clientID as value, clientName as label
                    FROM client
                   WHERE clientStatus = '%s'
@@ -113,7 +113,7 @@ class client extends db_entity
     {
         $clientID or $clientID = $_GET["clientID"];
         $db = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
-        $clientContactQuery = prepare(
+        $clientContactQuery = unsafe_prepare(
             "SELECT clientContactName as label, clientContactID as value 
                FROM clientContact 
               WHERE clientID = %d",
@@ -365,7 +365,7 @@ class client extends db_entity
         static $clients;
         if (!$clients) {
             $database = new db_alloc();
-            $clientInfoQuery = prepare("SELECT * FROM client");
+            $clientInfoQuery = unsafe_prepare("SELECT * FROM client");
             $database->query($clientInfoQuery);
             while ($database->next_record()) {
                 $clients[$database->f("clientID")] = $database->f("clientName");
@@ -465,7 +465,7 @@ class client extends db_entity
         $fx and $fx = " " . $fx;
         $name = $this->get_name() . $ph . $fx;
 
-        $q = prepare("SELECT * FROM clientContact WHERE clientID = %d", $this->get_id());
+        $q = unsafe_prepare("SELECT * FROM clientContact WHERE clientID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {
@@ -559,7 +559,7 @@ class client extends db_entity
         if ($clientID) {
             // Get all client contacts
             $database = new db_alloc();
-            $clientPartiesQuery = prepare(
+            $clientPartiesQuery = unsafe_prepare(
                 "SELECT clientContactName, clientContactEmail, clientContactID
                    FROM clientContact
                   WHERE clientID = %d

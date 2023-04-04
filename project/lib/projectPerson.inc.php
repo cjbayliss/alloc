@@ -48,7 +48,7 @@ class projectPerson extends db_entity
     function set_value_role($roleHandle)
     {
         $db = new db_alloc();
-        $db->query(prepare("SELECT * FROM role WHERE roleHandle = '%s' AND roleLevel = 'project'", $roleHandle));
+        $db->query(unsafe_prepare("SELECT * FROM role WHERE roleHandle = '%s' AND roleLevel = 'project'", $roleHandle));
         $db->next_record();
         $this->set_value("roleID", $db->f("roleID"));
     }
@@ -57,7 +57,7 @@ class projectPerson extends db_entity
     //deprecated in favour of get_rate
     function get_projectPerson_row($projectID, $personID)
     {
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT *
                FROM projectPerson
               WHERE projectID = %d AND personID = %d",
@@ -85,7 +85,7 @@ class projectPerson extends db_entity
 
         // Next check person, which is in global currency rather than project currency - conversion required
         $db = new db_alloc();
-        $q = prepare("SELECT defaultTimeSheetRate as rate, defaultTimeSheetRateUnitID as unit FROM person WHERE personID = %d", $personID);
+        $q = unsafe_prepare("SELECT defaultTimeSheetRate as rate, defaultTimeSheetRateUnitID as unit FROM person WHERE personID = %d", $personID);
         $db->query($q);
         $row = $db->row();
         if (imp($row['rate']) && $row['unit']) {

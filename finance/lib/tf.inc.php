@@ -34,7 +34,7 @@ class tf extends db_entity
 
         // Get belance
         $db = new db_alloc();
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT sum( if(fromTfID=%d,-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                FROM transaction
           LEFT JOIN currencyType ON transaction.currencyTypeID = currencyType.currencyTypeID
@@ -83,7 +83,7 @@ class tf extends db_entity
     function get_tfs_for_person($personID)
     {
         $owners = [];
-        $query = prepare("SELECT * FROM tfPerson WHERE personID=%d", $personID);
+        $query = unsafe_prepare("SELECT * FROM tfPerson WHERE personID=%d", $personID);
         $db = new db_alloc();
         $db->query($query);
         while ($row = $db->row()) {
@@ -127,7 +127,7 @@ class tf extends db_entity
     {
         if ($tfID) {
             $db = new db_alloc();
-            $db->query(prepare("SELECT tfName FROM tf WHERE tfID=%d", $tfID));
+            $db->query(unsafe_prepare("SELECT tfName FROM tf WHERE tfID=%d", $tfID));
             $db->next_record();
             return $db->f("tfName");
         }
@@ -213,7 +213,7 @@ class tf extends db_entity
         }
 
         $db = new db_alloc();
-        $q = prepare("SELECT transaction.tfID as id, tf.tfName, transactionID, transaction.status,
+        $q = unsafe_prepare("SELECT transaction.tfID as id, tf.tfName, transactionID, transaction.status,
                              sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                         FROM transaction
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
@@ -230,7 +230,7 @@ class tf extends db_entity
         }
 
 
-        $q = prepare("SELECT transaction.fromTfID as id, tf.tfName, transactionID, transaction.status,
+        $q = unsafe_prepare("SELECT transaction.fromTfID as id, tf.tfName, transactionID, transaction.status,
                              sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                         FROM transaction
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
@@ -246,7 +246,7 @@ class tf extends db_entity
             }
         }
 
-        $q = prepare("SELECT tf.*
+        $q = unsafe_prepare("SELECT tf.*
                         FROM tf
                    LEFT JOIN tfPerson ON tf.tfID = tfPerson.tfID
                        WHERE 1 " . $f . "

@@ -93,7 +93,7 @@ class comment extends db_entity
     {
         $rows = [];
         if ($commentMaster && $commentMasterID) {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT commentID,
                         commentMaster, commentMasterID,
                         commentLinkID, commentType,
@@ -520,7 +520,7 @@ class comment extends db_entity
             if ($selected_option == "interested") {
                 $db = new db_alloc();
                 if ($entity && $entityID) {
-                    $q = prepare("SELECT * FROM interestedParty WHERE entity = '%s' AND entityID = %d AND interestedPartyActive = 1", $entity, $entityID);
+                    $q = unsafe_prepare("SELECT * FROM interestedParty WHERE entity = '%s' AND entityID = %d AND interestedPartyActive = 1", $entity, $entityID);
                 }
                 $db->query($q);
                 while ($row = $db->next_record()) {
@@ -726,9 +726,9 @@ class comment extends db_entity
 
         // Filter ocommentID
         if ($filter["commentID"] && is_array($filter["commentID"])) {
-            $sql[] = prepare("(comment.commentID in (%s))", $filter["commentID"]);
+            $sql[] = unsafe_prepare("(comment.commentID in (%s))", $filter["commentID"]);
         } else if ($filter["commentID"]) {
-            $sql[] = prepare("(comment.commentID = %d)", $filter["commentID"]);
+            $sql[] = unsafe_prepare("(comment.commentID = %d)", $filter["commentID"]);
         }
 
         // No point continuing if primary key specified, so return
@@ -869,20 +869,20 @@ class comment extends db_entity
         has("project") and $projectIDs = project::get_projectID_sql($filter, "task");
         $projectIDs and $sql1["projectIDs"] = $projectIDs;
         $projectIDs and $sql2["projectIDs"] = $projectIDs;
-        $filter['taskID'] and $sql1[] = prepare("(task.taskID = %d)", $filter["taskID"]);
-        $filter['taskID'] and $sql2[] = prepare("(task.taskID = %d)", $filter["taskID"]);
-        $filter['taskID'] and $sql3[] = prepare("(tsiHint.taskID = %d)", $filter["taskID"]);
-        $filter["fromDate"] and $sql1[] = prepare("(date(commentCreatedTime) >= '%s')", $filter["fromDate"]);
-        $filter["fromDate"] and $sql2[] = prepare("(dateTimeSheetItem >= '%s')", $filter["fromDate"]);
-        $filter["fromDate"] and $sql3[] = prepare("(tsiHint.date >= '%s')", $filter["fromDate"]);
-        $filter["toDate"] and $sql1[] = prepare("(date(commentCreatedTime) < '%s')", $filter["toDate"]);
-        $filter["toDate"] and $sql2[] = prepare("(dateTimeSheetItem < '%s')", $filter["toDate"]);
-        $filter["toDate"] and $sql3[] = prepare("(tsiHint.date < '%s')", $filter["toDate"]);
-        $filter["personID"] and $sql1["personID"] = prepare("(comment.commentCreatedUser IN (%s))", $filter["personID"]);
-        $filter["personID"] and $sql2[] = prepare("(timeSheetItem.personID IN (%s))", $filter["personID"]);
-        $filter["personID"] and $sql3[] = prepare("(tsiHint.personID IN (%s))", $filter["personID"]);
+        $filter['taskID'] and $sql1[] = unsafe_prepare("(task.taskID = %d)", $filter["taskID"]);
+        $filter['taskID'] and $sql2[] = unsafe_prepare("(task.taskID = %d)", $filter["taskID"]);
+        $filter['taskID'] and $sql3[] = unsafe_prepare("(tsiHint.taskID = %d)", $filter["taskID"]);
+        $filter["fromDate"] and $sql1[] = unsafe_prepare("(date(commentCreatedTime) >= '%s')", $filter["fromDate"]);
+        $filter["fromDate"] and $sql2[] = unsafe_prepare("(dateTimeSheetItem >= '%s')", $filter["fromDate"]);
+        $filter["fromDate"] and $sql3[] = unsafe_prepare("(tsiHint.date >= '%s')", $filter["fromDate"]);
+        $filter["toDate"] and $sql1[] = unsafe_prepare("(date(commentCreatedTime) < '%s')", $filter["toDate"]);
+        $filter["toDate"] and $sql2[] = unsafe_prepare("(dateTimeSheetItem < '%s')", $filter["toDate"]);
+        $filter["toDate"] and $sql3[] = unsafe_prepare("(tsiHint.date < '%s')", $filter["toDate"]);
+        $filter["personID"] and $sql1["personID"] = unsafe_prepare("(comment.commentCreatedUser IN (%s))", $filter["personID"]);
+        $filter["personID"] and $sql2[] = unsafe_prepare("(timeSheetItem.personID IN (%s))", $filter["personID"]);
+        $filter["personID"] and $sql3[] = unsafe_prepare("(tsiHint.personID IN (%s))", $filter["personID"]);
         $filter["clients"] or $sql1[] = "(commentCreatedUser IS NOT NULL)";
-        $filter["clients"] && $filter["personID"] and $sql1["personID"] = prepare("(comment.commentCreatedUser IN (%s) OR comment.commentCreatedUser IS NULL)", $filter["personID"]);
+        $filter["clients"] && $filter["personID"] and $sql1["personID"] = unsafe_prepare("(comment.commentCreatedUser IN (%s) OR comment.commentCreatedUser IS NULL)", $filter["personID"]);
 
         $filter["taskStatus"] and $sql1[] = task::get_taskStatus_sql($filter["taskStatus"]);
         $filter["taskStatus"] and $sql2[] = task::get_taskStatus_sql($filter["taskStatus"]);
@@ -915,7 +915,7 @@ class comment extends db_entity
             $client_fields = " , clientContact.clientContactName";
         }
 
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT commentID as id
                   , commentCreatedUser as personID
                   , UNIX_TIMESTAMP(commentCreatedTime) as sortDate
@@ -958,7 +958,7 @@ class comment extends db_entity
 
         // Note that timeSheetItemID is selected twice so that the perms checking can work
         // timeSheetID is also used by the perms checking.
-        $q2 = prepare(
+        $q2 = unsafe_prepare(
             "SELECT timeSheetItemID as id
                    ,timeSheetItemID
                    ,timeSheetID
@@ -999,7 +999,7 @@ class comment extends db_entity
 
 
         // get manager's guestimates about time worked from tsiHint table
-        $q3 = prepare(
+        $q3 = unsafe_prepare(
             "SELECT tsiHintID as id
                    ,tsiHintID
                    ,tsiHint.personID
@@ -1199,7 +1199,7 @@ class comment extends db_entity
 
                 // Add a new client contact
                 if ($info["addContact"] && $info["clientID"]) {
-                    $q = prepare(
+                    $q = unsafe_prepare(
                         "SELECT * FROM clientContact WHERE clientID = %d AND clientContactEmail = '%s'",
                         $info["clientID"],
                         trim($email)

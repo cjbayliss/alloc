@@ -21,7 +21,7 @@ class invoiceEntity extends db_entity
 
     function create($invoiceID, $entity, $entityID, $useItems = 0)
     {
-        $q = prepare("SELECT * FROM invoiceEntity WHERE invoiceID = %d AND %sID = %d", $invoiceID, $entity, $entityID);
+        $q = unsafe_prepare("SELECT * FROM invoiceEntity WHERE invoiceID = %d AND %sID = %d", $invoiceID, $entity, $entityID);
         $db = new db_alloc();
         $db->query($q);
         $row = $db->row();
@@ -38,7 +38,7 @@ class invoiceEntity extends db_entity
     function get($entity, $entityID)
     {
         $rows = [];
-        $q = prepare("SELECT invoiceEntity.*,invoice.invoiceNum
+        $q = unsafe_prepare("SELECT invoiceEntity.*,invoice.invoiceNum
                         FROM invoiceEntity
                    LEFT JOIN invoice ON invoiceEntity.invoiceID = invoice.invoiceID
                        WHERE invoiceEntity.%sID = %d
@@ -105,7 +105,7 @@ class invoiceEntity extends db_entity
                 $iiQuantity = 1;
             }
 
-            $q = prepare("SELECT * FROM invoiceItem WHERE invoiceID = %d AND timeSheetID = %d AND timeSheetItemID IS NULL
+            $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE invoiceID = %d AND timeSheetID = %d AND timeSheetItemID IS NULL
                    ", $invoiceID, $timeSheetID);
             $db = new db_alloc();
             $db->query($q);
@@ -143,7 +143,7 @@ class invoiceEntity extends db_entity
         $client = $project->get_foreign_object("client");
 
         $db = new db_alloc();
-        $q1 = $db->query(prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $timeSheetID));
+        $q1 = $db->query(unsafe_prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $timeSheetID));
         while ($row = $db->row($q1)) {
             if (imp($timeSheet->pay_info["customerBilledDollars"])) {
                 $iiUnitPrice = $timeSheet->pay_info["customerBilledDollars"];
@@ -157,7 +157,7 @@ class invoiceEntity extends db_entity
             }
 
             // Look for an existing invoiceItem
-            $q = prepare("SELECT invoiceItem.invoiceItemID
+            $q = unsafe_prepare("SELECT invoiceItem.invoiceItemID
                             FROM invoiceItem
                        LEFT JOIN invoice ON invoiceItem.invoiceID = invoice.invoiceID
                            WHERE invoiceItem.timeSheetID = %d
@@ -199,7 +199,7 @@ class invoiceEntity extends db_entity
         $row = $db->row();
         $amount = $expenseForm->get_abs_sum_transactions();
 
-        $q = prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d AND transactionID IS NULL", $expenseFormID);
+        $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d AND transactionID IS NULL", $expenseFormID);
         $db = new db_alloc();
         $q2 = $db->query($q);
         $r2 = $db->row($q2);
@@ -228,7 +228,7 @@ class invoiceEntity extends db_entity
         while ($row = $db->row($q1)) {
             $amount = page::money($row["currencyTypeID"], $row["amount"], "%mo");
 
-            $q = prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d AND transactionID = %d", $expenseFormID, $row["transactionID"]);
+            $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d AND transactionID = %d", $expenseFormID, $row["transactionID"]);
             $db = new db_alloc();
             $q2 = $db->query($q);
             $r2 = $db->row($q2);
@@ -262,7 +262,7 @@ class invoiceEntity extends db_entity
         $row = $db->row();
         $amounts = $productSale->get_amounts();
 
-        $q = prepare("SELECT * FROM invoiceItem WHERE productSaleID = %d AND productSaleItemID IS NULL", $productSaleID);
+        $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE productSaleID = %d AND productSaleItemID IS NULL", $productSaleID);
         $db = new db_alloc();
         $q2 = $db->query($q);
         $r2 = $db->row($q2);
@@ -287,10 +287,10 @@ class invoiceEntity extends db_entity
         $productSale->set_id($productSaleID);
         $productSale->select();
         $db = new db_alloc();
-        $q = prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $productSale->get_id());
+        $q = unsafe_prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $productSale->get_id());
         $q1 = $db->query($q);
         while ($row = $db->row($q1)) {
-            $q = prepare("SELECT * FROM invoiceItem WHERE productSaleID = %d AND productSaleItemID = %d", $productSaleID, $row["productSaleItemID"]);
+            $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE productSaleID = %d AND productSaleItemID = %d", $productSaleID, $row["productSaleItemID"]);
             $db = new db_alloc();
             $q2 = $db->query($q);
             $r2 = $db->row($q2);

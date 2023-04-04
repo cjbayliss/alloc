@@ -171,7 +171,7 @@ class person extends db_entity
         $rtn = null;
         // Return a string of skills with a given proficiency
         $query = "SELECT * FROM proficiency LEFT JOIN skill on proficiency.skillID=skill.skillID";
-        $query .= prepare(" WHERE personID=%d AND skillProficiency='%s' ORDER BY skillName", $this->get_id(), $proficiency);
+        $query .= unsafe_prepare(" WHERE personID=%d AND skillProficiency='%s' ORDER BY skillName", $this->get_id(), $proficiency);
 
         $db = new db_alloc();
         $db->query($query);
@@ -193,7 +193,7 @@ class person extends db_entity
 
         // Cache rows
         if (!$rows) {
-            $q = prepare("SELECT personID, username, firstName, surname, personActive FROM person ORDER BY firstname,surname,username");
+            $q = unsafe_prepare("SELECT personID, username, firstName, surname, personActive FROM person ORDER BY firstname,surname,username");
             $db = new db_alloc();
             $db->query($q);
             while ($db->next_record()) {
@@ -262,7 +262,7 @@ class person extends db_entity
     function get_valid_login_row($username, $password = "")
     {
         $db = new db_alloc();
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT * FROM person WHERE username = '%s' AND personActive = 1",
             $username
         );
@@ -343,7 +343,7 @@ class person extends db_entity
         if (is_object($this)) {
             list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
             $db = new db_alloc();
-            $query = prepare(
+            $query = unsafe_prepare(
                 "SELECT *
                    FROM task
                   WHERE taskTypeID = 'Message'
@@ -419,13 +419,13 @@ class person extends db_entity
         $filter["skill"]        and $sql["skill"] = sprintf_implode("skillID=%d", $filter["skill"]);
 
         if ($filter["skill_class"]) {
-            $q = prepare("SELECT * FROM skill WHERE skillClass='%s'", $filter["skill_class"]);
+            $q = unsafe_prepare("SELECT * FROM skill WHERE skillClass='%s'", $filter["skill_class"]);
             $db = new db_alloc();
             $db->query($q);
             while ($db->next_record()) {
                 $skill = new skill();
                 $skill->read_db_record($db);
-                $sql2[] = prepare("(skillID=%d)", $skill->get_id());
+                $sql2[] = unsafe_prepare("(skillID=%d)", $skill->get_id());
             }
         }
 

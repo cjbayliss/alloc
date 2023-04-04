@@ -99,7 +99,7 @@ if ($_POST["do_step_2"]) {
 
     $query["start"] = " SELECT ";
     $query["where"] = " WHERE 1=1 ";
-    $query["from"] = prepare(" FROM %s ", $db_tables[0]);
+    $query["from"] = unsafe_prepare(" FROM %s ", $db_tables[0]);
 
 
 

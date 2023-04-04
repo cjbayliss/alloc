@@ -100,7 +100,7 @@ function get_pending_timesheet_db()
     // Get all the time sheets that are in status manager, and are the responsibility of only the default manager
     if (in_array($current_user->get_id(), config::get_config_item("defaultTimeSheetManagerList"))) {
         // First get the blacklist of projects that we don't want to include below
-        $query = prepare("SELECT timeSheet.*, sum(timeSheetItem.timeSheetItemDuration * timeSheetItem.rate) as total_dollars
+        $query = unsafe_prepare("SELECT timeSheet.*, sum(timeSheetItem.timeSheetItemDuration * timeSheetItem.rate) as total_dollars
                                , COALESCE(projectShortName, projectName) as projectName
                             FROM timeSheet
                                  LEFT JOIN timeSheetItem ON timeSheet.timeSheetID = timeSheetItem.timeSheetID
@@ -114,7 +114,7 @@ function get_pending_timesheet_db()
 
         // Get all the time sheets that are in status manager, where the currently logged in user is the manager
     } else {
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT timeSheet.*, sum(timeSheetItem.timeSheetItemDuration * timeSheetItem.rate) as total_dollars
                   , COALESCE(projectShortName, projectName) as projectName
                FROM timeSheet

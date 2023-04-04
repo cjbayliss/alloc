@@ -38,7 +38,7 @@ function show_transaction($template)
     $transaction = new transaction();
 
     if (isset($projectID) && $projectID) {
-        $query = prepare("SELECT transaction.*
+        $query = unsafe_prepare("SELECT transaction.*
                             FROM transaction
                            WHERE transaction.projectID = %d
                         ORDER BY transactionModifiedTime desc
@@ -105,7 +105,7 @@ function show_commission_list($template_name)
     global $projectID;
 
     if ($projectID) {
-        $query = prepare("SELECT * from projectCommissionPerson WHERE projectID= %d", $projectID);
+        $query = unsafe_prepare("SELECT * from projectCommissionPerson WHERE projectID= %d", $projectID);
         $db->query($query);
 
         while ($db->next_record()) {
@@ -146,7 +146,7 @@ function show_person_list($template)
     global $project_person_role_array;
 
     if ($projectID) {
-        $query = prepare("SELECT projectPerson.*, roleSequence
+        $query = unsafe_prepare("SELECT projectPerson.*, roleSequence
                             FROM projectPerson
                        LEFT JOIN role ON role.roleID = projectPerson.roleID
                            WHERE projectID=%d ORDER BY roleSequence DESC,projectPersonID ASC", $projectID);
@@ -174,7 +174,7 @@ function show_projectPerson_list()
     $template = "templates/projectPersonSummaryViewR.tpl";
 
     if ($projectID) {
-        $query = prepare("SELECT personID, roleName
+        $query = unsafe_prepare("SELECT personID, roleName
                             FROM projectPerson
                        LEFT JOIN role ON role.roleID = projectPerson.roleID
                            WHERE projectID = %d
@@ -340,9 +340,9 @@ if ($_POST["save"]) {
     }
 
     // enforced at the database, but show a friendlier error here if possible
-    $query = prepare("SELECT COUNT(*) as count FROM project WHERE projectShortName = '%s'", $db->esc($project->get_value("projectShortName")));
+    $query = unsafe_prepare("SELECT COUNT(*) as count FROM project WHERE projectShortName = '%s'", $db->esc($project->get_value("projectShortName")));
     if (!$definitely_new_project) {
-        $query .= prepare(" AND projectID != %d", $project->get_id());
+        $query .= unsafe_prepare(" AND projectID != %d", $project->get_id());
     }
     $db->query($query);
     $db->next_record();
@@ -393,7 +393,7 @@ if ($_POST["save"]) {
         $TPL["message_good"][] = "Project details copied successfully.";
 
         // Copy project people
-        $q = prepare("SELECT * FROM projectPerson WHERE projectID = %d", $p->get_id());
+        $q = unsafe_prepare("SELECT * FROM projectPerson WHERE projectID = %d", $p->get_id());
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {
@@ -407,7 +407,7 @@ if ($_POST["save"]) {
         }
 
         // Copy commissions
-        $q = prepare("SELECT * FROM projectCommissionPerson WHERE projectID = %d", $p->get_id());
+        $q = unsafe_prepare("SELECT * FROM projectCommissionPerson WHERE projectID = %d", $p->get_id());
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {
@@ -425,7 +425,7 @@ if ($_POST["save"]) {
 
 if ($projectID) {
     if ($_POST["person_save"]) {
-        $q = prepare("SELECT * FROM projectPerson WHERE projectID = %d", $project->get_id());
+        $q = unsafe_prepare("SELECT * FROM projectPerson WHERE projectID = %d", $project->get_id());
         $db = new db_alloc();
         $db->query($q);
         while ($db->next_record()) {
@@ -507,7 +507,7 @@ $client->set_tpl_values("client_");
 
 // If a client has been chosen
 if ($clientID) {
-    $query = prepare(
+    $query = unsafe_prepare(
         "SELECT *
            FROM clientContact
           WHERE clientContact.clientID = %d AND clientContact.primaryContact = true",
@@ -554,7 +554,7 @@ if ($clientID) {
 }
 
 
-$db->query(prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile, interestedPartyActive
+$db->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile, interestedPartyActive
                       FROM interestedParty
                  LEFT JOIN clientContact ON interestedParty.clientContactID = clientContact.clientContactID
                      WHERE entity='project'
@@ -580,7 +580,7 @@ function get_projectPerson_hourly_rate($personID, $projectID)
 {
     $hourly_rate = null;
     $db = new db_alloc();
-    $q = prepare("SELECT rate,rateUnitID FROM projectPerson WHERE personID = %d AND projectID = %d", $personID, $projectID);
+    $q = unsafe_prepare("SELECT rate,rateUnitID FROM projectPerson WHERE personID = %d AND projectID = %d", $personID, $projectID);
     $db->query($q);
     $db->next_record();
     $rate = $db->f("rate");
@@ -621,7 +621,7 @@ if (is_object($project) && $project->get_id()) {
 
 $TPL["navigation_links"] = $project->get_navigation_links();
 
-$query = prepare("SELECT tfID AS value, tfName AS label
+$query = unsafe_prepare("SELECT tfID AS value, tfName AS label
                     FROM tf
                    WHERE tfActive = 1
                 ORDER BY tfName");
@@ -640,7 +640,7 @@ if ($TPL["project_cost_centre_tfID"]) {
     $TPL["cost_centre_tfID_label"] = $tf->get_link();
 }
 
-$query = prepare("SELECT roleName,roleID FROM role WHERE roleLevel = 'project' ORDER BY roleSequence");
+$query = unsafe_prepare("SELECT roleName,roleID FROM role WHERE roleLevel = 'project' ORDER BY roleSequence");
 $db->query($query);
 #$project_person_role_array[] = "";
 while ($db->next_record()) {
@@ -737,7 +737,7 @@ $TPL["project_projectComments_html"] = page::to_html($project->get_value("projec
 
 $db = new db_alloc();
 
-$q = prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
+$q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
                 FROM transaction
            LEFT JOIN timeSheet on timeSheet.timeSheetID = transaction.timeSheetID
@@ -753,7 +753,7 @@ while ($row = $db->row()) {
 }
 $TPL["total_timeSheet_transactions_pending"] = page::money_print($rows);
 
-$q = prepare("SELECT SUM(customerBilledDollars * timeSheetItemDuration * multiplier * pow(10,-currencyType.numberToBasic))
+$q = unsafe_prepare("SELECT SUM(customerBilledDollars * timeSheetItemDuration * multiplier * pow(10,-currencyType.numberToBasic))
                   AS amount, timeSheet.currencyTypeID as currency
                 FROM timeSheetItem
            LEFT JOIN timeSheet ON timeSheetItem.timeSheetID = timeSheet.timeSheetID
@@ -768,7 +768,7 @@ while ($row = $db->row()) {
 }
 $TPL["total_timeSheet_customerBilledDollars"] = page::money_print($rows);
 
-$q = prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
+$q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
                 FROM transaction
            LEFT JOIN timeSheet on timeSheet.timeSheetID = transaction.timeSheetID
@@ -784,7 +784,7 @@ while ($row = $db->row()) {
 }
 $TPL["total_timeSheet_transactions_approved"] = page::money_print($rows);
 
-$q = prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
+$q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
                 FROM transaction
            LEFT JOIN invoiceItem on invoiceItem.invoiceItemID = transaction.invoiceItemID
@@ -801,7 +801,7 @@ while ($row = $db->row()) {
 }
 $TPL["total_invoice_transactions_pending"] = page::money_print($rows);
 
-$q = prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
+$q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
                 FROM transaction
            LEFT JOIN invoiceItem on invoiceItem.invoiceItemID = transaction.invoiceItemID
@@ -819,7 +819,7 @@ while ($row = $db->row()) {
 $TPL["total_invoice_transactions_approved"] = page::money_print($rows);
 
 
-$q = prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
+$q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
                 FROM transaction
            LEFT JOIN currencyType on currencyType.currencyTypeID = transaction.currencyTypeID

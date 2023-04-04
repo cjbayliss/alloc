@@ -29,7 +29,7 @@ class history extends db_entity
         $current_user = &singleton("current_user");
         if (is_object($current_user)) {
             $db = new db_alloc();
-            $query = prepare(
+            $query = unsafe_prepare(
                 "SELECT *, historyID AS value, the_label AS label
                    FROM history
                   WHERE personID = %d
@@ -113,7 +113,7 @@ class history extends db_entity
                         if (is_object($newClass->key_field) && $newClass->key_field->get_name() == $KEY_FIELD) {
                             // The primary key for this db table is the same as
                             // our KEY_FIELD var which was extracted from url.
-                            $query = prepare("SELECT * FROM %s WHERE %s = %d", $CLASS_NAME, $KEY_FIELD, $ID);
+                            $query = unsafe_prepare("SELECT * FROM %s WHERE %s = %d", $CLASS_NAME, $KEY_FIELD, $ID);
                             $db->query($query);
                             $db->next_record();
                             // return that particular classes _default_ display field
@@ -162,11 +162,11 @@ class history extends db_entity
             return;
         }
         $db = new db_alloc();
-        $query = prepare("SELECT count(*) AS total FROM history WHERE personID = %d", $current_user->get_id());
+        $query = unsafe_prepare("SELECT count(*) AS total FROM history WHERE personID = %d", $current_user->get_id());
         $db->query($query);
         $row = $db->row();
         if ($row["total"] >= (3 * $this->max_to_display)) {
-            $query  = prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2 * $this->max_to_display));
+            $query  = unsafe_prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2 * $this->max_to_display));
             $db->query($query);
         }
 

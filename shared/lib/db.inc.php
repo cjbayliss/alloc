@@ -165,7 +165,7 @@ class db
 
         if ($query && !self::$stop_doing_queries) {
             if (is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id()) {
-                $this->_query(prepare("SET @personID = %d", $current_user->get_id()));
+                $this->_query(unsafe_prepare("SET @personID = %d", $current_user->get_id()));
             } else {
                 $this->_query("SET @personID = NULL");
             }
@@ -238,7 +238,7 @@ class db
         $db or $db = $this->database;
         $prev_db = $this->database;
         $this->select_db($db);
-        $query = prepare('SHOW TABLES LIKE "%s"', $table);
+        $query = unsafe_prepare('SHOW TABLES LIKE "%s"', $table);
         $this->query($query);
         while ($row = $this->row($this->pdo_statement, PDO::FETCH_NUM)) {
             if ($row[0] == $table) {
@@ -383,7 +383,7 @@ class db
 
     function get_escaped_query_str($args)
     {
-        return call_user_func_array("prepare", $args);
+        return call_user_func_array("unsafe_prepare", $args);
     }
 
     function seek($pos = 0)

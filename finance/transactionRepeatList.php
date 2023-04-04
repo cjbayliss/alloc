@@ -30,9 +30,9 @@ function show_expenseFormList($template_name)
 
     if (!$_GET["tfID"] && !$current_user->have_role("admin")) {
         $tfIDs = $current_user->get_tfIDs();
-        $tfIDs and $sql = prepare("WHERE tfID in (%s)", $tfIDs);
+        $tfIDs and $sql = unsafe_prepare("WHERE tfID in (%s)", $tfIDs);
     } else if ($_GET["tfID"]) {
-        $sql = prepare("WHERE tfID = %d", $_GET["tfID"]);
+        $sql = unsafe_prepare("WHERE tfID = %d", $_GET["tfID"]);
     }
 
     $db->query("select * FROM transactionRepeat " . $sql);

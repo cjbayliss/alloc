@@ -61,7 +61,7 @@ switch ($step) {
             if ($current_user->have_role("admin")) {
                 $query = "SELECT * FROM project WHERE projectStatus != 'Archived' ORDER BY projectName";
             } else {
-                $query = prepare("SELECT *
+                $query = unsafe_prepare("SELECT *
                                     FROM project
                                LEFT JOIN projectPerson ON project.projectID=projectPerson.projectID
                                    WHERE personID='%d'
@@ -78,7 +78,7 @@ switch ($step) {
             if ($current_user->have_role("admin")) {
                 $query = "SELECT * FROM task";
             } else {
-                $query = prepare("SELECT * FROM task WHERE personID=%d ORDER BY taskName", $personID);
+                $query = unsafe_prepare("SELECT * FROM task WHERE personID=%d ORDER BY taskName", $personID);
             }
             $db->query($query);
             while ($db->next_record()) {

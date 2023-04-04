@@ -15,7 +15,7 @@ class role extends db_entity
     {
         $rows = [];
         $db = new db_alloc();
-        $q = prepare("SELECT * FROM role WHERE roleLevel = '%s' ORDER BY roleSequence", $level);
+        $q = unsafe_prepare("SELECT * FROM role WHERE roleLevel = '%s' ORDER BY roleSequence", $level);
         $db->query($q);
         while ($row = $db->row()) {
             $rows[$row["roleHandle"]] = $row["roleName"];

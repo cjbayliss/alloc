@@ -15,6 +15,6 @@ $db = new db_alloc();
 if ($_GET['current']) {
     $filter = " WHERE projectStatus = 'Current'";
 }
-$query = prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
+$query = unsafe_prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
 
 echo '<select name="projectID[]" multiple="true" style="width:100%">' . page::select_options($query, null, 70) . '</select>';

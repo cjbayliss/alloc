@@ -94,7 +94,7 @@ class db_entity
         }
 
         $db = new db_alloc();
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT *
                FROM permission
               WHERE (tableName = '%s')
@@ -537,7 +537,7 @@ class db_entity
             $key_name = $this->key_field->get_name();
         }
         $foreign_objects = [];
-        $query = prepare("SELECT * FROM %s WHERE %s = %d", $class_name, $key_name, $this->get_id());
+        $query = unsafe_prepare("SELECT * FROM %s WHERE %s = %d", $class_name, $key_name, $this->get_id());
         $db = new db_alloc();
         $db->query($query);
         while ($db->next_record()) {

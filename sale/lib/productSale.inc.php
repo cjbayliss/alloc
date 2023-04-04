@@ -43,7 +43,7 @@ class productSale extends db_entity
         }
 
         if ($this->get_value("extRef")) {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT productSaleID FROM productSale WHERE productSaleID != %d AND extRef = '%s'",
                 $this->get_id(),
                 $this->get_value("extRef")
@@ -68,7 +68,7 @@ class productSale extends db_entity
     function delete()
     {
         $db = new db_alloc();
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT *
                FROM productSaleItem
               WHERE productSaleID = %d",
@@ -121,7 +121,7 @@ class productSale extends db_entity
 
     function get_productSaleItems()
     {
-        $q = prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $this->get_id());
+        $q = unsafe_prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
         $rows = [];
@@ -272,7 +272,7 @@ class productSale extends db_entity
             $this->set_value("status", "admin");
 
             // 1. from salesperson to admin
-            $q = prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname1);
+            $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname1);
             if (config::for_cyber() && !$db->qr($q)) {
                 $task = new task();
                 $task->set_value("projectID", $cyberadmin); // Cyber Admin Project
@@ -323,14 +323,14 @@ class productSale extends db_entity
                     $ids[] = $row["productSaleItemID"];
                 }
                 if ($ids) {
-                    $q = prepare("UPDATE transaction SET status = '%s' WHERE productSaleItemID in (%s)", $_REQUEST["changeTransactionStatus"], $ids);
+                    $q = unsafe_prepare("UPDATE transaction SET status = '%s' WHERE productSaleItemID in (%s)", $_REQUEST["changeTransactionStatus"], $ids);
                     $db = new db_alloc();
                     $db->query($q);
                 }
             }
 
             // 2. from admin to salesperson
-            $q = prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname2);
+            $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname2);
             if (config::for_cyber() && !$db->qr($q)) {
                 $task = new task();
                 $task->set_value("projectID", $cyberadmin); // Cyber Admin Project
@@ -344,7 +344,7 @@ class productSale extends db_entity
                 $task->set_value("dateTargetCompletion", date("Y-m-d", date("U") + (60 * 60 * 24 * 7)));
                 $task->save();
 
-                $q = prepare(
+                $q = unsafe_prepare(
                     "SELECT * FROM task WHERE projectID = %d AND taskName = '%s'",
                     $cyberadmin,
                     $taskname1
@@ -367,7 +367,7 @@ class productSale extends db_entity
             }
 
             // 3. from salesperson to admin
-            $q = prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname3);
+            $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname3);
             if (config::for_cyber() && !$db->qr($q)) {
                 $task = new task();
                 $task->set_value("projectID", $cyberadmin); // Cyber Admin Project
@@ -394,7 +394,7 @@ class productSale extends db_entity
             }
 
             // 4. from admin to salesperson
-            $q = prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname4);
+            $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname4);
             if (config::for_cyber() && !$db->qr($q)) {
                 $task = new task();
                 $task->set_value("projectID", $cyberadmin); // Cyber Admin Project
@@ -425,7 +425,7 @@ class productSale extends db_entity
     {
         $done = null;
         $rows = [];
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT transaction.*
                    ,productCost.productCostID  as pc_productCostID
                    ,productCost.amount         as pc_amount
@@ -523,7 +523,7 @@ class productSale extends db_entity
         $f .= " ORDER BY IFNULL(productSaleDate,productSaleCreatedTime)";
 
         $db = new db_alloc();
-        $query = prepare("SELECT productSale.*, project.projectName, client.clientName
+        $query = unsafe_prepare("SELECT productSale.*, project.projectName, client.clientName
                         FROM productSale
                    LEFT JOIN client ON productSale.clientID = client.clientID
                    LEFT JOIN project ON productSale.projectID = project.projectID
@@ -667,7 +667,7 @@ class productSale extends db_entity
         if (!$_FORM['showAllProjects']) {
             $filter = "WHERE projectStatus = 'Current' ";
         }
-        $query = prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
+        $query = unsafe_prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
         $rtn["show_project_options"] = page::select_options($query, $_FORM["projectID"], 70);
 
         // display the list of user name.

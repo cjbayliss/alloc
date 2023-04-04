@@ -22,7 +22,7 @@ class announcement extends db_entity
     {
         $db = new db_alloc();
         $today = date("Y-m-d");
-        $query = prepare("select * from announcement where displayFromDate <= '%s' and displayToDate >= '%s'", $today, $today);
+        $query = unsafe_prepare("select * from announcement where displayFromDate <= '%s' and displayToDate >= '%s'", $today, $today);
         $db->query($query);
         if ($db->next_record()) {
             return true;

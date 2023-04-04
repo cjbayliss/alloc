@@ -61,7 +61,7 @@ class calendar
     function get_cal_reminders()
     {
         // Get persons reminders
-        $query = prepare("SELECT *
+        $query = unsafe_prepare("SELECT *
                             FROM reminder
                             JOIN reminderRecipient ON reminderRecipient.reminderID = reminder.reminderID
                            WHERE personID = %d
@@ -102,7 +102,7 @@ class calendar
     {
         list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
         // Select all tasks which are targetted to start
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT *
                FROM task
               WHERE personID = %d
@@ -126,7 +126,7 @@ class calendar
     {
         list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
         // Select all tasks which are targetted for completion
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT *
                FROM task
               WHERE personID = %d
@@ -149,7 +149,7 @@ class calendar
     function get_cal_absences()
     {
         $prev_date = null;
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT *
                FROM absence
               WHERE (dateFrom >= '%s' OR dateTo <= '%s')",
@@ -158,7 +158,7 @@ class calendar
         );
 
         $current_user = &singleton("current_user");
-        $current_user->have_role("admin") || $current_user->have_role("manage") or $query .= prepare(" AND personID = %d", $current_user->get_id());
+        $current_user->have_role("admin") || $current_user->have_role("manage") or $query .= unsafe_prepare(" AND personID = %d", $current_user->get_id());
 
         $this->db->query($query);
         $absences = [];

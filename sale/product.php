@@ -16,7 +16,7 @@ function show_productCost_list($productID, $template, $percent = false)
         $currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
 
         $db = new db_alloc();
-        $query = prepare(
+        $query = unsafe_prepare(
             "SELECT *
                FROM productCost
               WHERE productID = %d

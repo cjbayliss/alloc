@@ -11,7 +11,7 @@ require_once("../alloc.php");
 $db = new db_alloc();
 
 // do advanced notice emails
-$query = prepare("SELECT *
+$query = unsafe_prepare("SELECT *
                     FROM reminder
                    WHERE reminderActive = 1
                      AND reminderAdvNoticeSent = 0
@@ -42,7 +42,7 @@ while ($db->next_record()) {
 
 
 // do reminders
-$query = prepare("SELECT *
+$query = unsafe_prepare("SELECT *
                     FROM reminder
                    WHERE reminderActive = 1
                      AND (reminderTime IS NULL OR NOW() > reminderTime)

@@ -57,7 +57,7 @@ class clientContact extends db_entity
             );
             $row = $database->qr(); // FIXME: ??
             if ($row["clientID"]) {
-                $extra = prepare("AND clientID = %d", $row["clientID"]);
+                $extra = unsafe_prepare("AND clientID = %d", $row["clientID"]);
             }
         }
 
@@ -106,7 +106,7 @@ class clientContact extends db_entity
 
     function find_by_name($name = false, $projectID = false, $percent = 90)
     {
-        $extra = $name ? prepare("AND clientContactName = '%s'", $name) : null;
+        $extra = $name ? unsafe_prepare("AND clientContactName = '%s'", $name) : null;
         $people = self::get_people($projectID, $extra);
         return self::get_closest_matching_person($people, $name, $percent);
     }
@@ -118,7 +118,7 @@ class clientContact extends db_entity
 
     function find_by_nick($name = false, $clientID = false)
     {
-        $q = prepare("SELECT clientContactID
+        $q = unsafe_prepare("SELECT clientContactID
                         FROM clientContact
                        WHERE SUBSTRING(clientContactEmail,1,LOCATE('@',clientContactEmail)-1) = '%s'
                          AND clientID = %d LIMIT 1
@@ -133,7 +133,7 @@ class clientContact extends db_entity
     {
         $email = str_replace(["<", ">"], "", $email);
         if ($email) {
-            $q = prepare("SELECT clientContactID
+            $q = unsafe_prepare("SELECT clientContactID
                             FROM clientContact
                            WHERE replace(replace(clientContactEmail,'<',''),'>','') = '%s'
                          ", $email);
@@ -151,14 +151,14 @@ class clientContact extends db_entity
         $currentClientID = $this->get_id();
         if (!empty($currentClientID)) {
             $database = new db_alloc();
-            $nullifyClientContactIDQuery = prepare(
+            $nullifyClientContactIDQuery = unsafe_prepare(
                 "UPDATE interestedParty 
                     SET clientContactID = NULL where clientContactID = %d",
                 $currentClientID
             );
             $database->query($nullifyClientContactIDQuery);
 
-            $nullifyCommentCreatedUserClientContactIDQuery = prepare(
+            $nullifyCommentCreatedUserClientContactIDQuery = unsafe_prepare(
                 "UPDATE comment 
                     SET commentCreatedUserClientContactID = NULL 
                   where commentCreatedUserClientContactID = %d",
@@ -166,7 +166,7 @@ class clientContact extends db_entity
             );
             $database->query($nullifyCommentCreatedUserClientContactIDQuery);
 
-            $nullifyProjectClientContactIDQuery = prepare(
+            $nullifyProjectClientContactIDQuery = unsafe_prepare(
                 "UPDATE project 
                     SET clientContactID = NULL where clientContactID = %d",
                 $currentClientID
@@ -277,12 +277,12 @@ class clientContact extends db_entity
 
         // Filter on clientContactID
         if ($filter["clientContactID"] && is_array($filter["clientContactID"])) {
-            $sql[] = prepare(
+            $sql[] = unsafe_prepare(
                 "(clientContact.clientContactID in (%s))",
                 $filter["clientContactID"]
             );
         } else if ($filter["clientContactID"]) {
-            $sql[] = prepare(
+            $sql[] = unsafe_prepare(
                 "(clientContact.clientContactID = %d)",
                 $filter["clientContactID"]
             );

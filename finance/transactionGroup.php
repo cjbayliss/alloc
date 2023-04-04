@@ -13,7 +13,7 @@ function show_transaction_list($template)
     global $tflist;
     global $transactionGroupID;
 
-    $q = prepare("SELECT *, amount * pow(10,-currencyType.numberToBasic) as amount
+    $q = unsafe_prepare("SELECT *, amount * pow(10,-currencyType.numberToBasic) as amount
                     FROM transaction
                LEFT JOIN currencyType on transaction.currencyTypeID = currencyType.currencyTypeID
                    WHERE transactionGroupID = %d

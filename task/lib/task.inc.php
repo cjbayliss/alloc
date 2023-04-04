@@ -176,9 +176,9 @@ class task extends db_entity
     {
         $db = new db_alloc();
         if ($all) {
-            $q = prepare("SELECT DISTINCT name FROM tag ORDER BY name");
+            $q = unsafe_prepare("SELECT DISTINCT name FROM tag ORDER BY name");
         } else {
-            $q = prepare("SELECT name FROM tag WHERE taskID = %d ORDER BY name", $this->get_id());
+            $q = unsafe_prepare("SELECT name FROM tag WHERE taskID = %d ORDER BY name", $this->get_id());
         }
         $db->query($q);
         $arr = [];
@@ -192,7 +192,7 @@ class task extends db_entity
     {
         $rows = [];
         $db = new db_alloc();
-        $q = prepare("SELECT * FROM pendingTask WHERE %s = %d", ($invert ? "pendingTaskID" : "taskID"), $this->get_id());
+        $q = unsafe_prepare("SELECT * FROM pendingTask WHERE %s = %d", ($invert ? "pendingTaskID" : "taskID"), $this->get_id());
         $db->query($q);
         while ($row = $db->row()) {
             $rows[] = $row[($invert ? "taskID" : "pendingTaskID")];
@@ -203,7 +203,7 @@ class task extends db_entity
     function get_reopen_reminders()
     {
         $rows = [];
-        $q = prepare("SELECT reminder.*,token.*,tokenAction.*, reminder.reminderID as rID
+        $q = unsafe_prepare("SELECT reminder.*,token.*,tokenAction.*, reminder.reminderID as rID
                         FROM reminder
                    LEFT JOIN token ON reminder.reminderHash = token.tokenHash
                    LEFT JOIN tokenAction ON token.tokenActionID = tokenAction.tokenActionID
@@ -367,7 +367,7 @@ class task extends db_entity
 
     function update_children($field, $value = "")
     {
-        $q = prepare("SELECT * FROM task WHERE parentTaskID = %d", $this->get_id());
+        $q = unsafe_prepare("SELECT * FROM task WHERE parentTaskID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
         while ($db->row()) {
@@ -398,7 +398,7 @@ class task extends db_entity
         if ($projectID) {
             list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
             // Status may be closed_<something>
-            $query = prepare("SELECT taskID AS value, taskName AS label
+            $query = unsafe_prepare("SELECT taskID AS value, taskName AS label
                                 FROM task
                                WHERE projectID= '%d'
                                  AND taskTypeID = 'Parent'
@@ -524,7 +524,7 @@ class task extends db_entity
                 $managers_only = true;
             }
 
-            $q = prepare("SELECT *
+            $q = unsafe_prepare("SELECT *
                             FROM projectPerson
                        LEFT JOIN person ON person.personID = projectPerson.personID
                        LEFT JOIN role ON role.roleID = projectPerson.roleID
@@ -563,7 +563,7 @@ class task extends db_entity
         $projectID or $projectID = $_GET["projectID"];
         // Project Options - Select all projects
         $db = new db_alloc();
-        $query = prepare("SELECT projectID AS value, projectName AS label
+        $query = unsafe_prepare("SELECT projectID AS value, projectName AS label
                             FROM project
                            WHERE projectStatus IN ('Current', 'Potential') OR projectID = %d
                         ORDER BY projectName", $projectID);
@@ -597,7 +597,7 @@ class task extends db_entity
         $TPL["parentTaskOptions"] = $this->get_parent_task_select();
         $TPL["interestedPartyOptions"] = $this->get_task_cc_list_select();
 
-        $db->query(prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile
+        $db->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile
                               FROM interestedParty
                          LEFT JOIN clientContact ON interestedParty.clientContactID = clientContact.clientContactID
                              WHERE entity='task'
@@ -863,7 +863,7 @@ class task extends db_entity
         if ($filter["taskDate"] == "new") {
             $past = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 2, date("Y"))) . " 00:00:00";
             date("D") == "Mon" and $past = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 4, date("Y"))) . " 00:00:00";
-            $sql[] = prepare("(task.taskStatus NOT IN (" . $ts_closed . ") AND task.dateCreated >= '" . $past . "')");
+            $sql[] = unsafe_prepare("(task.taskStatus NOT IN (" . $ts_closed . ") AND task.dateCreated >= '" . $past . "')");
 
             // Due Today
         } else if ($filter["taskDate"] == "due_today") {
@@ -877,33 +877,33 @@ class task extends db_entity
 
             // Date Created
         } else if ($filter["taskDate"] == "d_created") {
-            $filter["dateOne"] and $sql[] = prepare("(task.dateCreated >= '%s')", $filter["dateOne"]);
-            $filter["dateTwo"] and $sql[] = prepare("(task.dateCreated <= '%s 23:59:59')", $filter["dateTwo"]);
+            $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateCreated >= '%s')", $filter["dateOne"]);
+            $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateCreated <= '%s 23:59:59')", $filter["dateTwo"]);
 
             // Date Assigned
         } else if ($filter["taskDate"] == "d_assigned") {
-            $filter["dateOne"] and $sql[] = prepare("(task.dateAssigned >= '%s')", $filter["dateOne"]);
-            $filter["dateTwo"] and $sql[] = prepare("(task.dateAssigned <= '%s 23:59:59')", $filter["dateTwo"]);
+            $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateAssigned >= '%s')", $filter["dateOne"]);
+            $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateAssigned <= '%s 23:59:59')", $filter["dateTwo"]);
 
             // Date Target Start
         } else if ($filter["taskDate"] == "d_targetStart") {
-            $filter["dateOne"] and $sql[] = prepare("(task.dateTargetStart >= '%s')", $filter["dateOne"]);
-            $filter["dateTwo"] and $sql[] = prepare("(task.dateTargetStart <= '%s')", $filter["dateTwo"]);
+            $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateTargetStart >= '%s')", $filter["dateOne"]);
+            $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateTargetStart <= '%s')", $filter["dateTwo"]);
 
             // Date Target Completion
         } else if ($filter["taskDate"] == "d_targetCompletion") {
-            $filter["dateOne"] and $sql[] = prepare("(task.dateTargetCompletion >= '%s')", $filter["dateOne"]);
-            $filter["dateTwo"] and $sql[] = prepare("(task.dateTargetCompletion <= '%s')", $filter["dateTwo"]);
+            $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateTargetCompletion >= '%s')", $filter["dateOne"]);
+            $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateTargetCompletion <= '%s')", $filter["dateTwo"]);
 
             // Date Actual Start
         } else if ($filter["taskDate"] == "d_actualStart") {
-            $filter["dateOne"] and $sql[] = prepare("(task.dateActualStart >= '%s')", $filter["dateOne"]);
-            $filter["dateTwo"] and $sql[] = prepare("(task.dateActualStart <= '%s')", $filter["dateTwo"]);
+            $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateActualStart >= '%s')", $filter["dateOne"]);
+            $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateActualStart <= '%s')", $filter["dateTwo"]);
 
             // Date Actual Completion
         } else if ($filter["taskDate"] == "d_actualCompletion") {
-            $filter["dateOne"] and $sql[] = prepare("(task.dateActualCompletion >= '%s')", $filter["dateOne"]);
-            $filter["dateTwo"] and $sql[] = prepare("(task.dateActualCompletion <= '%s')", $filter["dateTwo"]);
+            $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateActualCompletion >= '%s')", $filter["dateOne"]);
+            $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateActualCompletion <= '%s')", $filter["dateTwo"]);
         }
 
         // Task status filtering
@@ -924,23 +924,23 @@ class task extends db_entity
                 $tag and $tags[] = $tag;
             }
             $tags and $sql[] = sprintf_implode("seltag.name = '%s'", $tags);
-            $having = prepare("HAVING count(DISTINCT seltag.name) = %d", count($tags));
+            $having = unsafe_prepare("HAVING count(DISTINCT seltag.name) = %d", count($tags));
         }
 
         // These filters are for the time sheet dropdown list
         if ($filter["taskTimeSheetStatus"] == "open") {
             unset($sql["personID"]);
-            $sql[] = prepare("(task.taskStatus NOT IN (" . $ts_closed . "))");
+            $sql[] = unsafe_prepare("(task.taskStatus NOT IN (" . $ts_closed . "))");
         } else if ($filter["taskTimeSheetStatus"] == "mine") {
             $current_user = &singleton("current_user");
             unset($sql["personID"]);
-            $sql[] = prepare("((task.taskStatus NOT IN (" . $ts_closed . ")) AND task.personID = %d)", $current_user->get_id());
+            $sql[] = unsafe_prepare("((task.taskStatus NOT IN (" . $ts_closed . ")) AND task.personID = %d)", $current_user->get_id());
         } else if ($filter["taskTimeSheetStatus"] == "not_assigned") {
             unset($sql["personID"]);
-            $sql[] = prepare("((task.taskStatus NOT IN (" . $ts_closed . ")) AND task.personID != %d)", $filter["personID"]);
+            $sql[] = unsafe_prepare("((task.taskStatus NOT IN (" . $ts_closed . ")) AND task.personID != %d)", $filter["personID"]);
         } else if ($filter["taskTimeSheetStatus"] == "recent_closed") {
             unset($sql["personID"]);
-            $sql[] = prepare("(task.dateActualCompletion >= DATE_SUB(CURDATE(),INTERVAL 14 DAY))");
+            $sql[] = unsafe_prepare("(task.dateActualCompletion >= DATE_SUB(CURDATE(),INTERVAL 14 DAY))");
         } else if ($filter["taskTimeSheetStatus"] == "all") {
         }
 
@@ -1030,7 +1030,7 @@ class task extends db_entity
 
         // Zero is a valid limit
         if ($_FORM["limit"] || $_FORM["limit"] === 0 || $_FORM["limit"] === "0") {
-            $limit = prepare("limit %d", $_FORM["limit"]);
+            $limit = unsafe_prepare("limit %d", $_FORM["limit"]);
         }
         $_FORM["return"] or $_FORM["return"] = "html";
 
@@ -1688,7 +1688,7 @@ class task extends db_entity
     {
         if (is_object($this) && $this->get_id()) {
             $db = new db_alloc();
-            $q = prepare("SELECT can_delete_task(%d) as rtn", $this->get_id());
+            $q = unsafe_prepare("SELECT can_delete_task(%d) as rtn", $this->get_id());
             $db->query($q);
             $row = $db->row();
             return $row['rtn'];
@@ -1701,7 +1701,7 @@ class task extends db_entity
             $this->select();
             if (substr($this->get_value("taskStatus"), 0, 4) == 'open') {
                 $db = new db_alloc();
-                $q = prepare("SELECT *
+                $q = unsafe_prepare("SELECT *
                                 FROM audit
                                WHERE taskID = %d
                                  AND field = 'taskStatus'

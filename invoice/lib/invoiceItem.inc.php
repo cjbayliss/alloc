@@ -35,7 +35,7 @@ class invoiceItem extends db_entity
         }
 
         $db = new db_alloc();
-        $q = prepare("SELECT * FROM transaction WHERE invoiceItemID = %d OR transactionID = %d", $this->get_id(), $this->get_value("transactionID"));
+        $q = unsafe_prepare("SELECT * FROM transaction WHERE invoiceItemID = %d OR transactionID = %d", $this->get_id(), $this->get_value("transactionID"));
         $db->query($q);
         while ($db->next_record()) {
             $transaction = new transaction();
@@ -46,7 +46,7 @@ class invoiceItem extends db_entity
         }
 
         if ($this->get_value("timeSheetID")) {
-            $q = prepare("SELECT * FROM timeSheet WHERE timeSheetID = %d", $this->get_value("timeSheetID"));
+            $q = unsafe_prepare("SELECT * FROM timeSheet WHERE timeSheetID = %d", $this->get_value("timeSheetID"));
             $db->query($q);
             while ($db->next_record()) {
                 $timeSheet = new timeSheet();
@@ -58,7 +58,7 @@ class invoiceItem extends db_entity
         }
 
         if ($this->get_value("expenseFormID")) {
-            $q = prepare("SELECT * FROM expenseForm WHERE expenseFormID = %d", $this->get_value("expenseFormID"));
+            $q = unsafe_prepare("SELECT * FROM expenseForm WHERE expenseFormID = %d", $this->get_value("expenseFormID"));
             $db->query($q);
             while ($db->next_record()) {
                 $expenseForm = new expenseForm();
@@ -76,7 +76,7 @@ class invoiceItem extends db_entity
     {
 
         $db = new db_alloc();
-        $q = prepare("DELETE FROM transaction WHERE invoiceItemID = %d", $this->get_id());
+        $q = unsafe_prepare("DELETE FROM transaction WHERE invoiceItemID = %d", $this->get_id());
         $db->query($q);
 
         $invoiceID = $this->get_value("invoiceID");
@@ -104,7 +104,7 @@ class invoiceItem extends db_entity
         // It checks for approved transactions and only approves the timesheets
         // or expenseforms that are completely paid for by an invoice item.
         $db = new db_alloc();
-        $q = prepare("SELECT amount, currencyTypeID, status
+        $q = unsafe_prepare("SELECT amount, currencyTypeID, status
                         FROM transaction
                        WHERE invoiceItemID = %d
                     ORDER BY transactionCreatedTime DESC
@@ -130,7 +130,7 @@ class invoiceItem extends db_entity
                 // If the time sheet doesn't have any transactions and it is in
                 // status invoiced, then we'll simulate the "Create Default Transactions"
                 // button being pressed.
-                $q = prepare("SELECT count(*) as num_transactions
+                $q = unsafe_prepare("SELECT count(*) as num_transactions
                                 FROM transaction
                                WHERE timeSheetID = %d
                                  AND invoiceItemID IS NULL
@@ -144,7 +144,7 @@ class invoiceItem extends db_entity
                 }
 
                 // Get total of all time sheet transactions.
-                $q = prepare("SELECT SUM(amount) AS total
+                $q = unsafe_prepare("SELECT SUM(amount) AS total
                                 FROM transaction
                                WHERE timeSheetID = %d
                                  AND status != 'rejected'
@@ -188,7 +188,7 @@ class invoiceItem extends db_entity
         $db = new db_alloc();
 
         // If there already a transaction for this invoiceItem, use it instead of creating a new one
-        $q = prepare("SELECT * FROM transaction WHERE invoiceItemID = %d ORDER BY transactionCreatedTime DESC LIMIT 1", $this->get_id());
+        $q = unsafe_prepare("SELECT * FROM transaction WHERE invoiceItemID = %d ORDER BY transactionCreatedTime DESC LIMIT 1", $this->get_id());
         $db->query($q);
         if ($db->row()) {
             $transaction->set_id($db->f("transactionID"));
@@ -197,7 +197,7 @@ class invoiceItem extends db_entity
 
         // If there already a transaction for this timeSheet, use it instead of creating a new one
         if ($this->get_value("timeSheetID")) {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT *
                    FROM transaction
                   WHERE timeSheetID = %d
@@ -239,9 +239,9 @@ class invoiceItem extends db_entity
         $sql = [];
         // Filter on invoiceID
         if ($filter["invoiceID"] && is_array($filter["invoiceID"])) {
-            $sql[] = prepare("(invoice.invoiceID in (%s))", $filter["invoiceID"]);
+            $sql[] = unsafe_prepare("(invoice.invoiceID in (%s))", $filter["invoiceID"]);
         } else if ($filter["invoiceID"]) {
-            $sql[] = prepare("(invoice.invoiceID = %d)", $filter["invoiceID"]);
+            $sql[] = unsafe_prepare("(invoice.invoiceID = %d)", $filter["invoiceID"]);
         }
         return $sql;
     }
@@ -254,7 +254,7 @@ class invoiceItem extends db_entity
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);
         }
-        $q = prepare("SELECT * FROM invoiceItem
+        $q = unsafe_prepare("SELECT * FROM invoiceItem
                    LEFT JOIN invoice ON invoice.invoiceID = invoiceItem.invoiceID
                    LEFT JOIN client ON client.clientID = invoice.clientID
                      " . $f);

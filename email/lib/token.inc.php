@@ -29,10 +29,10 @@ class token extends db_entity
         $extra = null;
         $validate and $extra = " AND tokenActive = 1";
         $validate and $extra .= " AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)";
-        $validate and $extra .= prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s"));
+        $validate and $extra .= unsafe_prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s"));
 
 
-        $q = prepare("SELECT * FROM token
+        $q = unsafe_prepare("SELECT * FROM token
                        WHERE tokenHash = '%s'
                       $extra
                      ", $hash);
@@ -74,14 +74,14 @@ class token extends db_entity
 
     function increment_tokenUsed()
     {
-        $q = prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) + 1 WHERE tokenID = %d", $this->get_id());
+        $q = unsafe_prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) + 1 WHERE tokenID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
     }
 
     function decrement_tokenUsed()
     {
-        $q = prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) - 1 WHERE tokenID = %d", $this->get_id());
+        $q = unsafe_prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) - 1 WHERE tokenID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
     }
@@ -110,7 +110,7 @@ class token extends db_entity
 
     function select_token_by_entity_and_action($entity, $entityID, $action)
     {
-        $q = prepare("SELECT token.*, tokenAction.*
+        $q = unsafe_prepare("SELECT token.*, tokenAction.*
                         FROM token
                    LEFT JOIN tokenAction ON token.tokenActionID = tokenAction.tokenActionID
                        WHERE tokenEntity = '%s'

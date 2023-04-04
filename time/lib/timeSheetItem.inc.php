@@ -123,7 +123,7 @@ class timeSheetItem extends db_entity
         $timeSheetID = $this->get_value("timeSheetID");
 
         $db = new db_alloc();
-        $q = prepare("SELECT invoiceItem.*
+        $q = unsafe_prepare("SELECT invoiceItem.*
                         FROM invoiceItem
                    LEFT JOIN invoice ON invoiceItem.invoiceID = invoice.invoiceID
                        WHERE timeSheetID = %d
@@ -161,9 +161,9 @@ class timeSheetItem extends db_entity
         }
 
         $dateTimeSheetItem = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 365, date("Y")));
-        $personID and $personID_sql = prepare(" AND personID = %d", $personID);
+        $personID and $personID_sql = unsafe_prepare(" AND personID = %d", $personID);
 
-        $q = prepare("SELECT DISTINCT dateTimeSheetItem, personID
+        $q = unsafe_prepare("SELECT DISTINCT dateTimeSheetItem, personID
                         FROM timeSheetItem
                        WHERE dateTimeSheetItem > '%s'
                              " . $personID_sql . "
@@ -226,36 +226,36 @@ class timeSheetItem extends db_entity
         }
 
         if (is_array($timeSheetIDs) && count($timeSheetIDs)) {
-            $sql[] = prepare("(timeSheetItem.timeSheetID IN (%s))", $timeSheetIDs);
+            $sql[] = unsafe_prepare("(timeSheetItem.timeSheetID IN (%s))", $timeSheetIDs);
         }
 
         if ($filter["projectID"]) {
-            $sql[] = prepare("(timeSheet.projectID = %d)", $filter["projectID"]);
+            $sql[] = unsafe_prepare("(timeSheet.projectID = %d)", $filter["projectID"]);
         }
 
         if ($filter["taskID"]) {
-            $sql[] = prepare("(timeSheetItem.taskID = %d)", $filter["taskID"]);
+            $sql[] = unsafe_prepare("(timeSheetItem.taskID = %d)", $filter["taskID"]);
         }
 
         if ($filter["date"]) {
             in_array($filter["dateComparator"], ["=", "!=", ">", ">=", "<", "<="]) or $filter["dateComparator"] = '=';
-            $sql[] = prepare("(timeSheetItem.dateTimeSheetItem " . $filter["dateComparator"] . " '%s')", $filter["date"]);
+            $sql[] = unsafe_prepare("(timeSheetItem.dateTimeSheetItem " . $filter["dateComparator"] . " '%s')", $filter["date"]);
         }
 
         if ($filter["personID"]) {
-            $sql[] = prepare("(timeSheetItem.personID = %d)", $filter["personID"]);
+            $sql[] = unsafe_prepare("(timeSheetItem.personID = %d)", $filter["personID"]);
         }
 
         if ($filter["timeSheetItemID"]) {
-            $sql[] = prepare("(timeSheetItem.timeSheetItemID = %d)", $filter["timeSheetItemID"]);
+            $sql[] = unsafe_prepare("(timeSheetItem.timeSheetItemID = %d)", $filter["timeSheetItemID"]);
         }
 
         if ($filter["comment"]) {
-            $sql[] = prepare("(timeSheetItem.comment LIKE '%%%s%%')", $filter["comment"]);
+            $sql[] = unsafe_prepare("(timeSheetItem.comment LIKE '%%%s%%')", $filter["comment"]);
         }
 
         if ($filter["tfID"]) {
-            $sql[] = prepare("(timeSheet.recipient_tfID = %d)", $filter["tfID"]);
+            $sql[] = unsafe_prepare("(timeSheet.recipient_tfID = %d)", $filter["tfID"]);
         }
 
         return $sql;
@@ -347,10 +347,10 @@ class timeSheetItem extends db_entity
 
         $personID_sql = null;
         $endDate_sql = null;
-        $personID and $personID_sql = prepare(" AND timeSheetItem.personID = %d", $personID);
-        $endDate and $endDate_sql = prepare(" AND timeSheetItem.dateTimeSheetItem <= '%s'", $endDate);
+        $personID and $personID_sql = unsafe_prepare(" AND timeSheetItem.personID = %d", $personID);
+        $endDate and $endDate_sql = unsafe_prepare(" AND timeSheetItem.dateTimeSheetItem <= '%s'", $endDate);
 
-        $q = prepare("SELECT personID
+        $q = unsafe_prepare("SELECT personID
                            , SUM(timeSheetItemDuration*timeUnitSeconds) " . $divisor . " AS avg
                         FROM timeSheetItem
                    LEFT JOIN timeUnit ON timeUnitID = timeSheetItemDurationUnitID
@@ -368,7 +368,7 @@ class timeSheetItem extends db_entity
         }
 
         //Calculate the dollar values
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT (rate * POW(10, -currencyType.numberToBasic) * timeSheetItemDuration * multiplier) as amount
                         , timeSheet.currencyTypeID as currency
                         , timeSheetItem.*
@@ -397,20 +397,20 @@ class timeSheetItem extends db_entity
         $rows = [];
 
         if ($taskID) {
-            $where = prepare("timeSheetItem.taskID = %d", $taskID);
+            $where = unsafe_prepare("timeSheetItem.taskID = %d", $taskID);
         } else if ($starred) {
             $current_user = &singleton("current_user");
             $timeSheetItemIDs = [];
             foreach ((array)$current_user->prefs["stars"]["timeSheetItem"] as $k => $v) {
                 $timeSheetItemIDs[] = $k;
             }
-            $where = prepare("(timeSheetItem.timeSheetItemID in (%s))", $timeSheetItemIDs);
+            $where = unsafe_prepare("(timeSheetItem.timeSheetItemID in (%s))", $timeSheetItemIDs);
         }
 
         $where or $where = " 1 ";
 
         // Get list of comments from timeSheetItem table
-        $query = prepare("SELECT timeSheetID
+        $query = unsafe_prepare("SELECT timeSheetID
                                , timeSheetItemID
                                , dateTimeSheetItem AS date
                                , comment
@@ -446,7 +446,7 @@ class timeSheetItem extends db_entity
         $start    or $start    = date("Y-m-d", mktime() - (60 * 60 * 24 * 28));
         $end      or $end      = date("Y-m-d");
 
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT dateTimeSheetItem, sum(timeSheetItemDuration*timeUnitSeconds) / 3600 AS hours
                FROM timeSheetItem
           LEFT JOIN timeUnit ON timeUnitID = timeSheetItemDurationUnitID
@@ -487,7 +487,7 @@ class timeSheetItem extends db_entity
         $start    or $start    = date("Y-m-d", mktime() - (60 * 60 * 24 * 28));
         $end      or $end      = date("Y-m-d");
 
-        $q = prepare(
+        $q = unsafe_prepare(
             "SELECT CONCAT(YEAR(dateTimeSheetItem),'-',MONTH(dateTimeSheetItem)) AS dateTimeSheetItem
                   , sum(timeSheetItemDuration*timeUnitSeconds) / 3600 AS hours
                FROM timeSheetItem

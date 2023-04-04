@@ -47,7 +47,7 @@ while ($db->next_record()) {
     $finishDate = format_date("U", $transactionRepeat->get_value("transactionFinishDate"));
     $timeBasisString = $transactionRepeat->get_value("paymentBasis");
 
-    $query = prepare("SELECT max(transactionDate) AS latestDate FROM transaction WHERE transactionRepeatID=%d", $transactionRepeat->get_id());
+    $query = unsafe_prepare("SELECT max(transactionDate) AS latestDate FROM transaction WHERE transactionRepeatID=%d", $transactionRepeat->get_id());
 
     $dbMaxDate->query($query);
     $dbMaxDate->next_record();

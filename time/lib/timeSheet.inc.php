@@ -59,7 +59,7 @@ class timeSheet extends db_entity
         // actually be this time sheets owner to view this time sheet.
         if ($this->get_value("status") != "edit") {
             $current_user_tfIDs = $current_user->get_tfIDs();
-            $q = prepare("SELECT * FROM transaction WHERE timeSheetID = %d", $this->get_id());
+            $q = unsafe_prepare("SELECT * FROM transaction WHERE timeSheetID = %d", $this->get_id());
             $db = new db_alloc();
             $db->query($q);
             while ($db->next_record()) {
@@ -185,7 +185,7 @@ class timeSheet extends db_entity
         $extra_sql and $sql = "," . implode("\n,", $extra_sql);
 
         // Get duration for this timesheet/timeSheetItems
-        $db->query(prepare(
+        $db->query(unsafe_prepare(
             "SELECT SUM(timeSheetItemDuration) AS total_duration,
                     SUM((timeSheetItemDuration * timeUnit.timeUnitSeconds) / 3600) AS total_duration_hours,
                     SUM((rate * pow(10,-currencyType.numberToBasic)) * timeSheetItemDuration * multiplier) AS total_dollars,
@@ -232,7 +232,7 @@ class timeSheet extends db_entity
     function destroyTransactions()
     {
         $db = new db_alloc();
-        $query = prepare("DELETE FROM transaction WHERE timeSheetID = %d AND transactionType != 'invoice'", $this->get_id());
+        $query = unsafe_prepare("DELETE FROM transaction WHERE timeSheetID = %d AND transactionType != 'invoice'", $this->get_id());
         $db->query($query);
     }
 
@@ -354,7 +354,7 @@ class timeSheet extends db_entity
 
     function get_amount_so_far($include_tax = false)
     {
-        $q = prepare("SELECT SUM(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
+        $q = unsafe_prepare("SELECT SUM(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                         FROM transaction
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                        WHERE timeSheetID = %d AND transactionType != 'invoice'
@@ -488,11 +488,11 @@ class timeSheet extends db_entity
 
         if ($filter["dateFrom"]) {
             in_array($filter["dateFromComparator"], ["=", "!=", ">", ">=", "<", "<="]) or $filter["dateFromComparator"] = '=';
-            $sql[] = prepare("(timeSheet.dateFrom " . $filter['dateFromComparator'] . " '%s')", $filter["dateFrom"]);
+            $sql[] = unsafe_prepare("(timeSheet.dateFrom " . $filter['dateFromComparator'] . " '%s')", $filter["dateFrom"]);
         }
         if ($filter["dateTo"]) {
             in_array($filter["dateToComparator"], ["=", "!=", ">", ">=", "<", "<="]) or $filter["dateToComparator"] = '=';
-            $sql[] = prepare("(timeSheet.dateTo " . $filter['dateToComparator'] . " '%s')", $filter["dateTo"]);
+            $sql[] = unsafe_prepare("(timeSheet.dateTo " . $filter['dateToComparator'] . " '%s')", $filter["dateTo"]);
         }
         return $sql;
     }
@@ -626,7 +626,7 @@ class timeSheet extends db_entity
         $pos = [];
         $neg = [];
         $db = new db_alloc();
-        $q = prepare("SELECT amount * pow(10,-currencyType.numberToBasic) AS amount,
+        $q = unsafe_prepare("SELECT amount * pow(10,-currencyType.numberToBasic) AS amount,
                              transaction.currencyTypeID as currency
                         FROM transaction
                    LEFT JOIN currencyType on transaction.currencyTypeID = currencyType.currencyTypeID
@@ -731,7 +731,7 @@ class timeSheet extends db_entity
         if (!$_FORM['showAllProjects']) {
             $filter = "WHERE projectStatus = 'Current' ";
         }
-        $query = prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
+        $query = unsafe_prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
         $rtn["show_project_options"] = page::select_options($query, $_FORM["projectID"], 70);
 
         // display the list of user name.
@@ -880,7 +880,7 @@ EOD;
             // Check for time overrun
             $overrun_tasks = [];
             $db = new db_alloc();
-            $task_id_query = prepare("SELECT DISTINCT taskID FROM timeSheetItem WHERE timeSheetID=%d ORDER BY dateTimeSheetItem, timeSheetItemID", $this->get_id());
+            $task_id_query = unsafe_prepare("SELECT DISTINCT taskID FROM timeSheetItem WHERE timeSheetID=%d ORDER BY dateTimeSheetItem, timeSheetItemID", $this->get_id());
             $db->query($task_id_query);
             while ($db->next_record()) {
                 $task = new task();
@@ -1051,7 +1051,7 @@ EOD;
             }
 
             //transactions
-            $q = prepare("SELECT DISTINCT transaction.transactionDate, transaction.product, transaction.status
+            $q = unsafe_prepare("SELECT DISTINCT transaction.transactionDate, transaction.product, transaction.status
                             FROM transaction
                             JOIN tf ON tf.tfID = transaction.tfID OR tf.tfID = transaction.fromTfID
                       RIGHT JOIN tfPerson ON tfPerson.personID = %d AND tfPerson.tfID = tf.tfID
@@ -1099,7 +1099,7 @@ EOD;
         }
 
         $db = new db_alloc();
-        $q = prepare("UPDATE transaction SET status = 'approved' WHERE timeSheetID = %d AND status = 'pending'", $this->get_id());
+        $q = unsafe_prepare("UPDATE transaction SET status = 'approved' WHERE timeSheetID = %d AND status = 'pending'", $this->get_id());
         $db->query($q);
     }
 
@@ -1159,7 +1159,7 @@ EOD;
 
         if ($row_projectPerson && $projectID) {
             if ($stuff["timeSheetID"]) {
-                $q = prepare("SELECT *
+                $q = unsafe_prepare("SELECT *
                                 FROM timeSheet
                                WHERE status = 'edit'
                                  AND personID = %d
@@ -1172,7 +1172,7 @@ EOD;
                 $row = $db->row();
                 $row or alloc_error("Couldn't find an editable time sheet with that ID.");
             } else {
-                $q = prepare("SELECT *
+                $q = unsafe_prepare("SELECT *
                                 FROM timeSheet
                                WHERE status = 'edit'
                                  AND projectID = %d
@@ -1304,7 +1304,7 @@ EOD;
         if (is_object($this) && $this->get_id()) {
             $db = new db_alloc();
             // Get most recent invoiceItem that this time sheet belongs to.
-            $q = prepare("SELECT invoiceID
+            $q = unsafe_prepare("SELECT invoiceID
                             FROM invoiceItem
                            WHERE invoiceItem.timeSheetID = %d
                         ORDER BY invoiceItem.iiDate DESC
@@ -1320,7 +1320,7 @@ EOD;
                 $maxAmount = page::money($invoice->get_value("currencyTypeID"), $invoice->get_value("maxAmount"), $fmt);
 
                 // Loop through all the other invoice items on that invoice
-                $q = prepare("SELECT sum(iiAmount) AS totalUsed FROM invoiceItem WHERE invoiceID = %d", $invoiceID);
+                $q = unsafe_prepare("SELECT sum(iiAmount) AS totalUsed FROM invoiceItem WHERE invoiceID = %d", $invoiceID);
                 $db->query($q);
                 $row2 = $db->row();
 
@@ -1366,7 +1366,7 @@ EOD;
             $projectShortName && $projectShortName != $projectName and $projectName .= " " . $projectShortName;
         }
 
-        $q = prepare("SELECT dateTimeSheetItem, taskID, description, comment, commentPrivate
+        $q = unsafe_prepare("SELECT dateTimeSheetItem, taskID, description, comment, commentPrivate
                         FROM timeSheetItem
                        WHERE timeSheetID = %d
                     ORDER BY dateTimeSheetItem ASC", $this->get_id());

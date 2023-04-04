@@ -58,7 +58,7 @@ class invoice extends db_entity
     function delete()
     {
         $db = new db_alloc();
-        $q = prepare("DELETE FROM invoiceEntity WHERE invoiceID = %d", $this->get_id());
+        $q = unsafe_prepare("DELETE FROM invoiceEntity WHERE invoiceID = %d", $this->get_id());
         $db->query($q);
         return parent::delete();
     }
@@ -118,7 +118,7 @@ class invoice extends db_entity
     {
         $invoiceItemIDs = [];
         $id = $invoiceID or $id = $this->get_id();
-        $q = prepare("SELECT invoiceItemID FROM invoiceItem WHERE invoiceID = %d", $id);
+        $q = unsafe_prepare("SELECT invoiceItemID FROM invoiceItem WHERE invoiceID = %d", $id);
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {
@@ -131,7 +131,7 @@ class invoice extends db_entity
     {
         $transactionIDs = [];
         $id = $invoiceID or $id = $this->get_id();
-        $q = prepare("SELECT transactionID FROM transaction WHERE invoiceID = %d", $id);
+        $q = unsafe_prepare("SELECT transactionID FROM transaction WHERE invoiceID = %d", $id);
         $db = new db_alloc();
         $db->query($q);
         while ($row = $db->row()) {
@@ -158,8 +158,8 @@ class invoice extends db_entity
         $sep = null;
         $currency = $this->get_value("currencyTypeID");
 
-        $q = prepare("SELECT * from invoiceItem WHERE invoiceID=%d ", $this->get_id());
-        $q .= prepare("ORDER BY iiDate,invoiceItemID");
+        $q = unsafe_prepare("SELECT * from invoiceItem WHERE invoiceID=%d ", $this->get_id());
+        $q .= unsafe_prepare("ORDER BY iiDate,invoiceItemID");
         $db = new db_alloc();
         $db->query($q);
 
@@ -207,7 +207,7 @@ class invoice extends db_entity
 
             // Get task description
             if ($invoiceItem->get_value("timeSheetID") && $verbose) {
-                $q = prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $invoiceItem->get_value("timeSheetID"));
+                $q = unsafe_prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $invoiceItem->get_value("timeSheetID"));
                 $db2 = new db_alloc();
                 $db2->query($q);
                 unset($sep);
@@ -746,7 +746,7 @@ class invoice extends db_entity
     function update_invoice_dates($invoiceID)
     {
         $db = new db_alloc();
-        $db->query(prepare(
+        $db->query(unsafe_prepare(
             "SELECT max(iiDate) AS maxDate, min(iiDate) AS minDate
                FROM invoiceItem
               WHERE invoiceID=%d",
@@ -766,7 +766,7 @@ class invoice extends db_entity
         $db = new db_alloc();
         $invoiceItemIDs = $this->get_invoiceItems();
         foreach ($invoiceItemIDs as $invoiceItemID) {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT *
                    FROM transaction
                   WHERE invoiceItemID = %d
@@ -855,7 +855,7 @@ class invoice extends db_entity
 
     function has_pending_transactions()
     {
-        $q = prepare("SELECT *
+        $q = unsafe_prepare("SELECT *
                         FROM transaction
                    LEFT JOIN invoiceItem on transaction.invoiceItemID = invoiceItem.invoiceItemID
                        WHERE invoiceItem.invoiceID = %d AND transaction.status = 'pending'
@@ -868,7 +868,7 @@ class invoice extends db_entity
     function add_timeSheet($timeSheetID = false)
     {
         if ($timeSheetID) {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT *
                    FROM invoiceItem
                   WHERE invoiceID = %d

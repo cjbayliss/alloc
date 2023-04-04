@@ -74,8 +74,8 @@ class audit extends db_entity
     public static function get_list_filter($filter)
     {
         $sql = [];
-        $filter["taskID"]    and $sql[] = prepare("(taskID = %d)", $filter["taskID"]);
-        $filter["projectID"] and $sql[] = prepare("(projectID = %d)", $filter["projectID"]);
+        $filter["taskID"]    and $sql[] = unsafe_prepare("(taskID = %d)", $filter["taskID"]);
+        $filter["projectID"] and $sql[] = unsafe_prepare("(projectID = %d)", $filter["projectID"]);
         return $sql;
     }
 

@@ -16,7 +16,7 @@ singleton("errors_haltdb", false);
 
 #$today = $_REQUEST["today"] or $today = date("Y-m-d");
 
-$q = prepare("SELECT invoiceRepeatDate.invoiceRepeatID
+$q = unsafe_prepare("SELECT invoiceRepeatDate.invoiceRepeatID
                    , invoiceRepeatDate.invoiceDate
                    , invoiceRepeat.invoiceID AS templateInvoiceID
                    , invoiceRepeat.personID AS currentUser
@@ -60,7 +60,7 @@ while ($row = $db->row($id)) {
 
     #echo "<br>Created invoice: ".$i->get_id();
 
-    $q = prepare("SELECT * FROM invoiceItem WHERE invoiceID = %d", $invoice->get_id());
+    $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE invoiceID = %d", $invoice->get_id());
     $id2 = $db->query($q);
     while ($item = $db->row($id2)) {
         $ii = new invoiceItem();

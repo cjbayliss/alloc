@@ -41,7 +41,7 @@ class reminder extends db_entity
 
     function delete()
     {
-        $q = prepare("DELETE FROM reminderRecipient WHERE reminderID = %d", $this->get_id());
+        $q = unsafe_prepare("DELETE FROM reminderRecipient WHERE reminderID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
         return parent::delete();
@@ -53,7 +53,7 @@ class reminder extends db_entity
         $db = new db_alloc();
         $type = $this->get_value('reminderType');
         if ($type == "project") {
-            $query = prepare("SELECT *
+            $query = unsafe_prepare("SELECT *
                                 FROM projectPerson
                            LEFT JOIN person ON projectPerson.personID=person.personID
                                WHERE projectPerson.projectID = %d
@@ -66,7 +66,7 @@ class reminder extends db_entity
             $db->next_record();
 
             if ($db->f('projectID')) {
-                $query = prepare("SELECT *
+                $query = unsafe_prepare("SELECT *
                                     FROM projectPerson
                                LEFT JOIN person ON projectPerson.personID=person.personID
                                    WHERE projectPerson.projectID = %d
@@ -488,11 +488,11 @@ class reminder extends db_entity
     function get_list_filter($filter = [])
     {
         $sql = [];
-        $filter["type"] and $sql[] = prepare("reminderType='%s'", $filter["type"]);
-        $filter["id"]   and $sql[] = prepare("reminderLinkID=%d", $filter["id"]);
-        $filter["reminderID"] and $sql[] = prepare("reminder.reminderID=%d", $filter["reminderID"]);
-        $filter["filter_recipient"] and $sql[] = prepare("personID = %d", $filter["filter_recipient"]);
-        imp($filter["filter_reminderActive"]) and $sql[] = prepare("reminderActive = %d", $filter["filter_reminderActive"]);
+        $filter["type"] and $sql[] = unsafe_prepare("reminderType='%s'", $filter["type"]);
+        $filter["id"]   and $sql[] = unsafe_prepare("reminderLinkID=%d", $filter["id"]);
+        $filter["reminderID"] and $sql[] = unsafe_prepare("reminder.reminderID=%d", $filter["reminderID"]);
+        $filter["filter_recipient"] and $sql[] = unsafe_prepare("personID = %d", $filter["filter_recipient"]);
+        imp($filter["filter_reminderActive"]) and $sql[] = unsafe_prepare("reminderActive = %d", $filter["filter_reminderActive"]);
 
         return $sql;
     }

@@ -35,7 +35,7 @@ function show_absence_forms($template)
     global $personID;
 
     $db = new db_alloc();
-    $query = prepare("SELECT * FROM absence WHERE personID=%d", $personID);
+    $query = unsafe_prepare("SELECT * FROM absence WHERE personID=%d", $personID);
     $db->query($query);
     $absence = new absence();
     while ($db->next_record()) {
@@ -92,7 +92,7 @@ function show_person_areasOfExpertise($template)
     $db = new db_alloc();
     // $query = "SELECT * FROM skill ORDER BY skillClass,skillName";
     $query = "SELECT * FROM skill LEFT JOIN proficiency ON skill.skillID=proficiency.skillID";
-    $query .= prepare(" WHERE proficiency.personID=%d", $personID);
+    $query .= unsafe_prepare(" WHERE proficiency.personID=%d", $personID);
     $query .= " ORDER BY skillClass,skillName";
     $db->query($query);
     $currSkillClass = null;
@@ -128,7 +128,7 @@ function show_skills_list()
     global $skills;
 
     $db = new db_alloc();
-    $query = prepare("SELECT * FROM proficiency WHERE personID=%d", $personID);
+    $query = unsafe_prepare("SELECT * FROM proficiency WHERE personID=%d", $personID);
     $db->query($query);
     $skills_got = [];
     while ($db->next_record()) {
@@ -198,8 +198,8 @@ if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $
                 $proficiency->set_value('personID', $personID);
 
                 $db = new db_alloc();
-                $query = prepare("SELECT * FROM proficiency WHERE personID = %d", $personID);
-                $query .= prepare(" AND skillID = %d", $_POST["skillID"][$i]);
+                $query = unsafe_prepare("SELECT * FROM proficiency WHERE personID = %d", $personID);
+                $query .= unsafe_prepare(" AND skillID = %d", $_POST["skillID"][$i]);
                 $db->query($query);
                 if (!$db->next_record()) {
                     $proficiency->save();
@@ -227,7 +227,7 @@ if ($_POST["save"]) {
 
 
     if ($_POST["username"]) {
-        $q = prepare("SELECT personID FROM person WHERE username = '%s'", $_POST["username"]);
+        $q = unsafe_prepare("SELECT personID FROM person WHERE username = '%s'", $_POST["username"]);
         $db = new db_alloc();
         $db->query($q);
         $num_rows = $db->num_rows();
@@ -263,7 +263,7 @@ if ($_POST["save"]) {
 $person->set_values("person_");
 
 if ($person->get_id()) {
-    $q = prepare(
+    $q = unsafe_prepare(
         "SELECT tfPerson.tfID AS value, tf.tfName AS label
            FROM tf, tfPerson
           WHERE tf.tfID = tfPerson.tfID

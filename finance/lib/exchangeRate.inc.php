@@ -27,7 +27,7 @@ class exchangeRate extends db_entity
         }
         $db = new db_alloc();
         if ($date) {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT *
                    FROM exchangeRate
                   WHERE exchangeRateCreatedDate = '%s'
@@ -43,7 +43,7 @@ class exchangeRate extends db_entity
         }
 
         if (!$row) {
-            $q = prepare(
+            $q = unsafe_prepare(
                 "SELECT *
                    FROM exchangeRate
                   WHERE fromCurrency = '%s'
