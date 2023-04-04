@@ -1,4 +1,4 @@
-FROM mariadb:latest
+FROM mariadb:10.5
 
 RUN sed -i -e 's/character-set-server \+= utf8mb4/character-set-server = utf8/' -e 's/collation-server/#collation-server/' /etc/mysql/mariadb.conf.d/50-server.cnf
 
