@@ -29,22 +29,38 @@ class db
         $this->database = $database;
     }
 
+    /**
+     * Connects to the database using PDO if not already connected, or if $force
+     * is set to true.
+     *
+     * @param bool $force Optional. If true, a new connection will be
+     * established even if one already exists. Default is false.
+     * @return bool True if the connection is successful, false otherwise.
+     */
     function connect($force = false)
     {
-        $h = null;
-        $d = null;
         if ($force || !isset($this->pdo)) {
-            $this->hostname and $h = "host=" . $this->hostname . ";";
-            $this->database and $d = "dbname=" . $this->database . ";";
             try {
-                $this->pdo = new PDO(sprintf('mysql:%s%scharset=UTF8', $h, $d), $this->username, $this->password);
-                $this->pdo->exec("SET CHARACTER SET utf8");
-                $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $host = $this->hostname ? "host={$this->hostname};" : "";
+                $dbname = $this->database ? "dbname={$this->database};" : "";
+
+                $this->pdo = new PDO(
+                    "mysql:{$host}{$dbname}charset=UTF8",
+                    $this->username,
+                    $this->password,
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
+                    ]
+                );
+
                 return true;
             } catch (PDOException $e) {
-                $this->error("Unable to connect to database: " . $e->getMessage());
+                $this->error("Unable to connect to database: {$e->getMessage()}");
+                return false;
             }
         }
+        return false;
     }
 
     function start_transaction()
