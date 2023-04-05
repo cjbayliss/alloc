@@ -195,29 +195,44 @@ class project extends db_entity
         return is_object($person) && ($person->have_role("manage") || $this->has_project_permission($person, ["isManager", "timeSheetRecipient"]));
     }
 
+    /**
+     * Checks if a person has project permissions for the current project.
+     *
+     * @param mixed $person (optional) The person to check permissions for.
+     *              Defaults to the current user.
+     * @param array $permissions (optional) An array of permission names to
+     *              filter by. Defaults to an empty array.
+     *
+     * @return mixed|false An associative array of project permissions for the
+     *                     person, or false if an error occurs.
+     */
     function has_project_permission($person = "", $permissions = [])
     {
-        $p = null;
-        // Check that user has permission for this project
-        $current_user = &singleton("current_user");
-        $person or $person = $current_user;
-        if (is_object($person)) {
-            $permissions and $p = " AND " . sprintf_implode("ppr.roleHandle = '%s'", $permissions);
-
-            $query = unsafe_prepare(
-                "SELECT personID, projectID, pp.roleID, ppr.roleName, ppr.roleHandle
-                   FROM projectPerson pp
-              LEFT JOIN role ppr ON ppr.roleID = pp.roleID
-                  WHERE projectID = '%d' and personID = '%d' " . $p,
-                $this->get_id(),
-                $person->get_id()
-            );
-            #echo "<br><br>".$query;
-
-            $db = new db_alloc();
-            $db->query($query);
-            return $db->next_record();
+        $person = $person ?: singleton("current_user");
+        if (!is_object($person)) {
+            // FIXME: why is this needed?
+            return false;
         }
+
+        $database = new db_alloc();
+        $database->connect();
+
+        $projectPermissionsQuery =
+            "SELECT personID, projectID, pp.roleID, ppr.roleName, ppr.roleHandle
+               FROM projectPerson pp
+          LEFT JOIN role ppr ON ppr.roleID = pp.roleID
+              WHERE projectID = :projectID and personID = :personID";
+
+        if (!empty($permissions) && is_array($permissions)) {
+            $permissionFilter = implode("', '", $permissions);
+            $projectPermissionsQuery .= " AND ppr.roleHandle IN ('$permissionFilter')";
+        }
+
+        $projectPermissionsForPerson = $database->pdo->prepare($projectPermissionsQuery);
+        $projectPermissionsForPerson->bindValue(':projectID', $this->get_id(), PDO::PARAM_INT);
+        $projectPermissionsForPerson->bindValue(':personID', $person->get_id(), PDO::PARAM_INT);
+        $projectPermissionsForPerson->execute();
+        return $projectPermissionsForPerson->fetch(PDO::FETCH_ASSOC);
     }
 
     function get_timeSheetRecipients()
