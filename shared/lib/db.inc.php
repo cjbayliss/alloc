@@ -219,6 +219,20 @@ class db
         return $this->num($pdo_statement);
     }
 
+    /**
+     * Fetches a row from the result set using the specified fetch style.
+     *
+     * @deprecated This function is deprecated. Use PDOStatement::fetch()
+     *
+     * @param PDOStatement|null $pdo_statement Optional. The PDOStatement object
+     *                                         to fetch the row from. If not
+     *                                         provided, the method uses the
+     *                                         current instance's pdo_statement.
+     * @param int $method Optional. The fetch style to use. Default is
+     *                    PDO::FETCH_ASSOC.
+     * @return array|object|false|null The fetched row, or false if there are no
+     *                                 more rows, or null if an error occurs.
+     */
     function row($pdo_statement = "", $method = PDO::FETCH_ASSOC)
     {
         if (!self::$stop_doing_queries) {
@@ -236,12 +250,28 @@ class db
         }
     }
 
-    // DEPRECATED
+    /**
+     * Fetches the next row from the result set as an associative array.
+     *
+     * @deprecated This function is deprecated. Use PDOStatement::fetch()
+     *
+     * @return array|null The next row from the result set, or null if there are
+     *                    no more rows.
+     */
     function next_record()
     {
         return $this->row();
     }
 
+    /**
+     * Retrieves the value from the given column name in the current row.
+     *
+     * @deprecated This function is deprecated. Use PDOStatement::fetch()
+     *
+     * @param string $name The name of the column to retrieve the value from.
+     * @return mixed|null The value of the specified column, or null if the
+     *                    column doesn't exist.
+     */
     function f($name)
     {
         return $this->row[$name];
