@@ -128,9 +128,15 @@ class project extends db_entity
 
     function delete()
     {
-        $q = unsafe_prepare("DELETE from projectPerson WHERE projectID = %d", $this->get_id());
-        $db = new db_alloc();
-        $db->query($q);
+        $database = new db_alloc();
+        $database->connect();
+
+        // FIXME: this results in a sql error due to an integrity constraint
+        // violation with the 'audit' table, the bug existed before the refactor
+        // of this function.
+        $projectToDelete = $database->pdo->prepare("DELETE from projectPerson WHERE projectID = :projectID");
+        $projectToDelete->bindValue(":projectID", $this->get_id(), PDO::PARAM_INT);
+        $projectToDelete->execute();
         return parent::delete();
     }
 
