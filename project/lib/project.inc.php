@@ -50,41 +50,79 @@ class project extends db_entity
         PERM_PROJECT_ADD_TASKS => "add tasks"
     ];
 
+    /**
+     * Save project and update related tasks based on the project status change.
+     *
+     * @return bool Result of the parent save method.
+     */
     function save()
     {
         global $TPL;
-        // The data prior to the save
-        $old = $this->all_row_fields;
-        $ids = '';
-        $commar = '';
-        $db = new db_alloc();
+        $initialState = $this->all_row_fields;
+        $taskIDs = [];
+        $database = new db_alloc();
 
-        // If we're archiving the project, then archive the tasks.
-        if ($old["projectStatus"] != "Archived" && $this->get_value("projectStatus") == "Archived") {
-            $q = unsafe_prepare("SELECT taskID FROM task WHERE projectID = %d AND SUBSTRING(taskStatus,1,6) != 'closed'", $this->get_id());
-            $q1 = $db->query($q);
-            while ($row = $db->row($q1)) {
-                $q = unsafe_prepare("call change_task_status(%d,'closed_archived')", $row["taskID"]);
-                $db->query($q);
-                $ids .= $commar . $row["taskID"];
-                $commar = ", ";
-            }
-            $ids and $TPL["message_good"][] = "All open and pending tasks (" . $ids . ") have had their status changed to Closed: Archived.";
+        if (
+            $initialState["projectStatus"] != "Archived" &&
+            $this->get_value("projectStatus") == "Archived"
+        ) {
+            $database->connect();
+            $projectTaskList = $database->pdo->prepare(
+                "SELECT taskID FROM task
+                  WHERE projectID = :projectID
+                    AND SUBSTRING(taskStatus,1,6) != 'closed'"
+            );
+            $projectTaskList->bindValue(":projectID", $this->get_id(), PDO::PARAM_INT);
+            $projectTaskList->execute();
 
-            // Else if we're un-archiving the project, then un-archive the tasks.
-        } else if ($old["projectStatus"] == "Archived" && $this->get_value("projectStatus") != "Archived") {
-            $q = unsafe_prepare("SELECT taskID FROM task WHERE projectID = %d AND taskStatus = 'closed_archived'", $this->get_id());
-            $q1 = $db->query($q);
-            while ($row = $db->row($q1)) {
-                $q = unsafe_prepare("call change_task_status(%d,get_most_recent_non_archived_taskStatus(%d))", $row["taskID"], $row["taskID"]);
-                $db->query($q);
-                $ids .= $commar . $row["taskID"];
-                $commar = ", ";
+            while ($row = $projectTaskList->fetch(PDO::FETCH_ASSOC)) {
+                $changeTaskStatus = $database->pdo->prepare(
+                    "CALL change_task_status(:taskID, 'closed_archived')"
+                );
+                $changeTaskStatus->bindValue(":taskID", $row["taskID"], PDO::PARAM_INT);
+                $changeTaskStatus->execute();
+                $taskIDs[] = $row["taskID"];
             }
-            $ids and $TPL["message_good"][] = "All archived tasks (" . $ids . ") have been set back to their former task status.";
+
+            $taskIDs = implode(', ', $taskIDs) ?: '';
+            if (!empty($taskIDs)) {
+                $TPL["message_good"][] =
+                    "All open and pending tasks ({$taskIDs}) have had their
+                    status changed to Closed: Archived.";
+            }
+        } else if (
+            $initialState["projectStatus"] == "Archived" &&
+            $this->get_value("projectStatus") != "Archived"
+        ) {
+            $database->connect();
+            $projectTaskList = $database->pdo->prepare(
+                "SELECT taskID FROM task
+                  WHERE projectID = :projectID
+                    AND taskStatus = 'closed_archived'"
+            );
+            $projectTaskList->bindValue(":projectID", $this->get_id(), PDO::PARAM_INT);
+            $projectTaskList->execute();
+
+            while ($row = $projectTaskList->fetch(PDO::FETCH_ASSOC)) {
+                $changeTaskStatus = $database->pdo->prepare(
+                    "CALL change_task_status(:taskID, get_most_recent_non_archived_taskStatus(:taskID))"
+                );
+                $changeTaskStatus->bindValue(":taskID", $row["taskID"], PDO::PARAM_INT);
+                $changeTaskStatus->execute();
+                $taskIDs[] = $row["taskID"];
+            }
+
+            $taskIDs = implode(', ', $taskIDs) ?: '';
+            if (!empty($taskIDs)) {
+                $TPL["message_good"][] =
+                    "All archived tasks ({$taskIDs}) have been set back to their
+                    former task status.";
+            }
         }
 
-        $TPL["message"] or $TPL["message_good"][] = "Project saved.";
+        if (!isset($TPL["message"])) {
+            $TPL["message_good"][] = "Project saved.";
+        }
         return parent::save();
     }
 
