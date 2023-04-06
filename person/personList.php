@@ -8,13 +8,13 @@
 require_once("../alloc.php");
 
 $defaults = [
-    "return"       => "html",
-    "showHeader"   => true,
-    "showName"     => true,
-    "showActive"   => true,
-    "showNos"      => true,
-    "showLinks"    => true,
-    "form_name"    => "personList_filter"
+    "return"     => "html",
+    "showHeader" => true,
+    "showName"   => true,
+    "showActive" => true,
+    "showNos"    => true,
+    "showLinks"  => true,
+    "form_name"  => "personList_filter",
 ];
 
 function show_filter()
@@ -31,7 +31,7 @@ function show_people()
 {
     global $defaults;
     $_FORM = person::load_form_data($defaults);
-    #echo "<pre>".print_r($_FORM,1)."</pre>";
+    // echo "<pre>".print_r($_FORM,1)."</pre>";
     echo person::get_list($_FORM);
 }
 

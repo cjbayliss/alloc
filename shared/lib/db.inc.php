@@ -20,7 +20,7 @@ class db
     public static $started_transaction = false;
     public static $stop_doing_queries = false;
 
-    function __construct($username = "", $password = "", $hostname = "", $database = "")
+    public function __construct($username = "", $password = "", $hostname = "", $database = "")
     {
         // Constructor
         $this->username = $username;
@@ -37,7 +37,7 @@ class db
      * established even if one already exists. Default is false.
      * @return bool True if the connection is successful, false otherwise.
      */
-    function connect($force = false)
+    public function connect($force = false)
     {
         if ($force || !isset($this->pdo)) {
             try {
@@ -49,8 +49,8 @@ class db
                     $this->username,
                     $this->password,
                     [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"
+                        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",
                     ]
                 );
 
@@ -63,14 +63,14 @@ class db
         return false;
     }
 
-    function start_transaction()
+    public function start_transaction()
     {
         $this->connect();
         $this->pdo->beginTransaction();
         self::$started_transaction = true;
     }
 
-    function commit()
+    public function commit()
     {
         if (self::$started_transaction && is_object($this->pdo)) {
             $rtn = $this->pdo->commit();
@@ -80,7 +80,7 @@ class db
         }
     }
 
-    function rollback()
+    public function rollback()
     {
         if (self::$started_transaction) {
             self::$started_transaction = false;
@@ -92,7 +92,7 @@ class db
         }
     }
 
-    function error($msg = false, $errno = false)
+    public function error($msg = false, $errno = false)
     {
         $m = null;
         if ($errno == 1451 || $errno == 1217) {
@@ -116,17 +116,17 @@ class db
         $this->error = $msg;
     }
 
-    function get_error()
+    public function get_error()
     {
         return trim($this->error);
     }
 
-    function get_insert_id()
+    public function get_insert_id()
     {
         return $this->pdo->lastInsertId();
     }
 
-    function esc($str)
+    public function esc($str)
     {
         if (is_numeric($str)) {
             return $str;
@@ -140,14 +140,14 @@ class db
         return $v;
     }
 
-    function select_db($db = "")
+    public function select_db($db = "")
     {
         // Select a database
         $this->database = $db;
         return $this->connect(true);
     }
 
-    function qr()
+    public function qr()
     {
         // Quick Row run it like this:
         // $row = $db->qr("SELECT * FROM hey WHERE heyID = %d",$heyID);
@@ -169,7 +169,7 @@ class db
         }
     }
 
-    function query()
+    public function query()
     {
         $rtn = null;
         global $TPL;
@@ -208,13 +208,13 @@ class db
         return $rtn;
     }
 
-    function num($pdo_statement = "")
+    public function num($pdo_statement = "")
     {
         $pdo_statement or $pdo_statement = $this->pdo_statement;
         return $pdo_statement->rowCount();
     }
 
-    function num_rows($pdo_statement = "")
+    public function num_rows($pdo_statement = "")
     {
         return $this->num($pdo_statement);
     }
@@ -233,7 +233,7 @@ class db
      * @return array|object|false|null The fetched row, or false if there are no
      *                                 more rows, or null if an error occurs.
      */
-    function row($pdo_statement = "", $method = PDO::FETCH_ASSOC)
+    public function row($pdo_statement = "", $method = PDO::FETCH_ASSOC)
     {
         if (!self::$stop_doing_queries) {
             $pdo_statement or $pdo_statement = $this->pdo_statement;
@@ -258,7 +258,7 @@ class db
      * @return array|null The next row from the result set, or null if there are
      *                    no more rows.
      */
-    function next_record()
+    public function next_record()
     {
         return $this->row();
     }
@@ -272,13 +272,13 @@ class db
      * @return mixed|null The value of the specified column, or null if the
      *                    column doesn't exist.
      */
-    function f($name)
+    public function f($name)
     {
         return $this->row[$name];
     }
 
     // Return true if a particular table exists
-    function table_exists($table, $db = "")
+    public function table_exists($table, $db = "")
     {
         $yep = null;
         $db or $db = $this->database;
@@ -295,7 +295,7 @@ class db
         return $yep;
     }
 
-    function get_table_fields($table)
+    public function get_table_fields($table)
     {
         static $fields;
 
@@ -314,7 +314,7 @@ class db
         return $fields[$table];
     }
 
-    function get_table_keys($table)
+    public function get_table_keys($table)
     {
         static $keys;
         if ($keys[$table]) {
@@ -330,7 +330,7 @@ class db
         return $keys[$table];
     }
 
-    function save($table, $row = [], $debug = 0)
+    public function save($table, $row = [], $debug = 0)
     {
         $keys = [];
         $do_update = null;
@@ -348,7 +348,7 @@ class db
                 $this->get_update_str($row),
                 $this->get_update_str($keys, " AND ")
             );
-            $debug &&  sizeof($row) and print("<br>SAVE -> UPDATE -> Would have executed this query: <br>" . $q);
+            $debug && sizeof($row) and print("<br>SAVE -> UPDATE -> Would have executed this query: <br>" . $q);
             $debug && !sizeof($row) and print("<br>SAVE -> UPDATE -> Would NOT have executed this query: <br>" . $q);
             !$debug && sizeof($row) and $this->query($q);
             reset($keys);
@@ -360,14 +360,14 @@ class db
                 $this->get_insert_str_fields($row),
                 $this->get_insert_str_values($row)
             );
-            $debug &&  sizeof($row) and print("<br>SAVE -> INSERT -> Would have executed this query: <br>" . $q);
+            $debug && sizeof($row) and print("<br>SAVE -> INSERT -> Would have executed this query: <br>" . $q);
             $debug && !sizeof($row) and print("<br>SAVE -> INSERT -> Would NOT have executed this query: <br>" . $q);
             !$debug && sizeof($row) and $this->query($q);
             return $this->get_insert_id();
         }
     }
 
-    function delete($table, $row = [], $debug = 0)
+    public function delete($table, $row = [], $debug = 0)
     {
         $row = $this->unset_invalid_field_names($table, $row);
         $q = sprintf(
@@ -375,7 +375,7 @@ class db
             $table,
             $this->get_update_str($row, " AND ")
         );
-        $debug &&  sizeof($row) and print("<br>DELETE -> WILL execute this query: <br>" . $q);
+        $debug && sizeof($row) and print("<br>DELETE -> WILL execute this query: <br>" . $q);
         $debug && !sizeof($row) and print("<br>DELETE -> WONT execute this query: <br>" . $q);
         if (sizeof($row)) {
             $pdo_statement = $this->query($q);
@@ -383,7 +383,7 @@ class db
         }
     }
 
-    function get_insert_str_fields($row)
+    public function get_insert_str_fields($row)
     {
         $rtn = null;
         foreach ($row as $fieldname => $value) {
@@ -393,7 +393,7 @@ class db
         return $rtn;
     }
 
-    function get_insert_str_values($row)
+    public function get_insert_str_values($row)
     {
         $rtn = null;
         foreach ($row as $fieldname => $value) {
@@ -403,7 +403,7 @@ class db
         return $rtn;
     }
 
-    function get_update_str($row, $glue = ", ")
+    public function get_update_str($row, $glue = ", ")
     {
         $rtn = null;
         foreach ($row as $fieldname => $value) {
@@ -413,7 +413,7 @@ class db
         return $rtn;
     }
 
-    function unset_invalid_field_names($table, $row, $keys = [])
+    public function unset_invalid_field_names($table, $row, $keys = [])
     {
         $valid_field_names = $this->get_table_fields($table);
         $keys = array_keys($keys);
@@ -427,24 +427,24 @@ class db
         return $row;
     }
 
-    function get_escaped_query_str($args)
+    public function get_escaped_query_str($args)
     {
         return call_user_func_array("unsafe_prepare", $args);
     }
 
-    function seek($pos = 0)
+    public function seek($pos = 0)
     {
         $this->pos = $pos;
     }
 
-    function get_encoding()
+    public function get_encoding()
     {
         $this->query("SHOW VARIABLES LIKE 'character_set_client'");
         $row = $this->row();
         return $row["Value"];
     }
 
-    function dump_db($filename)
+    public function dump_db($filename)
     {
         $pw = null;
         if ($this->password) {

@@ -21,10 +21,8 @@
  * @version    $Id: MultiTerm.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Search_Weight */
 require_once 'Zend/Search/Lucene/Search/Weight.php';
-
 
 /**
  * @category   Zend
@@ -57,7 +55,6 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
      */
     private $_weights;
 
-
     /**
      * Zend_Search_Lucene_Search_Weight_MultiTerm constructor
      * query - the query that this concerns.
@@ -70,8 +67,8 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
         Zend_Search_Lucene_Search_Query $query,
         Zend_Search_Lucene_Interface    $reader
     ) {
-        $this->_query   = $query;
-        $this->_reader  = $reader;
+        $this->_query = $query;
+        $this->_reader = $reader;
         $this->_weights = [];
 
         $signs = $query->getSigns();
@@ -85,7 +82,6 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
         }
     }
 
-
     /**
      * The weight for this query
      * Standard Weight::$_value is not used for boolean queries
@@ -96,7 +92,6 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
     {
         return $this->_query->getBoost();
     }
-
 
     /**
      * The sum of squared weights of contained query clauses.
@@ -120,7 +115,6 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
         }
         return $sum;
     }
-
 
     /**
      * Assigns the query normalization factor to this.

@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 require_once("../alloc.php");
 
 $defaults = [
@@ -13,7 +12,7 @@ $defaults = [
     "showProject"     => true,
     "padding"         => 1,
     "url_form_action" => $TPL["url_alloc_projectGraph"],
-    "form_name"       => "projectSummary_filter"
+    "form_name"       => "projectSummary_filter",
 ];
 
 function show_filter()

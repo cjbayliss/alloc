@@ -52,15 +52,15 @@ class Zend_Search_Lucene_Index_DictionaryLoader
     public static function load($data)
     {
         $termDictionary = [];
-        $termInfos      = [];
+        $termInfos = [];
         $pos = 0;
 
         // $tiVersion = $tiiFile->readInt();
-        $tiVersion = ord($data[0]) << 24 | ord($data[1]) << 16 | ord($data[2]) << 8  | ord($data[3]);
+        $tiVersion = ord($data[0]) << 24 | ord($data[1]) << 16 | ord($data[2]) << 8 | ord($data[3]);
         $pos += 4;
         if (
             $tiVersion != (int)0xFFFFFFFE /* pre-2.1 format */ &&
-            $tiVersion != (int)0xFFFFFFFD /* 2.1+ format    */
+            $tiVersion != (int)0xFFFFFFFD // 2.1+ format
         ) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('Wrong TermInfoIndexFile file format');
@@ -68,28 +68,28 @@ class Zend_Search_Lucene_Index_DictionaryLoader
 
         // $indexTermCount = $tiiFile->readLong();
         if (PHP_INT_SIZE > 4) {
-            $indexTermCount = ord($data[$pos]) << 56  |
-                ord($data[$pos + 1]) << 48  |
-                ord($data[$pos + 2]) << 40  |
-                ord($data[$pos + 3]) << 32  |
-                ord($data[$pos + 4]) << 24  |
-                ord($data[$pos + 5]) << 16  |
-                ord($data[$pos + 6]) << 8   |
+            $indexTermCount = ord($data[$pos]) << 56 |
+                ord($data[$pos + 1]) << 48 |
+                ord($data[$pos + 2]) << 40 |
+                ord($data[$pos + 3]) << 32 |
+                ord($data[$pos + 4]) << 24 |
+                ord($data[$pos + 5]) << 16 |
+                ord($data[$pos + 6]) << 8 |
                 ord($data[$pos + 7]);
         } else {
-            if ((ord($data[$pos])            != 0) ||
-                (ord($data[$pos + 1])          != 0) ||
-                (ord($data[$pos + 2])          != 0) ||
-                (ord($data[$pos + 3])          != 0) ||
+            if ((ord($data[$pos]) != 0) ||
+                (ord($data[$pos + 1]) != 0) ||
+                (ord($data[$pos + 2]) != 0) ||
+                (ord($data[$pos + 3]) != 0) ||
                 ((ord($data[$pos + 4]) & 0x80) != 0)
             ) {
                 require_once 'Zend/Search/Lucene/Exception.php';
                 throw new Zend_Search_Lucene_Exception('Largest supported segment size (for 32-bit mode) is 2Gb');
             }
 
-            $indexTermCount = ord($data[$pos + 4]) << 24  |
-                ord($data[$pos + 5]) << 16  |
-                ord($data[$pos + 6]) << 8   |
+            $indexTermCount = ord($data[$pos + 4]) << 24 |
+                ord($data[$pos + 5]) << 16 |
+                ord($data[$pos + 6]) << 8 |
                 ord($data[$pos + 7]);
         }
         $pos += 8;
@@ -98,7 +98,7 @@ class Zend_Search_Lucene_Index_DictionaryLoader
         $pos += 4;
 
         // $skipInterval   = $tiiFile->readInt();
-        $skipInterval = ord($data[$pos]) << 24 | ord($data[$pos + 1]) << 16 | ord($data[$pos + 2]) << 8  | ord($data[$pos + 3]);
+        $skipInterval = ord($data[$pos]) << 24 | ord($data[$pos + 1]) << 16 | ord($data[$pos + 2]) << 8 | ord($data[$pos + 3]);
         $pos += 4;
         if ($indexTermCount < 1) {
             require_once 'Zend/Search/Lucene/Exception.php';
@@ -106,16 +106,16 @@ class Zend_Search_Lucene_Index_DictionaryLoader
         }
 
         if ($tiVersion == (int)0xFFFFFFFD /* 2.1+ format */) {
-            /* Skip MaxSkipLevels value */
+            // Skip MaxSkipLevels value
             $pos += 4;
         }
 
-        $prevTerm     = '';
-        $freqPointer  =  0;
-        $proxPointer  =  0;
-        $indexPointer =  0;
+        $prevTerm = '';
+        $freqPointer = 0;
+        $proxPointer = 0;
+        $indexPointer = 0;
         for ($count = 0; $count < $indexTermCount; $count++) {
-            //$termPrefixLength = $tiiFile->readVInt();
+            // $termPrefixLength = $tiiFile->readVInt();
             $nbyte = ord($data[$pos++]);
             $termPrefixLength = $nbyte & 0x7F;
             for ($shift = 7; ($nbyte & 0x80) != 0; $shift += 7) {
@@ -169,7 +169,7 @@ class Zend_Search_Lucene_Index_DictionaryLoader
             // $termValue        = Zend_Search_Lucene_Index_Term::getPrefix($prevTerm, $termPrefixLength) . $termSuffix;
             $pb = 0;
             $pc = 0;
-            while ($pb < strlen($prevTerm)  &&  $pc < $termPrefixLength) {
+            while ($pb < strlen($prevTerm) && $pc < $termPrefixLength) {
                 $charBytes = 1;
                 if ((ord($prevTerm[$pb]) & 0xC0) == 0xC0) {
                     $charBytes++;
@@ -246,7 +246,6 @@ class Zend_Search_Lucene_Index_DictionaryLoader
                 $vint |= ($nbyte & 0x7F) << $shift;
             }
             $indexPointer += $vint;
-
 
             // $this->_termDictionary[] =  new Zend_Search_Lucene_Index_Term($termValue, $termFieldNum);
             $termDictionary[] = [$termFieldNum, $termValue];

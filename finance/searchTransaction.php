@@ -13,7 +13,7 @@ $applyFilter = $_GET["applyFilter"] or $applyFilter = $_POST["applyFilter"];
 $defaults = [
     "url_form_action" => $TPL["url_alloc_searchTransaction"],
     "form_name"       => "searchTransaction_filter",
-    "applyFilter"     => $applyFilter
+    "applyFilter"     => $applyFilter,
 ];
 
 function show_filter()

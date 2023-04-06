@@ -11,7 +11,7 @@ class role extends db_entity
     public $key_field = "roleID";
     public $data_fields = ["roleHandle", "roleName", "roleLevel", "roleSequence"];
 
-    function get_roles_array($level = "person")
+    public function get_roles_array($level = "person")
     {
         $rows = [];
         $db = new db_alloc();

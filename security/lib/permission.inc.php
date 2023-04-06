@@ -16,10 +16,10 @@ class permission extends db_entity
         "roleName" => ["empty_to_null" => false],
         "actions",
         "sortKey",
-        "comment"
+        "comment",
     ];
 
-    function describe_actions()
+    public function describe_actions()
     {
         $actions = $this->get_value("actions");
         $description = "";
@@ -46,14 +46,14 @@ class permission extends db_entity
         return $description;
     }
 
-    function get_roles()
+    public function get_roles()
     {
         return [
             "god"      => "Super User",
             "admin"    => "Finance Admin",
             "manage"   => "Project Manager",
             "employee" => "Employee",
-            "client"   => "Client"
+            "client"   => "Client",
         ];
     }
 }

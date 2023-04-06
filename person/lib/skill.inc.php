@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class skill extends db_entity
 {
     public $data_table = "skill";
@@ -15,7 +14,7 @@ class skill extends db_entity
 
     // return true if a skill with same name and class already exists
     // and update fields of current if it does exist
-    function skill_exists()
+    public function skill_exists()
     {
         $query = "SELECT * FROM skill";
         $query .= unsafe_prepare(" WHERE skillName='%s'", $this->get_value('skillName'));
@@ -32,7 +31,7 @@ class skill extends db_entity
         return false;
     }
 
-    function get_skill_classes()
+    public function get_skill_classes()
     {
         $db = new db_alloc();
         $skill_classes = ["" => "Any Class"];
@@ -48,7 +47,7 @@ class skill extends db_entity
         return $skill_classes;
     }
 
-    function get_skills()
+    public function get_skills()
     {
         global $TPL;
         global $skill_class;

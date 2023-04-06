@@ -19,8 +19,8 @@ function show_filter()
 
 $defaults = [
     "url_form_action" => $TPL["url_alloc_productSaleList"],
-    "form_name" => "productSaleList_filter",
-    "return" => "array"
+    "form_name"       => "productSaleList_filter",
+    "return"          => "array",
 ];
 
 $_FORM = productSale::load_form_data($defaults);
@@ -39,9 +39,6 @@ display a list of previously created Sales.
 If you would prefer to create a new Sale, click the <b>New Sale</b> link
 in the top-right hand corner of the box below.";
 }
-
-
-
 
 $TPL["main_alloc_title"] = "Sales List - " . APPLICATION_NAME;
 include_template("templates/productSaleListM.tpl");

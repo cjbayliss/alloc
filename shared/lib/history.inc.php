@@ -9,8 +9,8 @@ class history extends db_entity
 {
     public $data_table = "history";
 
-    # Display the x most recent, but keep the 2x most recent
-    # once we hit 3x, delete back down to 2x
+    // Display the x most recent, but keep the 2x most recent
+    // once we hit 3x, delete back down to 2x
     public $max_to_display = 40;
 
     public $key_field = historyID;
@@ -19,11 +19,10 @@ class history extends db_entity
         "the_place",
         "the_args",
         "the_label",
-        "personID"
+        "personID",
     ];
 
-
-    function get_history_query($order = "")
+    public function get_history_query($order = "")
     {
         $query = null;
         $current_user = &singleton("current_user");
@@ -48,7 +47,7 @@ class history extends db_entity
     // will be used to determine whether
     // or not to save a history entry.
 
-    function get_ignored_files()
+    public function get_ignored_files()
     {
         $ignored_files = [];
         $query = $this->get_history_query("ASC");
@@ -75,7 +74,7 @@ class history extends db_entity
         return $ignored_files;
     }
 
-    function get_history_label($SCRIPT_NAME, $qs)
+    public function get_history_label($SCRIPT_NAME, $qs)
     {
 
         // Save the history record LABEL with the most descriptive label
@@ -128,7 +127,6 @@ class history extends db_entity
                             // Strip the trailing 'ID' from the , to get new class name
                             $next_class_name = preg_replace("/ID$/", "", $display_field);
 
-
                             if (is_numeric($rtn) && class_exists($next_class_name)) {
                                 $next_class = new $next_class_name;
                                 if ($display_field == $next_class->key_field->get_name()) {
@@ -150,7 +148,7 @@ class history extends db_entity
         return false;
     }
 
-    function save_history()
+    public function save_history()
     {
         $qs = null;
         $arr = [];
@@ -166,7 +164,7 @@ class history extends db_entity
         $db->query($query);
         $row = $db->row();
         if ($row["total"] >= (3 * $this->max_to_display)) {
-            $query  = unsafe_prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2 * $this->max_to_display));
+            $query = unsafe_prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2 * $this->max_to_display));
             $db->query($query);
         }
 
@@ -204,7 +202,7 @@ class history extends db_entity
         }
     }
 
-    function strip_get_session($str = "")
+    public function strip_get_session($str = "")
     {
         return (string)preg_replace("/sess=[A-Za-z0-9]{32}/", "", $str);
     }

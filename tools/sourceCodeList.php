@@ -7,7 +7,6 @@
 
 require_once("../alloc.php");
 
-
 function get_all_source_files($dir = "")
 {
     $files = [];
@@ -35,11 +34,10 @@ function get_all_source_files($dir = "")
                 $image = "<img border=\"0\" alt=\"icon\" src=\"" . $TPL["url_alloc_images"] . "/fileicons/directory.gif\">";
                 $dirs[$file] = "<a href=\"" . $TPL["url_alloc_sourceCodeList"] . "dir=" . urlencode($dir . DIRECTORY_SEPARATOR . $file) . "\">" . $image . $file . "</a>";
             } else {
-                #echo "<br>wtf: ".$dir.DIRECTORY_SEPARATOR.$file;
+                // echo "<br>wtf: ".$dir.DIRECTORY_SEPARATOR.$file;
             }
         }
     }
-
 
     $files or $files = [];
     $dirs or $dirs = [];
@@ -49,14 +47,11 @@ function get_all_source_files($dir = "")
     return $rtn;
 }
 
-
 $files = get_all_source_files($_GET["dir"]);
 if (is_array($files)) {
     foreach ($files as $file => $link) {
         $TPL["results"] .= "<p style=\"padding:0px; margin:4px\">" . $link . "</p>";
     }
 }
-
-
 
 include_template("templates/sourceCodeListM.tpl");

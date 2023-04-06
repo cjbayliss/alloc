@@ -24,7 +24,6 @@
 /** Zend_Search_Lucene_Index_SegmentInfo */
 require_once 'Zend/Search/Lucene/Index/SegmentInfo.php';
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene
@@ -70,8 +69,6 @@ class Zend_Search_Lucene_Index_SegmentMerger
      */
     private $_fieldsMap = [];
 
-
-
     /**
      * Object constructor.
      *
@@ -88,7 +85,6 @@ class Zend_Search_Lucene_Index_SegmentMerger
         $this->_writer = new Zend_Search_Lucene_Index_SegmentWriter_StreamWriter($directory, $name);
     }
 
-
     /**
      * Add segmnet to a collection of segments to be merged
      *
@@ -98,7 +94,6 @@ class Zend_Search_Lucene_Index_SegmentMerger
     {
         $this->_segmentInfos[$segmentInfo->getName()] = $segmentInfo;
     }
-
 
     /**
      * Do merge.
@@ -132,7 +127,6 @@ class Zend_Search_Lucene_Index_SegmentMerger
         return $this->_writer->close();
     }
 
-
     /**
      * Merge fields information
      */
@@ -155,8 +149,8 @@ class Zend_Search_Lucene_Index_SegmentMerger
                 foreach ($this->_segmentInfos as $segName => $segmentInfo) {
                     if ($segmentInfo->hasDeletions()) {
                         $srcNorm = $segmentInfo->normVector($fieldInfo->name);
-                        $norm    = '';
-                        $docs    = $segmentInfo->count();
+                        $norm = '';
+                        $docs = $segmentInfo->count();
                         for ($count = 0; $count < $docs; $count++) {
                             if (!$segmentInfo->isDeleted($count)) {
                                 $norm .= $srcNorm[$count];
@@ -221,7 +215,6 @@ class Zend_Search_Lucene_Index_SegmentMerger
             }
         }
     }
-
 
     /**
      * Merge fields information

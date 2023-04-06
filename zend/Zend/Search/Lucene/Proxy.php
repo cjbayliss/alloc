@@ -23,7 +23,6 @@
 /** Zend_Search_Lucene_Interface */
 require_once 'Zend/Search/Lucene/Interface.php';
 
-
 /**
  * Proxy class intended to be used in userland.
  *
@@ -249,7 +248,6 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
         $this->_index->setMaxBufferedDocs($maxBufferedDocs);
     }
 
-
     /**
      * Retrieve index maxMergeDocs option
      *
@@ -283,7 +281,6 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
     {
         $this->_index->setMaxMergeDocs($maxMergeDocs);
     }
-
 
     /**
      * Retrieve index mergeFactor option
@@ -529,7 +526,6 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
         return $this->_index->terms();
     }
 
-
     /**
      * Reset terms stream.
      */
@@ -579,7 +575,6 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
     {
         $this->_index->closeTermsStream();
     }
-
 
     /**
      * Undeletes all documents currently marked as deleted in this index.

@@ -10,7 +10,7 @@ define("DEFAULT_SEP", "\n");
 class timeSheetPrint
 {
 
-    function get_timeSheetItem_vars($timeSheetID)
+    public function get_timeSheetItem_vars($timeSheetID)
     {
 
         $timeSheet = new timeSheet();
@@ -31,7 +31,7 @@ class timeSheetPrint
         return [$db, $customerBilledDollars, $timeSheet, $unit_array, $currency];
     }
 
-    function get_timeSheetItem_list_money($timeSheetID)
+    public function get_timeSheetItem_list_money($timeSheetID)
     {
         $rows = [];
         $info = [];
@@ -55,7 +55,7 @@ class timeSheetPrint
 
             if ($taxPercent !== '') {
                 $num_minus_gst = $num / $taxPercentDivisor;
-                $gst =           $num - $num_minus_gst;
+                $gst = $num - $num_minus_gst;
 
                 if (($num_minus_gst + $gst) != $num) {
                     $num_minus_gst += $num - ($num_minus_gst + $gst); // round it up.
@@ -70,13 +70,12 @@ class timeSheetPrint
                 $info["total"] += $num;
             }
 
-
             $unit = $unit_array[$timeSheetItem->get_value("timeSheetItemDurationUnitID")];
             $units[$taskID][$unit] += sprintf("%0.2f", $timeSheetItem->get_value("timeSheetItemDuration") * $timeSheetItem->get_value("multiplier"));
 
             unset($str);
             $d = $timeSheetItem->get_value('taskID', DST_HTML_DISPLAY) . ": " . $timeSheetItem->get_value('description', DST_HTML_DISPLAY);
-            $d && !$rows[$taskID]["desc"] and $str[] = "<b>" . $d . "</b>"; //inline because the PDF needs it that way
+            $d && !$rows[$taskID]["desc"] and $str[] = "<b>" . $d . "</b>"; // inline because the PDF needs it that way
 
             // Get task description
             if ($taskID && $TPL["printDesc"]) {
@@ -123,7 +122,7 @@ class timeSheetPrint
         return [$rows, $info];
     }
 
-    function get_timeSheetItem_list_units($timeSheetID)
+    public function get_timeSheetItem_list_units($timeSheetID)
     {
         $units = [];
         $rows = [];
@@ -143,7 +142,7 @@ class timeSheetPrint
             $taskID or $taskID = "hey"; // Catch entries without task selected. ie timesheetitem.comment entries.
 
             $num = sprintf("%0.2f", $timeSheetItem->get_value("timeSheetItemDuration"));
-            #$info["total"] += $num;
+            // $info["total"] += $num;
 
             $unit = $unit_array[$timeSheetItem->get_value("timeSheetItemDurationUnitID")];
             $units[$taskID][$unit] += $num;
@@ -151,7 +150,6 @@ class timeSheetPrint
             unset($str);
             $d = $timeSheetItem->get_value('taskID', DST_HTML_DISPLAY) . ": " . $timeSheetItem->get_value('description', DST_HTML_DISPLAY);
             $d && !$rows[$taskID]["desc"] and $str[] = "<b>" . $d . "</b>";
-
 
             // Get task description
             if ($taskID && $TPL["printDesc"]) {
@@ -166,7 +164,7 @@ class timeSheetPrint
             }
 
             $c = str_replace("\r\n", "\n", $timeSheetItem->get_value("comment"));
-            !$timeSheetItem->get_value("commentPrivate") && $c  && !$cs[$c] and $str[] = page::htmlentities($c);
+            !$timeSheetItem->get_value("commentPrivate") && $c && !$cs[$c] and $str[] = page::htmlentities($c);
             $cs[$c] = true;
 
             is_array($str) and $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
@@ -197,7 +195,7 @@ class timeSheetPrint
         return [$rows, $info];
     }
 
-    function get_timeSheetItem_list_items($timeSheetID)
+    public function get_timeSheetItem_list_items($timeSheetID)
     {
         $row_num = null;
         $info = [];
@@ -252,7 +250,7 @@ class timeSheetPrint
         return [$rows, $info];
     }
 
-    function get_printable_timeSheet_file($timeSheetID, $timeSheetPrintMode, $printDesc, $format)
+    public function get_printable_timeSheet_file($timeSheetID, $timeSheetPrintMode, $printDesc, $format)
     {
         $cols_settings = [];
         $cols_settings2 = [];
@@ -274,11 +272,9 @@ class timeSheetPrint
             $timeSheet->select();
             $timeSheet->set_tpl_values();
 
-
             $person = $timeSheet->get_foreign_object("person");
             $TPL["timeSheet_personName"] = $person->get_name();
             $timeSheet->set_tpl_values("timeSheet_");
-
 
             // Display the project name.
             $project = new project();
@@ -300,7 +296,6 @@ class timeSheetPrint
             $fax = config::get_config_item("companyContactFax");
             $phone and $TPL["phone"] = "Ph: " . $phone;
             $fax and $TPL["fax"] = "Fax: " . $fax;
-
 
             $timeSheet->load_pay_info();
 
@@ -327,8 +322,6 @@ class timeSheetPrint
             $TPL["footer"] = config::get_config_item("timeSheetPrintFooter");
             $TPL["taxName"] = config::get_config_item("taxName");
 
-
-
             $default_header = "Time Sheet";
             $default_id_label = "Time Sheet ID";
             $default_contractor_label = "Contractor";
@@ -345,64 +338,62 @@ class timeSheetPrint
                 $default_total_label = "TOTAL AMOUNT ESTIMATED";
             }
 
-
             if ($format != "html") {
                 // Build PDF document
                 $font1 = ALLOC_MOD_DIR . "util/fonts/Helvetica.afm";
                 $font2 = ALLOC_MOD_DIR . "util/fonts/Helvetica-Oblique.afm";
 
                 $pdf_table_options = [
-                    "showLines" => 0,
-                    "shaded" => 0,
+                    "showLines"    => 0,
+                    "shaded"       => 0,
                     "showHeadings" => 0,
-                    "xPos" => "left",
+                    "xPos"         => "left",
                     "xOrientation" => "right",
-                    "fontSize" => 10,
-                    "rowGap" => 0,
-                    "fontSize" => 10
+                    "fontSize"     => 10,
+                    "rowGap"       => 0,
+                    "fontSize"     => 10,
                 ];
-
 
                 $cols = ["one" => "", "two" => "", "three" => "", "four" => ""];
                 $cols3 = ["one" => "", "two" => ""];
                 $cols_settings["one"] = ["justification" => "right"];
                 $cols_settings["three"] = ["justification" => "right"];
                 $pdf_table_options2 = [
-                    "showLines" => 0,
-                    "shaded" => 0,
+                    "showLines"    => 0,
+                    "shaded"       => 0,
                     "showHeadings" => 0,
-                    "width" => 400,
-                    "fontSize" => 10,
-                    "xPos" => "center",
+                    "width"        => 400,
+                    "fontSize"     => 10,
+                    "xPos"         => "center",
                     "xOrientation" => "center",
-                    "cols" => $cols_settings
+                    "cols"         => $cols_settings,
                 ];
                 $cols_settings2["gst"] = ["justification" => "right"];
                 $cols_settings2["money"] = ["justification" => "right"];
                 $pdf_table_options3 = [
-                    "showLines" => 2,
-                    "shaded" => 0,
-                    "width" => 400,
-                    "xPos" => "center",
-                    "fontSize" => 10,
-                    "cols" => $cols_settings2,
-                    "lineCol" => [0.8, 0.8, 0.8],
-                    "splitRows" => 1,
-                    "protectRows" => 0
+                    "showLines"   => 2,
+                    "shaded"      => 0,
+                    "width"       => 400,
+                    "xPos"        => "center",
+                    "fontSize"    => 10,
+                    "cols"        => $cols_settings2,
+                    "lineCol"     => [0.8, 0.8, 0.8],
+                    "splitRows"   => 1,
+                    "protectRows" => 0,
                 ];
                 $cols_settings["two"] = [
                     "justification" => "right",
-                    "width" => 80
+                    "width"         => 80,
                 ];
                 $pdf_table_options4 = [
-                    "showLines" => 2,
-                    "shaded" => 0,
-                    "width" => 400,
+                    "showLines"    => 2,
+                    "shaded"       => 0,
+                    "width"        => 400,
                     "showHeadings" => 0,
-                    "fontSize" => 10,
-                    "xPos" => "center",
-                    "cols" => $cols_settings,
-                    "lineCol" => [0.8, 0.8, 0.8]
+                    "fontSize"     => 10,
+                    "xPos"         => "center",
+                    "cols"         => $cols_settings,
+                    "lineCol"      => [0.8, 0.8, 0.8],
                 ];
 
                 $pdf = new Cezpdf();
@@ -413,14 +404,14 @@ class timeSheetPrint
                 $pdf->ezStartPageNumbers(200, 80, 10, 'left', '<b>' . $default_id_label . ': </b>' . $TPL["timeSheetID"]);
                 $pdf->ezSetY(775);
 
-                $TPL["companyName"]            and $contact_info[] = [$TPL["companyName"]];
-                $TPL["companyContactAddress"]  and $contact_info[] = [$TPL["companyContactAddress"]];
+                $TPL["companyName"] and $contact_info[] = [$TPL["companyName"]];
+                $TPL["companyContactAddress"] and $contact_info[] = [$TPL["companyContactAddress"]];
                 $TPL["companyContactAddress2"] and $contact_info[] = [$TPL["companyContactAddress2"]];
                 $TPL["companyContactAddress3"] and $contact_info[] = [$TPL["companyContactAddress3"]];
-                $TPL["companyContactEmail"]    and $contact_info[] = [$TPL["companyContactEmail"]];
+                $TPL["companyContactEmail"] and $contact_info[] = [$TPL["companyContactEmail"]];
                 $TPL["companyContactHomePage"] and $contact_info[] = [$TPL["companyContactHomePage"]];
-                $TPL["phone"]                  and $contact_info[] = [$TPL["phone"]];
-                $TPL["fax"]                    and $contact_info[] = [$TPL["fax"]];
+                $TPL["phone"] and $contact_info[] = [$TPL["phone"]];
+                $TPL["fax"] and $contact_info[] = [$TPL["fax"]];
 
                 $pdf->selectFont($font2);
 
@@ -430,7 +421,6 @@ class timeSheetPrint
                 $line_y = $y - 10;
                 $pdf->setLineStyle(1, "round");
                 $pdf->line(90, $line_y, 510, $line_y);
-
 
                 $pdf->ezSetY(782);
                 $image_jpg = ALLOC_LOGO;
@@ -446,8 +436,6 @@ class timeSheetPrint
                 $TPL["companyNos1"] and $y = $pdf->ezText($TPL["companyNos1"], 10, ["justification" => "right"]);
                 $TPL["companyNos2"] and $y = $pdf->ezText($TPL["companyNos2"], 10, ["justification" => "right"]);
 
-
-
                 $pdf->ezSetY($line_y - 20);
                 $y = $pdf->ezText($default_header, 20, ["justification" => "center"]);
                 $pdf->ezSetY($y - 20);
@@ -462,7 +450,6 @@ class timeSheetPrint
                     $ts_info[] = $temp;
                 }
 
-
                 $y = $pdf->ezTable($ts_info, $cols, "", $pdf_table_options2);
 
                 $pdf->ezSetY($y - 20);
@@ -470,33 +457,33 @@ class timeSheetPrint
                 if ($timeSheetPrintMode == "money" || $timeSheetPrintMode == "estimate") {
                     list($rows, $info) = $this->get_timeSheetItem_list_money($TPL["timeSheetID"]);
                     $cols2 = [
-                        "desc" => "Description",
+                        "desc"  => "Description",
                         "units" => "Units",
                         "money" => "Charges",
-                        "gst" => $TPL["taxName"]
+                        "gst"   => $TPL["taxName"],
                     ];
                     $taxPercent = config::get_config_item("taxPercent");
                     if ($taxPercent === '') {
                         unset($cols2["gst"]);
                     }
                     $rows[] = [
-                        "desc" => "<b>TOTAL</b>",
+                        "desc"  => "<b>TOTAL</b>",
                         "units" => $info["total_units"],
                         "money" => $info["total"],
-                        "gst" => $info["total_gst"]
+                        "gst"   => $info["total_gst"],
                     ];
                     $y = $pdf->ezTable($rows, $cols2, "", $pdf_table_options3);
                     $pdf->ezSetY($y - 20);
                     if ($taxPercent !== '') {
                         $totals[] = [
                             "one" => "TOTAL " . $TPL["taxName"],
-                            "two" => $info["total_gst"]
+                            "two" => $info["total_gst"],
                         ];
                     }
                     $totals[] = ["one" => "TOTAL CHARGES", "two" => $info["total"]];
                     $totals[] = [
                         "one" => "<b>" . $default_total_label . "</b>",
-                        "two" => "<b>" . $info["total_inc_gst"] . "</b>"
+                        "two" => "<b>" . $info["total_inc_gst"] . "</b>",
                     ];
                     $y = $pdf->ezTable(
                         $totals,
@@ -508,31 +495,30 @@ class timeSheetPrint
                     list($rows, $info) = $this->get_timeSheetItem_list_units($TPL["timeSheetID"]);
                     $cols2 = ["desc" => "Description", "units" => "Units"];
                     $rows[] = [
-                        "desc" => "<b>TOTAL</b>",
-                        "units" => "<b>" . $info["total"] . "</b>"
+                        "desc"  => "<b>TOTAL</b>",
+                        "units" => "<b>" . $info["total"] . "</b>",
                     ];
                     $y = $pdf->ezTable($rows, $cols2, "", $pdf_table_options3);
                 } else if ($timeSheetPrintMode == "items") {
                     list($rows, $info) = $this->get_timeSheetItem_list_items($TPL["timeSheetID"]);
                     $cols2 = [
-                        "date" => "Date",
-                        "units" => "Units",
+                        "date"              => "Date",
+                        "units"             => "Units",
                         "multiplier_string" => "Multiplier",
-                        "desc" => "Description"
+                        "desc"              => "Description",
                     ];
                     $rows[] = [
-                        "date" => "<b>TOTAL</b>",
-                        "units" => "<b>" . $info["total"] . "</b>"
+                        "date"  => "<b>TOTAL</b>",
+                        "units" => "<b>" . $info["total"] . "</b>",
                     ];
                     $y = $pdf->ezTable($rows, $cols2, "", $pdf_table_options3);
                 }
-
 
                 $pdf->ezSetY($y - 20);
                 $pdf->ezText(str_replace(["<br>", "<br/>", "<br />"], "\n", $TPL["footer"]), 10);
                 $pdf->ezStream(["Content-Disposition" => "timeSheet_" . $timeSheetID . ".pdf"]);
 
-                // Else HTML format
+            // Else HTML format
             } else {
                 if (file_exists(ALLOC_LOGO)) {
                     $TPL["companyName"] = '<img alt="Company logo" src="' . $TPL["url_alloc_logo"] . '" />';

@@ -16,7 +16,7 @@ $events = [];
 function gen_key($prefix = 0)
 {
     static $subidx = 0;
-    //this falls apart if the feed runs to more than 9999 items
+    // this falls apart if the feed runs to more than 9999 items
     return '!' . $prefix . sprintf("%04d", $subidx++);
 }
 

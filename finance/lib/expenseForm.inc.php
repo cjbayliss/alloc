@@ -13,17 +13,17 @@ class expenseForm extends db_entity
         "expenseFormModifiedUser",
         "expenseFormModifiedTime",
         "paymentMethod",
-        "reimbursementRequired" => ["empty_to_null" => false],
+        "reimbursementRequired"   => ["empty_to_null" => false],
         "seekClientReimbursement" => ["empty_to_null" => false],
         "transactionRepeatID",
         "clientID",
         "expenseFormCreatedUser",
         "expenseFormCreatedTime",
         "expenseFormFinalised" => ["empty_to_null" => false],
-        "expenseFormComment"
+        "expenseFormComment",
     ];
 
-    function is_owner($person = "")
+    public function is_owner($person = "")
     {
         $current_user = &singleton("current_user");
 
@@ -47,7 +47,7 @@ class expenseForm extends db_entity
                 }
             }
 
-            // If no expenseForm ID, then it hasn't been created yet...
+        // If no expenseForm ID, then it hasn't been created yet...
         } else {
             return true;
         }
@@ -64,7 +64,7 @@ class expenseForm extends db_entity
         return ["0" => "Unpaid", "1" => "Paid by me", "2" => "Paid by company"];
     }
 
-    function set_status($status)
+    public function set_status($status)
     {
         // This sets the status of the expense form. Actually, the expense form
         // doesn't have its own status - this sets the status of the transactions on the
@@ -77,7 +77,7 @@ class expenseForm extends db_entity
         }
     }
 
-    function get_status()
+    public function get_status()
     {
         $arr = [];
         $return = null;
@@ -95,7 +95,7 @@ class expenseForm extends db_entity
         return $return;
     }
 
-    function delete_transactions($transactionID = "")
+    public function delete_transactions($transactionID = "")
     {
         $extra_sql = null;
         global $TPL;
@@ -109,7 +109,7 @@ class expenseForm extends db_entity
         }
     }
 
-    function get_invoice_link()
+    public function get_invoice_link()
     {
         $str = null;
         $sp = null;
@@ -125,7 +125,7 @@ class expenseForm extends db_entity
         }
     }
 
-    function save_to_invoice($invoiceID = false)
+    public function save_to_invoice($invoiceID = false)
     {
 
         $extra = null;
@@ -148,7 +148,7 @@ class expenseForm extends db_entity
                 $invoice->save();
                 $invoiceID = $invoice->get_id();
 
-                // Use existing invoice
+            // Use existing invoice
             } else {
                 $invoiceID = $db->f("invoiceID");
             }
@@ -162,7 +162,7 @@ class expenseForm extends db_entity
         }
     }
 
-    function get_min_date()
+    public function get_min_date()
     {
         $db = new db_alloc();
         $q = unsafe_prepare("SELECT min(transactionDate) as date FROM transaction WHERE expenseFormID = %d", $this->get_id());
@@ -171,7 +171,7 @@ class expenseForm extends db_entity
         return $db->f('date');
     }
 
-    function get_max_date()
+    public function get_max_date()
     {
         $db = new db_alloc();
         $q = unsafe_prepare("SELECT max(transactionDate) as date FROM transaction WHERE expenseFormID = %d", $this->get_id());
@@ -180,7 +180,7 @@ class expenseForm extends db_entity
         return $db->f('date');
     }
 
-    function get_url()
+    public function get_url()
     {
         global $sess;
         $sess or $sess = new session();
@@ -190,7 +190,7 @@ class expenseForm extends db_entity
         if ($sess->Started()) {
             $url = $sess->url(SCRIPT_PATH . $url);
 
-            // This for urls that are emailed
+        // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");
@@ -199,7 +199,7 @@ class expenseForm extends db_entity
         return $url;
     }
 
-    function get_abs_sum_transactions($id = false)
+    public function get_abs_sum_transactions($id = false)
     {
         if (is_object($this)) {
             $id = $this->get_id();
@@ -218,7 +218,7 @@ class expenseForm extends db_entity
     {
         $sql = [];
         $filter["projectID"] and $sql[] = unsafe_prepare("transaction.projectID = %d", $filter["projectID"]);
-        $filter["status"]    and $sql[] = unsafe_prepare("transaction.status = '%s'", $filter["status"]);
+        $filter["status"] and $sql[] = unsafe_prepare("transaction.status = '%s'", $filter["status"]);
         isset($filter["finalised"]) and $sql[] = unsafe_prepare("expenseForm.expenseFormFinalised = %d", $filter["finalised"]);
         return $sql;
     }
@@ -278,7 +278,7 @@ class expenseForm extends db_entity
         return (array)$rows;
     }
 
-    function get_pending_repeat_transaction_list()
+    public function get_pending_repeat_transaction_list()
     {
         $rows = [];
         global $TPL;
@@ -296,7 +296,7 @@ class expenseForm extends db_entity
             $transactionRepeat->read_db_record($db);
             $transactionRepeat->set_values();
             $row["transactionType"] = $transactionTypes[$transaction->get_value("transactionType")];
-            $row["formTotal"] =  $db->f("amount");
+            $row["formTotal"] = $db->f("amount");
             $row["transactionModifiedTime"] = $transaction->get_value("transactionModifiedTime");
             $row["transactionCreatedTime"] = $transaction->get_value("transactionCreatedTime");
             $row["transactionCreatedUser"] = person::get_fullname($transaction->get_value("transactionCreatedUser"));

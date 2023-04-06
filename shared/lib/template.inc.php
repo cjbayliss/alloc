@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 // This is a callback function that examins the curly braces inside inline
 // javascript/css blocks, and ensures that we can have both PHP template
 // variables and javascript/css syntax playing together nicely. Basically we're
@@ -25,7 +24,6 @@ function fix_curly_braces($matches)
 
     return $str;
 }
-
 
 // This function basically returns: echo $var; $var can be a multi-dimensional
 // array. $var can also be html entity protected if prefixed with the equals sign.
@@ -104,7 +102,6 @@ function get_template($filename)
     $replace = '{TPL_END_BRACE else if (${1}) TPL_START_BRACE}';
     $template = preg_replace($pattern, $replace, $template);
 
-
     $sr = [
         "{/}"             => "<?php TPL_END_BRACE ?>",
         "{page::"         => "<?php echo page::",
@@ -112,7 +109,7 @@ function get_template($filename)
         "}"               => " ?>",
         "TPL_END_BRACE"   => "}",
         "TPL_START_BRACE" => "{",
-        ".php&"           => ".php?"
+        ".php&"           => ".php?",
     ];
 
     foreach ($sr as $s => $r) {
@@ -121,10 +118,8 @@ function get_template($filename)
     }
     $template = str_replace($searches, $replaces, $template);
 
-
     return "?>$template<?php ";
 }
-
 
 // This is the publically callable function, used to include template files
 function include_template($filename, $getString = false)
@@ -133,7 +128,7 @@ function include_template($filename, $getString = false)
     $current_user = &singleton("current_user");
     $TPL["current_user"] = $current_user;
     $template = get_template($filename);
-    #echo "<pre>".htmlspecialchars($template)."</pre>";
+    // echo "<pre>".htmlspecialchars($template)."</pre>";
 
     // Make all variables available via $var
     is_array($TPL) && extract($TPL, EXTR_OVERWRITE);
@@ -151,13 +146,11 @@ function include_template($filename, $getString = false)
         echo "<b style='color:red'>Error line " . $error['line'] . " in template: ";
         echo basename(dirname(dirname($f))) . $s . basename(dirname($f)) . $s . basename($f) . "</b>";
 
-
         $bits = explode("\n", $template);
 
         foreach ($bits as $k => $bit) {
             echo "<br>" . $k . "&nbsp;&nbsp;&nbsp;&nbsp;" . page::htmlentities($bit);
         }
-
 
         exit;
     }

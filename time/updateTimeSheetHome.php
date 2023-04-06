@@ -5,11 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 define("NO_REDIRECT", 1);
 require_once("../alloc.php");
 
-//usleep(1000);
+// usleep(1000);
 
 $t = timeSheetItem::parse_time_string($_REQUEST["time_item"]);
 
@@ -18,8 +17,6 @@ $units = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
 
 $timeSheetItemMultiplier = new meta("timeSheetItemMultiplier");
 $tsims = $timeSheetItemMultiplier->get_list();
-
-
 
 foreach ($t as $k => $v) {
     if ($v) {
@@ -40,11 +37,11 @@ foreach ($t as $k => $v) {
     }
 }
 
-//2010-10-01  1 Days x Double Time
-//Task: 102 This is the task
-//Comment: This is the comment
+// 2010-10-01  1 Days x Double Time
+// Task: 102 This is the task
+// Comment: This is the comment
 $str[] = "<tr><td>" . $rtn["date"] . " </td><td class='nobr bold'> " . $rtn["duration"] . " " . $rtn["unit"] . "</td><td class='nobr'>&times; " . $rtn["multiplier"] . "</td></tr>";
-$rtn["taskID"]  and $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
+$rtn["taskID"] and $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
 $rtn["comment"] and $str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>";
 
 if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
@@ -73,6 +70,6 @@ if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
     }
 }
 
-#$extra and array_unshift($str, "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>");
+// $extra and array_unshift($str, "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>");
 $extra and $str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>";
 print alloc_json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"]);

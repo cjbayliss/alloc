@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class timeUnit extends db_entity
 {
     public $classname = "timeUnit";
@@ -18,16 +17,16 @@ class timeUnit extends db_entity
         "timeUnitLabelB",
         "timeUnitSeconds",
         "timeUnitActive",
-        "timeUnitSequence"
+        "timeUnitSequence",
     ];
 
-    function seconds_to_display_time_unit($seconds)
+    public function seconds_to_display_time_unit($seconds)
     {
         $q = "SELECT * FROM timeUnit";
         $db = new db_alloc();
         $db->query($q);
         while ($db->next_record()) {
-            //blag someother time
+            // blag someother time
         }
     }
 }

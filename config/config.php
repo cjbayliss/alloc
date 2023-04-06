@@ -28,7 +28,6 @@ if ($_POST["test_email_gateway"]) {
     }
 }
 
-
 $db = new db_alloc();
 $db->query("SELECT name,value,type FROM config");
 while ($db->next_record()) {
@@ -42,8 +41,7 @@ while ($db->next_record()) {
     }
 }
 
-
-#echo "<pre>".print_r($_POST,1)."</pre>";
+// echo "<pre>".print_r($_POST,1)."</pre>";
 
 if ($_POST["update_currencyless_transactions"] && $_POST["currency"]) {
     $db = new db_alloc();
@@ -74,9 +72,6 @@ if ($_POST["fetch_exchange_rates"]) {
     $rtn = exchangeRate::download();
     $rtn and $TPL["message_good"] = $rtn;
 }
-
-
-
 
 if ($_POST["save"]) {
     if ($_POST["hoursInDay"]) {
@@ -117,7 +112,7 @@ if ($_POST["save"]) {
             $c->select();
 
             if ($types[$name] == "text") {
-                //current special case for the only money field
+                // current special case for the only money field
                 if ($name == "defaultTimeSheetRate") {
                     $value = page::money(0, $_POST[$name], "%mi");
                     $c->set_value("value", $value);
@@ -136,7 +131,7 @@ if ($_POST["save"]) {
 
     // Handle the only checkbox specially. If more checkboxes are added this
     // should be rewritten.
-    #echo var_dump($_POST);
+    // echo var_dump($_POST);
     if ($_POST['sbs_link'] == "rss" && !$_POST['rssShowProject']) {
         $c = new config();
         $c->set_id(config::get_config_item_id('rssShowProject'));
@@ -158,7 +153,6 @@ if ($_POST["save"]) {
         }
     }
 }
-
 
 get_cached_table("config", true); // flush cache
 
@@ -182,7 +176,7 @@ $tabops = [
     "sale"    => "Sales",
     "person"  => "People",
     "inbox"   => "Inbox",
-    "tools"   => "Tools"
+    "tools"   => "Tools",
 ];
 
 $selected_tabops = config::get_config_item("allocTabs") or $selected_tabops = array_keys($tabops);
@@ -202,7 +196,7 @@ $people_by_id = array_column(get_cached_table("person"), "name", "personID");
 $TPL["defaultTimeSheetManagerListText"] = get_person_list(config::get_config_item("defaultTimeSheetManagerList"), $people_by_id);
 $TPL["defaultTimeSheetAdminListText"] = get_person_list(config::get_config_item("defaultTimeSheetAdminList"), $people_by_id);
 
-$days =  ["Sun" => "Sun", "Mon" => "Mon", "Tue" => "Tue", "Wed" => "Wed", "Thu" => "Thu", "Fri" => "Fri", "Sat" => "Sat"];
+$days = ["Sun" => "Sun", "Mon" => "Mon", "Tue" => "Tue", "Wed" => "Wed", "Thu" => "Thu", "Fri" => "Fri", "Sat" => "Sat"];
 $TPL["calendarFirstDayOptions"] = page::select_options($days, config::get_config_item("calendarFirstDay"));
 
 $TPL["timeSheetPrintOptions"] = page::select_options($TPL["timeSheetPrintOptions"], $TPL["timeSheetPrint"]);

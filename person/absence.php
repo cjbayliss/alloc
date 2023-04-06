@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 require_once("../alloc.php");
 
 $absenceID = $_POST["absenceID"] or $absenceID = $_GET["absenceID"];
@@ -62,7 +61,7 @@ $absenceType_array = [
     'Annual Leave' => 'Annual Leave',
     'Holiday'      => 'Holiday',
     'Illness'      => 'Illness',
-    'Other'        => 'Other'
+    'Other'        => 'Other',
 ];
 
 $TPL["absenceType_options"] = page::select_options($absenceType_array, $absence->get_value("absenceType"));

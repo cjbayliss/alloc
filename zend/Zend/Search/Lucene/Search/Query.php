@@ -21,7 +21,6 @@
  * @version    $Id: Query.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene
@@ -153,7 +152,6 @@ abstract class Zend_Search_Lucene_Search_Query
     {
         $this->_weight = null;
     }
-
 
     /**
      * Print a query

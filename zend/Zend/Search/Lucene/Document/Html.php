@@ -21,10 +21,8 @@
  * @version    $Id: Html.php 24144 2011-06-14 22:06:56Z adamlundrigan $
  */
 
-
 /** Zend_Search_Lucene_Document */
 require_once 'Zend/Search/Lucene/Document.php';
-
 
 /**
  * HTML document.
@@ -111,7 +109,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
 
                 // Remove additional HEAD section
                 $xpath = new DOMXPath($this->_doc);
-                $head  = $xpath->query('/html/head')->item(0);
+                $head = $xpath->query('/html/head')->item(0);
                 $head->parentNode->removeChild($head);
             } else {
                 // It's an HTML fragment
@@ -160,7 +158,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         $linkNodes = $this->_doc->getElementsByTagName('a');
         foreach ($linkNodes as $linkNode) {
             if (($href = $linkNode->getAttribute('href')) != '' &&
-                (!self::$_excludeNoFollowLinks  ||  strtolower($linkNode->getAttribute('rel')) != 'nofollow')
+                (!self::$_excludeNoFollowLinks || strtolower($linkNode->getAttribute('rel')) != 'nofollow')
             ) {
                 $this->_links[] = $href;
             }
@@ -168,7 +166,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         $linkNodes = $this->_doc->getElementsByTagName('area');
         foreach ($linkNodes as $linkNode) {
             if (($href = $linkNode->getAttribute('href')) != '' &&
-                (!self::$_excludeNoFollowLinks  ||  strtolower($linkNode->getAttribute('rel')) != 'nofollow')
+                (!self::$_excludeNoFollowLinks || strtolower($linkNode->getAttribute('rel')) != 'nofollow')
             ) {
                 $this->_links[] = $href;
             }
@@ -219,7 +217,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
             if (!in_array($node->parentNode->tagName, $this->_inlineTags)) {
                 $text .= ' ';
             }
-        } else if ($node->nodeType == XML_ELEMENT_NODE  &&  $node->nodeName != 'script') {
+        } else if ($node->nodeType == XML_ELEMENT_NODE && $node->nodeName != 'script') {
             foreach ($node->childNodes as $childNode) {
                 $this->_retrieveNodeText($childNode, $text);
             }
@@ -271,7 +269,6 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
     {
         return new Zend_Search_Lucene_Document_Html($file, true, $storeContent, $defaultEncoding);
     }
-
 
     /**
      * Highlight text in text node
@@ -327,7 +324,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
                 throw new Zend_Search_Lucene_Exception("Error occured while loading highlighted text fragment: '$highlightedWordNodeSetHtml'.");
             }
             $highlightedWordNodeSetXpath = new DOMXPath($highlightedWordNodeSetDomDocument);
-            $highlightedWordNodeSet      = $highlightedWordNodeSetXpath->query('/html/body')->item(0)->childNodes;
+            $highlightedWordNodeSet = $highlightedWordNodeSetXpath->query('/html/body')->item(0)->childNodes;
 
             for ($count = 0; $count < $highlightedWordNodeSet->length; $count++) {
                 $nodeToImport = $highlightedWordNodeSet->item($count);
@@ -340,7 +337,6 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
             $node->parentNode->removeChild($matchedWordNode);
         }
     }
-
 
     /**
      * highlight words in content of the specified node
@@ -399,8 +395,6 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         return $this->highlightExtended($words, [$this, 'applyColour'], [$colour]);
     }
 
-
-
     /**
      * Highlight text using specified View helper or callback function.
      *
@@ -448,7 +442,6 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
             $this->_highlightNodeRecursive($matchedNode, $wordsToHighlightFlipped, $callback, $params);
         }
     }
-
 
     /**
      * Get HTML

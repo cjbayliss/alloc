@@ -14,7 +14,6 @@ if (!have_entity_perm("config", PERM_UPDATE, $current_user, true)) {
 $table = $_POST["configName"] or $table = $_GET["configName"];
 $TPL["table"] = $table;
 
-
 if ($_POST["save"]) {
     foreach ((array)$_POST[$table . "ID"] as $k => $tableID) {
         // Delete
@@ -23,7 +22,7 @@ if ($_POST["save"]) {
             $t->set_id($tableID);
             $t->delete();
 
-            // Save
+        // Save
         } else {
             $a = [
                 $table . "ID"     => $tableID,

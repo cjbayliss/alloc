@@ -77,7 +77,7 @@ abstract class Zend_Search_Lucene_FSM
      *
      * @var array
      */
-    private $_entryActions =  [];
+    private $_entryActions = [];
 
     /**
      * List of exit actions
@@ -87,7 +87,7 @@ abstract class Zend_Search_Lucene_FSM
      *
      * @var array
      */
-    private $_exitActions =  [];
+    private $_exitActions = [];
 
     /**
      * List of input actions
@@ -97,7 +97,7 @@ abstract class Zend_Search_Lucene_FSM
      *
      * @var array
      */
-    private $_inputActions =  [];
+    private $_inputActions = [];
 
     /**
      * List of input actions
@@ -107,7 +107,7 @@ abstract class Zend_Search_Lucene_FSM
      *
      * @var array
      */
-    private $_transitionActions =  [];
+    private $_transitionActions = [];
 
     /**
      * Finite State machine constructor
@@ -217,7 +217,6 @@ abstract class Zend_Search_Lucene_FSM
         $this->_inputAphabet[$inputSymbol] = $inputSymbol;
     }
 
-
     /**
      * Add transition rules
      *
@@ -271,12 +270,10 @@ abstract class Zend_Search_Lucene_FSM
 
         $this->_rules[$sourceState][$input] = $targetState;
 
-
         if ($inputAction !== null) {
             $this->addInputAction($sourceState, $input, $inputAction);
         }
     }
-
 
     /**
      * Add state entry action.
@@ -382,7 +379,6 @@ abstract class Zend_Search_Lucene_FSM
         $this->_transitionActions[$sourceState][$targetState][] = $action;
     }
 
-
     /**
      * Process an input
      *
@@ -403,7 +399,7 @@ abstract class Zend_Search_Lucene_FSM
         $sourceState = $this->_currentState;
         $targetState = $this->_rules[$this->_currentState][$input];
 
-        if ($sourceState != $targetState  &&  isset($this->_exitActions[$sourceState])) {
+        if ($sourceState != $targetState && isset($this->_exitActions[$sourceState])) {
             foreach ($this->_exitActions[$sourceState] as $action) {
                 $action->doAction();
             }
@@ -417,7 +413,6 @@ abstract class Zend_Search_Lucene_FSM
             }
         }
 
-
         $this->_currentState = $targetState;
 
         if (
@@ -428,7 +423,7 @@ abstract class Zend_Search_Lucene_FSM
                 $action->doAction();
             }
         }
-        if ($sourceState != $targetState  &&  isset($this->_entryActions[$targetState])) {
+        if ($sourceState != $targetState && isset($this->_entryActions[$targetState])) {
             foreach ($this->_entryActions[$targetState] as $action) {
                 $action->doAction();
             }

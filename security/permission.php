@@ -7,7 +7,6 @@
 
 require_once("../alloc.php");
 
-
 $permission = new permission();
 $permissionID = $_POST["permissionID"] or $permissionID = $_GET["permissionID"];
 
@@ -26,7 +25,6 @@ if (is_array($actions_array)) {
 
 $permission->read_globals();
 $permission->set_values();
-
 
 if (!$permission->get_value("tableName")) {
     global $modules;

@@ -18,7 +18,7 @@ $field_map = [
     "memo"            => 3,
     "account"         => 4,
     "amount"          => 5,
-    "employeeNum"     => 7
+    "employeeNum"     => 7,
 ];
 
 if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
@@ -49,23 +49,22 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
         // If there's a memo field then append it to account
         $memo and $account .= " - " . $memo;
 
-
-        #echo "<br>";
-        #echo "<br>date: ".$transactionDate;
-        #echo "<br>memo: ".$memo;
-        #echo "<br>account: ".$account;
-        #echo "<br>amount: ".$amount;
-        #echo "<br>employeeNum: ".$employeeNum;
+        // echo "<br>";
+        // echo "<br>date: ".$transactionDate;
+        // echo "<br>memo: ".$memo;
+        // echo "<br>account: ".$account;
+        // echo "<br>amount: ".$amount;
+        // echo "<br>employeeNum: ".$employeeNum;
 
         // Ignore heading row, dividing lines and total rows
         if ($transactionDate == "Date" || !$transactionDate || strpos("_____", $transactionDate) !== false || strpos("���", $transactionDate) !== false || stripos("total", $transactionDate) !== false) {
             continue;
         }
         // If the employeeNum field is blank use the previous employeeNum
-        #if (!$employeeNum) {
-        #    $employeeNum = $prev_employeeNum;
-        #}
-        #$prev_employeeNum = $employeeNum;
+        // if (!$employeeNum) {
+        //    $employeeNum = $prev_employeeNum;
+        // }
+        // $prev_employeeNum = $employeeNum;
 
         // Find the TF for the wage
         $query = unsafe_prepare("SELECT * FROM tf WHERE qpEmployeeNum=%d", $employeeNum);
@@ -82,7 +81,6 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
             continue;
         }
         $transactionDate = sprintf("%04d-%02d-%02d", $matches[3], $matches[2], $matches[1]);
-
 
         // Strip $ and , from amount
         $amount = str_replace(['$', ','], [], $amount);

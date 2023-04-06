@@ -18,7 +18,7 @@ $defaults = [
     "showTotals"      => "true",
     "padding"         => 1,
     "url_form_action" => $TPL["url_alloc_taskList"],
-    "form_name"       => "taskList_filter"
+    "form_name"       => "taskList_filter",
 ];
 
 // Load task list
@@ -29,7 +29,6 @@ $TPL["_FORM"] = $_FORM;
 // Load filter
 $arr = task::load_task_filter($_FORM);
 is_array($arr) and $TPL = array_merge($TPL, $arr);
-
 
 // Check for updates
 if ($_POST["mass_update"]) {
@@ -47,7 +46,7 @@ if ($_POST["mass_update"]) {
             "priority",
             "taskTypeID",
             "taskStatus",
-            "personID"
+            "personID",
         ];
 
         foreach ($_POST["select"] as $taskID => $selected) {
@@ -69,7 +68,7 @@ if ($_POST["mass_update"]) {
                 $task->updateSearchIndexLater = true;
                 $task->save();
 
-                // All other cases are generic and can be handled by a single clause
+            // All other cases are generic and can be handled by a single clause
             } else if ($_POST["update_action"] && in_array($_POST["update_action"], $allowed_auto_fields)) {
                 $task->set_value($_POST["update_action"], $_POST[$_POST["update_action"]]);
                 $task->updateSearchIndexLater = true;
@@ -95,7 +94,5 @@ display a list of previously created Tasks.
 If you would prefer to create a new Task, click the <b>New Task</b> link
 in the top-right hand corner of the box below.";
 }
-
-
 
 include_template("templates/taskListM.tpl");

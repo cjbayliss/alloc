@@ -7,17 +7,17 @@
 
 class tfList_home_item extends home_item
 {
-    function __construct()
+    public function __construct()
     {
         parent::__construct("", "Tagged Funds", "finance", "tfListH.tpl", "narrow", 20);
     }
 
-    function visible()
+    public function visible()
     {
         return true;
     }
 
-    function render()
+    public function render()
     {
         $ops = [];
         global $TPL;

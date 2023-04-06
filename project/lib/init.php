@@ -11,7 +11,7 @@ class project_module extends module
     public $db_entities = [
         "project",
         "projectPerson",
-        "projectCommissionPerson"
+        "projectCommissionPerson",
     ];
     public $home_items = ["project_list_home_item"];
 }

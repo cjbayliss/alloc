@@ -21,10 +21,8 @@
  * @version    $Id: Filesystem.php 23964 2011-05-03 14:20:58Z adamlundrigan $
  */
 
-
 /** Zend_Search_Lucene_Storage_Directory */
 require_once 'Zend/Search/Lucene/Storage/Directory.php';
-
 
 /**
  * FileSystem implementation of Directory abstraction.
@@ -60,7 +58,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
      */
     protected static $_defaultFilePermissions = 0666;
 
-
     /**
      * Get default file permissions
      *
@@ -80,7 +77,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
     {
         self::$_defaultFilePermissions = $mode;
     }
-
 
     /**
      * Utility function to recursive directory creation
@@ -104,7 +100,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
         }
         return false;
     }
-
 
     /**
      * Object constructor
@@ -130,7 +125,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
         $this->_fileHandlers = [];
     }
 
-
     /**
      * Closes the store.
      *
@@ -145,7 +139,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
         $this->_fileHandlers = [];
     }
 
-
     /**
      * Returns an array of strings, one for each file in the directory.
      *
@@ -157,7 +150,9 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
 
         $dirContent = opendir($this->_dirPath);
         while (($file = readdir($dirContent)) !== false) {
-            if (($file == '..') || ($file == '.'))   continue;
+            if (($file == '..') || ($file == '.')) {
+                continue;
+            }
 
             if (!is_dir($this->_dirPath . '/' . $file)) {
                 $result[] = $file;
@@ -190,7 +185,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
 
         return $this->_fileHandlers[$filename];
     }
-
 
     /**
      * Removes an existing $filename in the directory.
@@ -233,7 +227,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
         unset($this->_fileHandlers[$filename]);
     }
 
-
     /**
      * Returns true if a file with the given $filename exists.
      *
@@ -245,7 +238,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
         return isset($this->_fileHandlers[$filename]) ||
             file_exists($this->_dirPath . '/' . $filename);
     }
-
 
     /**
      * Returns the length of a $filename in the directory.
@@ -261,7 +253,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
         return filesize($this->_dirPath . '/' . $filename);
     }
 
-
     /**
      * Returns the UNIX timestamp $filename was last modified.
      *
@@ -272,7 +263,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
     {
         return filemtime($this->_dirPath . '/' . $filename);
     }
-
 
     /**
      * Renames an existing file in the directory.
@@ -318,7 +308,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
         return $success;
     }
 
-
     /**
      * Sets the modified time of $filename to now.
      *
@@ -329,7 +318,6 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
     {
         return touch($this->_dirPath . '/' . $filename);
     }
-
 
     /**
      * Returns a Zend_Search_Lucene_Storage_File object for a given $filename in the directory.

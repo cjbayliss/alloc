@@ -22,7 +22,7 @@ $defaults = [
     "form_name"          => "timeSheetList_filter",
     "showFinances"       => $_REQUEST["showFinances"],
     "dateFromComparator" => ">=",
-    "dateToComparator"   => "<="
+    "dateToComparator"   => "<=",
 ];
 
 $_FORM = timeSheet::load_form_data($defaults);
@@ -43,9 +43,6 @@ display a list of previously created Time Sheets.
 If you would prefer to create a new Time Sheet, click the <b>New Time Sheet</b> link
 in the top-right hand corner of the box below.";
 }
-
-
-
 
 $TPL["main_alloc_title"] = "Timesheet List - " . APPLICATION_NAME;
 include_template("templates/timeSheetListM.tpl");

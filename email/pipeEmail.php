@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 /*
  * This script may need to be run via:
  * sudo -u apache php pipe.php
@@ -25,7 +24,7 @@
 */
 
 define("NO_AUTH", 1);
-//require_once(dirname(__FILE__)."/../alloc.php");
+// require_once(dirname(__FILE__)."/../alloc.php");
 require_once(dirname($_SERVER["SUDO_COMMAND"]) . "/../alloc.php");
 singleton("errors_fatal", true);
 singleton("errors_format", "text");
@@ -70,11 +69,11 @@ try {
         if ($from_staff) {
             inbox::convert_email_to_new_task($email_receive, true);
         } else {
-            //$email_receive->mark_seen(); in alouy we want the emails to still appear new (as opposed to alloc with receiveEmail.php)
+            // $email_receive->mark_seen(); in alouy we want the emails to still appear new (as opposed to alloc with receiveEmail.php)
             $email_receive->archive();
         }
 
-        // Else if we have a key, append to comment
+    // Else if we have a key, append to comment
     } else {
         // Skip over emails that are from alloc. These emails are kept only for
         // posterity and should not be parsed and downloaded and re-emailed etc.
@@ -105,8 +104,6 @@ try {
 
 // Commit the db, and move the email into its storage location eg: INBOX.task1234
 $db->commit();
-//$email_receive->archive();
+// $email_receive->archive();
 $email_receive->expunge();
 $email_receive->close();
-
-?>

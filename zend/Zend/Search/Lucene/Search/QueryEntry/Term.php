@@ -47,7 +47,6 @@ class Zend_Search_Lucene_Search_QueryEntry_Term extends Zend_Search_Lucene_Searc
      */
     private $_field;
 
-
     /**
      * Fuzzy search query
      *
@@ -62,7 +61,6 @@ class Zend_Search_Lucene_Search_QueryEntry_Term extends Zend_Search_Lucene_Searc
      */
     private $_similarity = 1.;
 
-
     /**
      * Object constractor
      *
@@ -71,7 +69,7 @@ class Zend_Search_Lucene_Search_QueryEntry_Term extends Zend_Search_Lucene_Searc
      */
     public function __construct($term, $field)
     {
-        $this->_term  = $term;
+        $this->_term = $term;
         $this->_field = $field;
     }
 
@@ -116,7 +114,6 @@ class Zend_Search_Lucene_Search_QueryEntry_Term extends Zend_Search_Lucene_Searc
             $query->setBoost($this->_boost);
             return $query;
         }
-
 
         /** Zend_Search_Lucene_Search_Query_Preprocessing_Term */
         require_once 'Zend/Search/Lucene/Search/Query/Preprocessing/Term.php';

@@ -5,16 +5,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class pendingAdminExpenseForm extends home_item
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct("pending_admin_expense_form", "Expense Forms Pending Admin Approval", "finance", "pendingAdminExpenseFormM.tpl", "narrow", 42);
     }
 
-    function visible()
+    public function visible()
     {
         $current_user = &singleton("current_user");
         if (isset($current_user) && $current_user->have_role("admin")) {
@@ -22,7 +21,7 @@ class pendingAdminExpenseForm extends home_item
         }
     }
 
-    function render()
+    public function render()
     {
         $ops = [];
         global $TPL;

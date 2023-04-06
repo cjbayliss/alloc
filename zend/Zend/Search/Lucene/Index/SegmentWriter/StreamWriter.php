@@ -43,7 +43,6 @@ class Zend_Search_Lucene_Index_SegmentWriter_StreamWriter extends Zend_Search_Lu
         parent::__construct($directory, $name);
     }
 
-
     /**
      * Create stored fields files and open them for write
      */
@@ -82,13 +81,14 @@ class Zend_Search_Lucene_Index_SegmentWriter_StreamWriter extends Zend_Search_Lu
         /** Zend_Search_Lucene_Index_SegmentInfo */
         require_once 'Zend/Search/Lucene/Index/SegmentInfo.php';
 
-        return new Zend_Search_Lucene_Index_SegmentInfo($this->_directory,
-                                                        $this->_name,
-                                                        $this->_docCount,
-                                                        -1,
-                                                        null,
-                                                        true,
-                                                        true);
+        return new Zend_Search_Lucene_Index_SegmentInfo(
+            $this->_directory,
+            $this->_name,
+            $this->_docCount,
+            -1,
+            null,
+            true,
+            true
+        );
     }
 }
-

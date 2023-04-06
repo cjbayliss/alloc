@@ -17,10 +17,10 @@ class tf extends db_entity
         "tfModifiedTime",
         "qpEmployeeNum",
         "quickenAccount",
-        "tfActive"
+        "tfActive",
     ];
 
-    function get_balance($where = [], $debug = "")
+    public function get_balance($where = [], $debug = "")
     {
         $tfID = null;
         $current_user = &singleton("current_user");
@@ -54,13 +54,13 @@ class tf extends db_entity
             $query .= " AND " . $column_name . $op . " '" . db_esc($value) . "'";
         }
 
-        #echo "<br>".$debug." q: ".$query;
+        // echo "<br>".$debug." q: ".$query;
         $db->query($query);
         $db->next_record() || alloc_error("TF $tfID not found in tf::get_balance");
         return $db->f("balance");
     }
 
-    function is_owner($person = "")
+    public function is_owner($person = "")
     {
         $current_user = &singleton("current_user");
         static $owners;
@@ -80,7 +80,7 @@ class tf extends db_entity
         return in_array($this->get_id(), (array)$owners[$person->get_id()]);
     }
 
-    function get_tfs_for_person($personID)
+    public function get_tfs_for_person($personID)
     {
         $owners = [];
         $query = unsafe_prepare("SELECT * FROM tfPerson WHERE personID=%d", $personID);
@@ -92,7 +92,7 @@ class tf extends db_entity
         return $owners;
     }
 
-    function get_nav_links()
+    public function get_nav_links()
     {
         global $TPL;
         $current_user = &singleton("current_user");
@@ -112,7 +112,7 @@ class tf extends db_entity
         return $nav_links;
     }
 
-    function get_link($ignored = false)
+    public function get_link($ignored = false)
     {
         $current_user = &singleton("current_user");
         global $TPL;
@@ -123,7 +123,7 @@ class tf extends db_entity
         }
     }
 
-    function get_name($tfID = false)
+    public function get_name($tfID = false)
     {
         if ($tfID) {
             $db = new db_alloc();
@@ -133,7 +133,7 @@ class tf extends db_entity
         }
     }
 
-    function get_tfID($name)
+    public function get_tfID($name)
     {
         $rtn = [];
         if ($name) {
@@ -155,7 +155,7 @@ class tf extends db_entity
         if ($current_user->have_role('admin')) {
             $rtn = $requested_tfs;
 
-            // If not admin, then remove the items from $requested_tfs that the user can't access
+        // If not admin, then remove the items from $requested_tfs that the user can't access
         } else {
             $allowed_tfs = (array)tf::get_tfs_for_person($current_user->get_id());
             foreach ((array)$requested_tfs as $tf) {
@@ -228,7 +228,6 @@ class tf extends db_entity
                 $pending_adds[$row["id"]] = $row["balance"];
             }
         }
-
 
         $q = unsafe_prepare("SELECT transaction.fromTfID as id, tf.tfName, transactionID, transaction.status,
                              sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance

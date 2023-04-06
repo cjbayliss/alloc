@@ -10,7 +10,7 @@ define("DEFAULT_SEP", "\n");
 class taskListPrint
 {
 
-    function get_printable_file($_FORM = [])
+    public function get_printable_file($_FORM = [])
     {
         $fields = [];
         $contact_info = [];
@@ -34,34 +34,33 @@ class taskListPrint
         $phone and $TPL["phone"] = "Ph: " . $phone;
         $fax and $TPL["fax"] = "Fax: " . $fax;
 
-
         $taskPriorities = config::get_config_item("taskPriorities");
         $projectPriorities = config::get_config_item("projectPriorities");
 
         // Add requested fields to pdf
         $_FORM["showEdit"] = false;
-        $fields["taskID"]               = "ID";
-        $fields["taskName"]             = "Task";
-        $_FORM["showProject"]     and $fields["projectName"]          = "Project";
+        $fields["taskID"] = "ID";
+        $fields["taskName"] = "Task";
+        $_FORM["showProject"] and $fields["projectName"] = "Project";
         $_FORM["showPriority"] || $_FORM["showPriorityFactor"]
-            and $fields["priorityFactor"]       = "Pri";
-        $_FORM["showPriority"]    and $fields["taskPriority"]         = "Task Pri";
-        $_FORM["showPriority"]    and $fields["projectPriority"]      = "Proj Pri";
-        $_FORM["showCreator"]     and $fields["creator_name"]         = "Creator";
-        $_FORM["showManager"]     and $fields["manager_name"]         = "Manager";
-        $_FORM["showAssigned"]    and $fields["assignee_name"]        = "Assigned To";
-        $_FORM["showDate1"]       and $fields["dateTargetStart"]      = "Targ Start";
-        $_FORM["showDate2"]       and $fields["dateTargetCompletion"] = "Targ Compl";
-        $_FORM["showDate3"]       and $fields["dateActualStart"]      = "Start";
-        $_FORM["showDate4"]       and $fields["dateActualCompletion"] = "Compl";
-        $_FORM["showDate5"]       and $fields["dateCreated"]          = "Created";
-        $_FORM["showTimes"]       and $fields["timeBestLabel"]        = "Best";
-        $_FORM["showTimes"]       and $fields["timeExpectedLabel"]    = "Likely";
-        $_FORM["showTimes"]       and $fields["timeWorstLabel"]       = "Worst";
-        $_FORM["showTimes"]       and $fields["timeActualLabel"]      = "Actual";
-        $_FORM["showTimes"]       and $fields["timeLimitLabel"]       = "Limit";
-        $_FORM["showPercent"]     and $fields["percentComplete"]      = "%";
-        $_FORM["showStatus"]      and $fields["taskStatusLabel"]      = "Status";
+            and $fields["priorityFactor"] = "Pri";
+        $_FORM["showPriority"] and $fields["taskPriority"] = "Task Pri";
+        $_FORM["showPriority"] and $fields["projectPriority"] = "Proj Pri";
+        $_FORM["showCreator"] and $fields["creator_name"] = "Creator";
+        $_FORM["showManager"] and $fields["manager_name"] = "Manager";
+        $_FORM["showAssigned"] and $fields["assignee_name"] = "Assigned To";
+        $_FORM["showDate1"] and $fields["dateTargetStart"] = "Targ Start";
+        $_FORM["showDate2"] and $fields["dateTargetCompletion"] = "Targ Compl";
+        $_FORM["showDate3"] and $fields["dateActualStart"] = "Start";
+        $_FORM["showDate4"] and $fields["dateActualCompletion"] = "Compl";
+        $_FORM["showDate5"] and $fields["dateCreated"] = "Created";
+        $_FORM["showTimes"] and $fields["timeBestLabel"] = "Best";
+        $_FORM["showTimes"] and $fields["timeExpectedLabel"] = "Likely";
+        $_FORM["showTimes"] and $fields["timeWorstLabel"] = "Worst";
+        $_FORM["showTimes"] and $fields["timeActualLabel"] = "Actual";
+        $_FORM["showTimes"] and $fields["timeLimitLabel"] = "Limit";
+        $_FORM["showPercent"] and $fields["percentComplete"] = "%";
+        $_FORM["showStatus"] and $fields["taskStatusLabel"] = "Status";
 
         $rows = task::get_list($_FORM);
         $taskListRows = [];
@@ -73,31 +72,30 @@ class taskListPrint
             $taskListRows[] = $row;
         }
 
-
         if ($_FORM["format"] != "html" && $_FORM["format"] != "html_plus") {
             // Build PDF document
             $font1 = ALLOC_MOD_DIR . "util/fonts/Helvetica.afm";
             $font2 = ALLOC_MOD_DIR . "util/fonts/Helvetica-Oblique.afm";
 
             $pdf_table_options = [
-                "showLines" => 0,
-                "shaded" => 0,
+                "showLines"    => 0,
+                "shaded"       => 0,
                 "showHeadings" => 0,
-                "xPos" => "left",
+                "xPos"         => "left",
                 "xOrientation" => "right",
-                "fontSize" => 10,
-                "rowGap" => 0,
-                "fontSize" => 10
+                "fontSize"     => 10,
+                "rowGap"       => 0,
+                "fontSize"     => 10,
             ];
             $pdf_table_options3 = [
-                "showLines" => 2,
-                "shaded" => 0,
-                "width" => 750,
-                "xPos" => "center",
-                "fontSize" => 10,
-                "lineCol" => [0.8, 0.8, 0.8],
-                "splitRows" => 1,
-                "protectRows" => 0
+                "showLines"   => 2,
+                "shaded"      => 0,
+                "width"       => 750,
+                "xPos"        => "center",
+                "fontSize"    => 10,
+                "lineCol"     => [0.8, 0.8, 0.8],
+                "splitRows"   => 1,
+                "protectRows" => 0,
             ];
 
             $pdf = new Cezpdf(null, 'landscape');
@@ -106,13 +104,13 @@ class taskListPrint
             $pdf->ezStartPageNumbers(436, 30, 10, 'center', 'Page {PAGENUM} of {TOTALPAGENUM}');
             $pdf->ezSetY(560);
 
-            $TPL["companyContactAddress"]  and $contact_info[] = [$TPL["companyContactAddress"]];
+            $TPL["companyContactAddress"] and $contact_info[] = [$TPL["companyContactAddress"]];
             $TPL["companyContactAddress2"] and $contact_info[] = [$TPL["companyContactAddress2"]];
             $TPL["companyContactAddress3"] and $contact_info[] = [$TPL["companyContactAddress3"]];
-            $TPL["companyContactEmail"]    and $contact_info[] = [$TPL["companyContactEmail"]];
+            $TPL["companyContactEmail"] and $contact_info[] = [$TPL["companyContactEmail"]];
             $TPL["companyContactHomePage"] and $contact_info[] = [$TPL["companyContactHomePage"]];
-            $TPL["phone"]                  and $contact_info[] = [$TPL["phone"]];
-            $TPL["fax"]                    and $contact_info[] = [$TPL["fax"]];
+            $TPL["phone"] and $contact_info[] = [$TPL["phone"]];
+            $TPL["fax"] and $contact_info[] = [$TPL["fax"]];
 
             $pdf->selectFont($font2);
             $y = $pdf->ezTable($contact_info, false, "", $pdf_table_options);
@@ -146,7 +144,7 @@ class taskListPrint
             $pdf->ezSetY($y - 20);
             $pdf->ezStream();
 
-            // Else HTML format
+        // Else HTML format
         } else {
             echo task::get_list_html($taskListRows, $_FORM);
         }

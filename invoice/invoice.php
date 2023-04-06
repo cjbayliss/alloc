@@ -28,7 +28,6 @@ function show_new_invoiceItem($template)
     $TPL["div3"] = " class=\"hidden\"";
     $TPL["div4"] = " class=\"hidden\"";
 
-
     if (is_object($invoice) && $invoice->get_value("invoiceStatus") == 'edit' && $current_user->have_role('admin')) {
         // If we are editing an existing invoiceItem
         if (is_array($_POST["invoiceItem_edit"])) {
@@ -57,7 +56,7 @@ function show_new_invoiceItem($template)
                 $TPL["sbs_link"] = "productSale_ii";
             }
 
-            // Else default values for creating a new invoiceItem
+        // Else default values for creating a new invoiceItem
         } else {
             $invoiceItem = new invoiceItem();
             $invoiceItem->set_values("invoiceItem_");
@@ -117,7 +116,6 @@ function show_new_invoiceItem($template)
                 $id = $invoiceItem->get_value("expenseFormID");
             }
             $TPL["expenseFormOptions"] = page::select_options($expenseFormOptions, $id, 90);
-
 
             $q = unsafe_prepare("SELECT *
                             FROM productSale
@@ -216,7 +214,6 @@ function show_invoiceItem_list()
                 continue;
             }
 
-
             if ($db2->f("transaction_status") == "approved") {
                 $one_approved = true;
             }
@@ -239,10 +236,8 @@ function show_invoiceItem_list()
             $br = "<br>";
         }
 
-
         $TPL["transaction_info"] = $transaction_info;
         $TPL["transaction_info"] .= $other_peoples_transactions;
-
 
         // Sets the background colour of the invoice item boxes based on transaction.status
         if (!$one_rejected && !$one_pending && $one_approved) {
@@ -278,8 +273,6 @@ function show_invoiceItem_list()
 
         $TPL["status_label"] or $TPL["status_label"] = "<b>[No Transactions Created]</b>";
 
-
-
         if ($invoice->get_value("invoiceStatus") == "reconcile") {
             if ($amounts[$invoiceItem->get_id()] === null) {
                 $amount = $invoiceItem->get_value("iiAmount", DST_HTML_DISPLAY);
@@ -303,12 +296,10 @@ function show_invoiceItem_list()
             }
             $selected_tfID or $selected_tfID = config::get_config_item("mainTfID");
 
-
-            #$tf_options = page::select_options($tf_array, $selected_tfID);
-            #$tf_options = "<select name=\"invoiceItemAmountPaidTfID[".$invoiceItem->get_id()."]\">".$tf_options."</select>";
-            #$TPL["invoiceItem_buttons"] = "<input size=\"8\" type=\"text\" id=\"ap_".$invoiceItem->get_id()."\" name=\"invoiceItemAmountPaid[".$invoiceItem->get_id()."]\" value=\"".$amount."\">";
-            #$TPL["invoiceItem_buttons"].= $tf_options;
-
+            // $tf_options = page::select_options($tf_array, $selected_tfID);
+            // $tf_options = "<select name=\"invoiceItemAmountPaidTfID[".$invoiceItem->get_id()."]\">".$tf_options."</select>";
+            // $TPL["invoiceItem_buttons"] = "<input size=\"8\" type=\"text\" id=\"ap_".$invoiceItem->get_id()."\" name=\"invoiceItemAmountPaid[".$invoiceItem->get_id()."]\" value=\"".$amount."\">";
+            // $TPL["invoiceItem_buttons"].= $tf_options;
 
             unset($radio_buttons);
             if ($current_user->have_role('admin')) {
@@ -329,12 +320,10 @@ function show_invoiceItem_list()
                 $radio_buttons .= " value=\"approved\"" . $sel["approved"] . ">";
                 $radio_buttons .= "</label>";
 
-
                 $TPL["invoiceItem_buttons_top"] = $radio_buttons;
                 $TPL["invoiceItem_buttons_top"] .= "&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" size=\"7\" name=\"invoiceItemAmountPaid[" . $invoiceItem->get_id() . "]\" value=\"" . $amount . "\">";
                 $TPL["invoiceItem_buttons_top"] .= "<input type=\"hidden\" name=\"invoiceItemAmountPaidTfID[" . $invoiceItem->get_id() . "]\" value=\"" . $selected_tfID . "\">";
             }
-
 
             unset($TPL["invoiceItem_buttons"]);
         } else if ($invoice->get_value("invoiceStatus") == "finished") {
@@ -407,9 +396,9 @@ function show_comments()
         $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
 
         $ops = [
-            "" => "Format as...",
-            "generate_pdf" => "PDF Invoice",
-            "generate_pdf_verbose" => "PDF Invoice - verbose"
+            ""                     => "Format as...",
+            "generate_pdf"         => "PDF Invoice",
+            "generate_pdf_verbose" => "PDF Invoice - verbose",
         ];
         $TPL["attach_extra_files"] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
         $TPL["attach_extra_files"] .= "Attach Invoice ";
@@ -423,14 +412,12 @@ $invoiceID = $_POST["invoiceID"] or $invoiceID = $_GET["invoiceID"];
 $db = new db_alloc();
 $invoice = new invoice();
 
-
 if ($invoiceID) {
     $invoice->set_id($invoiceID);
     $invoice->select();
     $invoice->set_values();
     $invoiceItemIDs = invoice::get_invoiceItems($invoiceID);
 }
-
 
 // If creating a new invoice
 if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBack"]) {
@@ -450,9 +437,8 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
     $currency or $currency = config::get_config_item("currency");
     $invoice->set_value("currencyTypeID", $currency);
 
-
     if (!$invoice->get_value("invoiceNum") || !is_numeric($invoice->get_value("invoiceNum"))) {
-        #alloc_error("Please enter a unique Invoice Number.");
+        // alloc_error("Please enter a unique Invoice Number.");
         $invoice->set_value("invoiceNum", invoice::get_next_invoiceNum());
     } else {
         $invoiceID and $invoiceID_sql = unsafe_prepare(" AND invoiceID != %d", $invoiceID);
@@ -519,8 +505,7 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
     $TPL["message_good"][] = "Invoice deleted.";
     alloc_redirect($TPL["url_alloc_invoiceList"]);
 
-
-    // Saving editing individual invoiceItems
+// Saving editing individual invoiceItems
 } else if (($_POST["invoiceItem_save"] || $_POST["invoiceItem_edit"] || $_POST["invoiceItem_delete"]) && $invoice->get_value("invoiceStatus") == "edit") {
     is_array($_POST["invoiceItem_edit"]) and $invoiceItemID = key($_POST["invoiceItem_edit"]);
     is_array($_POST["invoiceItem_delete"]) and $invoiceItemID = key($_POST["invoiceItem_delete"]);
@@ -528,11 +513,11 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
     $invoiceItem = new invoiceItem();
     $invoiceItem->currency = $invoice->get_value("currencyTypeID");
     $invoiceItem->set_id($invoiceItemID);
-    #echo $invoiceItem->get_id();
+    // echo $invoiceItem->get_id();
     $invoice->set_id($invoiceID);
     $invoice->select();
 
-    #echo "<pre>".print_r($_POST,1)."</pre>";
+    // echo "<pre>".print_r($_POST,1)."</pre>";
 
     $_POST["iiTax"] or $_POST["iiTax"] = '';
 
@@ -576,17 +561,12 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
     $invoice->set_id($invoiceID);
     $invoice->select();
 
-    // if someone uploads an attachment
+// if someone uploads an attachment
 } else if ($_POST["save_attachment"]) {
     move_attachment("invoice", $invoiceID);
     $TPL["message_good"][] = "Attachment saved.";
     alloc_redirect($TPL["url_alloc_invoice"] . "invoiceID=" . $invoiceID);
 }
-
-
-
-
-
 
 if ($invoiceID && $invoiceItemIDs) {
     $currency = $invoice->get_value("currencyTypeID");
@@ -611,7 +591,6 @@ if ($invoiceID && $invoiceItemIDs) {
     $db->next_record() and $TPL["invoiceTotalPaid"] = page::money($currency, $db->f("sum_transaction_amount"), "%S%m %c");
 }
 
-
 $invoice->set_values();
 
 $statii = invoice::get_invoice_statii();
@@ -631,19 +610,17 @@ foreach ($statii as $s => $label) {
     $sep = "&nbsp;&nbsp;|&nbsp;&nbsp;";
 }
 
-
-# if ($invoice->get_id() && is_dir(ATTACHMENTS_DIR."invoice".DIRECTORY_SEPARATOR.$invoice->get_id())) {
-#   $rows = get_attachments("invoice",$invoice->get_id());
-#   foreach ($rows as $arr) {
-#     if ($invoice->has_attachment_permission($current_user)) {
-#       $TPL["invoice_download"] .= $commar.$arr["file"]."&nbsp;&nbsp;".$arr["mtime"];
-#     } else {
-#       $TPL["invoice_download"] .= $commar.$arr["text"];
-#     }
-#     $commar = "<br>";
-#   }
-# }
-
+// if ($invoice->get_id() && is_dir(ATTACHMENTS_DIR."invoice".DIRECTORY_SEPARATOR.$invoice->get_id())) {
+//   $rows = get_attachments("invoice",$invoice->get_id());
+//   foreach ($rows as $arr) {
+//     if ($invoice->has_attachment_permission($current_user)) {
+//       $TPL["invoice_download"] .= $commar.$arr["file"]."&nbsp;&nbsp;".$arr["mtime"];
+//     } else {
+//       $TPL["invoice_download"] .= $commar.$arr["text"];
+//     }
+//     $commar = "<br>";
+//   }
+// }
 
 $TPL["field_invoiceNum"] = '<input type="text" name="invoiceNum" value="' . $TPL["invoiceNum"] . '">';
 $TPL["field_invoiceName"] = '<input type="text" name="invoiceName" value="' . $TPL["invoiceName"] . '">';
@@ -667,7 +644,6 @@ if ($invoice->get_value("tfID")) {
 }
 $tf_sel or $tf_sel = config::get_config_item("mainTfID");
 $tf_select = "<select id='tfID' name='tfID'>" . page::select_options($tf->get_assoc_array("tfID", "tfName"), $tf_sel) . "</select>";
-
 
 // Main invoice buttons
 if ($current_user->have_role('admin')) {
@@ -739,7 +715,6 @@ if (!$invoice->get_value("clientID")) {
     $TPL["field_tfID"] = $tf_select;
 }
 
-
 if (
     is_object($invoice) && $invoice->get_id()
     && ($invoice->get_value("invoiceStatus") == "reconcile" || $invoice->get_value("invoiceStatus") == "finished")
@@ -753,7 +728,6 @@ if ($invoiceID) {
 } else {
     $TPL["main_alloc_title"] = "New Invoice - " . APPLICATION_NAME;
 }
-
 
 $invoiceRepeat = new invoiceRepeat();
 if (is_object($invoice) && $invoice->get_id()) {
@@ -781,7 +755,6 @@ if (is_object($invoice) && $invoice->get_id()) {
                               <br>Click the Repeating Invoice link for more information.";
     }
 
-
     if ($invoice->get_value("invoiceRepeatID")) {
         $ir = new invoiceRepeat();
         $ir->set_id($invoice->get_value("invoiceRepeatID"));
@@ -796,7 +769,5 @@ if (is_object($invoice) && $invoice->get_id()) {
 }
 $TPL["invoice"] = $invoice;
 $TPL["invoiceRepeat"] = $invoiceRepeat;
-
-
 
 include_template("templates/invoiceM.tpl");

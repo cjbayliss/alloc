@@ -9,13 +9,13 @@ class task_list_home_item extends home_item
 {
     public $date;
 
-    function __construct()
+    public function __construct()
     {
         $this->has_config = true;
         parent::__construct("top_ten_tasks", "Tasks", "task", "taskListH.tpl", "standard", 20);
     }
 
-    function visible()
+    public function visible()
     {
         $current_user = &singleton("current_user");
 
@@ -28,7 +28,7 @@ class task_list_home_item extends home_item
         }
     }
 
-    function render()
+    public function render()
     {
         global $TPL;
 
@@ -38,7 +38,7 @@ class task_list_home_item extends home_item
             "taskView"        => "prioritised",
             "showStatus"      => "true",
             "url_form_action" => $TPL["url_alloc_home"],
-            "form_name"       => "taskListHome_filter"
+            "form_name"       => "taskListHome_filter",
         ];
 
         $current_user = &singleton("current_user");

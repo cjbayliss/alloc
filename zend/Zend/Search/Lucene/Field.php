@@ -21,7 +21,6 @@
  * @version    $Id: Field.php 24168 2011-06-29 23:16:48Z adamlundrigan $
  */
 
-
 /**
  * A field is a section of a Document.  Each field has two parts,
  * a name and a value. Values may be free text or they may be atomic
@@ -57,14 +56,14 @@ class Zend_Search_Lucene_Field
      *
      * @var boolean
      */
-    public $isStored    = false;
+    public $isStored = false;
 
     /**
      * Field is to be indexed, so that it may be searched on.
      *
      * @var boolean
      */
-    public $isIndexed   = true;
+    public $isIndexed = true;
 
     /**
      * Field should be tokenized as text prior to indexing.
@@ -77,7 +76,7 @@ class Zend_Search_Lucene_Field
      *
      * @var boolean
      */
-    public $isBinary    = false;
+    public $isBinary = false;
 
     /**
      * Field are stored as a term vector
@@ -114,25 +113,24 @@ class Zend_Search_Lucene_Field
      */
     public function __construct($name, $value, $encoding, $isStored, $isIndexed, $isTokenized, $isBinary = false)
     {
-        $this->name  = $name;
+        $this->name = $name;
         $this->value = $value;
 
         if (!$isBinary) {
-            $this->encoding    = $encoding;
+            $this->encoding = $encoding;
             $this->isTokenized = $isTokenized;
         } else {
-            $this->encoding    = '';
+            $this->encoding = '';
             $this->isTokenized = false;
         }
 
-        $this->isStored  = $isStored;
+        $this->isStored = $isStored;
         $this->isIndexed = $isIndexed;
-        $this->isBinary  = $isBinary;
+        $this->isBinary = $isBinary;
 
         $this->storeTermVector = false;
-        $this->boost           = 1.0;
+        $this->boost = 1.0;
     }
-
 
     /**
      * Constructs a String-valued Field that is not tokenized, but is indexed
@@ -148,7 +146,6 @@ class Zend_Search_Lucene_Field
         return new self($name, $value, $encoding, true, true, false);
     }
 
-
     /**
      * Constructs a String-valued Field that is not tokenized nor indexed,
      * but is stored in the index, for return with hits.
@@ -162,7 +159,6 @@ class Zend_Search_Lucene_Field
     {
         return new self($name, $value, $encoding, true, false, false);
     }
-
 
     /**
      * Constructs a Binary String valued Field that is not tokenized nor indexed,
@@ -193,7 +189,6 @@ class Zend_Search_Lucene_Field
         return new self($name, $value, $encoding, true, true, true);
     }
 
-
     /**
      * Constructs a String-valued Field that is tokenized and indexed,
      * but that is not stored in the index.
@@ -216,7 +211,7 @@ class Zend_Search_Lucene_Field
     public function getUtf8Value()
     {
         if (
-            strcasecmp($this->encoding, 'utf8') == 0  ||
+            strcasecmp($this->encoding, 'utf8') == 0 ||
             strcasecmp($this->encoding, 'utf-8') == 0
         ) {
             return $this->value;

@@ -47,7 +47,6 @@ class Zend_Search_Lucene_Search_QueryEntry_Phrase extends Zend_Search_Lucene_Sea
      */
     private $_field;
 
-
     /**
      * Proximity phrase query
      *
@@ -62,7 +61,6 @@ class Zend_Search_Lucene_Search_QueryEntry_Phrase extends Zend_Search_Lucene_Sea
      */
     private $_wordsDistance = 0;
 
-
     /**
      * Object constractor
      *
@@ -72,7 +70,7 @@ class Zend_Search_Lucene_Search_QueryEntry_Phrase extends Zend_Search_Lucene_Sea
     public function __construct($phrase, $field)
     {
         $this->_phrase = $phrase;
-        $this->_field  = $field;
+        $this->_field = $field;
     }
 
     /**

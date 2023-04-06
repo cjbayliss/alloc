@@ -63,9 +63,6 @@ if ($timeSheet->get_id()) {
 
 $transaction->set_values();
 
-
-
-
 if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
     /*
   if ($transaction->get_value("status") != "pending") {
@@ -75,16 +72,16 @@ if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
     $transaction->read_globals();
 
     // Tweaked validation to allow reporting of multiple errors
-    $transaction->get_value("amount")          or alloc_error("You must enter a valid amount");
+    $transaction->get_value("amount") or alloc_error("You must enter a valid amount");
     $transaction->get_value("transactionDate") or alloc_error("You must enter a date for the transaction");
-    $transaction->get_value("product")         or alloc_error("You must enter a product");
-    $transaction->get_value("status")          or alloc_error("You must set the status of the transaction");
-    $transaction->get_value("fromTfID")        or alloc_error("You must select a Source Tagged Fund to take this transaction from");
-    $transaction->get_value("tfID")            or alloc_error("You must select a Destination Tagged Fund to add this transaction against");
+    $transaction->get_value("product") or alloc_error("You must enter a product");
+    $transaction->get_value("status") or alloc_error("You must set the status of the transaction");
+    $transaction->get_value("fromTfID") or alloc_error("You must select a Source Tagged Fund to take this transaction from");
+    $transaction->get_value("tfID") or alloc_error("You must select a Destination Tagged Fund to add this transaction against");
     $transaction->get_value("transactionType") or alloc_error("You must set a transaction type");
-    $transaction->get_value("currencyTypeID")  or alloc_error("You must set a transaction currency");
-    #$transaction->get_value("projectID")       or alloc_error("You must select a project");
-    #$transaction->get_value("companyDetails")  or alloc_error("You must enter the company details");
+    $transaction->get_value("currencyTypeID") or alloc_error("You must set a transaction currency");
+    // $transaction->get_value("projectID")       or alloc_error("You must select a project");
+    // $transaction->get_value("companyDetails")  or alloc_error("You must enter the company details");
 
     if (!count($TPL["message"])) {
         $transaction->set_value("amount", str_replace(["$", ","], "", $transaction->get_value("amount")));
@@ -126,7 +123,6 @@ $options = $tf->get_assoc_array("tfID", "tfName");
 // Special cases for the current tfID and fromTfID
 $options = add_tf($transaction->get_value("tfID"), $options, "tfIDWarning", " (warning: the TF <b>%s</b> is currently inactive)");
 $options = add_tf($transaction->get_value("fromTfID"), $options, "fromTfIDWarning", " (warning: the TF <b>%s</b> is currently inactive)");
-
 
 $TPL["tfIDOptions"] = page::select_options($options, $transaction->get_value("tfID"));
 $TPL["fromTfIDOptions"] = page::select_options($options, $transaction->get_value("fromTfID"));

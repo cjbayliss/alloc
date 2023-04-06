@@ -9,15 +9,13 @@ require_once("../alloc.php");
 
 $db = new db_alloc();
 
-# End of functions
+// End of functions
 
 if (!$current_user->have_role("god")) {
     alloc_error("Insufficient permissions. Backups may only be performed by super-users.", true);
 }
 
 $backup = new backups();
-
-
 
 if ($_POST["create_backup"]) {
     $backup->backup();
@@ -34,7 +32,7 @@ if ($_POST["restore_backup"]) {
 }
 
 if ($_POST["delete_backup"]) {
-    # Can't go through the normal del_attachments thing because this isn't a real entity
+    // Can't go through the normal del_attachments thing because this isn't a real entity
 
     $file = $_POST["file"];
 
@@ -55,7 +53,6 @@ if ($_POST["delete_backup"]) {
 if ($_POST["save_attachment"]) {
     move_attachment("backups", 0);
 }
-
 
 $TPL["main_alloc_title"] = "Database Backups - " . APPLICATION_NAME;
 include_template("templates/backupM.tpl");

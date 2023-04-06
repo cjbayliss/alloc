@@ -24,7 +24,6 @@
 /** Zend_Search_Lucene_Index_TermsStream_Interface */
 require_once 'Zend/Search/Lucene/Index/TermsStream/Interface.php';
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene
@@ -54,7 +53,6 @@ class Zend_Search_Lucene_TermStreamsPriorityQueue implements Zend_Search_Lucene_
      * @var Zend_Search_Lucene_Index_Term
      */
     protected $_lastTerm = null;
-
 
     /**
      * Object constructor
@@ -170,6 +168,6 @@ class Zend_Search_Lucene_TermStreamsPriorityQueue implements Zend_Search_Lucene_
         }
 
         $this->_termsStreamQueue = null;
-        $this->_lastTerm         = null;
+        $this->_lastTerm = null;
     }
 }

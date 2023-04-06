@@ -21,10 +21,8 @@
  * @version    $Id: Default.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Search_Similarity */
 require_once 'Zend/Search/Lucene/Search/Similarity.php';
-
 
 /**
  * @category   Zend

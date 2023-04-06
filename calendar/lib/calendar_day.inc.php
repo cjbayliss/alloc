@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class calendar_day
 {
     public $date;          // Y-m-d
@@ -18,11 +17,11 @@ class calendar_day
     public $complete_tasks = [];
     public $reminders = [];
 
-    function __construct()
+    public function __construct()
     {
     }
 
-    function set_date($date)
+    public function set_date($date)
     {
         $this->date = $date;
         $this->day = format_date("D", $date);
@@ -31,18 +30,18 @@ class calendar_day
         if ($this->date == date("Y-m-d")) {
             $this->class = "today";
 
-            // Toggle every second month to have slightly different coloured shading
+        // Toggle every second month to have slightly different coloured shading
         } else if (date("n", format_date("U", $this->date)) % 2 == 0) {
             $this->class = "even";
         }
     }
 
-    function set_links($links)
+    public function set_links($links)
     {
         $this->links = $links;
     }
 
-    function draw_day_html()
+    public function draw_day_html()
     {
         $rows = [];
         global $TPL;

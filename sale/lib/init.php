@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
 class sale_module extends module
 {
     public $module = "sale";
@@ -13,7 +12,7 @@ class sale_module extends module
         "product",
         "productCost",
         "productSale",
-        "productSaleItem"
+        "productSaleItem",
     ];
     public $home_items = ["saleListHomeItemAdmin", "saleListHomeItem"];
 }

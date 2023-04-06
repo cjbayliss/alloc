@@ -16,7 +16,7 @@ class audit extends db_entity
         "personID",
         "dateChanged",
         "field",
-        "value"
+        "value",
     ];
 
     /**
@@ -74,16 +74,16 @@ class audit extends db_entity
     public static function get_list_filter($filter)
     {
         $sql = [];
-        $filter["taskID"]    and $sql[] = unsafe_prepare("(taskID = %d)", $filter["taskID"]);
+        $filter["taskID"] and $sql[] = unsafe_prepare("(taskID = %d)", $filter["taskID"]);
         $filter["projectID"] and $sql[] = unsafe_prepare("(projectID = %d)", $filter["projectID"]);
         return $sql;
     }
 
-    function get_list_vars()
+    public function get_list_vars()
     {
         return [
             "taskID"    => "The task id to find audit records for",
-            "projectID" => "The project id to find audit records for"
+            "projectID" => "The project id to find audit records for",
         ];
     }
 }

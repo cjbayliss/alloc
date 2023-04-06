@@ -12,9 +12,6 @@ $current_user->check_employee();
 $TPL["main_alloc_title"] = "Item Loans - " . APPLICATION_NAME;
 include_template("templates/itemLoanM.tpl");
 
-
-
-
 function show_overdue($template_name)
 {
 

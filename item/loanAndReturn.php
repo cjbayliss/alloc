@@ -12,7 +12,6 @@ $current_user->check_employee();
 $TPL["main_alloc_title"] = "Item Loans - " . APPLICATION_NAME;
 include_template("templates/loanAndReturnM.tpl");
 
-
 function show_items($template_name)
 {
     $i = null;
@@ -29,10 +28,8 @@ function show_items($template_name)
 
     $db->query("select * from item order by itemName");
 
-
     while ($db->next_record()) {
         $i++;
-
 
         $item = new item();
         $item->read_db_record($db);
@@ -53,14 +50,12 @@ function show_items($template_name)
                     $ret = "Return";
                 }
 
-
                 $TPL["itemAction"] = "<td><a href=\"" . $TPL["url_alloc_item"]
                     . "itemID=" . $TPL["itemID"]
                     . "&return=true\">$ret</a></td>";
             } else {                  // if you don't have permission to borrow or return item.
                 $TPL["itemAction"] = "<td>&nbsp;</td>";
             }
-
 
             $TPL["status"] = "Due " . $loan->get_value("dateToBeReturned");
             $dbUsername->query("select username from person where personID=" . $loan->get_value("personID"));
@@ -72,7 +67,6 @@ function show_items($template_name)
             $TPL["itemAction"] = "<td><a href=\"" . $TPL["url_alloc_item"] . "itemID=" . $TPL["itemID"] . "&borrow=true\">Borrow</a></td>";
             $TPL["dueBack"] = "";
         }
-
 
         $loan->set_values();
         $item->set_values();

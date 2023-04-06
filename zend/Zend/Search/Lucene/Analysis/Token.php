@@ -21,7 +21,6 @@
  * @version    $Id: Token.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene
@@ -76,7 +75,6 @@ class Zend_Search_Lucene_Analysis_Token
      */
     private $_positionIncrement;
 
-
     /**
      * Object constructor
      *
@@ -87,13 +85,12 @@ class Zend_Search_Lucene_Analysis_Token
      */
     public function __construct($text, $start, $end)
     {
-        $this->_termText    = $text;
+        $this->_termText = $text;
         $this->_startOffset = $start;
-        $this->_endOffset   = $end;
+        $this->_endOffset = $end;
 
         $this->_positionIncrement = 1;
     }
-
 
     /**
      * positionIncrement setter

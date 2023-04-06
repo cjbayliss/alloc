@@ -24,7 +24,6 @@
 /** Zend_Search_Lucene_Search_QueryToken */
 require_once 'Zend/Search/Lucene/Search/QueryToken.php';
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene
@@ -60,11 +59,10 @@ class Zend_Search_Lucene_Search_QueryParserContext
      */
     private $_nextEntrySign = null;
 
-
     /**
      * Entries grouping mode
      */
-    const GM_SIGNS   = 0;  // Signs mode: '+term1 term2 -term3 +(subquery1) -(subquery2)'
+    const GM_SIGNS = 0;  // Signs mode: '+term1 term2 -term3 +(subquery1) -(subquery2)'
     const GM_BOOLEAN = 1;  // Boolean operators mode: 'term1 and term2  or  (subquery1) and not (subquery2)'
 
     /**
@@ -98,7 +96,6 @@ class Zend_Search_Lucene_Search_QueryParserContext
      */
     private $_encoding;
 
-
     /**
      * Context object constructor
      *
@@ -107,10 +104,9 @@ class Zend_Search_Lucene_Search_QueryParserContext
      */
     public function __construct($encoding, $defaultField = null)
     {
-        $this->_encoding     = $encoding;
+        $this->_encoding = $encoding;
         $this->_defaultField = $defaultField;
     }
-
 
     /**
      * Get context default field
@@ -131,7 +127,6 @@ class Zend_Search_Lucene_Search_QueryParserContext
     {
         $this->_nextEntryField = $field;
     }
-
 
     /**
      * Set sign for next entry
@@ -158,7 +153,6 @@ class Zend_Search_Lucene_Search_QueryParserContext
         }
     }
 
-
     /**
      * Add entry to a query
      *
@@ -173,9 +167,8 @@ class Zend_Search_Lucene_Search_QueryParserContext
         $this->_entries[] = $entry;
 
         $this->_nextEntryField = null;
-        $this->_nextEntrySign  = null;
+        $this->_nextEntrySign = null;
     }
-
 
     /**
      * Process fuzzy search or proximity search modifier
@@ -185,7 +178,7 @@ class Zend_Search_Lucene_Search_QueryParserContext
     public function processFuzzyProximityModifier($parameter = null)
     {
         // Check, that modifier has came just after word or phrase
-        if ($this->_nextEntryField !== null  ||  $this->_nextEntrySign !== null) {
+        if ($this->_nextEntryField !== null || $this->_nextEntrySign !== null) {
             require_once 'Zend/Search/Lucene/Search/QueryParserException.php';
             throw new Zend_Search_Lucene_Search_QueryParserException('\'~\' modifier must follow word or phrase.');
         }
@@ -211,7 +204,7 @@ class Zend_Search_Lucene_Search_QueryParserContext
     public function boost($boostFactor)
     {
         // Check, that modifier has came just after word or phrase
-        if ($this->_nextEntryField !== null  ||  $this->_nextEntrySign !== null) {
+        if ($this->_nextEntryField !== null || $this->_nextEntrySign !== null) {
             require_once 'Zend/Search/Lucene/Search/QueryParserException.php';
             throw new Zend_Search_Lucene_Search_QueryParserException('\'^\' modifier must follow word, phrase or subquery.');
         }
@@ -246,7 +239,6 @@ class Zend_Search_Lucene_Search_QueryParserContext
         $this->_entries[] = $operator;
     }
 
-
     /**
      * Generate 'signs style' query from the context
      * '+term1 term2 -term3 +(<subquery1>) ...'
@@ -273,7 +265,6 @@ class Zend_Search_Lucene_Search_QueryParserContext
 
         return $query;
     }
-
 
     /**
      * Generate 'boolean style' query from the context
@@ -347,7 +338,6 @@ class Zend_Search_Lucene_Search_QueryParserContext
             }
         }
 
-
         $subqueries = [];
         foreach ($conjuctions as  $conjuction) {
             // Check, if it's a one term conjuction
@@ -373,7 +363,6 @@ class Zend_Search_Lucene_Search_QueryParserContext
         if (count($subqueries) == 1) {
             return $subqueries[0];
         }
-
 
         require_once 'Zend/Search/Lucene/Search/Query/Boolean.php';
         $query = new Zend_Search_Lucene_Search_Query_Boolean();

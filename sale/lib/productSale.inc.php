@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 define("PERM_APPROVE_PRODUCT_TRANSACTIONS", 256);
 class productSale extends db_entity
 {
@@ -24,11 +23,11 @@ class productSale extends db_entity
         "productSaleModifiedUser",
         "productSaleDate",
         "extRef",
-        "extRefDate"
+        "extRefDate",
     ];
     public $permissions = [PERM_APPROVE_PRODUCT_TRANSACTIONS => "approve product transactions"];
 
-    function validate()
+    public function validate()
     {
         $rtn = [];
         if ($this->get_value("status") == "admin" || $this->get_value("status") == "finished") {
@@ -57,7 +56,7 @@ class productSale extends db_entity
         return parent::validate($rtn);
     }
 
-    function is_owner($ignored = null)
+    public function is_owner($ignored = null)
     {
         $current_user = &singleton("current_user");
         return !$this->get_id()
@@ -65,7 +64,7 @@ class productSale extends db_entity
             || $this->get_value("personID") == $current_user->get_id();
     }
 
-    function delete()
+    public function delete()
     {
         $db = new db_alloc();
         $query = unsafe_prepare(
@@ -84,7 +83,7 @@ class productSale extends db_entity
         return parent::delete();
     }
 
-    function translate_meta_tfID($tfID = "")
+    public function translate_meta_tfID($tfID = "")
     {
         // The special -1 and -2 tfID's represent META TF, i.e. calculated at runtime
         // -1 == META: Project TF
@@ -99,7 +98,7 @@ class productSale extends db_entity
                 alloc_error("Unable to use META: Project TF. Please ensure the project has a TF set, or adjust the transactions.");
             }
 
-            // -2 == META: Salesperson TF
+        // -2 == META: Salesperson TF
         } else if ($tfID == -2) {
             if ($this->get_value("personID")) {
                 $person = new person();
@@ -119,7 +118,7 @@ class productSale extends db_entity
         return $tfID;
     }
 
-    function get_productSaleItems()
+    public function get_productSaleItems()
     {
         $q = unsafe_prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $this->get_id());
         $db = new db_alloc();
@@ -131,7 +130,7 @@ class productSale extends db_entity
         return $rows;
     }
 
-    function get_amounts()
+    public function get_amounts()
     {
 
         $show = null;
@@ -147,9 +146,9 @@ class productSale extends db_entity
         foreach ($rows as $row) {
             $productSaleItem = new productSaleItem();
             $productSaleItem->read_row_record($row);
-            //$rtn["total_spent"] += $productSaleItem->get_amount_spent();
-            //$rtn["total_earnt"] += $productSaleItem->get_amount_earnt();
-            //$rtn["total_other"] += $productSaleItem->get_amount_other();
+            // $rtn["total_spent"] += $productSaleItem->get_amount_spent();
+            // $rtn["total_earnt"] += $productSaleItem->get_amount_earnt();
+            // $rtn["total_other"] += $productSaleItem->get_amount_other();
             list($sp, $spcur) = [$productSaleItem->get_value("sellPrice"), $productSaleItem->get_value("sellPriceCurrencyTypeID")];
 
             $sellPriceCurr[$spcur] += page::money($spcur, $sp, "%m");
@@ -179,7 +178,7 @@ class productSale extends db_entity
         return $rtn;
     }
 
-    function create_transactions()
+    public function create_transactions()
     {
         $rows = $this->get_productSaleItems();
         $rows or $rows = [];
@@ -191,7 +190,7 @@ class productSale extends db_entity
         }
     }
 
-    function delete_transactions()
+    public function delete_transactions()
     {
         $rows = $this->get_productSaleItems();
         $rows or $rows = [];
@@ -203,7 +202,7 @@ class productSale extends db_entity
         }
     }
 
-    function move_forwards()
+    public function move_forwards()
     {
         $taskDesc = [];
         $extra = null;
@@ -217,7 +216,6 @@ class productSale extends db_entity
         $status = $this->get_value("status");
         $db = new db_alloc();
 
-
         if ($this->get_value("clientID")) {
             $c = $this->get_foreign_object("client");
             $extra = " for " . $c->get_value("clientName");
@@ -229,7 +227,6 @@ class productSale extends db_entity
         $taskname3 = "Sale " . $this->get_id() . ": pay the supplier";
         $taskname4 = "Sale " . $this->get_id() . ": deliver the goods / action the work";
         $cyberadmin = 59;
-
 
         $taskDesc[] = "Sale items:";
         $taskDesc[] = "";
@@ -294,14 +291,14 @@ class productSale extends db_entity
                 $p2->set_id(67);
                 $p2->select();
                 $recipients[$p1->get_value("emailAddress")] = [
-                    "name" => $p1->get_name(),
-                    "addIP" => true,
-                    "internal" => true
+                    "name"     => $p1->get_name(),
+                    "addIP"    => true,
+                    "internal" => true,
                 ];
                 $recipients[$p2->get_value("emailAddress")] = [
-                    "name" => $p2->get_name(),
-                    "addIP" => true,
-                    "internal" => true
+                    "name"     => $p2->get_name(),
+                    "addIP"    => true,
+                    "internal" => true,
                 ];
 
                 $comment = $p2->get_name() . ",\n\n" . $taskname1 . "\n\n" . $taskDesc;
@@ -421,7 +418,7 @@ class productSale extends db_entity
         }
     }
 
-    function get_transactions($productSaleItemID = false)
+    public function get_transactions($productSaleItemID = false)
     {
         $done = null;
         $rows = [];
@@ -455,7 +452,7 @@ class productSale extends db_entity
         return $rows;
     }
 
-    function move_backwards()
+    public function move_backwards()
     {
         $current_user = &singleton("current_user");
 
@@ -495,7 +492,7 @@ class productSale extends db_entity
             "personID",
             "tfID",
             "productSaleCreatedUser",
-            "productSaleModifiedUser"
+            "productSaleModifiedUser",
         ];
         foreach ($id_fields as $f) {
             $filter[$f] and $sql[] = sprintf_implode("productSale." . $f . " = %d", $filter[$f]);
@@ -546,7 +543,7 @@ class productSale extends db_entity
         return (array)$rows;
     }
 
-    function get_link($row = [])
+    public function get_link($row = [])
     {
         global $TPL;
         if (is_object($this)) {
@@ -559,15 +556,15 @@ class productSale extends db_entity
     public static function get_statii()
     {
         return [
-            "create" => "Create",
-            "edit" => "Add Sale Items",
+            "create"   => "Create",
+            "edit"     => "Add Sale Items",
             "allocate" => "Allocate",
-            "admin" => "Administrator",
-            "finished" => "Completed"
+            "admin"    => "Administrator",
+            "finished" => "Completed",
         ];
     }
 
-    function get_all_parties($projectID = "")
+    public function get_all_parties($projectID = "")
     {
         $db = new db_alloc();
         $interestedPartyOptions = [];
@@ -592,9 +589,9 @@ class productSale extends db_entity
                 $p->set_id($this->get_value("personID"));
                 $p->select();
                 $p->get_value("emailAddress") and $interestedPartyOptions[$p->get_value("emailAddress")] = [
-                    "name" => $p->get_name(),
+                    "name"     => $p->get_name(),
                     "selected" => true,
-                    "personID" => $this->get_value("personID")
+                    "personID" => $this->get_value("personID"),
                 ];
             }
             if ($this->get_value("productSaleCreatedUser")) {
@@ -602,9 +599,9 @@ class productSale extends db_entity
                 $p->set_id($this->get_value("productSaleCreatedUser"));
                 $p->select();
                 $p->get_value("emailAddress") and $interestedPartyOptions[$p->get_value("emailAddress")] = [
-                    "name" => $p->get_name(),
+                    "name"     => $p->get_name(),
                     "selected" => true,
-                    "personID" => $this->get_value("productSaleCreatedUser")
+                    "personID" => $this->get_value("productSaleCreatedUser"),
                 ];
             }
             $this_id = $this->get_id();
@@ -614,7 +611,7 @@ class productSale extends db_entity
         return $interestedPartyOptions;
     }
 
-    function get_list_vars()
+    public function get_list_vars()
     {
         return [
             "return"          => "[MANDATORY] eg: array | html",
@@ -627,11 +624,11 @@ class productSale extends db_entity
             "url_form_action" => "The submit action for the filter form",
             "form_name"       => "The name of this form, i.e. a handle for referring to this saved form",
             "dontSave"        => "Specify that the filter preferences should not be saved this time",
-            "applyFilter"     => "Saves this filter as the persons preference"
+            "applyFilter"     => "Saves this filter as the persons preference",
         ];
     }
 
-    function load_form_data($defaults = [])
+    public function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
 
@@ -655,7 +652,7 @@ class productSale extends db_entity
         return $_FORM;
     }
 
-    function load_productSale_filter($_FORM)
+    public function load_productSale_filter($_FORM)
     {
         $filter = null;
         $rtn = [];
@@ -690,7 +687,6 @@ class productSale extends db_entity
         // display the date from filter value
         $rtn["showAllProjects"] = $_FORM["showAllProjects"];
 
-
         $options["clientStatus"] = ["Current"];
         $options["return"] = "dropdown_options";
         $ops = client::get_list($options);
@@ -703,7 +699,7 @@ class productSale extends db_entity
         return $rtn;
     }
 
-    function get_list_html($rows = [], $_FORM = [])
+    public function get_list_html($rows = [], $_FORM = [])
     {
         global $TPL;
         $TPL["productSaleListRows"] = $rows;

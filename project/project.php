@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 require_once("../alloc.php");
 
 function show_attachments()
@@ -270,11 +269,11 @@ function show_comments()
     $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
 
     $ops = [
-        "" => "Format as...",
-        "pdf" => "PDF",
-        "pdf_plus" => "PDF+",
-        "html" => "HTML",
-        "html_plus" => "HTML+"
+        ""          => "Format as...",
+        "pdf"       => "PDF",
+        "pdf_plus"  => "PDF+",
+        "html"      => "HTML",
+        "html_plus" => "HTML+",
     ];
 
     $TPL["attach_extra_files"] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
@@ -298,7 +297,7 @@ function show_tasks()
     $options["showStatus"] = true;
     $options["showManager"] = true;
     $options["showDates"] = true;
-    #$options["showTimes"] = true; // performance hit
+    // $options["showTimes"] = true; // performance hit
     $options["return"] = "html";
     // $TPL["taskListRows"] is used for the budget estimatation outside of this function
     $options = ace_augment("project_page_task_list_options", $options);
@@ -325,8 +324,6 @@ if ($projectID) {
 } else {
     $new_project = true;
 }
-
-
 
 if ($_POST["save"]) {
     $project->read_globals();
@@ -379,7 +376,7 @@ if ($_POST["save"]) {
     $project->delete();
     alloc_redirect($TPL["url_alloc_projectList"]);
 
-    // If they are creating a new project that is based on an existing one
+// If they are creating a new project that is based on an existing one
 } else if ($_POST["copy_project_save"] && $_POST["copy_projectID"] && $_POST["copy_project_name"]) {
     $p = new project();
     $p->set_id($_POST["copy_projectID"]);
@@ -432,7 +429,7 @@ if ($projectID) {
             $pp = new projectPerson();
             $pp->read_db_record($db);
             $delete[] = $pp->get_id();
-            #$pp->delete(); // need to delete them after, cause we'll accidently wipe out the current user
+            // $pp->delete(); // need to delete them after, cause we'll accidently wipe out the current user
         }
 
         if (is_array($_POST["person_personID"])) {
@@ -487,13 +484,11 @@ if ($projectID) {
 // Comments
 $TPL["comment_buttons"] = "<input type=\"submit\" name=\"comment_save\" value=\"Save Comment\">";
 
-
 // if someone uploads an attachment
 if ($_POST["save_attachment"]) {
     move_attachment("project", $projectID);
     alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $projectID . "&sbs_link=attachments");
 }
-
 
 $project->set_values("project_");
 
@@ -553,7 +548,6 @@ if ($clientID) {
     $TPL["clientDetails"] .= "</table>";
 }
 
-
 $db->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile, interestedPartyActive
                       FROM interestedParty
                  LEFT JOIN clientContact ON interestedParty.clientContactID = clientContact.clientContactID
@@ -568,8 +562,6 @@ while ($db->next_record()) {
 }
 
 $TPL["interestedPartyOptions"] = $project->get_cc_list_select();
-
-
 
 $TPL["clientContactDropdown"] = "<input type=\"hidden\" name=\"clientContactID\" value=\"" . $project->get_value("clientContactID") . "\">";
 $TPL["clientHidden"] = "<input type=\"hidden\" id=\"clientID\" name=\"clientID\" value=\"" . $clientID . "\">";
@@ -600,13 +592,12 @@ if (is_object($project) && $project->get_id()) {
             $cost_remaining = $hourly_rate * $time_remaining;
 
             if ($cost_remaining > 0) {
-                #echo "<br>Tally: ".$TPL["cost_remaining"] += $cost_remaining;
+                // echo "<br>Tally: ".$TPL["cost_remaining"] += $cost_remaining;
                 $TPL["cost_remaining"] += $cost_remaining;
                 $TPL["time_remaining"] += $time_remaining;
             }
             $t["timeLimit"] and $count_quoted_tasks++;
         }
-
 
         $TPL["time_remaining"] and $TPL["time_remaining"] = sprintf("%0.1f", $TPL["time_remaining"]) . " Hours.";
 
@@ -614,7 +605,6 @@ if (is_object($project) && $project->get_id()) {
         $not_quoted = count($TPL["taskListRows"]) - $count_quoted_tasks;
         $not_quoted and $TPL["count_not_quoted_tasks"] = "(" . sprintf("%d", $not_quoted) . " tasks not included in estimate)";
     }
-
 
     $TPL["invoice_links"] .= "<a href=\"" . $TPL["url_alloc_invoice"] . "clientID=" . $clientID . "&projectID=" . $project->get_id() . "\">New Invoice</a>";
 }
@@ -642,15 +632,15 @@ if ($TPL["project_cost_centre_tfID"]) {
 
 $query = unsafe_prepare("SELECT roleName,roleID FROM role WHERE roleLevel = 'project' ORDER BY roleSequence");
 $db->query($query);
-#$project_person_role_array[] = "";
+// $project_person_role_array[] = "";
 while ($db->next_record()) {
     $project_person_role_array[$db->f("roleID")] = $db->f("roleName");
 }
 
 $email_type_array = [
-    "None" => "None",
+    "None"           => "None",
     "Assigned Tasks" => "Assigned Tasks",
-    "All Tasks" => "All Tasks"
+    "All Tasks"      => "All Tasks",
 ];
 
 $t = new meta("currencyType");
@@ -672,7 +662,6 @@ foreach ($projectPriorities as $key => $arr) {
 }
 $TPL["projectPriority_options"] = page::select_options($tp, $TPL["project_projectPriority"]);
 $TPL["project_projectPriority"] and $TPL["priorityLabel"] = " <div style=\"display:inline; color:" . $projectPriorities[$TPL["project_projectPriority"]]["colour"] . "\">[" . $tp[$TPL["project_projectPriority"]] . "]</div>";
-
 
 $TPL["defaultTimeSheetRate"] = $project->get_value("defaultTimeSheetRate");
 $TPL["defaultTimeSheetUnit_options"] = page::select_options($rate_type_array, $project->get_value("defaultTimeSheetRateUnitID"));
@@ -725,7 +714,7 @@ DONE;
 } else {
     $TPL["main_alloc_title"] = "Project " . $project->get_id() . ": " . $project->get_name() . " - " . APPLICATION_NAME;
     $TPL["projectSelfLink"] = "<a href=\"" . $project->get_url() . "\">";
-    $TPL["projectSelfLink"] .=  sprintf("%d %s", $project->get_id(), $project->get_name(["return" => "html"]));
+    $TPL["projectSelfLink"] .= sprintf("%d %s", $project->get_id(), $project->get_name(["return" => "html"]));
     $TPL["projectSelfLink"] .= "</a>";
 }
 
@@ -818,7 +807,6 @@ while ($row = $db->row()) {
 }
 $TPL["total_invoice_transactions_approved"] = page::money_print($rows);
 
-
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
                 FROM transaction
@@ -834,7 +822,6 @@ while ($row = $db->row()) {
 }
 $TPL["total_expenses_transactions_approved"] = page::money_print($rows);
 
-
 if ($project->get_id()) {
     $defaults["projectID"] = $project->get_id();
     $defaults["showFinances"] = true;
@@ -845,8 +832,6 @@ if ($project->get_id()) {
     $TPL["timeSheetListRows"] = $rtn["rows"];
     $TPL["timeSheetListExtra"] = $rtn["extra"];
 }
-
-
 
 if ($project->have_perm(PERM_READ_WRITE)) {
     include_template("templates/projectFormM.tpl");

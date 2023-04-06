@@ -9,23 +9,23 @@ class task_message_list_home_item extends home_item
 {
     public $date;
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct("task_message_list_home_item", "Messages For You", "task", "taskMessageListH.tpl", "narrow", 19);
     }
 
-    function visible()
+    public function visible()
     {
         $current_user = &singleton("current_user");
         return $current_user->has_messages();
     }
 
-    function render()
+    public function render()
     {
         return true;
     }
 
-    function show_tasks()
+    public function show_tasks()
     {
         $br = null;
         $current_user = &singleton("current_user");

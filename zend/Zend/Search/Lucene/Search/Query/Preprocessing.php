@@ -21,10 +21,8 @@
  * @version    $Id: Preprocessing.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Search_Query */
 require_once 'Zend/Search/Lucene/Search/Query.php';
-
 
 /**
  * It's an internal abstract class intended to finalize ase a query processing after query parsing.

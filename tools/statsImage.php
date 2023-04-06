@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 require_once("../alloc.php");
 
 $stats = new stats();
@@ -54,7 +53,7 @@ if ($height < 18) {
 
 $segment_size = ($width - $left_margin - $right_margin) / ((($date - $start_date) / 86400) - 1);
 
-/* height = max of sum of projects+tasks+comments for each day + margins */
+// height = max of sum of projects+tasks+comments for each day + margins
 $image = imageCreate($width, $height);
 
 $color_background = imageColorAllocate($image, 255, 255, 255);
@@ -63,7 +62,7 @@ $color_tasks = imageColorAllocate($image, 0, 128, 0);
 $color_comments = imageColorAllocate($image, 255, 0, 0);
 $color_foreground = imageColorAllocate($image, 0, 0, 0);
 
-/* fill background */
+// fill background
 imageFilledRectangle($image, 0, 0, $width - 1, $height - 1, $colors_background);
 imagecolortransparent($image, $color_background);
 
@@ -99,15 +98,15 @@ imagefilledpolygon($image, $tasks_points, ($count + 2) / 2, $color_tasks);
 imagefilledpolygon($image, $projects_points, ($count + 2) / 2, $color_projects);
 
 if ($labels) {
-    /* baseline */
+    // baseline
     imageline($image, $left_margin, $height - $bottom_margin - 1, $width - $right_margin - 1, $height - $bottom_margin - 1, $color_foreground);
-    /* dates */
+    // dates
     imagestring($image, 2, $left_margin, $height - $bottom_margin - 1, date("Y-m-d", $start_date), $color_foreground);
     imagestring($image, 2, $width - $right_margin - 60, $height - $bottom_margin - 1, date("Y-m-d"), $color_foreground);
 
-    /* sideline */
+    // sideline
     imageline($image, $left_margin, $height - $bottom_margin - 1, $left_margin, $top_margin - 1, $color_foreground);
-    /* max count */
+    // max count
     if ($disp_height > 0) {
         imagestring($image, 2, 5, 0, $disp_height, $color_foreground);
     }

@@ -32,10 +32,10 @@ switch ($step) {
     case 1:
         // Reminder type (project,task,client,general)
         $parent_types = [
-            "client" => "Client",
+            "client"  => "Client",
             "project" => "Project",
-            "task" => "Task",
-            "general" => "General"
+            "task"    => "Task",
+            "general" => "General",
         ];
         $TPL["parentTypeOptions"] = page::select_options($parent_types);
         include_template("templates/reminderSelectParentTypeM.tpl");
@@ -223,8 +223,6 @@ EOD2;
             $no or $reminder->set_value('reminderTime', $_POST["reminder_date"] . " " . $_POST["reminder_hour"] . ":" . $_POST["reminder_minute"] . ":00");
             $reminder->set_value('reminderHash', $_POST["reminderHash"]);
 
-
-
             if (!$_POST["reminder_recuring_value"]) {
                 $reminder->set_value('reminderRecuringInterval', 'No');
                 $reminder->set_value('reminderRecuringValue', '0');
@@ -265,7 +263,7 @@ EOD2;
             "calendar" => $TPL["url_alloc_taskCalendar"] . "personID=" . $_POST["personID"],
             "list"     => $TPL["url_alloc_reminderList"],
             "reminder" => $TPL["url_alloc_reminder"] . "reminderID=" . $reminderID . "&step=3",
-            ""         => $TPL["url_alloc_reminderList"]
+            ""         => $TPL["url_alloc_reminderList"],
         ];
 
         alloc_redirect($headers[$returnToParent]);

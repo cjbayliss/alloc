@@ -17,5 +17,4 @@ if ($_GET["dir"] && $_GET["file"]) {
     }
 }
 
-
 include_template("templates/sourceCodeView.tpl");

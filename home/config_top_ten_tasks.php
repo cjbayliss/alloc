@@ -14,7 +14,7 @@ $defaults = [
     "taskView"        => "prioritised",
     "showStatus"      => "true",
     "url_form_action" => $TPL["url_alloc_settings"],
-    "form_name"       => "taskListHome_filter"
+    "form_name"       => "taskListHome_filter",
 ];
 
 $_FORM = task::load_form_data($defaults);

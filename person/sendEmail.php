@@ -5,11 +5,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 define("NO_AUTH", true);
 define("IS_GOD", true);
 require_once("../alloc.php");
-
 
 if (date("D") == "Sat" || date("D") == "Sun") {
     alloc_error("IT'S THE WEEKEND - GET OUTTA HERE", true);

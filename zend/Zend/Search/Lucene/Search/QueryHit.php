@@ -21,7 +21,6 @@
  * @version    $Id: QueryHit.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene
@@ -55,7 +54,6 @@ class Zend_Search_Lucene_Search_QueryHit
      */
     public $score;
 
-
     /**
      * Constructor - pass object handle of Zend_Search_Lucene_Interface index that produced
      * the hit so the document can be retrieved easily from the hit.
@@ -69,7 +67,6 @@ class Zend_Search_Lucene_Search_QueryHit
         $this->_index = new Zend_Search_Lucene_Proxy($index);
     }
 
-
     /**
      * Convenience function for getting fields from the document
      * associated with this hit.
@@ -81,7 +78,6 @@ class Zend_Search_Lucene_Search_QueryHit
     {
         return $this->getDocument()->getFieldValue($offset);
     }
-
 
     /**
      * Return the document object for this hit
@@ -96,7 +92,6 @@ class Zend_Search_Lucene_Search_QueryHit
 
         return $this->_document;
     }
-
 
     /**
      * Return the index object for this hit

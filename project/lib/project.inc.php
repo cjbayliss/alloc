@@ -42,12 +42,12 @@ class project extends db_entity
         "projectModifiedUser",
         "defaultTaskLimit",
         "defaultTimeSheetRate" => ["type" => "money"],
-        "defaultTimeSheetRateUnitID"
+        "defaultTimeSheetRateUnitID",
     ];
 
     public $permissions = [
         PERM_PROJECT_VIEW_TASK_ALLOCS => "view task allocations",
-        PERM_PROJECT_ADD_TASKS => "add tasks"
+        PERM_PROJECT_ADD_TASKS        => "add tasks",
     ];
 
     /**
@@ -55,7 +55,7 @@ class project extends db_entity
      *
      * @return bool Result of the parent save method.
      */
-    function save()
+    public function save()
     {
         global $TPL;
         $initialState = $this->all_row_fields;
@@ -126,7 +126,7 @@ class project extends db_entity
         return parent::save();
     }
 
-    function delete()
+    public function delete()
     {
         $database = new db_alloc();
         $database->connect();
@@ -140,7 +140,7 @@ class project extends db_entity
         return parent::delete();
     }
 
-    function get_url()
+    public function get_url()
     {
         global $sess;
         $sess or $sess = new session();
@@ -150,7 +150,7 @@ class project extends db_entity
         if ($sess->Started()) {
             $url = $sess->url(SCRIPT_PATH . $url);
 
-            // This for urls that are emailed
+        // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");
@@ -159,7 +159,7 @@ class project extends db_entity
         return $url;
     }
 
-    function get_name($_FORM = [])
+    public function get_name($_FORM = [])
     {
         if ($_FORM["showShortProjectLink"] && $this->get_value("projectShortName")) {
             $field = "projectShortName";
@@ -174,14 +174,14 @@ class project extends db_entity
         }
     }
 
-    function get_project_link($_FORM = [])
+    public function get_project_link($_FORM = [])
     {
         global $TPL;
         $_FORM["return"] or $_FORM["return"] = "html";
         return "<a href=\"" . $TPL["url_alloc_project"] . "projectID=" . $this->get_id() . "\">" . $this->get_name($_FORM) . "</a>";
     }
 
-    function is_owner($person = "")
+    public function is_owner($person = "")
     {
         $current_user = &singleton("current_user");
         $person or $person = $current_user;
@@ -206,7 +206,7 @@ class project extends db_entity
      * @return mixed|false An associative array of project permissions for the
      *                     person, or false if an error occurs.
      */
-    function has_project_permission($person = "", $permissions = [])
+    public function has_project_permission($person = "", $permissions = [])
     {
         $person = $person ?: singleton("current_user");
         if (!is_object($person)) {
@@ -235,7 +235,7 @@ class project extends db_entity
         return $projectPermissionsForPerson->fetch(PDO::FETCH_ASSOC);
     }
 
-    function get_timeSheetRecipients()
+    public function get_timeSheetRecipients()
     {
         $rows = $this->get_project_people_by_role("timeSheetRecipient");
 
@@ -255,7 +255,7 @@ class project extends db_entity
      * @param string $roleHandle The role handle to filter the results by.
      * @return array An array of person IDs associated with the specified role.
      */
-    function get_project_people_by_role($roleHandle = "")
+    public function get_project_people_by_role($roleHandle = "")
     {
         $database = new db_alloc();
         $database->connect();
@@ -287,7 +287,7 @@ class project extends db_entity
      *
      * @return int|bool The ID of the project manager, or false if not found.
      */
-    function get_project_manager()
+    public function get_project_manager()
     {
         $projectManager = $this->get_project_people_by_role("timeSheetRecipient");
         if (!empty($projectManager)) {
@@ -302,7 +302,7 @@ class project extends db_entity
         return false;
     }
 
-    function get_navigation_links($ops = [])
+    public function get_navigation_links($ops = [])
     {
         $links = [];
         global $TPL;
@@ -431,7 +431,7 @@ class project extends db_entity
         return $projectIDsAndNamesTypesQuery;
     }
 
-    function get_list_by_client($clientID = false, $onlymine = false)
+    public function get_list_by_client($clientID = false, $onlymine = false)
     {
         $options = [];
         $current_user = &singleton("current_user");
@@ -445,7 +445,7 @@ class project extends db_entity
         return array_kv($ops, "projectID", "label");
     }
 
-    function get_list_dropdown($type = "mine", $projectIDs = [])
+    public function get_list_dropdown($type = "mine", $projectIDs = [])
     {
         $options = self::get_list_dropdown_options($type, $projectIDs);
         return "<select name=\"projectID[]\" size=\"9\" style=\"width:275px;\" multiple=\"true\">" . $options . "</select>";
@@ -469,7 +469,7 @@ class project extends db_entity
         return page::select_options($optionsArry, $projectIDs, $maxlength);
     }
 
-    function get_dropdown_by_client($clientID = false, $onlymine = false)
+    public function get_dropdown_by_client($clientID = false, $onlymine = false)
     {
         if ($clientID) {
             $ops = "<select id=\"projectID\" name=\"projectID\"><option></option>";
@@ -481,17 +481,17 @@ class project extends db_entity
             $o = project::get_list_by_client(null, $onlymine);
             is_object($this) and $this->get_id() and $o[$this->get_id()] = $this->get_value("projectName");
             $ops .= page::select_options($o, $this->get_id()) . "</select>";
-            #$ops.= project::get_list_dropdown_options("curr",$this->get_id(),100)."</select>";
+            // $ops.= project::get_list_dropdown_options("curr",$this->get_id(),100)."</select>";
         }
         return $ops;
     }
 
-    function has_attachment_permission($person)
+    public function has_attachment_permission($person)
     {
         return $this->has_project_permission($person);
     }
 
-    function has_attachment_permission_delete($person)
+    public function has_attachment_permission_delete($person)
     {
         return $this->has_project_permission($person, ["isManager"]);
     }
@@ -517,11 +517,11 @@ class project extends db_entity
             return $sql;
         }
 
-        $filter["clientID"]         and $sql[] = sprintf_implode("IFNULL(project.clientID,0) = %d", $filter["clientID"]);
-        $filter["personID"]         and $sql[] = sprintf_implode("IFNULL(projectPerson.personID,0) = %d", $filter["personID"]);
-        $filter["projectStatus"]    and $sql[] = sprintf_implode("IFNULL(project.projectStatus,'') = '%s'", $filter["projectStatus"]);
-        $filter["projectType"]      and $sql[] = sprintf_implode("IFNULL(project.projectType,0) = %d", $filter["projectType"]);
-        $filter["projectName"]      and $sql[] = sprintf_implode("IFNULL(project.projectName,'') LIKE '%%%s%%'", $filter["projectName"]);
+        $filter["clientID"] and $sql[] = sprintf_implode("IFNULL(project.clientID,0) = %d", $filter["clientID"]);
+        $filter["personID"] and $sql[] = sprintf_implode("IFNULL(projectPerson.personID,0) = %d", $filter["personID"]);
+        $filter["projectStatus"] and $sql[] = sprintf_implode("IFNULL(project.projectStatus,'') = '%s'", $filter["projectStatus"]);
+        $filter["projectType"] and $sql[] = sprintf_implode("IFNULL(project.projectType,0) = %d", $filter["projectType"]);
+        $filter["projectName"] and $sql[] = sprintf_implode("IFNULL(project.projectName,'') LIKE '%%%s%%'", $filter["projectName"]);
         $filter["projectShortName"] and $sql[] = sprintf_implode("IFNULL(project.projectShortName,'') LIKE '%%%s%%'", $filter["projectShortName"]);
 
         // project name or project nick name or project id
@@ -540,10 +540,7 @@ class project extends db_entity
     {
         $from = null;
         $rows = [];
-        /*
-         * This is the definitive method of getting a list of projects that need a sophisticated level of filtering
-         *
-         */
+        // This is the definitive method of getting a list of projects that need a sophisticated level of filtering
 
         global $TPL;
         $filter = project::get_list_filter($_FORM);
@@ -599,7 +596,7 @@ class project extends db_entity
         return (array)$rows;
     }
 
-    function get_list_vars()
+    public function get_list_vars()
     {
         return [
             "projectID"       => "The Project ID",
@@ -613,11 +610,11 @@ class project extends db_entity
             "form_name"       => "The name of this form, i.e. a handle for referring to this saved form",
             "dontSave"        => "A flag that allows the user to specify that the filter preferences should not be saved this time",
             "applyFilter"     => "Saves this filter as the persons preference",
-            "showProjectType" => "Show the project type"
+            "showProjectType" => "Show the project type",
         ];
     }
 
-    function load_form_data($defaults = [])
+    public function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
 
@@ -641,7 +638,7 @@ class project extends db_entity
         return $_FORM;
     }
 
-    function load_project_filter($_FORM)
+    public function load_project_filter($_FORM)
     {
 
         $rtn = [];
@@ -659,14 +656,13 @@ class project extends db_entity
         $rtn["projectTypeOptions"] = page::select_options(project::get_project_type_array(), $_FORM["projectType"]);
         $rtn["projectName"] = $_FORM["projectName"];
 
-
         // Get
         $rtn["FORM"] = "FORM=" . urlencode(serialize($_FORM));
 
         return $rtn;
     }
 
-    function get_project_type_array()
+    public function get_project_type_array()
     {
         // optimization
         static $rows;
@@ -677,13 +673,13 @@ class project extends db_entity
         return $rows;
     }
 
-    function get_project_type()
+    public function get_project_type()
     {
         $ops = $this->get_project_type_array();
         return $ops[$this->get_value("projectType")];
     }
 
-    function get_prepaid_invoice()
+    public function get_prepaid_invoice()
     {
         $invoiceID = null;
         $db = new db_alloc();
@@ -721,7 +717,7 @@ class project extends db_entity
         return $invoiceID;
     }
 
-    function update_search_index_doc(&$index)
+    public function update_search_index_doc(&$index)
     {
         $clientName = null;
         $p = &get_cached_table("person");
@@ -757,14 +753,14 @@ class project extends db_entity
         $index->addDocument($doc);
     }
 
-    function format_client_old()
+    public function format_client_old()
     {
         $str = null;
-        $this->get_value("projectClientName")    and $str .= $this->get_value("projectClientName", DST_HTML_DISPLAY) . "<br>";
+        $this->get_value("projectClientName") and $str .= $this->get_value("projectClientName", DST_HTML_DISPLAY) . "<br>";
         $this->get_value("projectClientAddress") and $str .= $this->get_value("projectClientAddress", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("projectClientPhone")   and $str .= $this->get_value("projectClientPhone", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("projectClientMobile")  and $str .= $this->get_value("projectClientMobile", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("projectClientEMail")   and $str .= $this->get_value("projectClientEMail", DST_HTML_DISPLAY) . "<br>";
+        $this->get_value("projectClientPhone") and $str .= $this->get_value("projectClientPhone", DST_HTML_DISPLAY) . "<br>";
+        $this->get_value("projectClientMobile") and $str .= $this->get_value("projectClientMobile", DST_HTML_DISPLAY) . "<br>";
+        $this->get_value("projectClientEMail") and $str .= $this->get_value("projectClientEMail", DST_HTML_DISPLAY) . "<br>";
         return $str;
     }
 
@@ -801,7 +797,7 @@ class project extends db_entity
         return sprintf("(%s.projectID = 0)", $table);
     }
 
-    function get_cc_list_select($projectID = "")
+    public function get_cc_list_select($projectID = "")
     {
         $options = [];
         $interestedParty = [];
@@ -834,7 +830,7 @@ class project extends db_entity
         return $str;
     }
 
-    function get_all_parties($projectID = false, $task_exists = false)
+    public function get_all_parties($projectID = false, $task_exists = false)
     {
         $interestedPartyOptions = [];
         $name = null;
@@ -902,7 +898,7 @@ class project extends db_entity
         return $pp[$p];
     }
 
-    function get_list_html($rows = [], $ops = [])
+    public function get_list_html($rows = [], $ops = [])
     {
         global $TPL;
         $TPL["projectListRows"] = $rows;
@@ -910,7 +906,7 @@ class project extends db_entity
         include_template(__DIR__ . "/../templates/projectListS.tpl");
     }
 
-    function get_changes_list()
+    public function get_changes_list()
     {
         // This function returns HTML rows for the changes that have been made to this project
         $rows = [];

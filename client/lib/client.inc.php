@@ -30,11 +30,10 @@ class client extends db_entity
         "clientModifiedUser",
         "clientStatus",
         "clientCategory",
-        "clientURL"
+        "clientURL",
     ];
 
-
-    function delete()
+    public function delete()
     {
         // delete all contacts and comments linked with this client as well
         $database = new db_alloc();
@@ -64,7 +63,7 @@ class client extends db_entity
         return parent::delete();
     }
 
-    function is_owner($ignored = null)
+    public function is_owner($ignored = null)
     {
         $current_user = &singleton("current_user");
         return $current_user->is_employee();
@@ -82,7 +81,7 @@ class client extends db_entity
         return true;
     }
 
-    function get_client_select($clientStatus = "", $clientID = "")
+    public function get_client_select($clientStatus = "", $clientID = "")
     {
         $options = null;
         $clientNamesQuery = null;
@@ -109,7 +108,7 @@ class client extends db_entity
         return $str;
     }
 
-    function get_client_contact_select($clientID = "", $clientContactID = "")
+    public function get_client_contact_select($clientID = "", $clientContactID = "")
     {
         $clientID or $clientID = $_GET["clientID"];
         $db = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
@@ -125,7 +124,7 @@ class client extends db_entity
             . "</select>";
     }
 
-    function get_name($_FORM = [])
+    public function get_name($_FORM = [])
     {
         if ($_FORM["return"] == "html") {
             return $this->get_value("clientName", DST_HTML_DISPLAY);
@@ -134,7 +133,7 @@ class client extends db_entity
         }
     }
 
-    function get_client_link($_FORM = [])
+    public function get_client_link($_FORM = [])
     {
         global $TPL;
         return "<a href=\""
@@ -146,7 +145,7 @@ class client extends db_entity
             . "</a>";
     }
 
-    function get_list_filter($filter = [])
+    public function get_list_filter($filter = [])
     {
         $sql = [];
         $current_user = &singleton("current_user");
@@ -269,18 +268,18 @@ class client extends db_entity
         return (array)$rows;
     }
 
-    function get_list_vars()
+    public function get_list_vars()
     {
         return [
-            "clientStatus"     => "Client status eg: Current | Potential | Archived",
-            "clientCategory"   => "Client category eg: 1-7",
-            "clientName"       => "Client name like *something*",
-            "contactName"      => "Client Contact name like *something*",
-            "clientLetter"     => "Client name starts with this letter",
-            "url_form_action"  => "The submit action for the filter form",
-            "form_name"        => "The name of this form, i.e. a handle for referring to this saved form",
-            "dontSave"         => "Specify that the filter preferences should not be saved this time",
-            "applyFilter"      => "Saves this filter as the persons preference"
+            "clientStatus"    => "Client status eg: Current | Potential | Archived",
+            "clientCategory"  => "Client category eg: 1-7",
+            "clientName"      => "Client name like *something*",
+            "contactName"     => "Client Contact name like *something*",
+            "clientLetter"    => "Client name starts with this letter",
+            "url_form_action" => "The submit action for the filter form",
+            "form_name"       => "The name of this form, i.e. a handle for referring to this saved form",
+            "dontSave"        => "Specify that the filter preferences should not be saved this time",
+            "applyFilter"     => "Saves this filter as the persons preference",
         ];
     }
 
@@ -352,7 +351,7 @@ class client extends db_entity
         return $rtn;
     }
 
-    function get_url()
+    public function get_url()
     {
         global $TPL;
         global $sess; // FIXME: can this be deleted?
@@ -360,7 +359,7 @@ class client extends db_entity
         return $TPL["url_alloc_client"] . $url;
     }
 
-    function get_clientID_from_name($name)
+    public function get_clientID_from_name($name)
     {
         static $clients;
         if (!$clients) {
@@ -384,7 +383,7 @@ class client extends db_entity
         return [$probable_clientID, $client_percent];
     }
 
-    function get_client_and_project_dropdowns_and_links(
+    public function get_client_and_project_dropdowns_and_links(
         $clientID = false,
         $projectID = false,
         $onlymine = false
@@ -426,7 +425,7 @@ class client extends db_entity
     }
 
     // FIXME: this function is scary, fix that -- cjb 2023-03
-    function update_search_index_doc(&$index)
+    public function update_search_index_doc(&$index)
     {
         $postal = [];
         $street = [];
@@ -440,18 +439,18 @@ class client extends db_entity
         $clientModifiedUser_field = $clientModifiedUser . " " . $person[$clientModifiedUser]["username"] . " " . $person[$clientModifiedUser]["name"];
 
         $this->get_value("clientStreetAddressOne") and $postal[] = $this->get_value("clientStreetAddressOne");
-        $this->get_value("clientSuburbOne")        and $postal[] = $this->get_value("clientSuburbOne");
-        $this->get_value("clientStateOne")         and $postal[] = $this->get_value("clientStateOne");
-        $this->get_value("clientPostcodeOne")      and $postal[] = $this->get_value("clientPostcodeOne");
-        $this->get_value("clientCountryOne")       and $postal[] = $this->get_value("clientCountryOne");
+        $this->get_value("clientSuburbOne") and $postal[] = $this->get_value("clientSuburbOne");
+        $this->get_value("clientStateOne") and $postal[] = $this->get_value("clientStateOne");
+        $this->get_value("clientPostcodeOne") and $postal[] = $this->get_value("clientPostcodeOne");
+        $this->get_value("clientCountryOne") and $postal[] = $this->get_value("clientCountryOne");
         $p = implode("\n", (array)$postal);
         $p and $p = "Postal Address:\n" . $p;
 
         $this->get_value("clientStreetAddressTwo") and $street[] = $this->get_value("clientStreetAddressTwo");
-        $this->get_value("clientSuburbTwo")        and $street[] = $this->get_value("clientSuburbTwo");
-        $this->get_value("clientStateTwo")         and $street[] = $this->get_value("clientStateTwo");
-        $this->get_value("clientPostcodeTwo")      and $street[] = $this->get_value("clientPostcodeTwo");
-        $this->get_value("clientCountryTwo")       and $street[] = $this->get_value("clientCountryTwo");
+        $this->get_value("clientSuburbTwo") and $street[] = $this->get_value("clientSuburbTwo");
+        $this->get_value("clientStateTwo") and $street[] = $this->get_value("clientStateTwo");
+        $this->get_value("clientPostcodeTwo") and $street[] = $this->get_value("clientPostcodeTwo");
+        $this->get_value("clientCountryTwo") and $street[] = $this->get_value("clientCountryTwo");
         $s = implode("\n", (array)$street);
         $s and $s = "Street Address:\n" . $s;
 
@@ -459,7 +458,7 @@ class client extends db_entity
         $addresses = $p . $s;
 
         $this->get_value("clientPhoneOne") and $ph = "Ph: " . $this->get_value("clientPhoneOne");
-        $this->get_value("clientFaxOne")   and $fx = "Fax: " . $this->get_value("clientFaxOne");
+        $this->get_value("clientFaxOne") and $fx = "Fax: " . $this->get_value("clientFaxOne");
 
         $ph and $ph = " " . $ph;
         $fx and $fx = " " . $fx;
@@ -470,20 +469,20 @@ class client extends db_entity
         $db->query($q);
         while ($row = $db->row()) {
             $c .= $nl . $row["clientContactName"];
-            $row["clientContactEmail"]         and $c .= " <" . $row["clientContactEmail"] . ">";
+            $row["clientContactEmail"] and $c .= " <" . $row["clientContactEmail"] . ">";
             $c .= " | ";
             $row["clientContactStreetAddress"] and $c .= " " . $row["clientContactStreetAddress"];
-            $row["clientContactSuburb"]        and $c .= " " . $row["clientContactSuburb"];
-            $row["clientContactState"]         and $c .= " " . $row["clientContactState"];
-            $row["clientContactPostcode"]      and $c .= " " . $row["clientContactPostcode"];
-            $row["clientContactCountry"]       and $c .= " " . $row["clientContactCountry"];
+            $row["clientContactSuburb"] and $c .= " " . $row["clientContactSuburb"];
+            $row["clientContactState"] and $c .= " " . $row["clientContactState"];
+            $row["clientContactPostcode"] and $c .= " " . $row["clientContactPostcode"];
+            $row["clientContactCountry"] and $c .= " " . $row["clientContactCountry"];
             $c .= " | ";
-            $row["clientContactPhone"]         and $c .= " Ph: " . $row["clientContactPhone"];
-            $row["clientContactMobile"]        and $c .= " Mob: " . $row["clientContactMobile"];
-            $row["clientContactFax"]           and $c .= " Fax: " . $row["clientContactFax"];
-            $row["primaryContact"]             and $c .= " Primary contact";
+            $row["clientContactPhone"] and $c .= " Ph: " . $row["clientContactPhone"];
+            $row["clientContactMobile"] and $c .= " Mob: " . $row["clientContactMobile"];
+            $row["clientContactFax"] and $c .= " Fax: " . $row["clientContactFax"];
+            $row["primaryContact"] and $c .= " Primary contact";
             $c .= " | ";
-            $row["clientContactOther"]         and $c .= " " . $row["clientContactOther"];
+            $row["clientContactOther"] and $c .= " " . $row["clientContactOther"];
             $nl = "|+|=|";
         }
         $c and $contacts = $c;
@@ -501,7 +500,7 @@ class client extends db_entity
         $index->addDocument($doc);
     }
 
-    function format_address($type = "street", $map_link = true)
+    public function format_address($type = "street", $map_link = true)
     {
         $stateOrRegion = null;
         $country = null;
@@ -534,7 +533,7 @@ class client extends db_entity
                     $suburb,
                     $stateOrRegion,
                     $postCode,
-                    $country
+                    $country,
                 ])),
                 $map_base
             );
@@ -550,7 +549,7 @@ class client extends db_entity
         return $str;
     }
 
-    function get_all_parties($clientID = false)
+    public function get_all_parties($clientID = false)
     {
         $interestedPartyOptions = [];
         if (!$clientID && is_object($this)) {
@@ -569,9 +568,9 @@ class client extends db_entity
             $database->query($clientPartiesQuery);
             while ($database->next_record()) {
                 $interestedPartyOptions[$database->f("clientContactEmail")] = [
-                    "name" => $database->f("clientContactName"),
-                    "external" => "1",
-                    "clientContactID" => $database->f("clientContactID")
+                    "name"            => $database->f("clientContactName"),
+                    "external"        => "1",
+                    "clientContactID" => $database->f("clientContactID"),
                 ];
             }
         }
@@ -586,7 +585,7 @@ class client extends db_entity
         return (array)$interestedPartyOptions;
     }
 
-    function get_list_html($rows = [], $ops = [])
+    public function get_list_html($rows = [], $ops = [])
     {
         global $TPL;
         $TPL["clientListRows"] = $rows;

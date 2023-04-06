@@ -25,14 +25,13 @@ class db_entity
     public $cache;                     // Cache associative array stored by primary key index
     private $fields_loaded = false;    // This internal flag just specifies whether a row from the db was loaded
 
-
-    function __construct($id = false)
+    public function __construct($id = false)
     {
 
         $this->data_table or $this->data_table = get_class($this);
-        $this->classname  or $this->classname  = get_class($this);
+        $this->classname or $this->classname = get_class($this);
 
-        $this->permissions[PERM_READ]   = "Read";
+        $this->permissions[PERM_READ] = "Read";
         $this->permissions[PERM_UPDATE] = "Update";
         $this->permissions[PERM_DELETE] = "Delete";
         $this->permissions[PERM_CREATE] = "Create";
@@ -61,7 +60,7 @@ class db_entity
         }
     }
 
-    function have_perm($action = 0, $person = "", $assume_owner = false)
+    public function have_perm($action = 0, $person = "", $assume_owner = false)
     {
         $person_flag = null;
         $current_user = &singleton("current_user");
@@ -131,7 +130,7 @@ class db_entity
         return false;
     }
 
-    function select()
+    public function select()
     {
         if (!$this->has_key_values()) {
             return false;
@@ -150,7 +149,7 @@ class db_entity
         }
     }
 
-    function perm_cleanup(&$row = [])
+    public function perm_cleanup(&$row = [])
     {
         foreach ($row as $field_name => $object) {
             if (!$this->can_read_field($field_name)) {
@@ -161,7 +160,7 @@ class db_entity
         return $row;
     }
 
-    function delete()
+    public function delete()
     {
         if (!$this->have_perm(PERM_DELETE)) {
             $current_user = &singleton("current_user");
@@ -187,7 +186,7 @@ class db_entity
         return true;
     }
 
-    function insert()
+    public function insert()
     {
         $this_id = null;
         $current_user = &singleton("current_user");
@@ -218,10 +217,10 @@ class db_entity
             $this->set_value($this->data_table . "CreatedTime", date("Y-m-d H:i:s"));
         }
         if (isset($this->data_fields[$this->data_table . "ModifiedUser"])) {
-            #$this->set_value($this->data_table."ModifiedUser", $current_user_id);
+            // $this->set_value($this->data_table."ModifiedUser", $current_user_id);
         }
         if (isset($this->data_fields[$this->data_table . "ModifiedTime"])) {
-            #$this->set_value($this->data_table."ModifiedTime", date("Y-m-d H:i:s"));
+            // $this->set_value($this->data_table."ModifiedTime", date("Y-m-d H:i:s"));
         }
 
         // Even if we're doing an insert, if a primary key is set, then insert the row with that PK.
@@ -251,7 +250,7 @@ class db_entity
         return true;
     }
 
-    function update()
+    public function update()
     {
 
         if (!$this->have_perm(PERM_UPDATE)) {
@@ -306,7 +305,7 @@ class db_entity
         return true;
     }
 
-    function is_new()
+    public function is_new()
     {
         if (!$this->has_key_values()) {
             return true;
@@ -319,7 +318,7 @@ class db_entity
         }
     }
 
-    function save()
+    public function save()
     {
         global $TPL;
         $this->doMoney = true;
@@ -345,7 +344,7 @@ class db_entity
                 $db = $this->get_db();
                 $db->query("call update_search_index('%s',%d)", $this->classname, $this->get_id());
 
-                // Update the index right now
+            // Update the index right now
             } else {
                 $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
                 $this->delete_search_index_doc($index);
@@ -357,7 +356,7 @@ class db_entity
         return $rtn;
     }
 
-    function validate($message = [])
+    public function validate($message = [])
     {
         $c = $this->currency;
         if (isset($this->data_fields["currencyTypeID"]) && imp($this->data_fields["currencyTypeID"]->get_value())) {
@@ -375,17 +374,17 @@ class db_entity
         }
     }
 
-    function set_field_value(&$field, $value, $source = SRC_VARIABLE)
+    public function set_field_value(&$field, $value, $source = SRC_VARIABLE)
     {
         $field->set_value($value, $source);
     }
 
-    function clear_field_value(&$field)
+    public function clear_field_value(&$field)
     {
         $field->clear_value();
     }
 
-    function read_array(&$array, $source_prefix = "", $source = SRC_VARIABLE)
+    public function read_array(&$array, $source_prefix = "", $source = SRC_VARIABLE)
     {
 
         // Data fields
@@ -401,7 +400,7 @@ class db_entity
         $this->fields_loaded = true;
     }
 
-    function write_array(&$array, $dest = DST_VARIABLE, $array_index_prefix = "")
+    public function write_array(&$array, $dest = DST_VARIABLE, $array_index_prefix = "")
     {
 
         // Data fields
@@ -416,32 +415,32 @@ class db_entity
         $array[$array_index] = $this->key_field->get_value($dest);
     }
 
-    function set_values($tpl_key_prefix = "")
+    public function set_values($tpl_key_prefix = "")
     {
         $this->write_array($GLOBALS["TPL"], DST_VARIABLE, $tpl_key_prefix);
     }
 
-    function set_tpl_values($tpl_key_prefix = "")
+    public function set_tpl_values($tpl_key_prefix = "")
     {
         $this->write_array($GLOBALS["TPL"], DST_HTML_DISPLAY, $tpl_key_prefix);
     }
 
-    function read_globals($prefix = "", $source = SRC_VARIABLE)
+    public function read_globals($prefix = "", $source = SRC_VARIABLE)
     {
         $this->read_array($_POST, $prefix, $source);
     }
 
-    function set_global_variables($variable_name_prefix = "")
+    public function set_global_variables($variable_name_prefix = "")
     {
         $this->write_array($GLOBALS, DST_VARIABLE, $variable_name_prefix);
     }
 
-    function has_key_values()
+    public function has_key_values()
     {
         return $this->key_field->has_value();
     }
 
-    function read_db_record($db)
+    public function read_db_record($db)
     {
         $this->set_id($db->f($this->key_field->get_name()));
         $this->read_array($db->row, "", SRC_DATABASE);
@@ -459,7 +458,7 @@ class db_entity
         return $have_perm;
     }
 
-    function read_row_record($row)
+    public function read_row_record($row)
     {
         $this->set_id($row[$this->key_field->get_name()]);
         $this->read_array($row, "", SRC_DATABASE);
@@ -471,12 +470,12 @@ class db_entity
         return $have_perm;
     }
 
-    function row()
+    public function row()
     {
         return $this->all_row_fields;
     }
 
-    function set_value($field_name, $value, $source = SRC_VARIABLE)
+    public function set_value($field_name, $value, $source = SRC_VARIABLE)
     {
         if (is_object($this->data_fields[$field_name])) {
             $this->set_field_value($this->data_fields[$field_name], $value, $source);
@@ -485,7 +484,7 @@ class db_entity
         }
     }
 
-    function get_value($field_name, $dest = DST_VARIABLE)
+    public function get_value($field_name, $dest = DST_VARIABLE)
     {
         $field = $this->data_fields[$field_name];
         if (!is_object($field)) {
@@ -505,22 +504,22 @@ class db_entity
         return $field->get_value($dest, $this);
     }
 
-    function get_row_value($field_name)
+    public function get_row_value($field_name)
     {
         return $this->all_row_fields[$field_name];
     }
 
-    function get_id($dest = DST_VARIABLE)
+    public function get_id($dest = DST_VARIABLE)
     {
         return $this->key_field->get_value($dest);
     }
 
-    function set_id($id)
+    public function set_id($id)
     {
         $this->key_field->set_value(db_esc($id));
     }
 
-    function get_foreign_object($class_name, $key_name = "")
+    public function get_foreign_object($class_name, $key_name = "")
     {
         if ($key_name == "") {
             $key_name = $class_name . "ID";
@@ -531,7 +530,7 @@ class db_entity
         return $object;
     }
 
-    function get_foreign_objects($class_name, $key_name = "")
+    public function get_foreign_objects($class_name, $key_name = "")
     {
         if ($key_name == "") {
             $key_name = $this->key_field->get_name();
@@ -548,12 +547,12 @@ class db_entity
         return $foreign_objects;
     }
 
-    function get_filter_class()
+    public function get_filter_class()
     {
         return $this->filter_class;
     }
 
-    function get_display_value($dst = DST_HTML_DISPLAY)
+    public function get_display_value($dst = DST_HTML_DISPLAY)
     {
         if ($this->display_field_name) {
             if (!$this->fields_loaded) {
@@ -568,7 +567,7 @@ class db_entity
         }
     }
 
-    function can_read_field($field_name)
+    public function can_read_field($field_name)
     {
         $field = $this->data_fields[$field_name];
         if (is_object($field) && $field->read_perm_name) {
@@ -578,7 +577,7 @@ class db_entity
         }
     }
 
-    function can_write_field($field)
+    public function can_write_field($field)
     {
         if (is_string($field)) {
             $field = $this->data_fields[$field];
@@ -586,7 +585,7 @@ class db_entity
         return $field->write_perm_name == 0 || $this->have_perm($field->write_perm_name);
     }
 
-    function is_owner($person = "")
+    public function is_owner($person = "")
     {
         $current_user = &singleton("current_user");
         $person or $person = $current_user;
@@ -601,7 +600,7 @@ class db_entity
         }
     }
 
-    function clear()
+    public function clear()
     {
 
         $array = [];
@@ -609,7 +608,7 @@ class db_entity
         $source = null;
         // Data fields
         reset($this->data_fields);
-        while (list($field_index,) = each($this->data_fields)) {
+        while (list($field_index) = each($this->data_fields)) {
             $this->clear_field_value($this->data_fields[$field_index]);
         }
 
@@ -625,7 +624,7 @@ class db_entity
      * 'Private' utilitity functions These functions probably won't be useful to
      * users of this class but are used by the other functions in the class
      */
-    function get_db()
+    public function get_db()
     {
         if (!is_object($this->db)) {
             $db_class = $this->db_class;
@@ -633,7 +632,7 @@ class db_entity
         }
         return $this->db;
     }
-    function get_insert_fields($fields)
+    public function get_insert_fields($fields)
     {
         $rtn = null;
         foreach ((array)$fields as $k => $field) {
@@ -644,7 +643,7 @@ class db_entity
         }
         return $rtn;
     }
-    function get_insert_values($fields)
+    public function get_insert_values($fields)
     {
         $rtn = null;
         foreach ((array)$fields as $k => $field) {
@@ -655,7 +654,7 @@ class db_entity
         }
         return $rtn;
     }
-    function get_name_equals_value($fields, $glue = ",")
+    public function get_name_equals_value($fields, $glue = ",")
     {
         $query = "";
         reset($fields);
@@ -668,7 +667,7 @@ class db_entity
         return $query;
     }
 
-    function get_assoc_array($key = false, $value = false, $sel = false, $where = [])
+    public function get_assoc_array($key = false, $value = false, $sel = false, $where = [])
     {
         $key_sql = null;
         $extra = null;
@@ -697,7 +696,7 @@ class db_entity
         if (is_object($this->data_fields[$this->data_table . "Active"]) && !isset($where[$this->data_table . "Active"])) {
             $where[$this->data_table . "Active"] = 1;
 
-            // Else get all records
+        // Else get all records
         } else if ($where[$this->data_table . "Active"] == "all") {
             unset($where[$this->data_table . "Active"]);
         }
@@ -734,7 +733,7 @@ class db_entity
         return $rows;
     }
 
-    function get_link($field = false)
+    public function get_link($field = false)
     {
         global $TPL;
         if ($this->get_id()) {
@@ -749,12 +748,12 @@ class db_entity
         }
     }
 
-    function get_name($dst = null)
+    public function get_name($dst = null)
     {
         return $this->get_display_value($dst);
     }
 
-    function delete_search_index_doc(&$index)
+    public function delete_search_index_doc(&$index)
     {
         if ($this->get_id()) {
             $hits = $index->find('id:' . $this->get_id());
@@ -765,7 +764,6 @@ class db_entity
         return $index;
     }
 }
-
 
 // Statically callable version of $entity->have_perm();
 function have_entity_perm($class_name, $perm_name = "", $person = "", $assume_owner = false)

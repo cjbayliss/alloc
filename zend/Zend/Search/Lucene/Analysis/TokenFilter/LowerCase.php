@@ -20,10 +20,8 @@
  * @version    $Id: LowerCase.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Analysis_TokenFilter */
 require_once 'Zend/Search/Lucene/Analysis/TokenFilter.php';
-
 
 /**
  * Lower case Token filter.
@@ -46,13 +44,13 @@ class Zend_Search_Lucene_Analysis_TokenFilter_LowerCase extends Zend_Search_Luce
     public function normalize(Zend_Search_Lucene_Analysis_Token $srcToken)
     {
         $newToken = new Zend_Search_Lucene_Analysis_Token(
-                                     strtolower( $srcToken->getTermText() ),
-                                     $srcToken->getStartOffset(),
-                                     $srcToken->getEndOffset());
+            strtolower($srcToken->getTermText()),
+            $srcToken->getStartOffset(),
+            $srcToken->getEndOffset()
+        );
 
         $newToken->setPositionIncrement($srcToken->getPositionIncrement());
 
         return $newToken;
     }
 }
-

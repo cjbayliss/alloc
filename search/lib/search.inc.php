@@ -10,7 +10,7 @@ define("PERM_PROJECT_READ_TASK_DETAIL", 256);
 class search
 {
 
-    function by_file($file, $needle)
+    public function by_file($file, $needle)
     {
         $rtn = [];
         if (file_exists($file) && is_readable($file) && !is_dir($file)) {
@@ -27,7 +27,7 @@ class search
         return $rtn;
     }
 
-    function get_trimmed_description($haystack, $needle, $category)
+    public function get_trimmed_description($haystack, $needle, $category)
     {
 
         $position = strpos(strtolower($haystack), strtolower($needle));
@@ -61,7 +61,7 @@ class search
         }
     }
 
-    function get_recursive_dir_list($dir)
+    public function get_recursive_dir_list($dir)
     {
         $rtn = [];
         $dir = realpath($dir) . DIRECTORY_SEPARATOR;

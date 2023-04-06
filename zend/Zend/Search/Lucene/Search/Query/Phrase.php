@@ -21,10 +21,8 @@
  * @version    $Id: Phrase.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Search_Query */
 require_once 'Zend/Search/Lucene/Search/Query.php';
-
 
 /**
  * A Query that matches documents containing a particular sequence of terms.
@@ -143,7 +141,6 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
         $this->_slop = $slop;
     }
 
-
     /**
      * Get slop
      *
@@ -153,7 +150,6 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
     {
         return $this->_slop;
     }
-
 
     /**
      * Adds a term to the end of the query phrase.
@@ -180,7 +176,6 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
             $this->_offsets[] = 0;
         }
     }
-
 
     /**
      * Re-write query into primitive queries in the context of specified index
@@ -248,7 +243,6 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
             return new Zend_Search_Lucene_Search_Query_Empty();
         }
 
-
         return $this;
     }
 
@@ -262,7 +256,6 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
         return $this->_terms;
     }
 
-
     /**
      * Set weight for specified term
      *
@@ -273,7 +266,6 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
     {
         $this->_weights[$num] = $weight;
     }
-
 
     /**
      * Constructs an appropriate Weight implementation for this query.
@@ -287,7 +279,6 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
         $this->_weight = new Zend_Search_Lucene_Search_Weight_Phrase($this, $reader);
         return $this->_weight;
     }
-
 
     /**
      * Score calculator for exact phrase queries (terms sequence is fixed)
@@ -374,7 +365,7 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
                         }
 
                         $newPhraseId = count($phraseQueue);
-                        $phraseQueue[$newPhraseId]          = $phraseQueue[$count];
+                        $phraseQueue[$newPhraseId] = $phraseQueue[$count];
                         $phraseQueue[$newPhraseId][$termId] = $termPosition;
                     }
                 }
@@ -383,7 +374,6 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
             }
             $lastTerm = $termId;
         }
-
 
         foreach ($phraseQueue as $phrasePos) {
             $minDistance = null;
@@ -428,13 +418,13 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
             $this->_resVector = [];
         }
 
-        $resVectors      = [];
+        $resVectors = [];
         $resVectorsSizes = [];
-        $resVectorsIds   = []; // is used to prevent arrays comparison
+        $resVectorsIds = []; // is used to prevent arrays comparison
         foreach ($this->_terms as $termId => $term) {
-            $resVectors[]      = array_flip($reader->termDocs($term));
+            $resVectors[] = array_flip($reader->termDocs($term));
             $resVectorsSizes[] = count(end($resVectors));
-            $resVectorsIds[]   = $termId;
+            $resVectorsIds[] = $termId;
 
             $this->_termsPositions[$termId] = $reader->termPositions($term);
         }
@@ -453,7 +443,7 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
             if ($this->_resVector === null) {
                 $this->_resVector = $nextResVector;
             } else {
-                //$this->_resVector = array_intersect_key($this->_resVector, $nextResVector);
+                // $this->_resVector = array_intersect_key($this->_resVector, $nextResVector);
 
                 /**
                  * This code is used as workaround for array_intersect_key() slowness problem.

@@ -21,7 +21,6 @@
  * @version    $Id: Xlsx.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Document_OpenXml */
 require_once 'Zend/Search/Lucene/Document/OpenXml.php';
 
@@ -190,9 +189,13 @@ class Zend_Search_Lucene_Document_Xlsx extends Zend_Search_Lucene_Document_OpenX
 
                             // Check for numeric values
                             if (is_numeric($value) && $dataType != 's') {
-                                if ($value == (int)$value) $value = (int)$value;
-                                elseif ($value == (float)$value) $value = (float)$value;
-                                elseif ($value == (float)$value) $value = (float)$value;
+                                if ($value == (int)$value) {
+                                    $value = (int)$value;
+                                } elseif ($value == (float)$value) {
+                                    $value = (float)$value;
+                                } elseif ($value == (float)$value) {
+                                    $value = (float)$value;
+                                }
                             }
                     }
 

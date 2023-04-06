@@ -70,7 +70,7 @@ if (($handle = fopen("../../David_Clients.csv", "r")) !== false) {
         $x++;
         echo "<br>" . $client->get_id() . " --- " . $cc_id . " --- " . $comment_id;
         if ($x > 4) {
-            //die();
+            // die();
         }
     }
     fclose($handle);

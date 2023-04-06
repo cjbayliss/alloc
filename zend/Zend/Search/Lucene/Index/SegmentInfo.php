@@ -24,7 +24,6 @@
 /** Zend_Search_Lucene_Index_TermsStream_Interface */
 require_once 'Zend/Search/Lucene/Index/TermsStream/Interface.php';
 
-
 /** Zend_Search_Lucene_Search_Similarity */
 require_once 'Zend/Search/Lucene/Search/Similarity.php';
 
@@ -112,7 +111,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     private $_fieldsDicPositions;
 
-
     /**
      * Associative array where the key is the file name and the value is data offset
      * in a compound segment file (.csf).
@@ -157,7 +155,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      * @var boolean
      */
     private $_isCompound;
-
 
     /**
      * File system adapter.
@@ -209,7 +206,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     private $_sharedDocStoreOptions;
 
-
     /**
      * Zend_Search_Lucene_Index_SegmentInfo constructor
      *
@@ -226,18 +222,18 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $fileName = null;
         $dataOffset = null;
         $this->_directory = $directory;
-        $this->_name      = $name;
-        $this->_docCount  = $docCount;
+        $this->_name = $name;
+        $this->_docCount = $docCount;
 
         if ($docStoreOptions !== null) {
-            $this->_usesSharedDocStore    = true;
+            $this->_usesSharedDocStore = true;
             $this->_sharedDocStoreOptions = $docStoreOptions;
 
             if ($docStoreOptions['isCompound']) {
-                $cfxFile       = $this->_directory->getFileObject($docStoreOptions['segment'] . '.cfx');
+                $cfxFile = $this->_directory->getFileObject($docStoreOptions['segment'] . '.cfx');
                 $cfxFilesCount = $cfxFile->readVInt();
 
-                $cfxFiles     = [];
+                $cfxFiles = [];
                 $cfxFileSizes = [];
 
                 for ($count = 0; $count < $cfxFilesCount; $count++) {
@@ -245,25 +241,24 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                     if ($count != 0) {
                         $cfxFileSizes[$fileName] = $dataOffset - end($cfxFiles);
                     }
-                    $fileName            = $cfxFile->readString();
+                    $fileName = $cfxFile->readString();
                     $cfxFiles[$fileName] = $dataOffset;
                 }
                 if ($count != 0) {
                     $cfxFileSizes[$fileName] = $this->_directory->fileLength($docStoreOptions['segment'] . '.cfx') - $dataOffset;
                 }
 
-                $this->_sharedDocStoreOptions['files']     = $cfxFiles;
+                $this->_sharedDocStoreOptions['files'] = $cfxFiles;
                 $this->_sharedDocStoreOptions['fileSizes'] = $cfxFileSizes;
             }
         }
 
         $this->_hasSingleNormFile = $hasSingleNormFile;
-        $this->_delGen            = $delGen;
-        $this->_termDictionary    = null;
-
+        $this->_delGen = $delGen;
+        $this->_termDictionary = null;
 
         if ($isCompound !== null) {
-            $this->_isCompound    = $isCompound;
+            $this->_isCompound = $isCompound;
         } else {
             // It's a pre-2.1 segment or isCompound is set to 'unknown'
             // Detect if segment uses compound file
@@ -305,7 +300,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $fnmFile = $this->openCompoundFile('.fnm');
         $fieldsCount = $fnmFile->readVInt();
         $fieldNames = [];
-        $fieldNums  = [];
+        $fieldNums = [];
         $this->_fields = [];
 
         for ($count = 0; $count < $fieldsCount; $count++) {
@@ -317,14 +312,14 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                 $count,
                 $fieldBits & 0x02 /* termvectors are stored */,
                 $fieldBits & 0x10 /* norms are omitted */,
-                $fieldBits & 0x20 /* payloads are stored */
+                $fieldBits & 0x20 // payloads are stored
             );
             if ($fieldBits & 0x10) {
                 // norms are omitted for the indexed field
                 $this->_norms[$count] = str_repeat(chr(Zend_Search_Lucene_Search_Similarity::encodeNorm(1.0)), $docCount);
             }
 
-            $fieldNums[$count]  = $count;
+            $fieldNums[$count] = $count;
             $fieldNames[$count] = $fieldName;
         }
         array_multisort($fieldNames, SORT_ASC, SORT_REGULAR, $fieldNums);
@@ -381,7 +376,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
 
             $byteCount = $delFile->readInt();
             $byteCount = ceil($byteCount / 8);
-            $bitCount  = $delFile->readInt();
+            $bitCount = $delFile->readInt();
 
             if ($bitCount == 0) {
                 $delBytes = '';
@@ -436,7 +431,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             }
 
             $byteCount = $delFile->readInt();
-            $bitCount  = $delFile->readInt();
+            $bitCount = $delFile->readInt();
 
             $delFileSize = $this->_directory->fileLength($this->_name . '_' . base_convert($this->_delGen, 10, 36) . '.del');
             $byteNum = 0;
@@ -446,7 +441,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                 $nonZeroByte = $delFile->readByte();
 
                 $byteNum += $dgap;
-
 
                 if (extension_loaded('bitset')) {
                     for ($bit = 0; $bit < 8; $bit++) {
@@ -467,7 +461,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         } else {
             // $format is actually byte count
             $byteCount = ceil($format / 8);
-            $bitCount  = $delFile->readInt();
+            $bitCount = $delFile->readInt();
 
             if ($bitCount == 0) {
                 $delBytes = '';
@@ -504,7 +498,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
     public function openCompoundFile($extension, $shareHandler = true)
     {
         $fdtFile = null;
-        if (($extension == '.fdx'  || $extension == '.fdt')  &&  $this->_usesSharedDocStore) {
+        if (($extension == '.fdx' || $extension == '.fdt') && $this->_usesSharedDocStore) {
             $fdxFName = $this->_sharedDocStoreOptions['segment'] . '.fdx';
             $fdtFName = $this->_sharedDocStoreOptions['segment'] . '.fdt';
 
@@ -585,7 +579,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     public function compoundFileLength($extension)
     {
-        if (($extension == '.fdx'  || $extension == '.fdt')  &&  $this->_usesSharedDocStore) {
+        if (($extension == '.fdx' || $extension == '.fdt') && $this->_usesSharedDocStore) {
             $filename = $this->_sharedDocStoreOptions['segment'] . $extension;
 
             if (!$this->_sharedDocStoreOptions['isCompound']) {
@@ -600,7 +594,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
 
             return $this->_sharedDocStoreOptions['fileSizes'][$filename];
         }
-
 
         $filename = $this->_name . $extension;
 
@@ -749,7 +742,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         return $this->_name;
     }
 
-
     /**
      * TermInfo cache
      *
@@ -832,7 +824,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             return $termInfo;
         }
 
-
         if ($this->_termDictionary === null) {
             $this->_loadDictionaryIndex();
         }
@@ -861,7 +852,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             if ($delta < 0) {
                 $highIndex = $mid - 1;
             } elseif ($delta > 0) {
-                $lowIndex  = $mid + 1;
+                $lowIndex = $mid + 1;
             } else {
                 // return $this->_termDictionaryInfos[$mid]; // We got it!
                 $a = $this->_termDictionaryInfos[$mid];
@@ -887,22 +878,22 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $tiVersion = $tisFile->readInt();
         if (
             $tiVersion != (int)0xFFFFFFFE /* pre-2.1 format */  &&
-            $tiVersion != (int)0xFFFFFFFD /* 2.1+ format    */
+            $tiVersion != (int)0xFFFFFFFD // 2.1+ format
         ) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('Wrong TermInfoFile file format');
         }
 
-        $termCount     = $tisFile->readLong();
+        $termCount = $tisFile->readLong();
         $indexInterval = $tisFile->readInt();
-        $skipInterval  = $tisFile->readInt();
+        $skipInterval = $tisFile->readInt();
         if ($tiVersion == (int)0xFFFFFFFD /* 2.1+ format */) {
             $maxSkipLevels = $tisFile->readInt();
         }
 
-        $tisFile->seek($prevTermInfo[4] /* indexPointer */ - (($tiVersion == (int)0xFFFFFFFD) ? 24 : 20) /* header size*/, SEEK_CUR);
+        $tisFile->seek($prevTermInfo[4] /* indexPointer */ - (($tiVersion == (int)0xFFFFFFFD) ? 24 : 20) /* header size */, SEEK_CUR);
 
-        $termValue    = $prevTerm[1] /* text */;
+        $termValue = $prevTerm[1] /* text */;
         $termFieldNum = $prevTerm[0] /* field */;
         $freqPointer = $prevTermInfo[1] /* freqPointer */;
         $proxPointer = $prevTermInfo[2] /* proxPointer */;
@@ -915,11 +906,11 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             $count++
         ) {
             $termPrefixLength = $tisFile->readVInt();
-            $termSuffix       = $tisFile->readString();
-            $termFieldNum     = $tisFile->readVInt();
-            $termValue        = Zend_Search_Lucene_Index_Term::getPrefix($termValue, $termPrefixLength) . $termSuffix;
+            $termSuffix = $tisFile->readString();
+            $termFieldNum = $tisFile->readVInt();
+            $termValue = Zend_Search_Lucene_Index_Term::getPrefix($termValue, $termPrefixLength) . $termSuffix;
 
-            $docFreq      = $tisFile->readVInt();
+            $docFreq = $tisFile->readVInt();
             $freqPointer += $tisFile->readVInt();
             $proxPointer += $tisFile->readVInt();
             if ($docFreq >= $skipInterval) {
@@ -958,7 +949,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $termInfo = $this->getTermInfo($term);
 
         if (!$termInfo instanceof Zend_Search_Lucene_Index_TermInfo) {
-            if ($docsFilter !== null  &&  $docsFilter instanceof Zend_Search_Lucene_Index_DocsFilter) {
+            if ($docsFilter !== null && $docsFilter instanceof Zend_Search_Lucene_Index_DocsFilter) {
                 $docsFilter->segmentFilters[$this->_name] = [];
             }
             return [];
@@ -966,7 +957,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
 
         $frqFile = $this->openCompoundFile('.frq');
         $frqFile->seek($termInfo->freqPointer, SEEK_CUR);
-        $docId  = 0;
+        $docId = 0;
         $result = [];
 
         if ($docsFilter !== null) {
@@ -1007,7 +998,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                         }
                     }
                     $docsFilter->segmentFilters[$this->_name] = $updatedFilterData;
-                    // ---------------------------------------------------------------
+                // ---------------------------------------------------------------
                 } else {
                     // Perform full scan
                     $updatedFilterData = [];
@@ -1079,7 +1070,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $termInfo = $this->getTermInfo($term);
 
         if (!$termInfo instanceof Zend_Search_Lucene_Index_TermInfo) {
-            if ($docsFilter !== null  &&  $docsFilter instanceof Zend_Search_Lucene_Index_DocsFilter) {
+            if ($docsFilter !== null && $docsFilter instanceof Zend_Search_Lucene_Index_DocsFilter) {
                 $docsFilter->segmentFilters[$this->_name] = [];
             }
             return [];
@@ -1109,7 +1100,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                     return [];
                 }
 
-
                 if ($this->_docCount / count($filter) < self::FULL_SCAN_VS_FETCH_BOUNDARY) {
                     // Perform fetching
                     // ---------------------------------------------------------------
@@ -1133,7 +1123,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                         }
                     }
                     $docsFilter->segmentFilters[$this->_name] = $updatedFilterData;
-                    // ---------------------------------------------------------------
+                // ---------------------------------------------------------------
                 } else {
                     // Perform full scan
                     $updatedFilterData = [];
@@ -1206,7 +1196,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $termInfo = $this->getTermInfo($term);
 
         if (!$termInfo instanceof Zend_Search_Lucene_Index_TermInfo) {
-            if ($docsFilter !== null  &&  $docsFilter instanceof Zend_Search_Lucene_Index_DocsFilter) {
+            if ($docsFilter !== null && $docsFilter instanceof Zend_Search_Lucene_Index_DocsFilter) {
                 $docsFilter->segmentFilters[$this->_name] = [];
             }
             return [];
@@ -1217,7 +1207,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
 
         $docId = 0;
         $freqs = [];
-
 
         if ($docsFilter !== null) {
             if (!$docsFilter instanceof Zend_Search_Lucene_Index_DocsFilter) {
@@ -1273,7 +1262,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                     }
 
                     $docsFilter->segmentFilters[$this->_name] = $updatedFilterData;
-                    // ---------------------------------------------------------------
+                // ---------------------------------------------------------------
                 } else {
                     // Perform full scan
                     for ($count = 0; $count < $termInfo->docFreq; $count++) {
@@ -1386,10 +1375,10 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         if ($this->_hasSingleNormFile) {
             $normfFile = $this->openCompoundFile('.nrm');
 
-            $header              = $normfFile->readBytes(3);
+            $header = $normfFile->readBytes(3);
             $headerFormatVersion = $normfFile->readByte();
 
-            if ($header != 'NRM'  ||  $headerFormatVersion != (int)0xFF) {
+            if ($header != 'NRM' || $headerFormatVersion != (int)0xFF) {
                 require_once 'Zend/Search/Lucene/Exception.php';
                 throw new  Zend_Search_Lucene_Exception('Wrong norms file format.');
             }
@@ -1437,7 +1426,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
     {
         $fieldNum = $this->getFieldNum($fieldName);
 
-        if ($fieldNum == -1  ||  !($this->_fields[$fieldNum]->isIndexed)) {
+        if ($fieldNum == -1 || !($this->_fields[$fieldNum]->isIndexed)) {
             $similarity = Zend_Search_Lucene_Search_Similarity::getDefault();
 
             return str_repeat(
@@ -1453,7 +1442,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         return $this->_norms[$fieldNum];
     }
 
-
     /**
      * Returns true if any documents have been deleted from this index segment.
      *
@@ -1463,7 +1451,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
     {
         return $this->_deleted !== null;
     }
-
 
     /**
      * Returns true if segment has single norms file.
@@ -1584,7 +1571,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             } else if ($latestDelGen > $this->_delGen) {
                 // Delete file has been updated by some concurrent process
                 // Reload deletions file
-                $this->_delGen  = $latestDelGen;
+                $this->_delGen = $latestDelGen;
                 $this->_deleted = $this->_loadDelFile();
 
                 return;
@@ -1641,7 +1628,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $this->_deletedDirty = false;
     }
 
-
     /**
      * Term Dictionary File object for stream like terms reading
      *
@@ -1683,7 +1669,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      * @var integer
      */
     private $_prxFileOffset;
-
 
     /**
      * Actual number of terms in term stream
@@ -1747,7 +1732,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     private $_lastTermPositions;
 
-
     /**
      * Terms scan mode
      *
@@ -1764,7 +1748,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
 
     /** Scan modes */
     const SM_TERMS_ONLY = 0;    // terms are scanned, no additional info is retrieved
-    const SM_FULL_INFO  = 1;    // terms are scanned, frequency and position info is retrieved
+    const SM_FULL_INFO = 1;    // terms are scanned, frequency and position info is retrieved
     const SM_MERGE_INFO = 2;    // terms are scanned, frequency and position info is retrieved
     // document numbers are compacted (shifted if segment contains deleted documents)
 
@@ -1783,8 +1767,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     public function resetTermsStream(
         /** $startId = 0, $mode = self::SM_TERMS_ONLY */
-    )
-    {
+    ) {
         /**
          * SegmentInfo->resetTermsStream() method actually takes two optional parameters:
          *   $startId (default value is 0)
@@ -1796,13 +1779,13 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             throw new Zend_Search_Lucene_Exception('Wrong number of arguments');
         } else if (count($argList) == 2) {
             $startId = $argList[0];
-            $mode    = $argList[1];
+            $mode = $argList[1];
         } else if (count($argList) == 1) {
             $startId = $argList[0];
-            $mode    = self::SM_TERMS_ONLY;
+            $mode = self::SM_TERMS_ONLY;
         } else {
             $startId = 0;
-            $mode    = self::SM_TERMS_ONLY;
+            $mode = self::SM_TERMS_ONLY;
         }
 
         if ($this->_tisFile !== null) {
@@ -1815,16 +1798,16 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $tiVersion = $this->_tisFile->readInt();
         if (
             $tiVersion != (int)0xFFFFFFFE /* pre-2.1 format */  &&
-            $tiVersion != (int)0xFFFFFFFD /* 2.1+ format    */
+            $tiVersion != (int)0xFFFFFFFD // 2.1+ format
         ) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('Wrong TermInfoFile file format');
         }
 
-        $this->_termCount     =
+        $this->_termCount =
             $this->_termNum = $this->_tisFile->readLong(); // Read terms count
         $this->_indexInterval = $this->_tisFile->readInt();  // Read Index interval
-        $this->_skipInterval  = $this->_tisFile->readInt();  // Read skip interval
+        $this->_skipInterval = $this->_tisFile->readInt();  // Read skip interval
         if ($tiVersion == (int)0xFFFFFFFD /* 2.1+ format */) {
             $maxSkipLevels = $this->_tisFile->readInt();
         }
@@ -1837,8 +1820,8 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         }
         $this->_docMap = [];
 
-        $this->_lastTerm          = new Zend_Search_Lucene_Index_Term('', -1);
-        $this->_lastTermInfo      = new Zend_Search_Lucene_Index_TermInfo(0, 0, 0, 0);
+        $this->_lastTerm = new Zend_Search_Lucene_Index_Term('', -1);
+        $this->_lastTermInfo = new Zend_Search_Lucene_Index_TermInfo(0, 0, 0, 0);
         $this->_lastTermPositions = null;
 
         $this->_termsScanMode = $mode;
@@ -1877,7 +1860,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         return $nextSegmentStartId;
     }
 
-
     /**
      * Skip terms stream up to the specified term preffix.
      *
@@ -1903,8 +1885,8 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             $this->_frqFile = null;
             $this->_prxFile = null;
 
-            $this->_lastTerm          = null;
-            $this->_lastTermInfo      = null;
+            $this->_lastTerm = null;
+            $this->_lastTermInfo = null;
             $this->_lastTermPositions = null;
 
             return;
@@ -1928,7 +1910,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             if ($delta < 0) {
                 $highIndex = $mid - 1;
             } elseif ($delta > 0) {
-                $lowIndex  = $mid + 1;
+                $lowIndex = $mid + 1;
             } else {
                 // We have reached term we are looking for
                 break;
@@ -1941,8 +1923,8 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             $this->_frqFile = null;
             $this->_prxFile = null;
 
-            $this->_lastTerm          = null;
-            $this->_lastTermInfo      = null;
+            $this->_lastTerm = null;
+            $this->_lastTermInfo = null;
             $this->_lastTermPositions = null;
 
             return;
@@ -1957,14 +1939,14 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             // Perform mini-reset operation
             $this->_tisFile = $this->openCompoundFile('.tis', false);
 
-            if ($this->_termsScanMode == self::SM_FULL_INFO  ||  $this->_termsScanMode == self::SM_MERGE_INFO) {
+            if ($this->_termsScanMode == self::SM_FULL_INFO || $this->_termsScanMode == self::SM_MERGE_INFO) {
                 $this->_frqFile = $this->openCompoundFile('.frq', false);
                 $this->_prxFile = $this->openCompoundFile('.prx', false);
             }
         }
         $this->_tisFile->seek($this->_tisFileOffset + $prevTermInfo[4], SEEK_SET);
 
-        $this->_lastTerm     = new Zend_Search_Lucene_Index_Term(
+        $this->_lastTerm = new Zend_Search_Lucene_Index_Term(
             $prevTerm[1] /* text */,
             ($prevTerm[0] == -1) ? '' : $this->_fields[$prevTerm[0] /* field */]->name
         );
@@ -1972,17 +1954,17 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             $prevTermInfo[0] /* docFreq */,
             $prevTermInfo[1] /* freqPointer */,
             $prevTermInfo[2] /* proxPointer */,
-            $prevTermInfo[3] /* skipOffset */
+            $prevTermInfo[3] // skipOffset
         );
-        $this->_termCount  =  $this->_termNum - $prevPosition * $this->_indexInterval;
+        $this->_termCount = $this->_termNum - $prevPosition * $this->_indexInterval;
 
         if ($highIndex == 0) {
             // skip start entry
             $this->nextTerm();
-        } else if ($prefix->field == $this->_lastTerm->field  &&  $prefix->text  == $this->_lastTerm->text) {
+        } else if ($prefix->field == $this->_lastTerm->field && $prefix->text == $this->_lastTerm->text) {
             // We got exact match in the dictionary index
 
-            if ($this->_termsScanMode == self::SM_FULL_INFO  ||  $this->_termsScanMode == self::SM_MERGE_INFO) {
+            if ($this->_termsScanMode == self::SM_FULL_INFO || $this->_termsScanMode == self::SM_MERGE_INFO) {
                 $this->_lastTermPositions = [];
 
                 $this->_frqFile->seek($this->_lastTermInfo->freqPointer + $this->_frqFileOffset, SEEK_SET);
@@ -2021,8 +2003,8 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         // Search term matching specified prefix
         while ($this->_lastTerm !== null) {
             if (
-                strcmp($this->_lastTerm->field, $prefix->field) > 0  ||
-                ($prefix->field == $this->_lastTerm->field  &&  strcmp($this->_lastTerm->text, $prefix->text) >= 0)
+                strcmp($this->_lastTerm->field, $prefix->field) > 0 ||
+                ($prefix->field == $this->_lastTerm->field && strcmp($this->_lastTerm->text, $prefix->text) >= 0)
             ) {
                 // Current term matches or greate than the pattern
                 return;
@@ -2032,7 +2014,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         }
     }
 
-
     /**
      * Scans terms dictionary and returns next term
      *
@@ -2040,11 +2021,11 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     public function nextTerm()
     {
-        if ($this->_tisFile === null  ||  $this->_termCount == 0) {
-            $this->_lastTerm          = null;
-            $this->_lastTermInfo      = null;
+        if ($this->_tisFile === null || $this->_termCount == 0) {
+            $this->_lastTerm = null;
+            $this->_lastTermInfo = null;
             $this->_lastTermPositions = null;
-            $this->_docMap            = null;
+            $this->_docMap = null;
 
             // may be necessary for "empty" segment
             $this->_tisFile = null;
@@ -2055,13 +2036,13 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         }
 
         $termPrefixLength = $this->_tisFile->readVInt();
-        $termSuffix       = $this->_tisFile->readString();
-        $termFieldNum     = $this->_tisFile->readVInt();
-        $termValue        = Zend_Search_Lucene_Index_Term::getPrefix($this->_lastTerm->text, $termPrefixLength) . $termSuffix;
+        $termSuffix = $this->_tisFile->readString();
+        $termFieldNum = $this->_tisFile->readVInt();
+        $termValue = Zend_Search_Lucene_Index_Term::getPrefix($this->_lastTerm->text, $termPrefixLength) . $termSuffix;
 
         $this->_lastTerm = new Zend_Search_Lucene_Index_Term($termValue, $this->_fields[$termFieldNum]->name);
 
-        $docFreq     = $this->_tisFile->readVInt();
+        $docFreq = $this->_tisFile->readVInt();
         $freqPointer = $this->_lastTermInfo->freqPointer + $this->_tisFile->readVInt();
         $proxPointer = $this->_lastTermInfo->proxPointer + $this->_tisFile->readVInt();
         if ($docFreq >= $this->_skipInterval) {
@@ -2072,8 +2053,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
 
         $this->_lastTermInfo = new Zend_Search_Lucene_Index_TermInfo($docFreq, $freqPointer, $proxPointer, $skipOffset);
 
-
-        if ($this->_termsScanMode == self::SM_FULL_INFO  ||  $this->_termsScanMode == self::SM_MERGE_INFO) {
+        if ($this->_termsScanMode == self::SM_FULL_INFO || $this->_termsScanMode == self::SM_MERGE_INFO) {
             $this->_lastTermPositions = [];
 
             $this->_frqFile->seek($this->_lastTermInfo->freqPointer + $this->_frqFileOffset, SEEK_SET);
@@ -2127,13 +2107,12 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         $this->_frqFile = null;
         $this->_prxFile = null;
 
-        $this->_lastTerm          = null;
-        $this->_lastTermInfo      = null;
+        $this->_lastTerm = null;
+        $this->_lastTermInfo = null;
         $this->_lastTermPositions = null;
 
-        $this->_docMap            = null;
+        $this->_docMap = null;
     }
-
 
     /**
      * Returns term in current position
@@ -2144,7 +2123,6 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
     {
         return $this->_lastTerm;
     }
-
 
     /**
      * Returns an array of all term positions in the documents.

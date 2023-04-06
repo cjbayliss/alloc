@@ -10,7 +10,6 @@ require_once("../alloc.php");
 global $TPL;
 $current_user = &singleton("current_user");
 
-
 // add a comment
 $commentID = comment::add_comment(
     $_REQUEST["entity"],
@@ -30,7 +29,7 @@ if ($_REQUEST["eo_email"]) {
         "name"       => $_REQUEST["eo_name"],
         "addIP"      => $_REQUEST["eo_add_interested_party"],
         "addContact" => $_REQUEST["eo_add_client_contact"],
-        "clientID"   => $_REQUEST["eo_client_id"]
+        "clientID"   => $_REQUEST["eo_client_id"],
     ];
 }
 
@@ -94,8 +93,6 @@ foreach ((array)$files as $k => $f) {
     }
 }
 rmdir_if_empty($dir);
-
-
 
 // Re-direct browser back home
 $TPL["message_good"][] = $message_good;

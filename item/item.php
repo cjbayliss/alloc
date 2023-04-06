@@ -41,15 +41,12 @@ if ($current_user->have_role("admin") || $current_user->have_role("manage")) {
 $temp = mktime(0, 0, 0, date("m") + $_POST["timePeriod"], date("d"), date("Y"));
 $whenToReturn = date("Y", $temp) . "-" . date("m", $temp) . "-" . date("d", $temp);
 
-
-
 $today = date("Y") . "-" . date("m") . "-" . date("d");
 
 if ($loanID) {
     $loan->set_id($loanID);
     $loan->select();
 }
-
 
 if ($_POST["borrowItem"]) {
     $db->query("select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID);
@@ -82,8 +79,6 @@ if ($_POST["borrowItem"]) {
     }
 }
 
-
-
 if ($_POST["returnItem"]) {
     $dbTemp = new db_alloc();
     $dbTemp->query("select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID);
@@ -111,8 +106,6 @@ if ($_POST["returnItem"]) {
 
     alloc_redirect($TPL["url_alloc_loanAndReturn"]);
 }
-
-
 
 if ($_GET["return"]) {
     include_template("templates/itemReturnM.tpl");

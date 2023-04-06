@@ -10,31 +10,31 @@ class stats
     public $classname = "stats";
 
     public $projects = [
-        "all" => ["total" => []],
-        "new" => ["total" => []],
-        "current" => ["total" => 0],
+        "all"      => ["total" => []],
+        "new"      => ["total" => []],
+        "current"  => ["total" => 0],
         "archived" => ["total" => 0],
-        "total" => ["total" => 0]
+        "total"    => ["total" => 0],
     ];
     public $tasks = [
-        "all" => ["total" => []],
-        "new" => ["total" => []],
-        "current" => ["total" => 0],
+        "all"       => ["total" => []],
+        "new"       => ["total" => []],
+        "current"   => ["total" => 0],
         "completed" => ["total" => 0],
-        "total" => ["total" => 0]
+        "total"     => ["total" => 0],
     ];
     public $comments = [
-        "all" => ["total" => []],
-        "new" => ["total" => []],
-        "total" => ["total" => 0]
+        "all"   => ["total" => []],
+        "new"   => ["total" => []],
+        "total" => ["total" => 0],
     ];
     public $persons = [];
 
-    function stats()
+    public function stats()
     {
     }
 
-    function project_stats()
+    public function project_stats()
     {
         // date from which a project is counted as being new. if monday then date back to friday, else the previous day
         $days = date("w") == 1 ? 3 : 1;
@@ -96,7 +96,7 @@ class stats
         return $this->projects;
     }
 
-    function task_stats()
+    public function task_stats()
     {
         $v = null;
         $db = new db_alloc();
@@ -128,7 +128,6 @@ class stats
             $this->tasks["completed"]["total"] += $db->f("tally");
         }
 
-
         // Get total amount of all tasks for every person
         $q = "SELECT person.personID, person.username, count(taskID) as tally
                 FROM task
@@ -159,12 +158,10 @@ class stats
             $this->tasks["new"]["total"][$d] = $v;
         }
 
-
-
         return $this->tasks;
     }
 
-    function comment_stats()
+    public function comment_stats()
     {
         // date from which a comment is counted as being new. if monday then date back to friday, else the previous day
         $days = date("w") == 1 ? 3 : 1;
@@ -199,7 +196,7 @@ class stats
         return $this->comments;
     }
 
-    function compare($a, $b)
+    public function compare($a, $b)
     {
         if ($a["count_back"] == $b["count_back"]) {
             // if last added item was added on the same day then look at how many were added on that day
@@ -214,7 +211,7 @@ class stats
         }
     }
 
-    function order_by_most_frequent_use()
+    public function order_by_most_frequent_use()
     {
         $max_search_back = 90;      // maximum number of days to go back when sorting
 
@@ -232,10 +229,10 @@ class stats
                 // + $this->comments["all"][$person->get_id()][$date];
                 if ($value > 0) {
                     array_push($this->persons, [
-                        "id" => $person->get_id(),
-                        "username" => $person->get_value('username'),
+                        "id"         => $person->get_id(),
+                        "username"   => $person->get_value('username'),
                         "count_back" => $i,
-                        "value" => $value
+                        "value"      => $value,
                     ]);
                 }
             }
@@ -243,11 +240,11 @@ class stats
 
         usort($this->persons, [
             $this,
-            "compare"
+            "compare",
         ]);
     }
 
-    function get_stats_for_email($format)
+    public function get_stats_for_email($format)
     {
 
         if ($format == "html") {

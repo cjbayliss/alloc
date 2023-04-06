@@ -19,9 +19,8 @@ $defaults = [
     "showInvoiceDate"       => true,
     "showInvoiceStatus"     => true,
     "url_form_action"       => $TPL["url_alloc_invoiceList"],
-    "form_name"             => "invoiceList_filter"
+    "form_name"             => "invoiceList_filter",
 ];
-
 
 function show_filter()
 {
@@ -40,7 +39,6 @@ function show_filter()
 
     include_template("templates/invoiceListFilterS.tpl");
 }
-
 
 $_FORM = invoice::load_form_data($defaults);
 
@@ -65,8 +63,6 @@ display a list of previously created Invoices.
 If you would prefer to create a new Invoice, click the <b>New Invoice</b> link
 in the top-right hand corner of the box below.";
 }
-
-
 
 $TPL["main_alloc_title"] = "Invoice List - " . APPLICATION_NAME;
 include_template("templates/invoiceListM.tpl");

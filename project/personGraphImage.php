@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 require_once("../alloc.php");
 include("lib/task_graph.inc.php");
 

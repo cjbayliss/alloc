@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 function path_under_path($unsafe, $safe, $use_realpath = true)
 {
     // Checks that the potentially unsafe path is under the safe path
@@ -48,7 +47,7 @@ function get_timezone_array()
     // List format suitable for sorting
     $now = new DateTime();
 
-    $idx = 0; //to distinguish timezones on the same offset
+    $idx = 0; // to distinguish timezones on the same offset
     foreach ($zones as $zone) {
         $tz = new DateTimeZone($zone);
         $offset = $tz->getOffset($now);
@@ -74,16 +73,16 @@ function format_date($format = "Y/m/d", $date = "")
     if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2} [\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
         list($d, $t) = explode(" ", $date);
 
-        // If looks like this: 2003-07-07
+    // If looks like this: 2003-07-07
     } else if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2}$/", $date)) {
         $d = $date;
 
-        // If looks like this: 12:01:01
+    // If looks like this: 12:01:01
     } else if (preg_match("/^[\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
         $d = "2000-01-01";
         $t = $date;
 
-        // Nasty hobbitses!
+    // Nasty hobbitses!
     } else if ($date) {
         return "Date unrecognized: " . $date;
     } else {
@@ -134,7 +133,7 @@ function seconds_to_display_format($seconds)
         return sprintf("%0.2f hrs", $hours);
     } else {
         $days = $seconds / $day_in_seconds;
-        #return sprintf("%0.1f days", $days);
+        // return sprintf("%0.1f days", $days);
         return sprintf("%0.2f hrs (%0.1f days)", $hours, $days);
     }
 }
@@ -153,7 +152,7 @@ function timetook($start, $friendly_output = true)
 {
     $end = microtime();
     list($start_micro, $start_epoch, $end_micro, $end_epoch) = explode(" ", $start . " " . $end);
-    $started  = (substr($start_epoch, -4) + $start_micro);
+    $started = (substr($start_epoch, -4) + $start_micro);
     $finished = (substr($end_epoch, -4) + $end_micro);
     $dur = $finished - $started;
     if ($friendly_output) {
@@ -272,7 +271,7 @@ function get_file_type_image($file)
     $types[".gz"] = "zip.gif";
     $types["doc"] = "doc.gif";
     $types["sxw"] = "doc.gif";
-    #$types["odf"] = "doc.gif";
+    // $types["odf"] = "doc.gif";
 
     $type = strtolower(substr($file, -3));
     $icon_dir = ALLOC_MOD_DIR . "images" . DIRECTORY_SEPARATOR . "fileicons" . DIRECTORY_SEPARATOR;
@@ -298,10 +297,9 @@ function get_attachments($entity, $id, $ops = [])
     $dir = ATTACHMENTS_DIR . $entity . DIRECTORY_SEPARATOR . $id;
 
     if (isset($id)) {
-        #if (!is_dir($dir)) {
-        #mkdir($dir, 0777);
-        #}
-
+        // if (!is_dir($dir)) {
+        // mkdir($dir, 0777);
+        // }
 
         if (is_dir($dir)) {
             $handle = opendir($dir);
@@ -317,7 +315,7 @@ function get_attachments($entity, $id, $ops = [])
                     $row["path"] = $dir . DIRECTORY_SEPARATOR . $file;
                     $row["file"] = "<a href=\"" . $TPL["url_alloc_getDoc"] . "id=" . $id . "&entity=" . $entity . "&file=" . urlencode($file) . "\">" . $image . $ops["sep"] . page::htmlentities($file) . "</a>";
                     $row["text"] = page::htmlentities($file);
-                    #$row["delete"] = "<a href=\"".$TPL["url_alloc_delDoc"]."id=".$id."&entity=".$entity."&file=".urlencode($file)."\">Delete</a>";
+                    // $row["delete"] = "<a href=\"".$TPL["url_alloc_delDoc"]."id=".$id."&entity=".$entity."&file=".urlencode($file)."\">Delete</a>";
                     $row["delete"] = "<form action=\"" . $TPL["url_alloc_delDoc"] . "\" method=\"post\">
                             <input type=\"hidden\" name=\"id\" value=\"" . $id . "\">
                             <input type=\"hidden\" name=\"file\" value=\"" . $file . "\">
@@ -325,7 +323,6 @@ function get_attachments($entity, $id, $ops = [])
                             <input type=\"hidden\" name=\"sbs_link\" value=\"attachments\">
                             <input type=\"hidden\" name=\"sessID\" value=\"{$sessID}\">"
                         . '<button type="submit" name="delete_file_attachment" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>' . "</form>";
-
 
                     $row["mtime"] = date("Y-m-d H:i:s", filemtime($dir . DIRECTORY_SEPARATOR . $file));
                     $row["restore_name"] = $file;
@@ -354,7 +351,7 @@ function rejig_files_array($f)
                             "tmp_name" => $f[$key]["tmp_name"][$k],
                             "type"     => $f[$key]["type"][$k],
                             "error"    => $f[$key]["error"][$k],
-                            "size"     => $f[$key]["size"][$k]
+                            "size"     => $f[$key]["size"][$k],
                         ];
                     }
                 }
@@ -364,7 +361,7 @@ function rejig_files_array($f)
                     "tmp_name" => $f[$key]["tmp_name"],
                     "type"     => $f[$key]["type"],
                     "error"    => $f[$key]["error"],
-                    "size"     => $f[$key]["size"]
+                    "size"     => $f[$key]["size"],
                 ];
             }
         }
@@ -553,7 +550,7 @@ function alloc_redirect($target_url)
         "message_good",
         "message_help",
         "message_help_no_esc",
-        "message_good_no_esc"
+        "message_good_no_esc",
     ] as $type) {
         if ($TPL[$type]) {
             if (is_array($TPL[$type])) {
@@ -617,7 +614,7 @@ function image_create_from_file($path)
         IMAGETYPE_JPEG => 'imagecreatefromjpeg',
         IMAGETYPE_PNG  => 'imagecreatefrompng',
         IMAGETYPE_WBMP => 'imagecreatefromwbmp',
-        IMAGETYPE_XBM  => 'imagecreatefromwxbm'
+        IMAGETYPE_XBM  => 'imagecreatefromwxbm',
     ];
 
     if (!$functions[$info[2]]) {
@@ -638,13 +635,13 @@ function operator_comparison($operator, $figure, $subject)
         return $figure == $subject;
     }
     if ($operator == '>') {
-        return $figure >  $subject;
+        return $figure > $subject;
     }
     if ($operator == '>=') {
         return $figure >= $subject;
     }
     if ($operator == '<') {
-        return $figure <  $subject;
+        return $figure < $subject;
     }
     if ($operator == '<=') {
         return $figure <= $subject;
@@ -666,7 +663,7 @@ function parse_operator_comparison($str, $figure)
         $number = $str;
         return operator_comparison($operator, $figure, $number);
 
-        // <5 OR =10
+    // <5 OR =10
     } else if (stristr($str, "OR")) {
         $criterias = explode("OR", $str);
         foreach ($criterias as $criteria) {
@@ -675,7 +672,7 @@ function parse_operator_comparison($str, $figure)
             }
         }
 
-        // >5 AND <10
+    // >5 AND <10
     } else if (stristr($str, "AND")) {
         $criterias = explode("AND", $str);
         foreach ($criterias as $criteria) {
@@ -690,7 +687,7 @@ function parse_operator_comparison($str, $figure)
         }
         return $alive && !$dead;
 
-        // >5
+    // >5
     } else if (preg_match($operator_regex, $str, $matches)) {
         $operator = $matches[1];
         $number = $matches[2];
@@ -793,7 +790,7 @@ function tax($amount, $taxPercent = null)
     // eg: 500 including 10% tax, returns array(454.54, 45.45)
     imp($taxPercent) or $taxPercent = config::get_config_item("taxPercent");
     $amount_minus_tax = $amount / (($taxPercent / 100) + 1);
-    $amount_of_tax    = $amount / ((100 / $taxPercent) + 1);
+    $amount_of_tax = $amount / ((100 / $taxPercent) + 1);
     return [$amount_minus_tax, $amount_of_tax];
 }
 
@@ -820,7 +817,7 @@ function alloc_error($str = "", $force = null)
 
     // Output a plain-text error suitable for logfiles and CLI
     if ($errors_format == "text" && ini_get('display_errors')) {
-        echo (strip_tags($str));
+        echo(strip_tags($str));
     }
 
     // Log the error message
@@ -916,9 +913,9 @@ function sprintf_implode()
 
 /**
  * This function should NOT be used. It is unsafe.
- * 
+ *
  * FIXME: delete this function.
- * 
+ *
  * @deprecated
  *
  * @param mixed $args

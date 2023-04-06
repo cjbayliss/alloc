@@ -21,7 +21,6 @@
  * @version    $Id: Weight.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /**
  * Calculate query weights and build query scorers.
  *
@@ -57,7 +56,6 @@ abstract class Zend_Search_Lucene_Search_Weight
      * @var float
      */
     protected $_value;
-
 
     /**
      * The weight for this query.

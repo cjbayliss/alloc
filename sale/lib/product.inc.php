@@ -14,23 +14,23 @@ class product extends db_entity
     public $data_fields = [
         "productName",
         "sellPrice" => [
-            "type" => "money",
-            "currency" => "sellPriceCurrencyTypeID"
+            "type"     => "money",
+            "currency" => "sellPriceCurrencyTypeID",
         ],
         "sellPriceCurrencyTypeID",
         "sellPriceIncTax" => ["empty_to_null" => false],
         "description",
         "comment",
-        "productActive"
+        "productActive",
     ];
 
-    function delete()
+    public function delete()
     {
         $this->set_value("productActive", 0);
         $this->save();
     }
 
-    function get_list_filter($filter)
+    public function get_list_filter($filter)
     {
         $sql = null;
         // stub function for one day when you can filter products
@@ -70,7 +70,7 @@ class product extends db_entity
         return $rows;
     }
 
-    function get_link($row = [])
+    public function get_link($row = [])
     {
         global $TPL;
         if (is_object($this)) {
@@ -80,13 +80,13 @@ class product extends db_entity
         }
     }
 
-    function get_list_vars()
+    public function get_list_vars()
     {
         // stub function for one day when you can specify list parameters
         return [];
     }
 
-    function get_buy_cost($id = false)
+    public function get_buy_cost($id = false)
     {
         $amount = null;
         $id or $id = $this->get_id();
@@ -108,7 +108,7 @@ class product extends db_entity
         return $amount;
     }
 
-    function get_list_html($rows = [], $_FORM = [])
+    public function get_list_html($rows = [], $_FORM = [])
     {
         global $TPL;
         $TPL["productListRows"] = $rows;

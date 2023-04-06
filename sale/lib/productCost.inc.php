@@ -13,24 +13,24 @@ class productCost extends db_entity
     public $data_fields = [
         "tfID",
         "productID",
-        "amount" => ["type" => "money"],
+        "amount"       => ["type" => "money"],
         "isPercentage" => ["empty_to_null" => false],
         "description",
         "currencyTypeID",
         "tax",
-        "productCostActive"
+        "productCostActive",
     ];
 
-    function validate()
+    public function validate()
     {
         $err = [];
-        $this->get_value("productID")    or $err[] = "Missing a Product.";
-        $this->get_value("tfID")         or $err[] = "Missing a Destination TF.";
-        $this->get_value("amount")       or $err[] = "Missing an amount.";
+        $this->get_value("productID") or $err[] = "Missing a Product.";
+        $this->get_value("tfID") or $err[] = "Missing a Destination TF.";
+        $this->get_value("amount") or $err[] = "Missing an amount.";
         return parent::validate($err);
     }
 
-    function delete()
+    public function delete()
     {
         if ($this->get_id()) {
             $this->set_value("productCostActive", 0);

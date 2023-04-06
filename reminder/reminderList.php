@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 require_once("../alloc.php");
 
 function show_reminder_filter($template)
@@ -25,6 +24,5 @@ function show_reminder_filter($template)
         include_template($template);
     }
 }
-
 
 include_template("templates/reminderListM.tpl");

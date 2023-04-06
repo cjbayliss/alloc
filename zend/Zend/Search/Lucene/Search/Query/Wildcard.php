@@ -21,10 +21,8 @@
  * @version    $Id: Wildcard.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Search_Query */
 require_once 'Zend/Search/Lucene/Search/Query.php';
-
 
 /**
  * @category   Zend
@@ -104,7 +102,7 @@ class Zend_Search_Lucene_Search_Query_Wildcard extends Zend_Search_Lucene_Search
     private static function _getPrefix($word)
     {
         $questionMarkPosition = strpos($word, '?');
-        $astrericPosition     = strpos($word, '*');
+        $astrericPosition = strpos($word, '*');
 
         if ($questionMarkPosition !== false) {
             if ($astrericPosition !== false) {
@@ -137,8 +135,8 @@ class Zend_Search_Lucene_Search_Query_Wildcard extends Zend_Search_Lucene_Search
             $fields = [$this->_pattern->field];
         }
 
-        $prefix          = self::_getPrefix($this->_pattern->text);
-        $prefixLength    = strlen($prefix);
+        $prefix = self::_getPrefix($this->_pattern->text);
+        $prefixLength = strlen($prefix);
         $matchExpression = '/^' . str_replace(['\\?', '\\*'], ['.', '.*'], preg_quote($this->_pattern->text, '/')) . '$/';
 
         if ($prefixLength < self::$_minPrefixLength) {
@@ -162,14 +160,14 @@ class Zend_Search_Lucene_Search_Query_Wildcard extends Zend_Search_Lucene_Search
                 $index->skipTo(new Zend_Search_Lucene_Index_Term($prefix, $field));
 
                 while (
-                    $index->currentTerm() !== null          &&
-                    $index->currentTerm()->field == $field  &&
+                    $index->currentTerm() !== null &&
+                    $index->currentTerm()->field == $field &&
                     substr($index->currentTerm()->text, 0, $prefixLength) == $prefix
                 ) {
                     if (preg_match($matchExpression, $index->currentTerm()->text) === 1) {
                         $this->_matches[] = $index->currentTerm();
 
-                        if ($maxTerms != 0  &&  count($this->_matches) > $maxTerms) {
+                        if ($maxTerms != 0 && count($this->_matches) > $maxTerms) {
                             require_once 'Zend/Search/Lucene/Exception.php';
                             throw new Zend_Search_Lucene_Exception('Terms per query limit is reached.');
                         }
@@ -180,11 +178,11 @@ class Zend_Search_Lucene_Search_Query_Wildcard extends Zend_Search_Lucene_Search
             } else {
                 $index->skipTo(new Zend_Search_Lucene_Index_Term('', $field));
 
-                while ($index->currentTerm() !== null  &&  $index->currentTerm()->field == $field) {
+                while ($index->currentTerm() !== null && $index->currentTerm()->field == $field) {
                     if (preg_match($matchExpression, $index->currentTerm()->text) === 1) {
                         $this->_matches[] = $index->currentTerm();
 
-                        if ($maxTerms != 0  &&  count($this->_matches) > $maxTerms) {
+                        if ($maxTerms != 0 && count($this->_matches) > $maxTerms) {
                             require_once 'Zend/Search/Lucene/Exception.php';
                             throw new Zend_Search_Lucene_Exception('Terms per query limit is reached.');
                         }
@@ -227,7 +225,6 @@ class Zend_Search_Lucene_Search_Query_Wildcard extends Zend_Search_Lucene_Search
         throw new Zend_Search_Lucene_Exception('Wildcard query should not be directly used for search. Use $query->rewrite($index)');
     }
 
-
     /**
      * Returns query pattern
      *
@@ -237,7 +234,6 @@ class Zend_Search_Lucene_Search_Query_Wildcard extends Zend_Search_Lucene_Search
     {
         return $this->_pattern;
     }
-
 
     /**
      * Return query terms
@@ -267,7 +263,6 @@ class Zend_Search_Lucene_Search_Query_Wildcard extends Zend_Search_Lucene_Search
         require_once 'Zend/Search/Lucene/Exception.php';
         throw new Zend_Search_Lucene_Exception('Wildcard query should not be directly used for search. Use $query->rewrite($index)');
     }
-
 
     /**
      * Execute query in context of index reader

@@ -21,10 +21,8 @@
  * @version    $Id: Term.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Search_Query */
 require_once 'Zend/Search/Lucene/Search/Query.php';
-
 
 /**
  * @category   Zend
@@ -56,7 +54,6 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
      * @var array
      */
     private $_termFreqs;
-
 
     /**
      * Zend_Search_Lucene_Search_Query_Term constructor
@@ -111,7 +108,6 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
 
         return $this;
     }
-
 
     /**
      * Constructs an appropriate Weight implementation for this query.

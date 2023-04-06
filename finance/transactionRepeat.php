@@ -23,12 +23,9 @@ if ($transactionRepeatID) {
     $transactionRepeat->set_values();
 }
 
-
-
 if (!isset($_POST["reimbursementRequired"])) {
     $_POST["reimbursementRequired"] = 0;
 }
-
 
 if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"] || $_POST["rejected"]) {
     $transactionRepeat->read_globals();
@@ -52,11 +49,11 @@ if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"
         alloc_redirect($TPL["url_alloc_transactionRepeatList"] . "tfID=" . $_POST["tfID"]);
     }
 
-    $_POST["product"]  or alloc_error("Please enter a Product");
-    $_POST["amount"]   or alloc_error("Please enter an Amount");
+    $_POST["product"] or alloc_error("Please enter a Product");
+    $_POST["amount"] or alloc_error("Please enter an Amount");
     $_POST["fromTfID"] or alloc_error("Please select a Source TF");
-    $_POST["tfID"]     or alloc_error("Please select a Destination TF");
-    $_POST["companyDetails"]  or alloc_error("Please provide Company Details");
+    $_POST["tfID"] or alloc_error("Please select a Destination TF");
+    $_POST["companyDetails"] or alloc_error("Please provide Company Details");
     $_POST["transactionType"] or alloc_error("Please select a Transaction Type");
     $_POST["transactionStartDate"] or alloc_error("You must enter the Start date in the format yyyy-mm-dd");
     $_POST["transactionFinishDate"] or alloc_error("You must enter the Finish date in the format yyyy-mm-dd");
@@ -70,10 +67,6 @@ if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"
     $transactionRepeat->set_values();
 }
 
-
-
-
-
 $TPL["reimbursementRequired_checked"] = $transactionRepeat->get_value("reimbursementRequired") ? " checked" : "";
 
 if ($transactionRepeat->get_value("transactionRepeatModifiedUser")) {
@@ -81,7 +74,6 @@ if ($transactionRepeat->get_value("transactionRepeatModifiedUser")) {
     $db->next_record();
     $TPL["user"] = $db->f("username");
 }
-
 
 if (have_entity_perm("tf", PERM_READ, $current_user, false)) {
     // Person can access all TF records
@@ -112,7 +104,7 @@ if (have_entity_perm("tf", PERM_READ, $current_user, false)) {
     alloc_error("No permissions to generate TF list");
 }
 
-//special case for disabled TF. Include it in the list, but also add a warning message.
+// special case for disabled TF. Include it in the list, but also add a warning message.
 $tf = new tf();
 $tf->set_id($transactionRepeat->get_value("tfID"));
 if ($tf->select() && !$tf->get_value("tfActive")) {
@@ -124,7 +116,6 @@ if ($tf->select() && !$tf->get_value("tfActive")) {
     $TPL["message_help"][] = "This expense is sourced from an inactive TF. It will not create transactions.";
 }
 
-
 $m = new meta("currencyType");
 $currencyOps = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
 $TPL["currencyTypeOptions"] = page::select_options($currencyOps, $transactionRepeat->get_value("currencyTypeID"));
@@ -132,7 +123,7 @@ $TPL["currencyTypeOptions"] = page::select_options($currencyOps, $transactionRep
 $TPL["tfOptions"] = page::select_options($q, $transactionRepeat->get_value("tfID"));
 $TPL["fromTfOptions"] = page::select_options($q, $transactionRepeat->get_value("fromTfID"));
 $TPL["basisOptions"] = page::select_options(
-    ["weekly"      => "weekly", "fortnightly" => "fortnightly", "monthly"     => "monthly", "quarterly"   => "quarterly", "yearly"      => "yearly"],
+    ["weekly" => "weekly", "fortnightly" => "fortnightly", "monthly" => "monthly", "quarterly" => "quarterly", "yearly" => "yearly"],
     $transactionRepeat->get_value("paymentBasis")
 );
 

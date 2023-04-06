@@ -21,7 +21,6 @@
  * @version    $Id: Interface.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene

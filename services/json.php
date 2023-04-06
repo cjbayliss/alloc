@@ -8,11 +8,10 @@ singleton("errors_logged", false);
 singleton("errors_thrown", false);
 singleton("errors_haltdb", true);
 
-
 function g($var)
 {
     $rtn = $_GET[$var] or $rtn = $_POST[$var] or $rtn = $_REQUEST[$var];
-    $var == "options"    and $rtn = alloc_json_decode($_POST[$var]);
+    $var == "options" and $rtn = alloc_json_decode($_POST[$var]);
     return $rtn;
 }
 
@@ -31,13 +30,11 @@ if (g("authenticate") && g("username") && g("password")) {
     die(alloc_json_encode(["sessID" => $sessID]));
 }
 
-
 $services = new services($sessID);
 $current_user = &singleton("current_user");
 if (!$current_user || !is_object($current_user) || !$current_user->get_id()) {
     die(alloc_json_encode(["reauthenticate" => "true"]));
 }
-
 
 if ($sessID) {
     if (method_exists($services, g("method"))) {

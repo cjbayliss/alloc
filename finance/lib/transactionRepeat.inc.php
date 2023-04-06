@@ -12,8 +12,8 @@ class transactionRepeat extends db_entity
     public $key_field = "transactionRepeatID";
     public $data_fields = [
         "companyDetails" => ["empty_to_null" => false],
-        "payToName" => ["empty_to_null" => false],
-        "payToAccount" => ["empty_to_null" => false],
+        "payToName"      => ["empty_to_null" => false],
+        "payToAccount"   => ["empty_to_null" => false],
         "tfID",
         "fromTfID",
         "emailOne",
@@ -30,11 +30,10 @@ class transactionRepeat extends db_entity
         "currencyTypeID",
         "product",
         "status",
-        "transactionType"
+        "transactionType",
     ];
 
-
-    function is_owner($ignored = null)
+    public function is_owner($ignored = null)
     {
         $tf = new tf();
         $tf->set_id($this->get_value("tfID"));

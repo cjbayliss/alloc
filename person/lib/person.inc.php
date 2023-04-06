@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 define("PERM_PERSON_READ_DETAILS", 256);
 define("PERM_PERSON_READ_MANAGEMENT", 512);
 define("PERM_PERSON_WRITE_MANAGEMENT", 1024);
@@ -21,14 +20,14 @@ class person extends db_entity
         "username",
         "lastLoginDate",
         "password" => ["read_perm_name" => PERM_PERSON_READ_DETAILS],
-        "perms" => ["write_perm_name" => PERM_PERSON_WRITE_ROLES],
+        "perms"    => ["write_perm_name" => PERM_PERSON_WRITE_ROLES],
         "emailAddress",
         "availability",
         "areasOfInterest",
         "comments",
         "managementComments" => [
-            "read_perm_name" => PERM_PERSON_READ_MANAGEMENT,
-            "write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT
+            "read_perm_name"  => PERM_PERSON_READ_MANAGEMENT,
+            "write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT,
         ],
         "firstName",
         "surname",
@@ -39,26 +38,25 @@ class person extends db_entity
         "phoneNo2",
         "emergencyContact",
         "defaultTimeSheetRate" => [
-            "type" => "money",
-            "write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT
+            "type"            => "money",
+            "write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT,
         ],
-        "defaultTimeSheetRateUnitID" => ["write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT]
+        "defaultTimeSheetRateUnitID" => ["write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT],
     ];
 
     public $prefs = [];
     public $permissions = [
-        PERM_PERSON_READ_DETAILS => "read details",
-        PERM_PERSON_READ_MANAGEMENT => "read management fields",
+        PERM_PERSON_READ_DETAILS     => "read details",
+        PERM_PERSON_READ_MANAGEMENT  => "read management fields",
         PERM_PERSON_WRITE_MANAGEMENT => "write management fields",
-        PERM_PERSON_WRITE_ROLES => "set roles"
+        PERM_PERSON_WRITE_ROLES      => "set roles",
     ];
 
-
-    function get_tasks_for_email()
+    public function get_tasks_for_email()
     {
         $s = [];
         $options = [];
-        #$options["projectType"] = "mine";
+        // $options["projectType"] = "mine";
         $options["limit"] = 3;
         $options["current_user"] = $this->get_id();
         $options["personID"] = $this->get_id();
@@ -125,7 +123,7 @@ class person extends db_entity
         return $topThree . $dueToday . $newTasks;
     }
 
-    function get_announcements_for_email()
+    public function get_announcements_for_email()
     {
         $announcement = [];
         $db = new db_alloc();
@@ -138,13 +136,13 @@ class person extends db_entity
         return $announcement;
     }
 
-    function have_role($perm_name)
+    public function have_role($perm_name)
     {
         $perms = explode(",", $this->get_value("perms"));
         return in_array($perm_name, $perms);
     }
 
-    function is_employee()
+    public function is_employee()
     {
         // Function to check if the person is an employee
         $current_user = &singleton("current_user");
@@ -158,7 +156,7 @@ class person extends db_entity
         }
     }
 
-    function check_employee()
+    public function check_employee()
     {
         // Ensure the current user is an employee
         if (!$this->is_employee()) {
@@ -166,7 +164,7 @@ class person extends db_entity
         }
     }
 
-    function get_skills($proficiency)
+    public function get_skills($proficiency)
     {
         $rtn = null;
         // Return a string of skills with a given proficiency
@@ -205,7 +203,7 @@ class person extends db_entity
 
                 $rows[$db->f("personID")] = [
                     "active" => $db->f("personActive"),
-                    "name" => $name
+                    "name"   => $name,
                 ];
             }
         }
@@ -227,11 +225,11 @@ class person extends db_entity
         return $people_cache[$personID]["name"];
     }
 
-    function get_name($_FORM = [])
+    public function get_name($_FORM = [])
     {
         $firstName = $this->get_value("firstName");
-        $surname   = $this->get_value("surname");
-        $username  = $this->get_value("username");
+        $surname = $this->get_value("surname");
+        $username = $this->get_value("username");
 
         if ($_FORM["format"] == "nick") {
             $rtn = $username;
@@ -248,7 +246,7 @@ class person extends db_entity
         }
     }
 
-    function get_tfIDs()
+    public function get_tfIDs()
     {
         $tfIDs = [];
         $db = new db_alloc();
@@ -259,7 +257,7 @@ class person extends db_entity
         return $tfIDs;
     }
 
-    function get_valid_login_row($username, $password = "")
+    public function get_valid_login_row($username, $password = "")
     {
         $db = new db_alloc();
         $q = unsafe_prepare(
@@ -275,7 +273,7 @@ class person extends db_entity
         }
     }
 
-    function load_current_user($personID)
+    public function load_current_user($personID)
     {
         $this->set_id($personID);
         if ($this->select()) {
@@ -283,34 +281,34 @@ class person extends db_entity
         }
     }
 
-    function load_prefs()
+    public function load_prefs()
     {
         $this->prefs = unserialize($this->get_value("sessData"));
         !isset($this->prefs["customizedFont"]) and $this->prefs["customizedFont"] = 0;
     }
 
-    function update_prefs($p = [])
+    public function update_prefs($p = [])
     {
-        isset($p["font"])                      and $this->prefs["customizedFont"]            = sprintf("%d", $p["font"]);
-        isset($p["theme"])                     and $this->prefs["customizedTheme2"]          = $p["theme"];
-        isset($p["weeks"])                     and $this->prefs["tasksGraphPlotHome"]        = $p["weeks"];
-        isset($p["weeksBack"])                 and $this->prefs["tasksGraphPlotHomeStart"]   = $p["weeksBack"];
-        isset($p["projectListNum"])            and $this->prefs["projectListNum"]            = $p["projectListNum"];
-        isset($p["dailyTaskEmail"])            and $this->prefs["dailyTaskEmail"]            = $p["dailyTaskEmail"];
-        isset($p["receiveOwnTaskComments"])    and $this->prefs["receiveOwnTaskComments"]    = $p["receiveOwnTaskComments"];
-        isset($p["showFilters"])               and $this->prefs["showFilters"]               = $p["showFilters"];
-        isset($p["privateMode"])               and $this->prefs["privateMode"]               = $p["privateMode"];
-        isset($p["timeSheetHoursWarn"])        and $this->prefs["timeSheetHoursWarn"]        = $p["timeSheetHoursWarn"];
-        isset($p["timeSheetDaysWarn"])         and $this->prefs["timeSheetDaysWarn"]         = $p["timeSheetDaysWarn"];
-        isset($p["showTaskListHome"])          and $this->prefs["showTaskListHome"]          = $p["showTaskListHome"];
-        isset($p["showCalendarHome"])          and $this->prefs["showCalendarHome"]          = $p["showCalendarHome"];
-        isset($p["showProjectHome"])           and $this->prefs["showProjectHome"]           = $p["showProjectHome"];
-        isset($p["showTimeSheetStatsHome"])    and $this->prefs["showTimeSheetStatsHome"]    = $p["showTimeSheetStatsHome"];
-        isset($p["showTimeSheetItemHome"])     and $this->prefs["showTimeSheetItemHome"]     = $p["showTimeSheetItemHome"];
+        isset($p["font"]) and $this->prefs["customizedFont"] = sprintf("%d", $p["font"]);
+        isset($p["theme"]) and $this->prefs["customizedTheme2"] = $p["theme"];
+        isset($p["weeks"]) and $this->prefs["tasksGraphPlotHome"] = $p["weeks"];
+        isset($p["weeksBack"]) and $this->prefs["tasksGraphPlotHomeStart"] = $p["weeksBack"];
+        isset($p["projectListNum"]) and $this->prefs["projectListNum"] = $p["projectListNum"];
+        isset($p["dailyTaskEmail"]) and $this->prefs["dailyTaskEmail"] = $p["dailyTaskEmail"];
+        isset($p["receiveOwnTaskComments"]) and $this->prefs["receiveOwnTaskComments"] = $p["receiveOwnTaskComments"];
+        isset($p["showFilters"]) and $this->prefs["showFilters"] = $p["showFilters"];
+        isset($p["privateMode"]) and $this->prefs["privateMode"] = $p["privateMode"];
+        isset($p["timeSheetHoursWarn"]) and $this->prefs["timeSheetHoursWarn"] = $p["timeSheetHoursWarn"];
+        isset($p["timeSheetDaysWarn"]) and $this->prefs["timeSheetDaysWarn"] = $p["timeSheetDaysWarn"];
+        isset($p["showTaskListHome"]) and $this->prefs["showTaskListHome"] = $p["showTaskListHome"];
+        isset($p["showCalendarHome"]) and $this->prefs["showCalendarHome"] = $p["showCalendarHome"];
+        isset($p["showProjectHome"]) and $this->prefs["showProjectHome"] = $p["showProjectHome"];
+        isset($p["showTimeSheetStatsHome"]) and $this->prefs["showTimeSheetStatsHome"] = $p["showTimeSheetStatsHome"];
+        isset($p["showTimeSheetItemHome"]) and $this->prefs["showTimeSheetItemHome"] = $p["showTimeSheetItemHome"];
         isset($p["showTimeSheetItemHintHome"]) and $this->prefs["showTimeSheetItemHintHome"] = $p["showTimeSheetItemHintHome"];
     }
 
-    function store_prefs()
+    public function store_prefs()
     {
         $save = null;
         $p = new person();
@@ -338,7 +336,7 @@ class person extends db_entity
         }
     }
 
-    function has_messages()
+    public function has_messages()
     {
         if (is_object($this)) {
             list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
@@ -359,7 +357,7 @@ class person extends db_entity
         return false;
     }
 
-    function find_by_name($name = false, $certainty = 90)
+    public function find_by_name($name = false, $certainty = 90)
     {
 
         $stack1 = [];
@@ -381,7 +379,7 @@ class person extends db_entity
         }
     }
 
-    function find_by_email($email = false)
+    public function find_by_email($email = false)
     {
         $email = str_replace(["<", ">"], "", $email);
         $people = &get_cached_table("person");
@@ -392,7 +390,7 @@ class person extends db_entity
         }
     }
 
-    function get_from()
+    public function get_from()
     {
         $end = null;
         $name = $this->get_name();
@@ -406,17 +404,17 @@ class person extends db_entity
         }
     }
 
-    function get_list_filter($filter = [])
+    public function get_list_filter($filter = [])
     {
         $sql = [];
         $sql2 = [];
-        $filter["username"]     and $sql[] = sprintf_implode("username = '%s'", $filter["username"]);
+        $filter["username"] and $sql[] = sprintf_implode("username = '%s'", $filter["username"]);
         $filter["personActive"] and $sql[] = sprintf_implode("personActive = %d", $filter["personActive"]);
-        $filter["firstName"]    and $sql[] = sprintf_implode("firstName = '%s'", $filter["firstName"]);
-        $filter["surname"]      and $sql[] = sprintf_implode("surname = '%s'", $filter["surname"]);
-        $filter["personID"]     and $sql[] = sprintf_implode("personID = %d", $filter["personID"]);
+        $filter["firstName"] and $sql[] = sprintf_implode("firstName = '%s'", $filter["firstName"]);
+        $filter["surname"] and $sql[] = sprintf_implode("surname = '%s'", $filter["surname"]);
+        $filter["personID"] and $sql[] = sprintf_implode("personID = %d", $filter["personID"]);
 
-        $filter["skill"]        and $sql["skill"] = sprintf_implode("skillID=%d", $filter["skill"]);
+        $filter["skill"] and $sql["skill"] = sprintf_implode("skillID=%d", $filter["skill"]);
 
         if ($filter["skill_class"]) {
             $q = unsafe_prepare("SELECT * FROM skill WHERE skillClass='%s'", $filter["skill_class"]);
@@ -429,7 +427,7 @@ class person extends db_entity
             }
         }
 
-        $filter["expertise"]    and $sql[] = sprintf_implode("skillProficiency='%s'", $filter["expertise"]);
+        $filter["expertise"] and $sql[] = sprintf_implode("skillProficiency='%s'", $filter["expertise"]);
 
         return [$sql, $sql2];
     }
@@ -504,11 +502,11 @@ class person extends db_entity
                 $novice_skills = $p->get_skills('Novice');
 
                 $skills = [];
-                $senior_skills       and $skills[] = "<img src=\"../images/skill_senior.png\" alt=\"Senior=\"> " . page::htmlentities($senior_skills);
-                $advanced_skills     and $skills[] = "<img src=\"../images/skill_advanced.png\" alt=\"Advanced=\"> " . page::htmlentities($advanced_skills);
+                $senior_skills and $skills[] = "<img src=\"../images/skill_senior.png\" alt=\"Senior=\"> " . page::htmlentities($senior_skills);
+                $advanced_skills and $skills[] = "<img src=\"../images/skill_advanced.png\" alt=\"Advanced=\"> " . page::htmlentities($advanced_skills);
                 $intermediate_skills and $skills[] = "<img src=\"../images/skill_intermediate.png\" alt=\"Intermediate=\"> " . page::htmlentities($intermediate_skills);
-                $junior_skills       and $skills[] = "<img src=\"../images/skill_junior.png\" alt=\"Junior=\"> " . page::htmlentities($junior_skills);
-                $novice_skills       and $skills[] = "<img src=\"../images/skill_novice.png\" alt=\"Novice\"> " . page::htmlentities($novice_skills);
+                $junior_skills and $skills[] = "<img src=\"../images/skill_junior.png\" alt=\"Junior=\"> " . page::htmlentities($junior_skills);
+                $novice_skills and $skills[] = "<img src=\"../images/skill_novice.png\" alt=\"Novice\"> " . page::htmlentities($novice_skills);
                 $row["skills_list"] = implode("<br>", $skills);
             }
 
@@ -536,14 +534,14 @@ class person extends db_entity
         }
     }
 
-    function get_list_tr_header($_FORM)
+    public function get_list_tr_header($_FORM)
     {
         $summary = [];
         if ($_FORM["showHeader"]) {
             $summary[] = "<tr>";
-            $_FORM["showName"]    and $summary[] = "<th>Name</th>";
-            $_FORM["showActive"]  and $summary[] = "<th>Enabled</th>";
-            $_FORM["showNos"]     and $summary[] = "<th>Contact</th>";
+            $_FORM["showName"] and $summary[] = "<th>Name</th>";
+            $_FORM["showActive"] and $summary[] = "<th>Enabled</th>";
+            $_FORM["showNos"] and $summary[] = "<th>Contact</th>";
             if ($_FORM["showSkills"]) {
                 $summary[] = "<th>";
                 $summary[] = "Senior";
@@ -554,16 +552,16 @@ class person extends db_entity
                 $summary[] = '<img src="../images/skill_novice.png" alt="Novice" align="absmiddle"> Novice';
                 $summary[] = "</th>";
             }
-            $_FORM["showHours"]   and $summary[] = "<th>Sum Prev Fort</th>";
-            $_FORM["showHours"]   and $summary[] = "<th>Avg Per Fort</th>";
-            $_FORM["showLinks"]   and $summary[] = "<th></th>";
+            $_FORM["showHours"] and $summary[] = "<th>Sum Prev Fort</th>";
+            $_FORM["showHours"] and $summary[] = "<th>Avg Per Fort</th>";
+            $_FORM["showLinks"] and $summary[] = "<th></th>";
             $summary[] = "</tr>";
             $summary = "\n" . implode("\n", $summary);
             return $summary;
         }
     }
 
-    function get_list_tr($row, $_FORM)
+    public function get_list_tr($row, $_FORM)
     {
         global $TPL;
         $TPL["_FORM"] = $_FORM;
@@ -571,7 +569,7 @@ class person extends db_entity
         return include_template(__DIR__ . "/../templates/personListR.tpl", true);
     }
 
-    function get_list_vars()
+    public function get_list_vars()
     {
         return [
             "return"       => "[MANDATORY] eg: array | html",
@@ -592,11 +590,11 @@ class person extends db_entity
             "showNos"      => "Show the persons contact numbers",
             "showHours"    => "Show the persons time sheeted hours figures",
             "showLinks"    => "Show the person action links",
-            "showSkills"   => "Show the persons skills"
+            "showSkills"   => "Show the persons skills",
         ];
     }
 
-    function load_form_data($defaults = [])
+    public function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
         $page_vars = array_keys(person::get_list_vars());
@@ -617,7 +615,7 @@ class person extends db_entity
         return $_FORM;
     }
 
-    function load_person_filter($_FORM)
+    public function load_person_filter($_FORM)
     {
         $rtn = [];
         $skill_class = null;
@@ -625,8 +623,8 @@ class person extends db_entity
         $current_user = &singleton("current_user");
 
         $db = new db_alloc();
-        $_FORM["showSkills"]   and $rtn["show_skills_checked"] = " checked";
-        $_FORM["showHours"]    and $rtn["show_hours_checked"] = " checked";
+        $_FORM["showSkills"] and $rtn["show_skills_checked"] = " checked";
+        $_FORM["showHours"] and $rtn["show_hours_checked"] = " checked";
         $_FORM["personActive"] and $rtn["show_all_users_checked"] = " checked";
 
         $employee_expertise = [
@@ -635,7 +633,7 @@ class person extends db_entity
             "Junior"       => "Junior",
             "Intermediate" => "Intermediate",
             "Advanced"     => "Advanced",
-            "Senior"       => "Senior"
+            "Senior"       => "Senior",
         ];
         $rtn["employee_expertise"] = page::select_options($employee_expertise, $_FORM["expertise"]);
 
@@ -653,14 +651,14 @@ class person extends db_entity
         return $rtn;
     }
 
-    function get_link($_FORM = [])
+    public function get_link($_FORM = [])
     {
         global $TPL;
         $_FORM["return"] or $_FORM["return"] = "html";
         return "<a href=\"" . $TPL["url_alloc_person"] . "personID=" . $this->get_id() . "\">" . $this->get_name($_FORM) . "</a>";
     }
 
-    function get_people_by_username($field = "username")
+    public function get_people_by_username($field = "username")
     {
         $people_by_username = [];
         $people = &get_cached_table("person");

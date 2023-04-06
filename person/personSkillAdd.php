@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 require_once("../alloc.php");
 
 // add new skill to database
@@ -38,7 +37,6 @@ if ($_POST["delete_skill"]) {
     }
 }
 
-
 $skill_classes = skill::get_skill_classes();
 $skill_classes[""] = ">> OTHER >>";
 $TPL["new_skill_classes"] = page::select_options($skill_classes, $_POST["skill_class"]);
@@ -50,7 +48,6 @@ if ($skill_class && !in_array($skills[$_POST["skill"]], $skills)) {
 }
 $skills[""] = ">> NEW >>";
 $TPL["new_skills"] = page::select_options($skills, $_POST["skill"]);
-
 
 $TPL["main_alloc_title"] = "Edit Skills - " . APPLICATION_NAME;
 if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT)) {

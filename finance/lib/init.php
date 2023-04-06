@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class finance_module extends module
 {
     public $module = "finance";
@@ -14,7 +13,7 @@ class finance_module extends module
         "transaction",
         "expenseForm",
         "tfPerson",
-        "transactionRepeat"
+        "transactionRepeat",
     ];
     public $home_items = ["tfList_home_item", "pendingAdminExpenseForm"];
 }

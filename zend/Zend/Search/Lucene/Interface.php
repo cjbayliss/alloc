@@ -20,10 +20,8 @@
  * @version    $Id: Interface.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Index_TermsStream_Interface */
 require_once 'Zend/Search/Lucene/Index/TermsStream/Interface.php';
-
 
 /** Classes used within Zend_Search_Lucene_Interface API */
 
@@ -35,7 +33,6 @@ require_once 'Zend/Search/Lucene/Index/Term.php';
 
 /** Zend_Search_Lucene_Index_DocsFilter */
 require_once 'Zend/Search/Lucene/Index/DocsFilter.php';
-
 
 /**
  * @category   Zend
@@ -398,7 +395,6 @@ interface Zend_Search_Lucene_Interface extends Zend_Search_Lucene_Index_TermsStr
      * Undeletes all documents currently marked as deleted in this index.
      */
     public function undeleteAll();
-
 
     /**
      * Add reference to the index object

@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 define("NO_AUTH", 1);
 require_once("../alloc.php");
 
@@ -23,7 +22,7 @@ if ($sess->Started()) {
     alloc_redirect($url);
     exit();
 
-    // Else log the user in
+// Else log the user in
 } else if ($_POST["login"]) {
     $person = new person();
     $row = $person->get_valid_login_row($_POST["username"], $_POST["password"]);
@@ -38,7 +37,6 @@ if ($sess->Started()) {
         );
         $db = new db_alloc();
         $db->query($q);
-
 
         if ($sess->TestCookie()) {
             $sess->UseCookie();
@@ -70,7 +68,7 @@ if ($sess->Started()) {
         $db2->query($q);
 
         $e = new email_send($_POST["email"], "New Password", "Your new temporary password: " . $password, "new_password");
-        #echo "Your new temporary password: ".$password;
+        // echo "Your new temporary password: ".$password;
         if ($e->send()) {
             $TPL["message_good"][] = "New password sent to: " . $_POST["email"];
         } else {
@@ -80,8 +78,7 @@ if ($sess->Started()) {
         $error = "Invalid email address.";
     }
 
-
-    // Else if just visiting the page
+// Else if just visiting the page
 } else {
     if (!$sess->TestCookie()) {
         $sess->SetTestCookie();
@@ -104,7 +101,6 @@ if (isset($_GET["forward"])) {
 }
 
 $TPL["status_line"] = APPLICATION_NAME . " " . get_alloc_version() . " &copy; " . date("Y") . " <a href=\"http://www.cyber.com.au\">Cyber IT Solutions</a>";
-
 
 if (!is_dir(ATTACHMENTS_DIR . "whatsnew" . DIRECTORY_SEPARATOR . "0")) {
     mkdir(ATTACHMENTS_DIR . "whatsnew" . DIRECTORY_SEPARATOR . "0");

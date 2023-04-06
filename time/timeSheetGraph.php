@@ -22,9 +22,8 @@ $defaults = [
     "url_form_action" => $TPL["url_alloc_timeSheetGraph"],
     "form_name"       => "timeSheetGraph_filter",
     "groupBy"         => "day",
-    "personID"        => $current_user->get_id()
+    "personID"        => $current_user->get_id(),
 ];
-
 
 $_FORM = timeSheetGraph::load_filter($defaults);
 

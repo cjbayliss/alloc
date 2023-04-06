@@ -5,13 +5,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class backups
 {
 
     public $folders = [];
 
-    function __construct()
+    public function __construct()
     {
         global $external_storage_directories;
 
@@ -25,24 +24,24 @@ class backups
         $this->folders = $folders;
     }
 
-    function set_id()
+    public function set_id()
     {
         // dummy so can re-use the get_attachment.php script
         return true;
     }
 
-    function select()
+    public function select()
     {
         // dummy so can re-use the get_attachment.php script
         return true;
     }
 
-    function has_attachment_permission($person)
+    public function has_attachment_permission($person)
     {
         return $person->have_role("god");
     }
 
-    function empty_dir($dir)
+    public function empty_dir($dir)
     {
         if (is_dir($dir)) {
             $handle = opendir($dir);
@@ -61,7 +60,7 @@ class backups
         }
     }
 
-    function backup()
+    public function backup()
     {
         $files = [];
         global $TPL;
@@ -103,7 +102,7 @@ class backups
         }
     }
 
-    function restore($archivename)
+    public function restore($archivename)
     {
         $errors = [];
         global $TPL;
@@ -112,7 +111,7 @@ class backups
 
         $archive = new PclZip($file);
 
-        # Clear out the folder list
+        // Clear out the folder list
         foreach ($this->folders as $folder) {
             $this->empty_dir(ATTACHMENTS_DIR . $folder);
         }

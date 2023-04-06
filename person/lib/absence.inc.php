@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class absence extends db_entity
 {
     public $data_table = "absence";
@@ -16,6 +15,6 @@ class absence extends db_entity
         "dateTo",
         "personID",
         "absenceType",
-        "contactDetails"
+        "contactDetails",
     ];
 }

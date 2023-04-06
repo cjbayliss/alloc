@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class commentTemplate extends db_entity
 {
     public $data_table = "commentTemplate";
@@ -15,18 +14,17 @@ class commentTemplate extends db_entity
         "commentTemplateName",
         "commentTemplateText",
         "commentTemplateType",
-        "commentTemplateModifiedTime"
+        "commentTemplateModifiedTime",
     ];
 
-
-    function get_populated_template($entity, $entityID = false)
+    public function get_populated_template($entity, $entityID = false)
     {
         // Gets a populated template for this->commentTemplateName
         $str = $this->get_value("commentTemplateText");
         return commentTemplate::populate_string($str, $entity, $entityID);
     }
 
-    function populate_string($str, $entity, $entityID = false)
+    public function populate_string($str, $entity, $entityID = false)
     {
         $swap = [];
         $projectID = null;
@@ -105,7 +103,7 @@ class commentTemplate extends db_entity
             $swap["teb"] = $task->get_value("timeBest");
             $swap["tem"] = $task->get_value("timeExpected");
             $swap["tew"] = $task->get_value("timeWorst");
-            $swap["tep"] = person::get_fullname($task->get_value("estimatorID")); //time estimate person, when it's implemented
+            $swap["tep"] = person::get_fullname($task->get_value("estimatorID")); // time estimate person, when it's implemented
 
             $projectID = $task->get_value("projectID");
         }

@@ -111,9 +111,7 @@ if ($_POST["person_save"] || $_POST["person_delete"]) {
     }
 }
 
-
 $tf->set_values();
-
 
 $TPL["tfModifiedTime"] = $tf->get_value("tfModifiedTime");
 if ($tf->get_value("tfModifiedUser")) {

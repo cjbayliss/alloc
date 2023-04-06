@@ -7,6 +7,5 @@
 
 require_once("../alloc.php");
 
-
 $t = new taskListPrint();
 $t->get_printable_file($_GET);

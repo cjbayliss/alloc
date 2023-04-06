@@ -20,7 +20,6 @@
  * @version    $Id: MultiSearcher.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Interface */
 require_once 'Zend/Search/Lucene/Interface.php';
 
@@ -69,7 +68,6 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
     {
         $this->_indices[] = $index;
     }
-
 
     /**
      * Get current generation number
@@ -217,7 +215,6 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
             $index->setDefaultSearchField($fieldName);
         }
     }
-
 
     /**
      * Get default search field.
@@ -510,7 +507,7 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
     public function getDocument($id)
     {
         if ($id instanceof Zend_Search_Lucene_Search_QueryHit) {
-            /* @var $id Zend_Search_Lucene_Search_QueryHit */
+            // @var $id Zend_Search_Lucene_Search_QueryHit
             $id = $id->id;
         }
 
@@ -779,7 +776,6 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
         throw new Zend_Search_Lucene_Exception('Document id is out of the range.');
     }
 
-
     /**
      * Callback used to choose target index for new documents
      *
@@ -800,7 +796,7 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
      */
     public function setDocumentDistributorCallback($callback)
     {
-        if ($callback !== null  &&  !is_callable($callback)) {
+        if ($callback !== null && !is_callable($callback)) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('$callback parameter must be a valid callback.');
         }
@@ -873,7 +869,6 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
         return array_unique(call_user_func_array('array_merge', $termsList));
     }
 
-
     /**
      * Terms stream priority queue object
      *
@@ -939,7 +934,6 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
         $this->_termsStream = null;
     }
 
-
     /**
      * Undeletes all documents currently marked as deleted in this index.
      */
@@ -949,7 +943,6 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
             $index->undeleteAll();
         }
     }
-
 
     /**
      * Add reference to the index object

@@ -40,7 +40,6 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
      */
     protected $_fileHandle;
 
-
     /**
      * Class constructor.  Open the file.
      *
@@ -51,7 +50,7 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
     {
         global $php_errormsg;
 
-        if (strpos($mode, 'w') === false  &&  !is_readable($filename)) {
+        if (strpos($mode, 'w') === false && !is_readable($filename)) {
             // opening for reading non-readable file
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('File \'' . $filename . '\' is not readable.');
@@ -93,7 +92,6 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
     {
         return fseek($this->_fileHandle, $offset, $whence);
     }
-
 
     /**
      * Get file position.
@@ -177,7 +175,6 @@ class Zend_Search_Lucene_Storage_File_Filesystem extends Zend_Search_Lucene_Stor
 
         return $data;
     }
-
 
     /**
      * Writes $length number of bytes (all, if $length===null) to the end

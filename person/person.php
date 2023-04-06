@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 require_once("../alloc.php");
 
 function show_perm_select()
@@ -81,14 +80,14 @@ function show_person_areasOfExpertise($template)
        <button type="submit" name="personExpertiseItem_save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
          ';
     $proficiencys = [
-        "Novice" => "Novice",
-        "Junior" => "Junior",
+        "Novice"       => "Novice",
+        "Junior"       => "Junior",
         "Intermediate" => "Intermediate",
-        "Advanced" => "Advanced",
-        "Senior" => "Senior"
+        "Advanced"     => "Advanced",
+        "Senior"       => "Senior",
     ];
 
-    # step through the list of skills ordered by skillclass
+    // step through the list of skills ordered by skillclass
     $db = new db_alloc();
     // $query = "SELECT * FROM skill ORDER BY skillClass,skillName";
     $query = "SELECT * FROM skill LEFT JOIN proficiency ON skill.skillID=proficiency.skillID";
@@ -105,7 +104,7 @@ function show_person_areasOfExpertise($template)
         $skillProficiencys->read_db_record($db);
         $skillProficiencys->set_values();
 
-        # if they do and there is no heading for this segment put a heading
+        // if they do and there is no heading for this segment put a heading
         $thisSkillClass = $skill->get_value('skillClass');
         if ($currSkillClass != $thisSkillClass) {
             $currSkillClass = $thisSkillClass;
@@ -116,7 +115,7 @@ function show_person_areasOfExpertise($template)
         $skill_prof = $skillProficiencys->get_value('skillProficiency');
         $TPL["skill_proficiencys"] = page::select_options($proficiencys, $skill_prof);
 
-        # display rating if there is one
+        // display rating if there is one
         include_template($template);
     }
 }
@@ -176,11 +175,9 @@ if ($personID) {
     $person->select();
 }
 
-
 if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $_POST["personExpertiseItem_delete"]) {
     $proficiency = new proficiency();
     $proficiency->read_globals();
-
 
     if ($_POST["skillID"] != null) {
         if ($_POST["personExpertiseItem_delete"]) {
@@ -225,7 +222,6 @@ if ($_POST["save"]) {
         alloc_error("Please re-type the passwords");
     }
 
-
     if ($_POST["username"]) {
         $q = unsafe_prepare("SELECT personID FROM person WHERE username = '%s'", $_POST["username"]);
         $db = new db_alloc();
@@ -257,9 +253,9 @@ if ($_POST["save"]) {
     alloc_redirect($TPL["url_alloc_personList"]);
 }
 
-#$person = new person();
-#$person->set_id($personID);
-#$person->select();
+// $person = new person();
+// $person->set_id($personID);
+// $person->select();
 $person->set_values("person_");
 
 if ($person->get_id()) {

@@ -21,10 +21,8 @@
  * @version    $Id: Utf8Num.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Analysis_Analyzer_Common */
 require_once 'Zend/Search/Lucene/Analysis/Analyzer/Common.php';
-
 
 /**
  * @category   Zend
@@ -69,12 +67,12 @@ class Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num extends Zend_Search_Lu
      */
     public function reset()
     {
-        $this->_position     = 0;
+        $this->_position = 0;
         $this->_bytePosition = 0;
 
         // convert input into UTF-8
         if (
-            strcasecmp($this->_encoding, 'utf8') != 0  &&
+            strcasecmp($this->_encoding, 'utf8') != 0 &&
             strcasecmp($this->_encoding, 'utf-8') != 0
         ) {
             $this->_input = iconv($this->_encoding, 'UTF-8', $this->_input);
@@ -122,7 +120,7 @@ class Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num extends Zend_Search_Lu
             $endPos = $startPos + iconv_strlen($matchedWord, 'UTF-8');
 
             $this->_bytePosition = $binStartPos + strlen($matchedWord);
-            $this->_position     = $endPos;
+            $this->_position = $endPos;
 
             $token = $this->normalize(new Zend_Search_Lucene_Analysis_Token($matchedWord, $startPos, $endPos));
         } while ($token === null); // try again if token is skipped

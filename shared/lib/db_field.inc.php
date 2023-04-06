@@ -18,14 +18,14 @@ class db_field
     public $write_perm_name = 0;     // Name of a permission a user must have to write to this field, if any.  E.g. "admin"
     public $read_perm_name = 0;      // Name of the permission a user must have to read this field, if any.  E.g. "read details"
 
-    function __construct($name = "", $options = [])
+    public function __construct($name = "", $options = [])
     {
         $this->name = $name;
         $this->label = $name;
 
         if (!is_array($options)) {
             $options = [];
-            #echo "<br>".$this->name;
+            // echo "<br>".$this->name;
         }
         reset($options);
         foreach ($options as $option_name => $option_value) {
@@ -33,29 +33,29 @@ class db_field
         }
     }
 
-    function set_value($value, $source = SRC_VARIABLE)
+    public function set_value($value, $source = SRC_VARIABLE)
     {
         if (isset($value) || $this->empty_to_null == false) {
             $this->value = $value;
         }
     }
 
-    function has_value()
+    public function has_value()
     {
         return isset($this->value) && imp($this->value);
     }
 
-    function get_name()
+    public function get_name()
     {
         return $this->name;
     }
 
-    function is_audited()
+    public function is_audited()
     {
         return $this->audit;
     }
 
-    function get_value($dest = DST_VARIABLE, $parent = null)
+    public function get_value($dest = DST_VARIABLE, $parent = null)
     {
         if ($dest == DST_DATABASE) {
             if ((isset($this->value) && imp($this->value)) || $this->empty_to_null == false) {
@@ -82,12 +82,12 @@ class db_field
         }
     }
 
-    function clear_value()
+    public function clear_value()
     {
         unset($this->value);
     }
 
-    function validate($parent)
+    public function validate($parent)
     {
         global $TPL;
         if ($parent->doMoney && $this->type == "money") {

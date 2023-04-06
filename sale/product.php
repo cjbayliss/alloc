@@ -76,12 +76,12 @@ if ($productID) {
 $tf = new tf();
 $tflist = $tf->get_assoc_array("tfID", "tfName");
 $extra_options = [
-    //"-3"=>"META: Sale TF"
-    "-1" => "META: Project TF",
-    "-2" => "META: Salesperson TF",
+    // "-3"=>"META: Sale TF"
+    "-1"                                => "META: Project TF",
+    "-2"                                => "META: Salesperson TF",
     config::get_config_item("mainTfID") => "Main Finance TF (" . tf::get_name(config::get_config_item("mainTfID")) . ")",
-    config::get_config_item("outTfID") => "Outgoing Funds TF (" . tf::get_name(config::get_config_item("outTfID")) . ")",
-    config::get_config_item("inTfID") => "Incoming Funds TF (" . tf::get_name(config::get_config_item("inTfID")) . ")",
+    config::get_config_item("outTfID")  => "Outgoing Funds TF (" . tf::get_name(config::get_config_item("outTfID")) . ")",
+    config::get_config_item("inTfID")   => "Incoming Funds TF (" . tf::get_name(config::get_config_item("inTfID")) . ")",
 ];
 // Prepend the META options to the tflist.
 $tflist = $extra_options + $tflist;
@@ -91,12 +91,11 @@ $TPL["taxTF"] = $tflist[config::get_config_item("taxTfID")];
 $taxRate = config::get_config_item("taxPercent") / 100.0;
 $TPL["taxRate"] = $taxRate;
 
-
 if ($_POST["save"]) {
     $product->read_globals();
     $product->set_value("productActive", isset($_POST["productActive"]) ? 1 : 0);
     !$product->get_value("productName") and alloc_error("Please enter a Product Name.");
-    !$product->get_value("sellPrice")   and alloc_error("Please enter a Sell Price.");
+    !$product->get_value("sellPrice") and alloc_error("Please enter a Sell Price.");
 
     if (!$TPL["message"]) {
         $product->save();
@@ -116,8 +115,7 @@ if ($_POST["save"]) {
     alloc_redirect($TPL["url_alloc_productList"]);
 }
 
-
-# Fixed costs
+// Fixed costs
 if ($_POST["save_costs"] || $_POST["save_commissions"]) {
     foreach ((array)$_POST["productCostID"] as $k => $productCostID) {
         // Delete
@@ -127,7 +125,7 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
             $productCost->select();
             $productCost->delete();
 
-            // Save
+        // Save
         } else if (imp($_POST["amount"][$k])) {
             $a = [
                 "productCostID"     => $productCostID,
@@ -138,7 +136,7 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
                 "description"       => $_POST["description"][$k],
                 "currencyTypeID"    => $_POST["currencyTypeID"][$k] ?: config::get_config_item("currency"),
                 "tax"               => $_POST["tax"][$k],
-                "productCostActive" => 1
+                "productCostActive" => 1,
             ];
 
             // Hardcode AUD for commissions because productCost table uses percent and dollars in same field
@@ -146,7 +144,7 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
 
             $productCost = new productCost();
             $productCost->read_array($a);
-            //$errs = $productCost->validate();
+            // $errs = $productCost->validate();
             if (!$errs) {
                 $productCost->save();
             }
@@ -170,7 +168,6 @@ if (!$productID) {
     $TPL["message_help"][] = "Every sale of this Product can result in customised Cost and Commission transactions being automatically generated.
                             <br><br>Click the 'New' link in the Costs/Commissions boxes below to add fixed Costs and percentage Commissions.";
 }
-
 
 $TPL["taxName"] = config::get_config_item("taxName");
 $TPL["taxPercent"] = config::get_config_item("taxPercent");

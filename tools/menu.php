@@ -9,91 +9,90 @@ require_once("../alloc.php");
 
 $misc_options = [
     [
-        "url" => "reminderList",
-        "text" => "Reminders",
-        "entity" => "",
-        "action" => true
-    ],
-    [
-        "url" => "announcementList",
-        "text" => "Announcements",
-        "entity" => "announcement",
-        "action" => PERM_READ_WRITE
-    ],
-    [
-        "url" => "commentSummary",
-        "text" => "Task Comment Summary",
-        "entity" => "",
-        "action" => true
-    ],
-    [
-        "url" => "permissionList",
-        "text" => "Security",
-        "entity" => "permission",
-        "action" => PERM_READ_WRITE
-    ],
-    [
-        "url" => "search",
-        "text" => "Search",
-        "entity" => "",
-        "action" => true
-    ],
-    [
-        "url" => "personSkillMatrix",
-        "text" => "Company Skill Matrix",
-        "entity" => "person",
-        "action" => true
-    ],
-    [
-        "url" => "personSkillAdd",
-        "text" => "Edit Skill Items",
-        "entity" => "person",
-        "action" => PERM_PERSON_READ_MANAGEMENT
-    ],
-    [
-        "url" => "commentTemplateList",
-        "text" => "Comment Templates",
-        "entity" => "commentTemplate",
-        "action" => PERM_READ_WRITE
-    ],
-    [
-        "url" => "loans",
-        "text" => "Item Loans",
-        "entity" => "loan",
-        "action" => true
-    ],
-    [
-        "url" => "report",
-        "text" => "Reports",
+        "url"    => "reminderList",
+        "text"   => "Reminders",
         "entity" => "",
         "action" => true,
-        "function" => "has_report_perm"
     ],
     [
-        "url" => "backup",
-        "text" => "Database & File Backup",
+        "url"    => "announcementList",
+        "text"   => "Announcements",
+        "entity" => "announcement",
+        "action" => PERM_READ_WRITE,
+    ],
+    [
+        "url"    => "commentSummary",
+        "text"   => "Task Comment Summary",
         "entity" => "",
-        "function" => "has_backup_perm"
+        "action" => true,
     ],
     [
-        "url" => "sourceCodeList",
-        "text" => "allocPSA Source Code",
-        "entity" => ""
+        "url"    => "permissionList",
+        "text"   => "Security",
+        "entity" => "permission",
+        "action" => PERM_READ_WRITE,
     ],
     [
-        "url" => "whatsnew",
-        "text" => "Deployment Changelog",
+        "url"    => "search",
+        "text"   => "Search",
         "entity" => "",
-        "function" => "has_whatsnew_files"
+        "action" => true,
     ],
     [
-        "url" => "inbox",
-        "text" => "Manage Inbox",
+        "url"    => "personSkillMatrix",
+        "text"   => "Company Skill Matrix",
+        "entity" => "person",
+        "action" => true,
+    ],
+    [
+        "url"    => "personSkillAdd",
+        "text"   => "Edit Skill Items",
+        "entity" => "person",
+        "action" => PERM_PERSON_READ_MANAGEMENT,
+    ],
+    [
+        "url"    => "commentTemplateList",
+        "text"   => "Comment Templates",
+        "entity" => "commentTemplate",
+        "action" => PERM_READ_WRITE,
+    ],
+    [
+        "url"    => "loans",
+        "text"   => "Item Loans",
+        "entity" => "loan",
+        "action" => true,
+    ],
+    [
+        "url"      => "report",
+        "text"     => "Reports",
+        "entity"   => "",
+        "action"   => true,
+        "function" => "has_report_perm",
+    ],
+    [
+        "url"      => "backup",
+        "text"     => "Database & File Backup",
+        "entity"   => "",
+        "function" => "has_backup_perm",
+    ],
+    [
+        "url"    => "sourceCodeList",
+        "text"   => "allocPSA Source Code",
+        "entity" => "",
+    ],
+    [
+        "url"      => "whatsnew",
+        "text"     => "Deployment Changelog",
+        "entity"   => "",
+        "function" => "has_whatsnew_files",
+    ],
+    [
+        "url"    => "inbox",
+        "text"   => "Manage Inbox",
         "entity" => "config",
-        "action" => PERM_UPDATE
-    ]
+        "action" => PERM_UPDATE,
+    ],
 ];
-
 
 function user_is_admin()
 {
@@ -101,78 +100,77 @@ function user_is_admin()
     return $current_user->have_role("admin");
 }
 
-
 $finance_options = [
     [
-        "url" => "tf",
-        "text" => "New Tagged Fund",
+        "url"    => "tf",
+        "text"   => "New Tagged Fund",
         "entity" => "tf",
-        "action" => PERM_CREATE
+        "action" => PERM_CREATE,
     ],
     [
-        "url" => "tfList",
-        "text" => "List of Tagged Funds",
+        "url"    => "tfList",
+        "text"   => "List of Tagged Funds",
         "entity" => "tf",
         "action" => PERM_READ,
-        "br" => true
+        "br"     => true,
     ],
     [
-        "url" => "transaction",
-        "text" => "New Transaction",
-        "entity" => "",
-        "function" => "user_is_admin"
-    ],
-    [
-        "url" => "transactionGroup",
-        "text" => "New Transaction Group",
-        "entity" => "",
-        "function" => "user_is_admin"
-    ],
-    [
-        "url" => "searchTransaction",
-        "text" => "Search Transactions",
-        "entity" => "transaction",
-        "action" => PERM_READ,
-        "br" => true
-    ],
-    [
-        "url" => "expenseForm",
-        "text" => "New Expense Form",
-        "entity" => "expenseForm",
-        "action" => PERM_CREATE
-    ],
-    [
-        "url" => "expenseFormList",
-        "text" => "View Pending Expenses",
-        "entity" => "expenseForm",
-        "action" => PERM_READ,
-        "br" => true
-    ],
-    [
-        "url" => "wagesUpload",
-        "text" => "Upload Wages File",
-        "entity" => "",
+        "url"      => "transaction",
+        "text"     => "New Transaction",
+        "entity"   => "",
         "function" => "user_is_admin",
-        "br" => true
     ],
     [
-        "url" => "transactionRepeat",
-        "text" => "New Repeating Expense",
-        "entity" => "",
-        "function" => "user_is_admin"
+        "url"      => "transactionGroup",
+        "text"     => "New Transaction Group",
+        "entity"   => "",
+        "function" => "user_is_admin",
     ],
     [
-        "url" => "transactionRepeatList",
-        "text" => "Repeating Expense List",
+        "url"    => "searchTransaction",
+        "text"   => "Search Transactions",
         "entity" => "transaction",
-        "action" => PERM_READ
+        "action" => PERM_READ,
+        "br"     => true,
     ],
     [
-        "url" => "checkRepeat",
-        "text" => "Execute Repeating Expenses",
-        "entity" => "",
-        "function" => "user_is_admin"
-    ]
+        "url"    => "expenseForm",
+        "text"   => "New Expense Form",
+        "entity" => "expenseForm",
+        "action" => PERM_CREATE,
+    ],
+    [
+        "url"    => "expenseFormList",
+        "text"   => "View Pending Expenses",
+        "entity" => "expenseForm",
+        "action" => PERM_READ,
+        "br"     => true,
+    ],
+    [
+        "url"      => "wagesUpload",
+        "text"     => "Upload Wages File",
+        "entity"   => "",
+        "function" => "user_is_admin",
+        "br"       => true,
+    ],
+    [
+        "url"      => "transactionRepeat",
+        "text"     => "New Repeating Expense",
+        "entity"   => "",
+        "function" => "user_is_admin",
+    ],
+    [
+        "url"    => "transactionRepeatList",
+        "text"   => "Repeating Expense List",
+        "entity" => "transaction",
+        "action" => PERM_READ,
+    ],
+    [
+        "url"      => "checkRepeat",
+        "text"     => "Execute Repeating Expenses",
+        "entity"   => "",
+        "function" => "user_is_admin",
+    ],
 ];
 
 function has_whatsnew_files()
@@ -182,7 +180,6 @@ function has_whatsnew_files()
         return true;
     }
 }
-
 
 function show_misc_options($template)
 {

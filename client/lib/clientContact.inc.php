@@ -28,7 +28,7 @@ class clientContact extends db_entity
         "clientContactActive",
     ];
 
-    function save()
+    public function save()
     {
         $rtn = parent::save();
         $client = new client();
@@ -104,19 +104,19 @@ class clientContact extends db_entity
         }
     }
 
-    function find_by_name($name = false, $projectID = false, $percent = 90)
+    public function find_by_name($name = false, $projectID = false, $percent = 90)
     {
         $extra = $name ? unsafe_prepare("AND clientContactName = '%s'", $name) : null;
         $people = self::get_people($projectID, $extra);
         return self::get_closest_matching_person($people, $name, $percent);
     }
 
-    function find_by_partial_name($name = false, $projectID = false)
+    public function find_by_partial_name($name = false, $projectID = false)
     {
         return self::find_by_name($name, $projectID, 0);
     }
 
-    function find_by_nick($name = false, $clientID = false)
+    public function find_by_nick($name = false, $clientID = false)
     {
         $q = unsafe_prepare("SELECT clientContactID
                         FROM clientContact
@@ -129,7 +129,7 @@ class clientContact extends db_entity
         return $row["clientContactID"];
     }
 
-    function find_by_email($email = false)
+    public function find_by_email($email = false)
     {
         $email = str_replace(["<", ">"], "", $email);
         if ($email) {
@@ -144,7 +144,7 @@ class clientContact extends db_entity
         }
     }
 
-    function delete()
+    public function delete()
     {
         // have to null out any records that point to this clientContact first
         // to satisfy the referential integrity constraints
@@ -176,7 +176,7 @@ class clientContact extends db_entity
         return parent::delete();
     }
 
-    function format_contact()
+    public function format_contact()
     {
         $str = null;
 
@@ -204,16 +204,16 @@ class clientContact extends db_entity
         return $str;
     }
 
-    function output_vcard()
+    public function output_vcard()
     {
-        //array of mappings from DB field to vcard field
+        // array of mappings from DB field to vcard field
         $fields = [
-            //clientContactName is special
-            "clientContactPhone" => "TEL;WORK;VOICE",
+            // clientContactName is special
+            "clientContactPhone"  => "TEL;WORK;VOICE",
             "clientContactMobile" => "TEL;CELL",
-            "clientContactFax" => "TEL;TYPE=WORK;FAX",
-            "clientContactEmail" => "EMAIL;WORK",
-        ]; //address fields are handled specially because they're a composite of DB fields
+            "clientContactFax"    => "TEL;TYPE=WORK;FAX",
+            "clientContactEmail"  => "EMAIL;WORK",
+        ]; // address fields are handled specially because they're a composite of DB fields
 
         $vcard = [];
 
@@ -226,7 +226,7 @@ class clientContact extends db_entity
         print("BEGIN:VCARD\nVERSION:2.1\n");
 
         if ($this->get_value("clientContactName")) {
-            //vcard stuff requires N to be last name; first name
+            // vcard stuff requires N to be last name; first name
             // Assume whatever comes after the last space is the last name
             // cut the string up to get <last name>;<everything else>
             $name = explode(" ", $this->get_value("clientContactName"));
@@ -245,7 +245,7 @@ class clientContact extends db_entity
         }
         if ($this->get_value("clientContactStreetAddress")) {
             print "ADR;HOME:;;" . $this->get_value("clientContactStreetAddress") . ";" .
-                $this->get_value("clientContactSuburb") . ";;" . //county or something
+                $this->get_value("clientContactSuburb") . ";;" . // county or something
                 $this->get_value("clientContactPostcode") . ";" .
                 $this->get_value("clientContactCountry") . "\n";
         }
@@ -253,12 +253,12 @@ class clientContact extends db_entity
     }
 
     // FIXME: ??
-    function have_role($role = "")
+    public function have_role($role = "")
     {
         return in_array($role, ["", "client"]);
     }
 
-    function get_list_filter($filter = [])
+    public function get_list_filter($filter = [])
     {
         $sql = [];
 
@@ -328,7 +328,7 @@ class clientContact extends db_entity
         return $rows;
     }
 
-    function get_list_html($rows = [], $ops = [])
+    public function get_list_html($rows = [], $ops = [])
     {
         global $TPL;
         $TPL["clientContactListRows"] = $rows;

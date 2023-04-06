@@ -11,7 +11,7 @@
 class email_send
 {
     // If URL has any of these strings in it then the email won't be sent.
-    #var $no_email_urls = array("alloc_dev");
+    // var $no_email_urls = array("alloc_dev");
     public $no_email_urls = [];
 
     // If alloc is running on any of these boxes then no emails will be sent!
@@ -29,62 +29,62 @@ class email_send
     public $body = "";
     public $body_without_attachments = "";
 
-    function __construct($to_address = "", $subject = "", $body = "", $message_type = "")
+    public function __construct($to_address = "", $subject = "", $body = "", $message_type = "")
     {
         $this->default_headers = "X-Mailer: " . APPLICATION_NAME . " " . get_alloc_version();
-        $to_address   and $this->set_to_address($to_address);
-        $subject      and $this->set_subject($subject);
-        $body         and $this->set_body($body);
+        $to_address and $this->set_to_address($to_address);
+        $subject and $this->set_subject($subject);
+        $body and $this->set_body($body);
         $message_type and $this->set_message_type($message_type);
     }
-    function set_to_address($to = false)
+    public function set_to_address($to = false)
     {
         $to or $to = $this->to_address;
-        #$to or $to = ALLOC_DEFAULT_TO_ADDRESS; // no
+        // $to or $to = ALLOC_DEFAULT_TO_ADDRESS; // no
         $this->to_address = $to;
         $this->del_header("to");
     }
-    function set_body($body = false, $body_without_attachments = "")
+    public function set_body($body = false, $body_without_attachments = "")
     {
         $body or $body = $this->body;
         $this->body = $body;
         $this->body_without_attachments = $body_without_attachments;
     }
-    function set_message_type($message_type = false)
+    public function set_message_type($message_type = false)
     {
         $message_type or $message_type = $this->message_type;
         $this->message_type = $message_type;
     }
-    function set_from($from = false)
+    public function set_from($from = false)
     {
         $from or $from = $this->from;
         $from or $from = APPLICATION_NAME . " " . ALLOC_DEFAULT_FROM_ADDRESS;
         $this->add_header("From", $from);
         $this->from = $from;
     }
-    function set_content_type($type = false)
+    public function set_content_type($type = false)
     {
         $type or $type = "text/plain; charset=utf-8; format=flowed";
         $this->add_header("Content-Type", $type);
     }
-    function set_subject($subject = false)
+    public function set_subject($subject = false)
     {
         $subject or $subject = $this->subject;
         $this->subject = $subject;
         $this->del_header("subject");
     }
-    function set_reply_to($email = false)
+    public function set_reply_to($email = false)
     {
         $email or $email = ALLOC_DEFAULT_FROM_ADDRESS;
         $this->add_header("Reply-To", $email);
     }
-    function set_date($date = false)
+    public function set_date($date = false)
     {
         // Date: Tue, 07 Jun 2011 15:37:32 +1000
         $date or $date = date("D, d M Y H:i:s O");
         $this->add_header("Date", $date);
     }
-    function set_message_id($hash = false)
+    public function set_message_id($hash = false)
     {
         $hash and $hash = ".alloc.key." . $hash;
         list($usec, $sec) = explode(" ", microtime());
@@ -98,7 +98,7 @@ class email_send
         $this->add_header("Message-ID", $h);
         return $h;
     }
-    function send($use_default_headers = true)
+    public function send($use_default_headers = true)
     {
 
         $return_path = null;
@@ -125,10 +125,10 @@ class email_send
             $this->headers = str_replace("\r\n", "\n", $this->headers);
             $this->headers = str_replace("\n", PHP_EOL, $this->headers); // according to php.net/mail
 
-            # echo "<pre><br>HEADERS:\n".page::htmlentities($this->headers)."</pre>";
-            # echo "<pre><br>TO:\n".page::htmlentities($this->to_address)."</pre>";
-            # echo "<pre><br>SUBJECT:\n".page::htmlentities($this->subject)."</pre>";
-            # echo "<pre><br>BODY:\n".page::htmlentities($this->body)."</pre>";
+            // echo "<pre><br>HEADERS:\n".page::htmlentities($this->headers)."</pre>";
+            // echo "<pre><br>TO:\n".page::htmlentities($this->to_address)."</pre>";
+            // echo "<pre><br>SUBJECT:\n".page::htmlentities($this->subject)."</pre>";
+            // echo "<pre><br>BODY:\n".page::htmlentities($this->body)."</pre>";
 
             if (defined("ALLOC_DEFAULT_RETURN_PATH_ADDRESS") && ALLOC_DEFAULT_RETURN_PATH_ADDRESS) {
                 $return_path = "-f" . ALLOC_DEFAULT_RETURN_PATH_ADDRESS;
@@ -142,37 +142,37 @@ class email_send
         }
         return false;
     }
-    function set_headers($headers = "")
+    public function set_headers($headers = "")
     {
         $headers or $headers = $this->headers;
         $headers = preg_replace("/\r?\n\s+/", " ", $headers);
         $this->headers = $headers;
     }
-    function get_headers()
+    public function get_headers()
     {
         return $this->headers;
     }
-    function add_header($header, $value = "", $replace = 1)
+    public function add_header($header, $value = "", $replace = 1)
     {
         if ($replace) {
             $this->del_header($header);
         }
         $this->headers = trim($this->headers) . "\n" . $header . ": " . $value;
     }
-    function del_header($header)
+    public function del_header($header)
     {
         $this->headers = preg_replace("/\r?\n" . $header . ":\s*.*/i", "", $this->headers);
     }
-    function get_header($header)
+    public function get_header($header)
     {
         preg_match("/\r?\n" . $header . ":(.*)/i", $this->headers, $matches);
         return $matches[1];
     }
-    function header_exists($header)
+    public function header_exists($header)
     {
         return preg_match("/\r?\n" . $header . ":(.*)/i", $this->headers);
     }
-    function is_valid_url()
+    public function is_valid_url()
     {
         $dont_send = null;
         // Validate against particular hosts
@@ -188,7 +188,7 @@ class email_send
         // Invert return
         return !$dont_send;
     }
-    function log()
+    public function log()
     {
         $current_user = &singleton("current_user");
         $sentEmailLog = new sentEmailLog();
@@ -200,7 +200,7 @@ class email_send
         $sentEmailLog->set_value("sentEmailType", $this->message_type);
         $sentEmailLog->save();
     }
-    function get_mime_boundary()
+    public function get_mime_boundary()
     {
         // This function will generate a new mime boundary
         if (!$this->mime_boundary) {
@@ -209,7 +209,7 @@ class email_send
         }
         return $this->mime_boundary;
     }
-    function get_top_mime_header()
+    public function get_top_mime_header()
     {
         if (!$this->done_top_mime_header) {
             $mime_boundary = $this->get_mime_boundary();
@@ -222,11 +222,11 @@ class email_send
             return $header;
         }
     }
-    function get_bottom_mime_header()
+    public function get_bottom_mime_header()
     {
         return "\n\n--" . $this->get_mime_boundary() . "--";
     }
-    function add_attachment($file)
+    public function add_attachment($file)
     {
         if (file_exists($file) && is_readable($file) && filesize($file)) {
             $mime_boundary = $this->get_mime_boundary();
@@ -253,7 +253,7 @@ class email_send
             $this->body .= "\n\n" . $data;
         }
     }
-    function get_header_mime_boundary()
+    public function get_header_mime_boundary()
     {
         // This function will parse the header for a mime boundary
         $content_type = $this->get_header("Content-Type");

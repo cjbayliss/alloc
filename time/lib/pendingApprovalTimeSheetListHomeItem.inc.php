@@ -5,11 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class pendingApprovalTimeSheetListHomeItem extends home_item
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct(
             "pending_time_list",
@@ -21,18 +20,18 @@ class pendingApprovalTimeSheetListHomeItem extends home_item
         );
     }
 
-    function visible()
+    public function visible()
     {
         $current_user = &singleton("current_user");
         return (isset($current_user) && $current_user->is_employee() && has_pending_timesheet());
     }
 
-    function render()
+    public function render()
     {
         return true;
     }
 
-    function show_pending_time_sheets($template_name, $doAdmin = false)
+    public function show_pending_time_sheets($template_name, $doAdmin = false)
     {
         show_time_sheets_list_for_classes($template_name, $doAdmin);
     }
@@ -112,7 +111,7 @@ function get_pending_timesheet_db()
                         ORDER BY timeSheet.dateSubmittedToManager
                      ", $current_user->get_id());
 
-        // Get all the time sheets that are in status manager, where the currently logged in user is the manager
+    // Get all the time sheets that are in status manager, where the currently logged in user is the manager
     } else {
         $query = unsafe_prepare(
             "SELECT timeSheet.*, sum(timeSheetItem.timeSheetItemDuration * timeSheetItem.rate) as total_dollars

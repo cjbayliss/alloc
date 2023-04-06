@@ -21,7 +21,6 @@
  * @version    $Id: FieldInfo.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene
@@ -40,11 +39,11 @@ class Zend_Search_Lucene_Index_FieldInfo
 
     public function __construct($name, $isIndexed, $number, $storeTermVector, $normsOmitted = false, $payloadsStored = false)
     {
-        $this->name            = $name;
-        $this->isIndexed       = $isIndexed;
-        $this->number          = $number;
+        $this->name = $name;
+        $this->isIndexed = $isIndexed;
+        $this->number = $number;
         $this->storeTermVector = $storeTermVector;
-        $this->normsOmitted    = $normsOmitted;
-        $this->payloadsStored  = $payloadsStored;
+        $this->normsOmitted = $normsOmitted;
+        $this->payloadsStored = $payloadsStored;
     }
 }

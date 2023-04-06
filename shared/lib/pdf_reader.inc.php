@@ -14,7 +14,7 @@ class pdf_reader
          * section separately.
          */
         $a_obj = $this->getDataArray($data, "obj", "endobj");
-        $j     = 0;
+        $j = 0;
 
         /**
          * Attempt to extract each part of the PDF document into a "filter"
@@ -123,13 +123,13 @@ class pdf_reader
      */
     public function getDataArray($data, $start_word, $end_word)
     {
-        $start    = 0;
-        $end      = 0;
+        $start = 0;
+        $end = 0;
         $a_result = [];
 
         while ($start !== false && $end !== false) {
             $start = strpos($data, $start_word, $end);
-            $end   = strpos($data, $end_word, $start);
+            $end = strpos($data, $end_word, $start);
             if ($end !== false && $start !== false) {
                 // data is between start and end
                 $a_result[] = substr($data, $start, $end - $start + strlen($end_word));

@@ -14,31 +14,31 @@ class productSaleItem extends db_entity
         "productID",
         "productSaleID",
         "sellPrice" => [
-            "type" => "money",
-            "currency" => "sellPriceCurrencyTypeID"
+            "type"     => "money",
+            "currency" => "sellPriceCurrencyTypeID",
         ],
         "sellPriceCurrencyTypeID",
         "sellPriceIncTax" => ["empty_to_null" => false],
         "quantity",
-        "description"
+        "description",
     ];
-    function is_owner($ignored = null)
+    public function is_owner($ignored = null)
     {
         $productSale = $this->get_foreign_object("productSale");
         return $productSale->is_owner();
     }
 
-    function validate()
+    public function validate()
     {
         $err = [];
-        $this->get_value("productID")     or $err[] = "Please select a Product.";
+        $this->get_value("productID") or $err[] = "Please select a Product.";
         $this->get_value("productSaleID") or $err[] = "Please select a Product Sale.";
-        $this->get_value("sellPrice")     or $err[] = "Please enter a Sell Price.";
-        $this->get_value("quantity")      or $err[] = "Please enter a Quantity.";
+        $this->get_value("sellPrice") or $err[] = "Please enter a Sell Price.";
+        $this->get_value("quantity") or $err[] = "Please enter a Quantity.";
         return parent::validate($err);
     }
 
-    function get_amount_spent()
+    public function get_amount_spent()
     {
         $db = new db_alloc();
         $q = unsafe_prepare(
@@ -63,7 +63,7 @@ class productSaleItem extends db_entity
         return transaction::get_actual_amount_used($rows);
     }
 
-    function get_amount_earnt()
+    public function get_amount_earnt()
     {
         $db = new db_alloc();
         $q = unsafe_prepare(
@@ -88,7 +88,7 @@ class productSaleItem extends db_entity
         return transaction::get_actual_amount_used($rows);
     }
 
-    function get_amount_other()
+    public function get_amount_other()
     {
         $db = new db_alloc();
         // Don't need to do numberToBasic conversion here
@@ -119,7 +119,7 @@ class productSaleItem extends db_entity
         return transaction::get_actual_amount_used($rows);
     }
 
-    function get_amount_margin()
+    public function get_amount_margin()
     {
 
         $sellPrice = null;
@@ -130,19 +130,19 @@ class productSaleItem extends db_entity
         // margin = sellPrice - GST - costs
         foreach ($transactions as $row) {
             $row["saleTransactionType"] == "sellPrice" and $sellPrice = exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
-            $row["saleTransactionType"] == "tax"       and $tax      += exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
-            $row["saleTransactionType"] == "aCost"     and $costs    += exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
+            $row["saleTransactionType"] == "tax" and $tax += exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
+            $row["saleTransactionType"] == "aCost" and $costs += exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
         }
         $margin = $sellPrice - $costs;
         return $margin;
     }
 
-    function get_amount_unallocated()
+    public function get_amount_unallocated()
     {
         return $this->get_amount_margin() - $this->get_amount_other();
     }
 
-    function create_transaction($fromTfID, $tfID, $amount, $description, $currency = false, $productCostID = false, $transactionType = 'sale')
+    public function create_transaction($fromTfID, $tfID, $amount, $description, $currency = false, $productCostID = false, $transactionType = 'sale')
     {
         global $TPL;
         $currency or $currency = config::get_config_item("currency");
@@ -165,7 +165,7 @@ class productSaleItem extends db_entity
         $transaction->save();
     }
 
-    function create_transactions()
+    public function create_transactions()
     {
         $db = new db_alloc();
         $db2 = new db_alloc();
@@ -242,7 +242,7 @@ class productSaleItem extends db_entity
         }
     }
 
-    function create_transactions_tax()
+    public function create_transactions_tax()
     {
         $db = new db_alloc();
         $db2 = new db_alloc();
@@ -254,7 +254,6 @@ class productSaleItem extends db_entity
         $taxTfID = config::get_config_item("taxTfID");
         $mainTfID = $productSale->get_value("tfID");
         $taxPercent = config::get_config_item("taxPercent");
-
 
         // If this price includes tax, then perform a tax transfer
         $amount_of_tax = $this->get_value("sellPrice") * ($taxPercent / 100);
@@ -298,7 +297,7 @@ class productSaleItem extends db_entity
         }
     }
 
-    function delete_transactions()
+    public function delete_transactions()
     {
         $q = unsafe_prepare("SELECT * FROM transaction WHERE productSaleItemID = %d", $this->get_id());
         $db = new db_alloc();

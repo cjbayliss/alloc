@@ -21,10 +21,8 @@
  * @version    $Id: Term.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Search_Query_Processing */
 require_once 'Zend/Search/Lucene/Search/Query/Preprocessing.php';
-
 
 /**
  * It's an internal abstract class intended to finalize ase a query processing after query parsing.
@@ -53,7 +51,6 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
      */
     private $_encoding;
 
-
     /**
      * Field name.
      *
@@ -70,9 +67,9 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
      */
     public function __construct($word, $encoding, $fieldName)
     {
-        $this->_word     = $word;
+        $this->_word = $word;
         $this->_encoding = $encoding;
-        $this->_field    = $fieldName;
+        $this->_field = $fieldName;
     }
 
     /**
@@ -143,7 +140,6 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
             return $query;
         }
 
-
         // -------------------------------------
         // Recognize wildcard queries
 
@@ -184,7 +180,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
             }
 
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $term  = new Zend_Search_Lucene_Index_Term($pattern, $this->_field);
+            $term = new Zend_Search_Lucene_Index_Term($pattern, $this->_field);
             require_once 'Zend/Search/Lucene/Search/Query/Wildcard.php';
             $query = new Zend_Search_Lucene_Search_Query_Wildcard($term);
             $query->setBoost($this->getBoost());
@@ -195,7 +191,6 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
 
             return $rewrittenQuery;
         }
-
 
         // -------------------------------------
         // Recognize one-term multi-term and "insignificant" queries
@@ -210,7 +205,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
 
         if (count($tokens) == 1) {
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $term  = new Zend_Search_Lucene_Index_Term($tokens[0]->getTermText(), $this->_field);
+            $term = new Zend_Search_Lucene_Index_Term($tokens[0]->getTermText(), $this->_field);
             require_once 'Zend/Search/Lucene/Search/Query/Term.php';
             $query = new Zend_Search_Lucene_Search_Query_Term($term);
             $query->setBoost($this->getBoost());
@@ -219,7 +214,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
             return $query;
         }
 
-        //It's not insignificant or one term query
+        // It's not insignificant or one term query
         require_once 'Zend/Search/Lucene/Search/Query/MultiTerm.php';
         $query = new Zend_Search_Lucene_Search_Query_MultiTerm();
 
@@ -287,14 +282,13 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
             }
 
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $term  = new Zend_Search_Lucene_Index_Term($pattern, $this->_field);
+            $term = new Zend_Search_Lucene_Index_Term($pattern, $this->_field);
             require_once 'Zend/Search/Lucene/Search/Query/Wildcard.php';
             $query = new Zend_Search_Lucene_Search_Query_Wildcard($term);
 
             $query->_highlightMatches($highlighter);
             return;
         }
-
 
         // -------------------------------------
         // Recognize one-term multi-term and "insignificant" queries
@@ -311,7 +305,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
             return;
         }
 
-        //It's not insignificant or one term query
+        // It's not insignificant or one term query
         $words = [];
         foreach ($tokens as $token) {
             $words[] = $token->getTermText();

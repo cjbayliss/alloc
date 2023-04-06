@@ -45,57 +45,57 @@ class page
         $c = new config();
         $tabs = config::get_config_item("allocTabs");
 
-        $menu_links["home"]    = [
-            "name" => "Home",
-            "url" => $TPL["url_alloc_home"],
-            "module" => "home"
+        $menu_links["home"] = [
+            "name"   => "Home",
+            "url"    => $TPL["url_alloc_home"],
+            "module" => "home",
         ];
-        $menu_links["client"]  = [
-            "name" => "Clients",
-            "url" => $TPL["url_alloc_clientList"],
-            "module" => "client"
+        $menu_links["client"] = [
+            "name"   => "Clients",
+            "url"    => $TPL["url_alloc_clientList"],
+            "module" => "client",
         ];
         $menu_links["project"] = [
-            "name" => "Projects",
-            "url" => $TPL["url_alloc_projectList"],
-            "module" => "project"
+            "name"   => "Projects",
+            "url"    => $TPL["url_alloc_projectList"],
+            "module" => "project",
         ];
-        $menu_links["task"]    = [
-            "name" => "Tasks",
-            "url" => $TPL["url_alloc_taskList"],
-            "module" => "task"
+        $menu_links["task"] = [
+            "name"   => "Tasks",
+            "url"    => $TPL["url_alloc_taskList"],
+            "module" => "task",
         ];
-        $menu_links["time"]    = [
-            "name" => "Time",
-            "url" => $TPL["url_alloc_timeSheetList"],
-            "module" => "time"
+        $menu_links["time"] = [
+            "name"   => "Time",
+            "url"    => $TPL["url_alloc_timeSheetList"],
+            "module" => "time",
         ];
         $menu_links["invoice"] = [
-            "name" => "Invoices",
-            "url" => $TPL["url_alloc_invoiceList"],
-            "module" => "invoice"
+            "name"   => "Invoices",
+            "url"    => $TPL["url_alloc_invoiceList"],
+            "module" => "invoice",
         ];
-        $menu_links["sale"]    = [
-            "name" => "Sales",
-            "url" => $TPL["url_alloc_productSaleList"],
-            "module" => "sale"
+        $menu_links["sale"] = [
+            "name"   => "Sales",
+            "url"    => $TPL["url_alloc_productSaleList"],
+            "module" => "sale",
         ];
-        $menu_links["person"]  = [
-            "name" => "People",
-            "url" => $TPL["url_alloc_personList"],
-            "module" => "person"
+        $menu_links["person"] = [
+            "name"   => "People",
+            "url"    => $TPL["url_alloc_personList"],
+            "module" => "person",
         ];
         if (have_entity_perm("inbox", PERM_READ, $current_user) && config::get_config_item("allocEmailHost")) {
             $menu_links["inbox"] = [
-                "name" => "Inbox",
-                "url" => $TPL["url_alloc_inbox"],
-                "module" => "email"
+                "name"   => "Inbox",
+                "url"    => $TPL["url_alloc_inbox"],
+                "module" => "email",
             ];
         }
-        $menu_links["tools"]   = [
-            "name" => "Tools",
-            "url" => $TPL["url_alloc_tools"],
-            "module" => "tools"
+        $menu_links["tools"] = [
+            "name"   => "Tools",
+            "url"    => $TPL["url_alloc_tools"],
+            "module" => "tools",
         ];
 
         $x = -1;
@@ -129,8 +129,8 @@ class page
         if (has("project") && have_entity_perm("project", PERM_CREATE, $current_user)) {
             $str[] = "<option value=\"create_" . $TPL["url_alloc_project"] . "\">New Project</option>";
         }
-        has("client")   and $str[] = "<option value=\"create_" . $TPL["url_alloc_client"] . "\">New Client</option>";
-        has("finance")  and $str[] = "<option value=\"create_" . $TPL["url_alloc_expenseForm"] . "\">New Expense Form</option>";
+        has("client") and $str[] = "<option value=\"create_" . $TPL["url_alloc_client"] . "\">New Client</option>";
+        has("finance") and $str[] = "<option value=\"create_" . $TPL["url_alloc_expenseForm"] . "\">New Expense Form</option>";
         has("reminder") and $str[] = "<option value=\"create_" . $TPL["url_alloc_reminder"] . "parentType=general&step=2\">New Reminder</option>";
         if (has("person") && have_entity_perm("person", PERM_CREATE, $current_user)) {
             $str[] = "<option value=\"create_" . $TPL["url_alloc_person"] . "\">New Person</option>";
@@ -180,13 +180,13 @@ class page
         $class_to_icon["bad"] = "icon-exclamation-sign";
         $class_to_icon["help"] = "icon-info-sign";
 
-        $search  = [
+        $search = [
             "&lt;br&gt;",
             "&lt;br /&gt;",
             "&lt;b&gt;",
             "&lt;/b&gt;",
             "&lt;u&gt;",
-            "&lt;/u&gt;", '\\'
+            "&lt;/u&gt;", '\\',
         ];
         $replace = [
             "<br>",
@@ -194,7 +194,7 @@ class page
             "<b>",
             "</b>",
             "<u>",
-            "</u>", ''
+            "</u>", '',
         ];
 
         $types = [
@@ -202,12 +202,12 @@ class page
             "message_good"        => "good",
             "message_help"        => "help",
             "message_good_no_esc" => "good",
-            "message_help_no_esc" => "help"
+            "message_help_no_esc" => "help",
         ];
 
         foreach ($types as $type => $class) {
             $str = "";
-            $TPL[$type]  and $str = is_array($TPL[$type])  ? implode("<br>", $TPL[$type])  : $TPL[$type];
+            $TPL[$type] and $str = is_array($TPL[$type])  ? implode("<br>", $TPL[$type])  : $TPL[$type];
             $_GET[$type] and $str = is_array($_GET[$type]) ? implode("<br>", $_GET[$type]) : $_GET[$type];
             if (in_str("no_esc", $type)) {
                 $str and $msg[$type] = $str;
@@ -234,12 +234,12 @@ class page
     public static function get_category_options($category = "")
     {
         $category_options = [];
-        has("task")    and $category_options["search_tasks"] = "Search Tasks";
+        has("task") and $category_options["search_tasks"] = "Search Tasks";
         has("project") and $category_options["search_projects"] = "Search Projects";
-        has("time")    and $category_options["search_time"] = "Search Time Sheets";
-        has("client")  and $category_options["search_clients"] = "Search Clients";
+        has("time") and $category_options["search_time"] = "Search Time Sheets";
+        has("client") and $category_options["search_clients"] = "Search Clients";
         has("comment") and $category_options["search_comment"] = "Search Comments";
-        has("item")    and $category_options["search_items"] = "Search Items";
+        has("item") and $category_options["search_items"] = "Search Items";
         has("finance") and $category_options["search_expenseForm"] = "Search Expense Forms";
         return page::select_options($category_options, $category);
     }
@@ -277,10 +277,10 @@ class page
     {
         $attrs = [];
         $heights = [
-            "small" => 40,
+            "small"  => 40,
             "medium" => 100,
-            "large" => 340,
-            "jumbo" => 440
+            "large"  => 340,
+            "jumbo"  => 440,
         ];
         $height = $ops["height"] or $height = "small";
 
@@ -290,10 +290,10 @@ class page
         $attrs["id"] = $name;
         $attrs["name"] = $name;
         $attrs["wrap"] = "virtual";
-        $cols            and $attrs["cols"]     = $cols;
-        $attrs["style"]    = "height:" . $heights[$height] . "px";
-        $ops["width"]    and $attrs["style"]   .= "; width:" . $ops["width"];
-        $ops["class"]    and $attrs["class"]    = $ops["class"];
+        $cols and $attrs["cols"] = $cols;
+        $attrs["style"] = "height:" . $heights[$height] . "px";
+        $ops["width"] and $attrs["style"] .= "; width:" . $ops["width"];
+        $ops["class"] and $attrs["class"] = $ops["class"];
         $ops["tabindex"] and $attrs["tabindex"] = $ops["tabindex"];
 
         foreach ($attrs as $k => $v) {
@@ -332,7 +332,7 @@ EOD;
                 $rows[$row["value"]] = $row["label"];
             }
 
-            // Build options from an array: array(value1=>label1, value2=>label2)
+        // Build options from an array: array(value1=>label1, value2=>label2)
         } else if (is_array($options)) {
             foreach ($options as $k => $v) {
                 $rows[$k] = $v;
@@ -450,7 +450,7 @@ EOD;
     public static function default_font_size()
     {
         $current_user = &singleton("current_user");
-        $fonts  = page::get_customizedFont_array();
+        $fonts = page::get_customizedFont_array();
         $font = $fonts[sprintf("%d", $current_user->prefs["customizedFont"])];
         $font or $font = 4;
         $font += 8;
@@ -462,13 +462,13 @@ EOD;
             "-3" => 1,
             "-2" => 2,
             "-1" => 3,
-            "0" => "4",
-            "1" => 5,
-            "2" => 6,
-            "3" => 7,
-            "4" => 8,
-            "5" => 9,
-            "6" => 10
+            "0"  => "4",
+            "1"  => 5,
+            "2"  => 6,
+            "3"  => 7,
+            "4"  => 8,
+            "5"  => 9,
+            "6"  => 10,
         ];
     }
     public static function get_customizedTheme_array()
@@ -543,8 +543,8 @@ EOD;
         // Money print
         $c or $c = config::get_config_item('currency');
         $currencies = &get_cached_table("currencyType");
-        $fmt = str_replace("%mo", page::money_out($c, $amount), $fmt);                          //%mo = money_out        eg: 150.21
-        $fmt = str_replace("%mi", page::money_in($c, $amount), $fmt);                           //%mi = money_in         eg: 15021
+        $fmt = str_replace("%mo", page::money_out($c, $amount), $fmt);                          // %mo = money_out        eg: 150.21
+        $fmt = str_replace("%mi", page::money_in($c, $amount), $fmt);                           // %mi = money_in         eg: 15021
         $fmt = str_replace("%m", page::money_fmt($c, $amount), $fmt);                          // %m = format           eg: 150.2 => 150.20
         $fmt = str_replace("%S", $currencies[$c]["currencyTypeLabel"], $fmt); // %S = mandatory symbol eg: $
         imp($amount) and $fmt = str_replace("%s", $currencies[$c]["currencyTypeLabel"], $fmt); // %s = optional symbol  eg: $

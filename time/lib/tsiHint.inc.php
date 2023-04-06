@@ -20,10 +20,10 @@ class tsiHint extends db_entity
         "tsiHintCreatedTime",
         "tsiHintCreatedUser",
         "tsiHintModifiedTime",
-        "tsiHintModifiedUser"
+        "tsiHintModifiedUser",
     ];
 
-    function add_tsiHint($stuff)
+    public function add_tsiHint($stuff)
     {
         $extra = null;
         $task = null;
@@ -72,26 +72,26 @@ class tsiHint extends db_entity
 
         if ($ID) {
             return [
-                "status" => "yay",
-                "message" => $ID
+                "status"  => "yay",
+                "message" => $ID,
             ];
         } else {
             alloc_error($errstr . "Time hint not added.");
         }
     }
 
-    function parse_tsiHint_string($str)
+    public function parse_tsiHint_string($str)
     {
         $rtn = [];
         preg_match("/^"
-            . "([a-zA-Z0-9]+)"                      # username
+            . "([a-zA-Z0-9]+)"                      // username
             . "\s*"
-            . "(\d\d\d\d\-\d\d?\-\d\d?\s+)?"   # date
-            . "([\d\.]+)?"          # duration
+            . "(\d\d\d\d\-\d\d?\-\d\d?\s+)?"   // date
+            . "([\d\.]+)?"          // duration
             . "\s*"
-            . "(\d+)?"             # task id
+            . "(\d+)?"             // task id
             . "\s*"
-            . "(.*)"               # comment
+            . "(.*)"               // comment
             . "\s*"
             . "$/i", $str, $m);
 

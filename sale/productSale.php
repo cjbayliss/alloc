@@ -111,7 +111,6 @@ function show_transaction_list($transactions = [], $template)
         $transaction->set_values();
         $TPL["display"] = "";
 
-
         $m = new meta("currencyType");
         $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
         $TPL["currencyOptions"] = page::select_options($currencyOptions, $transaction->get_value("currencyTypeID"));
@@ -125,10 +124,10 @@ function show_transaction_list($transactions = [], $template)
         }
 
         $TPL["pc_productCostID"] = $row["pc_productCostID"];
-        $TPL["pc_amount"]        = $row["pc_amount"];
-        $TPL["pc_isPercentage"]  = $row["pc_isPercentage"];
-        $TPL["pc_currency"]      = $row["pc_currency"];
-        $TPL["amountClass"]      = $row["saleTransactionType"];
+        $TPL["pc_amount"] = $row["pc_amount"];
+        $TPL["pc_isPercentage"] = $row["pc_isPercentage"];
+        $TPL["pc_currency"] = $row["pc_currency"];
+        $TPL["amountClass"] = $row["saleTransactionType"];
         include_template($template);
     }
 }
@@ -150,10 +149,10 @@ function show_transaction_new($template)
         $TPL["status"] .= page::select_options(transaction::get_transactionStatii()) . "</select>";
     }
     $TPL["pc_productCostID"] = '';
-    $TPL["pc_amount"]        = '';
-    $TPL["pc_isPercentage"]  = '';
-    $TPL["pc_currency"]      = '';
-    $TPL["amountClass"]      = '';
+    $TPL["pc_amount"] = '';
+    $TPL["pc_isPercentage"] = '';
+    $TPL["pc_currency"] = '';
+    $TPL["amountClass"] = '';
     include_template($template);
 }
 
@@ -177,7 +176,6 @@ function show_comments()
     }
 }
 
-
 $productID = $_GET["productID"] or $productID = $_POST["productID"];
 $productSaleID = $_GET["productSaleID"] or $productSaleID = $_POST["productSaleID"];
 $projectID = $_GET["projectID"] or $projectID = $_POST["projectID"];
@@ -197,11 +195,9 @@ if ($productSaleID) {
     $TPL["status"] = "create";
 }
 
-
 $db = new db_alloc();
 $tf = new tf();
 $tflist = $tf->get_assoc_array("tfID", "tfName");
-
 
 if ($_POST["move_forwards"]) {
     $productSale->move_forwards();
@@ -231,7 +227,7 @@ if (!$TPL["message"] && $_POST["save"]) {
                 $productSaleItem->set_id($productSaleItemID);
                 $productSaleItem->delete();
 
-                // Save
+            // Save
             } else {
                 $a = [
                     "productID"               => $_POST["productID"][$k],
@@ -239,7 +235,7 @@ if (!$TPL["message"] && $_POST["save"]) {
                     "sellPriceCurrencyTypeID" => $_POST["sellPriceCurrencyTypeID"][$k],
                     "quantity"                => $_POST["quantity"][$k],
                     "description"             => $_POST["description"][$k],
-                    "productSaleID"           => $productSaleID
+                    "productSaleID"           => $productSaleID,
                 ];
 
                 if ($productSaleItemID) {
@@ -274,7 +270,7 @@ if (!$TPL["message"] && $_POST["save"]) {
                 $transaction->select();
                 $transaction->delete();
 
-                // Save
+            // Save
             } else if (imp($_POST["amount"][$k])) {
                 $type = $_POST["transactionType"][$k] or $type = 'sale';
 
@@ -291,7 +287,7 @@ if (!$TPL["message"] && $_POST["save"]) {
                     "transactionDate"   => date("Y-m-d"),
                     "status"            => 'pending',
                     "currencyTypeID"    => $_POST["currencyTypeID"][$k],
-                    "transactionID"     => $transactionID
+                    "transactionID"     => $transactionID,
                 ];
 
                 if (CAN_APPROVE_TRANSACTIONS && $_POST["status"][$k]) {
@@ -327,7 +323,6 @@ if (!$TPL["message"] && $_POST["save"]) {
     alloc_redirect($TPL["url_alloc_productSaleList"]);
 }
 
-
 if ($productSale->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS)) {
     define("CAN_APPROVE_TRANSACTIONS", 1);
 } else {
@@ -342,7 +337,6 @@ $TPL["productSaleID"] = $productSale->get_id();
 $showCosts = $_POST["showCosts"] or $_showCosts = $_GET["showCosts"];
 
 $productSale->set_values();
-
 
 list($client_select, $client_link, $project_select, $project_link)
     = client::get_client_and_project_dropdowns_and_links($clientID, $projectID);
@@ -378,7 +372,6 @@ if (!$productSale->get_id() || $productSale->get_value("status") != "finished" &
     $TPL["show_extRefDate"] = page::calendar("extRefDate", $productSale->get_value("extRefDate"));
 }
 
-
 $TPL["productSale_status"] = $productSale->get_value("status");
 
 $amounts = $productSale->get_amounts();
@@ -395,11 +388,11 @@ $status = $productSale->get_value("status");
 if ($productSaleID && $status == "edit") {
     define("DISPLAY", DISPLAY_PRODUCT_SALE_ITEM_EDIT);
 
-    // Show line item + transaction + edit
+// Show line item + transaction + edit
 } else if ($productSaleID && ($status == "allocate" || ($status == "admin" && $productSale->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS)))) {
     define("DISPLAY", DISPLAY_PRODUCT_SALE_ITEM_TRANSACTION_EDIT);
 
-    // Show line item + transaction + view
+// Show line item + transaction + view
 } else if ($productSaleID && ($status == "finished" || !$productSale->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS))) {
     define("DISPLAY", DISPLAY_PRODUCT_SALE_ITEM_TRANSACTION_VIEW);
 } else {
@@ -425,7 +418,6 @@ if (!$productSale->get_id()) {
 } else if ($productSale->get_value("status") == "admin") {
     $TPL["message_help"][] = "This Sale is awaiting approval from the Administrator.";
 }
-
 
 if ($productSale->get_value("projectID")) {
     $project = new project();

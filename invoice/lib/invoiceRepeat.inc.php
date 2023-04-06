@@ -12,7 +12,7 @@ class invoiceRepeat extends db_entity
     public $display_field_name = "invoiceRepeatID";
     public $key_field = "invoiceRepeatID";
     public $data_fields = ["invoiceID", "personID", "message", "active"];
-    function save($dates = "")
+    public function save($dates = "")
     {
         $rtn = parent::save();
         if ($rtn) {
@@ -27,7 +27,7 @@ class invoiceRepeat extends db_entity
         }
     }
 
-    function set_values($prefix)
+    public function set_values($prefix)
     {
         $rows = [];
         global $TPL;
@@ -40,7 +40,7 @@ class invoiceRepeat extends db_entity
         return parent::set_values($prefix);
     }
 
-    function get_all_parties($invoiceID)
+    public function get_all_parties($invoiceID)
     {
         $interestedPartyOptions = null;
         if ($invoiceID) {

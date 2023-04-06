@@ -21,12 +21,12 @@ class invoiceItem extends db_entity
         "iiMemo",
         "iiQuantity",
         "iiUnitPrice" => ["type" => "money"],
-        "iiAmount" => ["type" => "money"],
+        "iiAmount"    => ["type" => "money"],
         "iiTax",
-        "iiDate"
+        "iiDate",
     ];
 
-    function is_owner($person = "")
+    public function is_owner($person = "")
     {
         $current_user = &singleton("current_user");
 
@@ -72,7 +72,7 @@ class invoiceItem extends db_entity
         return false;
     }
 
-    function delete()
+    public function delete()
     {
 
         $db = new db_alloc();
@@ -85,7 +85,7 @@ class invoiceItem extends db_entity
         return $status && $status2;
     }
 
-    function save()
+    public function save()
     {
 
         if (!imp($this->get_value("iiAmount"))) {
@@ -97,7 +97,7 @@ class invoiceItem extends db_entity
         return $status && $status2;
     }
 
-    function close_related_entity()
+    public function close_related_entity()
     {
         global $TPL;
 
@@ -180,7 +180,7 @@ class invoiceItem extends db_entity
         }
     }
 
-    function create_transaction($amount, $tfID, $status)
+    public function create_transaction($amount, $tfID, $status)
     {
         $transaction = new transaction();
         $invoice = $this->get_foreign_object("invoice");
@@ -234,7 +234,7 @@ class invoiceItem extends db_entity
         $transaction->save();
     }
 
-    function get_list_filter($filter = [])
+    public function get_list_filter($filter = [])
     {
         $sql = [];
         // Filter on invoiceID

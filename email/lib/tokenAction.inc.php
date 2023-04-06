@@ -13,6 +13,6 @@ class tokenAction extends db_entity
     public $data_fields = [
         "tokenAction",
         "tokenActionType",
-        "tokenActionMethod"
+        "tokenActionMethod",
     ];
 }

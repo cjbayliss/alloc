@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class time_module extends module
 {
     public $module = "time";
@@ -16,6 +15,6 @@ class time_module extends module
         "timeSheetListHomeItem",
         "pendingApprovalTimeSheetListHomeItem",
         "timeSheetStatusHomeItem",
-        "pendingAdminApprovalTimeSheetListHomeItem"
+        "pendingAdminApprovalTimeSheetListHomeItem",
     ];
 }

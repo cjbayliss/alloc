@@ -5,11 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 define("NO_REDIRECT", 1);
 require_once("../alloc.php");
 
-//usleep(1000);
+// usleep(1000);
 
 $t = tsiHint::parse_tsiHint_string($_REQUEST["tsiHint_item"]);
 
@@ -32,14 +31,13 @@ foreach ($t as $k => $v) {
     }
 }
 
-//2010-10-01  1 Days x Double Time
-//Task: 102 This is the task
-//Comment: This is the comment
-
+// 2010-10-01  1 Days x Double Time
+// Task: 102 This is the task
+// Comment: This is the comment
 
 $str[] = "<table>";
 $str[] = "<tr><td>" . $name . " " . $rtn["date"] . " </td><td class='nobr bold'> " . $rtn["duration"] . " Hours</td><td class='nobr'></td></tr>";
-$rtn["taskID"]  and $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
+$rtn["taskID"] and $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
 $rtn["comment"] and $str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>";
 $str[] = "</table>";
 

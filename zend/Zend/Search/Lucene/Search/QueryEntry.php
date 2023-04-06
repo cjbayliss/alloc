@@ -37,14 +37,12 @@ abstract class Zend_Search_Lucene_Search_QueryEntry
      */
     protected $_boost = 1.0;
 
-
     /**
      * Process modifier ('~')
      *
      * @param mixed $parameter
      */
     abstract public function processFuzzyProximityModifier($parameter = null);
-
 
     /**
      * Transform entry to a subquery

@@ -21,7 +21,6 @@
  * @version    $Id: Phrase.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /** Zend_Search_Lucene_Search_Query_Processing */
 require_once 'Zend/Search/Lucene/Search/Query/Preprocessing.php';
 
@@ -51,7 +50,6 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
      * @var string
      */
     private $_phraseEncoding;
-
 
     /**
      * Field name.
@@ -88,9 +86,9 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
      */
     public function __construct($phrase, $phraseEncoding, $fieldName)
     {
-        $this->_phrase         = $phrase;
+        $this->_phrase = $phrase;
         $this->_phraseEncoding = $phraseEncoding;
-        $this->_field          = $fieldName;
+        $this->_field = $fieldName;
     }
 
     /**
@@ -102,7 +100,6 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
     {
         $this->_slop = $slop;
     }
-
 
     /**
      * Get slop
@@ -171,7 +168,6 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
             return $query;
         }
 
-
         // tokenize phrase using current analyzer and process it as a phrase query
         require_once 'Zend/Search/Lucene/Analysis/Analyzer.php';
         $tokens = Zend_Search_Lucene_Analysis_Analyzer::getDefault()->tokenize($this->_phrase, $this->_phraseEncoding);
@@ -184,7 +180,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
 
         if (count($tokens) == 1) {
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $term  = new Zend_Search_Lucene_Index_Term($tokens[0]->getTermText(), $this->_field);
+            $term = new Zend_Search_Lucene_Index_Term($tokens[0]->getTermText(), $this->_field);
             require_once 'Zend/Search/Lucene/Search/Query/Term.php';
             $query = new Zend_Search_Lucene_Search_Query_Term($term);
             $query->setBoost($this->getBoost());
@@ -193,7 +189,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
             return $query;
         }
 
-        //It's non-trivial phrase query
+        // It's non-trivial phrase query
         $position = -1;
         require_once 'Zend/Search/Lucene/Search/Query/Phrase.php';
         $query = new Zend_Search_Lucene_Search_Query_Phrase();
@@ -221,7 +217,6 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
 
         /** Skip wildcard queries recognition. Supported wildcards are removed by text analyzer */
 
-
         // tokenize phrase using current analyzer and process it as a phrase query
         require_once 'Zend/Search/Lucene/Analysis/Analyzer.php';
         $tokens = Zend_Search_Lucene_Analysis_Analyzer::getDefault()->tokenize($this->_phrase, $this->_phraseEncoding);
@@ -236,7 +231,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Phrase extends Zend_Search_L
             return;
         }
 
-        //It's non-trivial phrase query
+        // It's non-trivial phrase query
         $words = [];
         foreach ($tokens as $token) {
             $words[] = $token->getTermText();

@@ -87,7 +87,7 @@ class services
             $e = new $entity;
             $e->set_id($entityID);
             $e->select();
-            in_array("default", $people)  and $default_recipients  = $e->get_all_parties();
+            in_array("default", $people) and $default_recipients = $e->get_all_parties();
             in_array("internal", $people) and $internal_recipients = $e->get_all_parties();
         }
 
@@ -127,7 +127,7 @@ class services
                     continue;
                 }
 
-                // email addresses
+            // email addresses
             } else if (in_str("@", $person)) {
                 foreach ($person_table as $pid => $data) {
                     if (same_email_address($person, $data["emailAddress"]) && $data["personActive"]) {
@@ -152,7 +152,7 @@ class services
                 $bad_person = false;
                 continue;
 
-                // usernames, partial and full names
+            // usernames, partial and full names
             } else {
                 foreach ($person_table as $pid => $data) {
                     // If matches username
@@ -222,7 +222,7 @@ class services
         $rtn = [];
         $rtn["personID"] = $person["personID"];
         $rtn["username"] = $person["username"];
-        $rtn["name"]     = $person["name"]             or $rtn["name"] = $person["clientContactName"];
+        $rtn["name"] = $person["name"] or $rtn["name"] = $person["clientContactName"];
         $rtn["emailAddress"] = $person["emailAddress"] or $rtn["emailAddress"] = $person["clientContactEmail"] or $rtn["emailAddress"] = $person["email"];
         $rtn["clientContactID"] = $person["clientContactID"];
         return $rtn;
@@ -397,7 +397,7 @@ class services
     public function get_email($emailUID)
     {
         $current_user = &singleton("current_user");
-        //$lockfile = ATTACHMENTS_DIR."mail.lock.person_".$current_user->get_id();
+        // $lockfile = ATTACHMENTS_DIR."mail.lock.person_".$current_user->get_id();
         if ($emailUID) {
             $info = $this->init_email_info();
             $mail = new email_receive($info);

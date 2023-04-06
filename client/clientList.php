@@ -9,7 +9,7 @@ require_once("../alloc.php");
 
 $defaults = [
     "url_form_action" => $TPL["url_alloc_clientList"],
-    "form_name" => "clientList_filter"
+    "form_name"       => "clientList_filter",
 ];
 
 function show_filter()
@@ -21,7 +21,6 @@ function show_filter()
     is_array($arr) and $TPL = array_merge($TPL, $arr);
     include_template("templates/clientListFilterS.tpl");
 }
-
 
 $_FORM = client::load_form_data($defaults);
 $TPL["clientListRows"] = client::get_list($_FORM);
@@ -39,7 +38,6 @@ display a list of previously created Clients.
 If you would prefer to create a new Client, click the <b>New Client</b> link
 in the top-right hand corner of the box below.";
 }
-
 
 $TPL["main_alloc_title"] = "Client List - " . APPLICATION_NAME;
 include_template("templates/clientListM.tpl");

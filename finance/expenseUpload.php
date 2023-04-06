@@ -19,7 +19,7 @@ $field_map = [
     "memo"        => 4,
     "category"    => 5,
     "clr"         => 6,
-    "amount"      => 7
+    "amount"      => 7,
 ];
 
 if ($_POST["upload"]) {
@@ -57,7 +57,6 @@ if ($_POST["upload"]) {
             continue;
         }
         $date = sprintf("200%d-%02d-%02d", $matches[3], $matches[2], $matches[1]);
-
 
         // Strip $ and , from amount
         $amount = str_replace(['$', ','], [], $amount);

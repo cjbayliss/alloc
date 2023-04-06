@@ -17,12 +17,12 @@ function show_filter()
     include_template("templates/transactionFilterS.tpl");
 }
 
-$tfID         = $_GET["tfID"]        or $tfID        = $_POST["tfID"];
-$startDate    = $_GET["startDate"]   or $startDate   = $_POST["startDate"];
-$endDate      = $_GET["endDate"]     or $endDate     = $_POST["endDate"];
-$monthDate    = $_GET["monthDate"]   or $monthDate   = $_POST["monthDate"];
-$download     = $_GET["download"]    or $download    = $_POST["download"];
-$applyFilter  = $_GET["applyFilter"] or $applyFilter = $_POST["applyFilter"];
+$tfID = $_GET["tfID"] or $tfID = $_POST["tfID"];
+$startDate = $_GET["startDate"] or $startDate = $_POST["startDate"];
+$endDate = $_GET["endDate"] or $endDate = $_POST["endDate"];
+$monthDate = $_GET["monthDate"] or $monthDate = $_POST["monthDate"];
+$download = $_GET["download"] or $download = $_POST["download"];
+$applyFilter = $_GET["applyFilter"] or $applyFilter = $_POST["applyFilter"];
 
 if (!$startDate && !$endDate && !$monthDate && !$applyFilter) {
     $monthDate = date("Y-m-d");
@@ -35,7 +35,7 @@ $defaults = [
     "tfID"            => $tfID,
     "startDate"       => $startDate,
     "endDate"         => $endDate,
-    "monthDate"       => $monthDate
+    "monthDate"       => $monthDate,
 ];
 
 if ($download) {
@@ -62,7 +62,6 @@ $rtn = transaction::get_list($_FORM);
 $TPL["totals"] = $rtn["totals"];
 $TPL["transactionListRows"] = $rtn["rows"];
 
-
 // Total balance
 $TPL["balance"] = $tf->get_balance();
 
@@ -71,6 +70,6 @@ $TPL["pending_amount"] = $tf->get_balance(["status" => "pending"]);
 
 // Page and header title
 $TPL["title"] = "Statement for tagged fund: " . $tf->get_value("tfName");
-$TPL["main_alloc_title"] =  "TF: " . $tf->get_value("tfName") . " - " . APPLICATION_NAME;
+$TPL["main_alloc_title"] = "TF: " . $tf->get_value("tfName") . " - " . APPLICATION_NAME;
 
 include_template("templates/transactionListM.tpl");

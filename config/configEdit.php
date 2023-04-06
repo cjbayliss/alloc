@@ -49,7 +49,6 @@ if ($_POST["save"]) {
     $config->save();
 }
 
-
 if (file_exists("templates/configEdit_" . $configName . ".tpl")) {
     include_template("templates/configEdit_" . $configName . ".tpl");
 } else if (file_exists("templates/configEdit_" . $configType . ".tpl")) {

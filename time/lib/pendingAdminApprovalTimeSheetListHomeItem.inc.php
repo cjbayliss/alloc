@@ -5,16 +5,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class pendingAdminApprovalTimeSheetListHomeItem extends home_item
 {
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct("pending_admin_time_list", "Time Sheets Pending Admin Approval", "time", "pendingAdminApprovalTimeSheetHomeM.tpl", "narrow", 22);
     }
 
-    function visible()
+    public function visible()
     {
         $current_user = &singleton("current_user");
         if (isset($current_user) && $current_user->is_employee()) {
@@ -25,12 +24,12 @@ class pendingAdminApprovalTimeSheetListHomeItem extends home_item
         }
     }
 
-    function render()
+    public function render()
     {
         return true;
     }
 
-    function show_pending_time_sheets($template_name, $doAdmin = false)
+    public function show_pending_time_sheets($template_name, $doAdmin = false)
     {
         show_time_sheets_list_for_classes($template_name, $doAdmin);
     }

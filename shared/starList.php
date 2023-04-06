@@ -19,12 +19,12 @@ $task_defaults = [
     "showStarred" => true,
     "showStatus"  => true,
     "showProject" => true,
-    "starred"     => true
+    "starred"     => true,
 ];
 
 $timeSheet_defaults = [
     "starred" => true,
-    "noextra" => true
+    "noextra" => true,
 ];
 
 $invoice_defaults = [
@@ -36,45 +36,44 @@ $invoice_defaults = [
     "showInvoiceAmountPaid" => true,
     "showInvoiceDate"       => true,
     "showInvoiceStatus"     => true,
-    "starred"               => true
+    "starred"               => true,
 ];
 
 $star_entities = [
-    "client"        => [
+    "client" => [
         "label" => "Clients",
-        "form" => $client_defaults
+        "form"  => $client_defaults,
     ],
     "clientContact" => [
         "label" => "Contacts",
-        "form" => $clientContact_defaults
+        "form"  => $clientContact_defaults,
     ],
-    "project"       => [
+    "project" => [
         "label" => "Projects",
-        "form" => $project_defaults
+        "form"  => $project_defaults,
     ],
-    "task"          => [
+    "task" => [
         "label" => "Tasks",
-        "form" => $task_defaults
+        "form"  => $task_defaults,
     ],
-    "comment"       => [
+    "comment" => [
         "label" => "Comments",
-        "form" => $comment_defaults
+        "form"  => $comment_defaults,
     ],
-    "timeSheet"     => [
+    "timeSheet" => [
         "label" => "Time Sheets",
-        "form" => $timeSheet_defaults
+        "form"  => $timeSheet_defaults,
     ],
-    "invoice"       => [
+    "invoice" => [
         "label" => "Invoices",
-        "form" => $invoice_defaults
+        "form"  => $invoice_defaults,
     ],
-    "productSale"   => [
+    "productSale" => [
         "label" => "Sales",
-        "form" => $productSale_defaults
+        "form"  => $productSale_defaults,
     ],
 ];
 
 $TPL["star_entities"] = $star_entities;
-
 
 include_template("templates/starListM.tpl");

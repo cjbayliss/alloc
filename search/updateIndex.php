@@ -12,7 +12,6 @@ require_once("../alloc.php");
 ini_set('max_execution_time', 180000);
 ini_set('memory_limit', "512M");
 
-
 function echoo($str)
 {
     $nl = "<br>";
@@ -20,14 +19,12 @@ function echoo($str)
     echo $nl . $str;
 }
 
-
 foreach (["client", "comment", "item", "project", "task", "timeSheet"] as $i) {
     if (!is_dir(ATTACHMENTS_DIR . 'search/' . $i)) {
         $index = Zend_Search_Lucene::create(ATTACHMENTS_DIR . 'search/' . $i);
         $index->commit();
     }
 }
-
 
 $q = "SELECT * FROM indexQueue ORDER BY entity";
 
@@ -65,7 +62,6 @@ while ($row = $db->row($q1)) {
     $e->select();
     $e->delete_search_index_doc($index);
     $e->update_search_index_doc($index);
-
 
     // Nuke item from queue
     $db->query("DELETE FROM indexQueue WHERE indexQueueID = %d", $row["indexQueueID"]);

@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
 class sentEmailLog extends db_entity
 {
     public $classname = "sentEmailLog";
@@ -18,6 +17,6 @@ class sentEmailLog extends db_entity
         "sentEmailHeader",
         "sentEmailType",
         "sentEmailLogCreatedTime",
-        "sentEmailLogCreatedUser"
+        "sentEmailLogCreatedUser",
     ];
 }

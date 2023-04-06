@@ -25,7 +25,7 @@ $TPL["global_graph"] = "<a href=\"" . $TPL["url_alloc_statsImage"] . "id=total&w
 
 include_template("templates/statsM.tpl");
 
-/* order array of userids from most actions to least actions */
+// order array of userids from most actions to least actions
 function compare($a, $b)
 {
     global $projects;

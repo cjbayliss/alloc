@@ -76,7 +76,6 @@ if (!$transactionGroupID) {
 }
 $TPL["transactionGroupID"] = $transactionGroupID;
 
-
 if ($_POST["save_transactions"]) {
     is_array($_POST["deleteTransaction"]) or $_POST["deleteTransaction"] = [];
 
@@ -91,7 +90,7 @@ if ($_POST["save_transactions"]) {
                 $deleted .= $commar1 . $transactionID;
                 $commar1 = ", ";
 
-                // Save
+            // Save
             } else if ($_POST["amount"][$k]) {
                 $a = [
                     "amount"             => $_POST["amount"][$k],
@@ -103,7 +102,7 @@ if ($_POST["save_transactions"]) {
                     "transactionDate"    => $_POST["transactionDate"][$k],
                     "status"             => $_POST["status"][$k],
                     "transactionGroupID" => $transactionGroupID,
-                    "transactionID"      => $_POST["transactionID"][$k]
+                    "transactionID"      => $_POST["transactionID"][$k],
                 ];
 
                 $transaction = new transaction();
@@ -127,7 +126,6 @@ if ($_POST["save_transactions"]) {
     $deleted and $TPL["message_good"][] = "Transaction " . $deleted . " deleted.";
     alloc_redirect($TPL["url_alloc_transactionGroup"] . "transactionGroupID=" . $transactionGroupID);
 }
-
 
 $TPL["main_alloc_title"] = "Edit Transactions - " . APPLICATION_NAME;
 include_template("templates/transactionGroupM.tpl");

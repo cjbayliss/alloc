@@ -12,7 +12,7 @@ class projectCommissionPerson extends db_entity
     public $key_field = "projectCommissionPersonID";
     public $data_fields = ["projectID", "tfID", "commissionPercent"];
 
-    function is_owner($person = "")
+    public function is_owner($person = "")
     {
         $project = new project();
         $project->set_id($this->get_value("projectID"));
@@ -20,7 +20,7 @@ class projectCommissionPerson extends db_entity
         return $project->is_owner($person);
     }
 
-    function save()
+    public function save()
     {
         $fail = null;
         // Just ensure multiple 0 entries cannot be saved.

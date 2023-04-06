@@ -21,7 +21,6 @@
  * @version    $Id: Directory.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
-
 /**
  * @category   Zend
  * @package    Zend_Search_Lucene
@@ -54,7 +53,6 @@ abstract class Zend_Search_Lucene_Storage_Directory
      */
     abstract public function createFile($filename);
 
-
     /**
      * Removes an existing $filename in the directory.
      *
@@ -81,7 +79,6 @@ abstract class Zend_Search_Lucene_Storage_Directory
      */
     abstract public function fileExists($filename);
 
-
     /**
      * Returns the length of a $filename in the directory.
      *
@@ -90,7 +87,6 @@ abstract class Zend_Search_Lucene_Storage_Directory
      */
     abstract public function fileLength($filename);
 
-
     /**
      * Returns the UNIX timestamp $filename was last modified.
      *
@@ -98,7 +94,6 @@ abstract class Zend_Search_Lucene_Storage_Directory
      * @return integer
      */
     abstract public function fileModified($filename);
-
 
     /**
      * Renames an existing file in the directory.
@@ -109,7 +104,6 @@ abstract class Zend_Search_Lucene_Storage_Directory
      */
     abstract public function renameFile($from, $to);
 
-
     /**
      * Sets the modified time of $filename to now.
      *
@@ -117,7 +111,6 @@ abstract class Zend_Search_Lucene_Storage_Directory
      * @return void
      */
     abstract public function touchFile($filename);
-
 
     /**
      * Returns a Zend_Search_Lucene_Storage_File object for a given $filename in the directory.

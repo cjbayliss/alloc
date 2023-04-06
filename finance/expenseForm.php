@@ -7,7 +7,6 @@
 
 require_once("../alloc.php");
 
-
 function show_all_exp($template)
 {
 
@@ -129,20 +128,17 @@ if ($expenseFormID) {
     }
 }
 
-
-
 if ($_POST["add"]) {
-    $_POST["product"]        or alloc_error("You must enter a Product.");
+    $_POST["product"] or alloc_error("You must enter a Product.");
     $_POST["companyDetails"] or alloc_error("You must enter the Company Details.");
-    $_POST["fromTfID"]       or alloc_error("You must enter the Source TF.");
-    $_POST["quantity"]       or $_POST["quantity"] = 1;
+    $_POST["fromTfID"] or alloc_error("You must enter the Source TF.");
+    $_POST["quantity"] or $_POST["quantity"] = 1;
     config::get_config_item("mainTfID") or alloc_error("You must configure the Finance Tagged Fund on the Setup -> Finance screen.");
 
     if ($_POST["amount"] === "") {
         alloc_error("You must enter the Price.");
     }
     $_POST["amount"] = $_POST["amount"] * $_POST["quantity"];
-
 
     $transaction = new transaction();
     $transactionID && $transaction->set_id($_POST["transactionID"]);
@@ -203,7 +199,6 @@ $TPL["fromTfOptions"] = page::select_options($options, $selectedTfID);
 $m = new meta("currencyType");
 $currencyOps = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
 $TPL["currencyTypeOptions"] = page::select_options($currencyOps, $transaction_to_edit->get_value("currencyTypeID"));
-
 
 if (is_object($expenseForm) && $expenseForm->get_value("clientID")) {
     $clientID_sql = unsafe_prepare(" AND clientID = %d", $expenseForm->get_value("clientID"));
@@ -295,7 +290,6 @@ if ($_POST["cancel"]) {
     $expenseForm->save_to_invoice($_POST["attach_to_invoiceID"]);
 }
 
-
 if (is_object($expenseForm) && $expenseForm->get_value("expenseFormFinalised") && $current_user->get_id() == $expenseForm->get_value("expenseFormCreatedUser")) {
     $TPL["message_help"][] = "Step 4/4: Print out the Expense Form using the Printer Friendly Version link, attach receipts and hand in to office admin.";
 } else if (check_optional_has_line_items() && !$expenseForm->get_value("expenseFormFinalised")) {
@@ -315,7 +309,7 @@ $paymentOptionNames = [
     "Company Virgin MasterCard",
     "Other Credit Card",
     "Account",
-    "Direct Deposit"
+    "Direct Deposit",
 ];
 $paymentOptions = page::select_options($paymentOptionNames, $expenseForm->get_value("paymentMethod"));
 
@@ -331,7 +325,6 @@ foreach ($rr_options as $value => $label) {
     $reimbursementRequiredRadios .= $br . "<input type=\"radio\" name=\"reimbursementRequired\" value=\"" . $value . "\"" . $rr_checked[$value] . ">" . $label . $extra;
     $br = "<br>";
 }
-
 
 $TPL["paymentMethodOptions"] = $expenseForm->get_value("paymentMethod");
 $TPL["reimbursementRequiredOption"] = $rr_label;
@@ -375,7 +368,6 @@ if (is_object($expenseForm) && $expenseForm->get_id() && check_optional_allow_ed
   <button type="submit" name="save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
   <select name="changeTransactionStatus"><option value="">Transaction Status<option value="approved">Approve<option value="rejected">Reject<option value="pending">Pending</select>
   ';
-
 
     $TPL["field_clientID"] = $clientName;
     $TPL["field_expenseFormComment"] = page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));

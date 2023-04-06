@@ -5,8 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-
-
 // This file basically provides static template values that are used throughout the application and is included by alloc.php
 function get_alloc_urls($TPL, $sess = false)
 {

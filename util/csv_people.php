@@ -23,7 +23,7 @@ $row = 1;
 if (($handle = fopen("../../David_People.csv", "r")) !== false) {
     while (($data = fgetcsv($handle, 1000, ",")) !== false) {
         foreach ($data as $key => $val) {
-            #  $data[$key] = utf8_encode($data[$key]);
+            //  $data[$key] = utf8_encode($data[$key]);
         }
 
         $person = new person();
@@ -43,7 +43,7 @@ if (($handle = fopen("../../David_People.csv", "r")) !== false) {
         $x++;
         echo "<br>here: " . $person->get_id() . $data[0];
         if ($x > 4) {
-            //die();
+            // die();
         }
     }
     fclose($handle);

@@ -30,7 +30,6 @@ $modules["announcement"] = "Announcements";
 
 $TPL["module_options"] = page::select_options($modules, $_POST["mod"]);
 
-
 if ($_POST["do_step_2"]) {
     if (!is_array($fields)) {
         $fields = [];
@@ -38,7 +37,6 @@ if ($_POST["do_step_2"]) {
     $ignored_fields = [];
     $table_fields = [];
     $db_tables = [];
-
 
     if ($_POST["mod"] == "client") {
         $db_tables[] = "client";
@@ -94,14 +92,11 @@ if ($_POST["do_step_2"]) {
         $db_tables[] = "announcement";
     }
 
-
     // this is how to not include particular fields $ignored_fields[] = "timeSheetItem.timeSheetItemID";
 
     $query["start"] = " SELECT ";
     $query["where"] = " WHERE 1=1 ";
     $query["from"] = unsafe_prepare(" FROM %s ", $db_tables[0]);
-
-
 
     foreach ($db_tables as $table) {
         if (class_exists($table)) {
@@ -185,7 +180,6 @@ if ($_POST["do_step_2"]) {
   ';
 }
 
-
 // END STEP TWO
 
 if ($_POST["do_step_3"]) {
@@ -193,7 +187,6 @@ if ($_POST["do_step_3"]) {
         alloc_error("Did not get table_fields array.");
         $table_fields = [];
     }
-
 
     foreach ($table_fields as $v) {
         if ($_POST["table_name"][$v] != "") {
@@ -229,8 +222,6 @@ if ($_POST["do_step_3"]) {
             $query["group"] .= "," . db_esc($_POST["table_groupby"]);
         }
     }
-
-
 
     $final_query = $query["start"] . $query["select"] . $query["from"] . $query["join"] . $query["where"] . $query["group"];
 
@@ -268,7 +259,6 @@ if ($_POST["do_step_3"]) {
         if ($_POST["field_quotes"] == "double") {
             $quotes = "\"";
         }
-
 
         while ($db->next_record()) {
             $odd_even = $odd_even == "even" ? "odd" : "even";
@@ -310,7 +300,6 @@ if ($_POST["do_step_3"]) {
         alloc_error("Please select some Fields using the checkboxes.");
     }
 }
-
 
 $TPL["main_alloc_title"] = "Reports - " . APPLICATION_NAME;
 

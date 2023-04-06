@@ -6,7 +6,7 @@
  */
 
 // The order of file processing usually goes:
-// requested_script.php -> alloc.php -> alloc_config.php -> more includes 
+// requested_script.php -> alloc.php -> alloc_config.php -> more includes
 // -> back to requested_script.php
 
 function &singleton($name, $thing = null)
@@ -27,7 +27,7 @@ singleton("errors_logged", false);
 singleton("errors_thrown", false);
 singleton("errors_haltdb", false);
 
-// Set the charset for Zend Lucene search indexer 
+// Set the charset for Zend Lucene search indexer
 // http://framework.zend.com/manual/en/zend.search.lucene.charset.html
 require_once("Zend" . DIRECTORY_SEPARATOR . "Search" . DIRECTORY_SEPARATOR . "Lucene.php");
 Zend_Search_Lucene_Analysis_Analyzer::setDefault(
@@ -81,7 +81,7 @@ $m = [
     "email",
     "sale",
     "audit",
-    "calendar"
+    "calendar",
 ];
 
 // Sub-dirs under ATTACHMENTS_DIR where upload, email and backup data can be stored
@@ -95,7 +95,7 @@ $external_storage_directories = [
     "whatsnew",
     "logos",
     "search",
-    "tmp"
+    "tmp",
 ];
 
 // Helper functions
@@ -134,9 +134,8 @@ $TPL = [
     "url_alloc_help"         => ALLOC_MOD_DIR . "help" . DIRECTORY_SEPARATOR,
     "alloc_help_link_name"   => end(array_slice(explode("/", $_SERVER["PHP_SELF"]), -2, 1)),
     "script_path"            => SCRIPT_PATH,
-    "main_alloc_title"       => end(explode("/", $_SERVER["SCRIPT_NAME"]))
+    "main_alloc_title"       => end(explode("/", $_SERVER["SCRIPT_NAME"])),
 ];
-
 
 if (file_exists(ALLOC_MOD_DIR . "alloc_config.php")) {
     require_once(ALLOC_MOD_DIR . "alloc_config.php");
@@ -171,8 +170,8 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
         exit();
     }
 
-    // Else if were not in the installation process and there's no 
-    // alloc_config.php file then redirect to the installation directory
+// Else if were not in the installation process and there's no
+// alloc_config.php file then redirect to the installation directory
 } else if (
     !file_exists(ALLOC_MOD_DIR . "alloc_config.php") ||
     !is_readable(ALLOC_MOD_DIR . "alloc_config.php") ||
@@ -182,7 +181,7 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
     alloc_redirect($TPL["url_alloc_installation"]);
     exit();
 
-    // Else include the alloc_config.php file and begin with proceedings..
+// Else include the alloc_config.php file and begin with proceedings..
 } else {
     // The timezone must be dealt with before anything else uses it or php will
     // emit a warning
@@ -192,7 +191,6 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
     // Now the timezone is set, replace the missing stuff from the template
     $TPL["current_date"] = date("Y-m-d H:i:s");
     $TPL["today"] = date("Y-m-d");
-
 
     // The default From: email address
     if (config::get_config_item("AllocFromEmailAddress")) {
@@ -222,7 +220,7 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
                 ? '?forward=' . urlencode($_SERVER['REQUEST_URI'])
                 : ''));
 
-            // Else load up the current_user and continue
+        // Else load up the current_user and continue
         } else if ($sess->Get("personID")) {
             $current_user->load_current_user($sess->Get("personID"));
         }

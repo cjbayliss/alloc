@@ -17,6 +17,6 @@ class loan extends db_entity
         "loanModifiedTime",
         "dateBorrowed",
         "dateToBeReturned",
-        "dateReturned"
+        "dateReturned",
     ];
 }

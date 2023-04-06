@@ -15,7 +15,7 @@ class exchangeRate extends db_entity
         "exchangeRateCreatedTime",
         "fromCurrency",
         "toCurrency",
-        "exchangeRate"
+        "exchangeRate",
     ];
 
     public static function get_er($from, $to, $date = "")

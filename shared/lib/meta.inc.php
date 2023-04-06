@@ -13,30 +13,30 @@ class meta extends db_entity
     // This variable contains the definitive list of all the referential
     // integrity tables that the user is allowed to edit.
     public static $tables = [
-        "absenceType"               => "Absence Types",
-        "clientStatus"              => "Client Statuses",
-        #"configType"                => "Config Types",
-        #"invoiceStatus"             => "Invoice Statuses",
-        "itemType"                  => "Item Types",
-        "projectType"               => "Project Types",
-        "currencyType"              => "Currency Types",
-        "projectStatus"             => "Project Statuses",
-        "taskStatus"                => "Task Statuses",
-        #"roleLevel"                 => "Role Levels",
-        #"reminderRecuringInterval"  => "Reminder Intervals",
-        #"reminderAdvNoticeInterval" => "Advanced Notice Int",
-        #"sentEmailType"             => "Sent Email Types",
-        "skillProficiency"          => "Skill Proficiencies",
-        #"changeType"                => "Change Types",
-        #"timeSheetStatus"           => "Time Sheet Statuses",
-        #"transactionStatus"         => "Transaction Statuses",
-        "transactionType"           => "Transaction Types",
-        "timeSheetItemMultiplier"   => "Time Sheet Multipliers",
-        #"productSaleStatus"         => "Product Sale Statuses",
-        "taskType"                  => "Task Types",
+        "absenceType"  => "Absence Types",
+        "clientStatus" => "Client Statuses",
+        // "configType"                => "Config Types",
+        // "invoiceStatus"             => "Invoice Statuses",
+        "itemType"      => "Item Types",
+        "projectType"   => "Project Types",
+        "currencyType"  => "Currency Types",
+        "projectStatus" => "Project Statuses",
+        "taskStatus"    => "Task Statuses",
+        // "roleLevel"                 => "Role Levels",
+        // "reminderRecuringInterval"  => "Reminder Intervals",
+        // "reminderAdvNoticeInterval" => "Advanced Notice Int",
+        // "sentEmailType"             => "Sent Email Types",
+        "skillProficiency" => "Skill Proficiencies",
+        // "changeType"                => "Change Types",
+        // "timeSheetStatus"           => "Time Sheet Statuses",
+        // "transactionStatus"         => "Transaction Statuses",
+        "transactionType"         => "Transaction Types",
+        "timeSheetItemMultiplier" => "Time Sheet Multipliers",
+        // "productSaleStatus"         => "Product Sale Statuses",
+        "taskType" => "Task Types",
     ];
 
-    function __construct($table = "")
+    public function __construct($table = "")
     {
         $this->classname = $table;
         $this->data_table = $table;
@@ -55,12 +55,12 @@ class meta extends db_entity
         return parent::__construct();
     }
 
-    function get_tables()
+    public function get_tables()
     {
         return self::$tables;
     }
 
-    function get_list($include_inactive = false)
+    public function get_list($include_inactive = false)
     {
         $where = [];
         if ($this->data_table) {
@@ -69,14 +69,14 @@ class meta extends db_entity
         }
     }
 
-    function get_label()
+    public function get_label()
     {
         if ($this->data_table) {
             return self::$tables[$this->data_table];
         }
     }
 
-    function validate()
+    public function validate()
     {
         $err = [];
         $this->get_id() or $err[] = "Please enter a Value/ID for the " . $this->get_label();

@@ -20,23 +20,21 @@ class token extends db_entity
         "tokenMaxUsed",
         "tokenActive",
         "tokenCreatedBy",
-        "tokenCreatedDate"
+        "tokenCreatedDate",
     ];
 
-
-    function set_hash($hash, $validate = true)
+    public function set_hash($hash, $validate = true)
     {
         $extra = null;
         $validate and $extra = " AND tokenActive = 1";
         $validate and $extra .= " AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)";
         $validate and $extra .= unsafe_prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s"));
 
-
         $q = unsafe_prepare("SELECT * FROM token
                        WHERE tokenHash = '%s'
                       $extra
                      ", $hash);
-        #echo "<br><br>".$q;
+        // echo "<br><br>".$q;
         $db = new db_alloc();
         $db->query($q);
         if ($db->next_record()) {
@@ -46,7 +44,7 @@ class token extends db_entity
         }
     }
 
-    function execute()
+    public function execute()
     {
         $tokenAction = null;
         if ($this->get_id()) {
@@ -72,21 +70,21 @@ class token extends db_entity
         return [false, false];
     }
 
-    function increment_tokenUsed()
+    public function increment_tokenUsed()
     {
         $q = unsafe_prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) + 1 WHERE tokenID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
     }
 
-    function decrement_tokenUsed()
+    public function decrement_tokenUsed()
     {
         $q = unsafe_prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) - 1 WHERE tokenID = %d", $this->get_id());
         $db = new db_alloc();
         $db->query($q);
     }
 
-    function get_hash_str()
+    public function get_hash_str()
     {
         list($usec, $sec) = explode(' ', microtime());
         $seed = $sec + ($usec * 100000);
@@ -97,7 +95,7 @@ class token extends db_entity
         return $randval;
     }
 
-    function generate_hash()
+    public function generate_hash()
     {
         // Make an eight character base 36 garbage fds3ys79 / also check that we haven't used this ID already
         $randval = $this->get_hash_str();
@@ -108,7 +106,7 @@ class token extends db_entity
         return $randval;
     }
 
-    function select_token_by_entity_and_action($entity, $entityID, $action)
+    public function select_token_by_entity_and_action($entity, $entityID, $action)
     {
         $q = unsafe_prepare("SELECT token.*, tokenAction.*
                         FROM token
@@ -126,12 +124,12 @@ class token extends db_entity
         }
     }
 
-    function get_list_filter($filter = [])
+    public function get_list_filter($filter = [])
     {
         $sql = [];
-        $filter["tokenEntity"]   and $sql[] = sprintf_implode("token.tokenEntity = '%s'", $filter["tokenEntity"]);
+        $filter["tokenEntity"] and $sql[] = sprintf_implode("token.tokenEntity = '%s'", $filter["tokenEntity"]);
         $filter["tokenEntityID"] and $sql[] = sprintf_implode("token.tokenEntityID = %d", $filter["tokenEntityID"]);
-        $filter["tokenHash"]     and $sql[] = sprintf_implode("token.tokenHash = '%s'", $filter["tokenHash"]);
+        $filter["tokenHash"] and $sql[] = sprintf_implode("token.tokenHash = '%s'", $filter["tokenHash"]);
         return $sql;
     }
 
