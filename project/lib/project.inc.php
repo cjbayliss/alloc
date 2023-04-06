@@ -356,68 +356,79 @@ class project extends db_entity
         }
     }
 
-    public static function get_project_type_query($type = "mine", $personID = false, $projectStatus = false)
-    {
-        $projectStatus_sql = null;
-        $q = null;
+    /**
+     * Prepares a PDOStatement to fetch project information based on a specified
+     * query type.
+     *
+     * @param PDO $database The database connection instance.
+     * @param string $queryType The type of project query: "mine", "pm", "tsm",
+     *               "pmORtsm", "all", or a specific project status.
+     * @param int|bool $personID The person's ID. Defaults to the current user's
+     *                 ID if not provided.
+     * @param string|bool $projectStatus The project status filter. If provided,
+     *                    the query will be filtered based on the project
+     *                    status.
+     *
+     * @return PDOStatement A prepared PDOStatement to fetch project
+     *                      information.
+     */
+    public static function get_project_type_query(
+        $databaseConnection,
+        $queryType = "mine",
+        $personID = false,
+        $projectStatus = false
+    ) {
         $current_user = &singleton("current_user");
-        $type or $type = "mine";
-        $personID or $personID = $current_user->get_id();
-        $projectStatus and $projectStatus_sql = unsafe_prepare(" AND project.projectStatus = '%s' ", $projectStatus);
+        $personID = $personID ? $personID : $current_user->get_id();
 
-        if ($type == "mine") {
-            $q = unsafe_prepare(
-                "SELECT project.projectID, project.projectName
-                   FROM project
-              LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
-              LEFT JOIN role ON projectPerson.roleID = role.roleID
-                  WHERE projectPerson.personID = '%d' " . $projectStatus_sql . "
-               GROUP BY projectID
-               ORDER BY project.projectName",
-                $personID
-            );
-        } else if ($type == "pm") {
-            $q = unsafe_prepare(
-                "SELECT project.projectID, project.projectName
-                   FROM project
-              LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
-              LEFT JOIN role ON projectPerson.roleID = role.roleID
-                  WHERE projectPerson.personID = '%d' " . $projectStatus_sql . "
-                    AND role.roleHandle = 'isManager'
-               GROUP BY projectID
-               ORDER BY project.projectName",
-                $personID
-            );
-        } else if ($type == "tsm") {
-            $q = unsafe_prepare(
-                "SELECT project.projectID, project.projectName
-                   FROM project
-              LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
-              LEFT JOIN role ON projectPerson.roleID = role.roleID
-                  WHERE projectPerson.personID = '%d' " . $projectStatus_sql . "
-                    AND role.roleHandle = 'timeSheetRecipient'
-               GROUP BY projectID
-               ORDER BY project.projectName",
-                $personID
-            );
-        } else if ($type == "pmORtsm") {
-            $q = unsafe_prepare(
-                "SELECT project.projectID, project.projectName
-                   FROM project
-              LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
-              LEFT JOIN role ON projectPerson.roleID = role.roleID
-                  WHERE projectPerson.personID = '%d' " . $projectStatus_sql . "
-                    AND (role.roleHandle = 'isManager' or role.roleHandle = 'timeSheetRecipient')
-               GROUP BY projectID
-               ORDER BY project.projectName",
-                $personID
-            );
-        } else if ($type == "all") {
-            $q = unsafe_prepare("SELECT projectID,projectName FROM project ORDER BY projectName");
-        } else if ($type) {
-            $q = unsafe_prepare("SELECT projectID,projectName FROM project WHERE project.projectStatus = '%s' ORDER BY projectName", $type);
+        $queryType or $queryType = "mine";
+        $queryProjectStatus = $projectStatus ? " AND project.projectStatus = :projectStatus " : "";
+
+        $baseSql = "SELECT project.projectID, project.projectName
+                      FROM project
+                 LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
+                 LEFT JOIN role ON projectPerson.roleID = role.roleID
+                     WHERE projectPerson.personID = :personID " . $queryProjectStatus;
+
+        switch ($queryType) {
+            case "mine":
+                $sql = $baseSql . " GROUP BY projectID ORDER BY project.projectName";
+                break;
+            case "pm":
+                $sql = $baseSql . " AND role.roleHandle = 'isManager'
+                               GROUP BY projectID ORDER BY project.projectName";
+                break;
+            case "tsm":
+                $sql = $baseSql . " AND role.roleHandle = 'timeSheetRecipient'
+                               GROUP BY projectID ORDER BY project.projectName";
+                break;
+            case "pmORtsm":
+                $sql = $baseSql . " AND (role.roleHandle = 'isManager' or role.roleHandle = 'timeSheetRecipient')
+                               GROUP BY projectID ORDER BY project.projectName";
+                break;
+            case "all":
+                $sql = "SELECT projectID, projectName FROM project
+                      ORDER BY projectName";
+                break;
+            default:
+                $sql = "SELECT projectID, projectName FROM project
+                         WHERE project.projectStatus = :queryType
+                      ORDER BY projectName";
+                break;
         }
-        return $q;
+
+        $projectIDsAndNamesTypesQuery = $databaseConnection->pdo->prepare($sql);
+        $projectIDsAndNamesTypesQuery->bindValue(':personID', $personID, PDO::PARAM_INT);
+
+        if ($projectStatus) {
+            $projectIDsAndNamesTypesQuery->bindValue(':projectStatus', $projectStatus, PDO::PARAM_STR);
+        }
+
+        if (!in_array($queryType, ["all", "mine", "pm", "tsm", "pmORtsm"])) {
+            $projectIDsAndNamesTypesQuery->bindValue(':queryType', $queryType, PDO::PARAM_STR);
+        }
+
+        return $projectIDsAndNamesTypesQuery;
     }
 
     function get_list_by_client($clientID = false, $onlymine = false)
@@ -436,21 +447,26 @@ class project extends db_entity
 
     function get_list_dropdown($type = "mine", $projectIDs = [])
     {
-        $options = project::get_list_dropdown_options($type, $projectIDs);
+        $options = self::get_list_dropdown_options($type, $projectIDs);
         return "<select name=\"projectID[]\" size=\"9\" style=\"width:275px;\" multiple=\"true\">" . $options . "</select>";
     }
 
-    function get_list_dropdown_options($type = "mine", $projectIDs = [], $maxlength = 35)
-    {
-        $ops = [];
-        $db = new db_alloc();
-        $q = project::get_project_type_query($type);
-        // Project dropdown
-        $db->query($q);
-        while ($db->next_record()) {
-            $ops[$db->f("projectID")] = $db->f("projectName");
+    public static function get_list_dropdown_options(
+        $queryType = "mine",
+        $projectIDs = [],
+        $maxlength = 35
+    ) {
+        $database = new db_alloc();
+        $database->connect();
+        $projectIDsAndNames = self::get_project_type_query($database, $queryType);
+        $projectIDsAndNames->execute();
+
+        $optionsArry = [];
+        while ($row = $projectIDsAndNames->fetch(PDO::FETCH_ASSOC)) {
+            $optionsArry[$row["projectID"]] = $row["projectName"];
         }
-        return page::select_options($ops, $projectIDs, $maxlength);
+
+        return page::select_options($optionsArry, $projectIDs, $maxlength);
     }
 
     function get_dropdown_by_client($clientID = false, $onlymine = false)
@@ -754,36 +770,35 @@ class project extends db_entity
 
     public static function get_projectID_sql($filter, $table = "project")
     {
+        $projectIDs = [];
 
-        $firstOption = null;
         if (!$filter["projectID"] && $filter["projectType"] && $filter["projectType"] != "all") {
-            $db = new db_alloc();
-            $q = project::get_project_type_query($filter["projectType"], $filter["current_user"], "current");
-            $db->query($q);
-            while ($db->next_record()) {
-                $filter["projectIDs"][] = $db->f("projectID");
+            $database = new db_alloc();
+            $database->connect();
+            $projectIDsAndNames = self::get_project_type_query(
+                $database,
+                $filter["projectType"],
+                $filter["current_user"],
+                "current"
+            );
+            $projectIDsAndNames->execute();
+
+            while ($row = $projectIDsAndNames->fetch(PDO::FETCH_ASSOC)) {
+                $projectIDs[] = $row["projectID"];
             }
-
-            // Oi! What a pickle. Need this flag for when someone doesn't have entries loaded in the above while loop.
-            $firstOption = true;
-
-            // If projectID is an array
-        } else if ($filter["projectID"] && is_array($filter["projectID"])) {
-            $filter["projectIDs"] = $filter["projectID"];
-
-            // Else a project has been specified in the url
-        } else if ($filter["projectID"] && is_numeric($filter["projectID"])) {
-            $filter["projectIDs"][] = $filter["projectID"];
+        } elseif ($filter["projectID"] && is_array($filter["projectID"])) {
+            $projectIDs = $filter["projectID"];
+        } elseif ($filter["projectID"] && is_numeric($filter["projectID"])) {
+            $projectIDs[] = $filter["projectID"];
         }
 
-        // If passed array projectIDs then join them up with commars and put them in an sql subset
-        if (is_array($filter["projectIDs"]) && count($filter["projectIDs"])) {
-            return sprintf_implode("(" . $table . ".projectID = %d)", $filter["projectIDs"]);
-
-            // If there are no projects in $filter["projectIDs"][] and we're attempting the first option..
-        } else if ($firstOption) {
-            return "(" . $table . ".projectID = 0)";
+        if (!empty($projectIDs)) {
+            return sprintf_implode("(" . $table . ".projectID = %d)", $projectIDs);
         }
+
+        // Return a condition that results in an empty set if no projects are
+        // associated with the filter
+        return sprintf("(%s.projectID = 0)", $table);
     }
 
     function get_cc_list_select($projectID = "")
