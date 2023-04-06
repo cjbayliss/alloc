@@ -242,24 +242,40 @@ class project extends db_entity
         // Fallback time sheet manager person
         if (!$rows) {
             $people = config::get_config_item("defaultTimeSheetManagerList");
-            $people and $rows = $people;
+            $rows = $people ? $people : null;
         }
+
         return $rows;
     }
 
-    function get_project_people_by_role($role = "")
+    /**
+     * Retrieves the list of person IDs associated with a specific role in a
+     * project.
+     *
+     * @param string $roleHandle The role handle to filter the results by.
+     * @return array An array of person IDs associated with the specified role.
+     */
+    function get_project_people_by_role($roleHandle = "")
     {
-        $rows = [];
-        $q = unsafe_prepare("SELECT projectPerson.personID as personID
-                        FROM projectPerson
-                   LEFT JOIN role ON projectPerson.roleID = role.roleID
-                       WHERE projectPerson.projectID = %d AND role.roleHandle = '%s'", $this->get_id(), $role);
-        $db = new db_alloc();
-        $db->query($q);
-        while ($db->next_record()) {
-            $rows[] = $db->f("personID");
+        $database = new db_alloc();
+        $database->connect();
+
+        $projectPeopleByRole = $database->pdo->prepare(
+            "SELECT projectPerson.personID as personID
+               FROM projectPerson
+          LEFT JOIN role ON projectPerson.roleID = role.roleID
+              WHERE projectPerson.projectID = :projectID AND role.roleHandle = :roleHandle"
+        );
+        $projectPeopleByRole->bindValue(':projectID', $this->get_id(), PDO::PARAM_INT);
+        $projectPeopleByRole->bindValue(':roleHandle', $roleHandle, PDO::PARAM_STR);
+        $projectPeopleByRole->execute();
+
+        $projectPeopleIDs = [];
+        while ($personByRole = $projectPeopleByRole->fetch(PDO::FETCH_ASSOC)) {
+            $projectPeopleIDs[] = $personByRole["personID"];
         }
-        return $rows;
+
+        return $projectPeopleIDs;
     }
 
     function get_project_manager()
