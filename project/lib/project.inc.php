@@ -278,27 +278,34 @@ class project extends db_entity
         return $projectPeopleIDs;
     }
 
+    /**
+     * Retrieves the ID of the project manager based on their role.
+     *
+     * First tries to find a person with the "timeSheetRecipient" role, and if
+     * no person is found, it tries to find a person with the "isManager" role.
+     * If no project manager is found, the function returns false.
+     *
+     * @return int|bool The ID of the project manager, or false if not found.
+     */
     function get_project_manager()
     {
-        // Finds either the time sheet recipient or the project manager
         $projectManager = $this->get_project_people_by_role("timeSheetRecipient");
-        if (!count($projectManager)) {
-            $projectManager = $this->get_project_people_by_role("isManager");
-        }
-        if (!count($projectManager)) {
-            return false;
-        } else {
+        if (!empty($projectManager)) {
             return $projectManager[0];
         }
+
+        $projectManager = $this->get_project_people_by_role("isManager");
+        if (!empty($projectManager)) {
+            return $projectManager[0];
+        }
+
+        return false;
     }
 
     function get_navigation_links($ops = [])
     {
         $links = [];
-        $extra = null;
-        global $taskID;
         global $TPL;
-        $current_user = &singleton("current_user");
 
         // Client
         if ($this->get_value("clientID")) {
@@ -332,9 +339,7 @@ class project extends db_entity
 
         // To Time Sheet
         if ($this->have_perm(PERM_PROJECT_ADD_TASKS)) {
-            if ($ops["taskID"]) {
-                $extra = "&taskID=" . $ops["taskID"];
-            }
+            $extra = $ops["taskID"] ? "&taskID=" . $ops["taskID"] : "";
             $url = $TPL["url_alloc_timeSheet"] . "newTimeSheet_projectID=" . $this->get_id() . $extra;
             $links[] = "<a href=\"$url\" class=\"nobr noprint\">Time Sheet</a>";
         }
