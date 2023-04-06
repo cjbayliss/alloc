@@ -112,7 +112,7 @@ class tf extends db_entity
         return $nav_links;
     }
 
-    function get_link()
+    function get_link($ignored = false)
     {
         $current_user = &singleton("current_user");
         global $TPL;

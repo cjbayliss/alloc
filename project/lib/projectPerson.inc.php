@@ -53,9 +53,8 @@ class projectPerson extends db_entity
         $this->set_value("roleID", $db->f("roleID"));
     }
 
-
-    //deprecated in favour of get_rate
-    function get_projectPerson_row($projectID, $personID)
+    // deprecated in favour of get_rate
+    public static function get_projectPerson_row($projectID, $personID)
     {
         $q = unsafe_prepare(
             "SELECT *

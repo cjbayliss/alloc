@@ -79,12 +79,13 @@ class timeSheet extends db_entity
 
     function update_related_invoices()
     {
-        if ($rows = invoiceEntity::get("timeSheet", $this->get_id())) {
+        $invoiceEntity = new invoiceEntity();
+        if ($rows = $invoiceEntity->get("timeSheet", $this->get_id())) {
             foreach ($rows as $row) {
                 if ($row["useItems"]) {
-                    invoiceEntity::save_invoice_timeSheetItems($row["invoiceID"], $this->get_id());
+                    $invoiceEntity->save_invoice_timeSheetItems($row["invoiceID"], $this->get_id());
                 } else {
-                    invoiceEntity::save_invoice_timeSheet($row["invoiceID"], $this->get_id());
+                    $invoiceEntity->save_invoice_timeSheet($row["invoiceID"], $this->get_id());
                 }
             }
         }
@@ -769,9 +770,11 @@ class timeSheet extends db_entity
 
     function get_invoice_link()
     {
-        $str = null;
         global $TPL;
-        $rows = invoiceEntity::get("timeSheet", $this->get_id());
+        $str = null;
+        $invoiceEntity = new invoiceEntity();
+
+        $rows = $invoiceEntity->get("timeSheet", $this->get_id());
         foreach ($rows as $row) {
             $str .= $sp . "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $row["invoiceID"] . "\">" . $row["invoiceNum"] . "</a>";
             $sp = "&nbsp;&nbsp;";
@@ -821,12 +824,14 @@ class timeSheet extends db_entity
 
     function email_move_status_to_edit($direction, $info)
     {
-        $msg = [];
         // is possible to move backwards to "edit", from both "manager" and "admin"
         // requires manager or APPROVE_TIMESHEET permission
+        $msg = [];
         $current_user = &singleton("current_user");
         $project = $this->get_foreign_object("project");
         $projectManagers = $project->get_timeSheetRecipients();
+        $commentTemplate = new commentTemplate();
+
         if ($direction == "backwards") {
             if (
                 !in_array($current_user->get_id(), $projectManagers) &&
@@ -838,7 +843,11 @@ class timeSheet extends db_entity
             $email = [];
             $email["type"] = "timesheet_reject";
             $email["to"] = $info["timeSheet_personID_email"];
-            $email["subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_timeSheetFromManager"), "timeSheet", $this->get_id());
+            $email["subject"] = $commentTemplate->populate_string(
+                config::get_config_item("emailSubject_timeSheetFromManager"),
+                "timeSheet",
+                $this->get_id()
+            );
             $email["body"] = <<<EOD
          To: {$info["timeSheet_personID_name"]}
  Time Sheet: {$info["url"]}
@@ -865,8 +874,8 @@ EOD;
         $hasItems = null;
         $msg = [];
         $current_user = &singleton("current_user");
-        $project = $this->get_foreign_object("project");
-        $projectManagers = $project->get_timeSheetRecipients();
+        $commentTemplate = new commentTemplate();
+
         // Can get forwards to "manager" only from "edit" or "rejected"
         if ($direction == "forwards") {
             //forward to manager requires the timesheet to be owned by the current
@@ -907,7 +916,11 @@ EOD;
                 $email = [];
                 $email["type"] = "timesheet_submit";
                 $email["to"] = $info["people_cache"][$pm]["emailAddress"];
-                $email["subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_timeSheetToManager"), "timeSheet", $this->get_id());
+                $email["subject"] = $commentTemplate->populate_string(
+                    config::get_config_item("emailSubject_timeSheetToManager"),
+                    "timeSheet",
+                    $this->get_id()
+                );
                 $email["body"] = <<<EOD
   To Manager: {$info["people_cache"][$pm]["name"]}
   Time Sheet: {$info["url"]}
@@ -933,7 +946,11 @@ EOD;
             $email = [];
             $email["type"] = "timesheet_reject";
             $email["to"] = $info["approvedByManagerPersonID_email"];
-            $email["subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_timeSheetFromAdministrator"), "timeSheet", $this->get_id());
+            $email["subject"] = $commentTemplate->populate_string(
+                config::get_config_item("emailSubject_timeSheetFromAdministrator"),
+                "timeSheet",
+                $this->get_id()
+            );
             $email["body"] = <<<EOD
   To Manager: {$info["approvedByManagerPersonID_name"]}
   Time Sheet: {$info["url"]}
@@ -959,6 +976,8 @@ EOD;
         $current_user = &singleton("current_user");
         $project = $this->get_foreign_object("project");
         $projectManagers = $project->get_timeSheetRecipients();
+        $commentTemplate = new commentTemplate();
+
         // Can get forwards to "admin" from "edit" and "manager"
         if ($direction == "forwards") {
             //3 ways to have permission to do this
@@ -989,7 +1008,11 @@ EOD;
                 $email = [];
                 $email["type"] = "timesheet_submit";
                 $email["to"] = $info["people_cache"][$adminID]["emailAddress"];
-                $email["subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_timeSheetToAdministrator"), "timeSheet", $this->get_id());
+                $email["subject"] = $commentTemplate->populate_string(
+                    config::get_config_item("emailSubject_timeSheetToAdministrator"),
+                    "timeSheet",
+                    $this->get_id()
+                );
                 $email["body"] = <<<EOD
     To Admin: {$info["admin_name"]}
   Time Sheet: {$info["url"]}
@@ -1064,7 +1087,7 @@ EOD;
             $email = [];
             $email["type"] = "timesheet_finished";
             $email["to"] = $info["timeSheet_personID_email"];
-            $email["subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_timeSheetCompleted"), "timeSheet", $this->get_id());
+            $email["subject"] = $commentTemplate->populate_string(config::get_config_item("emailSubject_timeSheetCompleted"), "timeSheet", $this->get_id());
             $email["body"] = <<<EOD
          To: {$info["timeSheet_personID_name"]}
  Time Sheet: {$info["url"]}
@@ -1345,6 +1368,7 @@ EOD;
 
     function update_search_index_doc(&$index)
     {
+        $tf = new tf();
         $desc = null;
         $br = null;
         $projectName = null;
@@ -1355,7 +1379,7 @@ EOD;
         $manager_field = $managerID . " " . $p[$managerID]["username"] . " " . $p[$managerID]["name"];
         $adminID = $this->get_value("approvedByAdminPersonID");
         $admin_field = $adminID . " " . $p[$adminID]["username"] . " " . $p[$adminID]["name"];
-        $tf_field = $this->get_value("recipient_tfID") . " " . tf::get_name($this->get_value("recipient_tfID"));
+        $tf_field = $this->get_value("recipient_tfID") . " " . $tf->get_name($this->get_value("recipient_tfID"));
 
         if ($this->get_value("projectID")) {
             $project = new project();
