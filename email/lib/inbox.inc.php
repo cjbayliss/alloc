@@ -303,7 +303,7 @@ class inbox extends db_entity
         $email_receive->close();
     }
 
-    public function get_mail_info()
+    public static function get_mail_info()
     {
         $info = [];
         $info["host"] = config::get_config_item("allocEmailHost");

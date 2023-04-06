@@ -24,7 +24,7 @@ class commentTemplate extends db_entity
         return commentTemplate::populate_string($str, $entity, $entityID);
     }
 
-    public function populate_string($str, $entity, $entityID = false)
+    public static function populate_string($str, $entity, $entityID = false)
     {
         $swap = [];
         $projectID = null;

@@ -40,7 +40,7 @@ class interestedParty extends db_entity
         return parent::save();
     }
 
-    public function exists($entity, $entityID, $email)
+    public static function exists($entity, $entityID, $email)
     {
         $email = str_replace(["<", ">"], "", $email);
         $db = new db_alloc();
@@ -67,7 +67,7 @@ class interestedParty extends db_entity
         return $db->row();
     }
 
-    public function make_interested_parties($entity, $entityID, $encoded_parties = [])
+    public static function make_interested_parties($entity, $entityID, $encoded_parties = [])
     {
         $ipIDs = [];
         // Nuke entries from interestedParty
@@ -404,7 +404,7 @@ class interestedParty extends db_entity
         return (array)$rows;
     }
 
-    public function is_external($entity, $entityID)
+    public static function is_external($entity, $entityID)
     {
         $ips = interestedParty::get_interested_parties($entity, $entityID);
         foreach ($ips as $email => $info) {

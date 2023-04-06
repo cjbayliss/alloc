@@ -386,7 +386,7 @@ class timeSheetItem extends db_entity
         return [$rows, $rows_dollars];
     }
 
-    public function get_timeSheetItemComments($taskID = "", $starred = false)
+    public static function get_timeSheetItemComments($taskID = "", $starred = false)
     {
         $where = null;
         // Init
