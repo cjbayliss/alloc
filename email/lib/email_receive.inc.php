@@ -479,13 +479,20 @@ class email_receive
         $token = new token();
         if ($keys && is_array($keys) && $token->set_hash($keys[0])) {
             if ($token->get_value("tokenEntity") == "comment") {
-                $db = new db_alloc();
-                $row = $db->qr(
+                $database = new db_alloc();
+                $database->connect();
+                $getCommentMasterAndID = $database->pdo->prepare(
                     "SELECT commentMaster,commentMasterID
                        FROM comment
-                      WHERE commentID = %d",
-                    $token->get_value("tokenEntityID")
+                      WHERE commentID = :commentID"
                 );
+                $getCommentMasterAndID->bindValue(
+                    ":commentID",
+                    $token->get_value("tokenEnitityID"),
+                    PDO::PARAM_INT
+                );
+                $getCommentMasterAndID->execute();
+                $row = $getCommentMasterAndID->fetch(PDO::FETCH_ASSOC);
                 $m = $row["commentMaster"];
                 $mID = $row["commentMasterID"];
                 $mailbox = "INBOX/" . $m . $mID;

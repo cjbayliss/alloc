@@ -147,13 +147,19 @@ class db
         return $this->connect(true);
     }
 
-    public function qr()
+    /**
+     * Executes a SQL query and returns a single row of the result set
+     *
+     * @deprecated Don't use this function, use PDO::prepare() and friends
+     * instead.
+     *
+     * @param mixed ...$params Query parameters to be escaped before execution
+     * @return mixed|null Returns a single row of the result set or null if the
+     *                    query returned no results
+     */
+    public function qr(...$params)
     {
-        // Quick Row run it like this:
-        // $row = $db->qr("SELECT * FROM hey WHERE heyID = %d",$heyID);
-        // arguments will be automatically escaped
-        $args = func_get_args();
-        $query = $this->get_escaped_query_str($args);
+        $query = $this->get_escaped_query_str($params);
         $id = $this->query($query);
         return $this->row($id);
     }

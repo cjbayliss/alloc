@@ -41,34 +41,47 @@ class clientContact extends db_entity
     /**
      * Get a list of people from the database
      *
-     * @param boolean $projectID The project ID to look in
+     * @param int $projectID The project ID to look in
      * @param string $extra Extra SQL to be appended to the client contact query
-     * @return array
+     * @return array a list of people
      */
     private function get_people($projectID = false, $extra = '')
     {
-        $people = [];
         $database = new db_alloc();
+        $database->connect();
 
         if ($projectID) {
-            $database->query(
-                "SELECT clientID FROM project WHERE projectID = %d",
-                $projectID
+            $getProjectClientID = $database->pdo->prepare(
+                "SELECT clientID FROM project WHERE projectID = :projectID"
             );
-            $row = $database->qr(); // FIXME: ??
-            if ($row["clientID"]) {
-                $extra = unsafe_prepare("AND clientID = %d", $row["clientID"]);
+            $getProjectClientID->bindValue(':projectID', $projectID, PDO::PARAM_INT);
+            $getProjectClientID->execute();
+            $projectClientID = $getProjectClientID->fetch(PDO::FETCH_ASSOC);
+            if ($projectClientID["clientID"]) {
+                $extra = "AND clientID = :clientID";
             }
         }
 
-        $clientsQuery = "SELECT clientContactID, clientContactName 
-                           FROM clientContact WHERE 1=1 " . $extra;
-        $database->query($clientsQuery);
-        while ($row = $database->row()) {
-            $people[$database->f("clientContactID")] = $row;
+        $clientContactIDsAndNames = $database->pdo->prepare(
+            "SELECT clientContactID, clientContactName
+               FROM clientContact WHERE 1=1 " . $extra
+        );
+
+        if ($projectID && isset($projectClientID["clientID"])) {
+            $clientContactIDsAndNames->bindValue(
+                ":clientID",
+                $projectClientID["clientID"],
+                PDO::PARAM_INT
+            );
         }
 
-        return (array)$people;
+        $clientContactIDsAndNames->execute();
+        $peopleArray = [];
+        while ($row = $clientContactIDsAndNames->fetch(PDO::FETCH_ASSOC)) {
+            $peopleArray[$row["clientContactID"]] = $row;
+        }
+
+        return (array)$peopleArray;
     }
 
     /**

@@ -1184,6 +1184,12 @@ class comment extends db_entity
         interestedParty::make_interested_parties("comment", $commentID, $ip);
         $emailRecipients[] = "interested";
 
+        $database = new db_alloc();
+        $database->connect();
+        $getClientContact = $database->pdo->prepare(
+            "SELECT * FROM clientContact 
+              WHERE clientID = :clientID AND clientContactEmail = :email"
+        );
         // Other parties that are added on-the-fly
         foreach ((array)$op as $email => $info) {
             if ($email && in_str("@", $email)) {
@@ -1197,13 +1203,10 @@ class comment extends db_entity
 
                 // Add a new client contact
                 if ($info["addContact"] && $info["clientID"]) {
-                    $q = unsafe_prepare(
-                        "SELECT * FROM clientContact WHERE clientID = %d AND clientContactEmail = '%s'",
-                        $info["clientID"],
-                        trim($email)
-                    );
-                    $db = new db_alloc();
-                    if (!$db->qr($q)) {
+                    $getClientContact->bindValue(":clientID", $info["clientID"], PDO::PARAM_STR);
+                    $getClientContact->bindValue(":email", trim($email), PDO::PARAM_STR);
+                    $getClientContact->execute();
+                    if (!$getClientContact->fetch(PDO::FETCH_ASSOC)) {
                         $cc = new clientContact();
                         $cc->set_value("clientContactName", trim($info["name"]));
                         $cc->set_value("clientContactEmail", trim($email));
@@ -1211,6 +1214,7 @@ class comment extends db_entity
                         $cc->save();
                     }
                 }
+
                 // Add the person to the interested parties list
                 if ($info["addIP"] && !interestedParty::exists("comment", $commentID, trim($email))) {
                     $interestedParty = new interestedParty();
