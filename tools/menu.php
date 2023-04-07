@@ -70,11 +70,6 @@ $misc_options = [
         "function" => "has_report_perm",
     ],
     [
-        "url"    => "sourceCodeList",
-        "text"   => "allocPSA Source Code",
-        "entity" => "",
-    ],
-    [
         "url"      => "whatsnew",
         "text"     => "Deployment Changelog",
         "entity"   => "",
