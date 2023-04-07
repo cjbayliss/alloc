@@ -84,14 +84,12 @@ $m = [
     "calendar",
 ];
 
-// Sub-dirs under ATTACHMENTS_DIR where upload, email and backup data can be stored
 $external_storage_directories = [
     "task",
     "client",
     "project",
     "invoice",
     "comment",
-    "backups",
     "whatsnew",
     "logos",
     "search",

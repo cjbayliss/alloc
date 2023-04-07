@@ -419,17 +419,4 @@ class db
         $row = $this->row();
         return $row["Value"];
     }
-
-    public function dump_db($filename)
-    {
-        $pw = null;
-        if ($this->password) {
-            $pw = " -p" . $this->password;
-        }
-        $command = sprintf("mysqldump -B -c --add-drop-table -h %s -u %s %s %s", $this->hostname, $this->username, $pw, $this->database);
-
-        $command .= " >" . $filename;
-
-        system($command);
-    }
 }

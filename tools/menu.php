@@ -70,12 +70,6 @@ $misc_options = [
         "function" => "has_report_perm",
     ],
     [
-        "url"      => "backup",
-        "text"     => "Database & File Backup",
-        "entity"   => "",
-        "function" => "has_backup_perm",
-    ],
-    [
         "url"    => "sourceCodeList",
         "text"   => "allocPSA Source Code",
         "entity" => "",

@@ -120,7 +120,6 @@ function get_alloc_urls($TPL, $sess = false)
         "url_alloc_stats"                          => "tools/stats.php",
         "url_alloc_statsImage"                     => "tools/statsImage.php",
         "url_alloc_costtime"                       => "tools/costtime.php",
-        "url_alloc_backup"                         => "tools/backup.php",
         "url_alloc_whatsnew"                       => "tools/whatsnew.php",
         "url_alloc_helpfile"                       => "help/help.html",
         "url_alloc_getHelp"                        => "help/getHelp.php",
