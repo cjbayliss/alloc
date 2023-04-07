@@ -118,7 +118,6 @@ function get_alloc_urls($TPL, $sess = false)
         "url_alloc_report"                         => "report/report.php",
         "url_alloc_tools"                          => "tools/menu.php",
         "url_alloc_costtime"                       => "tools/costtime.php",
-        "url_alloc_whatsnew"                       => "tools/whatsnew.php",
         "url_alloc_helpfile"                       => "help/help.html",
         "url_alloc_getHelp"                        => "help/getHelp.php",
         "url_alloc_product"                        => "sale/product.php",

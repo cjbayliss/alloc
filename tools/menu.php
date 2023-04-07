@@ -70,12 +70,6 @@ $misc_options = [
         "function" => "has_report_perm",
     ],
     [
-        "url"      => "whatsnew",
-        "text"     => "Deployment Changelog",
-        "entity"   => "",
-        "function" => "has_whatsnew_files",
-    ],
-    [
         "url"    => "inbox",
         "text"   => "Manage Inbox",
         "entity" => "config",
