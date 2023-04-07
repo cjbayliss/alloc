@@ -140,13 +140,6 @@ class db
         return $v;
     }
 
-    public function select_db($db = "")
-    {
-        // Select a database
-        $this->database = $db;
-        return $this->connect(true);
-    }
-
     /**
      * Executes a SQL query and returns a single row of the result set
      *
@@ -281,24 +274,6 @@ class db
     public function f($name)
     {
         return $this->row[$name];
-    }
-
-    // Return true if a particular table exists
-    public function table_exists($table, $db = "")
-    {
-        $yep = null;
-        $db or $db = $this->database;
-        $prev_db = $this->database;
-        $this->select_db($db);
-        $query = unsafe_prepare('SHOW TABLES LIKE "%s"', $table);
-        $this->query($query);
-        while ($row = $this->row($this->pdo_statement, PDO::FETCH_NUM)) {
-            if ($row[0] == $table) {
-                $yep = true;
-            }
-        }
-        $this->select_db($prev_db);
-        return $yep;
     }
 
     public function get_table_fields($table)
@@ -436,11 +411,6 @@ class db
     public function get_escaped_query_str($args)
     {
         return call_user_func_array("unsafe_prepare", $args);
-    }
-
-    public function seek($pos = 0)
-    {
-        $this->pos = $pos;
     }
 
     public function get_encoding()
