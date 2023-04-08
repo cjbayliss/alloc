@@ -38,7 +38,7 @@ class project_list_home_item extends home_item
         }
         $options["projectStatus"] = "Current";
         $options["personID"] = $current_user->get_id();
-        $TPL["projectListRows"] = project::get_list($options);
+        $TPL["projectListRows"] = project::getFilteredProjectList($options);
         return true;
     }
 }

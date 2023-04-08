@@ -174,13 +174,6 @@ class project extends db_entity
         }
     }
 
-    public function get_project_link($_FORM = [])
-    {
-        global $TPL;
-        $_FORM["return"] or $_FORM["return"] = "html";
-        return "<a href=\"" . $TPL["url_alloc_project"] . "projectID=" . $this->get_id() . "\">" . $this->get_name($_FORM) . "</a>";
-    }
-
     public function is_owner($person = "")
     {
         $current_user = &singleton("current_user");
@@ -441,7 +434,7 @@ class project extends db_entity
         if ($onlymine) {
             $options["personID"] = $current_user->get_id();
         }
-        $ops = project::get_list($options);
+        $ops = self::getFilteredProjectList($options);
         return array_kv($ops, "projectID", "label");
     }
 
@@ -496,104 +489,187 @@ class project extends db_entity
         return $this->has_project_permission($person, ["isManager"]);
     }
 
-    public static function get_list_filter($filter = [])
+    /**
+     * Generates an array of SQL conditions based on the provided filter.
+     *
+     * This method processes the given filter array and constructs an array of
+     * SQL conditions to be used in an SQL query. The filter can contain various
+     * keys such as projectID, clientID, personID, etc. The method supports
+     * filtering by starred projects, project status, project type, and other
+     * parameters.
+     *
+     * @param array $filter An associative array of filter criteria, with keys
+     *                      representing the column names and values
+     *                      representing the corresponding filter values.
+     * @return array An array of SQL conditions based on the provided filter
+     * criteria.
+     */
+    private function createSQLFilerConditions($filter = [])
     {
-        $sql = [];
-        $current_user = &singleton("current_user");
-
-        // If they want starred, load up the projectID filter element
         if ($filter["starred"]) {
-            foreach ((array)$current_user->prefs["stars"]["project"] as $k => $v) {
-                $filter["projectID"][] = $k;
+            foreach ((array)singleton("current_user")->prefs["stars"]["project"] as $projectID => $_) {
+                $filter["projectID"][] = $projectID;
             }
-            is_array($filter["projectID"]) or $filter["projectID"][] = -1;
+
+            if (!is_array($filter["projectID"])) {
+                $filter["projectID"][] = -1;
+            }
         }
 
-        // Filter on projectID
-        $filter["projectID"] and $sql[] = sprintf_implode("IFNULL(project.projectID,0) = %d", $filter["projectID"]);
+        $sql = [];
+        if ($filter["projectID"]) {
+            $parts = array_map(function ($projectID) {
+                return "IFNULL(project.projectID, 0) = $projectID";
+            }, (array)$filter["projectID"]);
 
-        // No point continuing if primary key specified, so return
+            $sql[] = implode(" OR ", $parts);
+        }
+
         if ($filter["projectID"] || $filter["starred"]) {
             return $sql;
         }
 
-        $filter["clientID"] and $sql[] = sprintf_implode("IFNULL(project.clientID,0) = %d", $filter["clientID"]);
-        $filter["personID"] and $sql[] = sprintf_implode("IFNULL(projectPerson.personID,0) = %d", $filter["personID"]);
-        $filter["projectStatus"] and $sql[] = sprintf_implode("IFNULL(project.projectStatus,'') = '%s'", $filter["projectStatus"]);
-        $filter["projectType"] and $sql[] = sprintf_implode("IFNULL(project.projectType,0) = %d", $filter["projectType"]);
-        $filter["projectName"] and $sql[] = sprintf_implode("IFNULL(project.projectName,'') LIKE '%%%s%%'", $filter["projectName"]);
-        $filter["projectShortName"] and $sql[] = sprintf_implode("IFNULL(project.projectShortName,'') LIKE '%%%s%%'", $filter["projectShortName"]);
+        if ($filter["clientID"]) {
+            $parts = array_map(function ($clientID) {
+                return "IFNULL(project.clientID, 0) = $clientID";
+            }, (array)$filter["clientID"]);
 
-        // project name or project nick name or project id
-        $filter["projectNameMatches"] and $sql[] = sprintf_implode(
-            "project.projectName LIKE '%%%s%%'
-                                                               OR project.projectShortName LIKE '%%%s%%'
-                                                               OR project.projectID = %d",
-            $filter["projectNameMatches"],
-            $filter["projectNameMatches"],
-            $filter["projectNameMatches"]
-        );
+            $sql[] = implode(" OR ", $parts);
+        }
+
+        if ($filter["personID"]) {
+            $parts = array_map(function ($personID) {
+                return "IFNULL(projectPerson.personID, 0) = $personID";
+            }, (array)$filter["personID"]);
+
+            $sql[] = implode(" OR ", $parts);
+        }
+
+        if ($filter["projectStatus"]) {
+            $parts = array_map(function ($projectStatus) {
+                return "IFNULL(project.projectStatus, '') = '$projectStatus'";
+            }, (array)$filter["projectStatus"]);
+
+            $sql[] = implode(" OR ", $parts);
+        }
+
+        if ($filter["projectType"]) {
+            $parts = array_map(function ($projectType) {
+                return "IFNULL(project.projectType, 0) = $projectType";
+            }, (array)$filter["projectType"]);
+
+            $sql[] = implode(" OR ", $parts);
+        }
+
+        if ($filter["projectName"]) {
+            $parts = array_map(function ($projectName) {
+                return "IFNULL(project.projectName, '') LIKE '%%" . $projectName . "%%'";
+            }, (array)$filter["projectName"]);
+
+            $sql[] = implode(" OR ", $parts);
+        }
+
+        if ($filter["projectShortName"]) {
+            $parts = array_map(function ($projectShortName) {
+                return "IFNULL(project.projectShortName, '') LIKE '%%" . $projectShortName . "%%'";
+            }, (array)$filter["projectShortName"]);
+
+            $sql[] = implode(" OR ", $parts);
+        }
+
+        if ($filter["projectNameMatches"]) {
+            $parts = array_map(function ($projectNameMatches) {
+                return "project.projectName LIKE '%%" . $projectNameMatches . "%%' OR project.projectShortName LIKE '%%" . $projectNameMatches . "%%' OR project.projectID = " . $projectNameMatches;
+            }, (array)$filter["projectNameMatches"]);
+
+            $sql[] = implode(" OR ", $parts);
+        }
+
         return $sql;
     }
 
-    public static function get_list($_FORM)
+    /**
+     * Retrieves a list of projects based on the provided filters in the $_FORM
+     * array.
+     *
+     * This function queries the database to fetch a list of projects and
+     * clients that match the filter criteria specified in the $_FORM array. The
+     * filter criteria can include personID, limit, showProjectType, and other
+     * parameters.
+     *
+     * The function returns an array of project details, including project name,
+     * project link, navigation links, and an optional project type label.
+     *
+     * @param array $_FORM An associative array containing filter criteria and
+     *                     other options to customize the output of the
+     *                     function.
+     * @return array An array of project details, indexed by the project ID.
+     */
+    public static function getFilteredProjectList($_FORM)
     {
-        $from = null;
-        $rows = [];
-        // This is the definitive method of getting a list of projects that need a sophisticated level of filtering
+        $_FORM["return"] = $_FORM["return"] ?: "html";
 
-        global $TPL;
-        $filter = project::get_list_filter($_FORM);
-
-        $debug = $_FORM["debug"];
-        $debug and print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
-        $debug and print "<pre>filter: " . print_r($filter, 1) . "</pre>";
-
-        $_FORM["return"] or $_FORM["return"] = "html";
-
-        if ($_FORM["personID"]) {
-            $from .= " LEFT JOIN projectPerson on projectPerson.projectID = project.projectID ";
-        }
-
-        // IMPORTANT: ensure $filter is a string!
+        $filter = self::createSQLFilerConditions($_FORM);
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
-        } else if ($filter === []) {
-            $filter = '';
-        } else if (!is_string($filter)) {
-            throw new ErrorException("$filter is not a string!");
+        } else {
+            $filter = "";
         }
 
-        $q = "SELECT project.*, client.*
-                FROM project" . $from . "
-           LEFT JOIN client ON project.clientID = client.clientID
-                     " . $filter . "
-            GROUP BY project.projectID
-            ORDER BY projectName";
+        $from = $_FORM["personID"] ?
+            " LEFT JOIN projectPerson on projectPerson.projectID = project.projectID " : "";
 
-        // Zero is a valid limit
-        if ($_FORM["limit"] || $_FORM["limit"] === 0 || $_FORM["limit"] === "0") {
-            $q .= unsafe_prepare(" LIMIT %d", $_FORM["limit"]);
+        $database = new db_alloc();
+        $database->connect();
+        $projectsAndClientsQuery =
+            "SELECT project.*, client.*
+               FROM project {$from}
+          LEFT JOIN client ON project.clientID = client.clientID
+                    {$filter}
+           GROUP BY project.projectID
+           ORDER BY projectName";
+
+        if (isset($_FORM["limit"])) {
+            $projectsAndClientsQuery .= " LIMIT :limit";
+            $getProjectsAndClients = $database->pdo->prepare($projectsAndClientsQuery);
+            $getProjectsAndClients->bindParam(":limit", $_FORM["limit"], PDO::PARAM_INT);
+        } else {
+            $getProjectsAndClients = $database->pdo->prepare($projectsAndClientsQuery);
         }
+        $getProjectsAndClients->execute();
 
-        $debug and print "Query: " . $q;
-        $db = new db_alloc();
-        $db->query($q);
+        $rows = [];
+        while ($row = $getProjectsAndClients->fetch(PDO::FETCH_ASSOC)) {
+            $projectInstance = new project();
+            $projectInstance->set_id($row["projectID"]);
 
-        while ($row = $db->next_record()) {
-            $print = true;
-            $p = new project();
-            $p->read_db_record($db);
-            $row["projectName"] = $p->get_name($_FORM);
-            $row["projectLink"] = $p->get_project_link($_FORM);
-            $row["navLinks"] = $p->get_navigation_links();
-            $label = $p->get_name($_FORM);
-            $_FORM["showProjectType"] and $label .= " [" . $p->get_project_type() . "]";
+            $row["projectName"] = $projectInstance->get_name();
+            $row["projectLink"] = $projectInstance->get_link();
+            $row["navLinks"] = $projectInstance->get_navigation_links();
+            $label = $row["projectName"];
+            if ($_FORM["showProjectType"]) {
+                $label .= " [{$projectInstance->get_project_type()}]";
+            }
             $row["label"] = $label;
+
             $rows[$row["projectID"]] = $row;
         }
 
-        return (array)$rows;
+        return $rows;
+    }
+
+    /**
+     * FIXME: This is a temporary function to allow  calls the old get_list()
+     * method
+     *
+     * @deprecated DO NOT USE!!
+     * 
+     * @param array ...$args
+     * @return array
+     */
+    public static function get_list(...$args)
+    {
+        return self::getFilteredProjectList(...$args);
     }
 
     public function get_list_vars()

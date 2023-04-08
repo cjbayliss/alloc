@@ -25,7 +25,7 @@ function show_filter()
 }
 
 $_FORM = project::load_form_data($defaults);
-$TPL["projectListRows"] = project::get_list($_FORM);
+$TPL["projectListRows"] = project::getFilteredProjectList($_FORM);
 $TPL["_FORM"] = $_FORM;
 
 if (!$current_user->prefs["projectList_filter"]) {

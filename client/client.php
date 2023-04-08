@@ -344,7 +344,7 @@ if ($current_user->have_role("admin")) {
 
 $projectListOps = ["showProjectType" => true, "clientID" => $client->get_id()];
 
-$TPL["projectListRows"] = project::get_list($projectListOps);
+$TPL["projectListRows"] = project::getFilteredProjectList($projectListOps);
 
 $TPL["client_clientPostalAddress"] = $client->format_address("postal");
 $TPL["client_clientStreetAddress"] = $client->format_address("street");
