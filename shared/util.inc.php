@@ -846,6 +846,13 @@ function alloc_error($str = "", $force = null)
     }
 }
 
+/**
+ * Undocumented function
+ *
+ * @deprecated just don't use this please 😭
+ *
+ * @return void
+ */
 function sprintf_implode()
 {
     $f = [];
