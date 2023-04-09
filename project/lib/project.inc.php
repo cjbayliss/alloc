@@ -529,7 +529,8 @@ class project extends db_entity
             return $sql;
         }
 
-        if ($filter["clientID"]) {
+        // FIXME: is '!== "undefined"' needed by the other filters?
+        if ($filter["clientID"] && $filter["clientID"] !== "undefined") {
             $parts = array_map(function ($clientID) {
                 return "IFNULL(project.clientID, 0) = $clientID";
             }, (array)$filter["clientID"]);
@@ -659,11 +660,11 @@ class project extends db_entity
     }
 
     /**
-     * FIXME: This is a temporary function to allow  calls the old get_list()
+     * FIXME: This is a temporary function to allow calls to the old get_list()
      * method
      *
      * @deprecated DO NOT USE!!
-     * 
+     *
      * @param array ...$args
      * @return array
      */
