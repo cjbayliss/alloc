@@ -756,42 +756,50 @@ class project extends db_entity
         return $ops[$this->get_value("projectType")];
     }
 
+    /**
+     * Retrieves the first prepaid invoice for a project or client.
+     *
+     * @return int|null The invoice ID, or null if no matching invoice is found.
+     */
     public function get_prepaid_invoice()
     {
-        $invoiceID = null;
-        $db = new db_alloc();
+        $database = new db_alloc();
+        $database->connect();
 
-        $q = unsafe_prepare(
+        $getMatchingInvoicesByProjectID = $database->pdo->prepare(
             "SELECT *
                FROM invoice
-              WHERE projectID = %d
+              WHERE projectID = :projectID
                 AND invoiceStatus != 'finished'
            ORDER BY invoiceDateFrom ASC
-              LIMIT 1",
-            $this->get_id()
+              LIMIT 1"
         );
-        $db->query($q);
+        $getMatchingInvoicesByProjectID->bindParam(":projectID", $this->get_id(), PDO::PARAM_INT);
+        $getMatchingInvoicesByProjectID->execute();
 
-        if ($row = $db->row()) {
-            $invoiceID = $row["invoiceID"];
-        } else if ($this->get_value("clientID")) {
-            $q = unsafe_prepare(
+        if ($row = $getMatchingInvoicesByProjectID->fetch(PDO::FETCH_ASSOC)) {
+            return $row["invoiceID"];
+        }
+
+        if ($this->get_value("clientID")) {
+            $getMatchingInvoicesByClientID = $database->pdo->prepare(
                 "SELECT *
                    FROM invoice
-                  WHERE clientID = %d
+                  WHERE clientID = :clientID
                     AND (projectID IS NULL OR projectID = 0 OR projectID = '')
                     AND invoiceStatus != 'finished'
                ORDER BY invoiceDateFrom ASC
-                  LIMIT 1",
-                $this->get_value("clientID")
+                  LIMIT 1"
             );
-            $db->query($q);
+            $getMatchingInvoicesByClientID->bindParam(":clientID", $this->get_value("clientID"), PDO::PARAM_INT);
+            $getMatchingInvoicesByClientID->execute();
 
-            if ($row = $db->row()) {
-                $invoiceID = $row["invoiceID"];
+            if ($row = $getMatchingInvoicesByClientID->fetch(PDO::FETCH_ASSOC)) {
+                return $row["invoiceID"];
             }
         }
-        return $invoiceID;
+
+        return null;
     }
 
     public function update_search_index_doc(&$index)
