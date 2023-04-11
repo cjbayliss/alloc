@@ -95,7 +95,7 @@ class interestedParty extends db_entity
         $db->commit();
     }
 
-    public function abbreviate($str)
+    public static function abbreviate($str)
     {
         $rtn = [];
         $bits = explode(",", $str);
