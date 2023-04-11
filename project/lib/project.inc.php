@@ -876,11 +876,12 @@ class project extends db_entity
         }
 
         if (!empty($projectIDs)) {
-            return sprintf_implode("(" . $table . ".projectID = %d)", $projectIDs);
+            $statement = array_map(function ($projectID) use ($table) {
+                return "($table.projectID = $projectID)";
+            }, (array)$projectIDs);
+            return implode(" OR ", $statement);
         }
 
-        // Return a condition that results in an empty set if no projects are
-        // associated with the filter
         return sprintf("(%s.projectID = 0)", $table);
     }
 
