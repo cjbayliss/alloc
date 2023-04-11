@@ -631,9 +631,11 @@ class project extends db_entity
            ORDER BY projectName";
 
         if (isset($_FORM["limit"])) {
+            // FIXME: cast to int within the function parameters after PHP7
+            $limit = (int)$_FORM["limit"];
             $projectsAndClientsQuery .= " LIMIT :limit";
             $getProjectsAndClients = $database->pdo->prepare($projectsAndClientsQuery);
-            $getProjectsAndClients->bindParam(":limit", $_FORM["limit"], PDO::PARAM_INT);
+            $getProjectsAndClients->bindParam(":limit", $limit, PDO::PARAM_INT);
         } else {
             $getProjectsAndClients = $database->pdo->prepare($projectsAndClientsQuery);
         }
