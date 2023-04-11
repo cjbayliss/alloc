@@ -27,7 +27,7 @@ class services
      * @param string $password
      * @return string the session key
      */
-    public function authenticate($username, $password)
+    public static function authenticate($username, $password)
     {
         $person = new person();
         $sess = new session();
