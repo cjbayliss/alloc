@@ -920,59 +920,88 @@ class project extends db_entity
 
     public function get_all_parties($projectID = false, $task_exists = false)
     {
-        $interestedPartyOptions = [];
-        $name = null;
-        $current_user = &singleton("current_user");
+
         if (!$projectID && is_object($this)) {
             $projectID = $this->get_id();
         }
+
         if ($projectID) {
-            $extra_interested_parties = config::get_config_item("defaultInterestedParties");
-            foreach ((array)$extra_interested_parties as $name => $email) {
+            $interestedPartyOptions = [];
+            $interestedParties = config::get_config_item("defaultInterestedParties");
+            $name = null;
+            foreach ((array)$interestedParties as $name => $email) {
                 $interestedPartyOptions[$email]["name"] = $name;
             }
+            $database = new db_alloc();
+            $database->connect();
 
             // Get primary client contact from Project page
-            $db = new db_alloc();
-            $q = unsafe_prepare("SELECT projectClientName,projectClientEMail FROM project WHERE projectID = %d", $projectID);
-            $db->query($q);
-            $db->next_record();
-            $interestedPartyOptions[$db->f("projectClientEMail")]["name"] = $db->f("projectClientName");
-            $interestedPartyOptions[$db->f("projectClientEMail")]["external"] = "1";
+            $getClientNameAndEmail = $database->pdo->prepare(
+                "SELECT projectClientName, projectClientEMail
+                   FROM project
+                  WHERE projectID = :projectID"
+            );
+            $getClientNameAndEmail->bindParam(':projectID', $projectID, PDO::PARAM_INT);
+            $getClientNameAndEmail->execute();
+
+            $clientNameAndEmail = $getClientNameAndEmail->fetch(PDO::FETCH_ASSOC);
+            $interestedPartyOptions[$clientNameAndEmail["projectClientEMail"]]["name"] = $clientNameAndEmail["projectClientName"];
+            $interestedPartyOptions[$clientNameAndEmail["projectClientEMail"]]["external"] = "1";
 
             // Get all other client contacts from the Client pages for this Project
-            $q = unsafe_prepare("SELECT clientID FROM project WHERE projectID = %d", $projectID);
-            $db->query($q);
-            $db->next_record();
-            $clientID = $db->f("clientID");
+            $getClientID = $database->pdo->prepare(
+                "SELECT clientID FROM project WHERE projectID = :projectID"
+            );
+            $getClientID->bindParam(':projectID', $projectID, PDO::PARAM_INT);
+            $getClientID->execute();
+
+            $clientID = $getClientID->fetch(PDO::FETCH_ASSOC)["clientID"];
             if ($clientID) {
                 $client = new client($clientID);
-                $interestedPartyOptions = array_merge((array)$interestedPartyOptions, (array)$client->get_all_parties());
+                $interestedPartyOptions = array_merge(
+                    (array)$interestedPartyOptions,
+                    (array)$client->get_all_parties()
+                );
             }
 
             // Get all the project people for this tasks project
-            $q = unsafe_prepare("SELECT emailAddress, firstName, surname, person.personID, username
-                            FROM projectPerson
-                       LEFT JOIN person on projectPerson.personID = person.personID
-                           WHERE projectPerson.projectID = %d AND person.personActive = 1 ", $projectID);
-            $db->query($q);
-            while ($db->next_record()) {
-                unset($name);
-                $db->f("firstName") && $db->f("surname") and $name = $db->f("firstName") . " " . $db->f("surname");
-                $name or $name = $db->f("username");
-                $interestedPartyOptions[$db->f("emailAddress")]["name"] = $name;
-                $interestedPartyOptions[$db->f("emailAddress")]["personID"] = $db->f("personID");
-                $interestedPartyOptions[$db->f("emailAddress")]["internal"] = true;
+            $getContactDetails = $database->pdo->prepare(
+                "SELECT emailAddress, firstName, surname, person.personID, username
+                   FROM projectPerson
+              LEFT JOIN person on projectPerson.personID = person.personID
+                  WHERE projectPerson.projectID = :projectID AND person.personActive = 1"
+            );
+            $getContactDetails->bindParam(':projectID', $projectID, PDO::PARAM_INT);
+            $getContactDetails->execute();
+
+            while ($contact = $getContactDetails->fetch(PDO::FETCH_ASSOC)) {
+                // FIXME: alloc should not care about first names and surnames
+                if ($contact["firstName"] && $contact["surname"]) {
+                    $name = $contact["firstName"] . " " . $contact["surname"];
+                } else if ($contact["firstName"] || $contact["surname"]) {
+                    $name = $contact["firstName"] ? $contact["fistName"] : $contact["surname"];
+                } else {
+                    $name = $contact["username"];
+                }
+                $interestedPartyOptions[$contact["emailAddress"]]["name"] = $name;
+                $interestedPartyOptions[$contact["emailAddress"]]["personID"] = $contact["personID"];
+                $interestedPartyOptions[$contact["emailAddress"]]["internal"] = true;
             }
         }
 
+        $current_user = &singleton("current_user");
         if (is_object($current_user) && $current_user->get_id()) {
             $interestedPartyOptions[$current_user->get_value("emailAddress")]["name"] = $current_user->get_name();
             $interestedPartyOptions[$current_user->get_value("emailAddress")]["personID"] = $current_user->get_id();
         }
 
         // return an aggregation of the current task/proj/client parties + the existing interested parties
-        $interestedPartyOptions = interestedParty::get_interested_parties("project", $projectID, $interestedPartyOptions, $task_exists);
+        $interestedPartyOptions = interestedParty::get_interested_parties(
+            "project",
+            $projectID,
+            $interestedPartyOptions,
+            $task_exists
+        );
         return (array)$interestedPartyOptions;
     }
 
