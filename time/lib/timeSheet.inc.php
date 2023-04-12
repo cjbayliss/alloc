@@ -14,6 +14,7 @@ class timeSheet extends db_entity
     public $data_table = "timeSheet";
     public $display_field_name = "projectID";
     public $key_field = "timeSheetID";
+    public $pay_info = null;
     public $data_fields = [
         "projectID",
         "dateFrom",
@@ -548,7 +549,7 @@ class timeSheet extends db_entity
 
             $t->load_pay_info();
 
-            if ($_FORM["timeSheetItemHours"] && !parse_operator_comparison($_FORM["timeSheetItemHours"], $t->pay_info["total_duration_hours"])) {
+            if ($_FORM["timeSheetItemHours"] && ($_FORM["timeSheetItemHours"] != $t->pay_info["total_duration_hours"])) {
                 continue;
             }
 
