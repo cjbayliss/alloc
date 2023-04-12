@@ -5,26 +5,6 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-function path_under_path($unsafe, $safe, $use_realpath = true)
-{
-    // Checks that the potentially unsafe path is under the safe path
-    if ($use_realpath) {
-        $unsafe = realpath($unsafe);
-        $safe = realpath($safe);
-    }
-
-    // strip trailing slash
-    substr($safe, -1, 1) == DIRECTORY_SEPARATOR and $safe = substr($safe, 0, -1);
-    substr($unsafe, -1, 1) == DIRECTORY_SEPARATOR and $unsafe = substr($unsafe, 0, -1);
-
-    if ($safe && $unsafe) {
-        // Make sure the unsafe dir is under the safe dir
-        if (substr($unsafe, 0, strlen($safe)) == $safe) {
-            return true;
-        }
-    }
-}
-
 // Format a time offset in seconds to (+|-)HH:MM
 function format_offset($secs)
 {
@@ -422,94 +402,9 @@ function db_esc($str = "")
     return $db->esc($str);
 }
 
-function parse_sql_file($file)
-{
-
-    // Filename must be readable and end in .sql
-    if (!is_readable($file) || substr($file, -4) != strtolower(".sql")) {
-        return;
-    }
-
-    $sql = [];
-    $comments = [];
-    $lines = file($file);
-
-    foreach ($lines as $line) {
-        if (preg_match("/^[\s]*(--[^\n]*)$/", $line, $m)) {
-            $comments[] = str_replace("-- ", "", trim($m[1]));
-        } else if (!empty($line) && substr($line, 0, 2) != "--" && $line) {
-            $queries[] = trim($line);
-        }
-    }
-
-    $bits = [];
-    foreach ((array)$queries as $query) {
-        if (!empty($query)) {
-            $query = trim($query);
-            $bits[] = $query;
-            if (preg_match('/;\s*$/', $query)) {
-                $sql[] = implode(" ", $bits);
-                $bits = [];
-            }
-        }
-    }
-    return [$sql, $comments];
-}
-
-function parse_php_file($file)
-{
-    // Filename must be readable and end in .php
-    if (!is_readable($file) || substr($file, -4) != strtolower(".php")) {
-        return;
-    }
-
-    $php = [];
-    $comments = [];
-    $lines = file($file);
-
-    foreach ($lines as $line) {
-        if (preg_match("/^[\s]*(\/\/[^\n]*)$/", $line, $m)) {
-            $comments[] = str_replace("//", "", trim($m[1]));
-        } else if (!empty($line) && substr($line, 0, 2) != "//" && $line) {
-            $php[] = trim($line);
-        }
-    }
-    return [$php, $comments];
-}
-
-function parse_patch_file($file)
-{
-    if (!is_readable($file)) {
-        return;
-    }
-
-    if (substr($file, -4) == strtolower(".php")) {
-        return parse_php_file($file);
-    } else if (substr($file, -4) == strtolower(".sql")) {
-        return parse_sql_file($file);
-    }
-}
-
-function execute_php_file($file_to_execute)
-{
-    global $TPL;
-    ob_start();
-    include($file_to_execute);
-    return ob_get_contents();
-}
-
 function bad_filename($filename)
 {
     return preg_match("@[/\\\]@", $filename);
-}
-
-function has_backup_perm()
-{
-    $current_user = &singleton("current_user");
-    if (is_object($current_user)) {
-        return $current_user->have_role("god");
-    }
-    return false;
 }
 
 function parse_email_address($email = "")
