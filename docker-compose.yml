@@ -18,6 +18,8 @@ services:
       dockerfile: docker/database/Dockerfile
     volumes:
       - database_data:/var/lib/mysql
+    ports:
+      - 3306:3306
 
 volumes:
   database_data:
