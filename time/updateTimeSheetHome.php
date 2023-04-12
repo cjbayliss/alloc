@@ -72,4 +72,4 @@ if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
 
 // $extra and array_unshift($str, "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>");
 $extra and $str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>";
-print alloc_json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"]);
+print json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"]);

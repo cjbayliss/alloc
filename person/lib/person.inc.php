@@ -469,6 +469,11 @@ class person extends db_entity
             $filter .= " AND " . implode(" OR ", $filter2);
         }
 
+        // IMPORTANT: don't pass empty arrays to database
+        if ($filter === []) {
+            $filter = "";
+        }
+
         $q = "SELECT person.*
                 FROM person
            LEFT JOIN proficiency ON person.personID = proficiency.personID

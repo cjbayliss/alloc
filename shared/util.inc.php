@@ -572,34 +572,18 @@ function alloc_redirect($target_url)
     exit();
 }
 
-function obj2array($obj)
+function obj2array($input)
 {
-    $out = [];
-    foreach ($obj as $key => $val) {
-        switch (true) {
-            case is_object($val):
-                $out[$key] = obj2array($val);
-                break;
-            case is_array($val):
-                $out[$key] = obj2array($val);
-                break;
-            default:
-                $out[$key] = $val;
-        }
+    if (is_object($input)) {
+        $input = get_object_vars($input);
     }
-    return $out;
-}
 
-function alloc_json_encode($arr = [])
-{
-    $sj = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-    return $sj->encode($arr);
-}
+    // https://www.php.net/manual/en/language.constants.magic.php
+    if (is_array($input)) {
+        return array_map(__FUNCTION__, $input);
+    }
 
-function alloc_json_decode($str = "")
-{
-    $sj = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-    return $sj->decode($str);
+    return $input;
 }
 
 function image_create_from_file($path)
@@ -726,7 +710,7 @@ function get_exchange_rate($from, $to)
         $url = 'http://www.google.com/ig/calculator?hl=en&q=' . urlencode('1' . $from . '=?' . $to);
         $data = file_get_contents($url);
         $debug and print "<br>G: " . htmlentities($data);
-        $arr = alloc_json_decode($data);
+        $arr = json_decode($data, true);
         $rate = current(explode(" ", $arr["rhs"]));
         $debug and print "<br>Google says 5 " . $from . " is worth " . ($rate * 5) . " " . $to . " at this exchange rate: " . $rate;
     }

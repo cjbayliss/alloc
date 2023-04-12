@@ -2,7 +2,7 @@
 {page::toolbar()}
 <script>
 $(document).ready(function() {
-  var points = {echo alloc_json_encode($chart1)};
+  var points = {echo json_encode($chart1)};
   if (!points) {
     points = '';
   }

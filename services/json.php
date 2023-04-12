@@ -21,14 +21,14 @@ function getRequestVariable($variableName)
     }
 
     if ($variableName === "options" && isset($_POST[$variableName])) {
-        $value = alloc_json_decode($_POST[$variableName]);
+        $value = json_decode($_POST[$variableName], true);
     }
 
     return $value;
 }
 
 if (getRequestVariable("get_server_version")) {
-    die(alloc_json_encode(["version" => get_alloc_version()]));
+    die(json_encode(["version" => get_alloc_version()]));
 }
 
 if (!version_compare(
@@ -50,7 +50,7 @@ if (
         getRequestVariable("username"),
         getRequestVariable("password")
     );
-    die(alloc_json_encode(["sessID" => $sessID]));
+    die(json_encode(["sessID" => $sessID]));
 }
 
 $services = new services($sessID);
@@ -60,7 +60,7 @@ if (
     !is_object($current_user) ||
     !$current_user->get_id()
 ) {
-    die(alloc_json_encode(["reauthenticate" => "true"]));
+    die(json_encode(["reauthenticate" => "true"]));
 }
 
 if ($sessID) {
@@ -76,6 +76,6 @@ if ($sessID) {
         }
 
         $result = call_user_func_array([$services, $methodRequested], $args);
-        echo alloc_json_encode($result);
+        echo json_encode($result);
     }
 }
