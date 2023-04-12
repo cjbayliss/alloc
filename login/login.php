@@ -100,7 +100,7 @@ if (isset($_GET["forward"])) {
     $TPL["forward_url"] = strip_tags($_GET["forward"]);
 }
 
-$TPL["status_line"] = APPLICATION_NAME . " " . get_alloc_version() . " &copy; " . date("Y") . " <a href=\"http://www.cyber.com.au\">Cyber IT Solutions</a>";
+$TPL["status_line"] = APPLICATION_NAME . " " . APPLICATION_VERSION . " &copy; " . date("Y") . " <a href=\"http://www.cyber.com.au\">Cyber IT Solutions</a>";
 
 if (!is_dir(ATTACHMENTS_DIR . "whatsnew" . DIRECTORY_SEPARATOR . "0")) {
     mkdir(ATTACHMENTS_DIR . "whatsnew" . DIRECTORY_SEPARATOR . "0");

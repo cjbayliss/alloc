@@ -7,7 +7,7 @@
 
 require_once("../alloc.php");
 
-$TPL["alloc_version"] = get_alloc_version();
+$TPL["alloc_version"] = APPLICATION_VERSION;
 $TPL["main_alloc_title"] = "Help - " . APPLICATION_NAME;
 
 include_template("templates/helpM.tpl");

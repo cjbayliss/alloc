@@ -42,6 +42,7 @@ define("ALLOC_MOD_DIR", $f);
 unset($f);
 
 define("APPLICATION_NAME", "allocPSA");
+define("APPLICATION_VERSION", "2.0.0_alpha");
 define("ALLOC_GD_IMAGE_TYPE", "PNG");
 
 define("DATE_FORMAT", "d/m/Y");

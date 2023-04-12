@@ -31,7 +31,7 @@ class email_send
 
     public function __construct($to_address = "", $subject = "", $body = "", $message_type = "")
     {
-        $this->default_headers = "X-Mailer: " . APPLICATION_NAME . " " . get_alloc_version();
+        $this->default_headers = "X-Mailer: " . APPLICATION_NAME . " " . APPLICATION_VERSION;
         $to_address and $this->set_to_address($to_address);
         $subject and $this->set_subject($subject);
         $body and $this->set_body($body);

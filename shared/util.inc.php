@@ -85,19 +85,6 @@ function add_brackets($email = "")
     }
 }
 
-function get_alloc_version()
-{
-    static $version;
-    if ($version) {
-        return $version;
-    }
-    if (file_exists(ALLOC_MOD_DIR . "util/alloc_version") && is_readable(ALLOC_MOD_DIR . "util/alloc_version")) {
-        $v = file(ALLOC_MOD_DIR . "util/alloc_version");
-        $version = trim($v[0]);
-    }
-    return $version;
-}
-
 function seconds_to_display_format($seconds)
 {
     $day = config::get_config_item("hoursInDay");

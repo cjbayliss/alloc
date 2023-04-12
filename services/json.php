@@ -27,18 +27,6 @@ function getRequestVariable($variableName)
     return $value;
 }
 
-if (getRequestVariable("get_server_version")) {
-    die(json_encode(["version" => get_alloc_version()]));
-}
-
-if (!version_compare(
-    getRequestVariable("client_version"),
-    get_alloc_version(),
-    ">="
-)) {
-    die("Your alloc client needs to be upgraded.");
-}
-
 $sessID = getRequestVariable("sessID");
 
 if (
