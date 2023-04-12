@@ -456,7 +456,7 @@ class interestedParty extends db_entity
         return [null, $name, $email];
     }
 
-    public function add_remove_ips($ip, $entity, $entityID, $projectID = null)
+    public static function add_remove_ips($ip, $entity, $entityID, $projectID = null)
     {
         $parties = explode(",", $ip);
         foreach ($parties as $party) {

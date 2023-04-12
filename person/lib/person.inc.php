@@ -658,7 +658,7 @@ class person extends db_entity
         return "<a href=\"" . $TPL["url_alloc_person"] . "personID=" . $this->get_id() . "\">" . $this->get_name($_FORM) . "</a>";
     }
 
-    public function get_people_by_username($field = "username")
+    public static function get_people_by_username($field = "username")
     {
         $people_by_username = [];
         $people = &get_cached_table("person");
