@@ -1,5 +1,8 @@
 FROM php:5.6-apache
 
+RUN echo 'deb http://snapshot.debian.org/archive/debian/20230423T032533Z/ stretch main' \
+  > /etc/apt/sources.list
+
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y libpng-dev
 
