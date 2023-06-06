@@ -18,7 +18,7 @@ class product extends db_entity
             "currency" => "sellPriceCurrencyTypeID",
         ],
         "sellPriceCurrencyTypeID",
-        "sellPriceIncTax" => ["empty_to_null" => false],
+        "sellPriceIncTax" => [],
         "description",
         "comment",
         "productActive",
