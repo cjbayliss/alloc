@@ -11,7 +11,14 @@ class project_list_home_item extends home_item
     public function __construct()
     {
         $this->has_config = true;
-        parent::__construct("project_list", "Project List", "project", "projectListH.tpl", "standard", 40);
+        parent::__construct(
+            "project_list",
+            "Project List",
+            "project",
+            "projectListH.tpl",
+            "standard",
+            40
+        );
     }
 
     public function visible()
