@@ -7,25 +7,27 @@
 
 class home_item
 {
-    public $name;
+    public $has_config;
+    public $help_topic;
+    public $library;
+
     public $label;
     public $module;
-    public $template;
-    public $library;
-    public $width = "standard";
-    public $help_topic;
-    public $seq;
+    public $name;
     public $print;
+    public $seq;
+    public $template;
+    public $width = "standard";
 
     public function __construct($name, $label, $module, $template, $width = "standard", $seq = 0, $print = true)
     {
-        $this->name = $name;
         $this->label = $label;
         $this->module = $module;
+        $this->name = $name;
+        $this->print = $print;
+        $this->seq = $seq;
         $this->template = $template;
         $this->width = $width;
-        $this->seq = $seq;
-        $this->print = $print;
     }
 
     public function get_template_dir()
@@ -42,7 +44,6 @@ class home_item
     {
         global $TPL;
         if ($this->template) {
-            // $TPL["this"] = $this;
             $TPL[$this->module] = $this;
             include_template($this->get_template_dir() . $this->template);
         }
