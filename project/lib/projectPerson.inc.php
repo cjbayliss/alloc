@@ -36,63 +36,102 @@ class projectPerson extends db_entity
         }
     }
 
-    // This is a wrapper to simplify inserts into the projectPerson table using the new
-    // Role methodology.. role handle is canEditTasks, or isManager atm
+    // This is a wrapper to simplify inserts into the projectPerson table using
+    // the new role methodology.. role handle is canEditTasks, or isManager atm
     public function set_value_role($roleHandle)
     {
-        $db = new db_alloc();
-        $db->query(unsafe_prepare("SELECT * FROM role WHERE roleHandle = '%s' AND roleLevel = 'project'", $roleHandle));
-        $db->next_record();
-        $this->set_value("roleID", $db->f("roleID"));
+        $database = new db_alloc();
+        $database->connect();
+        // FIXME: 'role' is a reserved word in mariadb
+        // https://mariadb.com/kb/en/roles_overview/
+        $matchRole = $database->pdo->prepare(
+            "SELECT * FROM role
+              WHERE roleHandle = ':roleHandle'
+                AND roleLevel = 'project'"
+        );
+        $matchRole->bindValue(":roleHandle", $roleHandle, PDO::PARAM_STR);
+        $matchRole->execute();
+
+        $this->set_value("roleID", $matchRole->fetch(PDO::FETCH_ASSOC)["roleID"]);
     }
 
-    // deprecated in favour of get_rate
+    /**
+     * @deprecated use get_rate instead
+     *
+     * @param int $projectID
+     * @param int $personID
+     * @return array
+     */
     public static function get_projectPerson_row($projectID, $personID)
     {
-        $q = unsafe_prepare(
+        $database = new db_alloc();
+        $database->connect();
+
+        $getProjectPerson = $database->pdo->prepare(
             "SELECT *
                FROM projectPerson
-              WHERE projectID = %d AND personID = %d",
-            $projectID,
-            $personID
+              WHERE projectID = :projectID
+                AND personID = :personID"
         );
-        $db = new db_alloc();
-        $db->query($q);
-        return $db->row();
+        $getProjectPerson->bindValue(":projectID", $projectID, PDO::PARAM_INT);
+        $getProjectPerson->bindValue(":personID", $personID, PDO::PARAM_INT);
+        $getProjectPerson->execute();
+
+        return $getProjectPerson->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * try to get the default rate in order of: project -> person -> global
+     *
+     * @param int $projectID
+     * @param int $personID
+     * @return array ['rate' => int, 'unit' => int]
+     */
     public function get_rate($projectID, $personID)
     {
-        // Try to get the person's rate from the following sources:
-        // project.defaultTimeSheetRate
-        // person.defaultTimeSheetRate
-        // config.name == defaultTimeSheetRate
-
-        // First check the project for a rate
+        // check the project's default rate
         $project = new project($projectID);
-        $row = ['rate' => $project->get_value("defaultTimeSheetRate"), 'unit' => $project->get_value("defaultTimeSheetRateUnitID")];
-        if (imp($row['rate']) && $row['unit']) {
-            return $row;
+        $defaultProjectRate = [
+            'rate' => $project->get_value("defaultTimeSheetRate"),
+            'unit' => $project->get_value("defaultTimeSheetRateUnitID"),
+        ];
+        if (imp($defaultProjectRate['rate']) && $defaultProjectRate['unit']) {
+            return $defaultProjectRate;
         }
 
-        // Next check person, which is in global currency rather than project currency - conversion required
-        $db = new db_alloc();
-        $q = unsafe_prepare("SELECT defaultTimeSheetRate as rate, defaultTimeSheetRateUnitID as unit FROM person WHERE personID = %d", $personID);
-        $db->query($q);
-        $row = $db->row();
-        if (imp($row['rate']) && $row['unit']) {
+        // otherwise, check user's default rate
+        $database = new db_alloc();
+        $database->connect();
+        $getDefaultTimeSheetRate = $database->pdo->prepare(
+            "SELECT defaultTimeSheetRate as rate, defaultTimeSheetRateUnitID as unit 
+               FROM person 
+              WHERE personID = :personID"
+        );
+        $getDefaultTimeSheetRate->bindValue(":personID", $personID, PDO::PARAM_INT);
+        $getDefaultTimeSheetRate->execute();
+        $defaultTimeSheetRate = $getDefaultTimeSheetRate->fetch(PDO::FETCH_ASSOC);
+
+        if (imp($defaultTimeSheetRate['rate']) && $defaultTimeSheetRate['unit']) {
             if ($project->get_value("currencyTypeID") != config::get_config_item("currency")) {
-                $row['rate'] = exchangeRate::convert(config::get_config_item("currency"), $row["rate"], $project->get_value("currencyTypeID"));
+                $defaultTimeSheetRate['rate'] = exchangeRate::convert(
+                    config::get_config_item("currency"),
+                    $defaultTimeSheetRate["rate"],
+                    $project->get_value("currencyTypeID")
+                );
             }
-            return $row;
+            return $defaultTimeSheetRate;
         }
 
-        // Lowest priority: global
+        // last, try the global rate
         $rate = config::get_config_item("defaultTimeSheetRate");
         $unit = config::get_config_item("defaultTimeSheetUnit");
         if (imp($rate) && $unit) {
             if (config::get_config_item("currency") && $project->get_value("currencyTypeID")) {
-                $rate = exchangeRate::convert(config::get_config_item("currency"), $rate, $project->get_value("currencyTypeID"));
+                $rate = exchangeRate::convert(
+                    config::get_config_item("currency"),
+                    $rate,
+                    $project->get_value("currencyTypeID")
+                );
             }
             return ['rate' => $rate, 'unit' => $unit];
         }
