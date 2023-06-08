@@ -22,19 +22,28 @@ class projectCommissionPerson extends db_entity
 
     public function save()
     {
-        $fail = null;
-        // Just ensure multiple 0 entries cannot be saved.
+        // ensure multiple 0% entries cannot be saved.
         if ($this->get_value("commissionPercent") == 0) {
-            $q = unsafe_prepare("SELECT * FROM projectCommissionPerson WHERE projectID = %d AND commissionPercent = 0 AND projectCommissionPersonID != %d", $this->get_value("projectID"), $this->get_id());
-            $db = new db_alloc();
-            $db->query($q);
-            if ($db->next_record()) {
-                $fail = true;
+            $database = new db_alloc();
+            $database->connect();
+
+            $getProjectCommissionPerson = $database->pdo->prepare(
+                "SELECT * FROM projectCommissionPerson
+                  WHERE projectID = :projectID
+                    AND commissionPercent = 0
+                    AND projectCommissionPersonID != :projectCommissionPersonID"
+            );
+
+            $getProjectCommissionPerson->bindValue(":projectID", $this->get_value("projectID"), PDO::PARAM_INT);
+            $getProjectCommissionPerson->bindValue(":projectCommissionPersonID", $this->get_id(), PDO::PARAM_INT);
+            $getProjectCommissionPerson->execute();
+
+            if ($getProjectCommissionPerson->fetch(PDO::FETCH_ASSOC)) {
                 alloc_error("Only one Time Sheet Commission is allowed to be set to 0%");
+                return false;
             }
         }
-        if (!$fail) {
-            parent::save();
-        }
+
+        return parent::save();
     }
 }
