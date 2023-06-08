@@ -23,11 +23,6 @@ class projectPerson extends db_entity
         "roleID",
     ];
 
-    public function date_regex_matches()
-    {
-        return eregi($this->get_value("emailDateRegex"), date("YmdD"));
-    }
-
     public function is_owner($person = "")
     {
 
