@@ -462,23 +462,21 @@ class project extends db_entity
         return page::select_options($optionsArry, $projectIDs, $maxlength);
     }
 
-    public function get_dropdown_by_client($clientID = false, $onlymine = false)
+    public function get_dropdown_by_client($clientID = null, $onlymine = false)
     {
-        if ($clientID) {
-            $ops = "<select id=\"projectID\" name=\"projectID\"><option></option>";
-            $o = project::get_list_by_client($clientID, $onlymine);
-            is_object($this) && $this->get_id() and $o[$this->get_id()] = $this->get_value("projectName");
-            $ops .= page::select_options($o, $this->get_id()) . "</select>";
-        } else {
-            $ops = "<select id=\"projectID\" name=\"projectID\"><option></option>";
-            $o = project::get_list_by_client(null, $onlymine);
-            is_object($this) and $this->get_id() and $o[$this->get_id()] = $this->get_value("projectName");
-            $ops .= page::select_options($o, $this->get_id()) . "</select>";
-            // $ops.= project::get_list_dropdown_options("curr",$this->get_id(),100)."</select>";
+        $dropdownHtml = "<select id=\"projectID\" name=\"projectID\"><option></option>";
+        $clientList = project::get_list_by_client($clientID, $onlymine);
+
+        if (is_object($this) && $this->get_id()) {
+            $clientList[$this->get_id()] = $this->get_value("projectName");
         }
-        return $ops;
+
+        $dropdownHtml .= page::select_options($clientList, $this->get_id()) . "</select>";
+
+        return $dropdownHtml;
     }
 
+    // FIXME: these two functions should not exist
     public function has_attachment_permission($person)
     {
         return $this->has_project_permission($person);
