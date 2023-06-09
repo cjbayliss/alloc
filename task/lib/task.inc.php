@@ -42,6 +42,7 @@ class task extends db_entity
     ];
 
     public $permissions = [PERM_PROJECT_READ_TASK_DETAIL => "read details"];
+    private $skip_perms_check = false;
 
     public function save()
     {
@@ -84,7 +85,7 @@ class task extends db_entity
         }
     }
 
-    public function validate()
+    public function validate($_ = null)
     {
         $err = [];
         // Validate/coerce the fields
@@ -338,8 +339,7 @@ class task extends db_entity
         // OR if we're skipping the perms checking because i.e. we're having our task status updated by a timesheet
         if (
             !$this->get_id()
-            || (
-                is_object($p) && ($p->has_project_permission($person, [
+            || (is_object($p) && ($p->has_project_permission($person, [
                     "isManager",
                     "canEditTasks",
                     "timeSheetRecipient",
@@ -419,7 +419,7 @@ class task extends db_entity
         if (is_object($this)) {
             $interestedPartyOptions = $this->get_all_parties($projectID);
 
-        // Else get default IPs from project and config
+            // Else get default IPs from project and config
         } else {
             if ($_GET["projectID"]) {
                 $projectID = $_GET["projectID"];
@@ -540,7 +540,7 @@ class task extends db_entity
                 $ops[$row["personID"]] = $peoplenames[$row["personID"]];
             }
 
-        // Everyone
+            // Everyone
         } else {
             $ops = $peoplenames;
         }
@@ -719,7 +719,7 @@ class task extends db_entity
         if ($sess->Started() && !$absolute) {
             $url = $sess->url(SCRIPT_PATH . $url);
 
-        // This for urls that are emailed
+            // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");
@@ -789,6 +789,12 @@ class task extends db_entity
 
     public static function get_task_status_in_set_sql()
     {
+        $commar1 = null;
+        $commar2 = null;
+        $commar3 = null;
+        $sql_clos = null;
+        $sql_open = null;
+        $sql_pend = null;
         $m = new meta("taskStatus");
         $arr = $m->get_assoc_array();
         foreach ($arr as $taskStatusID => $r) {
@@ -864,42 +870,42 @@ class task extends db_entity
             date("D") == "Mon" and $past = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 4, date("Y"))) . " 00:00:00";
             $sql[] = unsafe_prepare("(task.taskStatus NOT IN (" . $ts_closed . ") AND task.dateCreated >= '" . $past . "')");
 
-        // Due Today
+            // Due Today
         } else if ($filter["taskDate"] == "due_today") {
             $sql[] = "(task.taskStatus NOT IN (" . $ts_closed . ") AND task.dateTargetCompletion = '" . date("Y-m-d") . "')";
 
-        // Overdue
+            // Overdue
         } else if ($filter["taskDate"] == "overdue") {
             $sql[] = "(task.taskStatus NOT IN (" . $ts_closed . ")
                 AND
                 (task.dateTargetCompletion IS NOT NULL AND task.dateTargetCompletion != '' AND '" . date("Y-m-d") . "' > task.dateTargetCompletion))";
 
-        // Date Created
+            // Date Created
         } else if ($filter["taskDate"] == "d_created") {
             $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateCreated >= '%s')", $filter["dateOne"]);
             $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateCreated <= '%s 23:59:59')", $filter["dateTwo"]);
 
-        // Date Assigned
+            // Date Assigned
         } else if ($filter["taskDate"] == "d_assigned") {
             $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateAssigned >= '%s')", $filter["dateOne"]);
             $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateAssigned <= '%s 23:59:59')", $filter["dateTwo"]);
 
-        // Date Target Start
+            // Date Target Start
         } else if ($filter["taskDate"] == "d_targetStart") {
             $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateTargetStart >= '%s')", $filter["dateOne"]);
             $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateTargetStart <= '%s')", $filter["dateTwo"]);
 
-        // Date Target Completion
+            // Date Target Completion
         } else if ($filter["taskDate"] == "d_targetCompletion") {
             $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateTargetCompletion >= '%s')", $filter["dateOne"]);
             $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateTargetCompletion <= '%s')", $filter["dateTwo"]);
 
-        // Date Actual Start
+            // Date Actual Start
         } else if ($filter["taskDate"] == "d_actualStart") {
             $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateActualStart >= '%s')", $filter["dateOne"]);
             $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateActualStart <= '%s')", $filter["dateTwo"]);
 
-        // Date Actual Completion
+            // Date Actual Completion
         } else if ($filter["taskDate"] == "d_actualCompletion") {
             $filter["dateOne"] and $sql[] = unsafe_prepare("(task.dateActualCompletion >= '%s')", $filter["dateOne"]);
             $filter["dateTwo"] and $sql[] = unsafe_prepare("(task.dateActualCompletion <= '%s')", $filter["dateTwo"]);
@@ -1227,11 +1233,11 @@ class task extends db_entity
                 $this->get_value("dateActualCompletion") || $percent > 100 and $percent = 100;
                 return $percent;
 
-            // Else if task <= 100%
+                // Else if task <= 100%
             } else if ($percent <= 100) {
                 return $closed_text . sprintf("%d%%", $percent) . $closed_text_end;
 
-            // Else if task > 100%
+                // Else if task > 100%
             } else if ($percent > 100) {
                 return "<span class='bad'>" . $closed_text . sprintf("%d%%", $percent) . $closed_text_end . "</span>";
             }
@@ -1268,6 +1274,8 @@ class task extends db_entity
 
     public function get_list_vars()
     {
+        $pipe = null;
+        $taskStatiiStr = null;
         $taskStatii = task::get_task_statii_array(true);
         foreach ($taskStatii as $k => $v) {
             $taskStatiiStr .= $pipe . $k;
