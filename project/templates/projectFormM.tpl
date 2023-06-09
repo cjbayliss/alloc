@@ -184,12 +184,12 @@ function clickClientStatus(e) {
           </div>
         </div>
 
-        {if imp($project_projectBudget) || $cost_centre_tfID_label}
+        {if (isset($project_projectBudget) && (bool)strlen($project_projectBudget)) || $cost_centre_tfID_label}
         <div class="view">
           <h6>Budget<div>Cost Centre TF</div></h6>
           <div style="float:left; width:40%;">
             {page::money($project_currencyTypeID,$project_projectBudget,"%s%mo %c")}
-            {$taxName && imp($project_projectBudget) and print " (inc. $taxName)"}
+            {$taxName && (isset($project_projectBudget) && (bool)strlen($project_projectBudget)) and print " (inc. $taxName)"}
           </div>
           <div style="float:right; width:50%;">
             {$cost_centre_tfID_label}
@@ -213,12 +213,12 @@ function clickClientStatus(e) {
         </div>
 
         {$tax_string2 = sprintf(" (per unit%s)", $taxName ? ", inc. ".$taxName : "")}
-        {if imp($project_customerBilledDollars) || imp($project_defaultTaskLimit)}
+        {if (isset($project_customerBilledDollars) && (bool)strlen($project_customerBilledDollars)) || (bool)strlen($project_defaultTaskLimit)}
         <div class="view">
           <h6>Client Billed At<div>Default Task Limit</div></h6>
           <div style="float:left; width:40%;">
             {page::money($project_currencyTypeID,$project_customerBilledDollars,"%s%mo %c")}
-            {imp($project_customerBilledDollars) and print $tax_string2}
+            {(isset($project_customerBilledDollars) &&(bool)strlen($project_customerBilledDollars)) and print $tax_string2}
           </div>
           <div style="float:right; width:50%;">
             <span>{$project_defaultTaskLimit}</span>

@@ -145,7 +145,7 @@ class invoiceEntity extends db_entity
         $db = new db_alloc();
         $q1 = $db->query(unsafe_prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $timeSheetID));
         while ($row = $db->row($q1)) {
-            if (imp($timeSheet->pay_info["customerBilledDollars"])) {
+            if (isset($timeSheet->pay_info["customerBilledDollars"]) && (bool)strlen($timeSheet->pay_info["customerBilledDollars"])) {
                 $iiUnitPrice = $timeSheet->pay_info["customerBilledDollars"];
             } else {
                 $iiUnitPrice = page::money($currency, $row["rate"], "%mo");

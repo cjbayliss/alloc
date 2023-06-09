@@ -22,7 +22,7 @@ class exchangeRate extends db_entity
     {
         $row = [];
         static $cache;
-        if (imp($cache[$from][$to][$date])) {
+        if (isset($cache[$from][$to][$date]) && (bool)strlen($cache[$from][$to][$date])) {
             return $cache[$from][$to][$date];
         }
         $db = new db_alloc();

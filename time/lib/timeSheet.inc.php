@@ -171,7 +171,7 @@ class timeSheet extends db_entity
         }
 
         // Get external rate, only load up customerBilledDollars if the field is actually set
-        if (imp($this->get_value("customerBilledDollars"))) {
+        if ($this->get_value("customerBilledDollars") !== null && (bool)strlen($this->get_value("customerBilledDollars"))) {
             $this->pay_info["customerBilledDollars"] = page::money($currency, $this->get_value("customerBilledDollars"), "%mo");
         }
 
@@ -562,13 +562,13 @@ class timeSheet extends db_entity
             $row["duration"] = $t->pay_info["summary_unit_totals"];
 
             if (
-                $t->get_value("status") == "edit" && imp($current_user->prefs["timeSheetHoursWarn"])
+                $t->get_value("status") == "edit" && (isset($current_user->prefs["timeSheetHoursWarn"]) && (bool)strlen($current_user->prefs["timeSheetHoursWarn"]))
                 && $t->pay_info["total_duration_hours"] >= $current_user->prefs["timeSheetHoursWarn"]
             ) {
                 $row["hoursWarn"] = page::help("This time sheet has gone over " . $current_user->prefs["timeSheetHoursWarn"] . " hours.", page::warn());
             }
             if (
-                $t->get_value("status") == "edit" && imp($current_user->prefs["timeSheetDaysWarn"])
+                $t->get_value("status") == "edit" && (isset($current_user->prefs["timeSheetDaysWarn"]) && (bool)strlen($current_user->prefs["timeSheetDaysWarn"]))
                 && (mktime() - format_date("U", $t->get_value("dateFrom"))) / 60 / 60 / 24 >= $current_user->prefs["timeSheetDaysWarn"]
             ) {
                 $row["daysWarn"] = page::help("This time sheet is over " . $current_user->prefs["timeSheetDaysWarn"] . " days old.", page::warn());

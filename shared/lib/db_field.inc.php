@@ -42,7 +42,7 @@ class db_field
 
     public function has_value()
     {
-        return isset($this->value) && imp($this->value);
+        return isset($this->value) && (bool)strlen($this->value);
     }
 
     public function get_name()
@@ -58,13 +58,13 @@ class db_field
     public function get_value($dest = DST_VARIABLE, $parent = null)
     {
         if ($dest == DST_DATABASE) {
-            if ((isset($this->value) && imp($this->value)) || $this->empty_to_null == false) {
+            if ((isset($this->value) && (bool)strlen($this->value)) || $this->empty_to_null == false) {
                 return "'" . db_esc($this->value) . "'";
             } else {
                 return "NULL";
             }
         } else if ($dest == DST_HTML_DISPLAY) {
-            if ($this->type == "money" && imp($this->value)) {
+            if ($this->type == "money" && (isset($this->value) && (bool)strlen($this->value))) {
                 $c = $parent->currency;
                 if ($this->currency && isset($parent->data_fields[$this->currency])) {
                     $c = $parent->get_value($this->currency);

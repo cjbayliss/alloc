@@ -43,7 +43,7 @@ class invoice extends db_entity
                 $currencyTypeID = config::get_config_item("currency");
             }
 
-            if (!imp($this->get_value("maxAmount"))) {
+            if (!($this->get_value("maxAmount") !== null && (bool)strlen($this->get_value("maxAmount")))) {
                 $this->set_value("maxAmount", '');
             }
             if ($currencyTypeID) {

@@ -271,7 +271,7 @@ if (!$TPL["message"] && $_POST["save"]) {
                 $transaction->delete();
 
             // Save
-            } else if (imp($_POST["amount"][$k])) {
+            } else if (isset($_POST["amount"][$k]) && (bool)strlen($_POST["amount"][$k])) {
                 $type = $_POST["transactionType"][$k] or $type = 'sale';
 
                 $a = [

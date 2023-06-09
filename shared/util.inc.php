@@ -495,13 +495,6 @@ function image_create_from_file($path)
     return $f($path);
 }
 
-function imp($var)
-{
-    // This function exists because php equates zeroes to false values.
-    // imp == important == is this variable important == if imp($var)
-    return $var !== [] && trim((string)$var) !== '' && $var !== null && $var !== false;
-}
-
 function get_exchange_rate($from, $to)
 {
 
@@ -588,7 +581,7 @@ function tax($amount, $taxPercent = null)
 {
     // take a tax included amount and return the untaxed amount, and the amount of tax
     // eg: 500 including 10% tax, returns array(454.54, 45.45)
-    imp($taxPercent) or $taxPercent = config::get_config_item("taxPercent");
+    (isset($taxPercent) && (bool)strlen($taxPercent)) or $taxPercent = config::get_config_item("taxPercent");
     $amount_minus_tax = $amount / (($taxPercent / 100) + 1);
     $amount_of_tax = $amount / ((100 / $taxPercent) + 1);
     return [$amount_minus_tax, $amount_of_tax];

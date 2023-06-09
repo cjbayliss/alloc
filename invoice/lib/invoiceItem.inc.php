@@ -88,7 +88,7 @@ class invoiceItem extends db_entity
     public function save()
     {
 
-        if (!imp($this->get_value("iiAmount"))) {
+        if (!($this->get_value("iiAmount") !== null && (bool)strlen($this->get_value("iiAmount")))) {
             $this->set_value("iiAmount", $this->get_value("iiQuantity") * $this->get_value("iiUnitPrice"));
         }
 

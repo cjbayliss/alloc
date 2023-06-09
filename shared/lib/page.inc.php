@@ -511,7 +511,7 @@ EOD;
     {
         // AUD,100        -> 100.00
         // AUD,0|''|false -> 0.00
-        if (imp($amount)) {
+        if (isset($amount) && (bool)strlen($amount)) {
             $c or alloc_error("page::money(): no currency specified for amount $amount.");
             $currencies = &get_cached_table("currencyType");
             $n = $currencies[$c]["numberToBasic"];
@@ -527,7 +527,7 @@ EOD;
         // AUD,100.00 -> 100
         // AUD,0      -> 0
         // AUD        ->
-        if (imp($amount)) {
+        if (isset($amount) && (bool)strlen($amount)) {
             $c or alloc_error("page::money_in(): no currency specified for amount $amount.");
             $currencies = &get_cached_table("currencyType");
             $n = $currencies[$c]["numberToBasic"];
@@ -547,11 +547,11 @@ EOD;
         $fmt = str_replace("%mi", page::money_in($c, $amount), $fmt);                           // %mi = money_in         eg: 15021
         $fmt = str_replace("%m", page::money_fmt($c, $amount), $fmt);                          // %m = format           eg: 150.2 => 150.20
         $fmt = str_replace("%S", $currencies[$c]["currencyTypeLabel"], $fmt); // %S = mandatory symbol eg: $
-        imp($amount) and $fmt = str_replace("%s", $currencies[$c]["currencyTypeLabel"], $fmt); // %s = optional symbol  eg: $
+        (isset($amount) && (bool)strlen($amount)) and $fmt = str_replace("%s", $currencies[$c]["currencyTypeLabel"], $fmt); // %s = optional symbol  eg: $
         $fmt = str_replace("%C", $c, $fmt);                                   // %C = mandatory code   eg: AUD
-        imp($amount) and $fmt = str_replace("%c", $c, $fmt);                                   // %c = optional code    eg: AUD
+        (isset($amount) && (bool)strlen($amount)) and $fmt = str_replace("%c", $c, $fmt);                                   // %c = optional code    eg: AUD
         $fmt = str_replace("%N", $currencies[$c]["currencyTypeName"], $fmt);  // %N = mandatory name   eg: Australian dollars
-        imp($amount) and $fmt = str_replace("%n", $currencies[$c]["currencyTypeName"], $fmt);  // %n = optional name    eg: Australian dollars
+        (isset($amount) && (bool)strlen($amount)) and $fmt = str_replace("%n", $currencies[$c]["currencyTypeName"], $fmt);  // %n = optional name    eg: Australian dollars
         $fmt = str_replace(["%mo", "%mi", "%m", "%S", "%s", "%C", "%c", "%N", "%n"], "", $fmt); // strip leftovers away
         return $fmt;
     }

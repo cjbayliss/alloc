@@ -157,7 +157,7 @@ $(document).ready(function() {
             <div style="float:left; width:40%;">
               {foreach array($task_timeBest,$task_timeExpected,$task_timeWorst) as $i}
                 {$div}
-                {print imp($i) ? $i : " --- "}
+                {print (isset($i) && (bool)strlen($i)) ? $i : " --- "}
                 {$div = " / "}
               {/}
             </div>

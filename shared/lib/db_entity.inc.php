@@ -359,7 +359,7 @@ class db_entity
     public function validate($message = [])
     {
         $c = $this->currency;
-        if (isset($this->data_fields["currencyTypeID"]) && imp($this->data_fields["currencyTypeID"]->get_value())) {
+        if (isset($this->data_fields["currencyTypeID"]) && ($this->data_fields["currencyTypeID"]->get_value() !== null && (bool)strlen($this->data_fields["currencyTypeID"]->get_value()))) {
             $c = $this->data_fields["currencyTypeID"]->get_value();
         }
         $c and $this->currency = $c;
@@ -497,7 +497,7 @@ class db_entity
         }
 
         $c = $this->currency;
-        if (isset($this->data_fields["currencyTypeID"]) && imp($this->data_fields["currencyTypeID"]->get_value())) {
+        if (isset($this->data_fields["currencyTypeID"]) && ($this->data_fields["currencyTypeID"]->get_value() !== null && (bool)strlen($this->data_fields["currencyTypeID"]->get_value()))) {
             $c = $this->data_fields["currencyTypeID"]->get_value();
         }
         $c and $this->currency = $c;

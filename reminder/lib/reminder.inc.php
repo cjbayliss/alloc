@@ -491,7 +491,7 @@ class reminder extends db_entity
         $filter["id"] and $sql[] = unsafe_prepare("reminderLinkID=%d", $filter["id"]);
         $filter["reminderID"] and $sql[] = unsafe_prepare("reminder.reminderID=%d", $filter["reminderID"]);
         $filter["filter_recipient"] and $sql[] = unsafe_prepare("personID = %d", $filter["filter_recipient"]);
-        imp($filter["filter_reminderActive"]) and $sql[] = unsafe_prepare("reminderActive = %d", $filter["filter_reminderActive"]);
+        (isset($filter["filter_reminderActive"]) && (bool)strlen($filter["filter_reminderActive"])) and $sql[] = unsafe_prepare("reminderActive = %d", $filter["filter_reminderActive"]);
 
         return $sql;
     }
