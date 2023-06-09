@@ -24,6 +24,12 @@ class db_entity
     public $display_field_name;        // Set this to the field to be used by the get_display_value function
     public $cache;                     // Cache associative array stored by primary key index
     private $fields_loaded = false;    // This internal flag just specifies whether a row from the db was loaded
+    private $permissions = [];
+    private $skip_modified_fields = null;
+    public $doMoney = null;
+    private $updateSearchIndexLater = null;
+    private $currency = null;
+    private $filter_class = null;
 
     public function __construct($id = false)
     {
@@ -344,7 +350,7 @@ class db_entity
                 $db = $this->get_db();
                 $db->query("call update_search_index('%s',%d)", $this->classname, $this->get_id());
 
-            // Update the index right now
+                // Update the index right now
             } else {
                 $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
                 $this->delete_search_index_doc($index);
@@ -634,6 +640,7 @@ class db_entity
     }
     public function get_insert_fields($fields)
     {
+        $comma = null;
         $rtn = null;
         foreach ((array)$fields as $k => $field) {
             if (strtolower($field->get_value(DST_DATABASE)) != "null") {
@@ -645,6 +652,7 @@ class db_entity
     }
     public function get_insert_values($fields)
     {
+        $comma = null;
         $rtn = null;
         foreach ((array)$fields as $k => $field) {
             if (strtolower($field->get_value(DST_DATABASE)) != "null") {
@@ -696,7 +704,7 @@ class db_entity
         if (is_object($this->data_fields[$this->data_table . "Active"]) && !isset($where[$this->data_table . "Active"])) {
             $where[$this->data_table . "Active"] = 1;
 
-        // Else get all records
+            // Else get all records
         } else if ($where[$this->data_table . "Active"] == "all") {
             unset($where[$this->data_table . "Active"]);
         }
@@ -762,6 +770,17 @@ class db_entity
             }
         }
         return $index;
+    }
+
+    /**
+     * placeholder for child classes
+     *
+     * @param mixed $index
+     * @return void
+     */
+    public function update_search_index_doc(&$index)
+    {
+        return null;
     }
 }
 
