@@ -438,7 +438,7 @@ class timeSheetItem extends db_entity
         $current_user = &singleton("current_user");
 
         $personID or $personID = $current_user->get_id();
-        $start or $start = date("Y-m-d", mktime() - (60 * 60 * 24 * 28));
+        $start or $start = date("Y-m-d", time() - (60 * 60 * 24 * 28));
         $end or $end = date("Y-m-d");
 
         $q = unsafe_prepare(
@@ -479,7 +479,7 @@ class timeSheetItem extends db_entity
         $current_user = &singleton("current_user");
 
         $personID or $personID = $current_user->get_id();
-        $start or $start = date("Y-m-d", mktime() - (60 * 60 * 24 * 28));
+        $start or $start = date("Y-m-d", time() - (60 * 60 * 24 * 28));
         $end or $end = date("Y-m-d");
 
         $q = unsafe_prepare(

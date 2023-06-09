@@ -205,7 +205,7 @@ class email_send
         // This function will generate a new mime boundary
         if (!$this->mime_boundary) {
             $rand = md5(time() . microtime());
-            $this->mime_boundary = "alloc" . mktime() . $rand;
+            $this->mime_boundary = "alloc" . time() . $rand;
         }
         return $this->mime_boundary;
     }

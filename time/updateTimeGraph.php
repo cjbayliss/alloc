@@ -10,6 +10,6 @@ require_once("../alloc.php");
 
 $current_user = &singleton("current_user");
 $num_days_back = 28;
-$start = date("Y-m-d", mktime() - (60 * 60 * 24 * $num_days_back));
+$start = date("Y-m-d", time() - (60 * 60 * 24 * $num_days_back));
 $points = timeSheetItem::get_total_hours_worked_per_day($current_user->get_id(), $start);
 print json_encode(["status" => "good", "points" => $points]);
