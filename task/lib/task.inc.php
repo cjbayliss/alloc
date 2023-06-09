@@ -1527,7 +1527,7 @@ class task extends db_entity
                     break;
                 case 'projectID':
                     task::load_entity("project", $newValue, $newProject);
-                    is_object($newProject) and $newProjectLink = $newProject->get_project_link();
+                    is_object($newProject) and $newProjectLink = $newProject->get_link();
                     $newProjectLink or $newProjectLink = "&lt;empty&gt;";
                     $changeDescription = "Project changed set to " . $newProjectLink . ".";
                     break;
