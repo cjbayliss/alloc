@@ -10,7 +10,8 @@
             "driver": "MariaDB",
             "name": "alloc",
             "database": "alloc",
-            "username": "alloc"
+            "username": "alloc",
+            "password": "changeme"
         }
     ]
 }
