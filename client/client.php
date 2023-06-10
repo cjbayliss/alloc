@@ -87,8 +87,8 @@ HTML;
                 <h2 style='margin:0px; display:inline;'>{$vcardHTML}{$fieldValue}</h2>{$primaryContact}
 HTML;
 
-            // FIXME: this comment prevents inteliphese breaking HEREDOC on
-            // format, remove once PHP 7.3 is supported
+                // FIXME: this comment prevents inteliphese breaking HEREDOC on
+                // format, remove once PHP 7.3 is supported
             } else if (!empty($field)) {
                 $generatedFirstColumnHTMLArray[] = $fieldValue;
             }

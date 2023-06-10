@@ -90,7 +90,7 @@ if ($_POST["save_transactions"]) {
                 $deleted .= $commar1 . $transactionID;
                 $commar1 = ", ";
 
-            // Save
+                // Save
             } else if ($_POST["amount"][$k]) {
                 $a = [
                     "amount"             => $_POST["amount"][$k],

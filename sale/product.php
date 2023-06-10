@@ -125,7 +125,7 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
             $productCost->select();
             $productCost->delete();
 
-        // Save
+            // Save
         } else if (isset($_POST["amount"][$k]) && (bool)strlen($_POST["amount"][$k])) {
             $a = [
                 "productCostID"     => $productCostID,

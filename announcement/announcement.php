@@ -27,7 +27,7 @@ if ($_POST["save"]) {
     $announcement->save();
     alloc_redirect($TPL["url_alloc_announcementList"]);
 
-// process submission of the form using the delete button
+    // process submission of the form using the delete button
 } else if ($_POST["delete"]) {
     $announcement->delete();
     alloc_redirect($TPL["url_alloc_announcementList"]);

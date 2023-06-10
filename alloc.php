@@ -169,8 +169,8 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
         exit();
     }
 
-// Else if were not in the installation process and there's no
-// alloc_config.php file then redirect to the installation directory
+    // Else if were not in the installation process and there's no
+    // alloc_config.php file then redirect to the installation directory
 } else if (
     !file_exists(ALLOC_MOD_DIR . "alloc_config.php") ||
     !is_readable(ALLOC_MOD_DIR . "alloc_config.php") ||
@@ -180,7 +180,7 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
     alloc_redirect($TPL["url_alloc_installation"]);
     exit();
 
-// Else include the alloc_config.php file and begin with proceedings..
+    // Else include the alloc_config.php file and begin with proceedings..
 } else {
     // The timezone must be dealt with before anything else uses it or php will
     // emit a warning
@@ -219,7 +219,7 @@ if (defined("IN_INSTALL_RIGHT_NOW")) {
                 ? '?forward=' . urlencode($_SERVER['REQUEST_URI'])
                 : ''));
 
-        // Else load up the current_user and continue
+            // Else load up the current_user and continue
         } else if ($sess->Get("personID")) {
             $current_user->load_current_user($sess->Get("personID"));
         }

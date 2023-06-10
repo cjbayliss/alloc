@@ -53,16 +53,16 @@ function format_date($format = "Y/m/d", $date = "")
     if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2} [\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
         list($d, $t) = explode(" ", $date);
 
-    // If looks like this: 2003-07-07
+        // If looks like this: 2003-07-07
     } else if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2}$/", $date)) {
         $d = $date;
 
-    // If looks like this: 12:01:01
+        // If looks like this: 12:01:01
     } else if (preg_match("/^[\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
         $d = "2000-01-01";
         $t = $date;
 
-    // Nasty hobbitses!
+        // Nasty hobbitses!
     } else if ($date) {
         return "Date unrecognized: " . $date;
     } else {

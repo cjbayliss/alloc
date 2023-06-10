@@ -463,7 +463,7 @@ class invoice extends db_entity
         if ($sess->Started()) {
             $url = $sess->url(SCRIPT_PATH . $url);
 
-        // This for urls that are emailed
+            // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");
@@ -546,8 +546,8 @@ class invoice extends db_entity
         $sql = [];
         if ($filter["invoiceStatusPayment"] == "pending") {
             $sql[] = "(COALESCE(amountPaidApproved,0) < iiAmountSum)";
-        // if ($filter["invoiceStatusPayment"] == "partly_paid") {
-        // $sql[] = "(amountPaidApproved < iiAmountSum)";
+            // if ($filter["invoiceStatusPayment"] == "partly_paid") {
+            // $sql[] = "(amountPaidApproved < iiAmountSum)";
         } else if ($filter["invoiceStatusPayment"] == "rejected") {
             $sql[] = "(COALESCE(amountPaidRejected,0) > 0)";
         } else if ($filter["invoiceStatusPayment"] == "fully_paid") {

@@ -98,7 +98,7 @@ class productSale extends db_entity
                 alloc_error("Unable to use META: Project TF. Please ensure the project has a TF set, or adjust the transactions.");
             }
 
-        // -2 == META: Salesperson TF
+            // -2 == META: Salesperson TF
         } else if ($tfID == -2) {
             if ($this->get_value("personID")) {
                 $person = new person();

@@ -998,7 +998,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                         }
                     }
                     $docsFilter->segmentFilters[$this->_name] = $updatedFilterData;
-                // ---------------------------------------------------------------
+                    // ---------------------------------------------------------------
                 } else {
                     // Perform full scan
                     $updatedFilterData = [];
@@ -1123,7 +1123,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                         }
                     }
                     $docsFilter->segmentFilters[$this->_name] = $updatedFilterData;
-                // ---------------------------------------------------------------
+                    // ---------------------------------------------------------------
                 } else {
                     // Perform full scan
                     $updatedFilterData = [];
@@ -1262,7 +1262,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                     }
 
                     $docsFilter->segmentFilters[$this->_name] = $updatedFilterData;
-                // ---------------------------------------------------------------
+                    // ---------------------------------------------------------------
                 } else {
                     // Perform full scan
                     for ($count = 0; $count < $termInfo->docFreq; $count++) {

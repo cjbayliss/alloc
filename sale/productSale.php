@@ -227,7 +227,7 @@ if (!$TPL["message"] && $_POST["save"]) {
                 $productSaleItem->set_id($productSaleItemID);
                 $productSaleItem->delete();
 
-            // Save
+                // Save
             } else {
                 $a = [
                     "productID"               => $_POST["productID"][$k],
@@ -270,7 +270,7 @@ if (!$TPL["message"] && $_POST["save"]) {
                 $transaction->select();
                 $transaction->delete();
 
-            // Save
+                // Save
             } else if (isset($_POST["amount"][$k]) && (bool)strlen($_POST["amount"][$k])) {
                 $type = $_POST["transactionType"][$k] or $type = 'sale';
 
@@ -388,11 +388,11 @@ $status = $productSale->get_value("status");
 if ($productSaleID && $status == "edit") {
     define("DISPLAY", DISPLAY_PRODUCT_SALE_ITEM_EDIT);
 
-// Show line item + transaction + edit
+    // Show line item + transaction + edit
 } else if ($productSaleID && ($status == "allocate" || ($status == "admin" && $productSale->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS)))) {
     define("DISPLAY", DISPLAY_PRODUCT_SALE_ITEM_TRANSACTION_EDIT);
 
-// Show line item + transaction + view
+    // Show line item + transaction + view
 } else if ($productSaleID && ($status == "finished" || !$productSale->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS))) {
     define("DISPLAY", DISPLAY_PRODUCT_SALE_ITEM_TRANSACTION_VIEW);
 } else {

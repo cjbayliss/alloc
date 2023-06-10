@@ -56,7 +56,7 @@ function show_new_invoiceItem($template)
                 $TPL["sbs_link"] = "productSale_ii";
             }
 
-        // Else default values for creating a new invoiceItem
+            // Else default values for creating a new invoiceItem
         } else {
             $invoiceItem = new invoiceItem();
             $invoiceItem->set_values("invoiceItem_");
@@ -505,7 +505,7 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
     $TPL["message_good"][] = "Invoice deleted.";
     alloc_redirect($TPL["url_alloc_invoiceList"]);
 
-// Saving editing individual invoiceItems
+    // Saving editing individual invoiceItems
 } else if (($_POST["invoiceItem_save"] || $_POST["invoiceItem_edit"] || $_POST["invoiceItem_delete"]) && $invoice->get_value("invoiceStatus") == "edit") {
     is_array($_POST["invoiceItem_edit"]) and $invoiceItemID = key($_POST["invoiceItem_edit"]);
     is_array($_POST["invoiceItem_delete"]) and $invoiceItemID = key($_POST["invoiceItem_delete"]);
@@ -561,7 +561,7 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
     $invoice->set_id($invoiceID);
     $invoice->select();
 
-// if someone uploads an attachment
+    // if someone uploads an attachment
 } else if ($_POST["save_attachment"]) {
     move_attachment("invoice", $invoiceID);
     $TPL["message_good"][] = "Attachment saved.";

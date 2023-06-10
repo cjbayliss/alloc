@@ -376,7 +376,7 @@ if ($_POST["save"]) {
     $project->delete();
     alloc_redirect($TPL["url_alloc_projectList"]);
 
-// If they are creating a new project that is based on an existing one
+    // If they are creating a new project that is based on an existing one
 } else if ($_POST["copy_project_save"] && $_POST["copy_projectID"] && $_POST["copy_project_name"]) {
     $p = new project();
     $p->set_id($_POST["copy_projectID"]);

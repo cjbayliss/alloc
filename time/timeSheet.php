@@ -350,7 +350,7 @@ function show_new_timeSheet($template)
 
             $timeSheetItemMultiplier = $timeSheetItem->get_value("multiplier");
 
-        // Else default values for creating a new timeSheetItem
+            // Else default values for creating a new timeSheetItem
         } else {
             $TPL["tsi_buttons"] = '<button type="submit" name="timeSheetItem_save" value="1" class="save_button">Add Item<i class="icon-plus-sign"></i></button>';
 
@@ -599,7 +599,7 @@ if (($_POST["p_button"] || $_POST["a_button"] || $_POST["r_button"]) && $timeShe
     $db = new db_alloc();
     $db->query($query);
 
-// Take care of the transaction line items on an invoiced timesheet created by admin
+    // Take care of the transaction line items on an invoiced timesheet created by admin
 } else if (($_POST["transaction_save"] || $_POST["transaction_delete"]) && $timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
     $transaction = new transaction();
     $transaction->read_globals();
@@ -637,8 +637,8 @@ if ($timeSheet->get_value("approvedByAdminPersonID")) {
 // display the project name.
 if (($timeSheet->get_value("status") == 'edit' || $timeSheet->get_value("status") == 'rejected') && !$timeSheet->get_value("projectID")) {
     $query = unsafe_prepare("SELECT * FROM project WHERE projectStatus = 'Current' ORDER by projectName");
-// .unsafe_prepare("  LEFT JOIN projectPerson on projectPerson.projectID = project.projectID ")
-// .unsafe_prepare("WHERE projectPerson.personID = '%d' ORDER BY projectName", $current_user->get_id());
+    // .unsafe_prepare("  LEFT JOIN projectPerson on projectPerson.projectID = project.projectID ")
+    // .unsafe_prepare("WHERE projectPerson.personID = '%d' ORDER BY projectName", $current_user->get_id());
 } else {
     $query = unsafe_prepare("SELECT * FROM project ORDER by projectName");
 }

@@ -206,11 +206,11 @@ class Mail_mimeDecode
             $obj = new Mail_mimeDecode($params['input']);
             $structure = $obj->decode($params);
 
-        // Called statically but no input
+            // Called statically but no input
         } elseif ($isStatic) {
             alloc_error('Mail_mimeDecode::decode() called statically and no input given');
 
-        // Called via an object
+            // Called via an object
         } else {
             $this->_include_bodies = isset($params['include_bodies']) ?
                 $params['include_bodies'] : false;
@@ -812,7 +812,7 @@ class Mail_mimeDecode
                     $output .= Mail_mimeDecode::_getXML_helper($hdr_name, $hdr_value[$i], $indent);
                 }
 
-            // Only one header of this sort
+                // Only one header of this sort
             } else {
                 $output .= Mail_mimeDecode::_getXML_helper($hdr_name, $hdr_value, $indent);
             }

@@ -111,7 +111,7 @@ function get_pending_timesheet_db()
                         ORDER BY timeSheet.dateSubmittedToManager
                      ", $current_user->get_id());
 
-    // Get all the time sheets that are in status manager, where the currently logged in user is the manager
+        // Get all the time sheets that are in status manager, where the currently logged in user is the manager
     } else {
         $query = unsafe_prepare(
             "SELECT timeSheet.*, sum(timeSheetItem.timeSheetItemDuration * timeSheetItem.rate) as total_dollars

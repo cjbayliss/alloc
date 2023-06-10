@@ -131,7 +131,7 @@ if (isset($taskID)) {
     $task->set_id($taskID);
     $task->select();
 
-// Creating a new record
+    // Creating a new record
 } else {
     $_POST["dateCreated"] = date("Y-m-d H:i:s");
     $task->read_globals();
@@ -206,7 +206,7 @@ if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POS
         exit();
     }
 
-// If deleting a record
+    // If deleting a record
 } else if ($_POST["delete"]) {
     if ($task->can_be_deleted()) {
         $task->read_globals();

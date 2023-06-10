@@ -85,7 +85,7 @@ class calendar
                         $reminderTime = $reminder->get_next_reminder_time($reminderTime, $interval, $intervalUnit);
                     }
 
-                // Else if once off reminder
+                    // Else if once off reminder
                 } else {
                     $row["reminderTime"] = $reminderTime;
                     $reminders[date("Y-m-d", $reminderTime)][] = $row;

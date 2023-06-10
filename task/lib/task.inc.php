@@ -339,7 +339,8 @@ class task extends db_entity
         // OR if we're skipping the perms checking because i.e. we're having our task status updated by a timesheet
         if (
             !$this->get_id()
-            || (is_object($p) && ($p->has_project_permission($person, [
+            || (
+                is_object($p) && ($p->has_project_permission($person, [
                     "isManager",
                     "canEditTasks",
                     "timeSheetRecipient",

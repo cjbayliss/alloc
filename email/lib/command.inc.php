@@ -252,7 +252,7 @@ class command
                     $message[] = "Task " . $task->get_id() . " updated.";
                 }
 
-            // Problems
+                // Problems
             } else {
                 alloc_error("Problem updating task: " . implode("\n", (array)$err));
             }
@@ -316,7 +316,7 @@ class command
                 $status[] = "yay";
                 $message[] = "Time sheet item " . $id . " deleted.";
 
-            // Save timeSheetItem
+                // Save timeSheetItem
             } else if (!$err && $commands["item"] && $timeSheetItem->save()) {
                 $timeSheetItem->select();
                 $str = $this->condense_changes($changes, $timeSheetItem->row());
@@ -329,7 +329,7 @@ class command
                     $message[] = "Time sheet item " . $timeSheetItem->get_id() . " updated.";
                 }
 
-            // Problems
+                // Problems
             } else if ($err && $commands["item"]) {
                 alloc_error("Problem updating time sheet item: " . implode("\n", (array)$err));
             }
@@ -477,7 +477,7 @@ class command
                     }
                 }
             }
-        // Bad or missing key, then error
+            // Bad or missing key, then error
         } else if ($email_receive) {
             alloc_error("Bad or missing key. Unable to process email.");
         }

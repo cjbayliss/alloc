@@ -161,7 +161,7 @@ class transaction extends db_entity
         if ($sess->Started()) {
             $url = $sess->url(SCRIPT_PATH . $url);
 
-        // This for urls that are emailed
+            // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");
@@ -204,15 +204,15 @@ class transaction extends db_entity
             }
             $invoice->get_id() and $str = "<a href=\"" . $invoice->get_url() . "\">" . $transactionTypes[$type] . " " . $invoice->get_value("invoiceNum") . "</a>";
 
-        // Transaction is from an expenseform
+            // Transaction is from an expenseform
         } else if ($type == "expense") {
             $expenseForm = $this->get_foreign_object("expenseForm");
             if ($expenseForm->get_id() && $expenseForm->have_perm(PERM_READ_WRITE)) {
                 $str = "<a href=\"" . $expenseForm->get_url() . "\">" . $transactionTypes[$type] . " " . $this->get_value("expenseFormID") . "</a>";
             }
 
-        // Had to rewrite this so that people who had transactions on other peoples timesheets
-        // could see their own transactions, but not the other persons timesheet.
+            // Had to rewrite this so that people who had transactions on other peoples timesheets
+            // could see their own transactions, but not the other persons timesheet.
         } else if ($type == "timesheet" && $this->get_value("timeSheetID")) {
             $timeSheet = new timeSheet();
             $timeSheet->set_id($this->get_value("timeSheetID"));

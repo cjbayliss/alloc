@@ -205,7 +205,7 @@ class email_receive
                 $rtn[$newHeader] = trim($matches[2]);
                 $currentHeader = $newHeader;
 
-            // continue header
+                // continue header
             } else if ($line && $currentHeader) {
                 $rtn[$currentHeader] .= " " . trim($line);
             }
@@ -670,7 +670,7 @@ class email_receive
                 foreach ($struct->parts as $count => $part) {
                     $this->add_part_to_array($part, ($count + 1));
                 }
-            // Email does not have a seperate mime attachment for text
+                // Email does not have a seperate mime attachment for text
             } else {
                 $this->mail_parts[] = [
                     'part_number' => '1',
@@ -699,7 +699,7 @@ class email_receive
                             $this->add_part_to_array($part2, $partno . "." . ($count2 + 1));
                         }
 
-                    // Attached email does not have a seperate mime attachment for text
+                        // Attached email does not have a seperate mime attachment for text
                     } else {
                         $this->mail_parts[] = [
                             'part_number' => $partno . '.' . ($count + 1),
@@ -708,14 +708,14 @@ class email_receive
                     }
                 }
 
-            // Not sure if this is possible
+                // Not sure if this is possible
             } else {
                 $this->mail_parts[] = [
                     'part_number' => $prefix . '.1',
                     'part_object' => $struct,
                 ];
             }
-        // If there are more sub-parts, expand them out.
+            // If there are more sub-parts, expand them out.
         } else {
             if (sizeof($struct->parts) > 0) {
                 foreach ($struct->parts as $count => $p) {

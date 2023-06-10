@@ -2520,7 +2520,7 @@ class Cpdf
             $this->setColor($opt['col']['r'], $opt['col']['g'], $opt['col']['b'], 1);
             $this->setStrokeColor($opt['str']['r'], $opt['str']['g'], $opt['str']['b'], 1);
             $this->objects[$this->currentContents]['c'] .= "\n".$opt['lin'];
-        //    $this->currentLineStyle = $opt['lin'];
+            //    $this->currentLineStyle = $opt['lin'];
         } else {
             $this->nStateStack++;
             $this->stateStack[$this->nStateStack] = ['col' => $this->currentColour, 'str' => $this->currentStrokeColour, 'lin' => $this->currentLineStyle];

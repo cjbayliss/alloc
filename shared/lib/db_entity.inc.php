@@ -665,7 +665,7 @@ class db_entity
             if ($query) {
                 $query .= $glue;
             }
-            $query .= $field->get_name() . " = " . $field->get_value(DST_DATABASE);            
+            $query .= $field->get_name() . " = " . $field->get_value(DST_DATABASE);
         }
 
         return $query;

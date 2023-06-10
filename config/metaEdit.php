@@ -22,7 +22,7 @@ if ($_POST["save"]) {
             $t->set_id($tableID);
             $t->delete();
 
-        // Save
+            // Save
         } else {
             $a = [
                 $table . "ID"     => $tableID,

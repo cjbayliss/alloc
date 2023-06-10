@@ -47,7 +47,7 @@ class expenseForm extends db_entity
                 }
             }
 
-        // If no expenseForm ID, then it hasn't been created yet...
+            // If no expenseForm ID, then it hasn't been created yet...
         } else {
             return true;
         }
@@ -148,7 +148,7 @@ class expenseForm extends db_entity
                 $invoice->save();
                 $invoiceID = $invoice->get_id();
 
-            // Use existing invoice
+                // Use existing invoice
             } else {
                 $invoiceID = $db->f("invoiceID");
             }
@@ -190,7 +190,7 @@ class expenseForm extends db_entity
         if ($sess->Started()) {
             $url = $sess->url(SCRIPT_PATH . $url);
 
-        // This for urls that are emailed
+            // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");

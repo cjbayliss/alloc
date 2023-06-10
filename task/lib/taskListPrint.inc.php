@@ -144,7 +144,7 @@ class taskListPrint
             $pdf->ezSetY($y - 20);
             $pdf->ezStream();
 
-        // Else HTML format
+            // Else HTML format
         } else {
             echo task::get_list_html($taskListRows, $_FORM);
         }

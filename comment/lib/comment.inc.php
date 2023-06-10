@@ -584,7 +584,7 @@ class comment extends db_entity
                     $bcc[] = $email_without_name;
                     $successful_recipients[] = $name_and_email;
 
-                // The To address contains no actual email addresses, ie "Alex Lance": ; all the real recipients are in the Bcc.
+                    // The To address contains no actual email addresses, ie "Alex Lance": ; all the real recipients are in the Bcc.
                 } else if ($emailMethod == "tobcc") {
                     if (!same_email_address(ALLOC_DEFAULT_FROM_ADDRESS, $email_without_name)) {
                         $to_address[] = '"' . $name . '": ;';
@@ -748,7 +748,7 @@ class comment extends db_entity
                 return comment::util_get_comments_array($_FORM["entity"], $_FORM["entityID"], $_FORM);
             }
 
-        // Or 2: get all starred comments
+            // Or 2: get all starred comments
         } else if ($_FORM["starred"]) {
             $filter = comment::get_list_filter($_FORM);
             if (is_array($filter) && count($filter)) {

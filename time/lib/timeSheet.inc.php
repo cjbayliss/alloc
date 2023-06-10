@@ -283,8 +283,8 @@ class timeSheet extends db_entity
             $product = "Timesheet #" . $this->get_id() . " for " . $projectName . " (" . $this->pay_info["summary_unit_totals"] . ")";
             $rtn[$product] = $this->createTransaction($product, $this->pay_info["total_dollars"], $recipient_tfID, "timesheet", $status);
 
-        // 2. Payment Insurance
-        // removed
+            // 2. Payment Insurance
+            // removed
         } else if ($_POST["create_transactions_default"]) {
             /*  This was previously named "Simple" transactions. Ho ho.
                 On the Project page we care about these following variables:
@@ -319,7 +319,7 @@ class timeSheet extends db_entity
                     $amount = $this->pay_info["total_customerBilledDollars_minus_gst"] * ($db->f("commissionPercent") / 100);
                     $rtn[$product] = $this->createTransaction($product, $amount, $db->f("tfID"), "commission", $status);
 
-                // Suck up the rest of funds if it is a special zero % commission
+                    // Suck up the rest of funds if it is a special zero % commission
                 } else if ($db->f("commissionPercent") == 0) {
                     $amount = $this->pay_info["total_customerBilledDollars_minus_gst"] - $this->get_amount_so_far();
                     $amount < 0 and $amount = 0;
@@ -653,7 +653,7 @@ class timeSheet extends db_entity
         if ($sess->Started()) {
             $url = $sess->url(SCRIPT_PATH . $url);
 
-        // This for urls that are emailed
+            // This for urls that are emailed
         } else {
             static $prefix;
             $prefix or $prefix = config::get_config_item("allocURL");
@@ -933,7 +933,7 @@ EOD;
                     $email["body"] .= "\n\nBilling Note: " . $this->get_value("billingNote");
                 $msg[] = $this->shootEmail($email);
             }
-        // Can get backwards to "manager" only from "admin"
+            // Can get backwards to "manager" only from "admin"
         } else if ($direction == "backwards") {
             // admin->manager requires APPROVE_TIMESHEETS
             if (!$this->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
@@ -1026,7 +1026,7 @@ EOD;
                 $msg[] = $this->shootEmail($email);
             }
 
-        // Can get backwards to "admin" from "invoiced"
+            // Can get backwards to "admin" from "invoiced"
         } else {
             // requires INVOICE_TIMESHEETS
             if (!$this->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
@@ -1221,7 +1221,7 @@ EOD;
                 $timeSheet->save();
                 $timeSheetID = $timeSheet->get_id();
 
-            // Else use the first timesheet we found
+                // Else use the first timesheet we found
             } else {
                 $timeSheetID = $row["timeSheetID"];
             }

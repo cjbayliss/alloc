@@ -127,7 +127,7 @@ class services
                     continue;
                 }
 
-            // email addresses
+                // email addresses
             } else if (in_str("@", $person)) {
                 foreach ($person_table as $pid => $data) {
                     if (same_email_address($person, $data["emailAddress"]) && $data["personActive"]) {
@@ -152,7 +152,7 @@ class services
                 $bad_person = false;
                 continue;
 
-            // usernames, partial and full names
+                // usernames, partial and full names
             } else {
                 foreach ($person_table as $pid => $data) {
                     // If matches username

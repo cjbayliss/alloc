@@ -518,7 +518,7 @@ class timeSheetPrint
                 $pdf->ezText(str_replace(["<br>", "<br/>", "<br />"], "\n", $TPL["footer"]), 10);
                 $pdf->ezStream(["Content-Disposition" => "timeSheet_" . $timeSheetID . ".pdf"]);
 
-            // Else HTML format
+                // Else HTML format
             } else {
                 if (file_exists(ALLOC_LOGO)) {
                     $TPL["companyName"] = '<img alt="Company logo" src="' . $TPL["url_alloc_logo"] . '" />';

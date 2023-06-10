@@ -332,7 +332,7 @@ EOD;
                 $rows[$row["value"]] = $row["label"];
             }
 
-        // Build options from an array: array(value1=>label1, value2=>label2)
+            // Build options from an array: array(value1=>label1, value2=>label2)
         } else if (is_array($options)) {
             foreach ($options as $k => $v) {
                 $rows[$k] = $v;

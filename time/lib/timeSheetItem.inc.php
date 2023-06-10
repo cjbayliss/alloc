@@ -220,7 +220,7 @@ class timeSheetItem extends db_entity
         if ($filter["timeSheetID"] && is_array($filter["timeSheetID"])) {
             $timeSheetIDs = $filter["timeSheetID"];
 
-        // Else
+            // Else
         } else if ($filter["timeSheetID"] && is_numeric($filter["timeSheetID"])) {
             $timeSheetIDs[] = $filter["timeSheetID"];
         }

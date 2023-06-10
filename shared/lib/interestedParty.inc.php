@@ -291,13 +291,13 @@ class interestedParty extends db_entity
             if ($command == "quiet") {
                 $quiet = true;
 
-            // To unsubscribe from this conversation
+                // To unsubscribe from this conversation
             } else if ($command == "unsub" || $command == "unsubscribe") {
                 if (interestedParty::active($entity, $entityID, $emailAddress)) {
                     interestedParty::delete_interested_party($entity, $entityID, $emailAddress);
                 }
 
-            // To subscribe to this conversation
+                // To subscribe to this conversation
             } else if ($command == "sub" || $command == "subscribe") {
                 $ip = interestedParty::exists($entity, $entityID, $emailAddress);
 
@@ -312,7 +312,7 @@ class interestedParty extends db_entity
                     ];
                     interestedParty::add_interested_party($data);
 
-                // Else reactivate existing IP
+                    // Else reactivate existing IP
                 } else if (!interestedParty::active($entity, $entityID, $emailAddress)) {
                     $interestedParty = new interestedParty();
                     $interestedParty->set_id($ip["interestedPartyID"]);
@@ -321,7 +321,7 @@ class interestedParty extends db_entity
                     $interestedParty->save();
                 }
 
-            // If there's a number/duration then add some time to a time sheet
+                // If there's a number/duration then add some time to a time sheet
             } else if (is_object($current_user) && $current_user->get_id() && preg_match("/([\.\d]+)/i", $command, $m)) {
                 $duration = $m[1];
 
@@ -342,7 +342,7 @@ class interestedParty extends db_entity
                     }
                 }
 
-            // Otherwise assume it's a status change
+                // Otherwise assume it's a status change
             } else if (is_object($current_user) && $current_user->get_id() && $command) {
                 if (is_object($object) && $object->get_id()) {
                     $object->set_value("taskStatus", $command);
@@ -467,7 +467,7 @@ class interestedParty extends db_entity
                 list($personID, $name, $email) = interestedParty::expand_ip(implode("", array_slice(str_split($party), 1)), $projectID);
                 interestedParty::delete_interested_party($entity, $entityID, $email);
 
-            // add an ip
+                // add an ip
             } else {
                 list($personID, $name, $email) = interestedParty::expand_ip($party, $projectID);
                 if (!$email || strpos($email, "@") === false) {

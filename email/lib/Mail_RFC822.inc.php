@@ -545,7 +545,7 @@ class Mail_RFC822
                 $structure = $addresses[0];
             }
 
-        // Flat format
+            // Flat format
         } else {
             if ($is_group) {
                 $structure = array_merge($structure, $addresses);
@@ -704,7 +704,7 @@ class Mail_RFC822
                 return false;
             }
 
-        // Only got addr-spec
+            // Only got addr-spec
         } else {
             // First snip angle brackets if present.
             if (substr($mailbox, 0, 1) == '<' && substr($mailbox, -1) == '>') {
@@ -904,7 +904,7 @@ class Mail_RFC822
             $local_part = $this->_splitCheck($parts, '@');
             $domain = substr($addr_spec, strlen($local_part . '@'));
 
-        // No @ sign so assume the default domain.
+            // No @ sign so assume the default domain.
         } else {
             $local_part = $addr_spec;
             $domain = $this->default_domain;

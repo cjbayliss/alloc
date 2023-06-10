@@ -22,7 +22,7 @@ if ($sess->Started()) {
     alloc_redirect($url);
     exit();
 
-// Else log the user in
+    // Else log the user in
 } else if ($_POST["login"]) {
     $person = new person();
     $row = $person->get_valid_login_row($_POST["username"], $_POST["password"]);
@@ -78,7 +78,7 @@ if ($sess->Started()) {
         $error = "Invalid email address.";
     }
 
-// Else if just visiting the page
+    // Else if just visiting the page
 } else {
     if (!$sess->TestCookie()) {
         $sess->SetTestCookie();

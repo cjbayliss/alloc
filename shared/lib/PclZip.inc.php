@@ -900,7 +900,7 @@ class PclZip
                 }
                 if (!isset($v_options[PCLZIP_OPT_EXTRACT_AS_STRING])) {
                     $v_options[PCLZIP_OPT_EXTRACT_AS_STRING] = false;
-                // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Option PCLZIP_OPT_EXTRACT_AS_STRING not set.");
+                    // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Option PCLZIP_OPT_EXTRACT_AS_STRING not set.");
                 } else {
                     // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Option PCLZIP_OPT_EXTRACT_AS_STRING set.");
                 }
@@ -2019,7 +2019,7 @@ class PclZip
                     // ----- Concat the resulting list
                     // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 2, "Merging result list (size '".sizeof($v_result_list)."') with dirlist (size '".sizeof($v_dirlist_descr)."')");
                     $v_result_list = array_merge($v_result_list, $v_dirlist_descr);
-                // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 2, "merged result list is size '".sizeof($v_result_list)."'");
+                    // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 2, "merged result list is size '".sizeof($v_result_list)."'");
                 } else {
                     // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 2, "Nothing in this folder to expand.");
                 }
@@ -2770,7 +2770,7 @@ class PclZip
         // ----- Look for full name change
         if (isset($p_filedescr['new_full_name'])) {
             $v_stored_filename = $p_filedescr['new_full_name'];
-        // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Changing full name of '".$p_filename."' for '".$v_stored_filename."'");
+            // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Changing full name of '".$p_filename."' for '".$v_stored_filename."'");
         }
     
         // ----- Look for path and/or short name change
@@ -2784,7 +2784,7 @@ class PclZip
                     $v_dir = $v_path_info['dirname'].'/';
                 }
                 $v_stored_filename = $v_dir.$p_filedescr['new_short_name'];
-            // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Changing short name of '".$p_filename."' for '".$v_stored_filename."'");
+                // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Changing short name of '".$p_filename."' for '".$v_stored_filename."'");
             } else {
                 // ----- Calculate the stored filename
                 $v_stored_filename = $p_filename;
@@ -2793,7 +2793,7 @@ class PclZip
             // ----- Look for all path to remove
             if ($p_remove_all_dir) {
                 $v_stored_filename = basename($p_filename);
-            // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Remove all path selected change '".$p_filename."' for '".$v_stored_filename."'");
+                // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Remove all path selected change '".$p_filename."' for '".$v_stored_filename."'");
             }
             // ----- Look for partial path remove
             else if ($p_remove_dir != "") {
@@ -2822,7 +2822,7 @@ class PclZip
                 if ($v_compare > 0) {
                     if ($v_compare == 2) {
                         $v_stored_filename = "";
-                    // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Path to remove is the current folder");
+                        // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Path to remove is the current folder");
                     } else {
                         // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, "Remove path '$p_remove_dir' in file '$v_stored_filename'");
                         $v_stored_filename = substr(
@@ -4089,8 +4089,8 @@ class PclZip
                 }
             }
 
-        // ----- Trace
-        // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 2, "Extraction done");
+            // ----- Trace
+            // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 2, "Extraction done");
         } else {
             // TBC : error : can not extract a folder in a string
         }
@@ -4199,7 +4199,7 @@ class PclZip
             // ----- Get UNIX date format
             $p_header['mtime'] = mktime($v_hour, $v_minute, $v_seconde, $v_month, $v_day, $v_year);
 
-        // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, 'Date : \''.date("d/m/y H:i:s", $p_header['mtime']).'\'');
+            // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, 'Date : \''.date("d/m/y H:i:s", $p_header['mtime']).'\'');
         } else {
             $p_header['mtime'] = time();
             // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, 'Date is actual : \''.date("d/m/y H:i:s", $p_header['mtime']).'\'');
@@ -4326,7 +4326,7 @@ class PclZip
             // ----- Get UNIX date format
             $p_header['mtime'] = @mktime($v_hour, $v_minute, $v_seconde, $v_month, $v_day, $v_year);
 
-        // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, 'Date : \''.date("d/m/y H:i:s", $p_header['mtime']).'\'');
+            // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, 'Date : \''.date("d/m/y H:i:s", $p_header['mtime']).'\'');
         } else {
             $p_header['mtime'] = time();
             // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 4, 'Date is actual : \''.date("d/m/y H:i:s", $p_header['mtime']).'\'');
@@ -5595,8 +5595,8 @@ function PclZipUtilCopyBlock($p_src, $p_dest, $p_size, $p_mode = 0)
             @fwrite($p_dest, $v_buffer, $v_read_size);
             $p_size -= $v_read_size;
         }
-    // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 5, "Src offset after read :".(@ftell($p_src)));
-    // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 5, "Dest offset after write :".(@ftell($p_dest)));
+        // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 5, "Src offset after read :".(@ftell($p_src)));
+        // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 5, "Dest offset after write :".(@ftell($p_dest)));
     } else if ($p_mode == 1) {
         while ($p_size != 0) {
             $v_read_size = ($p_size < PCLZIP_READ_BLOCK_SIZE ? $p_size : PCLZIP_READ_BLOCK_SIZE);
