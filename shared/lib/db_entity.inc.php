@@ -295,9 +295,7 @@ class db_entity
         }
 
         $write_fields = [];
-
-        reset($this->data_fields);
-        while (list(, $field) = each($this->data_fields)) {
+        foreach ($this->data_fields as $field) {
             if ($this->can_write_field($field)) {
                 $write_fields[] = $field;
             }
@@ -369,8 +367,8 @@ class db_entity
             $c = $this->data_fields["currencyTypeID"]->get_value();
         }
         $c and $this->currency = $c;
-        reset($this->data_fields);
-        while (list($field_index, $field) = each($this->data_fields)) {
+
+        foreach ($this->data_fields as $field) {
             $message[] = $field->validate($this);
         }
 
@@ -410,8 +408,7 @@ class db_entity
     {
 
         // Data fields
-        reset($this->data_fields);
-        while (list($field_name) = each($this->data_fields)) {
+        foreach ($this->data_fields as $field_name => $_) {
             $array_index = $array_index_prefix . $field_name;
             $array[$array_index] = $this->get_value($field_name, $dest);
         }
@@ -613,8 +610,7 @@ class db_entity
         $source_index = null;
         $source = null;
         // Data fields
-        reset($this->data_fields);
-        while (list($field_index) = each($this->data_fields)) {
+        foreach ($this->data_fields as $field_index => $_) {
             $this->clear_field_value($this->data_fields[$field_index]);
         }
 
@@ -665,13 +661,13 @@ class db_entity
     public function get_name_equals_value($fields, $glue = ",")
     {
         $query = "";
-        reset($fields);
-        while (list(, $field) = each($fields)) {
+        foreach ($fields as $field) {
             if ($query) {
                 $query .= $glue;
             }
-            $query .= $field->get_name() . " = " . $field->get_value(DST_DATABASE);
+            $query .= $field->get_name() . " = " . $field->get_value(DST_DATABASE);            
         }
+
         return $query;
     }
 
