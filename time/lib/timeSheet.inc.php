@@ -671,7 +671,7 @@ class timeSheet extends db_entity
         return "<a href=\"" . $this->get_url() . "\">" . $text . "</a>";
     }
 
-    public function get_list_vars()
+    public static function get_list_vars()
     {
         return [
             "return"               => "[MANDATORY] eg: array | html",
