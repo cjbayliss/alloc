@@ -310,8 +310,8 @@ class page
         $images = $TPL["url_alloc_images"];
         $year = date("Y");
         $str = <<<EOD
-      <span class="calendar_container nobr"><input name="${name}" type="text" value="${default_value}" id="" class="datefield"><img src="${images}cal.png" title="Date Selector" alt="Date Selector" id=""></span>
-EOD;
+                  <span class="calendar_container nobr"><input name="${name}" type="text" value="${default_value}" id="" class="datefield"><img src="${images}cal.png" title="Date Selector" alt="Date Selector" id=""></span>
+            EOD;
         return $str;
     }
     public static function select_options($options, $selected_value = null, $max_length = 45, $escape = true)

@@ -850,12 +850,12 @@ class timeSheet extends db_entity
                 $this->get_id()
             );
             $email["body"] = <<<EOD
-         To: {$info["timeSheet_personID_name"]}
- Time Sheet: {$info["url"]}
-For Project: {$info["projectName"]}
-Rejected By: {$info["people_cache"][$current_user->get_id()]["name"]}
+                         To: {$info["timeSheet_personID_name"]}
+                 Time Sheet: {$info["url"]}
+                For Project: {$info["projectName"]}
+                Rejected By: {$info["people_cache"][$current_user->get_id()]["name"]}
 
-EOD;
+                EOD;
             $this->get_value("billingNote")
                 and $email["body"] .= "Billing Note: " . $this->get_value("billingNote");
             $msg[] = $this->shootEmail($email);
@@ -923,16 +923,16 @@ EOD;
                     $this->get_id()
                 );
                 $email["body"] = <<<EOD
-  To Manager: {$info["people_cache"][$pm]["name"]}
-  Time Sheet: {$info["url"]}
-Submitted By: {$info["timeSheet_personID_name"]}
- For Project: {$info["projectName"]}
+                      To Manager: {$info["people_cache"][$pm]["name"]}
+                      Time Sheet: {$info["url"]}
+                    Submitted By: {$info["timeSheet_personID_name"]}
+                     For Project: {$info["projectName"]}
 
-A timesheet has been submitted for your approval. If it is satisfactory,
-submit the timesheet to the Administrator. If not, make it editable again for
-re-submission.$overrun_notice
+                    A timesheet has been submitted for your approval. If it is satisfactory,
+                    submit the timesheet to the Administrator. If not, make it editable again for
+                    re-submission.$overrun_notice
 
-EOD;
+                    EOD;
                 $this->get_value("billingNote") and
                     $email["body"] .= "\n\nBilling Note: " . $this->get_value("billingNote");
                 $msg[] = $this->shootEmail($email);
@@ -953,13 +953,13 @@ EOD;
                 $this->get_id()
             );
             $email["body"] = <<<EOD
-  To Manager: {$info["approvedByManagerPersonID_name"]}
-  Time Sheet: {$info["url"]}
-Submitted By: {$info["timeSheet_personID_name"]}
- For Project: {$info["projectName"]}
- Rejected By: {$info["people_cache"][$current_user->get_id()]["name"]}
+                  To Manager: {$info["approvedByManagerPersonID_name"]}
+                  Time Sheet: {$info["url"]}
+                Submitted By: {$info["timeSheet_personID_name"]}
+                 For Project: {$info["projectName"]}
+                 Rejected By: {$info["people_cache"][$current_user->get_id()]["name"]}
 
-EOD;
+                EOD;
             $this->get_value("billingNote")
                 and $email["body"] .= "Billing Note: " . $this->get_value("billingNote");
             $msg[] = $this->shootEmail($email);
@@ -1015,16 +1015,16 @@ EOD;
                     $this->get_id()
                 );
                 $email["body"] = <<<EOD
-    To Admin: {$info["admin_name"]}
-  Time Sheet: {$info["url"]}
-Submitted By: {$info["timeSheet_personID_name"]}
- For Project: {$info["projectName"]}
-{$extra}
+                        To Admin: {$info["admin_name"]}
+                      Time Sheet: {$info["url"]}
+                    Submitted By: {$info["timeSheet_personID_name"]}
+                     For Project: {$info["projectName"]}
+                    {$extra}
 
-A timesheet has been submitted for your approval. If it is not
-satisfactory, make it editable again for re-submission.
+                    A timesheet has been submitted for your approval. If it is not
+                    satisfactory, make it editable again for re-submission.
 
-EOD;
+                    EOD;
                 $this->get_value("billingNote")
                     and $email["body"] .= "Billing Note: " . $this->get_value("billingNote");
                 $msg[] = $this->shootEmail($email);
@@ -1090,13 +1090,13 @@ EOD;
             $email["to"] = $info["timeSheet_personID_email"];
             $email["subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_timeSheetCompleted"), "timeSheet", $this->get_id());
             $email["body"] = <<<EOD
-         To: {$info["timeSheet_personID_name"]}
- Time Sheet: {$info["url"]}
-For Project: {$info["projectName"]}
+                         To: {$info["timeSheet_personID_name"]}
+                 Time Sheet: {$info["url"]}
+                For Project: {$info["projectName"]}
 
-Your timesheet has been completed by {$info["current_user_name"]}.
+                Your timesheet has been completed by {$info["current_user_name"]}.
 
-EOD;
+                EOD;
 
             if ($db->num_rows() > 0) {
                 $email["body"] .= "Transaction summary:\n";

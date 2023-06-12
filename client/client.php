@@ -58,11 +58,8 @@ function show_client_contacts()
         }
 
         $vcardHTML = <<<HTML
-        <a href="{$TPL['url_alloc_client']}clientContactID={$clientContact->get_id()}&get_vcard=1"><img style="vertical-align:middle; padding:3px 6px 3px 3px;border: none" src="{$TPL['url_alloc_images']}{$vcardIcon}" alt="Download VCard" ></a>
-HTML;
-
-        // FIXME: this comment prevents inteliphese breaking HEREDOC on format,
-        // remove once PHP 7.3 is supported
+                    <a href="{$TPL['url_alloc_client']}clientContactID={$clientContact->get_id()}&get_vcard=1"><img style="vertical-align:middle; padding:3px 6px 3px 3px;border: none" src="{$TPL['url_alloc_images']}{$vcardIcon}" alt="Download VCard" ></a>
+            HTML;
 
         $firstColumnContactfields = [
             'clientContactName',
@@ -84,11 +81,9 @@ HTML;
                 }
 
                 $generatedFirstColumnHTMLArray[] = <<<HTML
-                <h2 style='margin:0px; display:inline;'>{$vcardHTML}{$fieldValue}</h2>{$primaryContact}
-HTML;
+                                    <h2 style='margin:0px; display:inline;'>{$vcardHTML}{$fieldValue}</h2>{$primaryContact}
+                    HTML;
 
-                // FIXME: this comment prevents inteliphese breaking HEREDOC on
-                // format, remove once PHP 7.3 is supported
             } else if (!empty($field)) {
                 $generatedFirstColumnHTMLArray[] = $fieldValue;
             }
@@ -129,36 +124,30 @@ HTML;
         $otherClientContact = nl2br($clientContact->get_value('clientContactOther', DST_HTML_DISPLAY));
         $starredClientContact = page::star("clientContact", $clientContact->get_id());
         $buttons = <<<HTML
-        <nobr>
-            <button type="submit" name="clientContact_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
-            <button type="submit" name="clientContact_edit" value="1"">Edit<i class="icon-edit"></i></button>
-        </nobr> 
-HTML;
-
-        // FIXME: this comment prevents inteliphese breaking HEREDOC on format,
-        // remove once PHP 7.3 is supported
+                    <nobr>
+                        <button type="submit" name="clientContact_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
+                        <button type="submit" name="clientContact_edit" value="1"">Edit<i class="icon-edit"></i></button>
+                    </nobr> 
+            HTML;
 
         $buildHTML[] = <<<HTML
-            <form action="{$TPL['url_alloc_client']}" method="post">
-            <input type="hidden" name="clientContactID" value="{$clientContact->get_id()}">
-            <input type="hidden" name="clientID" value="{$clientID}">
-            <div class="panel {$class_extra} corner">
-            <table width="100%" cellspacing="0" border="0">
-                <tr>
-                    <td width="25%" valign="top"><span class="nobr">{$firstColumnHTML}</span>&nbsp;</td>
-                    <td width="20%" valign="top"><span class="nobr">{$secondColumnHTML}</span>&nbsp;</td>
-                    <td width="50%" align="left" valign="top">{$otherClientContact}&nbsp;</td>
-                    <td align="right" class="right nobr">{$buttons}</td>
-                    <td align="right" class="right nobr" width="1%">{$starredClientContact}</td>
-                </tr>
-            </table>
-            </div>
-            <input type="hidden" name="sessID" value="{$TPL['sessID']}">
-            </form>
-HTML;
-
-        // FIXME: this comment prevents inteliphese breaking HEREDOC on format,
-        // remove once PHP 7.3 is supported
+                        <form action="{$TPL['url_alloc_client']}" method="post">
+                        <input type="hidden" name="clientContactID" value="{$clientContact->get_id()}">
+                        <input type="hidden" name="clientID" value="{$clientID}">
+                        <div class="panel {$class_extra} corner">
+                        <table width="100%" cellspacing="0" border="0">
+                            <tr>
+                                <td width="25%" valign="top"><span class="nobr">{$firstColumnHTML}</span>&nbsp;</td>
+                                <td width="20%" valign="top"><span class="nobr">{$secondColumnHTML}</span>&nbsp;</td>
+                                <td width="50%" align="left" valign="top">{$otherClientContact}&nbsp;</td>
+                                <td align="right" class="right nobr">{$buttons}</td>
+                                <td align="right" class="right nobr" width="1%">{$starredClientContact}</td>
+                            </tr>
+                        </table>
+                        </div>
+                        <input type="hidden" name="sessID" value="{$TPL['sessID']}">
+                        </form>
+            HTML;
     }
 
     if (is_array($buildHTML)) {

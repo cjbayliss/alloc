@@ -1,4 +1,4 @@
-FROM php:7.1-apache
+FROM php:7.3-apache
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y libfreetype6-dev \
@@ -7,8 +7,9 @@ RUN apt-get install --no-install-recommends -y libfreetype6-dev \
   libc-client-dev \
   libkrb5-dev
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-configure gd
 RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
+RUN docker-php-ext-configure pdo_mysql
 RUN docker-php-ext-install -j$(nproc) gd pdo_mysql imap
 
 RUN mkdir -p /var/local/alloc; chown www-data /var/local/alloc/

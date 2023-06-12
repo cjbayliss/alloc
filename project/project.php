@@ -682,35 +682,35 @@ if ($new_project && !(is_object($project) && $project->get_id())) {
     $TPL["message_help_no_esc"][] = "";
     $TPL["message_help_no_esc"][] = "<a href=\"#x\" class=\"magic\" id=\"copy_project_link\">Or copy an existing project</a>";
     $str = <<<DONE
-    <div id="copy_project" style="display:none; margin-top:10px;">
-      <form action="{$TPL["url_alloc_project"]}" method="post">
-        <table>
-          <tr>
-            <td colspan="2">
-              <label for="project_status_current">Current Projects</label>
-              <input id="project_status_current" type="radio" name="project_status"  value="Current" checked>
-              &nbsp;&nbsp;&nbsp;
-              <label for="project_status_potential">Potential Projects</label>
-              <input id="project_status_potential" type="radio" name="project_status"  value="Potential">
-              &nbsp;&nbsp;&nbsp;
-              <label for="project_status_archived">Archived Projects</label>
-              <input id="project_status_archived" type="radio" name="project_status"  value="Archived">
-            </td>
-          </tr>
-          <tr>
-            <td>Existing Project</td><td><div id="projectDropdown"><select name="copy_projectID"></select></div></td>
-          </tr>
-          <tr>
-            <td>New Project Name</td><td><input type="text" size="50" name="copy_project_name"></td>
-          </tr>
-          <tr>
-            <td colspan="2" align="center"><input type="submit" name="copy_project_save" value="Copy Project"></td>
-          </tr>
-        </table>
-      <input type="hidden" name="sessID" value="{$TPL["sessID"]}">
-      </form>
-    </div>
-DONE;
+            <div id="copy_project" style="display:none; margin-top:10px;">
+              <form action="{$TPL["url_alloc_project"]}" method="post">
+                <table>
+                  <tr>
+                    <td colspan="2">
+                      <label for="project_status_current">Current Projects</label>
+                      <input id="project_status_current" type="radio" name="project_status"  value="Current" checked>
+                      &nbsp;&nbsp;&nbsp;
+                      <label for="project_status_potential">Potential Projects</label>
+                      <input id="project_status_potential" type="radio" name="project_status"  value="Potential">
+                      &nbsp;&nbsp;&nbsp;
+                      <label for="project_status_archived">Archived Projects</label>
+                      <input id="project_status_archived" type="radio" name="project_status"  value="Archived">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Existing Project</td><td><div id="projectDropdown"><select name="copy_projectID"></select></div></td>
+                  </tr>
+                  <tr>
+                    <td>New Project Name</td><td><input type="text" size="50" name="copy_project_name"></td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" align="center"><input type="submit" name="copy_project_save" value="Copy Project"></td>
+                  </tr>
+                </table>
+              <input type="hidden" name="sessID" value="{$TPL["sessID"]}">
+              </form>
+            </div>
+        DONE;
     $TPL["message_help_no_esc"][] = $str;
 } else {
     $TPL["main_alloc_title"] = "Project " . $project->get_id() . ": " . $project->get_name() . " - " . APPLICATION_NAME;

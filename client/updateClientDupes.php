@@ -20,13 +20,10 @@ foreach ($matches as $match) {
     $clientID = $document->getFieldValue('id');
     $clientName = $document->getFieldValue('name');
     $result = <<<HTML
-    <div style='padding-bottom:3px'>
-    <a href="{$TPL['url_alloc_client']}clientID={$clientID}">{$clientID} {$clientName}</a>
-    </div>
-HTML;
-
-    // FIXME: this comment prevents inteliphese breaking HEREDOC on format,
-    // remove once PHP 7.3 is supported
+            <div style='padding-bottom:3px'>
+            <a href="{$TPL['url_alloc_client']}clientID={$clientID}">{$clientID} {$clientName}</a>
+            </div>
+        HTML;
 }
 
 if (!empty($result)) {
