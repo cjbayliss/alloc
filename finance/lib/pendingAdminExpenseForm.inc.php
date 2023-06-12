@@ -10,7 +10,14 @@ class pendingAdminExpenseForm extends home_item
 
     public function __construct()
     {
-        parent::__construct("pending_admin_expense_form", "Expense Forms Pending Admin Approval", "finance", "pendingAdminExpenseFormM.tpl", "narrow", 42);
+        parent::__construct(
+            "pending_admin_expense_form",
+            "Expense Forms Pending Admin Approval",
+            "finance",
+            "pendingAdminExpenseFormM.tpl",
+            "narrow",
+            42
+        );
     }
 
     public function visible()

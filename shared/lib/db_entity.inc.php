@@ -24,11 +24,11 @@ class db_entity
     public $display_field_name;        // Set this to the field to be used by the get_display_value function
     public $cache;                     // Cache associative array stored by primary key index
     private $fields_loaded = false;    // This internal flag just specifies whether a row from the db was loaded
-    private $permissions = [];
-    private $skip_modified_fields = null;
+    public $permissions = [];
+    public $skip_modified_fields = null;
     public $doMoney = null;
-    private $updateSearchIndexLater = null;
-    private $currency = null;
+    public $updateSearchIndexLater = null;
+    public $currency = null;
     private $filter_class = null;
 
     public function __construct($id = false)

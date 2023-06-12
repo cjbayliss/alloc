@@ -47,6 +47,7 @@ function show_productSale_list($productSaleID, $template)
     );
     $db = new db_alloc();
     $db->query($query);
+    $productClass = new product();
     while ($db->next_record()) {
         $productSaleItemsDoExist = true;
         $productSaleItem = new productSaleItem();
@@ -58,7 +59,7 @@ function show_productSale_list($productSaleID, $template)
         $TPL["itemSpent"] = $productSaleItem->get_amount_spent();
         $TPL["itemEarnt"] = $productSaleItem->get_amount_earnt();
         $TPL["itemOther"] = $productSaleItem->get_amount_other();
-        $TPL["itemCosts"] = page::money(config::get_config_item("currency"), product::get_buy_cost($productSaleItem->get_value("productID")) * $productSaleItem->get_value("quantity"), "%s%mo %c");
+        $TPL["itemCosts"] = page::money(config::get_config_item("currency"), $productClass->get_buy_cost($productSaleItem->get_value("productID")) * $productSaleItem->get_value("quantity"), "%s%mo %c");
         $TPL["itemTotalUnallocated"] = $productSaleItem->get_amount_unallocated();
 
         $TPL["productList_dropdown"] = page::select_options($ops, $productSaleItem->get_value("productID"));
@@ -424,7 +425,7 @@ if ($productSale->get_value("projectID")) {
     $project->set_id($productSale->get_value("projectID"));
     $project->select();
     $ptf = $project->get_value("cost_centre_tfID");
-    $ptf and $TPL["project_tfID"] = " (TF: " . tf::get_name($ptf) . ")";
+    $ptf and $TPL["project_tfID"] = " (TF: " . $tf->get_name($ptf) . ")";
     $ptf or $TPL["project_tfID"] = " (No project TF)";
 }
 

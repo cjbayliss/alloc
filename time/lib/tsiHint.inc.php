@@ -80,7 +80,7 @@ class tsiHint extends db_entity
         }
     }
 
-    public function parse_tsiHint_string($str)
+    public static function parse_tsiHint_string($str)
     {
         $rtn = [];
         preg_match("/^"

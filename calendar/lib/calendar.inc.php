@@ -183,7 +183,9 @@ class calendar
     public function get_days_of_week_array($first_day)
     {
         $days_of_week = [];
-        // Generate a list of days, being mindful that a user may not want Sunday to be the first day of the week
+        $go = null;
+        // Generate a list of days, being mindful that a user may not want
+        // Sunday to be the first day of the week
         $days = [
             "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
             "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
@@ -241,7 +243,6 @@ class calendar
 
             foreach ($dates_of_week as $day => $date) {
                 $d = new calendar_day();
-                // $d->set_date(date("Y-m-d", mktime(0, 0, 0, $sunday_month, $sunday_day + (7 * $i + $k), $sunday_year));
                 $d->set_date($date);
                 $d->set_links($this->get_link_new_task($date) . $this->get_link_new_reminder($date) . $this->get_link_new_absence($date));
 
@@ -264,7 +265,7 @@ class calendar
                 // Reminders
                 $reminders[$date] or $reminders[$date] = [];
                 foreach ($reminders[$date] as $r) {
-                    // if (date("Y-m-d",$r["reminderTime"]) == $date) {
+
                     unset($wrap_start, $wrap_end);
                     if (!$r["reminderActive"]) {
                         $wrap_start = "<strike>";
@@ -274,7 +275,6 @@ class calendar
                     $text = page::htmlentities($r["reminderSubject"]);
                     $r["reminderTime"] and $text = date("g:ia", $r["reminderTime"]) . " " . $text;
                     $d->reminders[] = '<a href="' . $TPL["url_alloc_reminder"] . '&step=3&reminderID=' . $r["reminderID"] . '&returnToParent=' . $this->rtp . '&personID=' . $r["personID"] . '">' . $wrap_start . $text . $wrap_end . '</a>';
-                    // }
                 }
 
                 // Absences
@@ -284,8 +284,6 @@ class calendar
                 }
 
                 $d->draw_day_html();
-
-                $k++;
             }
             $i++;
             $this->draw_row_end();
@@ -304,10 +302,10 @@ class calendar
     }
     public function draw_body()
     {
-        // Unfortunately browser support for this seems to be quite bad. Eventually
-        // this should cause the table to have headers draw at the start of
-        // each page where the table is broken, but for now it doesn't seem to
-        // work.
+        // Unfortunately browser support for this seems to be quite bad.
+        // Eventually this should cause the table to have headers draw at the
+        // start of each page where the table is broken, but for now it doesn't
+        // seem to work.
         echo "<tbody>";
     }
     public function draw_body_end()

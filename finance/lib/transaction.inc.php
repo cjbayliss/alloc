@@ -88,13 +88,16 @@ class transaction extends db_entity
         return parent::save();
     }
 
-    public function validate()
+    public function validate($_ = [])
     {
         $err = [];
         $current_user = &singleton("current_user");
 
         $this->get_value("fromTfID") or $err[] = "Unable to save transaction without a Source TF.";
-        $this->get_value("fromTfID") && $this->get_value("fromTfID") == $this->get_value("tfID") and $err[] = "Unable to save transaction with Source TF (" . tf::get_name($this->get_value("fromTfID")) . ") being the same as the Destination TF (" . tf::get_name($this->get_value("tfID")) . ") \"" . $this->get_value("product") . "\"";
+        if ($this->get_value("fromTfID") && $this->get_value("fromTfID") == $this->get_value("tfID")) {
+            $taggedFund = new tf();
+            $err[] = "Unable to save transaction with Source TF (" . $taggedFund->get_name($this->get_value("fromTfID")) . ") being the same as the Destination TF (" . $taggedFund->get_name($this->get_value("tfID")) . ") \"" . $this->get_value("product") . "\"";
+        }
         $this->get_value("quantity") or $this->set_value("quantity", 1);
         $this->get_value("transactionDate") or $this->set_value("transactionDate", date("Y-m-d"));
 
@@ -140,15 +143,28 @@ class transaction extends db_entity
         return ($toTf->is_owner($person) || $fromTf->is_owner($person));
     }
 
-    public function get_transactionTypes()
+    public static function get_transactionTypes()
     {
         $taxName = config::get_config_item("taxName") or $taxName = "Tax";
-        return ['invoice' => 'Invoice', 'expense' => 'Expense', 'salary' => 'Salary', 'commission' => 'Commission', 'timesheet' => 'Time Sheet', 'adjustment' => 'Adjustment', 'sale' => 'Sale', 'tax' => $taxName];
+        return [
+            'invoice' => 'Invoice',
+            'expense' => 'Expense',
+            'salary' => 'Salary',
+            'commission' => 'Commission',
+            'timesheet' => 'Time Sheet',
+            'adjustment' => 'Adjustment',
+            'sale' => 'Sale',
+            'tax' => $taxName
+        ];
     }
 
-    public function get_transactionStatii()
+    public static function get_transactionStatii()
     {
-        return ["pending" => "Pending", "approved" => "Approved", "rejected" => "Rejected"];
+        return [
+            "pending" => "Pending",
+            "approved" => "Approved",
+            "rejected" => "Rejected"
+        ];
     }
 
     public function get_url()
@@ -419,7 +435,7 @@ class transaction extends db_entity
         return ["totals" => $_FORM, "rows" => (array)$transactions];
     }
 
-    public function arr_to_csv($rows = [])
+    public static function arr_to_csv($rows = [])
     {
 
         $csv = null;
@@ -440,6 +456,7 @@ class transaction extends db_entity
             "running_balance",
         ];
 
+        $nl = "";
         foreach ((array)$rows as $row) {
             $csv_data = [];
             foreach ($csvHeaders as $header) {
@@ -454,10 +471,30 @@ class transaction extends db_entity
     public function get_list_vars()
     {
 
-        return ["return" => "[MANDATORY] eg: html | csv | array", "tfID" => "Transactions that are for this TF", "tfIDs" => "Transactions that are for this array of TF's", "tfName" => "Transactions that are for this TF name", "status" => "Transaction status eg: pending | rejected | approved", "startDate" => "Transactions with dates after this start date eg: 2002-07-07", "endDate" => "Transactions with dates before this end date eg: 2007-07-07", "monthDate" => "Transactions for a particular month, by date, eg july: 2008-07-07", "sortTransactions" => "Sort transactions eg: transactionSortDate | transactionDate", "transactionType" => "Eg: invoice | expense | salary | commission | timesheet | adjustment | tax | sale", "applyFilter" => "Saves this filter as the persons preference", "url_form_action" => "The submit action for the filter form", "form_name" => "The name of this form, i.e. a handle for referring to this saved form", "dontSave" => "Specify that the filter preferences should not be saved this time", "fromTfID" => "Transactions that have a source of this TF", "expenseFormID" => "Transactions for a particular Expense Form", "transactionID" => "A Transaction by ID", "product" => "Transactions with a description like *something* (fuzzy)", "amount" => "Get Transactions that are for a certain amount"];
+        return [
+            "return" => "[MANDATORY] eg: html | csv | array",
+            "tfID" => "Transactions that are for this TF",
+            "tfIDs" => "Transactions that are for this array of TF's",
+            "tfName" => "Transactions that are for this TF name",
+            "status" => "Transaction status eg: pending | rejected | approved",
+            "startDate" => "Transactions with dates after this start date eg: 2002-07-07",
+            "endDate" => "Transactions with dates before this end date eg: 2007-07-07",
+            "monthDate" => "Transactions for a particular month, by date, eg july: 2008-07-07",
+            "sortTransactions" => "Sort transactions eg: transactionSortDate | transactionDate",
+            "transactionType" => "Eg: invoice | expense | salary | commission | timesheet | adjustment | tax | sale",
+            "applyFilter" => "Saves this filter as the persons preference",
+            "url_form_action" => "The submit action for the filter form",
+            "form_name" => "The name of this form, i.e. a handle for referring to this saved form",
+            "dontSave" => "Specify that the filter preferences should not be saved this time",
+            "fromTfID" => "Transactions that have a source of this TF",
+            "expenseFormID" => "Transactions for a particular Expense Form",
+            "transactionID" => "A Transaction by ID",
+            "product" => "Transactions with a description like *something* (fuzzy)",
+            "amount" => "Get Transactions that are for a certain amount"
+        ];
     }
 
-    public function load_form_data($defaults = [])
+    public static function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
 
@@ -484,7 +521,7 @@ class transaction extends db_entity
         return $_FORM;
     }
 
-    public function load_transaction_filter($_FORM)
+    public static function load_transaction_filter($_FORM)
     {
         $rtn = [];
         $sp = null;
@@ -563,7 +600,7 @@ class transaction extends db_entity
         return $rtn;
     }
 
-    public function get_actual_amount_used($rows = [])
+    public static function get_actual_amount_used($rows = [])
     {
 
         $tallies = [];
@@ -612,7 +649,7 @@ class transaction extends db_entity
         // echo "<br>SUM: ".transaction::get_actual_amount_used($rows);
     }
 
-    public function get_next_transactionGroupID()
+    public static function get_next_transactionGroupID()
     {
         $q = "SELECT coalesce(max(transactionGroupID)+1,1) as newNum FROM transaction";
         $db = new db_alloc();

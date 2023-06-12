@@ -424,7 +424,7 @@ class project extends db_entity
         return $projectIDsAndNamesTypesQuery;
     }
 
-    public function get_list_by_client($clientID = false, $onlymine = false)
+    public static function get_list_by_client($clientID = false, $onlymine = false)
     {
         $options = [];
         $current_user = &singleton("current_user");
@@ -438,7 +438,7 @@ class project extends db_entity
         return array_kv($ops, "projectID", "label");
     }
 
-    public function get_list_dropdown($type = "mine", $projectIDs = [])
+    public static function get_list_dropdown($type = "mine", $projectIDs = [])
     {
         $options = self::get_list_dropdown_options($type, $projectIDs);
         return "<select name=\"projectID[]\" size=\"9\" style=\"width:275px;\" multiple=\"true\">" . $options . "</select>";
@@ -691,7 +691,7 @@ class project extends db_entity
         ];
     }
 
-    public function load_form_data($defaults = [])
+    public static function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
 
@@ -715,7 +715,7 @@ class project extends db_entity
         return $_FORM;
     }
 
-    public function load_project_filter($_FORM)
+    public static  function load_project_filter($_FORM)
     {
 
         $rtn = [];
@@ -739,7 +739,7 @@ class project extends db_entity
         return $rtn;
     }
 
-    public function get_project_type_array()
+    public static function get_project_type_array()
     {
         // optimization
         static $rows;

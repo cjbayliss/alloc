@@ -15,6 +15,7 @@ class timeSheet extends db_entity
     public $display_field_name = "projectID";
     public $key_field = "timeSheetID";
     public $pay_info = null;
+    public $fromTfID;
     public $data_fields = [
         "projectID",
         "dateFrom",
@@ -206,7 +207,7 @@ class timeSheet extends db_entity
         $this->pay_info["total_customerBilledDollars"] = page::money($currency, $this->pay_info["total_customerBilledDollars"], "%m");
         $this->pay_info["total_dollars"] = page::money($currency, $this->pay_info["total_dollars"], "%m");
 
-        unset($commar);
+        $commar = "";
         foreach ((array)$timeUnitRows as $r) {
             if ($row[$r["timeUnitLabelA"]] != 0) {
                 $this->pay_info["summary_unit_totals"] .= $commar . ($row[$r["timeUnitLabelA"]] + 0) . " " . $r["timeUnitLabelA"];
@@ -694,7 +695,7 @@ class timeSheet extends db_entity
         ];
     }
 
-    public function load_form_data($defaults = [])
+    public static function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
 
@@ -718,7 +719,7 @@ class timeSheet extends db_entity
         return $_FORM;
     }
 
-    public function load_timeSheet_filter($_FORM)
+    public static function load_timeSheet_filter($_FORM)
     {
         $filter = null;
         $rtn = [];
@@ -768,7 +769,8 @@ class timeSheet extends db_entity
     public function get_invoice_link()
     {
         global $TPL;
-        $str = null;
+        $str = "";
+        $sp = "";
         $invoiceEntity = new invoiceEntity();
 
         $rows = $invoiceEntity->get("timeSheet", $this->get_id());
@@ -1084,7 +1086,7 @@ EOD;
             $email = [];
             $email["type"] = "timesheet_finished";
             $email["to"] = $info["timeSheet_personID_email"];
-            $email["subject"] = $commentTemplate->populate_string(config::get_config_item("emailSubject_timeSheetCompleted"), "timeSheet", $this->get_id());
+            $email["subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_timeSheetCompleted"), "timeSheet", $this->get_id());
             $email["body"] = <<<EOD
          To: {$info["timeSheet_personID_name"]}
  Time Sheet: {$info["url"]}
@@ -1146,7 +1148,7 @@ EOD;
         return $rtn;
     }
 
-    public function add_timeSheetItem($stuff)
+    public static function add_timeSheetItem($stuff)
     {
         $extra = null;
         $task = null;

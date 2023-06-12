@@ -99,6 +99,8 @@ class page
         ];
 
         $x = -1;
+        $done = null;
+        $url = "";
         foreach ($menu_links as $key => $arr) {
             if (in_array($key, $tabs) && has($key)) {
                 $name = $arr["name"];
@@ -296,6 +298,7 @@ class page
         $ops["class"] and $attrs["class"] = $ops["class"];
         $ops["tabindex"] and $attrs["tabindex"] = $ops["tabindex"];
 
+        $str = "";
         foreach ($attrs as $k => $v) {
             $str .= sprintf(' %s="%s"', $k, $v);
         }
@@ -347,6 +350,7 @@ EOD;
                 $selected_values[] = $selected_value;
             }
 
+            $str = "";
             foreach ($rows as $value => $label) {
                 $sel = "";
 
@@ -389,6 +393,7 @@ EOD;
     public static function side_by_side_links($items = [], $url, $redraw = "", $title = "")
     {
         $str = null;
+        $sp = "";
         $url = preg_replace("/[&?]+$/", "", $url);
         if (strpos($url, "?")) {
             $url .= "&";
@@ -572,7 +577,9 @@ EOD;
             return page::money($k, $sums[$k], "%s%m %c");
         }
 
-        // Else if there's more than one currency, we'll provide a tooltip of the aggregation.
+        // Else if there's more than one currency, we'll provide a tooltip of
+        // the aggregation.
+        $sep = "";
         foreach ((array)$sums as $currency => $amount) {
             $str .= $sep . page::money($currency, $amount, "%s%m %c");
             $sep = " + ";

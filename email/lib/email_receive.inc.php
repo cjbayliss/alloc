@@ -15,11 +15,15 @@ class email_receive
     public $lockfile;
     public $mbox;
     public $connection;
+    private $connect_string;
     public $mail_headers;
     public $mail_structure;
     public $mail_text;
     public $mail_parts;
     public $mail_info;
+    public $mimebits;
+    public $msg_text;
+    public $msg_uid;
     public $dir;
     public $mime_types = [
         "text",
@@ -56,7 +60,7 @@ class email_receive
     public function open_mailbox($folder = "", $ops = OP_HALFOPEN, $fatal = true)
     {
         $rtn = null;
-        if ($this->connection && is_resource($this->connection)) {
+        if ($this->connection !== false) {
             imap_close($this->connection);
         }
         $this->connect_string = '{' . $this->host . ':' . $this->port . '/' . $this->protocol . config::get_config_item("allocEmailExtra") . '}';
@@ -196,6 +200,7 @@ class email_receive
     public function parse_headers($headers = "")
     {
         $rtn = [];
+        $currentHeader = false;
         $lines = preg_split("/\r?\n/", $headers);
         foreach ($lines as $line) {
             // start new header
@@ -351,6 +356,7 @@ class email_receive
     public function parse_mime($structure)
     {
         $plain = null;
+        $i = 0;
         foreach ((array)$structure->parts as $part) {
             if ($part->disposition == 'attachment') {
                 $i++;
@@ -553,6 +559,7 @@ class email_receive
         preg_match_all("/\.alloc\.key\.([A-Za-z0-9]{8})@/", $str, $m);
 
         if (is_array($m[1])) {
+            /** @var array $m */ // intelephense gets confused here.
             $temp = array_flip($m[1]); // unique pls
             foreach ($temp as $k => $v) {
                 $keys[] = $k;
@@ -812,6 +819,6 @@ if (basename($_SERVER["PHP_SELF"]) == "email_receive.inc.php") {
     echo "\nsave_email(): " . $e->save_email();
     // echo "\nload_parts(): ".print_r($e->mail_parts,1);
     echo "\nmail_text (plaintext version): " . $e->mail_text;
-    echo "\nget_commands(): " . print_r($e->get_commands(task::get_exposed_fields()), 1);
+    // echo "\nget_commands(): " . print_r($e->get_commands(task::get_exposed_fields()), 1);
     echo "\n";
 }

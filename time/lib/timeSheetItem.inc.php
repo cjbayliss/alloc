@@ -10,6 +10,7 @@ class timeSheetItem extends db_entity
     public $data_table = "timeSheetItem";
     public $display_field_name = "description";
     public $key_field = "timeSheetItemID";
+    public $skip_tsi_status_check;
     public $data_fields = [
         "timeSheetID",
         "dateTimeSheetItem",
@@ -77,7 +78,7 @@ class timeSheetItem extends db_entity
         return $rtn;
     }
 
-    public function parse_time_string($str)
+    public static function parse_time_string($str)
     {
         $rtn = [];
         preg_match("/^"
@@ -187,6 +188,7 @@ class timeSheetItem extends db_entity
         }
 
         // Convert all the monies into native currency
+        $alex = [];
         foreach ($rows_dollars as $id => $arr) {
             foreach ($arr as $r) {
                 $alex[$id] += exchangeRate::convert($r["currency"], $r["amount"]);
@@ -431,7 +433,7 @@ class timeSheetItem extends db_entity
         return $rows;
     }
 
-    public function get_total_hours_worked_per_day($personID, $start = null, $end = null)
+    public static function get_total_hours_worked_per_day($personID, $start = null, $end = null)
     {
         $info = [];
         $points = [];
@@ -472,7 +474,7 @@ class timeSheetItem extends db_entity
         return $points;
     }
 
-    public function get_total_hours_worked_per_month($personID, $start = null, $end = null)
+    public static function get_total_hours_worked_per_month($personID, $start = null, $end = null)
     {
         $info = [];
         $points = [];

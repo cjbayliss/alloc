@@ -10,6 +10,7 @@ require_once("../alloc.php");
 function show_perm_select()
 {
     global $person;
+    $br = "";
     if ($person->have_perm(PERM_PERSON_WRITE_ROLES)) {
         $selected = explode(",", $person->get_value("perms"));
         $ops = role::get_roles_array("person");

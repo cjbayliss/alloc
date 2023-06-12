@@ -87,7 +87,7 @@ class projectPerson extends db_entity
      * @param int $personID
      * @return array ['rate' => int, 'unit' => int]
      */
-    public function get_rate($projectID, $personID)
+    public static function get_rate($projectID, $personID)
     {
         // check the project's default rate
         $project = new project($projectID);

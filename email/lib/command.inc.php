@@ -11,7 +11,7 @@ class command
     public $commands;
     public $email_receive;
 
-    public function get_help($type)
+    public static function get_help($type)
     {
         $message = ucwords($type) . " fields:";
         $fields = command::get_fields($type);
@@ -454,13 +454,10 @@ class command
 
     public function add_comment_via_email($commands, $email_receive)
     {
-        // If there's Key in the email, then add a comment with the contents of the email.
+        // If there's Key in the email, then add a comment with the contents of
+        // the email.
         $token = new token();
         if ($commands["key"] && $token->set_hash($commands["key"])) {
-            $db = new db_alloc();
-            $comment = $token->get_value("tokenEntity");
-            $commentID = $token->get_value("tokenEntityID");
-
             list($entity, $method) = $token->execute();
             if (is_object($entity) && $method == "add_comment_from_email") {
                 $c = comment::add_comment_from_email($email_receive, $entity);
@@ -469,6 +466,7 @@ class command
                     $quiet = interestedParty::adjust_by_email_subject($email_receive, $entity);
 
                     if ($commands["ip"]) {
+                        // FIXME: does this do something?
                         $rtn = interestedParty::add_remove_ips($commands["ip"], $entity->classname, $entity->get_id(), $entity->get_project_id());
                     }
 
@@ -481,7 +479,6 @@ class command
         } else if ($email_receive) {
             alloc_error("Bad or missing key. Unable to process email.");
         }
-        return [$status, $message];
     }
 
     public function add_comment($commands)
@@ -504,12 +501,12 @@ class command
 
         // Re-email the comment out
         comment::send_comment($commentID, $emailRecipients);
-        return [$status, $message];
     }
 
     public function condense_changes($changes, $fields)
     {
         $str = null;
+        $sep = "";
         foreach ((array)$changes as $label => $field) {
             $v = $fields[$field] or $v = $field;
             $str .= $sep . $label . ": " . $v;

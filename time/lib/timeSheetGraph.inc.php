@@ -23,7 +23,7 @@ class timeSheetGraph
         ];
     }
 
-    public function load_filter($defaults)
+    public static function load_filter($defaults)
     {
         $rtn = [];
         $current_user = &singleton("current_user");

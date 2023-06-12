@@ -19,7 +19,7 @@ class invoiceEntity extends db_entity
         "useItems",
     ];
 
-    public function create($invoiceID, $entity, $entityID, $useItems = 0)
+    public static function create($invoiceID, $entity, $entityID, $useItems = 0)
     {
         $q = unsafe_prepare("SELECT * FROM invoiceEntity WHERE invoiceID = %d AND %sID = %d", $invoiceID, $entity, $entityID);
         $db = new db_alloc();
@@ -81,7 +81,7 @@ class invoiceEntity extends db_entity
         return implode(" / ", (array)$rtn);
     }
 
-    public function save_invoice_timeSheet($invoiceID, $timeSheetID)
+    public static function save_invoice_timeSheet($invoiceID, $timeSheetID)
     {
         global $TPL;
         $invoice = new invoice($invoiceID);
@@ -129,7 +129,7 @@ class invoiceEntity extends db_entity
         }
     }
 
-    public function save_invoice_timeSheetItems($invoiceID, $timeSheetID)
+    public static function save_invoice_timeSheetItems($invoiceID, $timeSheetID)
     {
         $str = null;
         $timeSheet = new timeSheet();
@@ -187,7 +187,7 @@ class invoiceEntity extends db_entity
         }
     }
 
-    public function save_invoice_expenseForm($invoiceID, $expenseFormID)
+    public static function save_invoice_expenseForm($invoiceID, $expenseFormID)
     {
         $expenseForm = new expenseForm();
         $expenseForm->set_id($expenseFormID);
@@ -218,7 +218,7 @@ class invoiceEntity extends db_entity
         $ii->save();
     }
 
-    public function save_invoice_expenseFormItems($invoiceID, $expenseFormID)
+    public static function save_invoice_expenseFormItems($invoiceID, $expenseFormID)
     {
         $expenseForm = new expenseForm();
         $expenseForm->set_id($expenseFormID);
@@ -250,7 +250,7 @@ class invoiceEntity extends db_entity
         }
     }
 
-    public function save_invoice_productSale($invoiceID, $productSaleID)
+    public static function save_invoice_productSale($invoiceID, $productSaleID)
     {
         $productSale = new productSale();
         $productSale->set_id($productSaleID);
@@ -281,7 +281,7 @@ class invoiceEntity extends db_entity
         $ii->save();
     }
 
-    public function save_invoice_productSaleItems($invoiceID, $productSaleID)
+    public static function save_invoice_productSaleItems($invoiceID, $productSaleID)
     {
         $productSale = new productSale();
         $productSale->set_id($productSaleID);

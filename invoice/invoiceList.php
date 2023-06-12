@@ -26,13 +26,16 @@ function show_filter()
 {
     global $TPL;
     global $defaults;
-    $_FORM = invoice::load_form_data($defaults);
-    $arr = invoice::load_invoice_filter($_FORM);
+    $invoice = new invoice();
+    $_FORM = $invoice->load_form_data($defaults);
+    $arr = $invoice->load_invoice_filter($_FORM);
     is_array($arr) and $TPL = array_merge($TPL, $arr);
 
-    $payment_statii = invoice::get_invoice_statii_payment();
+    $payment_statii = $invoice->get_invoice_statii_payment();
+    $summary = "";
+    $nbsp = "";
     foreach ($payment_statii as $payment_status => $label) {
-        $summary .= "\n" . $nbsp . invoice::get_invoice_statii_payment_image($payment_status) . " " . $label;
+        $summary .= "\n" . $nbsp . $invoice->get_invoice_statii_payment_image($payment_status) . " " . $label;
         $nbsp = "&nbsp;&nbsp;";
     }
     $TPL["status_legend"] = $summary;
@@ -40,7 +43,8 @@ function show_filter()
     include_template("templates/invoiceListFilterS.tpl");
 }
 
-$_FORM = invoice::load_form_data($defaults);
+$invoice = new invoice();
+$_FORM = $invoice->load_form_data($defaults);
 
 // Restrict non-admin users records
 if (!$current_user->have_role("admin")) {

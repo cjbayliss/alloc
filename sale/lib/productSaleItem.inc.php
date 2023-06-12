@@ -28,7 +28,7 @@ class productSaleItem extends db_entity
         return $productSale->is_owner();
     }
 
-    public function validate()
+    public function validate($_ = null)
     {
         $err = [];
         $this->get_value("productID") or $err[] = "Please select a Product.";
@@ -122,9 +122,10 @@ class productSaleItem extends db_entity
     public function get_amount_margin()
     {
 
-        $sellPrice = null;
         $costs = null;
         $productSale = $this->get_foreign_object("productSale");
+        $sellPrice = null;
+        $tax = null;
         $transactions = $productSale->get_transactions($this->get_id());
 
         // margin = sellPrice - GST - costs
@@ -281,6 +282,7 @@ class productSaleItem extends db_entity
         );
 
         $db2->query($query);
+        $amount_minus_tax = null;
         while ($productCost_row = $db2->next_record()) {
             $amount_of_tax = $productCost_row["amount"] * ($taxPercent / 100);
             $amount_of_tax = exchangeRate::convert($productCost_row["currencyTypeID"], $amount_of_tax, null, null, "%mo");

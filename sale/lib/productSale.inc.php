@@ -27,7 +27,7 @@ class productSale extends db_entity
     ];
     public $permissions = [PERM_APPROVE_PRODUCT_TRANSACTIONS => "approve product transactions"];
 
-    public function validate()
+    public function validate($_ = null)
     {
         $rtn = [];
         if ($this->get_value("status") == "admin" || $this->get_value("status") == "finished") {
@@ -133,15 +133,16 @@ class productSale extends db_entity
     public function get_amounts()
     {
 
-        $show = null;
         $label = null;
-        $total_sellPrice = null;
-        $sellPrice_label = null;
-        $total_margin = null;
-        $total_unallocated = null;
         $rows = $this->get_productSaleItems();
         $rows or $rows = [];
         $rtn = [];
+        $sellPrice_label = null;
+        $sellPriceCurr = [];
+        $show = null;
+        $total_margin = null;
+        $total_sellPrice = null;
+        $total_unallocated = null;
 
         foreach ($rows as $row) {
             $productSaleItem = new productSaleItem();
@@ -159,6 +160,7 @@ class productSale extends db_entity
 
         unset($sep, $label, $show);
 
+        $sep = "";
         foreach ((array)$sellPriceCurr as $code => $amount) {
             $label .= $sep . page::money($code, $amount, "%s%mo %c");
             $sep = " + ";
@@ -628,7 +630,7 @@ class productSale extends db_entity
         ];
     }
 
-    public function load_form_data($defaults = [])
+    public static function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
 
@@ -652,7 +654,7 @@ class productSale extends db_entity
         return $_FORM;
     }
 
-    public function load_productSale_filter($_FORM)
+    public static function load_productSale_filter($_FORM)
     {
         $filter = null;
         $rtn = [];

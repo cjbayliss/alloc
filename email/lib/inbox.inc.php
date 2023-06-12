@@ -8,7 +8,7 @@
 class inbox extends db_entity
 {
 
-    public function change_current_user($from)
+    public static function change_current_user($from)
     {
         list($from_address, $from_name) = parse_email_address($from);
         $person = new person();
@@ -25,7 +25,7 @@ class inbox extends db_entity
         return false;
     }
 
-    public function verify_hash($id, $hash)
+    public static function verify_hash($id, $hash)
     {
         $info = inbox::get_mail_info();
         $email_receive = new email_receive($info);
@@ -39,7 +39,7 @@ class inbox extends db_entity
         return $rtn;
     }
 
-    public function archive_email($req = [])
+    public static function archive_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -51,7 +51,7 @@ class inbox extends db_entity
         $email_receive->close();
     }
 
-    public function download_email($req = [])
+    public static function download_email($req = [])
     {
         $new = null;
         global $TPL;
@@ -70,7 +70,7 @@ class inbox extends db_entity
         exit();
     }
 
-    public function process_email($req = [])
+    public static function process_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -83,7 +83,7 @@ class inbox extends db_entity
         $email_receive->close();
     }
 
-    public function process_email_to_task($req = [])
+    public static function process_email_to_task($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -96,7 +96,7 @@ class inbox extends db_entity
         $email_receive->close();
     }
 
-    public function process_one_email($email_receive)
+    public static function process_one_email($email_receive)
     {
         $failed = null;
         $TPL = [];
@@ -138,7 +138,7 @@ class inbox extends db_entity
         singleton("current_user", $current_user);
     }
 
-    public function convert_email_to_new_task($email_receive, $change_user = false)
+    public static function convert_email_to_new_task($email_receive, $change_user = false)
     {
         $ip = [];
         global $TPL;
@@ -194,7 +194,7 @@ class inbox extends db_entity
         singleton("current_user", $current_user);
     }
 
-    public function attach_email_to_existing_task($req = [])
+    public static function attach_email_to_existing_task($req = [])
     {
         $recipients = [];
         global $TPL;
@@ -281,7 +281,7 @@ class inbox extends db_entity
         }
     }
 
-    public function unread_email($req = [])
+    public static function unread_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
@@ -292,7 +292,7 @@ class inbox extends db_entity
         $email_receive->close();
     }
 
-    public function read_email($req = [])
+    public static function read_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();

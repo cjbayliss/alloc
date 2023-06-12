@@ -27,7 +27,7 @@ class invoiceRepeat extends db_entity
         }
     }
 
-    public function set_values($prefix)
+    public function set_values($prefix = "")
     {
         $rows = [];
         global $TPL;

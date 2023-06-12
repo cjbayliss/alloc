@@ -79,9 +79,9 @@ $extra_options = [
     // "-3"=>"META: Sale TF"
     "-1"                                => "META: Project TF",
     "-2"                                => "META: Salesperson TF",
-    config::get_config_item("mainTfID") => "Main Finance TF (" . tf::get_name(config::get_config_item("mainTfID")) . ")",
-    config::get_config_item("outTfID")  => "Outgoing Funds TF (" . tf::get_name(config::get_config_item("outTfID")) . ")",
-    config::get_config_item("inTfID")   => "Incoming Funds TF (" . tf::get_name(config::get_config_item("inTfID")) . ")",
+    config::get_config_item("mainTfID") => "Main Finance TF (" . $tf->get_name(config::get_config_item("mainTfID")) . ")",
+    config::get_config_item("outTfID")  => "Outgoing Funds TF (" . $tf->get_name(config::get_config_item("outTfID")) . ")",
+    config::get_config_item("inTfID")   => "Incoming Funds TF (" . $tf->get_name(config::get_config_item("inTfID")) . ")",
 ];
 // Prepend the META options to the tflist.
 $tflist = $extra_options + $tflist;

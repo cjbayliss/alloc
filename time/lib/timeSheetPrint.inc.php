@@ -95,7 +95,9 @@ class timeSheetPrint
             is_array($str) and $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
         }
 
-        // Group by units ie, a particular row/task might have  3 Weeks, 2 Hours of work done.
+        // Group by units ie, a particular row/task might have  3 Weeks, 2 Hours
+        // of work done.
+        $commar = "";
         $units or $units = [];
         foreach ($units as $tid => $u) {
             unset($commar);
@@ -105,7 +107,8 @@ class timeSheetPrint
                 $i[$unit] += $amount;
             }
         }
-        unset($commar);
+
+        $commar = "";
         $i or $i = [];
         foreach ($i as $unit => $amount) {
             $info["total_units"] .= $commar . $amount . " " . $unit;
@@ -170,7 +173,9 @@ class timeSheetPrint
             is_array($str) and $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
         }
 
-        // Group by units ie, a particular row/task might have  3 Weeks, 2 Hours of work done.
+        // Group by units ie, a particular row/task might have  3 Weeks, 2 Hours
+        // of work done.
+        $commar = "";
         $units or $units = [];
         foreach ($units as $tid => $u) {
             unset($commar);
@@ -181,7 +186,7 @@ class timeSheetPrint
             }
         }
 
-        unset($commar);
+        $commar = "";
         $i or $i = [];
         foreach ($i as $unit => $amount) {
             $info["total"] .= $commar . $amount . " " . $unit;

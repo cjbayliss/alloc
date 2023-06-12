@@ -81,7 +81,7 @@ class client extends db_entity
         return true;
     }
 
-    public function get_client_select($clientStatus = "", $clientID = "")
+    public static function get_client_select($clientStatus = "", $clientID = "")
     {
         $options = null;
         $clientNamesQuery = null;
@@ -108,7 +108,7 @@ class client extends db_entity
         return $str;
     }
 
-    public function get_client_contact_select($clientID = "", $clientContactID = "")
+    public static function get_client_contact_select($clientID = "", $clientContactID = "")
     {
         $clientID or $clientID = $_GET["clientID"];
         $db = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
@@ -383,7 +383,7 @@ class client extends db_entity
         return [$probable_clientID, $client_percent];
     }
 
-    public function get_client_and_project_dropdowns_and_links(
+    public static function get_client_and_project_dropdowns_and_links(
         $clientID = false,
         $projectID = false,
         $onlymine = false

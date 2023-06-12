@@ -13,7 +13,7 @@ class history extends db_entity
     // once we hit 3x, delete back down to 2x
     public $max_to_display = 40;
 
-    public $key_field = historyID;
+    public $key_field = "historyID";
     public $data_fields = [
         "the_time",
         "the_place",

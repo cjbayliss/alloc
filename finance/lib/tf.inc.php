@@ -133,7 +133,7 @@ class tf extends db_entity
         }
     }
 
-    public function get_tfID($name)
+    public static function get_tfID($name)
     {
         $rtn = [];
         if ($name) {

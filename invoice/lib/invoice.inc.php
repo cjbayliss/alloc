@@ -63,7 +63,7 @@ class invoice extends db_entity
         return parent::delete();
     }
 
-    public function get_invoice_statii()
+    public static function get_invoice_statii()
     {
         return [
             "create"    => "Create",
@@ -140,7 +140,7 @@ class invoice extends db_entity
         return $transactionIDs;
     }
 
-    public function get_next_invoiceNum()
+    public static function get_next_invoiceNum()
     {
         $q = "SELECT coalesce(max(invoiceNum)+1,1) as newNum FROM invoice";
         $db = new db_alloc();
@@ -736,7 +736,7 @@ class invoice extends db_entity
         return $rtn;
     }
 
-    public function update_invoice_dates($invoiceID)
+    public static function update_invoice_dates($invoiceID)
     {
         $db = new db_alloc();
         $db->query(unsafe_prepare(

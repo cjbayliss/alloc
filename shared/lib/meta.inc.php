@@ -76,7 +76,7 @@ class meta extends db_entity
         }
     }
 
-    public function validate()
+    public function validate($_ = null)
     {
         $err = [];
         $this->get_id() or $err[] = "Please enter a Value/ID for the " . $this->get_label();

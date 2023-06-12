@@ -16,6 +16,7 @@ class db
     public $pdo;
     public $pdo_statement;
     public $row = [];
+    public $pos;
     public $error;
     public static $started_transaction = false;
     public static $stop_doing_queries = false;
@@ -366,7 +367,8 @@ class db
 
     public function get_insert_str_fields($row)
     {
-        $rtn = null;
+        $rtn = "";
+        $commar = "";
         foreach ($row as $fieldname => $value) {
             $rtn .= $commar . $fieldname;
             $commar = ", ";
@@ -376,7 +378,8 @@ class db
 
     public function get_insert_str_values($row)
     {
-        $rtn = null;
+        $rtn = "";
+        $commar = "";
         foreach ($row as $fieldname => $value) {
             $rtn .= $commar . $this->esc($value);
             $commar = ", ";
@@ -386,7 +389,8 @@ class db
 
     public function get_update_str($row, $glue = ", ")
     {
-        $rtn = null;
+        $rtn = "";
+        $commar = "";
         foreach ($row as $fieldname => $value) {
             $rtn .= $commar . " " . $fieldname . " = " . $this->esc($value);
             $commar = $glue;

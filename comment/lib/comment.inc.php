@@ -231,7 +231,7 @@ class comment extends db_entity
         return (array)$new;
     }
 
-    public function util_get_comments_array($entity, $id, $options = [])
+    public static function util_get_comments_array($entity, $id, $options = [])
     {
         $rows2 = null;
         global $TPL;
@@ -337,6 +337,9 @@ class comment extends db_entity
         }
         $class = "comment_" . $commentID;
         $lines = explode("\n", "\n" . $html . "\n");
+        $started = false;
+        $start_position = 0;
+        $new_lines = [];
         foreach ($lines as $k => $line) {
             if (!$started && preg_match("/^&gt;/", $line)) {
                 $started = true;
@@ -461,7 +464,7 @@ class comment extends db_entity
         return $hash;
     }
 
-    public function add_comment_from_email($email_receive, $entity)
+    public static function add_comment_from_email($email_receive, $entity)
     {
         $current_user = &singleton("current_user");
 
@@ -543,6 +546,7 @@ class comment extends db_entity
         $to_address = [];
         $bcc = [];
         $successful_recipients = [];
+        $done = [];
         $current_user = &singleton("current_user");
 
         $emailMethod = config::get_config_item("allocEmailAddressMethod");
@@ -625,11 +629,12 @@ class comment extends db_entity
         if ($to_address || $bcc || $successful_recipients) {
             $email = new email_send();
 
-            if ($email_receive) {
+            if ($email_receive && is_object($email_receive)) {
                 list($email_receive_header, $email_receive_body) = $email_receive->get_raw_header_and_body();
                 $email->set_headers($email_receive_header);
                 $email->set_body($email_receive_body, $email_receive->mail_text);
-                // Remove any existing To/Cc header, to prevent the email getting sent to the same recipients again.
+                // Remove any existing To/Cc header, to prevent the email
+                // getting sent to the same recipients again.
                 $email->del_header("To");
                 $email->del_header("Cc");
                 $subject = $email->get_header("subject");
@@ -637,7 +642,8 @@ class comment extends db_entity
             } else {
                 $email->set_body($body);
                 if ($files) {
-                    // (if we're bouncing a complete email body the attachments are already included, else do this...)
+                    // (if we're bouncing a complete email body the attachments
+                    // are already included, else do this...)
                     foreach ((array)$files as $file) {
                         $email->add_attachment($file["fullpath"]);
                     }
@@ -890,7 +896,7 @@ class comment extends db_entity
         return [$sql1, $sql2, $sql3];
     }
 
-    public function get_list_summary($_FORM = [])
+    public static function get_list_summary($_FORM = [])
     {
         $client_fields = null;
         $client_join = null;
@@ -1114,7 +1120,7 @@ class comment extends db_entity
         return $projectID;
     }
 
-    public function get_person_and_client($from_address, $from_name, $projectID = null)
+    public static function get_person_and_client($from_address, $from_name, $projectID = null)
     {
         $current_user = &singleton("current_user");
         $person = new person();
@@ -1154,7 +1160,7 @@ class comment extends db_entity
     }
 
     // All you need to add a comment, add interested parties, attachments, and re-email it out
-    public function add_comment($commentType, $commentLinkID, $comment_text, $commentMaster = null, $commentMasterID = null)
+    public static function add_comment($commentType, $commentLinkID, $comment_text, $commentMaster = null, $commentMasterID = null)
     {
         if ($commentType && $commentLinkID) {
             $comment = new comment();
@@ -1169,7 +1175,7 @@ class comment extends db_entity
         }
     }
 
-    public function add_interested_parties($commentID, $ip = [], $op = [])
+    public static function add_interested_parties($commentID, $ip = [], $op = [])
     {
         $emailRecipients = [];
         // We send this email to the default from address, so that a copy of the
@@ -1234,8 +1240,12 @@ class comment extends db_entity
         return $emailRecipients;
     }
 
-    public function send_comment($commentID, $emailRecipients, $email_receive = false, $files = [])
-    {
+    public static function send_comment(
+        $commentID,
+        $emailRecipients,
+        $email_receive = false,
+        $files = []
+    ) {
 
         $hash = null;
         $is_a_reply_comment = null;
@@ -1287,7 +1297,7 @@ class comment extends db_entity
         return $email_sent;
     }
 
-    public function attach_timeSheet($commentID, $entityID, $options)
+    public static function attach_timeSheet($commentID, $entityID, $options)
     {
         // Begin buffering output to halt anything being sent to the web browser.
         ob_start();
@@ -1321,7 +1331,7 @@ class comment extends db_entity
         return $result;
     }
 
-    public function attach_invoice($commentID, $entityID, $verbose)
+    public static function attach_invoice($commentID, $entityID, $verbose)
     {
         $rtn = [];
         $invoice = new invoice();
@@ -1334,7 +1344,7 @@ class comment extends db_entity
         return $rtn;
     }
 
-    public function attach_tasks($commentID, $projectID, $options)
+    public static function attach_tasks($commentID, $projectID, $options)
     {
         $rtn = [];
         if ($projectID) {
@@ -1456,7 +1466,7 @@ class comment extends db_entity
         return [false, false, false];
     }
 
-    public function update_mime_parts($commentID, $files)
+    public static function update_mime_parts($commentID, $files)
     {
         $mimebits = [];
         $x = 2; // mime part 1 will be the message text

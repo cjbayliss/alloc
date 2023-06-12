@@ -31,7 +31,7 @@ class skill extends db_entity
         return false;
     }
 
-    public function get_skill_classes()
+    public static function get_skill_classes()
     {
         $db = new db_alloc();
         $skill_classes = ["" => "Any Class"];
@@ -47,7 +47,7 @@ class skill extends db_entity
         return $skill_classes;
     }
 
-    public function get_skills()
+    public static function get_skills()
     {
         global $TPL;
         global $skill_class;

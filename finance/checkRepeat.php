@@ -93,7 +93,7 @@ while ($db->next_record()) {
         $transaction->save();
 
         echo "\n<br>" . $transaction->get_value("transactionDate");
-        echo " " . $transactionRepeat->get_value("paymentBasis") . " $" . $transaction->get_value("amount") . " for TF: " . tf::get_name($transaction->get_value("tfID"));
+        echo " " . $transactionRepeat->get_value("paymentBasis") . " $" . $transaction->get_value("amount") . " for TF: " . $tf->get_name($transaction->get_value("tfID"));
         echo " (transactionID: " . $transaction->get_id() . " transactionRepeatID:" . $transactionRepeat->get_id() . " name:" . $transactionRepeat->get_value("product") . ")";
 
         $nextScheduled = timeWarp($nextScheduled, $timeBasisString);

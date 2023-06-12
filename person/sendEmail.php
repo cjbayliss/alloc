@@ -42,7 +42,8 @@ while ($db->next_record()) {
         $tasks = $person->get_tasks_for_email();
         $msg .= $tasks;
 
-        $subject = commentTemplate::populate_string(config::get_config_item("emailSubject_dailyDigest", ""));
+        // FIXME: ???
+        $subject = commentTemplate::populate_string(config::get_config_item("emailSubject_dailyDigest"), "");
         $to = $person->get_value("emailAddress");
         if ($person->get_value("firstName") && $person->get_value("surname") && $to) {
             $to = $person->get_value("firstName") . " " . $person->get_value("surname") . " <" . $to . ">";

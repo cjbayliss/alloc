@@ -21,7 +21,7 @@ class productCost extends db_entity
         "productCostActive",
     ];
 
-    public function validate()
+    public function validate($_ = null)
     {
         $err = [];
         $this->get_value("productID") or $err[] = "Missing a Product.";

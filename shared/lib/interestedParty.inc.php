@@ -172,11 +172,13 @@ class interestedParty extends db_entity
 
     public function get_interested_parties_html($parties = [])
     {
-        $str = null;
+        $str = "";
         $current_user = &singleton("current_user");
         if (is_object($current_user) && $current_user->get_id()) {
             $current_user_email = $current_user->get_value("emailAddress");
         }
+
+        $counter = 0;
         foreach ((array)$parties as $email => $info) {
             $info["name"] or $info["name"] = $email;
             if ($info["name"]) {
@@ -187,6 +189,7 @@ class interestedParty extends db_entity
                     $sel = " checked";
                 }
 
+                $c = "";
                 $info["selected"] and $sel = " checked";
                 !$info["internal"] && $info["external"] and $c .= " warn";
                 $str .= "<span width=\"150px\" class=\"nobr " . $c . "\" id=\"td_ect_" . $counter . "\" style=\"float:left; width:150px; margin-bottom:5px;\">";
@@ -197,7 +200,7 @@ class interestedParty extends db_entity
         return $str;
     }
 
-    public function delete_interested_party($entity, $entityID, $email)
+    public static function delete_interested_party($entity, $entityID, $email)
     {
         // Delete existing entries
         list($email, $name) = parse_email_address($email);
@@ -209,7 +212,7 @@ class interestedParty extends db_entity
         }
     }
 
-    public function add_interested_party($data)
+    public static function add_interested_party($data)
     {
         static $people;
         $data["emailAddress"] = str_replace(["<", ">"], "", $data["emailAddress"]);
@@ -253,7 +256,7 @@ class interestedParty extends db_entity
         return $ip->get_id();
     }
 
-    public function adjust_by_email_subject($email_receive, $e)
+    public static function adjust_by_email_subject($email_receive, $e)
     {
         $quiet = null;
         $current_user = &singleton("current_user");

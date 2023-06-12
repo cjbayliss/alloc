@@ -203,8 +203,7 @@ class task_graph
 
     public function draw_milestones()
     {
-        reset($this->milestones);
-        while (list(, $milestone) = each($this->milestones)) {
+        foreach ($this->milestones as $milestone) {
             $x = $this->date_to_x($milestone);
             imageDashedLine($this->image, $x, $this->top_margin, $x, $this->height - $this->bottom_margin, $this->color_milestone);
             imageDashedLine($this->image, $x + 1, $this->top_margin, $x + 1, $this->height - $this->bottom_margin, $this->color_milestone);
@@ -392,8 +391,7 @@ function get_date_range($tasks = [])
     $graph_start_date = "9999-00-00";
     $graph_completion_date = "0000-00-00";
 
-    reset($tasks);
-    while (list(, $task) = each($tasks)) {
+    foreach ($tasks as $task) {
         if ($task->get_value("dateTargetStart") != "" && $task->get_value("dateTargetStart") != "0000-00-00" && $task->get_value("dateTargetStart") < $graph_start_date) {
             $graph_start_date = $task->get_value("dateTargetStart");
             // echo "A: $graph_start_date<br>";

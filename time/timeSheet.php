@@ -66,6 +66,7 @@ function show_transaction_listR($template_name)
 {
 
     $tf_array = [];
+    $taggedFund = new tf();
     $empty = null;
     global $timeSheet;
     global $TPL;
@@ -117,8 +118,8 @@ function show_transaction_listR($template_name)
           ';
                 if ($transaction->get_value("transactionType") == "invoice") {
                     $TPL["transaction_transactionType"] = $transaction->get_transaction_type_link();
-                    $TPL["transaction_fromTfID"] = tf::get_name($transaction->get_value("fromTfID"));
-                    $TPL["transaction_tfID"] = tf::get_name($transaction->get_value("tfID"));
+                    $TPL["transaction_fromTfID"] = $taggedFund->get_name($transaction->get_value("fromTfID"));
+                    $TPL["transaction_tfID"] = $taggedFund->get_name($transaction->get_value("tfID"));
                     $TPL["currency_amount"] = page::money($transaction->get_value("currencyTypeID"), $transaction->get_value("amount"), "%S%mo %c");
                     include_template("templates/timeSheetTransactionListViewR.tpl");
                 } else {
@@ -143,8 +144,8 @@ function show_transaction_listR($template_name)
                 unset($TPL["transaction_amount_pos"]);
                 unset($TPL["transaction_amount_neg"]);
                 $TPL["currency_amount"] = page::money($transaction->get_value("currencyTypeID"), $transaction->get_value("amount"), "%S%mo %c");
-                $TPL["transaction_fromTfID"] = tf::get_name($transaction->get_value("fromTfID"));
-                $TPL["transaction_tfID"] = tf::get_name($transaction->get_value("tfID"));
+                $TPL["transaction_fromTfID"] = $taggedFund->get_name($transaction->get_value("fromTfID"));
+                $TPL["transaction_tfID"] = $taggedFund->get_name($transaction->get_value("tfID"));
                 $TPL["transaction_transactionType"] = $transactionType_options[$transaction->get_value("transactionType")];
                 include_template("templates/timeSheetTransactionListViewR.tpl");
             }
@@ -872,7 +873,7 @@ switch ($timeSheet->get_value("status")) {
 }
 
 // Get recipient_tfID
-
+$taggedFund = new tf();
 if ($timeSheet->get_value("status") == "edit") {
     $tf_db = new db_alloc();
     $tf_db->query("select preferred_tfID from person where personID = %d", $timeSheet->get_value("personID"));
@@ -889,7 +890,7 @@ if ($timeSheet->get_value("status") == "edit") {
         );
 
         if ($tf_db->next_record()) {        // The person has a preferred TF, and is a tfPerson for it too
-            $TPL["recipient_tfID_name"] = tf::get_name($tf_db->f("tfID"));
+            $TPL["recipient_tfID_name"] = $taggedFund->get_name($tf_db->f("tfID"));
             $TPL["recipient_tfID"] = $tf_db->f("tfID");
         }
     } else {
@@ -898,7 +899,7 @@ if ($timeSheet->get_value("status") == "edit") {
         $TPL["recipient_tfID_class"] = "bad";
     }
 } else {
-    $TPL["recipient_tfID_name"] = tf::get_name($timeSheet->get_value("recipient_tfID"));
+    $TPL["recipient_tfID_name"] = $taggedFund->get_name($timeSheet->get_value("recipient_tfID"));
     $TPL["recipient_tfID"] = $timeSheet->get_value("recipient_tfID");
 }
 

@@ -50,6 +50,7 @@ class commentTemplate extends db_entity
                 $projectManagers = $project->get_timeSheetRecipients();
                 if (is_array($projectManagers) && count($projectManagers)) {
                     $people = &get_cached_table("person");
+                    $commar = "";
                     foreach ($projectManagers as $pID) {
                         $swap["tm"] .= $commar . $people[$pID]["name"];
                         $commar = ", ";

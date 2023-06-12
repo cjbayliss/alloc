@@ -27,8 +27,7 @@ if ($_POST["upload"]) {
     is_uploaded_file($_FILES["expenses_file"]["tmp_name"]) || alloc_error("File referred to was not an uploaded file", true); // Prevent attacks by setting $expenses_file in URL
     $lines = file($_FILES["expenses_file"]["tmp_name"]);
 
-    reset($lines);
-    while (list(, $line) = each($lines)) {
+    foreach ($lines as $line) {
         // Ignore blank lines
         if (trim($line) == "") {
             continue;

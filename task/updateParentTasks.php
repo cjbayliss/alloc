@@ -8,7 +8,6 @@
 define("NO_REDIRECT", 1);
 require_once("../alloc.php");
 
-// if ($_GET["projectID"]) {
 usleep(50000);
-echo task::get_parent_task_select($_GET["projectID"]);
-// }
+$task = new task();
+echo $task->get_parent_task_select($_GET["projectID"]);

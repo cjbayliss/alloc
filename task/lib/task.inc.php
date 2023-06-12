@@ -1164,7 +1164,7 @@ class task extends db_entity
         return $a["priorityFactor"] > $b["priorityFactor"];
     }
 
-    public function get_list_html($tasks = [], $ops = [])
+    public static function get_list_html($tasks = [], $ops = [])
     {
         global $TPL;
         $TPL["taskListRows"] = $tasks;
@@ -1390,7 +1390,7 @@ class task extends db_entity
         return $_FORM;
     }
 
-    public function load_task_filter($_FORM)
+    public static function load_task_filter($_FORM)
     {
         $rtn = [];
         $current_user = &singleton("current_user");

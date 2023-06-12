@@ -12,6 +12,8 @@ class db_field
     public $value;
     public $label;
     public $empty_to_null = true;
+    public $currency = null;
+    public $type = null;
 
     public $audit = false;
 

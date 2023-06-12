@@ -10,7 +10,14 @@ class pendingAdminApprovalTimeSheetListHomeItem extends home_item
 
     public function __construct()
     {
-        parent::__construct("pending_admin_time_list", "Time Sheets Pending Admin Approval", "time", "pendingAdminApprovalTimeSheetHomeM.tpl", "narrow", 22);
+        parent::__construct(
+            "pending_admin_time_list",
+            "Time Sheets Pending Admin Approval",
+            "time",
+            "pendingAdminApprovalTimeSheetHomeM.tpl",
+            "narrow",
+            22
+        );
     }
 
     public function visible()

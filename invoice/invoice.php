@@ -108,8 +108,9 @@ function show_new_invoiceItem($template)
                              AND clientID = %d
                         ORDER BY expenseForm.expenseFormCreatedTime", $invoice->get_value("clientID"));
             $db->query($q);
+            $expenseForm = new expenseForm();
             while ($row = $db->row()) {
-                $expenseFormOptions[$row["expenseFormID"]] = "Expense Form #" . $row["expenseFormID"] . " " . page::money(config::get_config_item("currency"), expenseForm::get_abs_sum_transactions($row["expenseFormID"]), "%s%m %c") . " " . person::get_fullname($row["expenseFormCreatedUser"]);
+                $expenseFormOptions[$row["expenseFormID"]] = "Expense Form #" . $row["expenseFormID"] . " " . page::money(config::get_config_item("currency"), $expenseForm->get_abs_sum_transactions($row["expenseFormID"]), "%s%m %c") . " " . person::get_fullname($row["expenseFormCreatedUser"]);
             }
 
             if ($invoiceItem->get_value("expenseFormID")) {
@@ -144,26 +145,29 @@ function show_new_invoiceItem($template)
     }
 }
 
+// FIXME: this function MUST be rewritten -- cjb, 2023-06
 function show_invoiceItem_list()
 {
-    $other_peoples_transactions = null;
-    $amounts = [];
-    $transaction_sum = null;
-    $transaction_info = null;
-    $br = null;
-    $one_rejected = null;
-    $one_pending = null;
-    $one_approved = null;
-    $sel = [];
+    global $invoice;
     global $invoiceID;
     global $TPL;
-    global $invoice;
-    $current_user = &singleton("current_user");
 
+    $amounts = [];
+    $br = null;
+    $current_user = &singleton("current_user");
+    $one_approved = null;
+    $one_pending = null;
+    $one_rejected = null;
+    $other_peoples_transactions = null;
+    $sel = [];
     $template = "templates/invoiceItemListR.tpl";
+    $transaction_info = null;
+    $transaction_sum = null;
 
     $db = new db_alloc();
     $db2 = new db_alloc();
+    $taggedFund = new tf();
+
     $q = unsafe_prepare(
         "SELECT *
            FROM invoiceItem
@@ -172,6 +176,7 @@ function show_invoiceItem_list()
         $invoiceID
     );
     $db->query($q);
+
     while ($db->next_record()) {
         $invoiceItem = new invoiceItem();
         $invoiceItem->currency = $invoice->get_value("currencyTypeID");
@@ -230,8 +235,8 @@ function show_invoiceItem_list()
             $transaction_info .= $br . ucwords($db2->f("transaction_status")) . " Transaction ";
             $transaction_info .= "<a href=\"" . $TPL["url_alloc_transaction"] . "transactionID=" . $db2->f("transactionID") . "\">#" . $db2->f("transactionID") . "</a>";
             $transaction_info .= " from ";
-            $transaction_info .= "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_fromTfID") . "\">" . tf::get_name($db2->f("transaction_fromTfID")) . "</a>";
-            $transaction_info .= " to <a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_tfID") . "\">" . tf::get_name($db2->f("transaction_tfID")) . "</a>";
+            $transaction_info .= "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_fromTfID") . "\">" . $taggedFund->get_name($db2->f("transaction_fromTfID")) . "</a>";
+            $transaction_info .= " to <a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_tfID") . "\">" . $taggedFund->get_name($db2->f("transaction_tfID")) . "</a>";
             $transaction_info .= " for <b>" . page::money($db2->f("currencyTypeID"), $db2->f("transaction_amount"), "%s%m") . "</b>";
             $br = "<br>";
         }
@@ -416,7 +421,7 @@ if ($invoiceID) {
     $invoice->set_id($invoiceID);
     $invoice->select();
     $invoice->set_values();
-    $invoiceItemIDs = invoice::get_invoiceItems($invoiceID);
+    $invoiceItemIDs = $invoice->get_invoiceItems($invoiceID);
 }
 
 // If creating a new invoice

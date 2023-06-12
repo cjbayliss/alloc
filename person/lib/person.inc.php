@@ -123,7 +123,7 @@ class person extends db_entity
         return $topThree . $dueToday . $newTasks;
     }
 
-    public function get_announcements_for_email()
+    public static function get_announcements_for_email()
     {
         $announcement = [];
         $db = new db_alloc();
@@ -357,7 +357,7 @@ class person extends db_entity
         return false;
     }
 
-    public function find_by_name($name = false, $certainty = 90)
+    public static function find_by_name($name = false, $certainty = 90)
     {
 
         $stack1 = [];
@@ -599,7 +599,7 @@ class person extends db_entity
         ];
     }
 
-    public function load_form_data($defaults = [])
+    public static function load_form_data($defaults = [])
     {
         $current_user = &singleton("current_user");
         $page_vars = array_keys(person::get_list_vars());
@@ -620,7 +620,7 @@ class person extends db_entity
         return $_FORM;
     }
 
-    public function load_person_filter($_FORM)
+    public static function load_person_filter($_FORM)
     {
         $rtn = [];
         $skill_class = null;
@@ -646,8 +646,9 @@ class person extends db_entity
         $rtn["skill_classes"] = page::select_options($skill_classes, $_FORM["skill_class"]);
 
         $skills = skill::get_skills();
-        // if a skill class is selected and a skill that is not in that class is also selected,
-        // clear the skill as this is what the filter options will do
+        // if a skill class is selected and a skill that is not in that class is
+        // also selected, clear the skill as this is what the filter options
+        // will do
         if ($skill_class && !in_array($skills[$_FORM["skill"]], $skills)) {
             $_FORM["skill"] = "";
         }

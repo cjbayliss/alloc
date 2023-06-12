@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-// Class to handle all emails that alloc sends
-// Will log emails sent, and will not attempt to send email when the server is a dev boxes
+// Class to handle all emails that alloc sends. Will log emails sent, and will
+// not attempt to send email when the server is a dev boxes
 
 class email_send
 {
@@ -22,12 +22,17 @@ class email_send
     public $ignore_no_email_urls = false;
 
     // Actual email variables
-    public $to_address = "";
-    public $headers = "";
-    public $default_headers = "";
-    public $subject = "";
     public $body = "";
     public $body_without_attachments = "";
+    public $default_headers = "";
+    public $from = "";
+    public $headers = "";
+    public $message_type = "";
+    public $subject = "";
+    public $to_address = "";
+
+    public $done_top_mime_header = false;
+    public $mime_boundary;
 
     public function __construct($to_address = "", $subject = "", $body = "", $message_type = "")
     {
@@ -134,7 +139,7 @@ class email_send
                 $return_path = "-f" . ALLOC_DEFAULT_RETURN_PATH_ADDRESS;
             }
 
-            $result = mail($this->to_address, $this->subject, $this->body, $this->headers, $return_path);
+            $result = mail((string)$this->to_address, $this->subject, $this->body, $this->headers, $return_path);
             if ($result) {
                 $this->log();
                 return true;

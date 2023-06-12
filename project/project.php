@@ -585,9 +585,10 @@ function get_projectPerson_hourly_rate($personID, $projectID)
 
 if (is_object($project) && $project->get_id()) {
     if (is_array($TPL["taskListRows"])) { // $tasks is a global defined in show_tasks() for performance reasons
+        $task = new task();
         foreach ($TPL["taskListRows"] as $tid => $t) {
             $hourly_rate = get_projectPerson_hourly_rate($t["personID"], $t["projectID"]);
-            $time_remaining = $t["timeLimit"] - (task::get_time_billed($t["taskID"]) / 60 / 60);
+            $time_remaining = $t["timeLimit"] - ($task->get_time_billed($t["taskID"]) / 60 / 60);
 
             $cost_remaining = $hourly_rate * $time_remaining;
 

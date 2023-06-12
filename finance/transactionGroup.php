@@ -117,6 +117,7 @@ if ($_POST["save_transactions"]) {
                     $saved .= $commar2 . $transaction->get_id();
                     $commar2 = ", ";
                 } else {
+                    /** @var array $v */
                     alloc_error(implode("<br>", $v));
                 }
             }

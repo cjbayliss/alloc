@@ -71,7 +71,7 @@ class expenseForm extends db_entity
         // expense form
         $current_user = &singleton("current_user");
         $transactions = $this->get_foreign_objects("transaction");
-        while (list(, $transaction) = each($transactions)) {
+        foreach ($transactions as $transaction) {
             $transaction->set_value("status", $status);
             $transaction->save();
         }
@@ -88,6 +88,7 @@ class expenseForm extends db_entity
             $arr[$row["status"]] = 1;
         }
         $arr or $arr = [];
+        $sp = "";
         foreach ($arr as $s => $v) {
             $return .= $sp . $s;
             $sp = "&nbsp;&amp;&nbsp;";
@@ -278,7 +279,7 @@ class expenseForm extends db_entity
         return (array)$rows;
     }
 
-    public function get_pending_repeat_transaction_list()
+    public static function get_pending_repeat_transaction_list()
     {
         $rows = [];
         global $TPL;

@@ -29,15 +29,14 @@ $permission->set_values();
 if (!$permission->get_value("tableName")) {
     global $modules;
     $entities = [];
-    reset($modules);
-    while (list($module_name, $module) = each($modules)) {
+
+    foreach($modules as $module_name => $module) {
         $mod_entities = $module->db_entities;
         $entities = array_merge($entities, $mod_entities);
     }
 
     $table_names = [];
-    reset($entities);
-    while (list(, $entity_name) = each($entities)) {
+    foreach ($entities as $entity_name) {
         $entity = new $entity_name;
         $table_names[] = $entity->data_table;
     }

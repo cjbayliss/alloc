@@ -358,7 +358,8 @@ class services
      */
     public function get_timeSheetItem_comments($taskID)
     {
-        $str = null;
+        $str = "";
+        $br = "";
         $people = &get_cached_table("person");
         has("time") and $rows = timeSheetItem::get_timeSheetItemComments($taskID);
         foreach ((array)$rows as $row) {
@@ -442,6 +443,7 @@ class services
         $this_methods = get_class_methods($this);
 
         if (!$topic) {
+            $commar = "";
             foreach ($this_methods as $method) {
                 $m = $method . "_help";
                 if (method_exists($this, $m)) {
@@ -505,6 +507,7 @@ class services
     {
         $rtn = null;
         global $modules;
+        // FIXME: YIKES
         foreach ($modules as $name => $object) {
             if (is_object($object) && is_array($object->db_entities)) {
                 foreach ($object->db_entities as $entity) {
@@ -515,6 +518,7 @@ class services
                             $rtn .= "\n\nEntity: " . $entity . "\nOptions:\n";
                             if (method_exists($e, "get_list_vars")) {
                                 $options = $entity::get_list_vars();
+                                $commar2 = "";
                                 foreach ($options as $option => $help) {
                                     $padding = 30 - strlen($option);
                                     $rtn .= $commar2 . "    " . $option . str_repeat(" ", $padding) . $help;

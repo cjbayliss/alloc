@@ -86,7 +86,7 @@ class product extends db_entity
         return [];
     }
 
-    public function get_buy_cost($id = false)
+    public static function get_buy_cost($id = false)
     {
         $amount = null;
         $id or $id = $this->get_id();

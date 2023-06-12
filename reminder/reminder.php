@@ -134,7 +134,7 @@ EOD2;
         foreach ($TPL["selected_recipients"] as $recipient) {
             $recipients_display[] = $TPL["reminder_recipients"][$recipient];
         }
-        $TPL['recipients_display'] = implode($recipients_display, ", ");
+        $TPL['recipients_display'] = implode(", ", $recipients_display);
         // date/time
         $_GET["reminderTime"] && $reminder->set_value("reminderTime", $_GET["reminderTime"]);
         $TPL["reminderTime"] = $reminder->get_value("reminderTime");

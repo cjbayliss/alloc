@@ -36,13 +36,13 @@ function show_expenseFormList($template_name)
 
     $db->query("select * FROM transactionRepeat " . $sql);
 
+    $taggedFund = new tf();
     while ($db->next_record()) {
         $i++;
         $transactionRepeat->read_db_record($db);
         $transactionRepeat->set_values();
-        $TPL["tfName"] = tf::get_name($transactionRepeat->get_value("tfID"));
-        $TPL["fromTfName"] = tf::get_name($transactionRepeat->get_value("fromTfID"));
+        $TPL["tfName"] = $taggedFund->get_name($transactionRepeat->get_value("tfID"));
+        $TPL["fromTfName"] = $taggedFund->get_name($transactionRepeat->get_value("fromTfID"));
         include_template($template_name);
     }
-    $TPL["tfID"] = $tfID;
 }

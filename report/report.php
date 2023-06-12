@@ -260,6 +260,7 @@ if ($_POST["do_step_3"]) {
             $quotes = "\"";
         }
 
+        $taggedFund = new tf();
         while ($db->next_record()) {
             $odd_even = $odd_even == "even" ? "odd" : "even";
             $TPL["result_row"] .= sprintf($start_row_separator, $odd_even);
@@ -272,7 +273,7 @@ if ($_POST["do_step_3"]) {
 
                     $result = $person->get_name(["format" => "nick"]);
                 } else if (stripos("tfID", $field) !== false) {
-                    $result = tf::get_name($db->f($field));
+                    $result = $taggedFund->get_name($db->f($field));
                 } else {
                     $result = $db->f($field);
                 }

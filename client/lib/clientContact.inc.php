@@ -117,19 +117,19 @@ class clientContact extends db_entity
         }
     }
 
-    public function find_by_name($name = false, $projectID = false, $percent = 90)
+    public static function find_by_name($name = false, $projectID = false, $percent = 90)
     {
         $extra = $name ? unsafe_prepare("AND clientContactName = '%s'", $name) : null;
         $people = self::get_people($projectID, $extra);
         return self::get_closest_matching_person($people, $name, $percent);
     }
 
-    public function find_by_partial_name($name = false, $projectID = false)
+    public static function find_by_partial_name($name = false, $projectID = false)
     {
         return self::find_by_name($name, $projectID, 0);
     }
 
-    public function find_by_nick($name = false, $clientID = false)
+    public static function find_by_nick($name = false, $clientID = false)
     {
         $q = unsafe_prepare("SELECT clientContactID
                         FROM clientContact
@@ -142,7 +142,7 @@ class clientContact extends db_entity
         return $row["clientContactID"];
     }
 
-    public function find_by_email($email = false)
+    public static function find_by_email($email = false)
     {
         $email = str_replace(["<", ">"], "", $email);
         if ($email) {

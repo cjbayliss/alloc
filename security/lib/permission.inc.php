@@ -46,7 +46,7 @@ class permission extends db_entity
         return $description;
     }
 
-    public function get_roles()
+    public static function get_roles()
     {
         return [
             "god"      => "Super User",

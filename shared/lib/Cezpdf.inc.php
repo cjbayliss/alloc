@@ -19,6 +19,7 @@ class Cezpdf extends Cpdf
     // Wayne Munro, R&OS Ltd, http://www.ros.co.nz/pdf
     // ==============================================================================
 
+    /** @var array $ez */
     public $ez = ['fontSize' => 10]; // used for storing most of the page configuration parameters
     public $y; // this is the current vertical positon on the page of the writing point, very important
     public $ezPages = []; // keep an array of the ids of the pages, making it easy to go back and add page numbers etc.
@@ -722,7 +723,7 @@ class Cezpdf extends Cpdf
         if (!is_array($cols)) {
             // take the columns from the first row of the data set
             reset($data);
-            list($k, $v) = each($data);
+            $v = current($data);
             if (!is_array($v)) {
                 return;
             }
