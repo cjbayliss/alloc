@@ -39,7 +39,7 @@ if ($_REQUEST["commentID"]) {
 
     if ($_REQUEST["uid"]) {
         header('Content-Type: text/plain; charset=utf-8');
-        list($h, $b) = $mail->get_raw_email_by_msg_uid($_REQUEST["uid"]);
+        [$h, $b] = $mail->get_raw_email_by_msg_uid($_REQUEST["uid"]);
         $mail->close();
         echo $h . $b;
         exit();

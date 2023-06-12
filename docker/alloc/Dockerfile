@@ -1,7 +1,4 @@
-FROM php:7.0-apache
-
-RUN echo 'deb http://snapshot.debian.org/archive/debian/20230423T032533Z/ stretch main' \
-  > /etc/apt/sources.list
+FROM php:7.1-apache
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y libfreetype6-dev \

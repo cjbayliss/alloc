@@ -203,7 +203,7 @@ class tf extends db_entity
         $rows = [];
         $current_user = &singleton("current_user");
 
-        list($filter1, $filter2) = tf::get_list_filter($_FORM);
+        [$filter1, $filter2] = tf::get_list_filter($_FORM);
 
         if (is_array($filter1) && count($filter1)) {
             $f = " AND " . implode(" AND ", $filter1);

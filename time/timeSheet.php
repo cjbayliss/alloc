@@ -703,11 +703,11 @@ if ($projectID != 0) {
     $TPL["show_client_options"] = $client_link;
 }
 
-list($client_select, $client_link, $project_select, $project_link)
+[$client_select, $client_link, $project_select, $project_link]
     = client::get_client_and_project_dropdowns_and_links($clientID, $projectID, true);
 
 $TPL["invoice_link"] = $timeSheet->get_invoice_link();
-list($amount_used, $amount_allocated) = $timeSheet->get_amount_allocated();
+[$amount_used, $amount_allocated] = $timeSheet->get_amount_allocated();
 if ($amount_allocated) {
     $TPL["amount_allocated_label"] = "Amount Used / Allocated:";
     $TPL["amount_allocated"] = $amount_allocated;

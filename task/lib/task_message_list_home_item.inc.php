@@ -31,7 +31,7 @@ class task_message_list_home_item extends home_item
         $current_user = &singleton("current_user");
         global $tasks_date;
 
-        list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
+        [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
         $q = unsafe_prepare("SELECT *
                         FROM task
                        WHERE (task.taskStatus NOT IN (" . $ts_closed . ") AND task.taskTypeID = 'Message')

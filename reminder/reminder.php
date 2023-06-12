@@ -129,7 +129,7 @@ EOD2;
             $TPL["reminder_goto_parent"] = "<a href=\"" . $TPL["return_address"] . "\">Goto Task</a>";
         }
         // recipients
-        list($TPL["reminder_recipients"], $TPL["selected_recipients"]) = $reminder->get_recipient_options();
+        [$TPL["reminder_recipients"], $TPL["selected_recipients"]] = $reminder->get_recipient_options();
         $recipients_display = [];
         foreach ($TPL["selected_recipients"] as $recipient) {
             $recipients_display[] = $TPL["reminder_recipients"][$recipient];
@@ -143,7 +143,7 @@ EOD2;
         $TPL["reminderRecuringInterval"] = $reminder->get_value("reminderRecuringInterval");
         $TPL["reminderID"] = $reminder->get_id();
 
-        list($d, $t) = explode(" ", $reminder->get_value("reminderTime"));
+        [$d, $t] = explode(" ", $reminder->get_value("reminderTime"));
         $TPL["reminder_date"] = $d or $TPL["reminder_date"] = date("Y-m-d");
 
         $TPL["reminder_hours"] = $reminder->get_hour_options();

@@ -39,7 +39,7 @@ class timeSheetItem extends db_entity
         $timeSheet->select();
 
         $timeSheet->load_pay_info();
-        list($amount_used, $amount_allocated) = $timeSheet->get_amount_allocated("%mo");
+        [$amount_used, $amount_allocated] = $timeSheet->get_amount_allocated("%mo");
 
         $this->currency = $timeSheet->get_value("currencyTypeID");
 
@@ -181,7 +181,7 @@ class timeSheetItem extends db_entity
         }
 
         $rtn = [];
-        list($rows, $rows_dollars) = $this->get_averages($dateTimeSheetItem, $personID);
+        [$rows, $rows_dollars] = $this->get_averages($dateTimeSheetItem, $personID);
         foreach ($rows as $id => $avg) {
             $rtn[$id] = $avg / $how_many_fortnights[$id];
             // echo "<br>".$id." ".$how_many_fortnights[$id];
@@ -461,8 +461,8 @@ class timeSheetItem extends db_entity
             $info[$row["dateTimeSheetItem"]] = $row;
         }
 
-        list($sy, $sm, $sd) = explode("-", $start);
-        list($ey, $em, $ed) = explode("-", $end);
+        [$sy, $sm, $sd] = explode("-", $start);
+        [$ey, $em, $ed] = explode("-", $end);
 
         $x = 0;
         while (mktime(0, 0, 0, $sm, $sd + $x, $sy) <= mktime(0, 0, 0, $em, $ed, $ey)) {

@@ -40,7 +40,7 @@ class timeSheetPrint
         $d2s = [];
         $i = [];
         global $TPL;
-        list($db, $customerBilledDollars, $timeSheet, $unit_array, $currency) = $this->get_timeSheetItem_vars($timeSheetID);
+        [$db, $customerBilledDollars, $timeSheet, $unit_array, $currency] = $this->get_timeSheetItem_vars($timeSheetID);
 
         $taxPercent = config::get_config_item("taxPercent");
         $taxPercentDivisor = ($taxPercent / 100) + 1;
@@ -135,7 +135,7 @@ class timeSheetPrint
         $i = [];
         $info = [];
         global $TPL;
-        list($db, $customerBilledDollars, $timeSheet, $unit_array, $currency) = $this->get_timeSheetItem_vars($timeSheetID);
+        [$db, $customerBilledDollars, $timeSheet, $unit_array, $currency] = $this->get_timeSheetItem_vars($timeSheetID);
 
         while ($db->next_record()) {
             $timeSheetItem = new timeSheetItem();
@@ -208,7 +208,7 @@ class timeSheetPrint
         $str = [];
         $d2s = [];
         global $TPL;
-        list($db, $customerBilledDollars, $timeSheet, $unit_array, $currency) = $this->get_timeSheetItem_vars($timeSheetID);
+        [$db, $customerBilledDollars, $timeSheet, $unit_array, $currency] = $this->get_timeSheetItem_vars($timeSheetID);
 
         $m = new meta("timeSheetItemMultiplier");
         $multipliers = $m->get_list();
@@ -460,7 +460,7 @@ class timeSheetPrint
                 $pdf->ezSetY($y - 20);
 
                 if ($timeSheetPrintMode == "money" || $timeSheetPrintMode == "estimate") {
-                    list($rows, $info) = $this->get_timeSheetItem_list_money($TPL["timeSheetID"]);
+                    [$rows, $info] = $this->get_timeSheetItem_list_money($TPL["timeSheetID"]);
                     $cols2 = [
                         "desc"  => "Description",
                         "units" => "Units",
@@ -497,7 +497,7 @@ class timeSheetPrint
                         $pdf_table_options4
                     );
                 } else if ($timeSheetPrintMode == "units") {
-                    list($rows, $info) = $this->get_timeSheetItem_list_units($TPL["timeSheetID"]);
+                    [$rows, $info] = $this->get_timeSheetItem_list_units($TPL["timeSheetID"]);
                     $cols2 = ["desc" => "Description", "units" => "Units"];
                     $rows[] = [
                         "desc"  => "<b>TOTAL</b>",
@@ -505,7 +505,7 @@ class timeSheetPrint
                     ];
                     $y = $pdf->ezTable($rows, $cols2, "", $pdf_table_options3);
                 } else if ($timeSheetPrintMode == "items") {
-                    list($rows, $info) = $this->get_timeSheetItem_list_items($TPL["timeSheetID"]);
+                    [$rows, $info] = $this->get_timeSheetItem_list_items($TPL["timeSheetID"]);
                     $cols2 = [
                         "date"              => "Date",
                         "units"             => "Units",

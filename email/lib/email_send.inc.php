@@ -92,7 +92,7 @@ class email_send
     public function set_message_id($hash = false)
     {
         $hash and $hash = ".alloc.key." . $hash;
-        list($usec, $sec) = explode(" ", microtime());
+        [$usec, $sec] = explode(" ", microtime());
         $time = $sec . $usec;
         $time = base_convert($time, 10, 36);
         $rand = md5(microtime() . getmypid() . md5(microtime()));

@@ -13,9 +13,9 @@ if (isset($_GET["id"]) && $_GET["part"]) {
     $comment = new comment();
     $comment->set_id($_GET["id"]);
     $comment->select() or die("Bad _GET[id]");
-    list($mail, $text, $mimebits) = $comment->find_email(false, true);
+    [$mail, $text, $mimebits] = $comment->find_email(false, true);
     if (!$mail) {
-        list($mail, $text, $mimebits) = $comment->find_email(false, true, true);
+        [$mail, $text, $mimebits] = $comment->find_email(false, true, true);
     }
 
     if ($comment->has_attachment_permission($current_user)) {

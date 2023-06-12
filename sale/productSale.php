@@ -339,7 +339,7 @@ $showCosts = $_POST["showCosts"] or $_showCosts = $_GET["showCosts"];
 
 $productSale->set_values();
 
-list($client_select, $client_link, $project_select, $project_link)
+[$client_select, $client_link, $project_select, $project_link]
     = client::get_client_and_project_dropdowns_and_links($clientID, $projectID);
 
 $TPL["show_client_options"] = $client_link;

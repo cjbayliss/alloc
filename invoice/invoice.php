@@ -637,7 +637,7 @@ $TPL["field_invoiceDateTo"] = page::calendar("invoiceDateTo", $TPL["invoiceDateT
 $clientID = $invoice->get_value("clientID") or $clientID = $_GET["clientID"];
 $projectID = $invoice->get_value("projectID") or $projectID = $_GET["projectID"];
 
-list($client_select, $client_link, $project_select, $project_link)
+[$client_select, $client_link, $project_select, $project_link]
     = client::get_client_and_project_dropdowns_and_links($clientID, $projectID);
 
 $tf = new tf();

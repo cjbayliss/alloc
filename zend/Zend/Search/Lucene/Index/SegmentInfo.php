@@ -779,7 +779,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
 
             // Load dictionary index data
             if (($unserializedData = @unserialize($stiFileData)) !== false) {
-                list($this->_termDictionary, $this->_termDictionaryInfos) = $unserializedData;
+                [$this->_termDictionary, $this->_termDictionaryInfos] = $unserializedData;
                 return;
             }
         }
@@ -794,7 +794,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         require_once 'Zend/Search/Lucene/Index/DictionaryLoader.php';
 
         // Load dictionary index data
-        list($this->_termDictionary, $this->_termDictionaryInfos) =
+        [$this->_termDictionary, $this->_termDictionaryInfos] =
             Zend_Search_Lucene_Index_DictionaryLoader::load($tiiFileData);
 
         $stiFileData = serialize([$this->_termDictionary, $this->_termDictionaryInfos]);

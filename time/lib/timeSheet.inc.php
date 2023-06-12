@@ -152,7 +152,7 @@ class timeSheet extends db_entity
         $units = array_reverse($timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA"), true);
 
         if ($rates[$this->get_value("projectID")][$this->get_value("personID")]) {
-            list($this->pay_info["project_rate"], $this->pay_info["project_rateUnitID"]) = $rates[$this->get_value("projectID")][$this->get_value("personID")];
+            [$this->pay_info["project_rate"], $this->pay_info["project_rateUnitID"]] = $rates[$this->get_value("projectID")][$this->get_value("personID")];
         } else {
             // Get rate for person for this particular project
             $db->query(
@@ -584,7 +584,7 @@ class timeSheet extends db_entity
             $billed_tallies[] = ["amount" => $row["customerBilledDollars"], "currency" => $row["currencyTypeID"]];
 
             if ($_FORM["showFinances"]) {
-                list($pos, $neg) = $t->get_transaction_totals();
+                [$pos, $neg] = $t->get_transaction_totals();
                 $row["transactionsPos"] = page::money_print($pos);
                 $row["transactionsNeg"] = page::money_print($neg);
                 foreach ((array)$pos as $v) {

@@ -51,7 +51,7 @@ function format_date($format = "Y/m/d", $date = "")
     $t = null;
     // If looks like this: 2003-07-07 21:37:01
     if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2} [\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
-        list($d, $t) = explode(" ", $date);
+        [$d, $t] = explode(" ", $date);
 
         // If looks like this: 2003-07-07
     } else if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2}$/", $date)) {
@@ -68,9 +68,9 @@ function format_date($format = "Y/m/d", $date = "")
     } else {
         return;
     }
-    list($y, $m, $d) = explode("-", $d);
-    list($h, $i, $s) = explode(":", $t);
-    list($y, $m, $d, $h, $i, $s) = [sprintf("%d", $y), sprintf("%d", $m), sprintf("%d", $d), sprintf("%d", $h), sprintf("%d", $i), sprintf("%d", $s)];
+    [$y, $m, $d] = explode("-", $d);
+    [$h, $i, $s] = explode(":", $t);
+    [$y, $m, $d, $h, $i, $s] = [sprintf("%d", $y), sprintf("%d", $m), sprintf("%d", $d), sprintf("%d", $h), sprintf("%d", $i), sprintf("%d", $s)];
     return date($format, mktime(date($h), date($i), date($s), date($m), date($d), date($y)));
 }
 
@@ -118,7 +118,7 @@ function get_all_form_data($array = [], $defaults = [])
 function timetook($start, $friendly_output = true)
 {
     $end = microtime();
-    list($start_micro, $start_epoch, $end_micro, $end_epoch) = explode(" ", $start . " " . $end);
+    [$start_micro, $start_epoch, $end_micro, $end_epoch] = explode(" ", $start . " " . $end);
     $started = (substr($start_epoch, -4) + $start_micro);
     $finished = (substr($end_epoch, -4) + $end_micro);
     $dur = $finished - $started;
@@ -411,8 +411,8 @@ function parse_email_address($email = "")
 
 function same_email_address($addy1, $addy2)
 {
-    list($from_address1, $from_name1) = parse_email_address($addy1);
-    list($from_address2, $from_name2) = parse_email_address($addy2);
+    [$from_address1, $from_name1] = parse_email_address($addy1);
+    [$from_address2, $from_name2] = parse_email_address($addy2);
     if ($from_address1 == $from_address2) {
         return true;
     }

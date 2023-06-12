@@ -397,7 +397,7 @@ class task extends db_entity
 
         $db = new db_alloc();
         if ($projectID) {
-            list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
+            [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
             // Status may be closed_<something>
             $query = unsafe_prepare("SELECT taskID AS value, taskName AS label
                                 FROM task
@@ -639,7 +639,7 @@ class task extends db_entity
         $TPL["priorityLabel"] = " <div style=\"display:inline; color:" . $taskPriorities[$priority]["colour"] . "\">[";
 
         if (is_object($p)) {
-            list($priorityFactor, $daysUntilDue) = $this->get_overall_priority($p->get_value("projectPriority"), $this->get_value("priority"), $this->get_value("dateTargetCompletion"));
+            [$priorityFactor, $daysUntilDue] = $this->get_overall_priority($p->get_value("projectPriority"), $this->get_value("priority"), $this->get_value("dateTargetCompletion"));
             $str = "Task priority: " . $taskPriorities[$this->get_value("priority")]["label"] . "<br>";
             $str .= "Project priority: " . $projectPriorities[$p->get_value("projectPriority")]["label"] . "<br>";
             $str .= "Days until due: " . $daysUntilDue . "<br>";
@@ -765,7 +765,7 @@ class task extends db_entity
             $rows = $m->get_assoc_array();
         }
         foreach ($rows as $taskStatusID => $arr) {
-            list($s, $ss) = explode("_", $taskStatusID);
+            [$s, $ss] = explode("_", $taskStatusID);
             $rtn[$s][$ss] = [
                 "label"  => $arr["taskStatusLabel"],
                 "colour" => $arr["taskStatusColour"],
@@ -781,7 +781,7 @@ class task extends db_entity
 
     public static function get_task_status_thing($thing = "", $status = "")
     {
-        list($taskStatus, $taskSubStatus) = explode("_", $status);
+        [$taskStatus, $taskSubStatus] = explode("_", $status);
         $arr = task::get_task_statii();
         if ($thing && $arr[$taskStatus][$taskSubStatus][$thing]) {
             return $arr[$taskStatus][$taskSubStatus][$thing];
@@ -863,7 +863,7 @@ class task extends db_entity
             $filter["projectNameMatches"]
         );
 
-        list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
+        [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
 
         // New Tasks
         if ($filter["taskDate"] == "new") {
@@ -988,7 +988,7 @@ class task extends db_entity
             $tasks += [$row["taskID"] => $row];
 
             if ($r["children"]) {
-                list($t, $d) = task::build_recursive_task_list($r["children"], $_FORM);
+                [$t, $d] = task::build_recursive_task_list($r["children"], $_FORM);
                 $t and $tasks += $t;
                 $d and $done += $d;
             }
@@ -1023,7 +1023,7 @@ class task extends db_entity
 
         // This is the definitive method of getting a list of tasks that need a sophisticated level of filtering
 
-        list($filter, $having) = task::get_list_filter($_FORM);
+        [$filter, $having] = task::get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
         $debug and print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
@@ -1092,7 +1092,7 @@ class task extends db_entity
             $row["project_name"] = $row["projectShortName"] or $row["project_name"] = $row["projectName"];
             $row["projectPriority"] = $db->f("projectPriority");
             has("project") and $row["projectPriorityLabel"] = project::get_priority_label($db->f("projectPriority"));
-            has("project") and list($row["priorityFactor"], $row["daysUntilDue"]) = $task->get_overall_priority($row["projectPriority"], $row["priority"], $row["dateTargetCompletion"]);
+            has("project") and [$row["priorityFactor"], $row["daysUntilDue"]] = $task->get_overall_priority($row["projectPriority"], $row["priority"], $row["dateTargetCompletion"]);
             $row["taskTypeImage"] = $task->get_task_image();
             $row["taskTypeSeq"] = $_FORM["taskType_cache"][$row["taskTypeID"]]["taskTypeSeq"];
             $row["taskStatusLabel"] = $task->get_task_status("label");
@@ -1142,7 +1142,7 @@ class task extends db_entity
         if ($_FORM["taskView"] == "byProject") {
             $parentTaskID = $_FORM["parentTaskID"] or $parentTaskID = 0;
             $t = task::get_recursive_child_tasks($parentTaskID, (array)$rows);
-            list($tasks, $done) = task::build_recursive_task_list($t, $_FORM);
+            [$tasks, $done] = task::build_recursive_task_list($t, $_FORM);
 
             // This bit appends the orphan tasks onto the end..
             foreach ((array)$rows as $taskID => $r) {

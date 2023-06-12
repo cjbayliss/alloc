@@ -100,7 +100,7 @@ class product extends db_entity
         $db->query($q);
         while ($row = $db->row()) {
             if ($row["tax"]) {
-                list($amount_minus_tax, $amount_of_tax) = tax($row["amount"]);
+                [$amount_minus_tax, $amount_of_tax] = tax($row["amount"]);
                 $row["amount"] = $amount_minus_tax;
             }
             $amount += exchangeRate::convert($row["currencyTypeID"], $row["amount"]);

@@ -166,7 +166,7 @@ class Mail_mimeDecode
      */
     public function Mail_mimeDecode($input)
     {
-        list($header, $body) = $this->_splitBodyHeader($input);
+        [$header, $body] = $this->_splitBodyHeader($input);
 
         $this->_input = $input;
         $this->_header = $header;
@@ -322,7 +322,7 @@ class Mail_mimeDecode
 
                     $parts = $this->_boundarySplit($body, $content_type['other']['boundary']);
                     for ($i = 0; $i < count($parts); $i++) {
-                        list($part_header, $part_body) = $this->_splitBodyHeader($parts[$i]);
+                        [$part_header, $part_body] = $this->_splitBodyHeader($parts[$i]);
                         $part = $this->_decode($part_header, $part_body, $default_ctype);
                         if ($part === false) {
                             alloc_error($this->_error);

@@ -480,8 +480,8 @@ class comment extends db_entity
         $comment->rename_email_attachment_dir($email_receive->dir);
 
         // Try figure out and populate the commentCreatedUser/commentCreatedUserClientContactID fields
-        list($from_address, $from_name) = parse_email_address($email_receive->mail_headers["from"]);
-        list($personID, $clientContactID, $from_name) = comment::get_person_and_client($from_address, $from_name, $entity->get_project_id());
+        [$from_address, $from_name] = parse_email_address($email_receive->mail_headers["from"]);
+        [$personID, $clientContactID, $from_name] = comment::get_person_and_client($from_address, $from_name, $entity->get_project_id());
         $personID and $comment->set_value('commentCreatedUser', $personID);
         $clientContactID and $comment->set_value('commentCreatedUserClientContactID', $clientContactID);
 
@@ -534,7 +534,7 @@ class comment extends db_entity
             } else if (is_int($selected_option)) {
                 $recipients[] = $people[$selected_option];
             } else if (is_string($selected_option) && preg_match("/@/", $selected_option)) {
-                list($email, $name) = parse_email_address($selected_option);
+                [$email, $name] = parse_email_address($selected_option);
                 $email and $recipients[] = ["name" => $name, "emailAddress" => $email];
             }
         }
@@ -614,7 +614,7 @@ class comment extends db_entity
         $body = $this->get_value("comment");
 
         if (is_object($email_receive)) {
-            list($from_address, $from_name) = parse_email_address($email_receive->mail_headers["from"]);
+            [$from_address, $from_name] = parse_email_address($email_receive->mail_headers["from"]);
         }
 
         if ($is_a_reply_comment) {
@@ -624,13 +624,13 @@ class comment extends db_entity
         }
 
         $recipients = comment::get_email_recipients($selected_option, "comment", $id);
-        list($to_address, $bcc, $successful_recipients) = comment::get_email_recipient_headers($recipients, $from_address);
+        [$to_address, $bcc, $successful_recipients] = comment::get_email_recipient_headers($recipients, $from_address);
 
         if ($to_address || $bcc || $successful_recipients) {
             $email = new email_send();
 
             if ($email_receive && is_object($email_receive)) {
-                list($email_receive_header, $email_receive_body) = $email_receive->get_raw_header_and_body();
+                [$email_receive_header, $email_receive_body] = $email_receive->get_raw_header_and_body();
                 $email->set_headers($email_receive_header);
                 $email->set_body($email_receive_body, $email_receive->mail_text);
                 // Remove any existing To/Cc header, to prevent the email
@@ -910,7 +910,7 @@ class comment extends db_entity
 
         $_FORM["maxCommentLength"] or $_FORM["maxCommentLength"] = 500;
 
-        list($filter1, $filter2, $filter3) = comment::get_list_summary_filter($_FORM);
+        [$filter1, $filter2, $filter3] = comment::get_list_summary_filter($_FORM);
 
         is_array($filter1) && count($filter1) and $filter1 = " AND " . implode(" AND ", $filter1);
         is_array($filter2) && count($filter2) and $filter2 = " AND " . implode(" AND ", $filter2);
@@ -951,7 +951,7 @@ class comment extends db_entity
             $row["id"] = "comment_" . $row["id"];
             $row["personID"] and $row["person"] = $people[$row["personID"]]["name"];
             $row["clientContactName"] and $row["person"] = $row["clientContactName"];
-            $row["person"] or list($e, $row["person"]) = parse_email_address($row["commentCreatedUserText"]);
+            $row["person"] or [$e, $row["person"]] = parse_email_address($row["commentCreatedUserText"]);
             $row["displayDate"] = format_date("Y-m-d g:ia", $row["displayDate"]);
             if (!$tasks[$row["taskID"]]) {
                 $t = new task();
@@ -1183,7 +1183,7 @@ class comment extends db_entity
         // email is *from* the same address, and will then skip over it, when going
         // through the new emails.
         if (defined("ALLOC_DEFAULT_FROM_ADDRESS") && ALLOC_DEFAULT_FROM_ADDRESS) {
-            list($from_address, $from_name) = parse_email_address(ALLOC_DEFAULT_FROM_ADDRESS);
+            [$from_address, $from_name] = parse_email_address(ALLOC_DEFAULT_FROM_ADDRESS);
             $emailRecipients[] = $from_address;
         }
 
@@ -1279,7 +1279,7 @@ class comment extends db_entity
         $rtn = $comment->send_emails($emailRecipients, $email_receive, $hash, $is_a_reply_comment, $files);
         if (is_array($rtn)) {
             $email_sent = true;
-            list($successful_recipients, $messageid) = $rtn;
+            [$successful_recipients, $messageid] = $rtn;
         }
 
         // Append success to end of the comment
@@ -1409,8 +1409,8 @@ class comment extends db_entity
             $mail->get_msg_header();
             $text = $mail->fetch_mail_text();
 
-            list($from1, $e1n) = parse_email_address($mail->mail_headers["from"]);
-            list($from2, $e2n) = parse_email_address($this->get_value("commentCreatedUserText"));
+            [$from1, $e1n] = parse_email_address($mail->mail_headers["from"]);
+            [$from2, $e2n] = parse_email_address($this->get_value("commentCreatedUserText"));
             if (!$from2 && $this->get_value("commentCreatedUser")) {
                 $p = new person();
                 $p->set_id($this->get_value("commentCreatedUser"));

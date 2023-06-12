@@ -147,7 +147,7 @@ class services
                 }
 
                 // If we get here, then return the email address entered
-                list($e, $n) = parse_email_address($person);
+                [$e, $n] = parse_email_address($person);
                 $rtn[$e] = ["emailAddress" => $e, "name" => $n];
                 $bad_person = false;
                 continue;
@@ -337,7 +337,7 @@ class services
             $mail->open_mailbox($folder, OP_READONLY);
             $uids = $mail->get_all_email_msg_uids();
             foreach ((array)$uids as $uid) {
-                list($header, $body) = $mail->get_raw_email_by_msg_uid($uid);
+                [$header, $body] = $mail->get_raw_email_by_msg_uid($uid);
                 if ($header && $body) {
                     $m = new email_send();
                     $m->set_headers($header);
@@ -403,7 +403,7 @@ class services
             $info = $this->init_email_info();
             $mail = new email_receive($info);
             $mail->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
-            list($header, $body) = $mail->get_raw_email_by_msg_uid($emailUID);
+            [$header, $body] = $mail->get_raw_email_by_msg_uid($emailUID);
             $mail->close();
             $m = new email_send();
             $m->set_headers($header);

@@ -89,21 +89,21 @@ class command
         $s = null;
         $m = null;
         if ($commands["command"] == "edit_timeSheetItem") {
-            list($s, $m) = $this->edit_timeSheetItem($commands);
+            [$s, $m] = $this->edit_timeSheetItem($commands);
         } else if ($commands["command"] == "edit_task") {
-            list($s, $m) = $this->edit_task($commands, $email_receive);
+            [$s, $m] = $this->edit_task($commands, $email_receive);
         } else if ($commands["command"] == "add_comment") {
-            list($s, $m) = $this->add_comment($commands);
+            [$s, $m] = $this->add_comment($commands);
         } else if ($commands["command"] == "edit_reminder") {
-            list($s, $m) = $this->edit_reminder($commands);
+            [$s, $m] = $this->edit_reminder($commands);
         }
 
         if ($commands["key"]) {
-            list($s, $m) = $this->add_comment_via_email($commands, $email_receive);
+            [$s, $m] = $this->add_comment_via_email($commands, $email_receive);
         }
 
         if ($commands["time"]) {
-            list($s, $m) = $this->add_time($commands, $email_receive);
+            [$s, $m] = $this->add_time($commands, $email_receive);
         }
 
         if ($s && $m) {
@@ -377,12 +377,12 @@ class command
 
         // Tear apart the frequency bits
         if ($options['frequency']) {
-            list($freq, $units) = sscanf($options['frequency'], "%d%c");
+            [$freq, $units] = sscanf($options['frequency'], "%d%c");
             $options['frequency'] = $freq;
             $options['frequency_units'] = $units_of_time[strtolower($units)];
         }
         if ($options['notice']) {
-            list($freq, $units) = sscanf($options['notice'], "%d%c");
+            [$freq, $units] = sscanf($options['notice'], "%d%c");
             $options['notice'] = $freq;
             $options['notice_units'] = $units_of_time[strtolower($units)];
         }
@@ -406,7 +406,7 @@ class command
 
         // Deal with recipients
         if ($options['recipients']) {
-            list($_x, $recipients) = $reminder->get_recipient_options();
+            [$_x, $recipients] = $reminder->get_recipient_options();
             if ($options['recipients']) {
                 $recipients = array_unique(array_merge($recipients, $options['recipients']));
             }
@@ -458,7 +458,7 @@ class command
         // the email.
         $token = new token();
         if ($commands["key"] && $token->set_hash($commands["key"])) {
-            list($entity, $method) = $token->execute();
+            [$entity, $method] = $token->execute();
             if (is_object($entity) && $method == "add_comment_from_email") {
                 $c = comment::add_comment_from_email($email_receive, $entity);
 
@@ -495,7 +495,7 @@ class command
         $emailRecipients = [];
         $emailRecipients[] = "interested";
         if (defined("ALLOC_DEFAULT_FROM_ADDRESS") && ALLOC_DEFAULT_FROM_ADDRESS) {
-            list($from_address, $from_name) = parse_email_address(ALLOC_DEFAULT_FROM_ADDRESS);
+            [$from_address, $from_name] = parse_email_address(ALLOC_DEFAULT_FROM_ADDRESS);
             $emailRecipients[] = $from_address;
         }
 

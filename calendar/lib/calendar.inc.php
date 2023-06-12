@@ -98,7 +98,7 @@ class calendar
 
     public function get_cal_tasks_to_start()
     {
-        list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
+        [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
         // Select all tasks which are targetted to start
         $query = unsafe_prepare(
             "SELECT *
@@ -122,7 +122,7 @@ class calendar
 
     public function get_cal_tasks_to_complete()
     {
-        list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
+        [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
         // Select all tasks which are targetted for completion
         $query = unsafe_prepare(
             "SELECT *

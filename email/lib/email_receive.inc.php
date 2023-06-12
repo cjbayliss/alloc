@@ -399,7 +399,7 @@ class email_receive
     public function save_email_from_text()
     {
         $this->load_structure();
-        list($this->mail_text, $attachments) = $this->parse_mime($this->mail_structure);
+        [$this->mail_text, $attachments] = $this->parse_mime($this->mail_structure);
 
         foreach ((array)$attachments as $k => $v) {
             if ($v["name"]) {
@@ -430,7 +430,7 @@ class email_receive
     {
         $header_obj = [];
         $s = null;
-        list($header, $body) = $this->get_raw_header_and_body();
+        [$header, $body] = $this->get_raw_header_and_body();
         $header and $header_obj = $this->parse_headers($header);
         $orig_subject = $header_obj["subject"];
         $orig_subject and $s = " [" . trim($orig_subject) . "]";
@@ -573,7 +573,7 @@ class email_receive
     {
         $header_obj = [];
         $r = [];
-        list($header, $body) = $this->get_raw_header_and_body();
+        [$header, $body] = $this->get_raw_header_and_body();
         $header and $header_obj = $this->parse_headers($header);
         $subject = $header_obj["subject"];
 
@@ -774,7 +774,7 @@ class email_receive
     public function get_printable_from_address()
     {
         $f = null;
-        list($from_address, $from_name) = parse_email_address($this->mail_headers["from"]);
+        [$from_address, $from_name] = parse_email_address($this->mail_headers["from"]);
         if ($from_address && $from_name) {
             $f = $from_name . " <" . $from_address . ">";
         } else if ($from_name) {
@@ -813,7 +813,7 @@ if (basename($_SERVER["PHP_SELF"]) == "email_receive.inc.php") {
     echo "\nget_charset(): " . $e->get_charset();
     // exit();
 
-    list($h, $b) = $e->get_raw_email_by_msg_uid($num);
+    [$h, $b] = $e->get_raw_email_by_msg_uid($num);
     // echo "\nget_raw_email_by_msg_uid(): "."HEADER: ".$h."\nBODY: ".$b;
 
     echo "\nsave_email(): " . $e->save_email();

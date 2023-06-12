@@ -339,7 +339,7 @@ class person extends db_entity
     public function has_messages()
     {
         if (is_object($this)) {
-            list($ts_open, $ts_pending, $ts_closed) = task::get_task_status_in_set_sql();
+            [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
             $db = new db_alloc();
             $query = unsafe_prepare(
                 "SELECT *
@@ -441,7 +441,7 @@ class person extends db_entity
         $print = null;
         global $TPL;
         $current_user = &singleton("current_user");
-        list($filter, $filter2) = person::get_list_filter($_FORM);
+        [$filter, $filter2] = person::get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
         $debug and print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
@@ -452,8 +452,8 @@ class person extends db_entity
         // Get averages for hours worked over the past fortnight and year
         if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT) && $_FORM["showHours"]) {
             $t = new timeSheetItem();
-            list($ts_hrs_col_1, $ts_dollars_col_1) = $t->get_averages(date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))));
-            list($ts_hrs_col_2, $ts_dollars_col_2) = $t->get_fortnightly_average();
+            [$ts_hrs_col_1, $ts_dollars_col_1] = $t->get_averages(date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))));
+            [$ts_hrs_col_2, $ts_dollars_col_2] = $t->get_fortnightly_average();
         } else {
             unset($_FORM["showHours"]);
         }

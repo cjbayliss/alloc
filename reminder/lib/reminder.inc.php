@@ -255,7 +255,7 @@ class reminder extends db_entity
         if ($this->get_value("reminderHash")) {
             $token = new token();
             if ($token->set_hash($this->get_value("reminderHash"))) {
-                list($entity, $method) = $token->execute();
+                [$entity, $method] = $token->execute();
                 if (is_object($entity) && $entity->get_id()) {
                     if (!$entity->$method()) {
                         $token->decrement_tokenUsed(); // next time, gadget

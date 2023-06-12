@@ -10,7 +10,7 @@ class inbox extends db_entity
 
     public static function change_current_user($from)
     {
-        list($from_address, $from_name) = parse_email_address($from);
+        [$from_address, $from_name] = parse_email_address($from);
         $person = new person();
         $personID = $person->find_by_email($from_address);
         $personID or $personID = $person->find_by_name($from_name);
@@ -61,7 +61,7 @@ class inbox extends db_entity
         $email_receive->set_msg($req["id"]);
         $new_nums = $email_receive->get_new_email_msg_uids();
         in_array($req["id"], (array)$new_nums) and $new = true;
-        list($h, $b) = $email_receive->get_raw_header_and_body();
+        [$h, $b] = $email_receive->get_raw_header_and_body();
         $new and $email_receive->set_unread(); // might have to "unread" the email, if it was new, i.e. set it back to new
         $email_receive->close();
         header('Content-Type: text/plain');
@@ -181,7 +181,7 @@ class inbox extends db_entity
             $email_receive->archive($mailbox) and $msg .= "\nMoved email to " . $mailbox;
             $msg and $TPL["message_good_no_esc"][] = $msg;
 
-            list($from_address, $from_name) = parse_email_address($email_receive->mail_headers["from"]);
+            [$from_address, $from_name] = parse_email_address($email_receive->mail_headers["from"]);
             $ip["emailAddress"] = $from_address;
             $ip["name"] = $from_name;
             $ip["personID"] = $personID;
@@ -217,7 +217,7 @@ class inbox extends db_entity
             $commentID and $TPL["message_good_no_esc"][] = "Created comment " . $commentID . " on task " . $task->get_task_link(["prefixTaskID" => true]);
 
             // Possibly change the identity of current_user
-            list($from_address, $from_name) = parse_email_address($email_receive->mail_headers["from"]);
+            [$from_address, $from_name] = parse_email_address($email_receive->mail_headers["from"]);
             $person = new person();
             $personID = $person->find_by_email($from_address);
             $personID or $personID = $person->find_by_name($from_name);
@@ -299,7 +299,7 @@ class inbox extends db_entity
         $email_receive = new email_receive($info);
         $email_receive->open_mailbox($info["folder"]);
         $email_receive->set_msg($req["id"]);
-        list($h, $b) = $email_receive->get_raw_header_and_body();
+        [$h, $b] = $email_receive->get_raw_header_and_body();
         $email_receive->close();
     }
 

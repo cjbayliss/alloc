@@ -396,7 +396,7 @@ class invoice extends db_entity
 
         $pdf->ezSetY($y - 20);
 
-        list($rows, $info) = $this->get_invoiceItem_list_for_file($verbose);
+        [$rows, $info] = $this->get_invoiceItem_list_for_file($verbose);
         $cols2 = [
             "desc"     => "Description",
             "quantity" => "Qty",

@@ -286,7 +286,7 @@ class db
         }
         $database = $this->database;
         if (strstr($table, ".")) {
-            list($database, $table) = explode(".", $table);
+            [$database, $table] = explode(".", $table);
         }
         $this->query("SHOW COLUMNS FROM " . $table);
         while ($row = $this->row()) {

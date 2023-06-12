@@ -86,7 +86,7 @@ class token extends db_entity
 
     public function get_hash_str()
     {
-        list($usec, $sec) = explode(' ', microtime());
+        [$usec, $sec] = explode(' ', microtime());
         $seed = $sec + ($usec * 100000);
         mt_srand($seed);
         $randval = mt_rand(1, 99999999); // get a random 8 digit number

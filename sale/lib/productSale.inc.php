@@ -150,7 +150,7 @@ class productSale extends db_entity
             // $rtn["total_spent"] += $productSaleItem->get_amount_spent();
             // $rtn["total_earnt"] += $productSaleItem->get_amount_earnt();
             // $rtn["total_other"] += $productSaleItem->get_amount_other();
-            list($sp, $spcur) = [$productSaleItem->get_value("sellPrice"), $productSaleItem->get_value("sellPriceCurrencyTypeID")];
+            [$sp, $spcur] = [$productSaleItem->get_value("sellPrice"), $productSaleItem->get_value("sellPriceCurrencyTypeID")];
 
             $sellPriceCurr[$spcur] += page::money($spcur, $sp, "%m");
             $total_sellPrice += exchangeRate::convert($spcur, $sp);
