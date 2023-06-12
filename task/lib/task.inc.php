@@ -1393,9 +1393,7 @@ class task extends db_entity
     public static function load_task_filter($_FORM)
     {
         $rtn = [];
-        $current_user = &singleton("current_user");
-
-        $db = new db_alloc();
+        $task = new task();
 
         // Load up the forms action url
         $rtn["url_form_action"] = $_FORM["url_form_action"];
@@ -1409,7 +1407,7 @@ class task extends db_entity
         $rtn["personOptions"] = page::select_options($ops + person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
         $rtn["managerPersonOptions"] = page::select_options($ops + person::get_username_list($_FORM["managerID"]), $_FORM["managerID"]);
         $rtn["creatorPersonOptions"] = page::select_options(person::get_username_list($_FORM["creatorID"]), $_FORM["creatorID"]);
-        $rtn["all_tags"] = self::get_tags(true);
+        $rtn["all_tags"] = $task->get_tags(true);
         $rtn["tags"] = $_FORM["tags"];
 
         $taskType = new meta("taskType");
