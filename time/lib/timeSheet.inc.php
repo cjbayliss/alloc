@@ -525,6 +525,8 @@ class timeSheet extends db_entity
 
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
+        } else {
+            $filter = "";
         }
 
         $q = "SELECT timeSheet.*, person.personID, projectName, projectShortName
