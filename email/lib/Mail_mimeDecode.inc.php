@@ -212,14 +212,10 @@ class Mail_mimeDecode
 
             // Called via an object
         } else {
-            $this->_include_bodies = isset($params['include_bodies']) ?
-                $params['include_bodies'] : false;
-            $this->_decode_bodies = isset($params['decode_bodies']) ?
-                $params['decode_bodies']  : false;
-            $this->_decode_headers = isset($params['decode_headers']) ?
-                $params['decode_headers'] : false;
-            $this->_rfc822_bodies = isset($params['rfc_822bodies']) ?
-                $params['rfc_822bodies']  : false;
+            $this->_include_bodies = $params['include_bodies'] ?? false;
+            $this->_decode_bodies = $params['decode_bodies'] ?? false;
+            $this->_decode_headers = $params['decode_headers'] ?? false;
+            $this->_rfc822_bodies = $params['rfc_822bodies'] ?? false;
 
             $structure = $this->_decode($this->_header, $this->_body);
             if ($structure === false) {

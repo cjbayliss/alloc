@@ -1,4 +1,4 @@
-FROM php:5.6-apache
+FROM php:7.0-apache
 
 RUN echo 'deb http://snapshot.debian.org/archive/debian/20230423T032533Z/ stretch main' \
   > /etc/apt/sources.list

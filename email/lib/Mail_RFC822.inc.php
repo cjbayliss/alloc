@@ -723,7 +723,7 @@ class Mail_RFC822
 
         // Add the phrase (even if empty) and comments
         $mbox->personal = $phrase;
-        $mbox->comment = isset($comments) ? $comments : [];
+        $mbox->comment = $comments ?? [];
 
         if (isset($route_addr)) {
             $mbox->mailbox = $route_addr['local_part'];

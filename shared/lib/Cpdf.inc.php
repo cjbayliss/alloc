@@ -1966,7 +1966,7 @@ class Cpdf
         }
         header("Content-type: application/pdf");
         header("Content-Length: ".strlen(ltrim($tmp)));
-        $fileName = (isset($options['Content-Disposition'])?$options['Content-Disposition']:'file.pdf');
+        $fileName = ($options['Content-Disposition'] ?? 'file.pdf');
         header("Content-Disposition: inline; filename=".$fileName);
         if (isset($options['Accept-Ranges']) && $options['Accept-Ranges'] == 1) {
             header("Accept-Ranges: ".strlen(ltrim($tmp)));

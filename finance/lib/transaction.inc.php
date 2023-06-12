@@ -147,23 +147,23 @@ class transaction extends db_entity
     {
         $taxName = config::get_config_item("taxName") or $taxName = "Tax";
         return [
-            'invoice' => 'Invoice',
-            'expense' => 'Expense',
-            'salary' => 'Salary',
+            'invoice'    => 'Invoice',
+            'expense'    => 'Expense',
+            'salary'     => 'Salary',
             'commission' => 'Commission',
-            'timesheet' => 'Time Sheet',
+            'timesheet'  => 'Time Sheet',
             'adjustment' => 'Adjustment',
-            'sale' => 'Sale',
-            'tax' => $taxName
+            'sale'       => 'Sale',
+            'tax'        => $taxName,
         ];
     }
 
     public static function get_transactionStatii()
     {
         return [
-            "pending" => "Pending",
+            "pending"  => "Pending",
             "approved" => "Approved",
-            "rejected" => "Rejected"
+            "rejected" => "Rejected",
         ];
     }
 
@@ -472,25 +472,25 @@ class transaction extends db_entity
     {
 
         return [
-            "return" => "[MANDATORY] eg: html | csv | array",
-            "tfID" => "Transactions that are for this TF",
-            "tfIDs" => "Transactions that are for this array of TF's",
-            "tfName" => "Transactions that are for this TF name",
-            "status" => "Transaction status eg: pending | rejected | approved",
-            "startDate" => "Transactions with dates after this start date eg: 2002-07-07",
-            "endDate" => "Transactions with dates before this end date eg: 2007-07-07",
-            "monthDate" => "Transactions for a particular month, by date, eg july: 2008-07-07",
+            "return"           => "[MANDATORY] eg: html | csv | array",
+            "tfID"             => "Transactions that are for this TF",
+            "tfIDs"            => "Transactions that are for this array of TF's",
+            "tfName"           => "Transactions that are for this TF name",
+            "status"           => "Transaction status eg: pending | rejected | approved",
+            "startDate"        => "Transactions with dates after this start date eg: 2002-07-07",
+            "endDate"          => "Transactions with dates before this end date eg: 2007-07-07",
+            "monthDate"        => "Transactions for a particular month, by date, eg july: 2008-07-07",
             "sortTransactions" => "Sort transactions eg: transactionSortDate | transactionDate",
-            "transactionType" => "Eg: invoice | expense | salary | commission | timesheet | adjustment | tax | sale",
-            "applyFilter" => "Saves this filter as the persons preference",
-            "url_form_action" => "The submit action for the filter form",
-            "form_name" => "The name of this form, i.e. a handle for referring to this saved form",
-            "dontSave" => "Specify that the filter preferences should not be saved this time",
-            "fromTfID" => "Transactions that have a source of this TF",
-            "expenseFormID" => "Transactions for a particular Expense Form",
-            "transactionID" => "A Transaction by ID",
-            "product" => "Transactions with a description like *something* (fuzzy)",
-            "amount" => "Get Transactions that are for a certain amount"
+            "transactionType"  => "Eg: invoice | expense | salary | commission | timesheet | adjustment | tax | sale",
+            "applyFilter"      => "Saves this filter as the persons preference",
+            "url_form_action"  => "The submit action for the filter form",
+            "form_name"        => "The name of this form, i.e. a handle for referring to this saved form",
+            "dontSave"         => "Specify that the filter preferences should not be saved this time",
+            "fromTfID"         => "Transactions that have a source of this TF",
+            "expenseFormID"    => "Transactions for a particular Expense Form",
+            "transactionID"    => "A Transaction by ID",
+            "product"          => "Transactions with a description like *something* (fuzzy)",
+            "amount"           => "Get Transactions that are for a certain amount",
         ];
     }
 

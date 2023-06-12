@@ -728,8 +728,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
     private function _getFieldPosition($fieldNum)
     {
         // Treat values which are not in a translation table as a 'direct value'
-        return isset($this->_fieldsDicPositions[$fieldNum]) ?
-            $this->_fieldsDicPositions[$fieldNum] : $fieldNum;
+        return $this->_fieldsDicPositions[$fieldNum] ?? $fieldNum;
     }
 
     /**

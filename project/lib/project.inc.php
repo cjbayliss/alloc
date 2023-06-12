@@ -715,7 +715,7 @@ class project extends db_entity
         return $_FORM;
     }
 
-    public static  function load_project_filter($_FORM)
+    public static function load_project_filter($_FORM)
     {
 
         $rtn = [];
