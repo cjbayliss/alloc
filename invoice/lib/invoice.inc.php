@@ -483,7 +483,7 @@ class invoice extends db_entity
         return "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $this->get_id() . "\">" . $this->get_name($_FORM) . "</a>";
     }
 
-    public function get_list_filter($filter = [])
+    public static function get_list_filter($filter = [])
     {
         $valid_clientIDs = [];
         $approved_clientIDs = [];
@@ -540,7 +540,7 @@ class invoice extends db_entity
         return $sql;
     }
 
-    public function get_list_filter2($filter = [])
+    public static function get_list_filter2($filter = [])
     {
         // Filter for the HAVING clause
         $sql = [];

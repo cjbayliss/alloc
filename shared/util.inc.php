@@ -643,6 +643,9 @@ function alloc_error($str = "", $force = null)
 /**
  * Undocumented function
  *
+ * FIXME: remove every referance to this function because it is bad, *AND* won't
+ * work in PHP 8
+ *
  * @deprecated just don't use this please 😭
  *
  * @return void

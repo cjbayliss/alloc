@@ -752,7 +752,7 @@ class task extends db_entity
         return $taskStatiiArray;
     }
 
-    public function get_task_statii()
+    public static function get_task_statii()
     {
         $rtn = [];
         // looks like:
@@ -954,7 +954,7 @@ class task extends db_entity
         return [$sql, $having];
     }
 
-    public function get_recursive_child_tasks($taskID_of_parent, $rows = [], $padding = 0)
+    public static function get_recursive_child_tasks($taskID_of_parent, $rows = [], $padding = 0)
     {
         $rtn = [];
         $rows or $rows = [];
@@ -978,7 +978,7 @@ class task extends db_entity
         return $rtn;
     }
 
-    public function build_recursive_task_list($t = [], $_FORM = [])
+    public static function build_recursive_task_list($t = [], $_FORM = [])
     {
         $tasks = null;
         $tasks or $tasks = [];
@@ -1159,7 +1159,7 @@ class task extends db_entity
         return (array)$tasks;
     }
 
-    public function priority_compare($a, $b)
+    public static function priority_compare($a, $b)
     {
         return $a["priorityFactor"] > $b["priorityFactor"];
     }
@@ -1273,7 +1273,7 @@ class task extends db_entity
         return $date_forecast_completion;
     }
 
-    public function get_list_vars()
+    public static function get_list_vars()
     {
         $pipe = null;
         $taskStatiiStr = null;
@@ -1409,7 +1409,7 @@ class task extends db_entity
         $rtn["personOptions"] = page::select_options($ops + person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
         $rtn["managerPersonOptions"] = page::select_options($ops + person::get_username_list($_FORM["managerID"]), $_FORM["managerID"]);
         $rtn["creatorPersonOptions"] = page::select_options(person::get_username_list($_FORM["creatorID"]), $_FORM["creatorID"]);
-        $rtn["all_tags"] = task::get_tags(true);
+        $rtn["all_tags"] = self::get_tags(true);
         $rtn["tags"] = $_FORM["tags"];
 
         $taskType = new meta("taskType");

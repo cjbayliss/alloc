@@ -502,7 +502,7 @@ class project extends db_entity
      * @return array An array of SQL conditions based on the provided filter
      * criteria.
      */
-    private function createSQLFilerConditions($filter = [])
+    private static function createSQLFilerConditions($filter = [])
     {
         if ($filter["starred"]) {
             foreach ((array)singleton("current_user")->prefs["stars"]["project"] as $projectID => $_) {
@@ -673,7 +673,7 @@ class project extends db_entity
         return self::getFilteredProjectList(...$args);
     }
 
-    public function get_list_vars()
+    public static function get_list_vars()
     {
         return [
             "projectID"       => "The Project ID",
@@ -1013,7 +1013,7 @@ class project extends db_entity
         return $pp[$p];
     }
 
-    public function get_list_html($rows = [], $ops = [])
+    public static function get_list_html($rows = [], $ops = [])
     {
         global $TPL;
         $TPL["projectListRows"] = $rows;

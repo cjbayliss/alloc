@@ -613,7 +613,7 @@ class productSale extends db_entity
         return $interestedPartyOptions;
     }
 
-    public function get_list_vars()
+    public static function get_list_vars()
     {
         return [
             "return"          => "[MANDATORY] eg: array | html",
@@ -701,7 +701,7 @@ class productSale extends db_entity
         return $rtn;
     }
 
-    public function get_list_html($rows = [], $_FORM = [])
+    public static function get_list_html($rows = [], $_FORM = [])
     {
         global $TPL;
         $TPL["productSaleListRows"] = $rows;

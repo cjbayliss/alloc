@@ -484,7 +484,7 @@ class reminder extends db_entity
         return;
     }
 
-    public function get_list_filter($filter = [])
+    public static function get_list_filter($filter = [])
     {
         $sql = [];
         $filter["type"] and $sql[] = unsafe_prepare("reminderType='%s'", $filter["type"]);
@@ -522,7 +522,7 @@ class reminder extends db_entity
         return $rows;
     }
 
-    public function get_list_html($type = null, $id = null)
+    public static function get_list_html($type = null, $id = null)
     {
         global $TPL;
         $_REQUEST["type"] = $type;

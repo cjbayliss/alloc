@@ -404,7 +404,7 @@ class person extends db_entity
         }
     }
 
-    public function get_list_filter($filter = [])
+    public static function get_list_filter($filter = [])
     {
         $sql = [];
         $sql2 = [];
@@ -539,7 +539,7 @@ class person extends db_entity
         }
     }
 
-    public function get_list_tr_header($_FORM)
+    public static function get_list_tr_header($_FORM)
     {
         $summary = [];
         if ($_FORM["showHeader"]) {
@@ -566,7 +566,7 @@ class person extends db_entity
         }
     }
 
-    public function get_list_tr($row, $_FORM)
+    public static function get_list_tr($row, $_FORM)
     {
         global $TPL;
         $TPL["_FORM"] = $_FORM;
@@ -574,7 +574,7 @@ class person extends db_entity
         return include_template(__DIR__ . "/../templates/personListR.tpl", true);
     }
 
-    public function get_list_vars()
+    public static function get_list_vars()
     {
         return [
             "return"       => "[MANDATORY] eg: array | html",

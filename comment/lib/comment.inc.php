@@ -89,7 +89,7 @@ class comment extends db_entity
         return $this->is_owner();
     }
 
-    public function get_comments($commentMaster = "", $commentMasterID = "")
+    public static function get_comments($commentMaster = "", $commentMasterID = "")
     {
         $rows = [];
         if ($commentMaster && $commentMasterID) {
@@ -132,7 +132,7 @@ class comment extends db_entity
         return $rows;
     }
 
-    public function get_one_comment_array($v = [], $all_parties = [])
+    public static function get_one_comment_array($v = [], $all_parties = [])
     {
         $recipient_ops = [];
         $recipient_selected = [];
@@ -280,7 +280,7 @@ class comment extends db_entity
         return $rtn;
     }
 
-    public function get_comment_html_table($row = [])
+    public static function get_comment_html_table($row = [])
     {
         $rtn = [];
         global $TPL;
@@ -316,7 +316,7 @@ class comment extends db_entity
         return implode("\n", $rtn);
     }
 
-    public function get_comment_attribution($comment = [])
+    public static function get_comment_attribution($comment = [])
     {
         $d = $comment["date"];
         strlen($comment["date"]) > 10 and $d = format_date("Y-m-d g:ia", $comment["date"]);
@@ -328,7 +328,7 @@ class comment extends db_entity
         return $str;
     }
 
-    public function add_shrinky_divs($html = "", $commentID)
+    public static function add_shrinky_divs($html = "", $commentID)
     {
         $sig_start_position = null;
         $sig_started = null;
@@ -401,7 +401,7 @@ class comment extends db_entity
         return implode("\n", $rtn);
     }
 
-    public function get_comment_author($comment = [])
+    public static function get_comment_author($comment = [])
     {
         $author = null;
         if ($comment["commentCreatedUserText"]) {
@@ -418,7 +418,7 @@ class comment extends db_entity
         return $author;
     }
 
-    public function get_comment_author_email($comment = [])
+    public static function get_comment_author_email($comment = [])
     {
         if ($comment["commentCreatedUser"]) {
             $personID = $comment["commentCreatedUser"];
@@ -440,7 +440,7 @@ class comment extends db_entity
         return $email;
     }
 
-    public function sort_task_comments_callback_func($a, $b)
+    public static function sort_task_comments_callback_func($a, $b)
     {
         return strtotime($a["date"]) > strtotime($b["date"]);
     }

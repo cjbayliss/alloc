@@ -145,7 +145,7 @@ class client extends db_entity
             . "</a>";
     }
 
-    public function get_list_filter($filter = [])
+    public static function get_list_filter($filter = [])
     {
         $sql = [];
         $current_user = &singleton("current_user");
@@ -268,7 +268,7 @@ class client extends db_entity
         return (array)$rows;
     }
 
-    public function get_list_vars()
+    public static function get_list_vars()
     {
         return [
             "clientStatus"    => "Client status eg: Current | Potential | Archived",
@@ -585,7 +585,7 @@ class client extends db_entity
         return (array)$interestedPartyOptions;
     }
 
-    public function get_list_html($rows = [], $ops = [])
+    public static function get_list_html($rows = [], $ops = [])
     {
         global $TPL;
         $TPL["clientListRows"] = $rows;

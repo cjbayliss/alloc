@@ -611,7 +611,7 @@ class timeSheet extends db_entity
         }
     }
 
-    public function get_list_html($rows = [], $extra = [])
+    public static function get_list_html($rows = [], $extra = [])
     {
         global $TPL;
         $TPL["timeSheetListRows"] = $rows;

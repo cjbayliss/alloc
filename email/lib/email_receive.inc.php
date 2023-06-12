@@ -789,7 +789,7 @@ class email_receive
 // Tests
 if (basename($_SERVER["PHP_SELF"]) == "email_receive.inc.php") {
     define("NO_AUTH", 1);
-    require_once("alloc.php");
+    require_once("../../alloc.php");
     // require_once("emailsettings.php");
 
     $num = 30;

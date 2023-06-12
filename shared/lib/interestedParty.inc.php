@@ -118,7 +118,7 @@ class interestedParty extends db_entity
         return $row["parties"];
     }
 
-    public function sort_interested_parties($a, $b)
+    public static function sort_interested_parties($a, $b)
     {
         return strtolower($a["name"]) > strtolower($b["name"]);
     }
@@ -170,7 +170,7 @@ class interestedParty extends db_entity
         return unserialize(base64_decode($blob));
     }
 
-    public function get_interested_parties_html($parties = [])
+    public static function get_interested_parties_html($parties = [])
     {
         $str = "";
         $current_user = &singleton("current_user");
