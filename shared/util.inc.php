@@ -687,10 +687,10 @@ function sprintf_implode()
     $f["arg4"] = $args[3];
     $f["arg5"] = $args[4];
     $f["arg6"] = $args[5];
-    $length = count($f["arg1"]);
+    $length = is_array($f["arg1"]) ? count($f["arg1"]) : 1;
 
     foreach ($f as $k => $v) {
-        if ($v && count($v) != $length) {
+        if (is_array($v) && count($v) != $length) {
             alloc_error("One of the values passed to sprintf_implode was the wrong length: " . $str . " " . print_r($args, 1));
         }
         if ($v && !is_array($v)) {
