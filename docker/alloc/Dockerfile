@@ -4,15 +4,21 @@ RUN echo 'deb http://snapshot.debian.org/archive/debian/20230423T032533Z/ stretc
   > /etc/apt/sources.list
 
 RUN apt-get update
-RUN apt-get install --no-install-recommends -y libpng-dev
+RUN apt-get install --no-install-recommends -y libfreetype6-dev \
+  libjpeg62-turbo-dev \
+  libpng-dev \
+  libc-client-dev \
+  libkrb5-dev
 
-RUN docker-php-ext-install gd pdo_mysql
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
+RUN docker-php-ext-install -j$(nproc) gd pdo_mysql imap
 
 RUN mkdir -p /var/local/alloc; chown www-data /var/local/alloc/
 RUN for i in task client project invoice comment whatsnew logos search tmp; do \
   mkdir /var/local/alloc/${i} && \
   chmod 775 /var/local/alloc/${i} && \
   chgrp www-data /var/local/alloc/${i}; \
-done
+  done
 
 EXPOSE 80
