@@ -6,7 +6,7 @@ $finder = PhpCsFixer\Finder::create()
 
 $config = new PhpCsFixer\Config();
 return $config->setRules([
-    '@PHP73Migration' => true,
+    '@PHP74Migration' => true,
     '@PSR2' => true,
     'array_indentation' => true,
     'binary_operator_spaces' => ['operators' => ['=>' => 'align_single_space_minimal']],
