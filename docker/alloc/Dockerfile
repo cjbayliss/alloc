@@ -12,6 +12,8 @@ RUN docker-php-ext-configure imap --with-kerberos --with-imap-ssl
 RUN docker-php-ext-configure pdo_mysql
 RUN docker-php-ext-install -j$(nproc) gd pdo_mysql imap
 
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
 RUN mkdir -p /var/local/alloc; chown www-data /var/local/alloc/
 RUN for i in task client project invoice comment whatsnew logos search tmp; do \
   mkdir /var/local/alloc/${i} && \
