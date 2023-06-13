@@ -20,13 +20,18 @@ class announcement extends db_entity
 
     public function has_announcements()
     {
-        $db = new db_alloc();
-        $today = date("Y-m-d");
-        $query = unsafe_prepare("select * from announcement where displayFromDate <= '%s' and displayToDate >= '%s'", $today, $today);
-        $db->query($query);
-        if ($db->next_record()) {
+        $database = new db_alloc();
+        $database->connect();
+
+        $getAnnouncements = $database->pdo->query(
+            "SELECT * from announcement 
+              where displayFromDate <= CURRENT_DATE()
+                and displayToDate >= CURRENT_DATE()"
+        );
+        if ($getAnnouncements->fetch(PDO::FETCH_ASSOC)) {
             return true;
         }
+
         return false;
     }
 }

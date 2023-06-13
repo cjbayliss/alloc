@@ -9,7 +9,14 @@ class announcements_home_item extends home_item
 {
     public function __construct()
     {
-        parent::__construct("announcements", "Announcements", "announcement", "announcementsH.tpl", "standard", 10);
+        parent::__construct(
+            "announcements",
+            "Announcements",
+            "announcement",
+            "announcementsH.tpl",
+            "standard",
+            10
+        );
     }
 
     public function visible()
@@ -25,18 +32,21 @@ class announcements_home_item extends home_item
 
     public function show_announcements($template_name)
     {
-        $current_user = &singleton("current_user");
         global $TPL;
 
-        $query = "SELECT *
-                    FROM announcement
-                   WHERE displayFromDate <= CURDATE() AND displayToDate >= CURDATE()
-                ORDER BY displayFromDate desc";
-        $db = new db_alloc();
-        $db->query($query);
-        while ($db->next_record()) {
+        $database = new db_alloc();
+        $database->connect();
+        $getAnnoucements = $database->pdo->query(
+            "SELECT *
+               FROM announcement
+              WHERE displayFromDate <= CURRENT_DATE()
+                AND displayToDate >= CURRENT_DATE()
+              ORDER BY displayFromDate desc"
+        );
+
+        while ($annoucmentRow = $getAnnoucements->fetch(PDO::FETCH_ASSOC)) {
             $announcement = new announcement();
-            $announcement->read_db_record($db);
+            $announcement->read_row_record($annoucmentRow);
             $announcement->set_tpl_values();
             $person = $announcement->get_foreign_object("person");
             $TPL["personName"] = $person->get_name();
