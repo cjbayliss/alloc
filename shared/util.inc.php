@@ -652,27 +652,6 @@ function alloc_error($str = "", $force = null)
  */
 function sprintf_implode()
 {
-    $f = [];
-    $rtn = null;
-    $comma = null;
-    // I am crippling this function to make its purpose clearer, max 6 arguments.
-    //
-    // $numbers = array(20,21,22);
-    // $words = array("howdy","hello","goodbye");
-    //
-    // sprintf_implode("(name = '%s')", $words);
-    // Returns: ((name = 'howdy') OR (name = 'hello') OR (name = 'goodbye'))
-    //
-    // sprintf_implode("(id = %d AND name = '%s')", $numbers, $words);
-    // Returns: ((id = 20 AND name = 'howdy') OR (id = 21 AND name = 'hello') OR (id = 22 AND name = 'goodbye'))
-    //
-    // We default to joining by OR, but if the first argument passed doesn't contain
-    // a percentage (ie the sprintf marker), then we assume the first arg is the glue,
-    // and we bump all the args along one. This changes the usage of the function to:
-    //
-    // sprintf_implode(" AND ", "(name != '%s')", $words);
-    // Returns: ((name != 'howdy') AND (name != 'hello') AND (name != 'goodbye'))
-    //
     $args = func_get_args();
     $glue = " OR ";
     if (!in_str("%", $args[0])) {
@@ -681,38 +660,28 @@ function sprintf_implode()
 
     $str = array_shift($args);
 
-    $f["arg1"] = $args[0];
-    $f["arg2"] = $args[1];
-    $f["arg3"] = $args[2];
-    $f["arg4"] = $args[3];
-    $f["arg5"] = $args[4];
-    $f["arg6"] = $args[5];
-    $length = is_array($f["arg1"]) ? count($f["arg1"]) : 1;
-
-    foreach ($f as $k => $v) {
-        if (is_array($v) && count($v) != $length) {
+    $length = is_countable($args[0]) ? count($args[0]) : 1;
+    foreach ($args as $arg) {
+        if (is_array($arg) && count($arg) != $length) {
             alloc_error("One of the values passed to sprintf_implode was the wrong length: " . $str . " " . print_r($args, 1));
         }
-        if ($v && !is_array($v)) {
-            $f[$k] = [$v];
-        }
     }
 
-    $x = 0;
-    while ($x < $length) {
-        $rtn .= $comma . sprintf(
+    $result = [];
+    for ($x = 0; $x < $length; $x++) {
+        $formatted = sprintf(
             $str,
-            db_esc($f["arg1"][$x]),
-            db_esc($f["arg2"][$x]),
-            db_esc($f["arg3"][$x]),
-            db_esc($f["arg4"][$x]),
-            db_esc($f["arg5"][$x]),
-            db_esc($f["arg6"][$x])
+            db_esc($args[0][$x] ?? ""),
+            db_esc($args[1][$x] ?? ""),
+            db_esc($args[2][$x] ?? ""),
+            db_esc($args[3][$x] ?? ""),
+            db_esc($args[4][$x] ?? ""),
+            db_esc($args[5][$x] ?? "")
         );
-        $comma = $glue;
-        $x++;
+        $result[] = $formatted;
     }
-    return "(" . $rtn . ")";
+
+    return "(" . implode($glue, $result) . ")";
 }
 
 /**
