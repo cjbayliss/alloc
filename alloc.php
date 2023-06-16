@@ -35,10 +35,10 @@ Zend_Search_Lucene_Analysis_Analyzer::setDefault(
 Zend_Search_Lucene_Search_Query_Wildcard::setMinPrefixLength(0);
 
 // Get the alloc directory
-$f = trim(__DIR__);
-substr($f, -1, 1) != DIRECTORY_SEPARATOR and $f .= DIRECTORY_SEPARATOR;
-define("ALLOC_MOD_DIR", $f);
-unset($f);
+$currentDirectory = trim(__DIR__);
+substr($currentDirectory, -1, 1) != DIRECTORY_SEPARATOR and $currentDirectory .= DIRECTORY_SEPARATOR;
+define("ALLOC_MOD_DIR", $currentDirectory);
+unset($currentDirectory);
 
 define("APPLICATION_NAME", "allocPSA");
 define("APPLICATION_VERSION", "2.0.0_alpha");
@@ -55,7 +55,7 @@ define("DST_VARIABLE", 2);  // For use within the PHP script itself
 define("DST_HTML_DISPLAY", 4);  // For display to the user as non-editable HTML text
 
 // The list of all the modules that are enabled for this install of alloc
-$m = [
+$moduleNames = [
     "shared",
     "home",
     "project",
@@ -99,15 +99,15 @@ $external_storage_directories = [
 // Helper functions
 require_once(ALLOC_MOD_DIR . "shared" . DIRECTORY_SEPARATOR . "util.inc.php");
 
-foreach ($m as $module_name) {
-    $module_path = ALLOC_MOD_DIR . $module_name .
+foreach ($moduleNames as $moduleName) {
+    $modulePath = ALLOC_MOD_DIR . $moduleName .
         DIRECTORY_SEPARATOR . "lib" .
         DIRECTORY_SEPARATOR . "init.php";
-    if (file_exists($module_path)) {
-        require_once($module_path);
-        $module_class = $module_name . "_module";
-        $module = new $module_class();
-        $modules[$module_name] = $module;
+    if (file_exists($modulePath)) {
+        require_once($modulePath);
+        $moduleClass = $moduleName . "_module";
+        $module = new $moduleClass();
+        $modules[$moduleName] = $module;
     }
 }
 singleton("modules", $modules);
@@ -115,14 +115,16 @@ singleton("modules", $modules);
 // Get the web base url SCRIPT_PATH for the alloc site
 $path = dirname($_SERVER["SCRIPT_NAME"]);
 $bits = explode("/", $path);
-is_array($m) && in_array(end($bits), $m) && array_pop($bits);
+is_array($moduleNames) && in_array(end($bits), $moduleNames) && array_pop($bits);
 is_array($bits) and $path = implode("/", $bits);
-$path[0] != "/" and $path = "/" . $path;
-$path[strlen($path) - 1] != "/" and $path .= "/";
+(empty($path[0]) || $path[0] != "/") and $path = "/" . $path;
+(empty($path[strlen($path) - 1]) || $path[strlen($path) - 1] != "/") and $path .= "/";
 define("SCRIPT_PATH", $path);
 
-unset($m);
+unset($moduleNames);
 
+$allocHelpLinkName = array_slice(explode("/", $_SERVER["PHP_SELF"]), -2, 1);
+$mainAllocTitle = explode("/", $_SERVER["SCRIPT_NAME"]);
 $TPL = [
     "url_alloc_index"        => SCRIPT_PATH . "index.php",
     "url_alloc_login"        => SCRIPT_PATH . "login/login.php",
@@ -130,21 +132,20 @@ $TPL = [
     "url_alloc_styles"       => ALLOC_MOD_DIR . "css/",
     "url_alloc_images"       => SCRIPT_PATH . "images/",
     "url_alloc_help"         => ALLOC_MOD_DIR . "help" . DIRECTORY_SEPARATOR,
-    "alloc_help_link_name"   => end(array_slice(explode("/", $_SERVER["PHP_SELF"]), -2, 1)),
+    "alloc_help_link_name"   => end($allocHelpLinkName),
     "script_path"            => SCRIPT_PATH,
-    "main_alloc_title"       => end(explode("/", $_SERVER["SCRIPT_NAME"])),
+    "main_alloc_title"       => end($mainAllocTitle),
 ];
 
 if (file_exists(ALLOC_MOD_DIR . "alloc_config.php")) {
     require_once(ALLOC_MOD_DIR . "alloc_config.php");
 } else {
-    // if unconfigured, set define these constants
-    // IMPORTANT: please keep these so that linting is possible in IDEs
+    // assume we are in development mode
     define('ATTACHMENTS_DIR', '/var/local/alloc/');
     define("ALLOC_DB_NAME", "alloc");
     define("ALLOC_DB_USER", "alloc");
     define("ALLOC_DB_PASS", "changeme");
-    define("ALLOC_DB_HOST", "db");
+    define("ALLOC_DB_HOST", "database");
 }
 
 $db = new db_alloc();
@@ -154,94 +155,62 @@ singleton("db", $db);
 define("ALLOC_LOGO", ATTACHMENTS_DIR . "logos/logo.jpg");
 define("ALLOC_LOGO_SMALL", ATTACHMENTS_DIR . "logos/logo_small.jpg");
 
-// If we're inside the installation process
-if (defined("IN_INSTALL_RIGHT_NOW")) {
-    // Re-direct home if an alloc_config.php already exists
-    if (
-        !defined("ALLOCPSA_PLATFORM") &&
-        file_exists(ALLOC_MOD_DIR . "alloc_config.php") &&
-        is_readable(ALLOC_MOD_DIR . "alloc_config.php") &&
-        filesize(ALLOC_MOD_DIR . "alloc_config.php") >= 2 &&
-        defined("ALLOC_DB_NAME")
-    ) {
-        alloc_redirect($TPL["url_alloc_login"]);
-        exit();
-    }
+// The timezone must be dealt with before anything else uses it or php will emit
+// a warning
+$timezone = config::get_config_item("allocTimezone");
+date_default_timezone_set($timezone);
 
-    // Else if were not in the installation process and there's no
-    // alloc_config.php file then redirect to the installation directory
-} else if (
-    !file_exists(ALLOC_MOD_DIR . "alloc_config.php") ||
-    !is_readable(ALLOC_MOD_DIR . "alloc_config.php") ||
-    filesize(ALLOC_MOD_DIR . "alloc_config.php") < 5 ||
-    !defined("ALLOC_DB_NAME")
-) {
-    alloc_redirect($TPL["url_alloc_installation"]);
-    exit();
+// Now the timezone is set, replace the missing stuff from the template
+$TPL["current_date"] = date("Y-m-d H:i:s");
+$TPL["today"] = date("Y-m-d");
 
-    // Else include the alloc_config.php file and begin with proceedings..
-} else {
-    // The timezone must be dealt with before anything else uses it or php will
-    // emit a warning
-    $timezone = config::get_config_item("allocTimezone");
-    date_default_timezone_set($timezone);
+// The default From: email address
+if (config::get_config_item("AllocFromEmailAddress")) {
+    define(
+        "ALLOC_DEFAULT_FROM_ADDRESS",
+        add_brackets(config::get_config_item("AllocFromEmailAddress"))
+    );
+}
 
-    // Now the timezone is set, replace the missing stuff from the template
-    $TPL["current_date"] = date("Y-m-d H:i:s");
-    $TPL["today"] = date("Y-m-d");
+// The default email bounce address
+define("ALLOC_DEFAULT_RETURN_PATH_ADDRESS", config::get_config_item("allocEmailAdmin"));
 
-    // The default From: email address
-    if (config::get_config_item("AllocFromEmailAddress")) {
-        define(
-            "ALLOC_DEFAULT_FROM_ADDRESS",
-            add_brackets(config::get_config_item("AllocFromEmailAddress"))
-        );
-    }
+// If a script has NO_AUTH enabled, then it will perform its own authentication.
+// And will be responsible for setting up any of: $current_user and $sess.
+$sess = false;
+if (!defined("NO_AUTH")) {
+    $current_user = &singleton("current_user", new person());
+    $sess = new session();
 
-    // The default email bounce address
-    define("ALLOC_DEFAULT_RETURN_PATH_ADDRESS", config::get_config_item("allocEmailAdmin"));
+    // If session hasn't been started re-direct to login page
+    if (!$sess->Started()) {
+        defined("NO_REDIRECT") &&
+            exit("Session expired. Please <a href='" .
+                $TPL["url_alloc_login"] .
+                "'>log in</a> again.");
+        alloc_redirect($TPL["url_alloc_login"] . ($_SERVER['REQUEST_URI'] != '/'
+            ? '?forward=' . urlencode($_SERVER['REQUEST_URI'])
+            : ''));
 
-    // If a script has NO_AUTH enabled, then it will perform its own
-    // authentication. And will be responsible for setting up any of:
-    // $current_user and $sess.
-    if (!defined("NO_AUTH")) {
-        $current_user = &singleton("current_user", new person());
-        $sess = new session();
-
-        // If session hasn't been started re-direct to login page
-        if (!$sess->Started()) {
-            defined("NO_REDIRECT") &&
-                exit("Session expired. Please <a href='" .
-                    $TPL["url_alloc_login"] .
-                    "'>log in</a> again.");
-            alloc_redirect($TPL["url_alloc_login"] . ($_SERVER['REQUEST_URI'] != '/'
-                ? '?forward=' . urlencode($_SERVER['REQUEST_URI'])
-                : ''));
-
-            // Else load up the current_user and continue
-        } else if ($sess->Get("personID")) {
-            $current_user->load_current_user($sess->Get("personID"));
-        }
-    }
-
-    // Setup all the urls
-    require_once(ALLOC_MOD_DIR . "shared" . DIRECTORY_SEPARATOR . "global_tpl_values.inc.php");
-    $TPL = get_alloc_urls($TPL, $sess);
-
-    // Add user's navigation to quick list dropdown
-    if (is_object($current_user) && $current_user->get_id()) {
-        $history = new history();
-        $history->save_history();
-        $TPL["current_user"] = $current_user;
+        // Else load up the current_user and continue
+    } else if ($sess->Get("personID")) {
+        $current_user->load_current_user($sess->Get("personID"));
     }
 }
 
-// This is a hook for the SaaS side of alloc, to allow per-site code customizations
-if (!function_exists("ace_augment")) {
-    function ace_augment($name, $default = null)
-    {
-        return $default;
-    }
+// Setup all the urls
+require_once(ALLOC_MOD_DIR . "shared" . DIRECTORY_SEPARATOR . "global_tpl_values.inc.php");
+$TPL = get_alloc_urls($TPL, $sess);
+
+// Add user's navigation to quick list dropdown
+if (
+    !empty($current_user)
+    && is_object($current_user)
+    && $current_user->get_id()
+) {
+    $history = new history();
+    $history->save_history();
+    $TPL["current_user"] = $current_user;
 }
 
 // Setup search indices if they don't already exist
