@@ -438,28 +438,25 @@ class page
     }
     public static function stylesheet()
     {
-        if ($_GET["media"] == "print") {
+        if (($_GET["media"] ?? "") === "print") {
             return "print.css";
-        } else {
-            $current_user = &singleton("current_user");
-            $themes = page::get_customizedTheme_array();
-            if (isset($current_user->prefs["customizedTheme2"])) {
-                $style = strtolower($themes[sprintf("%d", $current_user->prefs["customizedTheme2"])]);
-            } else {
-                // if theme is unset, use 'rams'
-                $style = "rams";
-            }
-            return "style_{$style}.css";
         }
+
+        // get user's theme, or default to 4 ('rams')
+        $current_user = &singleton("current_user");
+        $themes = page::get_customizedTheme_array();
+        $theme = strtolower($themes[sprintf("%d", $current_user->prefs["customizedTheme2"] ?? 4)]);
+
+        return "style_{$theme}.css";
     }
     public static function default_font_size()
     {
+        // FIXME: why do we use a custom number to repesent the font size
+        // instead of 'points'?
         $current_user = &singleton("current_user");
         $fonts = page::get_customizedFont_array();
-        $font = $fonts[sprintf("%d", $current_user->prefs["customizedFont"])];
-        $font or $font = 4;
-        $font += 8;
-        return $font;
+
+        return ($fonts[sprintf("%d", $current_user->prefs["customizedFont"])] ?? 4) + 8;
     }
     public static function get_customizedFont_array()
     {
