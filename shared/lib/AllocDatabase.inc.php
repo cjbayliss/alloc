@@ -1,6 +1,6 @@
 <?php
 
-class AllocDatabase extends db
+class AllocDatabase extends Database
 {
     public function __construct()
     {

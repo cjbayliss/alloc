@@ -6,7 +6,7 @@
  */
 
 // DB abstraction
-class db
+class Database
 {
 
     public $username;
