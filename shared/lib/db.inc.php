@@ -172,9 +172,7 @@ class db
     public function query()
     {
         $rtn = null;
-        global $TPL;
         $current_user = &singleton("current_user");
-        $start = microtime();
         $this->connect();
         $args = func_get_args();
         $query = $this->get_escaped_query_str($args);
@@ -198,13 +196,6 @@ class db
                 $this->error();
             }
         }
-
-        $result = timetook($start, false);
-        if ($result > $TPL["slowest_query_time"]) {
-            $TPL["slowest_query"] = $query;
-            $TPL["slowest_query_time"] = $result;
-        }
-        $TPL["all_page_queries"][] = ["time" => $result, "query" => $query];
         return $rtn;
     }
 
@@ -312,7 +303,7 @@ class db
         return $keys[$table];
     }
 
-    public function save($table, $row = [], $debug = 0)
+    public function save($table, $row = [], $_ = 0)
     {
         $keys = [];
         $do_update = null;
@@ -330,9 +321,7 @@ class db
                 $this->get_update_str($row),
                 $this->get_update_str($keys, " AND ")
             );
-            $debug && sizeof($row) and print("<br>SAVE -> UPDATE -> Would have executed this query: <br>" . $q);
-            $debug && !sizeof($row) and print("<br>SAVE -> UPDATE -> Would NOT have executed this query: <br>" . $q);
-            !$debug && sizeof($row) and $this->query($q);
+            sizeof($row) and $this->query($q);
             reset($keys);
             return current($keys);
         } else {
@@ -342,14 +331,12 @@ class db
                 $this->get_insert_str_fields($row),
                 $this->get_insert_str_values($row)
             );
-            $debug && sizeof($row) and print("<br>SAVE -> INSERT -> Would have executed this query: <br>" . $q);
-            $debug && !sizeof($row) and print("<br>SAVE -> INSERT -> Would NOT have executed this query: <br>" . $q);
-            !$debug && sizeof($row) and $this->query($q);
+            sizeof($row) and $this->query($q);
             return $this->get_insert_id();
         }
     }
 
-    public function delete($table, $row = [], $debug = 0)
+    public function delete($table, $row = [], $_ = 0)
     {
         $row = $this->unset_invalid_field_names($table, $row);
         $q = sprintf(
@@ -357,8 +344,6 @@ class db
             $table,
             $this->get_update_str($row, " AND ")
         );
-        $debug && sizeof($row) and print("<br>DELETE -> WILL execute this query: <br>" . $q);
-        $debug && !sizeof($row) and print("<br>DELETE -> WONT execute this query: <br>" . $q);
         if (sizeof($row)) {
             $pdo_statement = $this->query($q);
             return $pdo_statement->rowCount();
