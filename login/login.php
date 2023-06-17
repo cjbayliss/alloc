@@ -95,6 +95,8 @@ if (isset($_POST["username"])) {
     $TPL["username"] = $_POST["username"];
 } else if ($sess->TestCookie() != "alloc_test_cookie") {
     $TPL["username"] = $sess->TestCookie();
+} else {
+    $TPL["username"] = "";
 }
 
 if (isset($_GET["forward"])) {

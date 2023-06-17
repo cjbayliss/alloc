@@ -140,7 +140,7 @@ class session
 
     public function TestCookie()
     {
-        return $_COOKIE["alloc_test_cookie"];
+        return $_COOKIE["alloc_test_cookie"] ?? "";
     }
 
     public function GetUrl($url = "")
