@@ -75,10 +75,10 @@ class db_field
                 if (!$c) {
                     alloc_error("db_field::get_value(): No currency specified for " . $parent->classname . "." . $this->name . " (currency:" . $c . ")");
                 } else if ($this->value == $parent->all_row_fields[$this->name]) {
-                    return page::money($c, $this->value, "%mo");
+                    return Page::money($c, $this->value, "%mo");
                 }
             }
-            return page::htmlentities($this->value);
+            return Page::htmlentities($this->value);
         } else {
             return $this->value;
         }
@@ -100,7 +100,7 @@ class db_field
             if (!$c) {
                 return "db_field::validate(): No currency specified for " . $parent->classname . "." . $this->name . " (currency:" . $c . ")";
             } else if ($this->value != $parent->all_row_fields[$this->name]) {
-                $this->set_value(page::money($c, $this->value, "%mi"));
+                $this->set_value(Page::money($c, $this->value, "%mi"));
             }
         }
     }

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <script>
 $(document).ready(function() {
@@ -19,7 +19,7 @@ $(document).ready(function() {
   <tr>
     <th class="header" colspan="2">Repeating Invoice
       <span>
-        {page::help("
+        {Page::help("
       <b>Repeating Invoices Help</b>
       <br><br>
       Use the invoice below as a template for new invoices
@@ -41,7 +41,7 @@ $(document).ready(function() {
   </tr>
   <tr>
     <td>
-      {page::textarea("frequency",$invoiceRepeat_frequency)}
+      {Page::textarea("frequency",$invoiceRepeat_frequency)}
     </td>
     <td>
         <span class="calendar_container nobr">
@@ -74,7 +74,7 @@ $(document).ready(function() {
   </tr>
   <tr>
     <td>
-      {page::textarea("message",$invoiceRepeat_message,array("height"=>"medium"))}
+      {Page::textarea("message",$invoiceRepeat_message,array("height"=>"medium"))}
     </td>
     <td>
         {$allParties = $invoiceRepeat->get_all_parties($invoiceID)}
@@ -101,13 +101,13 @@ $(document).ready(function() {
         <a href="#x" onClick="$('#repeating-invoice').slideToggle(); return false;">Repeating Invoice</a>
         <a href="{$url_alloc_invoicePrint}invoiceID={$invoiceID}">PDF</a>
         <a href="{$url_alloc_invoicePrint}invoiceID={$invoiceID}&verbose=1">PDF+</a>
-        {page::star("invoice",$invoiceID)}
+        {Page::star("invoice",$invoiceID)}
       {/}
       </span>
     </th>
   </tr>  
   <tr>
-    <td align="right" width="30%">Client:{page::mandatory($clientID)} </td>
+    <td align="right" width="30%">Client:{Page::mandatory($clientID)} </td>
     <td class="nobr" class="nobr" width="20%">{$field_clientID}</td>
     <td align="right" class="nobr" width="10%">Amount Allocated:</td>
     <td>{$field_maxAmount}</td>
@@ -182,4 +182,4 @@ $(document).ready(function() {
 {show_attachments($invoiceID)}
 {/}
 
-{page::footer()}
+{Page::footer()}

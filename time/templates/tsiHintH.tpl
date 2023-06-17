@@ -46,7 +46,7 @@
 <table class="list">
   <tr>
     <th>Add time item hint</th>
-    <th class="right">{page::help("home_tsiHint")}</th>
+    <th class="right">{Page::help("home_tsiHint")}</th>
   </tr>
   <tr>
     <td colspan="2">

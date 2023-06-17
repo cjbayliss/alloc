@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <form action="{$url_alloc_commentTemplate}" method="post">
 <table class="box">
   <tr>
@@ -24,7 +24,7 @@
   </tr>
   <tr>
     <td class="top">Text</td>
-    <td class="top center">{page::textarea("commentTemplateText",$commentTemplateText,array("height"=>"jumbo"))}
+    <td class="top center">{Page::textarea("commentTemplateText",$commentTemplateText,array("height"=>"jumbo"))}
       <br>
       <button type="submit" name="delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
       <button type="submit" name="save" value="1" class="save_button default">Save<i class="icon-ok-sign"></i></button>
@@ -103,5 +103,5 @@
 <input type="hidden" name="commentTemplateModifiedTime" value="{$displayFromDate}">
 <input type="hidden" name="sessID" value="{$sessID}">
 </form>
-{page::footer()}
+{Page::footer()}
 										    

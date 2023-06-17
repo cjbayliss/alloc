@@ -20,7 +20,7 @@ $p->set_tpl_values();
 
 // Probably not valid XML, but jQuery will parse it.
 echo "<data>\n";
-echo "<price>" . page::money($TPL["sellPriceCurrencyTypeID"], $TPL["sellPrice"] * $quantity, "%m") . "</price>\n";
+echo "<price>" . Page::money($TPL["sellPriceCurrencyTypeID"], $TPL["sellPrice"] * $quantity, "%m") . "</price>\n";
 echo "<priceCurrency>" . $TPL["sellPriceCurrencyTypeID"] . "</priceCurrency>\n";
 echo "<priceTax>" . ($TPL["sellPriceIncTax"] ? "1" : "") . "</priceTax>\n";
 echo "<description>" . $TPL["description"] . "</description>\n";

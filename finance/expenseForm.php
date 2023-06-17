@@ -194,11 +194,11 @@ if ($transaction_to_edit->get_value("fromTfID")) {
 
 $tf = new tf();
 $options = $tf->get_assoc_array("tfID", "tfName");
-$TPL["fromTfOptions"] = page::select_options($options, $selectedTfID);
+$TPL["fromTfOptions"] = Page::select_options($options, $selectedTfID);
 
 $m = new meta("currencyType");
 $currencyOps = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
-$TPL["currencyTypeOptions"] = page::select_options($currencyOps, $transaction_to_edit->get_value("currencyTypeID"));
+$TPL["currencyTypeOptions"] = Page::select_options($currencyOps, $transaction_to_edit->get_value("currencyTypeID"));
 
 if (is_object($expenseForm) && $expenseForm->get_value("clientID")) {
     $clientID_sql = unsafe_prepare(" AND clientID = %d", $expenseForm->get_value("clientID"));
@@ -209,7 +209,7 @@ $q = "SELECT projectID AS value, projectName AS label
        WHERE projectStatus = 'Current'
              " . $clientID_sql . "
     ORDER BY projectName";
-$TPL["projectOptions"] = page::select_options($q, $selectedProjectID);
+$TPL["projectOptions"] = Page::select_options($q, $selectedProjectID);
 
 if (is_object($expenseForm)) {
     $expenseForm->set_values();
@@ -311,7 +311,7 @@ $paymentOptionNames = [
     "Account",
     "Direct Deposit",
 ];
-$paymentOptions = page::select_options($paymentOptionNames, $expenseForm->get_value("paymentMethod"));
+$paymentOptions = Page::select_options($paymentOptionNames, $expenseForm->get_value("paymentMethod"));
 
 $rr_options = expenseForm::get_reimbursementRequired_array();
 $rr_checked[sprintf("%d", $expenseForm->get_value("reimbursementRequired"))] = " checked";
@@ -343,7 +343,7 @@ $TPL["seekClientReimbursementOption"] = $scr_label . $scr_hidden;
 $c = new client();
 $c->set_id($expenseForm->get_value("clientID"));
 $c->select();
-$clientName = page::htmlentities($c->get_name());
+$clientName = Page::htmlentities($c->get_name());
 $clientName and $TPL["printer_clientID"] = $clientName;
 $TPL["field_expenseFormComment"] = $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY);
 
@@ -360,8 +360,8 @@ if (is_object($expenseForm) && $expenseForm->get_id() && check_optional_allow_ed
     $options["clientStatus"] = "Current";
     $ops = client::get_list($options);
     $ops = array_kv($ops, "clientID", "clientName");
-    $TPL["field_clientID"] = "<select name=\"clientID\"><option value=\"\">" . page::select_options($ops, $expenseForm->get_value("clientID")) . "</select>";
-    $TPL["field_expenseFormComment"] = page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));
+    $TPL["field_clientID"] = "<select name=\"clientID\"><option value=\"\">" . Page::select_options($ops, $expenseForm->get_value("clientID")) . "</select>";
+    $TPL["field_expenseFormComment"] = Page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));
 } else if (is_object($expenseForm) && $expenseForm->get_id() && $current_user->have_role("admin")) {
     $TPL["expenseFormButtons"] .= '
   <button type="submit" name="unfinalise" value="1" class="save_button"><i class="icon-arrow-left" style="margin:0px; margin-right:5px;"></i>Edit</button>
@@ -370,7 +370,7 @@ if (is_object($expenseForm) && $expenseForm->get_id() && check_optional_allow_ed
   ';
 
     $TPL["field_clientID"] = $clientName;
-    $TPL["field_expenseFormComment"] = page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));
+    $TPL["field_expenseFormComment"] = Page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));
 } else if (is_object($expenseForm) && !$expenseForm->get_value("expenseFormFinalised")) {
     $TPL["expenseFormButtons"] .= '&nbsp;
          <button type="submit" name="save" value="1" class="save_button">Create Expense Form<i class="icon-ok-sign"></i></button>';
@@ -380,8 +380,8 @@ if (is_object($expenseForm) && $expenseForm->get_id() && check_optional_allow_ed
     $options["clientStatus"] = "Current";
     $ops = client::get_list($options);
     $ops = array_kv($ops, "clientID", "clientName");
-    $TPL["field_clientID"] = "<select name=\"clientID\"><option value=\"\">" . page::select_options($ops, $expenseForm->get_value("clientID")) . "</select>";
-    $TPL["field_expenseFormComment"] = page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));
+    $TPL["field_clientID"] = "<select name=\"clientID\"><option value=\"\">" . Page::select_options($ops, $expenseForm->get_value("clientID")) . "</select>";
+    $TPL["field_expenseFormComment"] = Page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));
 }
 
 if (is_object($expenseForm) && $expenseForm->get_id()) {
@@ -396,7 +396,7 @@ if (is_object($expenseForm) && $expenseForm->get_id()) {
     while ($row = $db->row()) {
         $rows[] = $row;
     }
-    $TPL["formTotal"] = page::money_print($rows);
+    $TPL["formTotal"] = Page::money_print($rows);
 }
 
 if (
@@ -414,7 +414,7 @@ if (
     $sel_invoice = $row["invoiceID"];
     $TPL["attach_to_invoice_button"] = "<select name=\"attach_to_invoiceID\">";
     $TPL["attach_to_invoice_button"] .= "<option value=\"create_new\">Create New Invoice</option>";
-    $TPL["attach_to_invoice_button"] .= page::select_options($invoice_list, $sel_invoice) . "</select>";
+    $TPL["attach_to_invoice_button"] .= Page::select_options($invoice_list, $sel_invoice) . "</select>";
     $TPL["attach_to_invoice_button"] .= "<input type=\"submit\" name=\"attach_transactions_to_invoice\" value=\"Add to Invoice\"> ";
     $TPL["invoice_label"] = "Invoice:";
 }

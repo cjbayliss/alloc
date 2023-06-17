@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <script type="text/javascript">
 

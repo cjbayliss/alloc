@@ -48,7 +48,7 @@ function echo_var($matches)
     }
 
     if ($var && $starts_with_equals) {
-        return '<?php echo page::htmlentities(' . $var . '); ?>';
+        return '<?php echo Page::htmlentities(' . $var . '); ?>';
     } else if ($var) {
         return '<?php echo ' . $var . '; ?>';
     }
@@ -74,7 +74,7 @@ function get_template($filename)
     $template = preg_replace_callback($pattern, "fix_curly_braces", $template);
 
     // Replace {$hello}           with: echo $hello
-    // Replace {=$hello}          with: echo page::htmlentities($hello)
+    // Replace {=$hello}          with: echo Page::htmlentities($hello)
     // Replace {$arr.here.we.go}  with: echo $arr["here"]["we"]["go"]
     // Replace {$arr.here.$we.go} with: echo $arr["here"][$we]["go"]
     $pattern = '/{(=?\$[\w\d_\.\$]+)}/i';
@@ -104,7 +104,7 @@ function get_template($filename)
 
     $sr = [
         "{/}"             => "<?php TPL_END_BRACE ?>",
-        "{page::"         => "<?php echo page::",
+        "{Page::"         => "<?php echo Page::",
         "{"               => "<?php ",
         "}"               => " ?>",
         "TPL_END_BRACE"   => "}",
@@ -149,7 +149,7 @@ function include_template($filename, $getString = false)
         $bits = explode("\n", $template);
 
         foreach ($bits as $k => $bit) {
-            echo "<br>" . $k . "&nbsp;&nbsp;&nbsp;&nbsp;" . page::htmlentities($bit);
+            echo "<br>" . $k . "&nbsp;&nbsp;&nbsp;&nbsp;" . Page::htmlentities($bit);
         }
 
         exit;

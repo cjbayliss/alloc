@@ -2,7 +2,7 @@
     <tr>
       <th class="header">Client Contacts
         <span>
-          {page::expand_link("id_new_client_contact","New Client Contact")}
+          {Page::expand_link("id_new_client_contact","New Client Contact")}
         </span>
       </th>
     </tr>
@@ -20,7 +20,7 @@
             <td width="1%">Email</td>
             <td width="1%"><input type="text" name="clientContactEmail" value="{$clientContact_clientContactEmail}"></td>
             <td>Info</td>
-            <td rowspan="5" class="top right">{page::textarea("clientContactOther",$clientContact_clientContactOther,array("height"=>"medium","width"=>"100%"))}</td>
+            <td rowspan="5" class="top right">{Page::textarea("clientContactOther",$clientContact_clientContactOther,array("height"=>"medium","width"=>"100%"))}</td>
           </tr>
           <tr>
             <td>Address</td>

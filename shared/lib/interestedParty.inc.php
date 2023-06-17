@@ -102,7 +102,7 @@ class interestedParty extends DatabaseEntity
         foreach ((array)$bits as $bit) {
             if ($bit) {
                 [$name, $address] = explode("<", $bit);
-                $rtn[] = page::htmlentities(trim($name)) . "<span class='hidden'> " . page::htmlentities("<" . $address) . "</span>";
+                $rtn[] = Page::htmlentities(trim($name)) . "<span class='hidden'> " . Page::htmlentities("<" . $address) . "</span>";
             }
         }
         if ($rtn) {
@@ -194,7 +194,7 @@ class interestedParty extends DatabaseEntity
                 !$info["internal"] && $info["external"] and $c .= " warn";
                 $str .= "<span width=\"150px\" class=\"nobr " . $c . "\" id=\"td_ect_" . $counter . "\" style=\"float:left; width:150px; margin-bottom:5px;\">";
                 $str .= "<input id=\"ect_" . $counter . "\" type=\"checkbox\" name=\"commentEmailRecipients[]\" value=\"" . $info["identifier"] . "\"" . $sel . "> ";
-                $str .= "<label for=\"ect_" . $counter . "\" title=\"" . $info["name"] . " &lt;" . $info["email"] . "&gt;\">" . page::htmlentities($info["name"]) . "</label></span>";
+                $str .= "<label for=\"ect_" . $counter . "\" title=\"" . $info["name"] . " &lt;" . $info["email"] . "&gt;\">" . Page::htmlentities($info["name"]) . "</label></span>";
             }
         }
         return $str;

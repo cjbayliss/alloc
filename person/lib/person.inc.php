@@ -241,7 +241,7 @@ class person extends DatabaseEntity
         }
 
         if ($_FORM["return"] == "html") {
-            return page::htmlentities($rtn);
+            return Page::htmlentities($rtn);
         } else {
             return $rtn;
         }
@@ -507,11 +507,11 @@ class person extends DatabaseEntity
                 $novice_skills = $p->get_skills('Novice');
 
                 $skills = [];
-                $senior_skills and $skills[] = "<img src=\"../images/skill_senior.png\" alt=\"Senior=\"> " . page::htmlentities($senior_skills);
-                $advanced_skills and $skills[] = "<img src=\"../images/skill_advanced.png\" alt=\"Advanced=\"> " . page::htmlentities($advanced_skills);
-                $intermediate_skills and $skills[] = "<img src=\"../images/skill_intermediate.png\" alt=\"Intermediate=\"> " . page::htmlentities($intermediate_skills);
-                $junior_skills and $skills[] = "<img src=\"../images/skill_junior.png\" alt=\"Junior=\"> " . page::htmlentities($junior_skills);
-                $novice_skills and $skills[] = "<img src=\"../images/skill_novice.png\" alt=\"Novice\"> " . page::htmlentities($novice_skills);
+                $senior_skills and $skills[] = "<img src=\"../images/skill_senior.png\" alt=\"Senior=\"> " . Page::htmlentities($senior_skills);
+                $advanced_skills and $skills[] = "<img src=\"../images/skill_advanced.png\" alt=\"Advanced=\"> " . Page::htmlentities($advanced_skills);
+                $intermediate_skills and $skills[] = "<img src=\"../images/skill_intermediate.png\" alt=\"Intermediate=\"> " . Page::htmlentities($intermediate_skills);
+                $junior_skills and $skills[] = "<img src=\"../images/skill_junior.png\" alt=\"Junior=\"> " . Page::htmlentities($junior_skills);
+                $novice_skills and $skills[] = "<img src=\"../images/skill_novice.png\" alt=\"Novice\"> " . Page::htmlentities($novice_skills);
                 $row["skills_list"] = implode("<br>", $skills);
             }
 
@@ -640,10 +640,10 @@ class person extends DatabaseEntity
             "Advanced"     => "Advanced",
             "Senior"       => "Senior",
         ];
-        $rtn["employee_expertise"] = page::select_options($employee_expertise, $_FORM["expertise"]);
+        $rtn["employee_expertise"] = Page::select_options($employee_expertise, $_FORM["expertise"]);
 
         $skill_classes = skill::get_skill_classes();
-        $rtn["skill_classes"] = page::select_options($skill_classes, $_FORM["skill_class"]);
+        $rtn["skill_classes"] = Page::select_options($skill_classes, $_FORM["skill_class"]);
 
         $skills = skill::get_skills();
         // if a skill class is selected and a skill that is not in that class is
@@ -652,7 +652,7 @@ class person extends DatabaseEntity
         if ($skill_class && !in_array($skills[$_FORM["skill"]], $skills)) {
             $_FORM["skill"] = "";
         }
-        $rtn["skills"] = page::select_options($skills, $_FORM["skill"]);
+        $rtn["skills"] = Page::select_options($skills, $_FORM["skill"]);
 
         return $rtn;
     }

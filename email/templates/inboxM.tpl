@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <script>
   function grabbody(num) {
@@ -43,10 +43,10 @@
 
 <table class="box">
   <tr>
-    <th class="header"><a href="{$url_alloc_inbox}">Manage Inbox for {page::htmlentities(str_replace(array("<",">"),"",ALLOC_DEFAULT_FROM_ADDRESS))}</a>
+    <th class="header"><a href="{$url_alloc_inbox}">Manage Inbox for {Page::htmlentities(str_replace(array("<",">"),"",ALLOC_DEFAULT_FROM_ADDRESS))}</a>
       <b> - {print count($rows)} emails</b>
       <span>
-        {page::help("inbox")}
+        {Page::help("inbox")}
       </span>
     </th>
   </tr>
@@ -116,4 +116,4 @@
     </td>
   </tr>
 </table>
-{page::footer()}
+{Page::footer()}

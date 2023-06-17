@@ -152,7 +152,7 @@ class productSale extends DatabaseEntity
             // $rtn["total_other"] += $productSaleItem->get_amount_other();
             [$sp, $spcur] = [$productSaleItem->get_value("sellPrice"), $productSaleItem->get_value("sellPriceCurrencyTypeID")];
 
-            $sellPriceCurr[$spcur] += page::money($spcur, $sp, "%m");
+            $sellPriceCurr[$spcur] += Page::money($spcur, $sp, "%m");
             $total_sellPrice += exchangeRate::convert($spcur, $sp);
             $total_margin += $productSaleItem->get_amount_margin();
             $total_unallocated += $productSaleItem->get_amount_unallocated();
@@ -162,7 +162,7 @@ class productSale extends DatabaseEntity
 
         $sep = "";
         foreach ((array)$sellPriceCurr as $code => $amount) {
-            $label .= $sep . page::money($code, $amount, "%s%mo %c");
+            $label .= $sep . Page::money($code, $amount, "%s%mo %c");
             $sep = " + ";
             $code != config::get_config_item("currency") and $show = true;
         }
@@ -170,13 +170,13 @@ class productSale extends DatabaseEntity
 
         $total_sellPrice_plus_gst = add_tax($total_sellPrice);
 
-        $rtn["total_sellPrice"] = page::money(config::get_config_item("currency"), $total_sellPrice, "%s%mo %c") . $sellPrice_label;
-        $rtn["total_sellPrice_plus_gst"] = page::money(config::get_config_item("currency"), $total_sellPrice_plus_gst, "%s%mo %c") . $sellPrice_label;
-        $rtn["total_margin"] = page::money(config::get_config_item("currency"), $total_margin, "%s%mo %c");
-        $rtn["total_unallocated"] = page::money(config::get_config_item("currency"), $total_unallocated, "%s%mo %c");
-        $rtn["total_unallocated_number"] = page::money(config::get_config_item("currency"), $total_unallocated, "%mo");
+        $rtn["total_sellPrice"] = Page::money(config::get_config_item("currency"), $total_sellPrice, "%s%mo %c") . $sellPrice_label;
+        $rtn["total_sellPrice_plus_gst"] = Page::money(config::get_config_item("currency"), $total_sellPrice_plus_gst, "%s%mo %c") . $sellPrice_label;
+        $rtn["total_margin"] = Page::money(config::get_config_item("currency"), $total_margin, "%s%mo %c");
+        $rtn["total_unallocated"] = Page::money(config::get_config_item("currency"), $total_unallocated, "%s%mo %c");
+        $rtn["total_unallocated_number"] = Page::money(config::get_config_item("currency"), $total_unallocated, "%mo");
 
-        $rtn["total_sellPrice_value"] = page::money(config::get_config_item("currency"), $total_sellPrice, "%mo");
+        $rtn["total_sellPrice_value"] = Page::money(config::get_config_item("currency"), $total_sellPrice, "%mo");
         return $rtn;
     }
 
@@ -235,7 +235,7 @@ class productSale extends DatabaseEntity
         foreach ((array)$this->get_productSaleItems() as $psiID => $psi_row) {
             $p = new product();
             $p->set_id($psi_row["productID"]);
-            $taskDesc[] = "  " . page::money($psi_row["sellPriceCurrencyTypeID"], $psi_row["sellPrice"], "%S%mo")
+            $taskDesc[] = "  " . Page::money($psi_row["sellPriceCurrencyTypeID"], $psi_row["sellPrice"], "%S%mo")
                 . " for " . $psi_row["quantity"]
                 . " x " . $p->get_name();
             $hasItems = true;
@@ -667,24 +667,24 @@ class productSale extends DatabaseEntity
             $filter = "WHERE projectStatus = 'Current' ";
         }
         $query = unsafe_prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
-        $rtn["show_project_options"] = page::select_options($query, $_FORM["projectID"], 70);
+        $rtn["show_project_options"] = Page::select_options($query, $_FORM["projectID"], 70);
 
         // display the list of user name.
         if (have_entity_perm("productSale", PERM_READ, $current_user, false)) {
-            $rtn["show_userID_options"] = page::select_options(person::get_username_list(), $_FORM["personID"]);
+            $rtn["show_userID_options"] = Page::select_options(person::get_username_list(), $_FORM["personID"]);
         } else {
             $person = new person();
             $person->set_id($current_user->get_id());
             $person->select();
             $person_array = [$current_user->get_id() => $person->get_name()];
-            $rtn["show_userID_options"] = page::select_options($person_array, $_FORM["personID"]);
+            $rtn["show_userID_options"] = Page::select_options($person_array, $_FORM["personID"]);
         }
 
         // display a list of status
         $status_array = productSale::get_statii();
         unset($status_array["create"]);
 
-        $rtn["show_status_options"] = page::select_options($status_array, $_FORM["status"]);
+        $rtn["show_status_options"] = Page::select_options($status_array, $_FORM["status"]);
 
         // display the date from filter value
         $rtn["showAllProjects"] = $_FORM["showAllProjects"];
@@ -693,7 +693,7 @@ class productSale extends DatabaseEntity
         $options["return"] = "dropdown_options";
         $ops = client::get_list($options);
         $ops = array_kv($ops, "clientID", "clientName");
-        $rtn["clientOptions"] = page::select_options($ops, $_FORM["clientID"]);
+        $rtn["clientOptions"] = Page::select_options($ops, $_FORM["clientID"]);
 
         // Get
         $rtn["FORM"] = "FORM=" . urlencode(serialize($_FORM));

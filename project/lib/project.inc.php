@@ -459,7 +459,7 @@ class project extends DatabaseEntity
             $optionsArry[$row["projectID"]] = $row["projectName"];
         }
 
-        return page::select_options($optionsArry, $projectIDs, $maxlength);
+        return Page::select_options($optionsArry, $projectIDs, $maxlength);
     }
 
     public function get_dropdown_by_client($clientID = null, $onlymine = false)
@@ -471,7 +471,7 @@ class project extends DatabaseEntity
             $clientList[$this->get_id()] = $this->get_value("projectName");
         }
 
-        $dropdownHtml .= page::select_options($clientList, $this->get_id()) . "</select>";
+        $dropdownHtml .= Page::select_options($clientList, $this->get_id()) . "</select>";
 
         return $dropdownHtml;
     }
@@ -707,14 +707,14 @@ class project extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         $personSelect = "<select name=\"personID[]\" multiple=\"true\">";
-        $personSelect .= page::select_options(person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
+        $personSelect .= Page::select_options(person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
         $personSelect .= "</select>";
 
         $rtn["personSelect"] = $personSelect;
         $meta = new meta("projectStatus");
         $projectStatus_array = $meta->get_assoc_array("projectStatusID", "projectStatusID");
-        $rtn["projectStatusOptions"] = page::select_options($projectStatus_array, $_FORM["projectStatus"]);
-        $rtn["projectTypeOptions"] = page::select_options(project::get_project_type_array(), $_FORM["projectType"]);
+        $rtn["projectStatusOptions"] = Page::select_options($projectStatus_array, $_FORM["projectStatus"]);
+        $rtn["projectTypeOptions"] = Page::select_options(project::get_project_type_array(), $_FORM["projectType"]);
         $rtn["projectName"] = $_FORM["projectName"];
 
         // Get
@@ -889,12 +889,12 @@ class project extends DatabaseEntity
 
                 if ($email) {
                     $name = trim($name);
-                    $str = trim(page::htmlentities($name . " <" . $email . ">"));
+                    $str = trim(Page::htmlentities($name . " <" . $email . ">"));
                     $options[$identifier] = $str;
                 }
             }
         }
-        $str = "<select name=\"interestedParty[]\" multiple=\"true\">" . page::select_options($options, $interestedParty, 100, false) . "</select>";
+        $str = "<select name=\"interestedParty[]\" multiple=\"true\">" . Page::select_options($options, $interestedParty, 100, false) . "</select>";
         return $str;
     }
 
@@ -1045,7 +1045,7 @@ class project extends DatabaseEntity
                     $changeDescription = "Project type set to " . $newValue . ".";
                     break;
                 case 'projectBudget':
-                    $changeDescription = "Project budget set to " . page::money($this->get_value("currencyTypeID"), $newValue) . ".";
+                    $changeDescription = "Project budget set to " . Page::money($this->get_value("currencyTypeID"), $newValue) . ".";
                     break;
                 case 'currencyTypeID':
                     $changeDescription = "Project currency set to " . $newValue . ".";
@@ -1063,13 +1063,13 @@ class project extends DatabaseEntity
                     $changeDescription = "Cost centre TF set to " . $newCostCentreLink . ".";
                     break;
                 case 'customerBilledDollars':
-                    $changeDescription = "Client billing set to " . page::money($this->get_value("currencyTypeID"), $newValue) . ".";
+                    $changeDescription = "Client billing set to " . Page::money($this->get_value("currencyTypeID"), $newValue) . ".";
                     break;
                 case 'defaultTaskLimit':
                     $changeDescription = "Default task limit set to " . $newValue . ".";
                     break;
                 case 'defaultTimeSheetRate':
-                    $changeDescription = "Default time sheet rate set to " . page::money($this->get_value("currencyTypeID"), $newValue) . ".";
+                    $changeDescription = "Default time sheet rate set to " . Page::money($this->get_value("currencyTypeID"), $newValue) . ".";
                     break;
                 case 'defaultTimeSheetRateUnitID':
                     $changeDescription = "Default time sheet rate unit set to '" . $timeUnits[$newValue] . "'.";
@@ -1108,7 +1108,7 @@ class project extends DatabaseEntity
                     }
                     break;
             }
-            $rows[] = "<tr><td class=\"nobr\">" . $audit["dateChanged"] . "</td><td>$changeDescription</td><td>" . page::htmlentities($people_cache[$audit["personID"]]["name"]) . "</td></tr>";
+            $rows[] = "<tr><td class=\"nobr\">" . $audit["dateChanged"] . "</td><td>$changeDescription</td><td>" . Page::htmlentities($people_cache[$audit["personID"]]["name"]) . "</td></tr>";
         }
 
         return implode("\n", $rows);

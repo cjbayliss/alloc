@@ -148,7 +148,7 @@ class invoiceEntity extends DatabaseEntity
             if (isset($timeSheet->pay_info["customerBilledDollars"]) && (bool)strlen($timeSheet->pay_info["customerBilledDollars"])) {
                 $iiUnitPrice = $timeSheet->pay_info["customerBilledDollars"];
             } else {
-                $iiUnitPrice = page::money($currency, $row["rate"], "%mo");
+                $iiUnitPrice = Page::money($currency, $row["rate"], "%mo");
             }
 
             unset($str);
@@ -226,7 +226,7 @@ class invoiceEntity extends DatabaseEntity
         $db = new AllocDatabase();
         $q1 = $db->query("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseFormID);
         while ($row = $db->row($q1)) {
-            $amount = page::money($row["currencyTypeID"], $row["amount"], "%mo");
+            $amount = Page::money($row["currencyTypeID"], $row["amount"], "%mo");
 
             $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d AND transactionID = %d", $expenseFormID, $row["transactionID"]);
             $db = new AllocDatabase();
@@ -304,7 +304,7 @@ class invoiceEntity extends DatabaseEntity
             $ii->set_value("productSaleItemID", $row["productSaleItemID"]);
             $ii->set_value("iiMemo", "Sale (" . $productSale->get_id() . ") item for " . person::get_fullname($productSale->get_value("personID")) . ", " . $row["description"]);
             $ii->set_value("iiQuantity", $row["quantity"]);
-            $row["sellPrice"] = page::money($ii->currency, $row["sellPrice"] / $row["quantity"], "%mo");
+            $row["sellPrice"] = Page::money($ii->currency, $row["sellPrice"] / $row["quantity"], "%mo");
             $ii->set_value("iiUnitPrice", $row["sellPrice"]);
             $ii->set_value("iiAmount", $row["sellPrice"] * $row["quantity"]);
             $d = $productSale->get_value("productSaleDate") or $d = $productSale->get_value("productSaleModifiedTime") or $d = $productSale->get_value("productSaleCreatedTime");

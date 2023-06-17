@@ -116,7 +116,7 @@ class timeSheetItem extends DatabaseEntity
 
     public function calculate_item_charge($currency, $rate = 0)
     {
-        return page::money($currency, $rate * $this->get_value("timeSheetItemDuration") * $this->get_value("multiplier"), "%mo");
+        return Page::money($currency, $rate * $this->get_value("timeSheetItemDuration") * $this->get_value("multiplier"), "%mo");
     }
 
     public function delete()
@@ -306,7 +306,7 @@ class timeSheetItem extends DatabaseEntity
                 $row["timeLimit"] = $task->get_value("timeLimit");
             }
             $row["rate"] = $tsi->get_value("rate", DST_HTML_DISPLAY);
-            $row["worth"] = page::money($tsi->currency, $row["rate"] * $tsi->get_value("multiplier") * $tsi->get_value("timeSheetItemDuration"), "%m");
+            $row["worth"] = Page::money($tsi->currency, $row["rate"] * $tsi->get_value("multiplier") * $tsi->get_value("timeSheetItemDuration"), "%m");
 
             $rows[$row["timeSheetItemID"]] = $row;
         }

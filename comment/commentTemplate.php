@@ -43,7 +43,7 @@ $ops = [
     "invoice"     => "Invoice",
     "productSale" => "Sale",
 ];
-$TPL["commentTemplateTypeOptions"] = page::select_options($ops, $commentTemplate->get_value("commentTemplateType"));
+$TPL["commentTemplateTypeOptions"] = Page::select_options($ops, $commentTemplate->get_value("commentTemplateType"));
 
 $TPL["main_alloc_title"] = "Edit Comment Template - " . APPLICATION_NAME;
 // Invoke the page's main template

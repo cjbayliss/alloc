@@ -330,8 +330,8 @@ class clientContact extends DatabaseEntity
             $client->read_db_record($allocDatabase);
             $row["clientLink"] = $client->get_client_link($_FORM);
             if ($row["clientContactEmail"]) {
-                $email = page::htmlentities($row["clientContactEmail"]);
-                $name = page::htmlentities($row["clientContactName"]);
+                $email = Page::htmlentities($row["clientContactEmail"]);
+                $name = Page::htmlentities($row["clientContactName"]);
                 $row["clientContactEmail"] = "<a href=\"mailto:{$name} &lt;{$email}&gt;\">{$email}</a>";
             }
             $rows[] = $row;

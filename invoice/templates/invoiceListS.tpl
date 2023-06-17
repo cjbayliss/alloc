@@ -26,13 +26,13 @@
 {if $_FORM["showInvoiceDate"]}       <td class="nobr">{$r.invoiceDateFrom}</td>{/}
 {if $_FORM["showInvoiceDate"]}       <td class="nobr">{$r.invoiceDateTo}</td>{/}
 {if $_FORM["showInvoiceStatus"]}     <td class="nobr">{echo $r["statii"][$r["invoiceStatus"]]}</td>{/}
-{if $_FORM["showInvoiceAmount"]}     <td>{page::money($r["currencyTypeID"],$r["iiAmountSum"],"%S%m")}</td>{/}
+{if $_FORM["showInvoiceAmount"]}     <td>{Page::money($r["currencyTypeID"],$r["iiAmountSum"],"%S%m")}</td>{/}
 {if $_FORM["showInvoiceAmountPaid"]} <td class="nobr" data-sort-value="{$r.status_label}">{$r.image}</td>{/}
-{if $_FORM["showInvoiceAmountPaid"]} <td>{page::money($r["currencyTypeID"],$r["amountPaidRejected"],"%S%m")}</td>{/}
-{if $_FORM["showInvoiceAmountPaid"]} <td>{page::money($r["currencyTypeID"],$r["amountPaidPending"],"%S%m")}</td>{/}
-{if $_FORM["showInvoiceAmountPaid"]} <td>{page::money($r["currencyTypeID"],$r["amountPaidApproved"],"%S%m")}</td>{/}
+{if $_FORM["showInvoiceAmountPaid"]} <td>{Page::money($r["currencyTypeID"],$r["amountPaidRejected"],"%S%m")}</td>{/}
+{if $_FORM["showInvoiceAmountPaid"]} <td>{Page::money($r["currencyTypeID"],$r["amountPaidPending"],"%S%m")}</td>{/}
+{if $_FORM["showInvoiceAmountPaid"]} <td>{Page::money($r["currencyTypeID"],$r["amountPaidApproved"],"%S%m")}</td>{/}
   <td width="1%">
-    {page::star("invoice",$r["invoiceID"])}
+    {Page::star("invoice",$r["invoiceID"])}
   </td>
 </tr>
 {/}

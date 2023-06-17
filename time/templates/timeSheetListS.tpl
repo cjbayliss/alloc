@@ -27,14 +27,14 @@
     <td>{$r.dateTo}</td>
     <td>{if $r["status"]=="Rejected"}<span class="warn" title="This timesheet needs to be re-submitted.">{/}{$r.status}{if $r["status"]=="Rejected"}</span>{/}</td>
     <td>{$r.duration}</td>
-    <td class="nobr right">{page::money($r["currencyTypeID"],$r["amount"],"%s%m %c")}</td>
+    <td class="nobr right">{Page::money($r["currencyTypeID"],$r["amount"],"%s%m %c")}</td>
     {if $timeSheetListExtra["showFinances"]}
-    <td class="nobr right">{page::money($r["currencyTypeID"],$r["customerBilledDollars"],"%s%m %c")}</td>
+    <td class="nobr right">{Page::money($r["currencyTypeID"],$r["customerBilledDollars"],"%s%m %c")}</td>
     <td class="nobr right">{$r.transactionsPos}</td>
     <td class="nobr right">{$r.transactionsNeg}</td>
     {/}
     <td width="1%">
-      {page::star("timeSheet",$r["timeSheetID"])}
+      {Page::star("timeSheet",$r["timeSheetID"])}
     </td>
   </tr>
   {/}

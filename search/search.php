@@ -49,7 +49,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = count($hits);
+        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -60,15 +60,15 @@ if ($search && $needle && $category == "search_projects") {
                 "<a href='%sprojectID=%d'>%s</a>",
                 $TPL["url_alloc_project"],
                 $d->getFieldValue('id'),
-                page::htmlentities($d->getFieldValue('name'))
+                Page::htmlentities($d->getFieldValue('name'))
             );
             $row["related"] = sprintf(
                 "<a href='%sclientID=%d'>%s</a>",
                 $TPL["url_alloc_client"],
                 $d->getFieldValue('cid'),
-                page::htmlentities($d->getFieldValue('client'))
+                Page::htmlentities($d->getFieldValue('client'))
             );
-            $row["desc"] = page::htmlentities($d->getFieldValue('desc'));
+            $row["desc"] = Page::htmlentities($d->getFieldValue('desc'));
             $TPL["search_results"][] = $row;
         }
     }
@@ -88,7 +88,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = count($hits);
+        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -99,7 +99,7 @@ if ($search && $needle && $category == "search_projects") {
                 "<a href='%sclientID=%d'>%s</a>",
                 $TPL["url_alloc_client"],
                 $d->getFieldValue('id'),
-                page::htmlentities($d->getFieldValue('name'))
+                Page::htmlentities($d->getFieldValue('name'))
             );
             // $row["related"] = sprintf("<a href='%sprojectID=%d'>%s</a>"
             //                ,$TPL["url_alloc_project"], $d->getFieldValue('pid'), $d->getFieldValue('project'));
@@ -112,10 +112,10 @@ if ($search && $needle && $category == "search_projects") {
                 $num_contact and $num_contact = "\n\n" . $num_contact . " contact" . $s . ".\n";
             }
 
-            $desc = page::htmlentities($d->getFieldValue('desc'));
+            $desc = Page::htmlentities($d->getFieldValue('desc'));
 
             $row["desc"] = $desc . $num_contact;
-            $row["desc2"] = page::htmlentities($d->getFieldValue('contact'));
+            $row["desc2"] = Page::htmlentities($d->getFieldValue('contact'));
 
             $TPL["search_results"][] = $row;
         }
@@ -136,7 +136,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = count($hits);
+        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -147,15 +147,15 @@ if ($search && $needle && $category == "search_projects") {
                 "<a href='%staskID=%d'>%s</a>",
                 $TPL["url_alloc_task"],
                 $d->getFieldValue('id'),
-                page::htmlentities($d->getFieldValue('name'))
+                Page::htmlentities($d->getFieldValue('name'))
             );
             $row["related"] = sprintf(
                 "<a href='%sprojectID=%d'>%s</a>",
                 $TPL["url_alloc_project"],
                 $d->getFieldValue('pid'),
-                page::htmlentities($d->getFieldValue('project'))
+                Page::htmlentities($d->getFieldValue('project'))
             );
-            $row["desc"] = page::htmlentities($d->getFieldValue('desc'));
+            $row["desc"] = Page::htmlentities($d->getFieldValue('desc'));
             $TPL["search_results"][] = $row;
         }
     }
@@ -177,7 +177,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = count($hits);
+        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
 
         $p = &get_cached_table("person");
 
@@ -192,7 +192,7 @@ if ($search && $needle && $category == "search_projects") {
             $author and $author = " by " . $author;
             $row["title"] = $item->get_id() . " " . $item->get_link() . $author;
             $row["score"] = sprintf('%d%%', $hit->score * 100);
-            $row["desc"] = page::htmlentities($d->getFieldValue('desc'));
+            $row["desc"] = Page::htmlentities($d->getFieldValue('desc'));
 
             // get availability of loan
             $db2 = new AllocDatabase();
@@ -213,7 +213,7 @@ if ($search && $needle && $category == "search_projects") {
 
                     // Else you dont have permission to loan or return so just show status
                 } else {
-                    $name = page::htmlentities($p[$loan->get_value("personID")]["name"]);
+                    $name = Page::htmlentities($p[$loan->get_value("personID")]["name"]);
 
                     if ($loan->get_value("dateToBeReturned") < $today) {
                         $row["related"] = "Overdue from " . $name;
@@ -254,7 +254,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = count($hits);
+        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -268,16 +268,16 @@ if ($search && $needle && $category == "search_projects") {
                 "<a href='%stimeSheetID=%d'>%s</a>",
                 $TPL["url_alloc_timeSheet"],
                 $d->getFieldValue('id'),
-                "Time Sheet for " . page::htmlentities($d->getFieldValue('project')) . " by " . page::htmlentities($creator)
+                "Time Sheet for " . Page::htmlentities($d->getFieldValue('project')) . " by " . Page::htmlentities($creator)
             );
             $row["related"] = sprintf(
                 "<a href='%sprojectID=%d'>%s</a>",
                 $TPL["url_alloc_project"],
                 $d->getFieldValue('pid'),
-                page::htmlentities($d->getFieldValue('project'))
+                Page::htmlentities($d->getFieldValue('project'))
             );
 
-            $row["desc"] = page::htmlentities($d->getFieldValue('desc'));
+            $row["desc"] = Page::htmlentities($d->getFieldValue('desc'));
             $TPL["search_results"][] = $row;
         }
     }
@@ -297,29 +297,29 @@ if ($search && $needle && $category == "search_projects") {
         $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = count($hits);
+        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
             $row = [];
             $row["idx"] = $hit->id;
             $row["score"] = sprintf('%d%%', $hit->score * 100);
-            $row["title"] = page::htmlentities($d->getFieldValue('name'));
+            $row["title"] = Page::htmlentities($d->getFieldValue('name'));
             $row["related"] = sprintf(
                 "<a href='%s%sID=%d'>%s</a>",
                 $TPL["url_alloc_" . $d->getFieldValue('type')],
                 $d->getFieldValue('type'),
                 $d->getFieldValue('typeid'),
-                page::htmlentities($d->getFieldValue('typename'))
+                Page::htmlentities($d->getFieldValue('typename'))
             );
-            $row["desc"] = page::htmlentities($d->getFieldValue('desc'));
+            $row["desc"] = Page::htmlentities($d->getFieldValue('desc'));
             $TPL["search_results"][] = $row;
         }
     }
 }
 
 // setup generic values
-$TPL["search_category_options"] = page::get_category_options($category);
+$TPL["search_category_options"] = Page::get_category_options($category);
 $TPL["needle"] = $needle;
 $TPL["needle2"] = $needle;
 if (!$needle || $noRedirect) {

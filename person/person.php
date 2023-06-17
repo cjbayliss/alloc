@@ -114,7 +114,7 @@ function show_person_areasOfExpertise($template)
             $skill_header = false;
         }
         $skill_prof = $skillProficiencys->get_value('skillProficiency');
-        $TPL["skill_proficiencys"] = page::select_options($proficiencys, $skill_prof);
+        $TPL["skill_proficiencys"] = Page::select_options($proficiencys, $skill_prof);
 
         // display rating if there is one
         include_template($template);
@@ -148,7 +148,7 @@ function show_skills_list()
         }
     }
     if (count($skills) > 0) {
-        $TPL["skills"] = page::select_options($skills, "");
+        $TPL["skills"] = Page::select_options($skills, "");
     }
 }
 
@@ -269,7 +269,7 @@ if ($person->get_id()) {
         $person->get_id(),
         $person->get_value("preferred_tfID")
     );
-    $TPL["preferred_tfID_options"] = page::select_options($q, $person->get_value("preferred_tfID"));
+    $TPL["preferred_tfID_options"] = Page::select_options($q, $person->get_value("preferred_tfID"));
 
     $tf = new tf();
     $tf->set_id($person->get_value("preferred_tfID"));
@@ -283,7 +283,7 @@ if (has("time")) {
     $timeUnit = new timeUnit();
     $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
 }
-$TPL["timeSheetRateUnit_select"] = page::select_options($rate_type_array, $person->get_value("defaultTimeSheetRateUnitID"));
+$TPL["timeSheetRateUnit_select"] = Page::select_options($rate_type_array, $person->get_value("defaultTimeSheetRateUnitID"));
 $TPL["timeSheetRateUnit_label"] = $rate_type_array[$person->get_value("defaultTimeSheetRateUnitID")];
 
 if ($personID) {

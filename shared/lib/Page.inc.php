@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class page
+class Page
 {
 
     // Initializer
@@ -146,9 +146,9 @@ class page
         while ($row = $db->row()) {
             $r["history_" . $row["value"]] = $row["the_label"];
         }
-        $str[] = page::select_options($r, $_POST["search_action"]);
+        $str[] = Page::select_options($r, $_POST["search_action"]);
         $TPL["history_options"] = implode("\n", $str);
-        $TPL["category_options"] = page::get_category_options($_POST["search_action"]);
+        $TPL["category_options"] = Page::get_category_options($_POST["search_action"]);
         $TPL["needle"] = $_POST["needle"];
         include_template(ALLOC_MOD_DIR . "shared/templates/toolbarS.tpl");
     }
@@ -214,7 +214,7 @@ class page
             if (in_str("no_esc", $type)) {
                 $str and $msg[$type] = $str;
             } else {
-                $str and $msg[$type] = str_replace($search, $replace, page::htmlentities($str));
+                $str and $msg[$type] = str_replace($search, $replace, Page::htmlentities($str));
             }
         }
 
@@ -243,19 +243,19 @@ class page
         has("comment") and $category_options["search_comment"] = "Search Comments";
         has("item") and $category_options["search_items"] = "Search Items";
         has("finance") and $category_options["search_expenseForm"] = "Search Expense Forms";
-        return page::select_options($category_options, $category);
+        return Page::select_options($category_options, $category);
     }
     public static function help($topic, $hovertext = false)
     {
         $img = null;
         global $TPL;
-        $str = page::prepare_help_string(@file_get_contents($TPL["url_alloc_help"] . $topic . ".html"));
+        $str = Page::prepare_help_string(@file_get_contents($TPL["url_alloc_help"] . $topic . ".html"));
         if (strlen($str)) {
             $img = "<div id='help_button_" . $topic . "' style='display:inline;'><a href=\"" . $TPL["url_alloc_getHelp"] . "topic=" . $topic . "\" target=\"_blank\">";
             $img .= "<img border='0' class='help_button' onmouseover=\"help_text_on('help_button_" . $topic . "','" . $str . "');\" onmouseout=\"help_text_off('help_button_" . $topic . "');\" src=\"";
             $img .= $TPL["url_alloc_images"] . "help.gif\" alt=\"Help\" /></a></div>";
         } else if ($topic) {
-            $str = page::prepare_help_string($topic);
+            $str = Page::prepare_help_string($topic);
             $img = "<div id='help_button_" . md5($topic) . "' style='display:inline;'>";
             if ($hovertext) {
                 $img .= "<span onmouseover=\"help_text_on('help_button_" . md5($topic) . "','" . $str . "');\" onmouseout=\"help_text_off('help_button_" . md5($topic) . "');\">";
@@ -270,7 +270,7 @@ class page
     }
     public static function prepare_help_string($str)
     {
-        $str = page::htmlentities(addslashes($str));
+        $str = Page::htmlentities(addslashes($str));
         $str = str_replace("\r", " ", $str);
         $str = str_replace("\n", " ", $str);
         return $str;
@@ -302,7 +302,7 @@ class page
         foreach ($attrs as $k => $v) {
             $str .= sprintf(' %s="%s"', $k, $v);
         }
-        return "<textarea" . $str . ">" . page::htmlentities($default_value) . "</textarea>\n";
+        return "<textarea" . $str . ">" . Page::htmlentities($default_value) . "</textarea>\n";
     }
     public static function calendar($name, $default_value = "")
     {
@@ -374,7 +374,7 @@ class page
                     $label = substr($label, 0, $max_length - 3) . "...";
                 }
 
-                $escape and $label = page::htmlentities($label);
+                $escape and $label = Page::htmlentities($label);
                 $label = str_replace(" ", "&nbsp;", $label);
 
                 $str .= "\n<option value=\"" . $value . "\"" . $sel . ">" . $label . "</option>";
@@ -444,7 +444,7 @@ class page
 
         // get user's theme, or default to 4 ('rams')
         $current_user = &singleton("current_user");
-        $themes = page::get_customizedTheme_array();
+        $themes = Page::get_customizedTheme_array();
         $theme = strtolower($themes[sprintf("%d", $current_user->prefs["customizedTheme2"] ?? 4)]);
 
         return "style_{$theme}.css";
@@ -454,7 +454,7 @@ class page
         // FIXME: why do we use a custom number to repesent the font size
         // instead of 'points'?
         $current_user = &singleton("current_user");
-        $fonts = page::get_customizedFont_array();
+        $fonts = Page::get_customizedFont_array();
 
         return ($fonts[sprintf("%d", $current_user->prefs["customizedFont"] ?? "")] ?? 4) + 8;
     }
@@ -493,7 +493,7 @@ class page
     public static function to_html($str = "", $maxlength = false)
     {
         $maxlength and $str = wordwrap($str, $maxlength, "\n");
-        $str = page::htmlentities($str);
+        $str = Page::htmlentities($str);
         $str = nl2br($str);
         return $str;
     }
@@ -514,14 +514,14 @@ class page
         // AUD,100        -> 100.00
         // AUD,0|''|false -> 0.00
         if (isset($amount) && (bool)strlen($amount)) {
-            $c or alloc_error("page::money(): no currency specified for amount $amount.");
+            $c or alloc_error("Page::money(): no currency specified for amount $amount.");
             $currencies = &get_cached_table("currencyType");
             $n = $currencies[$c]["numberToBasic"];
 
             // We can use foo * 10^-n to move the decimal point left
             // Eg: sprintf(%0.2f, $amount * 10^-2) => 15000 becomes 150.00
             // We use the numberToBasic number (eg 2) to a) move the decimal point, and b) dictate the sprintf string
-            return page::money_fmt($c, ($amount * 10 ** (-$n)));
+            return Page::money_fmt($c, ($amount * 10 ** (-$n)));
         }
     }
     public static function money_in($c, $amount = null)
@@ -530,7 +530,7 @@ class page
         // AUD,0      -> 0
         // AUD        ->
         if (isset($amount) && (bool)strlen($amount)) {
-            $c or alloc_error("page::money_in(): no currency specified for amount $amount.");
+            $c or alloc_error("Page::money_in(): no currency specified for amount $amount.");
             $currencies = &get_cached_table("currencyType");
             $n = $currencies[$c]["numberToBasic"];
 
@@ -545,9 +545,9 @@ class page
         // Money print
         $c or $c = config::get_config_item('currency');
         $currencies = &get_cached_table("currencyType");
-        $fmt = str_replace("%mo", page::money_out($c, $amount), $fmt);                          // %mo = money_out        eg: 150.21
-        $fmt = str_replace("%mi", page::money_in($c, $amount), $fmt);                           // %mi = money_in         eg: 15021
-        $fmt = str_replace("%m", page::money_fmt($c, $amount), $fmt);                          // %m = format           eg: 150.2 => 150.20
+        $fmt = str_replace("%mo", Page::money_out($c, $amount), $fmt);                          // %mo = money_out        eg: 150.21
+        $fmt = str_replace("%mi", Page::money_in($c, $amount), $fmt);                           // %mi = money_in         eg: 15021
+        $fmt = str_replace("%m", Page::money_fmt($c, $amount), $fmt);                          // %m = format           eg: 150.2 => 150.20
         $fmt = str_replace("%S", $currencies[$c]["currencyTypeLabel"], $fmt); // %S = mandatory symbol eg: $
         (isset($amount) && (bool)strlen($amount)) and $fmt = str_replace("%s", $currencies[$c]["currencyTypeLabel"], $fmt); // %s = optional symbol  eg: $
         $fmt = str_replace("%C", $c, $fmt);                                   // %C = mandatory code   eg: AUD
@@ -572,14 +572,14 @@ class page
 
         // If there's only one currency, then just return that figure.
         if (count($sums) == 1) {
-            return page::money($k, $sums[$k], "%s%m %c");
+            return Page::money($k, $sums[$k], "%s%m %c");
         }
 
         // Else if there's more than one currency, we'll provide a tooltip of
         // the aggregation.
         $sep = "";
         foreach ((array)$sums as $currency => $amount) {
-            $str .= $sep . page::money($currency, $amount, "%s%m %c");
+            $str .= $sep . Page::money($currency, $amount, "%s%m %c");
             $sep = " + ";
             if ($mainCurrency == $currency) {
                 $total += $amount;
@@ -587,9 +587,9 @@ class page
                 $total += exchangeRate::convert($currency, $amount);
             }
         }
-        $total = page::money($mainCurrency, $total, "%s%m %c");
+        $total = Page::money($mainCurrency, $total, "%s%m %c");
         if ($str && $str != $total) {
-            $rtn = page::help(page::exclaim() . "<b>Approximate currency conversion</b><br>" . $str . " = " . $total, page::exclaim() . $total);
+            $rtn = Page::help(Page::exclaim() . "<b>Approximate currency conversion</b><br>" . $str . " = " . $total, Page::exclaim() . $total);
         } else if ($str) {
             $rtn = $str;
         }

@@ -118,16 +118,16 @@ if ($tf->select() && !$tf->get_value("tfActive")) {
 
 $m = new meta("currencyType");
 $currencyOps = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
-$TPL["currencyTypeOptions"] = page::select_options($currencyOps, $transactionRepeat->get_value("currencyTypeID"));
+$TPL["currencyTypeOptions"] = Page::select_options($currencyOps, $transactionRepeat->get_value("currencyTypeID"));
 
-$TPL["tfOptions"] = page::select_options($q, $transactionRepeat->get_value("tfID"));
-$TPL["fromTfOptions"] = page::select_options($q, $transactionRepeat->get_value("fromTfID"));
-$TPL["basisOptions"] = page::select_options(
+$TPL["tfOptions"] = Page::select_options($q, $transactionRepeat->get_value("tfID"));
+$TPL["fromTfOptions"] = Page::select_options($q, $transactionRepeat->get_value("fromTfID"));
+$TPL["basisOptions"] = Page::select_options(
     ["weekly" => "weekly", "fortnightly" => "fortnightly", "monthly" => "monthly", "quarterly" => "quarterly", "yearly" => "yearly"],
     $transactionRepeat->get_value("paymentBasis")
 );
 
-$TPL["transactionTypeOptions"] = page::select_options(transaction::get_transactionTypes(), $transactionRepeat->get_value("transactionType"));
+$TPL["transactionTypeOptions"] = Page::select_options(transaction::get_transactionTypes(), $transactionRepeat->get_value("transactionType"));
 
 if (is_object($transactionRepeat) && $transactionRepeat->get_id() && $current_user->have_role("admin")) {
     $TPL["adminButtons"] .= '

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <style>
 
@@ -95,5 +95,5 @@
 
 
 
-{page::footer()}
+{Page::footer()}
 

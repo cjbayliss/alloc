@@ -95,7 +95,7 @@ function show_comments()
 
     $commentTemplate = new commentTemplate();
     $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "task"]);
-    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
+    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
 
     include_template("../comment/templates/commentM.tpl");
 }
@@ -305,7 +305,7 @@ if (is_array($parentTaskIDs)) {
     $parentTaskIDs = array_reverse($parentTaskIDs, 1);
 
     foreach ($parentTaskIDs as $tName => $tID) {
-        $TPL["hierarchy_links"] .= $br . $spaces . "<a href=\"" . $TPL["url_alloc_task"] . "taskID=" . $tID . "\">" . $tID . " " . page::htmlentities($tName) . "</a>";
+        $TPL["hierarchy_links"] .= $br . $spaces . "<a href=\"" . $TPL["url_alloc_task"] . "taskID=" . $tID . "\">" . $tID . " " . Page::htmlentities($tName) . "</a>";
         $spaces .= "&nbsp;&nbsp;&nbsp;&nbsp;";
         $br = "<br>";
     }
@@ -416,7 +416,7 @@ if ($taskID) {
     $TPL["main_alloc_title"] = "New Task - " . APPLICATION_NAME;
 }
 
-$TPL["tagOptions"] = page::select_options($task->get_tags(true), $task->get_tags(), 300);
+$TPL["tagOptions"] = Page::select_options($task->get_tags(true), $task->get_tags(), 300);
 
 if (!$task->get_id()) {
     $TPL["message_help"][] = "Enter a Task Name and click the Save button to create a new Task.";

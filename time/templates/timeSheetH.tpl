@@ -58,7 +58,7 @@
 <table class="list">
   <tr>
     <th>Add time</th>
-    <th class="right">{page::help("home_timeSheet")}</th>
+    <th class="right">{Page::help("home_timeSheet")}</th>
   </tr>
   <tr>
     <td colspan="2">

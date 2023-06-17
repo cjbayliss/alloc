@@ -2,7 +2,7 @@
 <table align="center" class="filter corner">
   <tr>
     <td>&nbsp;</td>
-    <td>{page::expand_link("project_superset","Projects")}</td>
+    <td>{Page::expand_link("project_superset","Projects")}</td>
     <td>Created By</td> 
     <td rowspan="9" valign="top" colspan="3" class="right">
       {if !$hide_field_options}
@@ -96,8 +96,8 @@
         {$visibility = "hidden"}
       {/}
       <span style="float:right;" class="{$visibility} d_created d_assigned d_targetStart d_targetCompletion d_actualStart d_actualCompletion d_dates">
-        {page::calendar("dateOne",$dateOne);}&nbsp;&nbsp;to&nbsp;&nbsp;
-        {page::calendar("dateTwo",$dateTwo);}
+        {Page::calendar("dateOne",$dateOne);}&nbsp;&nbsp;to&nbsp;&nbsp;
+        {Page::calendar("dateTwo",$dateTwo);}
       </span>
     </td>
   </tr>
@@ -106,7 +106,7 @@
   </tr>
   <tr>
     <td colspan="2">
-      <select width="100%" name="tags[]" multiple="true">{page::select_options($all_tags,$tags)}</select>
+      <select width="100%" name="tags[]" multiple="true">{Page::select_options($all_tags,$tags)}</select>
     </td>
     <td class="right" valign="bottom">
       <span>
@@ -120,7 +120,7 @@
       {/}
       &nbsp;&nbsp;
       <button type="submit" name="applyFilter" value="1" class="filter_button">Filter<i class="icon-cogs"></i></button>
-      {page::help("taskList_filter")}
+      {Page::help("taskList_filter")}
     </td>
   </tr>
 </table>

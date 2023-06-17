@@ -1,5 +1,5 @@
-{page::header()}
-  {page::toolbar()}
+{Page::header()}
+  {Page::toolbar()}
 <table class="box">
 <th>Add Single Item</th>
 <tr>
@@ -77,5 +77,5 @@
 </td>
 </tr>
 </table>
-{page::footer()}
+{Page::footer()}
 

@@ -178,7 +178,7 @@ class comment extends DatabaseEntity
             $new["recipient_editor"] .= "<span class='noprint hidden' id='recipient_dropdown_" . $new["commentID"] . "'>
                                     <form action='" . $TPL["url_alloc_updateRecipients"] . "' method='post'>
                                       <select name='comment_recipients[]' multiple='true' data-callback='save_recipients'>
-                                      " . page::select_options($recipient_ops, $recipient_selected) . "
+                                      " . Page::select_options($recipient_ops, $recipient_selected) . "
                                       </select>
                                       <input type='hidden' name='commentID' value='" . $new["commentID"] . "'>
                                       <input type='submit' value='Go' style='display:none'>
@@ -220,13 +220,13 @@ class comment extends DatabaseEntity
                 foreach ($files as $file) {
                     $new["files"] .= '<div align="center" style="float:left; display:inline; margin-right:14px;">';
                     $new["files"] .= "<a href=\"" . $TPL["url_alloc_getMimePart"] . "part=" . $file["part"] . "&entity=comment&id=" . $v["commentID"] . "\">";
-                    $new["files"] .= get_file_type_image($file["name"]) . "<br>" . page::htmlentities($file["name"]);
+                    $new["files"] .= get_file_type_image($file["name"]) . "<br>" . Page::htmlentities($file["name"]);
                     $new["files"] .= " (" . get_size_label($file["size"]) . ")</a>";
                     $new["files"] .= '</div>';
                 }
             }
 
-            $v["commentEmailRecipients"] and $new["emailed"] = 'Emailed to ' . page::htmlentities($v["commentEmailRecipients"]);
+            $v["commentEmailRecipients"] and $new["emailed"] = 'Emailed to ' . Page::htmlentities($v["commentEmailRecipients"]);
         }
         return (array)$new;
     }
@@ -284,16 +284,16 @@ class comment extends DatabaseEntity
     {
         $rtn = [];
         global $TPL;
-        $comment = comment::add_shrinky_divs(page::htmlentities($row["comment"]), $row["commentID"]);
+        $comment = comment::add_shrinky_divs(Page::htmlentities($row["comment"]), $row["commentID"]);
         $rtn[] = '<div class="panel' . $row["external"] . ' corner pcomment" data-comment-id="' . $row["commentID"] . '">';
         $rtn[] = '<table width="100%" cellspacing="0" border="0">';
         $rtn[] = '<tr>';
         $rtn[] = '  <td style="padding-bottom:0px; white-space:normal">' . $row["attribution"] . $row["hashHTML"] . '</td>';
         $rtn[] = '  <td align="right" style="padding-bottom:0px;" class="nobr">' . $row["form"] . $row["recipient_editor"] . '</td>';
         if ($row["commentID"]) {
-            $rtn[] = '  <td align="right" width="1%">' . page::star("comment", $row["commentID"]) . '</td>';
+            $rtn[] = '  <td align="right" width="1%">' . Page::star("comment", $row["commentID"]) . '</td>';
         } else if ($row["timeSheetItemID"]) {
-            $rtn[] = '  <td align="right" width="1%">' . page::star("timeSheetItem", $row["timeSheetItemID"]) . '</td>';
+            $rtn[] = '  <td align="right" width="1%">' . Page::star("timeSheetItem", $row["timeSheetItemID"]) . '</td>';
         }
         $rtn[] = '</tr>';
         $rtn[] = '<tr>';
@@ -405,7 +405,7 @@ class comment extends DatabaseEntity
     {
         $author = null;
         if ($comment["commentCreatedUserText"]) {
-            $author = page::htmlentities($comment["commentCreatedUserText"]);
+            $author = Page::htmlentities($comment["commentCreatedUserText"]);
         } else if ($comment["clientContactID"]) {
             $clientContact = new clientContact();
             $clientContact->set_id($comment["clientContactID"]);
@@ -1456,8 +1456,8 @@ class comment extends DatabaseEntity
                 // $debug and print "<br>Text1:<br>".$text1."<br>* * *<br>";
                 // $debug and print "Text2:<br>".$text2."<br>+ + +</br>";
                 $debug and print "<br>FROM: " . sprintf("%d", ($from1 == $from2 || !$from2 || same_email_address($from1, config::get_config_item("AllocFromEmailAddress"))));
-                $debug and print " From1: " . page::htmlentities($from1);
-                $debug and print " From2: " . page::htmlentities($from2);
+                $debug and print " From1: " . Page::htmlentities($from1);
+                $debug and print " From2: " . Page::htmlentities($from2);
                 $debug and print "<br>DATE: " . sprintf("%d", $date > $date1 && $date < $date3) . " (" . date("Y-m-d H:i:s", $date) . " | " . date("Y-m-d H:i:s", $date1) . " | " . date("Y-m-d H:i:s", $date3) . ")";
                 $debug and print "<br>";
             }

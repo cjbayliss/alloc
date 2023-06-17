@@ -53,7 +53,7 @@ function show_transaction($template)
             $tf->set_values("tf_");
 
             $TPL["transaction_username"] = $db->f("username");
-            $TPL["transaction_amount"] = page::money($TPL["transaction_currenyTypeID"], $TPL["transaction_amount"], "%s%mo");
+            $TPL["transaction_amount"] = Page::money($TPL["transaction_currenyTypeID"], $TPL["transaction_amount"], "%s%mo");
             $TPL["transaction_type_link"] = $transaction->get_transaction_type_link() or $TPL["transaction_link"] = $transaction->get_value("transactionType");
 
             include_template($template);
@@ -157,9 +157,9 @@ function show_person_list($template)
             $projectPerson->set_values("person_");
             $person = $projectPerson->get_foreign_object("person");
             $TPL["person_username"] = $person->get_value("username");
-            $TPL["person_emailType_options"] = page::select_options($email_type_array, $TPL["person_emailType"]);
-            $TPL["person_role_options"] = page::select_options($project_person_role_array, $TPL["person_roleID"]);
-            $TPL["rateType_options"] = page::select_options($rate_type_array, $TPL["person_rateUnitID"]);
+            $TPL["person_emailType_options"] = Page::select_options($email_type_array, $TPL["person_emailType"]);
+            $TPL["person_role_options"] = Page::select_options($project_person_role_array, $TPL["person_roleID"]);
+            $TPL["rateType_options"] = Page::select_options($rate_type_array, $TPL["person_rateUnitID"]);
             include_template($template);
         }
     }
@@ -204,9 +204,9 @@ function show_new_person($template)
     }
     $project_person = new projectPerson();
     $project_person->set_values("person_");
-    $TPL["person_emailType_options"] = page::select_options($email_type_array, $TPL["person_emailType"]);
-    $TPL["person_role_options"] = page::select_options($project_person_role_array, false);
-    $TPL["rateType_options"] = page::select_options($rate_type_array);
+    $TPL["person_emailType_options"] = Page::select_options($email_type_array, $TPL["person_emailType"]);
+    $TPL["person_role_options"] = Page::select_options($project_person_role_array, false);
+    $TPL["rateType_options"] = Page::select_options($rate_type_array);
     include_template($template);
 }
 
@@ -236,14 +236,14 @@ function show_transactions($template_name)
 function show_person_options()
 {
     global $TPL;
-    echo page::select_options(person::get_username_list($TPL["person_personID"]), $TPL["person_personID"]);
+    echo Page::select_options(person::get_username_list($TPL["person_personID"]), $TPL["person_personID"]);
 }
 
 function show_tf_options($commission_tfID)
 {
     global $tf_array;
     global $TPL;
-    echo page::select_options($tf_array, $TPL[$commission_tfID]);
+    echo Page::select_options($tf_array, $TPL[$commission_tfID]);
 }
 
 function show_comments()
@@ -266,7 +266,7 @@ function show_comments()
 
     $commentTemplate = new commentTemplate();
     $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "project"]);
-    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
+    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
 
     $ops = [
         ""          => "Format as...",
@@ -278,7 +278,7 @@ function show_comments()
 
     $TPL["attach_extra_files"] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
     $TPL["attach_extra_files"] .= "Attach Task Report ";
-    $TPL["attach_extra_files"] .= '<select name="attach_tasks">' . page::select_options($ops) . '</select><br>';
+    $TPL["attach_extra_files"] .= '<select name="attach_tasks">' . Page::select_options($ops) . '</select><br>';
 
     include_template("../comment/templates/commentM.tpl");
 }
@@ -616,8 +616,8 @@ $query = unsafe_prepare("SELECT tfID AS value, tfName AS label
                     FROM tf
                    WHERE tfActive = 1
                 ORDER BY tfName");
-$TPL["commission_tf_options"] = page::select_options($query, $TPL["commission_tfID"]);
-$TPL["cost_centre_tfID_options"] = page::select_options($query, $TPL["project_cost_centre_tfID"]);
+$TPL["commission_tf_options"] = Page::select_options($query, $TPL["commission_tfID"]);
+$TPL["cost_centre_tfID_options"] = Page::select_options($query, $TPL["project_cost_centre_tfID"]);
 
 $db->query($query);
 while ($db->row()) {
@@ -653,22 +653,22 @@ $projectStatus_array = $m->get_assoc_array("projectStatusID", "projectStatusID")
 $timeUnit = new timeUnit();
 $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
 $TPL["project_projectType"] = $projectType_array[$TPL["project_projectType"]];
-$TPL["projectType_options"] = page::select_options($projectType_array, $TPL["project_projectType"]);
-$TPL["projectStatus_options"] = page::select_options($projectStatus_array, $TPL["project_projectStatus"]);
+$TPL["projectType_options"] = Page::select_options($projectType_array, $TPL["project_projectType"]);
+$TPL["projectStatus_options"] = Page::select_options($projectStatus_array, $TPL["project_projectStatus"]);
 $TPL["project_projectPriority"] or $TPL["project_projectPriority"] = 3;
 $projectPriorities = config::get_config_item("projectPriorities") or $projectPriorities = [];
 $tp = [];
 foreach ($projectPriorities as $key => $arr) {
     $tp[$key] = $arr["label"];
 }
-$TPL["projectPriority_options"] = page::select_options($tp, $TPL["project_projectPriority"]);
+$TPL["projectPriority_options"] = Page::select_options($tp, $TPL["project_projectPriority"]);
 $TPL["project_projectPriority"] and $TPL["priorityLabel"] = " <div style=\"display:inline; color:" . $projectPriorities[$TPL["project_projectPriority"]]["colour"] . "\">[" . $tp[$TPL["project_projectPriority"]] . "]</div>";
 
 $TPL["defaultTimeSheetRate"] = $project->get_value("defaultTimeSheetRate");
-$TPL["defaultTimeSheetUnit_options"] = page::select_options($rate_type_array, $project->get_value("defaultTimeSheetRateUnitID"));
+$TPL["defaultTimeSheetUnit_options"] = Page::select_options($rate_type_array, $project->get_value("defaultTimeSheetRateUnitID"));
 $TPL["defaultTimeSheetRateUnits"] = $rate_type_array[$project->get_value("defaultTimeSheetRateUnitID")];
 
-$TPL["currencyType_options"] = page::select_options($currency_array, $TPL["project_currencyTypeID"]);
+$TPL["currencyType_options"] = Page::select_options($currency_array, $TPL["project_currencyTypeID"]);
 
 if ($_GET["projectID"] || $_POST["projectID"] || $TPL["project_projectID"]) {
     define("PROJECT_EXISTS", 1);
@@ -722,8 +722,8 @@ if ($new_project && !(is_object($project) && $project->get_id())) {
 $TPL["taxName"] = config::get_config_item("taxName");
 
 // Need to html-ise projectName and description
-$TPL["project_projectName_html"] = page::to_html($project->get_value("projectName"));
-$TPL["project_projectComments_html"] = page::to_html($project->get_value("projectComments"));
+$TPL["project_projectName_html"] = Page::to_html($project->get_value("projectName"));
+$TPL["project_projectComments_html"] = Page::to_html($project->get_value("projectComments"));
 
 $db = new AllocDatabase();
 
@@ -741,7 +741,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
-$TPL["total_timeSheet_transactions_pending"] = page::money_print($rows);
+$TPL["total_timeSheet_transactions_pending"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM(customerBilledDollars * timeSheetItemDuration * multiplier * pow(10,-currencyType.numberToBasic))
                   AS amount, timeSheet.currencyTypeID as currency
@@ -756,7 +756,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
-$TPL["total_timeSheet_customerBilledDollars"] = page::money_print($rows);
+$TPL["total_timeSheet_customerBilledDollars"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
@@ -772,7 +772,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
-$TPL["total_timeSheet_transactions_approved"] = page::money_print($rows);
+$TPL["total_timeSheet_transactions_approved"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
@@ -789,7 +789,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
-$TPL["total_invoice_transactions_pending"] = page::money_print($rows);
+$TPL["total_invoice_transactions_pending"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
@@ -806,7 +806,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
-$TPL["total_invoice_transactions_approved"] = page::money_print($rows);
+$TPL["total_invoice_transactions_approved"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
@@ -821,7 +821,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
-$TPL["total_expenses_transactions_approved"] = page::money_print($rows);
+$TPL["total_expenses_transactions_approved"] = Page::money_print($rows);
 
 if ($project->get_id()) {
     $defaults["projectID"] = $project->get_id();

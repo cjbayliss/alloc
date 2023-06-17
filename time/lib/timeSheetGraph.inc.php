@@ -46,7 +46,7 @@ class timeSheetGraph
             $_FORM = $current_user->prefs[$_FORM["form_name"]];
         }
 
-        $rtn["personOptions"] = page::select_options(person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
+        $rtn["personOptions"] = Page::select_options(person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
         $rtn["dateFrom"] = $_FORM["dateFrom"];
         $rtn["dateTo"] = $_FORM["dateTo"];
         $rtn["personID"] = $_FORM["personID"];

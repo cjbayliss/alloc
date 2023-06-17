@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <table class="box">
 <tr><th>Help Links</th></tr>
 <tr><td><a href="{$url_alloc_helpfile}">allocPSA User Manual</a></td></tr>
@@ -28,4 +28,4 @@
   <td width="20%" valign="top"><a href="http://sourceforge.net/projects/allocpsa">Sourceforge.net</a><br>For allocPSA downloads.</td>
 </tr>
 </table>
-{page::footer()}
+{Page::footer()}

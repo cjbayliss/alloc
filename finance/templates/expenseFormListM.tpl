@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <table class="box">
   <tr>
@@ -49,7 +49,7 @@
           <td>{$r.transactionCreatedTime}</td>
           <td>{=$r.transactionCreatedUser}</td>
           <td>{$r.transactionType}</td>
-          <td align="right">&nbsp;{page::money($r["currencyTypeID"],$r["formTotal"],"%s%mo")}</td>
+          <td align="right">&nbsp;{Page::money($r["currencyTypeID"],$r["formTotal"],"%s%mo")}</td>
         </tr>
         {/}
       </table>
@@ -58,4 +58,4 @@
 </table>
 
 
-{page::footer()}
+{Page::footer()}

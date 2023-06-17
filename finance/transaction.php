@@ -108,11 +108,11 @@ $transaction->set_tpl_values();
 
 $t = new meta("currencyType");
 $currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
-$TPL["currencyOptions"] = page::select_options($currency_array, $transaction->get_value("currencyTypeID"));
-$TPL["product"] = page::htmlentities($transaction->get_value("product"));
-$TPL["statusOptions"] = page::select_options(["pending" => "Pending", "rejected" => "Rejected", "approved" => "Approved"], $transaction->get_value("status"));
+$TPL["currencyOptions"] = Page::select_options($currency_array, $transaction->get_value("currencyTypeID"));
+$TPL["product"] = Page::htmlentities($transaction->get_value("product"));
+$TPL["statusOptions"] = Page::select_options(["pending" => "Pending", "rejected" => "Rejected", "approved" => "Approved"], $transaction->get_value("status"));
 $transactionTypes = transaction::get_transactionTypes();
-$TPL["transactionTypeOptions"] = page::select_options($transactionTypes, $transaction->get_value("transactionType"));
+$TPL["transactionTypeOptions"] = Page::select_options($transactionTypes, $transaction->get_value("transactionType"));
 
 is_object($transaction) and $TPL["transactionTypeLink"] = $transaction->get_transaction_type_link();
 
@@ -124,14 +124,14 @@ $options = $tf->get_assoc_array("tfID", "tfName");
 $options = add_tf($transaction->get_value("tfID"), $options, "tfIDWarning", " (warning: the TF <b>%s</b> is currently inactive)");
 $options = add_tf($transaction->get_value("fromTfID"), $options, "fromTfIDWarning", " (warning: the TF <b>%s</b> is currently inactive)");
 
-$TPL["tfIDOptions"] = page::select_options($options, $transaction->get_value("tfID"));
-$TPL["fromTfIDOptions"] = page::select_options($options, $transaction->get_value("fromTfID"));
+$TPL["tfIDOptions"] = Page::select_options($options, $transaction->get_value("tfID"));
+$TPL["fromTfIDOptions"] = Page::select_options($options, $transaction->get_value("fromTfID"));
 
 $q = "SELECT projectID as value, projectName as label FROM project WHERE projectStatus = 'Current' ORDER BY projectName";
-$TPL["projectIDOptions"] = page::select_options($q, $transaction->get_value("projectID"));
+$TPL["projectIDOptions"] = Page::select_options($q, $transaction->get_value("projectID"));
 
-$TPL["transactionModifiedUser"] = page::htmlentities(person::get_fullname($TPL["transactionModifiedUser"]));
-$TPL["transactionCreatedUser"] = page::htmlentities(person::get_fullname($TPL["transactionCreatedUser"]));
+$TPL["transactionModifiedUser"] = Page::htmlentities(person::get_fullname($TPL["transactionModifiedUser"]));
+$TPL["transactionCreatedUser"] = Page::htmlentities(person::get_fullname($TPL["transactionCreatedUser"]));
 
 $tf1 = new tf();
 $tf1->set_id($TPL["tfID"]);

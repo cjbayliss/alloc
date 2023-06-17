@@ -100,7 +100,7 @@ class client extends DatabaseEntity
             );
         }
 
-        $options .= page::select_options($clientNamesQuery, $clientID, 100);
+        $options .= Page::select_options($clientNamesQuery, $clientID, 100);
         $str = "<select id=\"clientID\" name=\"clientID\" style=\"width:100%;\">";
         $str .= "<option value=\"\">";
         $str .= $options;
@@ -118,7 +118,7 @@ class client extends DatabaseEntity
               WHERE clientID = %d",
             $clientID
         );
-        $options = page::select_options($clientContactQuery, $clientContactID, 100);
+        $options = Page::select_options($clientContactQuery, $clientContactID, 100);
         return "<select id=\"clientContactID\" name=\"clientContactID\" style=\"width:100%\"><option value=\"\">"
             . $options
             . "</select>";
@@ -257,8 +257,8 @@ class client extends DatabaseEntity
             $row["clientLink"] = $currentClient->get_client_link($_FORM);
 
             if (!empty($row["clientContactEmail"])) {
-                $clientContactName = page::htmlentities($row["clientContactName"]);
-                $clientContactEmail = page::htmlentities(${$row}["clientContactEmail"]);
+                $clientContactName = Page::htmlentities($row["clientContactName"]);
+                $clientContactEmail = Page::htmlentities(${$row}["clientContactEmail"]);
                 $row["clientContactEmail"] =
                     "<a href=\"mailto:{$clientContactName} <{$clientContactEmail}>\">{$clientContactEmail}</a>";
             }
@@ -319,7 +319,7 @@ class client extends DatabaseEntity
 
         $meta = new meta("clientStatus");
         $clientStatus_array = $meta->get_assoc_array("clientStatusID", "clientStatusID");
-        $rtn["clientStatusOptions"] = page::select_options($clientStatus_array, $_FORM["clientStatus"]);
+        $rtn["clientStatusOptions"] = Page::select_options($clientStatus_array, $_FORM["clientStatus"]);
         $rtn["clientName"] = $_FORM["clientName"];
         $rtn["contactName"] = $_FORM["contactName"];
         $letters = range('A', 'Z');
@@ -340,7 +340,7 @@ class client extends DatabaseEntity
         foreach ($clientDataArray as $client => $category) {
             $clientCategories[$category["value"]] = $category["label"];
         }
-        $rtn["clientCategoryOptions"] = page::select_options(
+        $rtn["clientCategoryOptions"] = Page::select_options(
             $clientCategories,
             $clientCategory
         );
@@ -411,7 +411,7 @@ class client extends DatabaseEntity
             . "clientID='+$('#clientID').attr('value')+'&onlymine="
             . sprintf("%d", $onlymine)
             . "','projectDropdown')\"><option></option>";
-        $client_select .= page::select_options($options, $clientID, 100) . "</select>";
+        $client_select .= Page::select_options($options, $clientID, 100) . "</select>";
 
         $client_link = $client->get_link();
 

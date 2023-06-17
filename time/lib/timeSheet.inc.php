@@ -166,14 +166,14 @@ class timeSheet extends DatabaseEntity
             );
 
             $allocDatabase->next_record();
-            $this->pay_info["project_rate"] = page::money($allocDatabase->f("currencyTypeID"), $allocDatabase->f("rate"), "%mo");
+            $this->pay_info["project_rate"] = Page::money($allocDatabase->f("currencyTypeID"), $allocDatabase->f("rate"), "%mo");
             $this->pay_info["project_rateUnitID"] = $allocDatabase->f("rateUnitID");
             $rates[$this->get_value("projectID")][$this->get_value("personID")] = [$this->pay_info["project_rate"], $this->pay_info["project_rateUnitID"]];
         }
 
         // Get external rate, only load up customerBilledDollars if the field is actually set
         if ($this->get_value("customerBilledDollars") !== null && (bool)strlen($this->get_value("customerBilledDollars"))) {
-            $this->pay_info["customerBilledDollars"] = page::money($currency, $this->get_value("customerBilledDollars"), "%mo");
+            $this->pay_info["customerBilledDollars"] = Page::money($currency, $this->get_value("customerBilledDollars"), "%mo");
         }
 
         $q = "SELECT * FROM timeUnit ORDER BY timeUnitSequence DESC";
@@ -204,8 +204,8 @@ class timeSheet extends DatabaseEntity
 
         $row = $allocDatabase->row();
         $this->pay_info = array_merge((array)$this->pay_info, (array)$row);
-        $this->pay_info["total_customerBilledDollars"] = page::money($currency, $this->pay_info["total_customerBilledDollars"], "%m");
-        $this->pay_info["total_dollars"] = page::money($currency, $this->pay_info["total_dollars"], "%m");
+        $this->pay_info["total_customerBilledDollars"] = Page::money($currency, $this->pay_info["total_customerBilledDollars"], "%m");
+        $this->pay_info["total_dollars"] = Page::money($currency, $this->pay_info["total_dollars"], "%m");
 
         $commar = "";
         foreach ((array)$timeUnitRows as $r) {
@@ -226,10 +226,10 @@ class timeSheet extends DatabaseEntity
         }
         $taxPercent = config::get_config_item("taxPercent");
         $taxPercentDivisor = ($taxPercent / 100) + 1;
-        $this->pay_info["total_dollars_minus_gst"] = page::money($currency, $this->pay_info["total_dollars"] / $taxPercentDivisor, "%m");
-        $this->pay_info["total_customerBilledDollars_minus_gst"] = page::money($currency, $this->pay_info["total_customerBilledDollars"] / $taxPercentDivisor, "%m");
+        $this->pay_info["total_dollars_minus_gst"] = Page::money($currency, $this->pay_info["total_dollars"] / $taxPercentDivisor, "%m");
+        $this->pay_info["total_customerBilledDollars_minus_gst"] = Page::money($currency, $this->pay_info["total_customerBilledDollars"] / $taxPercentDivisor, "%m");
         $this->pay_info["total_dollars_not_null"] = $this->pay_info["total_customerBilledDollars"] or $this->pay_info["total_dollars_not_null"] = $this->pay_info["total_dollars"];
-        $this->pay_info["currency"] = page::money($currency, '', "%S");
+        $this->pay_info["currency"] = Page::money($currency, '', "%S");
     }
 
     public function destroyTransactions()
@@ -457,7 +457,7 @@ class timeSheet extends DatabaseEntity
             $tasks[$taskID] = $t->get_id() . " " . $t->get_name();
         }
 
-        $dropdown_options = page::select_options((array)$tasks, $taskID, 100);
+        $dropdown_options = Page::select_options((array)$tasks, $taskID, 100);
         return "<select name=\"timeSheetItem_taskID\" style=\"width:400px\"><option value=\"\">" . $dropdown_options . "</select>";
     }
 
@@ -568,13 +568,13 @@ class timeSheet extends DatabaseEntity
                 $t->get_value("status") == "edit" && (isset($current_user->prefs["timeSheetHoursWarn"]) && (bool)strlen($current_user->prefs["timeSheetHoursWarn"]))
                 && $t->pay_info["total_duration_hours"] >= $current_user->prefs["timeSheetHoursWarn"]
             ) {
-                $row["hoursWarn"] = page::help("This time sheet has gone over " . $current_user->prefs["timeSheetHoursWarn"] . " hours.", page::warn());
+                $row["hoursWarn"] = Page::help("This time sheet has gone over " . $current_user->prefs["timeSheetHoursWarn"] . " hours.", Page::warn());
             }
             if (
                 $t->get_value("status") == "edit" && (isset($current_user->prefs["timeSheetDaysWarn"]) && (bool)strlen($current_user->prefs["timeSheetDaysWarn"]))
                 && (time() - format_date("U", $t->get_value("dateFrom"))) / 60 / 60 / 24 >= $current_user->prefs["timeSheetDaysWarn"]
             ) {
-                $row["daysWarn"] = page::help("This time sheet is over " . $current_user->prefs["timeSheetDaysWarn"] . " days old.", page::warn());
+                $row["daysWarn"] = Page::help("This time sheet is over " . $current_user->prefs["timeSheetDaysWarn"] . " days old.", Page::warn());
             }
 
             $row["person"] = $people_array[$row["personID"]]["name"];
@@ -585,8 +585,8 @@ class timeSheet extends DatabaseEntity
 
             if ($_FORM["showFinances"]) {
                 [$pos, $neg] = $t->get_transaction_totals();
-                $row["transactionsPos"] = page::money_print($pos);
-                $row["transactionsNeg"] = page::money_print($neg);
+                $row["transactionsPos"] = Page::money_print($pos);
+                $row["transactionsNeg"] = Page::money_print($neg);
                 foreach ((array)$pos as $v) {
                     $pos_tallies[] = $v;
                 }
@@ -601,10 +601,10 @@ class timeSheet extends DatabaseEntity
             $rows[$row["timeSheetID"]] = $row;
         }
 
-        $extra["amount_tallies"] = page::money_print($amount_tallies);
-        $extra["billed_tallies"] = page::money_print($billed_tallies);
-        $extra["positive_tallies"] = page::money_print($pos_tallies);
-        $extra["negative_tallies"] = page::money_print($neg_tallies);
+        $extra["amount_tallies"] = Page::money_print($amount_tallies);
+        $extra["billed_tallies"] = Page::money_print($billed_tallies);
+        $extra["positive_tallies"] = Page::money_print($pos_tallies);
+        $extra["negative_tallies"] = Page::money_print($neg_tallies);
 
         if (!$_FORM["noextra"]) {
             return ["rows" => (array)$rows, "extra" => $extra];
@@ -733,17 +733,17 @@ class timeSheet extends DatabaseEntity
             $filter = "WHERE projectStatus = 'Current' ";
         }
         $query = unsafe_prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
-        $rtn["show_project_options"] = page::select_options($query, $_FORM["projectID"], 70);
+        $rtn["show_project_options"] = Page::select_options($query, $_FORM["projectID"], 70);
 
         // display the list of user name.
         if (have_entity_perm("timeSheet", PERM_READ, $current_user, false)) {
-            $rtn["show_userID_options"] = page::select_options(person::get_username_list(), $_FORM["personID"]);
+            $rtn["show_userID_options"] = Page::select_options(person::get_username_list(), $_FORM["personID"]);
         } else {
             $person = new person();
             $person->set_id($current_user->get_id());
             $person->select();
             $person_array = [$current_user->get_id() => $person->get_name()];
-            $rtn["show_userID_options"] = page::select_options($person_array, $_FORM["personID"]);
+            $rtn["show_userID_options"] = Page::select_options($person_array, $_FORM["personID"]);
         }
 
         // display a list of status
@@ -753,7 +753,7 @@ class timeSheet extends DatabaseEntity
         if (!$_FORM["status"]) {
             $_FORM["status"][] = 'edit';
         }
-        $rtn["show_status_options"] = page::select_options($status_array, $_FORM["status"]);
+        $rtn["show_status_options"] = Page::select_options($status_array, $_FORM["status"]);
 
         // display the date from filter value
         $rtn["dateFrom"] = $_FORM["dateFrom"];
@@ -1220,7 +1220,7 @@ class timeSheet extends DatabaseEntity
                 $timeSheet->set_value("status", "edit");
                 $timeSheet->set_value("personID", $current_user->get_id());
                 $timeSheet->set_value("recipient_tfID", $current_user->get_value("preferred_tfID"));
-                $timeSheet->set_value("customerBilledDollars", page::money($project->get_value("currencyTypeID"), $project->get_value("customerBilledDollars"), "%mo"));
+                $timeSheet->set_value("customerBilledDollars", Page::money($project->get_value("currencyTypeID"), $project->get_value("customerBilledDollars"), "%mo"));
                 $timeSheet->set_value("currencyTypeID", $project->get_value("currencyTypeID"));
                 $timeSheet->save();
                 $timeSheetID = $timeSheet->get_id();
@@ -1251,7 +1251,7 @@ class timeSheet extends DatabaseEntity
                     $_POST["timeSheetItem_taskID"] = sprintf("%d", $taskID); // this gets used in timeSheetItem->save();
                 }
                 $tsi->set_value("personID", $current_user->get_id());
-                $tsi->set_value("rate", page::money($timeSheet->get_value("currencyTypeID"), $row_projectPerson["rate"], "%mo"));
+                $tsi->set_value("rate", Page::money($timeSheet->get_value("currencyTypeID"), $row_projectPerson["rate"], "%mo"));
                 $tsi->set_value("multiplier", $multiplier);
                 $tsi->set_value("comment", $comment);
                 $tsi->set_value("emailUID", $emailUID);
@@ -1341,14 +1341,14 @@ class timeSheet extends DatabaseEntity
                 $invoice = new invoice();
                 $invoice->set_id($invoiceID);
                 $invoice->select();
-                $maxAmount = page::money($invoice->get_value("currencyTypeID"), $invoice->get_value("maxAmount"), $fmt);
+                $maxAmount = Page::money($invoice->get_value("currencyTypeID"), $invoice->get_value("maxAmount"), $fmt);
 
                 // Loop through all the other invoice items on that invoice
                 $q = unsafe_prepare("SELECT sum(iiAmount) AS totalUsed FROM invoiceItem WHERE invoiceID = %d", $invoiceID);
                 $allocDatabase->query($q);
                 $row2 = $allocDatabase->row();
 
-                return [page::money($invoice->get_value("currencyTypeID"), $row2["totalUsed"], $fmt), $maxAmount];
+                return [Page::money($invoice->get_value("currencyTypeID"), $row2["totalUsed"], $fmt), $maxAmount];
             }
         }
     }

@@ -262,8 +262,8 @@ class tf extends DatabaseEntity
             $pending_total = $pending_adds[$allocDatabase->f("tfID")] - $pending_subs[$allocDatabase->f("tfID")];
 
             if (have_entity_perm("transaction", PERM_READ, $current_user, $tf->is_owner())) {
-                $row["tfBalance"] = page::money(config::get_config_item("currency"), $total, "%s%m %c");
-                $row["tfBalancePending"] = page::money(config::get_config_item("currency"), $pending_total, "%s%m %c");
+                $row["tfBalance"] = Page::money(config::get_config_item("currency"), $total, "%s%m %c");
+                $row["tfBalancePending"] = Page::money(config::get_config_item("currency"), $pending_total, "%s%m %c");
                 $row["total"] = $total;
                 $row["pending_total"] = $pending_total;
             } else {

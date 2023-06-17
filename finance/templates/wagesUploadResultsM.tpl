@@ -1,5 +1,5 @@
-{page::header()}
-  {page::toolbar()}
+{Page::header()}
+  {Page::toolbar()}
   <h1>Wages Upload Results</h1>
   {$msg}
-{page::footer()}
+{Page::footer()}

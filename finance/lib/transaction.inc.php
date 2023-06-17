@@ -400,19 +400,19 @@ class transaction extends DatabaseEntity
             $row["transactionTypeLink"] = $t->get_transaction_type_link() or $row["transactionTypeLink"] = $row["transactionType"];
             $row["transactionSortDate"] = format_date("Y-m-d", $row["transactionSortDate"]);
 
-            $row["fromTfIDLink"] = "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $row["fromTfID"] . "\">" . page::htmlentities($row["fromTfName"]) . "</a>";
-            $row["tfIDLink"] = "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $row["tfID"] . "\">" . page::htmlentities($row["tfName"]) . "</a>";
+            $row["fromTfIDLink"] = "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $row["fromTfID"] . "\">" . Page::htmlentities($row["fromTfName"]) . "</a>";
+            $row["tfIDLink"] = "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $row["tfID"] . "\">" . Page::htmlentities($row["tfName"]) . "</a>";
 
             if ($t->get_value("status") == "approved") {
                 $running_balance += $amount;
-                $row["running_balance"] = page::money(config::get_config_item("currency"), $running_balance, "%m %c");
+                $row["running_balance"] = Page::money(config::get_config_item("currency"), $running_balance, "%m %c");
             }
 
             if ($amount > 0) {
-                $row["amount_positive"] = page::money($row["currencyTypeID"], $row["amount1"], "%m %c");
+                $row["amount_positive"] = Page::money($row["currencyTypeID"], $row["amount1"], "%m %c");
                 $total_amount_positive += $amount;
             } else {
-                $row["amount_negative"] = page::money($row["currencyTypeID"], $row["amount1"], "%m %c");
+                $row["amount_negative"] = Page::money($row["currencyTypeID"], $row["amount1"], "%m %c");
                 $total_amount_negative += $amount;
             }
 
@@ -428,9 +428,9 @@ class transaction extends DatabaseEntity
             $transactions[$row["transactionID"]] = $row;
         }
 
-        $_FORM["total_amount_positive"] = page::money(config::get_config_item("currency"), $total_amount_positive, "%s%m %c");
-        $_FORM["total_amount_negative"] = page::money(config::get_config_item("currency"), $total_amount_negative, "%s%m %c");
-        $_FORM["running_balance"] = page::money(config::get_config_item("currency"), $running_balance, "%s%m %c");
+        $_FORM["total_amount_positive"] = Page::money(config::get_config_item("currency"), $total_amount_positive, "%s%m %c");
+        $_FORM["total_amount_negative"] = Page::money(config::get_config_item("currency"), $total_amount_negative, "%s%m %c");
+        $_FORM["running_balance"] = Page::money(config::get_config_item("currency"), $running_balance, "%s%m %c");
 
         return ["totals" => $_FORM, "rows" => (array)$transactions];
     }
@@ -527,10 +527,10 @@ class transaction extends DatabaseEntity
         $sp = null;
         global $TPL;
 
-        $rtn["statusOptions"] = page::select_options(["" => "", "pending" => "Pending", "approved" => "Approved", "rejected" => "Rejected"], $_FORM["status"]);
+        $rtn["statusOptions"] = Page::select_options(["" => "", "pending" => "Pending", "approved" => "Approved", "rejected" => "Rejected"], $_FORM["status"]);
 
         $transactionTypeOptions = transaction::get_transactionTypes();
-        $rtn["transactionTypeOptions"] = page::select_options($transactionTypeOptions, $_FORM["transactionType"]);
+        $rtn["transactionTypeOptions"] = Page::select_options($transactionTypeOptions, $_FORM["transactionType"]);
 
         $rtn["startDate"] = $_FORM["startDate"];
         $rtn["endDate"] = $_FORM["endDate"];
@@ -590,8 +590,8 @@ class transaction extends DatabaseEntity
 
         $tf = new tf();
         $options = $tf->get_assoc_array("tfID", "tfName");
-        $rtn["tfOptions"] = page::select_options($options, $_FORM["tfID"]);
-        $rtn["fromTfOptions"] = page::select_options($options, $_FORM["fromTfID"]);
+        $rtn["tfOptions"] = Page::select_options($options, $_FORM["tfID"]);
+        $rtn["fromTfOptions"] = Page::select_options($options, $_FORM["fromTfID"]);
         $rtn["transactionID"] = $_FORM["transactionID"];
         $rtn["expenseFormID"] = $_FORM["expenseFormID"];
         $rtn["product"] = $_FORM["product"];

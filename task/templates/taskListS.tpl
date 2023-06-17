@@ -80,8 +80,8 @@
                                  </span>
                                </td>{/}
   {if $_FORM["showEdit"] || $_FORM["showStarred"]}
-    <td width="1%" data-sort-value="{page::star_sorter("task",$r["taskID"])}">
-      {page::star("task",$r["taskID"])}
+    <td width="1%" data-sort-value="{Page::star_sorter("task",$r["taskID"])}">
+      {Page::star("task",$r["taskID"])}
     </td>
   {/}
 
@@ -137,7 +137,7 @@
   {/}
 
   {if $_FORM["showEdit"]}
-  {$person_options = page::select_options(person::get_username_list())}
+  {$person_options = Page::select_options(person::get_username_list())}
   {$taskType = new meta("taskType")}
   {$taskType_array = $taskType->get_assoc_array("taskTypeID","taskTypeID")}
     <tr id="task_editor">
@@ -161,10 +161,10 @@
             <option value="taskStatus">Task Status to --&gt;
           </select>
         </span>
-        <span class="hidden" id="dateTargetStart_span">{page::calendar("dateTargetStart")}</span>
-        <span class="hidden" id="dateTargetCompletion_span">{page::calendar("dateTargetCompletion")}</span>
-        <span class="hidden" id="dateActualStart_span">{page::calendar("dateActualStart")}</span>
-        <span class="hidden" id="dateActualCompletion_span">{page::calendar("dateActualCompletion")}</span>
+        <span class="hidden" id="dateTargetStart_span">{Page::calendar("dateTargetStart")}</span>
+        <span class="hidden" id="dateTargetCompletion_span">{Page::calendar("dateTargetCompletion")}</span>
+        <span class="hidden" id="dateActualStart_span">{Page::calendar("dateActualStart")}</span>
+        <span class="hidden" id="dateActualCompletion_span">{Page::calendar("dateActualCompletion")}</span>
         <span class="hidden" id="personID_span"><select name="personID"><option value="">{$person_options}</select></span>
         <span class="hidden" id="managerID_span"><select name="managerID"><option value="">{$person_options}</select></span>
         <span class="hidden" id="timeLimit_span"><input name="timeLimit" type="text" size="5"></span>
@@ -172,7 +172,7 @@
         <span class="hidden" id="timeWorst_span"><input name="timeWorst" type="text" size="5"></span>
         <span class="hidden" id="timeExpected_span"><input name="timeExpected" type="text" size="5"></span>
         <span class="hidden" id="priority_span"><select name="priority">{echo task::get_task_priority_dropdown(3)}</select></span>
-        <span class="hidden" id="taskTypeID_span"><select name="taskTypeID">{page::select_options($taskType_array)}</select></span>
+        <span class="hidden" id="taskTypeID_span"><select name="taskTypeID">{Page::select_options($taskType_array)}</select></span>
         <span class="hidden" id="projectIDAndParentTaskID_span">
           <select name="projectID" id="projectID" 
                   onChange="makeAjaxRequest('{$url_alloc_updateParentTasks}projectID='+$(this).val(),'parentTaskDropdown')">
@@ -181,7 +181,7 @@
           </select>
           <span style="display:inline" id="parentTaskDropdown"></span>
         </span>
-        <span class="hidden" id="taskStatus_span"><select name="taskStatus">{page::select_options(task::get_task_statii_array(true))}</select></span>
+        <span class="hidden" id="taskStatus_span"><select name="taskStatus">{Page::select_options(task::get_task_statii_array(true))}</select></span>
         <button type="submit" id="mass_update" name="mass_update" value="1" class="hidden save_button" style="margin-left:5px;text-transform:none !important;">Update Tasks<i class="icon-ok-sign"></i></button>
       </th>
     </tr>

@@ -15,7 +15,7 @@
         {if $r["clientContactMobile"]}Mob: {=$r.clientContactMobile}{/}</td>
     <td>{$r.clientContactEmail}</td>
     <td width="1%">
-      {page::star("clientContact",$r["clientContactID"])}
+      {Page::star("clientContact",$r["clientContactID"])}
     </td>
   </tr>
   {/}

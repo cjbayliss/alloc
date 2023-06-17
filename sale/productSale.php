@@ -10,7 +10,7 @@ require_once("../alloc.php");
 function tf_list($selected)
 {
     global $tfList;
-    echo page::select_options($tfList, $selected);
+    echo Page::select_options($tfList, $selected);
 }
 
 function tf_name($selected)
@@ -22,7 +22,7 @@ function tf_name($selected)
 function transaction_status_list($status)
 {
     $statusList = transaction::get_transactionStatii();
-    echo page::select_options($statusList, $status);
+    echo Page::select_options($statusList, $status);
 }
 
 function show_productSale_list($productSaleID, $template)
@@ -59,11 +59,11 @@ function show_productSale_list($productSaleID, $template)
         $TPL["itemSpent"] = $productSaleItem->get_amount_spent();
         $TPL["itemEarnt"] = $productSaleItem->get_amount_earnt();
         $TPL["itemOther"] = $productSaleItem->get_amount_other();
-        $TPL["itemCosts"] = page::money(config::get_config_item("currency"), $productClass->get_buy_cost($productSaleItem->get_value("productID")) * $productSaleItem->get_value("quantity"), "%s%mo %c");
+        $TPL["itemCosts"] = Page::money(config::get_config_item("currency"), $productClass->get_buy_cost($productSaleItem->get_value("productID")) * $productSaleItem->get_value("quantity"), "%s%mo %c");
         $TPL["itemTotalUnallocated"] = $productSaleItem->get_amount_unallocated();
 
-        $TPL["productList_dropdown"] = page::select_options($ops, $productSaleItem->get_value("productID"));
-        $TPL["productLink"] = "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $productSaleItem->get_value("productID") . "\">" . page::htmlentities($ops[$productSaleItem->get_value("productID")]) . "</a>";
+        $TPL["productList_dropdown"] = Page::select_options($ops, $productSaleItem->get_value("productID"));
+        $TPL["productLink"] = "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $productSaleItem->get_value("productID") . "\">" . Page::htmlentities($ops[$productSaleItem->get_value("productID")]) . "</a>";
         $TPL["transactions"] = $productSale->get_transactions($productSaleItem->get_id());
 
         if ($taxName) {
@@ -89,7 +89,7 @@ function show_productSale_new($template)
     $productSaleItem->set_values(); // wipe clean
     $product = new product();
     $ops = $product->get_assoc_array("productID", "productName");
-    $TPL["productList_dropdown"] = page::select_options($ops, $productSaleItem->get_value("productID"));
+    $TPL["productList_dropdown"] = Page::select_options($ops, $productSaleItem->get_value("productID"));
     $productSaleItemsDoExist and $TPL["display"] = "display:none";
     if ($taxName) {
         $TPL["sellPriceTax_check"] = sprintf(
@@ -114,14 +114,14 @@ function show_transaction_list($transactions = [], $template)
 
         $m = new meta("currencyType");
         $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
-        $TPL["currencyOptions"] = page::select_options($currencyOptions, $transaction->get_value("currencyTypeID"));
-        $TPL["tfList_dropdown"] = page::select_options($tflist, $transaction->get_value("tfID"));
-        $TPL["fromTfList_dropdown"] = page::select_options($tflist, $transaction->get_value("fromTfID"));
+        $TPL["currencyOptions"] = Page::select_options($currencyOptions, $transaction->get_value("currencyTypeID"));
+        $TPL["tfList_dropdown"] = Page::select_options($tflist, $transaction->get_value("tfID"));
+        $TPL["fromTfList_dropdown"] = Page::select_options($tflist, $transaction->get_value("fromTfID"));
         $TPL["tfID_label"] = $tflist[$transaction->get_value("tfID")];
         $TPL["fromTfID_label"] = $tflist[$transaction->get_value("fromTfID")];
         if (CAN_APPROVE_TRANSACTIONS && $TPL["productSale_status"] == "admin") {
             $TPL["status"] = "<select name='status[]' class='txStatus'>";
-            $TPL["status"] .= page::select_options(transaction::get_transactionStatii(), $transaction->get_value("status")) . "</select>";
+            $TPL["status"] .= Page::select_options(transaction::get_transactionStatii(), $transaction->get_value("status")) . "</select>";
         }
 
         $TPL["pc_productCostID"] = $row["pc_productCostID"];
@@ -142,12 +142,12 @@ function show_transaction_new($template)
     $TPL["display"] = "display:none";
     $m = new meta("currencyType");
     $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
-    $TPL["currencyOptions"] = page::select_options($currencyOptions);
-    $TPL["tfList_dropdown"] = page::select_options($tflist);
-    $TPL["fromTfList_dropdown"] = page::select_options($tflist);
+    $TPL["currencyOptions"] = Page::select_options($currencyOptions);
+    $TPL["tfList_dropdown"] = Page::select_options($tflist);
+    $TPL["fromTfList_dropdown"] = Page::select_options($tflist);
     if (CAN_APPROVE_TRANSACTIONS && $TPL["productSale_status"] == "admin") {
         $TPL["status"] = "<select name='status[]' class='txStatus'>";
-        $TPL["status"] .= page::select_options(transaction::get_transactionStatii()) . "</select>";
+        $TPL["status"] .= Page::select_options(transaction::get_transactionStatii()) . "</select>";
     }
     $TPL["pc_productCostID"] = '';
     $TPL["pc_amount"] = '';
@@ -172,7 +172,7 @@ function show_comments()
         $TPL["allParties"] = $productSale->get_all_parties($productSale->get_value("projectID")) or $TPL["allParties"] = [];
         $commentTemplate = new commentTemplate();
         $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "productSale"]);
-        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
+        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
         include_template("../comment/templates/commentM.tpl");
     }
 }
@@ -353,7 +353,7 @@ if ($productSale->get_value("tfID")) {
     $tf_sel = $productSale->get_value("tfID");
 }
 $tf_sel or $tf_sel = config::get_config_item("mainTfID");
-$tf_select = "<select name='tfID'>" . page::select_options($tflist, $tf_sel) . "</select>";
+$tf_select = "<select name='tfID'>" . Page::select_options($tflist, $tf_sel) . "</select>";
 $TPL["show_person_options"] = person::get_fullname($productSale->get_value("personID"));
 $TPL["show_date"] = $productSale->get_value("productSaleDate");
 
@@ -366,11 +366,11 @@ if (!$productSale->get_id() || $productSale->get_value("status") != "finished" &
     $TPL["show_tf_options"] = $tf_select;
 
     $personID = $productSale->get_value("personID") or $personID = $current_user->get_id();
-    $TPL["show_person_options"] = "<select name='personID'>" . page::select_options(person::get_username_list($personID), $personID) . "</select>";
+    $TPL["show_person_options"] = "<select name='personID'>" . Page::select_options(person::get_username_list($personID), $personID) . "</select>";
 
-    $TPL["show_date"] = page::calendar("productSaleDate", $productSale->get_value("productSaleDate"));
+    $TPL["show_date"] = Page::calendar("productSaleDate", $productSale->get_value("productSaleDate"));
     $TPL["show_extRef"] = "<input type='text' name='extRef' value='" . $productSale->get_value("extRef") . "' size='10'>";
-    $TPL["show_extRefDate"] = page::calendar("extRefDate", $productSale->get_value("extRefDate"));
+    $TPL["show_extRefDate"] = Page::calendar("extRefDate", $productSale->get_value("extRefDate"));
 }
 
 $TPL["productSale_status"] = $productSale->get_value("status");

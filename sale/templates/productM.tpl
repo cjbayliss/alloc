@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <script type="text/javascript" language="javascript">
 $(document).ready(function() {
@@ -32,7 +32,7 @@ $(document).ready(function() {
         <a href="{$url_alloc_productList}">Products</a>
         <a href="{$url_alloc_product}">New Product</a>
         <a href="{$url_alloc_productSale}">New Sale</a>
-        {page::help("product")}
+        {Page::help("product")}
       </span>
     </th>
   </tr>
@@ -41,11 +41,11 @@ $(document).ready(function() {
       <div style="float:left; width:47%; padding:0px 12px; vertical-align:top;">
 
         <div class="view">
-          <h6>Product Name{page::mandatory($productName)}</h6>
+          <h6>Product Name{Page::mandatory($productName)}</h6>
           <h2 style="margin-bottom:0px; display:inline;">{=$productName}</h2>
         </div>
         <div class="edit">
-          <h6>Product Name{page::mandatory($productName)}</h6>
+          <h6>Product Name{Page::mandatory($productName)}</h6>
           <input type="text" style="width:100%" maxlength="255" id="productName" name="productName" value="{$productName}">
         </div>
 
@@ -64,12 +64,12 @@ $(document).ready(function() {
         {if $comment}
         <div class="view">
           <h6>Comment</h6>
-          {page::to_html($comment)}
+          {Page::to_html($comment)}
         </div>
         {/}
         <div class="edit">
           <h6>Comment</h6>
-          {page::textarea("comment",$comment, array("width"=>"100%"))}
+          {Page::textarea("comment",$comment, array("width"=>"100%"))}
         </div>
 
       </div>
@@ -77,7 +77,7 @@ $(document).ready(function() {
       <div style="float:right; width:47%; padding:0px 12px; vertical-align:top;">
 
         <div class="view">
-          <h6>Sell Price{$taxName and print " (ex ".$taxName.")"}{page::mandatory($sellPrice)}<div>Active</div></h6>
+          <h6>Sell Price{$taxName and print " (ex ".$taxName.")"}{Page::mandatory($sellPrice)}<div>Active</div></h6>
           <div style="float:left; width:30%;">
             {$sellPrice} {$sellPriceCurrencyTypeID}
           </div>
@@ -86,7 +86,7 @@ $(document).ready(function() {
           </div>
         </div>
         <div class="edit">
-          <h6>Sell Price{$taxName and print " (ex ".$taxName.")"}{page::mandatory($sellPrice)}<div>Active</div></h6>
+          <h6>Sell Price{$taxName and print " (ex ".$taxName.")"}{Page::mandatory($sellPrice)}<div>Active</div></h6>
           <div style="float:left; width:30%;" class="nobr">
             <input type="text" size="8" name="sellPrice" id="sellPrice" value="{$sellPrice}">
             <select name="sellPriceCurrencyTypeID">{$sellPriceCurrencyOptions}</select>
@@ -130,7 +130,7 @@ $(document).ready(function() {
     <th class="header">Product Costs
       <span>
         <a href="#x" class="magic" onClick="$('#product_cost_footer').before('<tr>'+$('#product_cost_row').html()+'</tr>');">New</a>
-        {page::help("product_fixedCost")}
+        {Page::help("product_fixedCost")}
       </span>
     </th>
   </tr>
@@ -168,7 +168,7 @@ $(document).ready(function() {
     <th class="header">Product Commissions
       <span>
         <a href="#x" class="magic" onClick="$('#product_commission_footer').before('<tr>'+$('#product_commission_row').html()+'</tr>');">New</a>
-        {page::help("product_percentageCost")}
+        {Page::help("product_percentageCost")}
       </span>
     </th>
   </tr>
@@ -199,4 +199,4 @@ $(document).ready(function() {
 </form>
 
 {/}
-{page::footer()}
+{Page::footer()}

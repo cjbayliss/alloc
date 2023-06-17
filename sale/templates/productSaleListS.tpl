@@ -21,7 +21,7 @@
   <td class="nobr">{=$r.projectName}</td>
   <td class="nobr">{$r.statusLabel}</td>
   <td width="1%">
-    {page::star("productSale",$r["productSaleID"])}
+    {Page::star("productSale",$r["productSaleID"])}
   </td>
 </tr>
 {/}

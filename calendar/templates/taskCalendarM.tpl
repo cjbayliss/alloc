@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <table class="box">
   <tr>
@@ -14,4 +14,4 @@
 
 
 
-{page::footer()}
+{Page::footer()}

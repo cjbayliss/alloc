@@ -31,10 +31,10 @@ function show_transaction_list($template)
         $tflist = add_inactive_tf($transaction->get_value("fromTfID"), $tflist);
 
         $TPL["display"] = "";
-        $TPL["tfList_dropdown"] = page::select_options($tflist, $transaction->get_value("tfID"), 500);
-        $TPL["fromTfList_dropdown"] = page::select_options($tflist, $transaction->get_value("fromTfID"), 500);
-        $TPL["transactionType_dropdown"] = page::select_options(transaction::get_transactionTypes(), $transaction->get_value("transactionType"));
-        $TPL["status_dropdown"] = page::select_options(transaction::get_transactionStatii(), $transaction->get_value("status"));
+        $TPL["tfList_dropdown"] = Page::select_options($tflist, $transaction->get_value("tfID"), 500);
+        $TPL["fromTfList_dropdown"] = Page::select_options($tflist, $transaction->get_value("fromTfID"), 500);
+        $TPL["transactionType_dropdown"] = Page::select_options(transaction::get_transactionTypes(), $transaction->get_value("transactionType"));
+        $TPL["status_dropdown"] = Page::select_options(transaction::get_transactionStatii(), $transaction->get_value("status"));
         $TPL["link"] = $transaction->get_link("transactionID");
         include_template($template);
     }
@@ -47,10 +47,10 @@ function show_transaction_new($template)
     $transaction = new transaction();
     $transaction->set_values(); // wipe clean
     $TPL["display"] = "display:none";
-    $TPL["tfList_dropdown"] = page::select_options($tflist, null, 500);
-    $TPL["fromTfList_dropdown"] = page::select_options($tflist, null, 500);
-    $TPL["transactionType_dropdown"] = page::select_options(transaction::get_transactionTypes());
-    $TPL["status_dropdown"] = page::select_options(transaction::get_transactionStatii());
+    $TPL["tfList_dropdown"] = Page::select_options($tflist, null, 500);
+    $TPL["fromTfList_dropdown"] = Page::select_options($tflist, null, 500);
+    $TPL["transactionType_dropdown"] = Page::select_options(transaction::get_transactionTypes());
+    $TPL["status_dropdown"] = Page::select_options(transaction::get_transactionStatii());
     $TPL["link"] = "";
     include_template($template);
 }

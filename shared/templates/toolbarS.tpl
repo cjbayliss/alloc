@@ -20,12 +20,12 @@
     </table>
 
     <div id="tabs">
-      {page::tabs()}
-      <p id="extra_links">{page::extra_links()}</p>
+      {Page::tabs()}
+      <p id="extra_links">{Page::extra_links()}</p>
     </div>
 
     <div id="main">
       <div id="main2"><!-- another div nested for padding -->
 
-{page::messages()}
+{Page::messages()}
 

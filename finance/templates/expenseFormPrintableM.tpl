@@ -1,4 +1,4 @@
-{page::header()}
+{Page::header()}
 <style>
   body {
     background-color:white; background-image:none;
@@ -29,4 +29,4 @@
   <td colspan="5" align="left">Signature:</td>
 </tr>
 </table>
-{page::footer()}
+{Page::footer()}

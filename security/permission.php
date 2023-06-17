@@ -46,7 +46,7 @@ if (!$permission->get_value("tableName")) {
     foreach ($ops as $op) {
         $table_name_options[$op] = $op;
     }
-    $TPL["tableNameOptions"] = page::select_options($table_name_options, $permission->get_value("tableName"));
+    $TPL["tableNameOptions"] = Page::select_options($table_name_options, $permission->get_value("tableName"));
     include_template("templates/permissionTableM.tpl");
     exit();
 }
@@ -64,7 +64,7 @@ if ($_POST["save"]) {
 // necessary
 $permission->select();
 
-$TPL["roleNameOptions"] = page::select_options(permission::get_roles(), $permission->get_value("roleName"));
+$TPL["roleNameOptions"] = Page::select_options(permission::get_roles(), $permission->get_value("roleName"));
 
 $table_name = $_POST["tableName"] or $table_name = $permission->get_value("tableName");
 $entity = new $table_name;
@@ -75,7 +75,7 @@ foreach ($entity->permissions as $value => $label) {
     }
 }
 
-$TPL["actionOptions"] = page::select_options($entity->permissions, $sel);
+$TPL["actionOptions"] = Page::select_options($entity->permissions, $sel);
 
 $TPL["main_alloc_title"] = "Edit Permission - " . APPLICATION_NAME;
 

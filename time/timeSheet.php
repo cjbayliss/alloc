@@ -31,10 +31,10 @@ function show_transaction_list($template_name)
         $rows[] = $row;
     }
     $total_allocated = transaction::get_actual_amount_used($rows);
-    $TPL["total_allocated"] = page::money($timeSheet->get_value("currencyTypeID"), $total_allocated, "%s%mo %c");
-    $TPL["total_dollars"] = page::money($timeSheet->get_value("currencyTypeID"), $timeSheet->pay_info["total_dollars_not_null"], "%s%m %c");
+    $TPL["total_allocated"] = Page::money($timeSheet->get_value("currencyTypeID"), $total_allocated, "%s%mo %c");
+    $TPL["total_dollars"] = Page::money($timeSheet->get_value("currencyTypeID"), $timeSheet->pay_info["total_dollars_not_null"], "%s%m %c");
     // used in js preload_field()
-    $TPL["total_remaining"] = page::money($timeSheet->get_value("currencyTypeID"), $total_incoming - $amount_so_far, "%m");
+    $TPL["total_remaining"] = Page::money($timeSheet->get_value("currencyTypeID"), $total_incoming - $amount_so_far, "%m");
 
     if ($has_transactions || $timeSheet->get_value("status") == "invoiced" || $timeSheet->get_value("status") == "finished") {
         if ($timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS) && $timeSheet->get_value("status") == "invoiced") {
@@ -105,13 +105,13 @@ function show_transaction_listR($template_name)
                 $transaction->read_db_record($db);
                 $transaction->set_tpl_values("transaction_");
 
-                $TPL["currency"] = page::money($transaction->get_value("currencyTypeID"), '', "%S");
-                $TPL["currency_code"] = page::money($transaction->get_value("currencyTypeID"), '', "%C");
-                $TPL["tf_options"] = page::select_options($tf_array, $TPL["transaction_tfID"]);
-                $TPL["from_tf_options"] = page::select_options($tf_array, $TPL["transaction_fromTfID"]);
-                $TPL["status_options"] = page::select_options($status_options, $transaction->get_value("status"));
-                $TPL["transactionType_options"] = page::select_options($transactionType_options, $transaction->get_value("transactionType"));
-                $TPL["percent_dropdown"] = page::select_options($percent_array, $empty);
+                $TPL["currency"] = Page::money($transaction->get_value("currencyTypeID"), '', "%S");
+                $TPL["currency_code"] = Page::money($transaction->get_value("currencyTypeID"), '', "%C");
+                $TPL["tf_options"] = Page::select_options($tf_array, $TPL["transaction_tfID"]);
+                $TPL["from_tf_options"] = Page::select_options($tf_array, $TPL["transaction_fromTfID"]);
+                $TPL["status_options"] = Page::select_options($status_options, $transaction->get_value("status"));
+                $TPL["transactionType_options"] = Page::select_options($transactionType_options, $transaction->get_value("transactionType"));
+                $TPL["percent_dropdown"] = Page::select_options($percent_array, $empty);
                 $TPL["transaction_buttons"] = '
             <button type="submit" name="transaction_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
             <button type="submit" name="transaction_save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
@@ -120,7 +120,7 @@ function show_transaction_listR($template_name)
                     $TPL["transaction_transactionType"] = $transaction->get_transaction_type_link();
                     $TPL["transaction_fromTfID"] = $taggedFund->get_name($transaction->get_value("fromTfID"));
                     $TPL["transaction_tfID"] = $taggedFund->get_name($transaction->get_value("tfID"));
-                    $TPL["currency_amount"] = page::money($transaction->get_value("currencyTypeID"), $transaction->get_value("amount"), "%S%mo %c");
+                    $TPL["currency_amount"] = Page::money($transaction->get_value("currencyTypeID"), $transaction->get_value("amount"), "%S%mo %c");
                     include_template("templates/timeSheetTransactionListViewR.tpl");
                 } else {
                     include_template($template_name);
@@ -143,7 +143,7 @@ function show_transaction_listR($template_name)
                 $transaction->set_tpl_values("transaction_");
                 unset($TPL["transaction_amount_pos"]);
                 unset($TPL["transaction_amount_neg"]);
-                $TPL["currency_amount"] = page::money($transaction->get_value("currencyTypeID"), $transaction->get_value("amount"), "%S%mo %c");
+                $TPL["currency_amount"] = Page::money($transaction->get_value("currencyTypeID"), $transaction->get_value("amount"), "%S%mo %c");
                 $TPL["transaction_fromTfID"] = $taggedFund->get_name($transaction->get_value("fromTfID"));
                 $TPL["transaction_tfID"] = $taggedFund->get_name($transaction->get_value("tfID"));
                 $TPL["transaction_transactionType"] = $transactionType_options[$transaction->get_value("transactionType")];
@@ -165,24 +165,24 @@ function show_new_transaction($template)
     if ($timeSheet->get_value("status") == "invoiced" && $timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
         $tf = new tf();
         $options = $tf->get_assoc_array("tfID", "tfName");
-        $TPL["tf_options"] = page::select_options($options, $none);
+        $TPL["tf_options"] = Page::select_options($options, $none);
 
         $transactionType_options = transaction::get_transactionTypes();
-        $TPL["transactionType_options"] = page::select_options($transactionType_options);
+        $TPL["transactionType_options"] = Page::select_options($transactionType_options);
 
         $status_options = [
             "pending"  => "Pending",
             "approved" => "Approved",
             "rejected" => "Rejected",
         ];
-        $TPL["status_options"] = page::select_options($status_options);
+        $TPL["status_options"] = Page::select_options($status_options);
         $TPL["transaction_timeSheetID"] = $timeSheet->get_id();
         $TPL["transaction_transactionDate"] = date("Y-m-d");
         $TPL["transaction_product"] = "";
         $TPL["transaction_buttons"] = '
             <button type="submit" name="transaction_save" value="1" class="save_button">Add<i class="icon-plus-sign"></i></button>
       ';
-        $TPL["percent_dropdown"] = page::select_options($percent_array, $empty);
+        $TPL["percent_dropdown"] = Page::select_options($percent_array, $empty);
         include_template($template);
     }
 }
@@ -222,7 +222,7 @@ function show_timeSheet_list($template)
         <button type="submit" name="timeSheetItem_edit" value="1">Edit<i class="icon-edit"></i></button>';
     }
 
-    $TPL["currency"] = page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
+    $TPL["currency"] = Page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
 
     $timeUnit = new timeUnit();
     $unit_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
@@ -264,7 +264,7 @@ function show_timeSheet_list($template)
 
         $text and $TPL["timeSheetItem_description"] = "<a href=\"" . $TPL["url_alloc_task"] . "taskID=" . $timeSheetItem->get_value('taskID') . "\">" . $text . "</a>";
         $text && $timeSheetItem->get_value("comment") and $br = "<br>";
-        $timeSheetItem->get_value("comment") and $TPL["timeSheetItem_comment"] = $br . $commentPrivateText . page::to_html($timeSheetItem->get_value("comment"));
+        $timeSheetItem->get_value("comment") and $TPL["timeSheetItem_comment"] = $br . $commentPrivateText . Page::to_html($timeSheetItem->get_value("comment"));
         $TPL["timeSheetItem_unit_times_rate"] = $timeSheetItem->calculate_item_charge($timeSheet->get_value("currencyTypeID"), $timeSheetItem->get_value("rate"));
 
         $m = new meta("timeSheetItemMultiplier");
@@ -327,7 +327,7 @@ function show_new_timeSheet($template)
         is_object($timeSheet) && ($timeSheet->get_value("status") == 'edit' || $timeSheet->get_value("status") == 'rejected')
         && ($timeSheet->get_value("personID") == $current_user->get_id() || $timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS))
     ) {
-        $TPL["currency"] = page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
+        $TPL["currency"] = Page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
         // If we are editing an existing timeSheetItem
         $timeSheetItem_edit = $_POST["timeSheetItem_edit"] or $timeSheetItem_edit = $_GET["timeSheetItem_edit"];
         $timeSheetItemID = $_POST["timeSheetItemID"] or $timeSheetItemID = $_GET["timeSheetItemID"];
@@ -370,7 +370,7 @@ function show_new_timeSheet($template)
 
         $timeUnit = new timeUnit();
         $unit_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
-        $TPL["tsi_unit_options"] = page::select_options($unit_array, $timeSheetItemDurationUnitID);
+        $TPL["tsi_unit_options"] = Page::select_options($unit_array, $timeSheetItemDurationUnitID);
         $timeSheetItemDurationUnitID and $TPL["tsi_unit_label"] = $unit_array[$timeSheetItemDurationUnitID];
 
         $m = new meta("timeSheetItemMultiplier");
@@ -379,7 +379,7 @@ function show_new_timeSheet($template)
         foreach ($tsMultipliers as $k => $v) {
             $multiplier_array[$k] = $v["timeSheetItemMultiplierName"];
         }
-        $TPL["tsi_multiplier_options"] = page::select_options($multiplier_array, $timeSheetItemMultiplier);
+        $TPL["tsi_multiplier_options"] = Page::select_options($multiplier_array, $timeSheetItemMultiplier);
 
         include_template($template);
     }
@@ -400,7 +400,7 @@ function show_comments()
         $TPL["clientID"] = $p->get_value("clientID");
         $commentTemplate = new commentTemplate();
         $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "timeSheet"]);
-        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
+        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
 
         $timeSheetPrintOptions = config::get_config_item("timeSheetPrintOptions");
         $timeSheetPrint = config::get_config_item("timeSheetPrint");
@@ -410,7 +410,7 @@ function show_comments()
         }
         $TPL["attach_extra_files"] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
         $TPL["attach_extra_files"] .= "Attach Time Sheet ";
-        $TPL["attach_extra_files"] .= '<select name="attach_timeSheet">' . page::select_options($ops) . '</select><br>';
+        $TPL["attach_extra_files"] .= '<select name="attach_timeSheet">' . Page::select_options($ops) . '</select><br>';
         include_template("../comment/templates/commentM.tpl");
     }
 }
@@ -441,7 +441,7 @@ if ($_REQUEST["updateCB"] && $timeSheet->get_id() && $timeSheet->can_edit_rate()
     $project = new project();
     $project->set_id($timeSheet->get_value("projectID"));
     $project->select();
-    $timeSheet->set_value("customerBilledDollars", page::money($project->get_value("currencyTypeID"), $project->get_value("customerBilledDollars"), "%mo"));
+    $timeSheet->set_value("customerBilledDollars", Page::money($project->get_value("currencyTypeID"), $project->get_value("customerBilledDollars"), "%mo"));
     $timeSheet->set_value("currencyTypeID", $project->get_value("currencyTypeID"));
     $timeSheet->save();
 }
@@ -464,7 +464,7 @@ if ($_REQUEST["updateRate"] && $timeSheet->get_id() && $timeSheet->can_edit_rate
                 $v = "";
             }
             $tsi->set_value("timeSheetItemDurationUnitID", $v);
-            $tsi->set_value("rate", page::money($timeSheet->get_value("currencyTypeID"), $row_projectPerson["rate"], "%mo"));
+            $tsi->set_value("rate", Page::money($timeSheet->get_value("currencyTypeID"), $row_projectPerson["rate"], "%mo"));
             $tsi->skip_tsi_status_check = true;
             $tsi->save();
         }
@@ -493,7 +493,7 @@ if (
         $projectManagers = $project->get_timeSheetRecipients();
 
         if (!$timeSheet->get_id()) {
-            $timeSheet->set_value("customerBilledDollars", page::money($project->get_value("currencyTypeID"), $project->get_value("customerBilledDollars"), "%mo"));
+            $timeSheet->set_value("customerBilledDollars", Page::money($project->get_value("currencyTypeID"), $project->get_value("customerBilledDollars"), "%mo"));
             $timeSheet->set_value("currencyTypeID", $project->get_value("currencyTypeID"));
         }
     } else {
@@ -542,7 +542,7 @@ if (
         } else if ($_POST["save_and_returnToProject"]) {
             $url = $TPL["url_alloc_project"] . "projectID=" . $timeSheet->get_value("projectID");
         } else {
-            $msg = page::htmlentities(urlencode($msg));
+            $msg = Page::htmlentities(urlencode($msg));
             $url = $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . "&msg=" . $msg . "&dont_send_email=" . $_POST["dont_send_email"];
             // Pass the taskID forward if we came from a task
             $url .= "&taskID=" . $_POST["taskID"];
@@ -661,7 +661,7 @@ if ($_GET["newTimeSheet_projectID"] && !$projectID) {
 }
 
 if ($_GET["newTimeSheet_projectID"] && !$db->qr("SELECT * FROM projectPerson WHERE personID = %d AND projectID = %d", $current_user->get_id(), $_GET["newTimeSheet_projectID"])) {
-    alloc_error("You are not a member of the project (id:" . page::htmlentities($_GET["newTimeSheet_projectID"]) . "), please get a manager to add you to the project.");
+    alloc_error("You are not a member of the project (id:" . Page::htmlentities($_GET["newTimeSheet_projectID"]) . "), please get a manager to add you to the project.");
 }
 
 $db->query($query);
@@ -735,7 +735,7 @@ if (is_object($timeSheet) && $timeSheet->get_id() && $timeSheet->have_perm(PERM_
     $sel_invoice = $row["invoiceID"];
     // $TPL["attach_to_invoice_button"] = "<select name=\"attach_to_invoiceID\">";
     // $TPL["attach_to_invoice_button"].= "<option value=\"create_new\">Create New Invoice</option>";
-    // $TPL["attach_to_invoice_button"].= page::select_options($invoice_list,$sel_invoice)."</select>";
+    // $TPL["attach_to_invoice_button"].= Page::select_options($invoice_list,$sel_invoice)."</select>";
     // $TPL["attach_to_invoice_button"].= "<input type=\"submit\" name=\"attach_transactions_to_invoice\" value=\"Add to Invoice\"> ";
 }
 
@@ -905,13 +905,13 @@ if ($timeSheet->get_value("status") == "edit") {
 
 $timeSheet->load_pay_info();
 if ($timeSheet->pay_info["total_customerBilledDollars"]) {
-    $TPL["total_customerBilledDollars"] = page::money($timeSheet->get_value("currencyTypeID"), $timeSheet->pay_info["total_customerBilledDollars"], "%s%m %c");
+    $TPL["total_customerBilledDollars"] = Page::money($timeSheet->get_value("currencyTypeID"), $timeSheet->pay_info["total_customerBilledDollars"], "%s%m %c");
     config::get_config_item("taxPercent") and
 
         $TPL["ex_gst"] = " (" . $timeSheet->pay_info["currency"] . $timeSheet->pay_info["total_customerBilledDollars_minus_gst"] . " excl " . config::get_config_item("taxPercent") . "% " . config::get_config_item("taxName") . ")";
 }
 if ($timeSheet->pay_info["total_dollars"]) {
-    $TPL["total_dollars"] = page::money($timeSheet->get_value("currencyTypeID"), $timeSheet->pay_info["total_dollars"], "%s%m %c");
+    $TPL["total_dollars"] = Page::money($timeSheet->get_value("currencyTypeID"), $timeSheet->pay_info["total_dollars"], "%s%m %c");
 }
 
 $TPL["total_units"] = $timeSheet->pay_info["summary_unit_totals"];

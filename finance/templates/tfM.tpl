@@ -1,5 +1,5 @@
-{page::header()}
-  {page::toolbar()}
+{Page::header()}
+  {Page::toolbar()}
 <form action="{$url_alloc_tf}" method="post">
 <input type="hidden" name="tfID" value="{$tfID}">
 
@@ -25,7 +25,7 @@
   </tr>
   <tr>
     <td valign="top">Comments: </td>
-    <td>{page::textarea("tfComments",$tfComments,array("cols"=>30))}</td>
+    <td>{Page::textarea("tfComments",$tfComments,array("cols"=>30))}</td>
   </tr>
   <tr>
     <td>Last modified by:</td>
@@ -58,5 +58,5 @@
 
 
 
-{page::footer()}
+{Page::footer()}
 

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 
 {foreach $star_entities as $entity => $e}
@@ -30,4 +30,4 @@
   <br><br>
 {/}
 
-{page::footer()}
+{Page::footer()}

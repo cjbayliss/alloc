@@ -184,7 +184,7 @@ class productSaleItem extends DatabaseEntity
         $this->create_transaction(
             config::get_config_item("inTfID"),
             $mainTfID,
-            page::money($this->get_value("sellPriceCurrencyTypeID"), $this->get_value("sellPrice"), "%mo"),
+            Page::money($this->get_value("sellPriceCurrencyTypeID"), $this->get_value("sellPrice"), "%mo"),
             "Product Sale: " . $productName,
             $this->get_value("sellPriceCurrencyTypeID")
         );
@@ -203,7 +203,7 @@ class productSaleItem extends DatabaseEntity
 
         $db2->query($query);
         while ($productCost_row = $db2->next_record()) {
-            $amount = page::money($productCost_row["currencyTypeID"], $productCost_row["amount"] * $this->get_value("quantity"), "%mo");
+            $amount = Page::money($productCost_row["currencyTypeID"], $productCost_row["amount"] * $this->get_value("quantity"), "%mo");
             $this->create_transaction(
                 $productCost_row["tfID"],
                 config::get_config_item("outTfID"),
@@ -215,7 +215,7 @@ class productSaleItem extends DatabaseEntity
         }
 
         // Need to do the percentages separately because they rely on the $totalUnallocated figure
-        $totalUnallocated = page::money(config::get_config_item("currency"), $this->get_amount_unallocated(), "%mo");
+        $totalUnallocated = Page::money(config::get_config_item("currency"), $this->get_amount_unallocated(), "%mo");
 
         // Now loop through all the productCosts % COMMISSIONS for the sale items product.
         $query = unsafe_prepare(
@@ -231,7 +231,7 @@ class productSaleItem extends DatabaseEntity
 
         $db2->query($query);
         while ($productComm_row = $db2->next_record()) {
-            $amount = page::money($productComm_row["currencyTypeID"], $totalUnallocated * $productComm_row["amount"] / 100, "%mo");
+            $amount = Page::money($productComm_row["currencyTypeID"], $totalUnallocated * $productComm_row["amount"] / 100, "%mo");
             $this->create_transaction(
                 $mainTfID,
                 $productComm_row["tfID"],

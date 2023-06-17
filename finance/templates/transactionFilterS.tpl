@@ -2,7 +2,7 @@
       <table align="center" class="filter corner" style="display:table">
         <tr>
           <td colspan="6" class="center" style="padding-top:0px; padding-bottom:10px;">
-            {page::side_by_side_links(array("simple_search"=>"Simple"
+            {Page::side_by_side_links(array("simple_search"=>"Simple"
                                            ,"advanced_search"=>"Advanced")
                                      ,$url_alloc_transactionList."tfID=".$tfID)}
           </td>
@@ -21,8 +21,8 @@
                 <td align="left">&nbsp;</td>
               </tr>
               <tr>
-                <td>{page::calendar("startDate",$startDate)}</td>
-                <td>{page::calendar("endDate",$endDate)}</td>
+                <td>{Page::calendar("startDate",$startDate)}</td>
+                <td>{Page::calendar("endDate",$endDate)}</td>
                 <td><select name="transactionType"><option value=""> {$transactionTypeOptions}</select></td>
                 <td><select name="status"><option value=""> {$statusOptions}</select></td>
                 <td>

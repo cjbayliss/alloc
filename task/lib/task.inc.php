@@ -405,7 +405,7 @@ class task extends DatabaseEntity
                                  AND taskTypeID = 'Parent'
                                  AND (taskStatus NOT IN (" . $ts_closed . ") OR taskID = %d)
                             ORDER BY taskName", $projectID, $parentTaskID);
-            $options = page::select_options($query, $parentTaskID, 70);
+            $options = Page::select_options($query, $parentTaskID, 70);
         }
         return "<select name=\"parentTaskID\"><option value=\"\">" . $options . "</select>";
     }
@@ -441,10 +441,10 @@ class task extends DatabaseEntity
                 $selected[] = $info["identifier"];
             }
             if ($email) {
-                $options[$info["identifier"]] = trim(page::htmlentities(trim($info["name"]) . " <" . $email . ">"));
+                $options[$info["identifier"]] = trim(Page::htmlentities(trim($info["name"]) . " <" . $email . ">"));
             }
         }
-        return "<select name=\"interestedParty[]\" multiple=\"true\">" . page::select_options($options, $selected, 100, false) . "</select>";
+        return "<select name=\"interestedParty[]\" multiple=\"true\">" . Page::select_options($options, $selected, 100, false) . "</select>";
     }
 
     public function get_all_parties($projectID = "")
@@ -556,7 +556,7 @@ class task extends DatabaseEntity
             $selected = $origval;
         }
 
-        return page::select_options($ops, $selected);
+        return Page::select_options($ops, $selected);
     }
 
     public function get_project_options($projectID = "")
@@ -568,7 +568,7 @@ class task extends DatabaseEntity
                             FROM project
                            WHERE projectStatus IN ('Current', 'Potential') OR projectID = %d
                         ORDER BY projectName", $projectID);
-        $str = page::select_options($query, $projectID, 60);
+        $str = Page::select_options($query, $projectID, 60);
         return $str;
     }
 
@@ -588,7 +588,7 @@ class task extends DatabaseEntity
         // TaskType Options
         $meta = new meta("taskType");
         $taskType_array = $meta->get_assoc_array("taskTypeID", "taskTypeID");
-        $TPL["taskTypeOptions"] = page::select_options($taskType_array, $this->get_value("taskTypeID"));
+        $TPL["taskTypeOptions"] = Page::select_options($taskType_array, $this->get_value("taskTypeID"));
 
         // Project dropdown
         $TPL["projectOptions"] = (new task())->get_project_options($projectID);
@@ -622,7 +622,7 @@ class task extends DatabaseEntity
         $TPL["task_taskStatusLabel"] = $this->get_task_status("label");
         $TPL["task_taskStatusColour"] = $this->get_task_status("colour");
         $TPL["task_taskStatusValue"] = $this->get_value("taskStatus");
-        $TPL["task_taskStatusOptions"] = page::select_options(task::get_task_statii_array(true), $this->get_value("taskStatus"));
+        $TPL["task_taskStatusOptions"] = Page::select_options(task::get_task_statii_array(true), $this->get_value("taskStatus"));
 
         // Project label
         if (has("project")) {
@@ -635,7 +635,7 @@ class task extends DatabaseEntity
         $taskPriorities = config::get_config_item("taskPriorities") or $taskPriorities = [];
         $projectPriorities = config::get_config_item("projectPriorities") or $projectPriorities = [];
         $priority = $this->get_value("priority") or $priority = 3;
-        $TPL["priorityOptions"] = page::select_options(array_kv($taskPriorities, null, "label"), $priority);
+        $TPL["priorityOptions"] = Page::select_options(array_kv($taskPriorities, null, "label"), $priority);
         $TPL["priorityLabel"] = " <div style=\"display:inline; color:" . $taskPriorities[$priority]["colour"] . "\">[";
 
         if (is_object($p)) {
@@ -644,7 +644,7 @@ class task extends DatabaseEntity
             $str .= "Project priority: " . $projectPriorities[$p->get_value("projectPriority")]["label"] . "<br>";
             $str .= "Days until due: " . $daysUntilDue . "<br>";
             $str .= "Calculated priority: " . $priorityFactor;
-            $TPL["priorityLabel"] .= page::help($str, $this->get_priority_label());
+            $TPL["priorityLabel"] .= Page::help($str, $this->get_priority_label());
         } else {
             $TPL["priorityLabel"] .= $this->get_priority_label();
         }
@@ -1110,7 +1110,7 @@ class task extends DatabaseEntity
             $row["newSubTask"] = $task->get_new_subtask_link();
             $_FORM["showPercent"] and $row["percentComplete"] = $task->get_percentComplete();
             $_FORM["showTimes"] and $row["timeActual"] = $task->get_time_billed() / 60 / 60;
-            $row["rate"] = page::money($row["currency"], $row["rate"], "%mo");
+            $row["rate"] = Page::money($row["currency"], $row["rate"], "%mo");
             $row["rateUnit"] = $_FORM["timeUnit_cache"][$row["rateUnitID"]]["timeUnitName"];
             $row["priorityLabel"] = $task->get_priority_label();
             if (!$_FORM["skipObject"]) {
@@ -1181,7 +1181,7 @@ class task extends DatabaseEntity
         foreach ($taskPriorities as $k => $v) {
             $tp[$k] = $v["label"];
         }
-        return page::select_options($tp, $priority);
+        return Page::select_options($tp, $priority);
     }
 
     public function get_new_subtask_link()
@@ -1404,20 +1404,20 @@ class task extends DatabaseEntity
 
         $_FORM["projectType"] and $rtn["projectType_checked"][$_FORM["projectType"]] = " checked";
         $ops = ["0" => "Nobody"];
-        $rtn["personOptions"] = page::select_options($ops + person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
-        $rtn["managerPersonOptions"] = page::select_options($ops + person::get_username_list($_FORM["managerID"]), $_FORM["managerID"]);
-        $rtn["creatorPersonOptions"] = page::select_options(person::get_username_list($_FORM["creatorID"]), $_FORM["creatorID"]);
+        $rtn["personOptions"] = Page::select_options($ops + person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
+        $rtn["managerPersonOptions"] = Page::select_options($ops + person::get_username_list($_FORM["managerID"]), $_FORM["managerID"]);
+        $rtn["creatorPersonOptions"] = Page::select_options(person::get_username_list($_FORM["creatorID"]), $_FORM["creatorID"]);
         $rtn["all_tags"] = $task->get_tags(true);
         $rtn["tags"] = $_FORM["tags"];
 
         $meta = new meta("taskType");
         $taskType_array = $meta->get_assoc_array("taskTypeID", "taskTypeID");
-        $rtn["taskTypeOptions"] = page::select_options($taskType_array, $_FORM["taskTypeID"]);
+        $rtn["taskTypeOptions"] = Page::select_options($taskType_array, $_FORM["taskTypeID"]);
 
         $_FORM["taskView"] and $rtn["taskView_checked_" . $_FORM["taskView"]] = " checked";
 
         $taskStatii = task::get_task_statii_array();
-        $rtn["taskStatusOptions"] = page::select_options($taskStatii, $_FORM["taskStatus"]);
+        $rtn["taskStatusOptions"] = Page::select_options($taskStatii, $_FORM["taskStatus"]);
 
         $_FORM["showDescription"] and $rtn["showDescription_checked"] = " checked";
         $_FORM["showDates"] and $rtn["showDates_checked"] = " checked";
@@ -1445,7 +1445,7 @@ class task extends DatabaseEntity
             "d_actualStart"      => "Date Started" . $arrow,
             "d_actualCompletion" => "Date Completed" . $arrow,
         ];
-        $rtn["taskDateOptions"] = page::select_options($taskDateOps, $_FORM["taskDate"], 45, false);
+        $rtn["taskDateOptions"] = Page::select_options($taskDateOps, $_FORM["taskDate"], 45, false);
 
         if (!in_array($_FORM["taskDate"], ["new", "due_today", "overdue"])) {
             $rtn["dateOne"] = $_FORM["dateOne"];
@@ -1479,7 +1479,7 @@ class task extends DatabaseEntity
             10000 => "10000 results",
         ];
 
-        $rtn["limitOptions"] = page::select_options($task_num_ops, $_FORM["limit"]);
+        $rtn["limitOptions"] = Page::select_options($task_num_ops, $_FORM["limit"]);
 
         // unset vars that aren't necessary
         foreach ((array)$_FORM as $k => $v) {
@@ -1606,7 +1606,7 @@ class task extends DatabaseEntity
                     }
                     break;
             }
-            $rows[] = "<tr><td class=\"nobr\">" . $change["dateChanged"] . "</td><td>$changeDescription</td><td>" . page::htmlentities($people_cache[$change["personID"]]["name"]) . "</td></tr>";
+            $rows[] = "<tr><td class=\"nobr\">" . $change["dateChanged"] . "</td><td>$changeDescription</td><td>" . Page::htmlentities($people_cache[$change["personID"]]["name"]) . "</td></tr>";
         }
 
         return implode("\n", $rows);

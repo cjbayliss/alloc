@@ -77,7 +77,7 @@ class home_item
     public function get_help()
     {
         if ($this->help_topic) {
-            page::help($this->help_topic);
+            Page::help($this->help_topic);
         }
     }
 }

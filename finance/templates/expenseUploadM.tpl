@@ -1,5 +1,5 @@
-{page::header()}
-  {page::toolbar()}
+{Page::header()}
+  {Page::toolbar()}
 <table class="box">
   <tr>
     <th>Expenses Upload</th>
@@ -17,4 +17,4 @@
 
   <tr><td>{$msg}</td></td>
 </table>
-{page::footer()}
+{Page::footer()}

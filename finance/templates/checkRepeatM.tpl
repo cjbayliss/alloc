@@ -24,4 +24,4 @@
 
 
 
-{page::footer()}
+{Page::footer()}

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <table class="box">
   <tr>
     <th>Add Reminder - Select {$parentType}</th>
@@ -19,4 +19,4 @@
     </td>
   </tr>
 </table>
-{page::footer()}
+{Page::footer()}

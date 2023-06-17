@@ -251,7 +251,7 @@ class calendar
                 foreach ($tasks_to_start[$date] as $t) {
                     unset($extra);
                     $t["timeLimit"] and $extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")";
-                    $d->start_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . page::htmlentities($t["taskName"] . $extra) . "</a>";
+                    $d->start_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . Page::htmlentities($t["taskName"] . $extra) . "</a>";
                 }
 
                 // Tasks to be Completed
@@ -259,7 +259,7 @@ class calendar
                 foreach ($tasks_to_complete[$date] as $t) {
                     unset($extra);
                     $t["timeLimit"] and $extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")";
-                    $d->complete_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . page::htmlentities($t["taskName"] . $extra) . "</a>";
+                    $d->complete_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . Page::htmlentities($t["taskName"] . $extra) . "</a>";
                 }
 
                 // Reminders
@@ -272,7 +272,7 @@ class calendar
                         $wrap_end = "</strike>";
                     }
 
-                    $text = page::htmlentities($r["reminderSubject"]);
+                    $text = Page::htmlentities($r["reminderSubject"]);
                     $r["reminderTime"] and $text = date("g:ia", $r["reminderTime"]) . " " . $text;
                     $d->reminders[] = '<a href="' . $TPL["url_alloc_reminder"] . '&step=3&reminderID=' . $r["reminderID"] . '&returnToParent=' . $this->rtp . '&personID=' . $r["personID"] . '">' . $wrap_start . $text . $wrap_end . '</a>';
                 }
@@ -280,7 +280,7 @@ class calendar
                 // Absences
                 $absences[$date] or $absences[$date] = [];
                 foreach ($absences[$date] as $a) {
-                    $d->absences[] = '<a href="' . $TPL["url_alloc_absence"] . 'absenceID=' . $a["absenceID"] . '&returnToParent=' . $this->rtp . '">' . person::get_fullname($a["personID"]) . ': ' . page::htmlentities($a["absenceType"]) . '</a>';
+                    $d->absences[] = '<a href="' . $TPL["url_alloc_absence"] . 'absenceID=' . $a["absenceID"] . '&returnToParent=' . $this->rtp . '">' . person::get_fullname($a["personID"]) . ': ' . Page::htmlentities($a["absenceType"]) . '</a>';
                 }
 
                 $d->draw_day_html();

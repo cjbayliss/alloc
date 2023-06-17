@@ -64,6 +64,6 @@ $absenceType_array = [
     'Other'        => 'Other',
 ];
 
-$TPL["absenceType_options"] = page::select_options($absenceType_array, $absence->get_value("absenceType"));
+$TPL["absenceType_options"] = Page::select_options($absenceType_array, $absence->get_value("absenceType"));
 $TPL["main_alloc_title"] = "Absence Form - " . APPLICATION_NAME;
 include_template("templates/absenceFormM.tpl");

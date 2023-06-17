@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <table class="box">
   <tr>
@@ -23,13 +23,13 @@
             {$people =& get_cached_table("person")}
             {foreach $people as $personID => $person}{if $person["personActive"]}{$ops[$personID] = $person["name"]}{/}{/}
               <select name="personID[]" multiple="true" size="9">
-                {page::select_options($ops,$_REQUEST["personID"])}
+                {Page::select_options($ops,$_REQUEST["personID"])}
               </select>
             </td>
-            <td class="top">{page::calendar("fromDate",$_REQUEST["fromDate"]);}</td>
-            <td class="top">{page::calendar("toDate",$_REQUEST["toDate"]);}</td>
+            <td class="top">{Page::calendar("fromDate",$_REQUEST["fromDate"]);}</td>
+            <td class="top">{Page::calendar("toDate",$_REQUEST["toDate"]);}</td>
             <td class="top">
-              <select name="taskStatus[]" multiple="true">{page::select_options(task::get_task_statii_array(), $_REQUEST["taskStatus"])}</select>
+              <select name="taskStatus[]" multiple="true">{Page::select_options(task::get_task_statii_array(), $_REQUEST["taskStatus"])}</select>
             </td>
             <td class="top">
               Include Client Comments <input type="checkbox" name="clients" value="clients"{if $_REQUEST["clients"]} checked{/}>
@@ -55,4 +55,4 @@
 </table>
 
 
-{page::footer()}
+{Page::footer()}

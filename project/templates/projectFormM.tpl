@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <script type="text/javascript" language="javascript">
 
 $(document).ready(function() {
@@ -76,7 +76,7 @@ function clickClientStatus(e) {
 
 {if defined("PROJECT_EXISTS")}
 {$first_div="hidden"}
-{page::side_by_side_links(array("project"=>"Main"
+{Page::side_by_side_links(array("project"=>"Main"
                                ,"people"=>"People"
                                ,"commissions"=>"Commissions"
                                ,"comments"=>"Comments"
@@ -101,7 +101,7 @@ function clickClientStatus(e) {
       <span>
         {if defined("PROJECT_EXISTS")}
         {$navigation_links}
-        {page::star("project",$project_projectID)}
+        {Page::star("project",$project_projectID)}
         {/}
       </span>
     </th>
@@ -111,12 +111,12 @@ function clickClientStatus(e) {
       <div style="min-width:400px; width:47%; float:left; padding:0px 12px; vertical-align:top;">
 
         <div class="view">
-          <h6>{$project_projectType}{page::mandatory($project_projectName)}</h6>
+          <h6>{$project_projectType}{Page::mandatory($project_projectName)}</h6>
           <h2 style="margin-bottom:0px; display:inline;">{$project_projectID} {=$project_projectName}</h2>&nbsp;{$priorityLabel}
         </div>
 
         <div class="edit">
-          <h6>{print $project_projectType ? $project_projectType : "Project"}{page::mandatory($project_projectName)}</h6>
+          <h6>{print $project_projectType ? $project_projectType : "Project"}{Page::mandatory($project_projectName)}</h6>
           <input type="text" name="projectName" id="projectName" value="{$project_projectName_html}" size="45">
           <select name="projectPriority">{$projectPriority_options}</select>
           <select name="projectType">{$projectType_options}</select>
@@ -130,7 +130,7 @@ function clickClientStatus(e) {
         {/}
         <div class="edit">
           <h6>Description</h6>  
-          {page::textarea("projectComments",$project_projectComments,array("height"=>"medium","width"=>"100%"))}
+          {Page::textarea("projectComments",$project_projectComments,array("height"=>"medium","width"=>"100%"))}
         </div>
 
         {if $clientDetails}
@@ -168,7 +168,7 @@ function clickClientStatus(e) {
             {=$project_projectShortName}
           </div>
           <div style="float:right; width:50%;">
-            <span style='width:50%; display:inline-block;'>{page::money($project_currencyTypeID,0,"%n")}</span>
+            <span style='width:50%; display:inline-block;'>{Page::money($project_currencyTypeID,0,"%n")}</span>
             <span>{$project_projectStatus}</span>
           </div>
         </div>
@@ -188,7 +188,7 @@ function clickClientStatus(e) {
         <div class="view">
           <h6>Budget<div>Cost Centre TF</div></h6>
           <div style="float:left; width:40%;">
-            {page::money($project_currencyTypeID,$project_projectBudget,"%s%mo %c")}
+            {Page::money($project_currencyTypeID,$project_projectBudget,"%s%mo %c")}
             {$taxName && (isset($project_projectBudget) && (bool)strlen($project_projectBudget)) and print " (inc. $taxName)"}
           </div>
           <div style="float:right; width:50%;">
@@ -200,7 +200,7 @@ function clickClientStatus(e) {
         <div class="edit">
           <h6>Budget<div>Cost Centre TF</div></h6>
           <div style="float:left; width:40%;">
-            <input type="text" name="projectBudget" value="{page::money($project_currencyTypeID,$project_projectBudget,"%mo")}" size="10"> 
+            <input type="text" name="projectBudget" value="{Page::money($project_currencyTypeID,$project_projectBudget,"%mo")}" size="10"> 
             {$taxName and print " (inc. $taxName)"}
           </div>
           <div style="float:right; width:50%;" class="nobr">
@@ -208,7 +208,7 @@ function clickClientStatus(e) {
               <option value="">&nbsp;</option>
               {$cost_centre_tfID_options}
             </select>
-            {page::help("project_cost_centre_tf")}
+            {Page::help("project_cost_centre_tf")}
           </div>
         </div>
 
@@ -217,7 +217,7 @@ function clickClientStatus(e) {
         <div class="view">
           <h6>Client Billed At<div>Default Task Limit</div></h6>
           <div style="float:left; width:40%;">
-            {page::money($project_currencyTypeID,$project_customerBilledDollars,"%s%mo %c")}
+            {Page::money($project_currencyTypeID,$project_customerBilledDollars,"%s%mo %c")}
             {(isset($project_customerBilledDollars) &&(bool)strlen($project_customerBilledDollars)) and print $tax_string2}
           </div>
           <div style="float:right; width:50%;">
@@ -229,18 +229,18 @@ function clickClientStatus(e) {
         <div class="edit">
           <h6>Client Billed At<div>Default Task Limit</div></h6>
           <div style="float:left; width:40%;">
-            <input type="text" name="customerBilledDollars" value="{page::money($project_currencyTypeID,$project_customerBilledDollars,"%mo")}" size="10"> 
+            <input type="text" name="customerBilledDollars" value="{Page::money($project_currencyTypeID,$project_customerBilledDollars,"%mo")}" size="10"> 
             {$tax_string2}
           </div>
           <div style="float:right; width:50%;">
-            <span><input type="text" size="5" name="defaultTaskLimit" value="{$project_defaultTaskLimit}"> {page::help("project_defaultTaskLimit")}</span>
+            <span><input type="text" size="5" name="defaultTaskLimit" value="{$project_defaultTaskLimit}"> {Page::help("project_defaultTaskLimit")}</span>
           </div>
         </div>
 
         <div class="edit">
           <h6>Default Interested Parties</h6> 
           <div id="interestedPartyDropdown" style="display:inline">{$interestedPartyOptions}</div>
-          {page::help("project_interested_parties")}
+          {Page::help("project_interested_parties")}
         </div>
         {if $interestedParties}
         <div class="view">
@@ -266,7 +266,7 @@ function clickClientStatus(e) {
         <div class="view">
           <h6>Default timesheet rate<div>Default timesheet unit</div></h6>
           <div style="float:left; width:40%;">
-            {page::money($project_currencyTypeID, $project_defaultTimeSheetRate)}
+            {Page::money($project_currencyTypeID, $project_defaultTimeSheetRate)}
           </div>
           <div style="float:right; width:50%;">
             {$defaultTimeSheetRateUnits}
@@ -278,7 +278,7 @@ function clickClientStatus(e) {
           <h6>Default timesheet rate<div>Default timesheet unit</div></h6>
           <div style="float:left; width:40%;">
             <input type="text" name="defaultTimeSheetRate"
-	    value="{page::money($project_currencyTypeID, $project_defaultTimeSheetRate,"%mo")}" size="10"> 
+	    value="{Page::money($project_currencyTypeID, $project_defaultTimeSheetRate,"%mo")}" size="10"> 
           </div>
           <div style="float:right; width:50%;">
             <select name="defaultTimeSheetRateUnitID"><option value="">{$defaultTimeSheetUnit_options}</select>
@@ -300,10 +300,10 @@ function clickClientStatus(e) {
         <div class="edit">
           <h6>Estimated Start<div>Estimated Completion</div></h6>
           <div style="float:left; width:40%;">
-            {page::calendar("dateTargetStart",$project_dateTargetStart)}
+            {Page::calendar("dateTargetStart",$project_dateTargetStart)}
           </div>
           <div style="float:right; width:50%;">
-            {page::calendar("dateTargetCompletion",$project_dateTargetCompletion)}
+            {Page::calendar("dateTargetCompletion",$project_dateTargetCompletion)}
           </div>
         </div>
 
@@ -322,10 +322,10 @@ function clickClientStatus(e) {
         <div class="edit">
           <h6>Actual Start<div>Actual Completion</div></h6>
           <div style="float:left; width:40%;">
-            {page::calendar("dateActualStart",$project_dateActualStart)}
+            {Page::calendar("dateActualStart",$project_dateActualStart)}
           </div>
           <div style="float:right; width:50%;">
-            {page::calendar("dateActualCompletion",$project_dateActualCompletion)}
+            {Page::calendar("dateActualCompletion",$project_dateActualCompletion)}
           </div>
         </div>
 
@@ -353,7 +353,7 @@ function clickClientStatus(e) {
 <table class="box">
   <tr>
     <th class="nobr" width="10%">Financial Summary</th>
-    <th class="right" colspan="3">{page::help("project_financial_summary")}</th>
+    <th class="right" colspan="3">{Page::help("project_financial_summary")}</th>
   </tr>
   <tr>
     <td class="right nobr">Outstanding Invoices</td>
@@ -369,7 +369,7 @@ function clickClientStatus(e) {
   </tr>
   <tr>
     <td class="right nobr">Task Time Estimate</td>
-    <td class="right">{$time_remaining} {page::money($project_currencyTypeID,$cost_remaining)} {$count_not_quoted_tasks}</td>
+    <td class="right">{$time_remaining} {Page::money($project_currencyTypeID,$cost_remaining)} {$count_not_quoted_tasks}</td>
     <td class="right">Sum Customer Billed for Time Sheets</td>
     <td class="right">{$total_timeSheet_customerBilledDollars}</td>
   </tr>            
@@ -437,7 +437,7 @@ function clickClientStatus(e) {
     <th class="header">
     Time Sheet Commissions
     <span>
-    {page::help("timesheet_commission")}
+    {Page::help("timesheet_commission")}
     </span>
     </th>
   </tr>
@@ -531,4 +531,4 @@ function clickClientStatus(e) {
 {/}
 
 
-{page::footer()}
+{Page::footer()}

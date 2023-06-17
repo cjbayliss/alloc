@@ -9,7 +9,7 @@
   <tr>
     <td>{$r.hoursWarn}{$r.daysWarn}{$r.projectLink}</td>
     <td>{if $r["status"] == "Rejected"}<span class="warn" title="This timesheet needs to be re-submitted.">{/}{$r.status}{if $r["status"] == "Rejected"}</span>{/}</td>
-    <td class="nobr right obfuscate">{page::money($r["currencyTypeID"],$r["amount"],"%s%m %c")}</td>
+    <td class="nobr right obfuscate">{Page::money($r["currencyTypeID"],$r["amount"],"%s%m %c")}</td>
   </tr>
   {/}
   {if count($timeSheetListRows)>1}

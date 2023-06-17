@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <form action="{$url_alloc_personSkillAdd}" method="post">
 <table class="box">
@@ -33,4 +33,4 @@
 <input type="hidden" name="sessID" value="{$sessID}">
 </form>
 
-{page::footer()}
+{Page::footer()}

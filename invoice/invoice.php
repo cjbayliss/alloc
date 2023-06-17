@@ -96,7 +96,7 @@ function show_new_invoiceItem($template)
                     $timeSheetOptions[$row["timeSheetID"]] = "Time Sheet #" . $t->get_id() . " " . $row["dateFrom"] . " " . $dollars . " for " . person::get_fullname($row["personID"]) . ", Project: " . $row["projectName"] . " [" . $timeSheetStatii[$t->get_value("status")] . "]";
                 }
 
-                $TPL["timeSheetOptions"] = page::select_options($timeSheetOptions, $invoiceItem->get_value("timeSheetID"), 150);
+                $TPL["timeSheetOptions"] = Page::select_options($timeSheetOptions, $invoiceItem->get_value("timeSheetID"), 150);
             }
 
             // Expense Form dropdown
@@ -110,13 +110,13 @@ function show_new_invoiceItem($template)
             $db->query($q);
             $expenseForm = new expenseForm();
             while ($row = $db->row()) {
-                $expenseFormOptions[$row["expenseFormID"]] = "Expense Form #" . $row["expenseFormID"] . " " . page::money(config::get_config_item("currency"), $expenseForm->get_abs_sum_transactions($row["expenseFormID"]), "%s%m %c") . " " . person::get_fullname($row["expenseFormCreatedUser"]);
+                $expenseFormOptions[$row["expenseFormID"]] = "Expense Form #" . $row["expenseFormID"] . " " . Page::money(config::get_config_item("currency"), $expenseForm->get_abs_sum_transactions($row["expenseFormID"]), "%s%m %c") . " " . person::get_fullname($row["expenseFormCreatedUser"]);
             }
 
             if ($invoiceItem->get_value("expenseFormID")) {
                 $id = $invoiceItem->get_value("expenseFormID");
             }
-            $TPL["expenseFormOptions"] = page::select_options($expenseFormOptions, $id, 90);
+            $TPL["expenseFormOptions"] = Page::select_options($expenseFormOptions, $id, 90);
 
             $q = unsafe_prepare("SELECT *
                             FROM productSale
@@ -135,7 +135,7 @@ function show_new_invoiceItem($template)
             if ($invoiceItem->get_value("productSaleID")) {
                 $id = $invoiceItem->get_value("productSaleID");
             }
-            $TPL["productSaleOptions"] = page::select_options($productSaleOptions, $id, 90);
+            $TPL["productSaleOptions"] = Page::select_options($productSaleOptions, $id, 90);
         }
 
         $TPL["invoiceItem_iiQuantity"] or $TPL["invoiceItem_iiQuantity"] = 1;
@@ -237,7 +237,7 @@ function show_invoiceItem_list()
             $transaction_info .= " from ";
             $transaction_info .= "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_fromTfID") . "\">" . $taggedFund->get_name($db2->f("transaction_fromTfID")) . "</a>";
             $transaction_info .= " to <a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_tfID") . "\">" . $taggedFund->get_name($db2->f("transaction_tfID")) . "</a>";
-            $transaction_info .= " for <b>" . page::money($db2->f("currencyTypeID"), $db2->f("transaction_amount"), "%s%m") . "</b>";
+            $transaction_info .= " for <b>" . Page::money($db2->f("currencyTypeID"), $db2->f("transaction_amount"), "%s%m") . "</b>";
             $br = "<br>";
         }
 
@@ -282,10 +282,10 @@ function show_invoiceItem_list()
             if ($amounts[$invoiceItem->get_id()] === null) {
                 $amount = $invoiceItem->get_value("iiAmount", DST_HTML_DISPLAY);
                 if (config::get_config_item("taxPercent") && $invoiceItem->get_value("iiTax") == 0) {
-                    $amount = page::money($invoice->get_value("currencyTypeID"), $amount * (config::get_config_item("taxPercent") / 100 + 1), "%m");
+                    $amount = Page::money($invoice->get_value("currencyTypeID"), $amount * (config::get_config_item("taxPercent") / 100 + 1), "%m");
                 }
             } else {
-                $amount = page::money($invoice->get_value("currencyTypeID"), $amounts[$invoiceItem->get_id()], "%m");
+                $amount = Page::money($invoice->get_value("currencyTypeID"), $amounts[$invoiceItem->get_id()], "%m");
             }
 
             $selected_tfID = $db2->f("transaction_tfID");
@@ -301,7 +301,7 @@ function show_invoiceItem_list()
             }
             $selected_tfID or $selected_tfID = config::get_config_item("mainTfID");
 
-            // $tf_options = page::select_options($tf_array, $selected_tfID);
+            // $tf_options = Page::select_options($tf_array, $selected_tfID);
             // $tf_options = "<select name=\"invoiceItemAmountPaidTfID[".$invoiceItem->get_id()."]\">".$tf_options."</select>";
             // $TPL["invoiceItem_buttons"] = "<input size=\"8\" type=\"text\" id=\"ap_".$invoiceItem->get_id()."\" name=\"invoiceItemAmountPaid[".$invoiceItem->get_id()."]\" value=\"".$amount."\">";
             // $TPL["invoiceItem_buttons"].= $tf_options;
@@ -350,7 +350,7 @@ function show_invoiceItem_list()
         } else if ($invoiceItem->get_value("expenseFormID")) {
             $ep = $invoiceItem->get_foreign_object("expenseForm");
             $total = $ep->get_abs_sum_transactions();
-            $TPL["invoiceItem_iiMemo"] = "<a href=\"" . $TPL["url_alloc_expenseForm"] . "expenseFormID=" . $invoiceItem->get_value("expenseFormID") . "\">" . $invoiceItem->get_value("iiMemo") . " (Currently: " . page::money(config::get_config_item("currency"), $total, "%s%m %c") . ", Status: " . $ep->get_status() . ")</a>";
+            $TPL["invoiceItem_iiMemo"] = "<a href=\"" . $TPL["url_alloc_expenseForm"] . "expenseFormID=" . $invoiceItem->get_value("expenseFormID") . "\">" . $invoiceItem->get_value("iiMemo") . " (Currently: " . Page::money(config::get_config_item("currency"), $total, "%s%m %c") . ", Status: " . $ep->get_status() . ")</a>";
         }
 
         $TPL["currency"] = $invoice->get_value("currencyTypeID");
@@ -399,7 +399,7 @@ function show_comments()
         $TPL["clientID"] = $clientID;
         $commentTemplate = new commentTemplate();
         $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "invoice"]);
-        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . page::select_options($ops);
+        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
 
         $ops = [
             ""                     => "Format as...",
@@ -408,7 +408,7 @@ function show_comments()
         ];
         $TPL["attach_extra_files"] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
         $TPL["attach_extra_files"] .= "Attach Invoice ";
-        $TPL["attach_extra_files"] .= '<select name="attach_invoice">' . page::select_options($ops) . '</select><br>';
+        $TPL["attach_extra_files"] .= '<select name="attach_invoice">' . Page::select_options($ops) . '</select><br>';
         include_template("../comment/templates/commentM.tpl");
     }
 }
@@ -586,7 +586,7 @@ if ($invoiceID && $invoiceItemIDs) {
                LEFT JOIN config ON config.name = 'taxPercent'
                    WHERE invoiceItem.invoiceID = %d", $invoiceID);
     $db->query($q);
-    $db->next_record() and $TPL["invoiceTotal"] = page::money($currency, $db->f("sum_iiAmount"), "%S%m %c");
+    $db->next_record() and $TPL["invoiceTotal"] = Page::money($currency, $db->f("sum_iiAmount"), "%S%m %c");
 
     $q = unsafe_prepare("SELECT sum(amount * pow(10,-currencyType.numberToBasic)) as sum_transaction_amount
                     FROM transaction
@@ -594,7 +594,7 @@ if ($invoiceID && $invoiceItemIDs) {
                    WHERE status = 'approved'
                      AND invoiceItemID in (%s)", $invoiceItemIDs);
     $db->query($q);
-    $db->next_record() and $TPL["invoiceTotalPaid"] = page::money($currency, $db->f("sum_transaction_amount"), "%S%m %c");
+    $db->next_record() and $TPL["invoiceTotalPaid"] = Page::money($currency, $db->f("sum_transaction_amount"), "%S%m %c");
 }
 
 $invoice->set_values();
@@ -631,9 +631,9 @@ foreach ($statii as $s => $label) {
 $TPL["field_invoiceNum"] = '<input type="text" name="invoiceNum" value="' . $TPL["invoiceNum"] . '">';
 $TPL["field_invoiceName"] = '<input type="text" name="invoiceName" value="' . $TPL["invoiceName"] . '">';
 $TPL["field_maxAmount"] = '<input type="text" name="maxAmount" size="10" value="' . $invoice->get_value("maxAmount", DST_HTML_DISPLAY) . '"> ';
-$TPL["field_maxAmount"] .= page::help('invoice_maxAmount');
-$TPL["field_invoiceDateFrom"] = page::calendar("invoiceDateFrom", $TPL["invoiceDateFrom"]);
-$TPL["field_invoiceDateTo"] = page::calendar("invoiceDateTo", $TPL["invoiceDateTo"]);
+$TPL["field_maxAmount"] .= Page::help('invoice_maxAmount');
+$TPL["field_invoiceDateFrom"] = Page::calendar("invoiceDateFrom", $TPL["invoiceDateFrom"]);
+$TPL["field_invoiceDateTo"] = Page::calendar("invoiceDateTo", $TPL["invoiceDateTo"]);
 
 $clientID = $invoice->get_value("clientID") or $clientID = $_GET["clientID"];
 $projectID = $invoice->get_value("projectID") or $projectID = $_GET["projectID"];
@@ -649,7 +649,7 @@ if ($invoice->get_value("tfID")) {
     $tf_sel = $invoice->get_value("tfID");
 }
 $tf_sel or $tf_sel = config::get_config_item("mainTfID");
-$tf_select = "<select id='tfID' name='tfID'>" . page::select_options($tf->get_assoc_array("tfID", "tfName"), $tf_sel) . "</select>";
+$tf_select = "<select id='tfID' name='tfID'>" . Page::select_options($tf->get_assoc_array("tfID", "tfName"), $tf_sel) . "</select>";
 
 // Main invoice buttons
 if ($current_user->have_role('admin')) {
@@ -681,11 +681,11 @@ if ($current_user->have_role('admin')) {
         <select name="changeTransactionStatus"><option value="">Transaction Status<option value="approved">Approve<option value="rejected">Reject</select>';
 
         $TPL["field_invoiceNum"] = $TPL["invoiceNum"];
-        $TPL["field_invoiceName"] = page::htmlentities($TPL["invoiceName"]);
+        $TPL["field_invoiceName"] = Page::htmlentities($TPL["invoiceName"]);
         $TPL["field_clientID"] = $client_link;
         $TPL["field_projectID"] = $project_link;
         $TPL["field_tfID"] = $tf_link;
-        $TPL["field_maxAmount"] = page::money($currency, $TPL["maxAmount"], "%s%mo %c");
+        $TPL["field_maxAmount"] = Page::money($currency, $TPL["maxAmount"], "%s%mo %c");
         $TPL["field_invoiceDateFrom"] = $TPL["invoiceDateFrom"];
         $TPL["field_invoiceDateTo"] = $TPL["invoiceDateTo"];
     } else if ($invoice->get_value("invoiceStatus") == "finished") {
@@ -693,11 +693,11 @@ if ($current_user->have_role('admin')) {
         <button type="submit" name="save_and_MoveBack" value="1" class="save_button"><i class="icon-arrow-left" style="margin:0px; margin-right:5px"></i>Back</button>
     ';
         $TPL["field_invoiceNum"] = $TPL["invoiceNum"];
-        $TPL["field_invoiceName"] = page::htmlentities($TPL["invoiceName"]);
+        $TPL["field_invoiceName"] = Page::htmlentities($TPL["invoiceName"]);
         $TPL["field_clientID"] = $client_link;
         $TPL["field_projectID"] = $project_link;
         $TPL["field_tfID"] = $tf_link;
-        $TPL["field_maxAmount"] = page::money($currency, $TPL["maxAmount"], "%s%mo %c");
+        $TPL["field_maxAmount"] = Page::money($currency, $TPL["maxAmount"], "%s%mo %c");
         $TPL["field_invoiceDateFrom"] = $TPL["invoiceDateFrom"];
         $TPL["field_invoiceDateTo"] = $TPL["invoiceDateTo"];
     }
@@ -707,7 +707,7 @@ if ($current_user->have_role('admin')) {
     $TPL["field_clientID"] = $client_link;
     $TPL["field_projectID"] = $project_link;
     $TPL["field_tfID"] = $tf_link;
-    $TPL["field_maxAmount"] = page::money($currency, $TPL["maxAmount"], "%s%mo %c");
+    $TPL["field_maxAmount"] = Page::money($currency, $TPL["maxAmount"], "%s%mo %c");
     $TPL["field_invoiceDateFrom"] = $TPL["invoiceDateFrom"];
     $TPL["field_invoiceDateTo"] = $TPL["invoiceDateTo"];
 }

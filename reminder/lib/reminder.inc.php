@@ -137,7 +137,7 @@ class reminder extends DatabaseEntity
         } else {
             $hour = date("h", mktime(date("H"), date("i") + 5 - (date("i") % 5), 0, date("m"), date("d"), date("Y")));
         }
-        return page::select_options($hours, $hour);
+        return Page::select_options($hours, $hour);
     }
 
     public function get_minute_options()
@@ -156,7 +156,7 @@ class reminder extends DatabaseEntity
         } else {
             $minute = date("i", mktime(date("H"), date("i") + 5 - (date("i") % 5), 0, date("m"), date("d"), date("Y")));
         }
-        return page::select_options($minutes, $minute);
+        return Page::select_options($minutes, $minute);
     }
 
     public function get_meridian_options()
@@ -171,7 +171,7 @@ class reminder extends DatabaseEntity
         } else {
             $meridian = date("a", mktime(date("H"), date("i") + 5 - (date("i") % 5), 0, date("m"), date("d"), date("Y")));
         }
-        return page::select_options($meridians, $meridian);
+        return Page::select_options($meridians, $meridian);
     }
 
     public function get_recuring_interval_options()
@@ -187,7 +187,7 @@ class reminder extends DatabaseEntity
         if ($recuring_interval == "") {
             $recuring_interval = "Week";
         }
-        return page::select_options($recuring_interval_options, $recuring_interval);
+        return Page::select_options($recuring_interval_options, $recuring_interval);
     }
 
     public function get_advnotice_interval_options()
@@ -204,7 +204,7 @@ class reminder extends DatabaseEntity
         if ($advnotice_interval == "") {
             $advnotice_interval = "Hour";
         }
-        return page::select_options($advnotice_interval_options, $advnotice_interval);
+        return Page::select_options($advnotice_interval_options, $advnotice_interval);
     }
 
     public function is_alive()

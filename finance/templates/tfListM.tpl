@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <table class="box">
   <tr>
     <th class="header">Tagged Fund List
@@ -54,8 +54,8 @@
         {/}
         <tr>
           <td colspan="3">&nbsp;</td>
-          <td class="grand_total right transaction-pending">{page::money(config::get_config_item("currency"),$grand_total_pending,"%s%m %c")}</td>
-          <td class="grand_total right transaction-approved">{page::money(config::get_config_item("currency"),$grand_total,"%s%m %c")}</td>
+          <td class="grand_total right transaction-pending">{Page::money(config::get_config_item("currency"),$grand_total_pending,"%s%m %c")}</td>
+          <td class="grand_total right transaction-approved">{Page::money(config::get_config_item("currency"),$grand_total,"%s%m %c")}</td>
           <td>&nbsp;</td>
         </tr>
       </table>
@@ -69,4 +69,4 @@
 
 
 
-{page::footer()}
+{Page::footer()}

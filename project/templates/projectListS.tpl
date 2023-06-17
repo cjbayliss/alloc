@@ -18,7 +18,7 @@
     <td>{=$r.projectStatus}</td>
     <td class="noprint" align="right">{$r.navLinks}</td>
     <td width="1%">
-      {page::star("project",$r["projectID"])}
+      {Page::star("project",$r["projectID"])}
     </td>
   </tr>
   {/}

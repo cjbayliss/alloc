@@ -12,5 +12,5 @@ if ($_REQUEST["taskID"]) {
     $q = unsafe_prepare("SELECT taskID, taskName FROM task WHERE taskID = %d", $_REQUEST["taskID"]);
     $db = new AllocDatabase();
     $row = $db->qr($q);
-    echo page::htmlentities($row["taskID"] . " " . $row["taskName"]);
+    echo Page::htmlentities($row["taskID"] . " " . $row["taskName"]);
 }

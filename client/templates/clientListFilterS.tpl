@@ -16,7 +16,7 @@
           <td><input type="text" name="contactName" value="{$contactName}"></td>
           <td><select name="clientCategory[]" multiple="true">{$clientCategoryOptions}</select></td>
           <td><button type="submit" name="applyFilter" value="1" class="filter_button">Filter<i class="icon-cogs"></i></button></td>
-          <td>{page::help("clientListFilter")}</td> 
+          <td>{Page::help("clientListFilter")}</td> 
         </tr>
         <tr>
           <td align="center" colspan="6"><nobr>{$alphabet_filter}</nobr></td>

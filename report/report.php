@@ -28,7 +28,7 @@ $modules["item"] = "Items";
 $modules["person"] = "Users";
 $modules["announcement"] = "Announcements";
 
-$TPL["module_options"] = page::select_options($modules, $_POST["mod"]);
+$TPL["module_options"] = Page::select_options($modules, $_POST["mod"]);
 
 if ($_POST["do_step_2"]) {
     if (!is_array($fields)) {

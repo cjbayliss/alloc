@@ -21,7 +21,7 @@
     <td>{$r.clientStatus}</td>
     <td>{$r.clientCategoryLabel}</td>
     <td width="1%">
-      {page::star("client",$r["clientID"])}
+      {Page::star("client",$r["clientID"])}
     </td>
   </tr>
   {/}

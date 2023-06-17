@@ -1,5 +1,5 @@
-{page::header()}
-  {page::toolbar()}
+{Page::header()}
+  {Page::toolbar()}
 
 <form method="post" action="{$url_alloc_item}">
 
@@ -51,4 +51,4 @@
 
 
 
-{page::footer()}
+{Page::footer()}

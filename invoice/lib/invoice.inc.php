@@ -170,7 +170,7 @@ class invoice extends DatabaseEntity
             $taxPercent = $invoiceItem->get_value("iiTax");
             $taxPercentDivisor = ($taxPercent / 100) + 1;
 
-            $num = page::money($currency, $invoiceItem->get_value("iiAmount"), "%mo");
+            $num = Page::money($currency, $invoiceItem->get_value("iiAmount"), "%mo");
 
             if ($taxPercent) {
                 $num_minus_gst = $num / $taxPercentDivisor;
@@ -181,9 +181,9 @@ class invoice extends DatabaseEntity
                 }
 
                 $rows[$invoiceItem->get_id()]["quantity"] = $invoiceItem->get_value("iiQuantity");
-                $rows[$invoiceItem->get_id()]["unit"] = page::money($currency, $invoiceItem->get_value("iiUnitPrice"), "%mo");
-                $rows[$invoiceItem->get_id()]["money"] = page::money($currency, $num_minus_gst, "%m");
-                $rows[$invoiceItem->get_id()]["gst"] = page::money($currency, $gst, "%m");
+                $rows[$invoiceItem->get_id()]["unit"] = Page::money($currency, $invoiceItem->get_value("iiUnitPrice"), "%mo");
+                $rows[$invoiceItem->get_id()]["money"] = Page::money($currency, $num_minus_gst, "%m");
+                $rows[$invoiceItem->get_id()]["gst"] = Page::money($currency, $gst, "%m");
                 $info["total_gst"] += $gst;
                 $info["total"] += $num_minus_gst;
             } else {
@@ -194,9 +194,9 @@ class invoice extends DatabaseEntity
                 $gst = $num_plus_gst - $num;
 
                 $rows[$invoiceItem->get_id()]["quantity"] = $invoiceItem->get_value("iiQuantity");
-                $rows[$invoiceItem->get_id()]["unit"] = page::money($currency, $invoiceItem->get_value("iiUnitPrice"), "%mo");
-                $rows[$invoiceItem->get_id()]["money"] = page::money($currency, $num, "%m");
-                $rows[$invoiceItem->get_id()]["gst"] = page::money($currency, $gst, "%m");
+                $rows[$invoiceItem->get_id()]["unit"] = Page::money($currency, $invoiceItem->get_value("iiUnitPrice"), "%mo");
+                $rows[$invoiceItem->get_id()]["money"] = Page::money($currency, $num, "%m");
+                $rows[$invoiceItem->get_id()]["gst"] = Page::money($currency, $gst, "%m");
                 $info["total_gst"] += $gst;
                 $info["total"] += $num;
             }
@@ -226,11 +226,11 @@ class invoice extends DatabaseEntity
             }
             is_array($str) and $rows[$invoiceItem->get_id()]["desc"] .= trim(implode(DEFAULT_SEP, $str));
         }
-        $info["total_inc_gst"] = page::money($currency, $info["total"] + $info["total_gst"], "%s%m");
+        $info["total_inc_gst"] = Page::money($currency, $info["total"] + $info["total_gst"], "%s%m");
 
         // If we are in dollar mode, then prefix the total with a dollar sign
-        $info["total"] = page::money($currency, $info["total"], "%s%m");
-        $info["total_gst"] = page::money($currency, $info["total_gst"], "%s%m");
+        $info["total"] = Page::money($currency, $info["total"], "%s%m");
+        $info["total_gst"] = Page::money($currency, $info["total_gst"], "%s%m");
         $rows or $rows = [];
         $info or $info = [];
         return [$rows, $info];
@@ -619,9 +619,9 @@ class invoice extends DatabaseEntity
             $print = true;
             $i = new invoice();
             $i->read_db_record($allocDatabase);
-            $row["amountPaidApproved"] = page::money($row["currencyTypeID"], $row["amountPaidApproved"], "%mo");
-            $row["amountPaidPending"] = page::money($row["currencyTypeID"], $row["amountPaidPending"], "%mo");
-            $row["amountPaidRejected"] = page::money($row["currencyTypeID"], $row["amountPaidRejected"], "%mo");
+            $row["amountPaidApproved"] = Page::money($row["currencyTypeID"], $row["amountPaidApproved"], "%mo");
+            $row["amountPaidPending"] = Page::money($row["currencyTypeID"], $row["amountPaidPending"], "%mo");
+            $row["amountPaidRejected"] = Page::money($row["currencyTypeID"], $row["amountPaidRejected"], "%mo");
             $row["invoiceLink"] = $i->get_invoice_link();
 
             $payment_status = [];
@@ -713,9 +713,9 @@ class invoice extends DatabaseEntity
 
         $statii = invoice::get_invoice_statii();
         unset($statii["create"]);
-        $rtn["statusOptions"] = page::select_options($statii, $_FORM["invoiceStatus"]);
+        $rtn["statusOptions"] = Page::select_options($statii, $_FORM["invoiceStatus"]);
         $statii_payment = (new invoice())->get_invoice_statii_payment();
-        $rtn["statusPaymentOptions"] = page::select_options($statii_payment, $_FORM["invoiceStatusPayment"]);
+        $rtn["statusPaymentOptions"] = Page::select_options($statii_payment, $_FORM["invoiceStatusPayment"]);
         $rtn["status"] = $_FORM["status"];
         $rtn["dateOne"] = $_FORM["dateOne"];
         $rtn["dateTwo"] = $_FORM["dateTwo"];
@@ -728,7 +728,7 @@ class invoice extends DatabaseEntity
         $options["return"] = "dropdown_options";
         $ops = client::get_list($options);
         $ops = array_kv($ops, "clientID", "clientName");
-        $rtn["clientOptions"] = page::select_options($ops, $_FORM["clientID"]);
+        $rtn["clientOptions"] = Page::select_options($ops, $_FORM["clientID"]);
 
         // Get
         $rtn["FORM"] = "FORM=" . urlencode(serialize($_FORM));

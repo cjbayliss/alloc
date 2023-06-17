@@ -30,7 +30,7 @@ function show_skill_classes()
             $skill_classes[$skill->get_value('skillClass')] = $skill->get_value('skillClass');
         }
     }
-    $TPL["skill_classes"] = page::select_options($skill_classes, $skill_class);
+    $TPL["skill_classes"] = Page::select_options($skill_classes, $skill_class);
 }
 
 function show_skills()
@@ -55,7 +55,7 @@ function show_skills()
     if ($skill_class != "" && !in_array($skills[$talent], $skills)) {
         $talent = "";
     }
-    $TPL["skills"] = page::select_options($skills, $talent);
+    $TPL["skills"] = Page::select_options($skills, $talent);
 }
 
 function get_people_header()

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <script type="text/javascript" language="javascript">
 $(document).ready(function() {
   {if !$client_clientID}
@@ -16,7 +16,7 @@ $(document).ready(function() {
 
 {if check_optional_client_exists()}
 {$first_div="hidden"}
-{page::side_by_side_links(array("client"=>"Main"
+{Page::side_by_side_links(array("client"=>"Main"
                                ,"reminders"=>"Reminders"
                                ,"comments"=>"Comments"
                                ,"attachments"=>"Attachments"
@@ -49,13 +49,13 @@ $(document).ready(function() {
 <table class="box view">
   <tr>
     <th class="header">View Details
-      <span>{page::star("client",$client_clientID)}</span>
+      <span>{Page::star("client",$client_clientID)}</span>
     </th>
   </tr>
   <tr>
     <td valign="top">
       <div class="task_pane">
-        <h6>Client Name{page::mandatory($client_clientName)}</h6>
+        <h6>Client Name{Page::mandatory($client_clientName)}</h6>
         <h2 style="margin-bottom:0px; display:inline;">{$client_clientID} {=$client_clientName}</h2>
         &nbsp;&nbsp;&nbsp;{$client_clientStatus} {=$client_clientCategoryLabel}
         {if $client_clientPostalAddress} 
@@ -102,7 +102,7 @@ $(document).ready(function() {
   <tr>
     <td>
       <div class="task_pane">
-        <h6>Client Name{page::mandatory($client_clientName)}</h6>
+        <h6>Client Name{Page::mandatory($client_clientName)}</h6>
         <div style="width:100%" class="">
           <input type="text" size="43" id="clientName" name="clientName" value="{$client_clientName}" tabindex="1">
           <select name="clientStatus" tabindex="2">{$clientStatusOptions}</select>
@@ -304,4 +304,4 @@ $(document).ready(function() {
 
 {/}
 
-{page::footer()}
+{Page::footer()}

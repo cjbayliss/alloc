@@ -7,8 +7,8 @@
   </tr>
   <tr>
     <td valign="top"><select id="personID" name="personID">{$personOptions}</select></td>  
-    <td valign="top">{page::calendar("dateFrom",$dateFrom)}</td>  
-    <td valign="top">{page::calendar("dateTo",$dateTo)}</td>  
+    <td valign="top">{Page::calendar("dateFrom",$dateFrom)}</td>  
+    <td valign="top">{Page::calendar("dateTo",$dateTo)}</td>  
   </tr>
   <tr>
     <td colspan="2">
@@ -18,7 +18,7 @@
     </td>
     <td class="right" valign="bottom" rowspan="2" colspan="3">
       <button type="submit" name="applyFilter" value="1" class="filter_button">Filter<i class="icon-cogs"></i></button>
-      {page::help("timeSheetGraph_filter")}
+      {Page::help("timeSheetGraph_filter")}
     </td>
   </tr>
 </table>

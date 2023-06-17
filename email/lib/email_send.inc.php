@@ -130,10 +130,10 @@ class email_send
             $this->headers = str_replace("\r\n", "\n", $this->headers);
             $this->headers = str_replace("\n", PHP_EOL, $this->headers); // according to php.net/mail
 
-            // echo "<pre><br>HEADERS:\n".page::htmlentities($this->headers)."</pre>";
-            // echo "<pre><br>TO:\n".page::htmlentities($this->to_address)."</pre>";
-            // echo "<pre><br>SUBJECT:\n".page::htmlentities($this->subject)."</pre>";
-            // echo "<pre><br>BODY:\n".page::htmlentities($this->body)."</pre>";
+            // echo "<pre><br>HEADERS:\n".Page::htmlentities($this->headers)."</pre>";
+            // echo "<pre><br>TO:\n".Page::htmlentities($this->to_address)."</pre>";
+            // echo "<pre><br>SUBJECT:\n".Page::htmlentities($this->subject)."</pre>";
+            // echo "<pre><br>BODY:\n".Page::htmlentities($this->body)."</pre>";
 
             if (defined("ALLOC_DEFAULT_RETURN_PATH_ADDRESS") && ALLOC_DEFAULT_RETURN_PATH_ADDRESS) {
                 $return_path = "-f" . ALLOC_DEFAULT_RETURN_PATH_ADDRESS;

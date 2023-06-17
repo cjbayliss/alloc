@@ -66,8 +66,8 @@ while ($row = $db->row($id)) {
         $ii->currency = $i->get_value("currencyTypeID");
         $ii->set_value("invoiceID", $i->get_id());
         $ii->set_value("iiMemo", $item["iiMemo"]);
-        $ii->set_value("iiUnitPrice", page::money($ii->currency, $item["iiUnitPrice"], "%mo"));
-        $ii->set_value("iiAmount", page::money($ii->currency, $item["iiAmount"], "%mo"));
+        $ii->set_value("iiUnitPrice", Page::money($ii->currency, $item["iiUnitPrice"], "%mo"));
+        $ii->set_value("iiAmount", Page::money($ii->currency, $item["iiAmount"], "%mo"));
         $ii->set_value("iiQuantity", $item["iiQuantity"]);
         $ii->save();
         // echo "<br>Created invoice item: ".$ii->get_id();

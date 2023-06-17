@@ -46,7 +46,7 @@ function show_new_person($template)
 function show_person_options()
 {
     global $TPL;
-    echo page::select_options(person::get_username_list($TPL["person_personID"]), $TPL["person_personID"]);
+    echo Page::select_options(person::get_username_list($TPL["person_personID"]), $TPL["person_personID"]);
 }
 
 $db = new AllocDatabase();

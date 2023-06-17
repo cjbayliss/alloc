@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <script type="text/javascript" language="javascript">
   {if $timeSheet_timeSheetID}
   $(document).ready(function() {
@@ -29,7 +29,7 @@
 
 <table class="box">
   <tr>
-    <th colspan="1">{page::help("timesheet_overview")}</th>
+    <th colspan="1">{Page::help("timesheet_overview")}</th>
     <th class="header" colspan="4">Time Sheet
       <span>
       {if $timeSheet_timeSheetID}
@@ -38,7 +38,7 @@
         {foreach $timeSheetPrint as $value}
           <a href="{$url_alloc_timeSheetPrint}timeSheetID={$timeSheet_timeSheetID}&{$value}">{$timeSheetPrintOptions.$value}</a>
         {/}
-        {page::star("timeSheet",$timeSheet_timeSheetID)}
+        {Page::star("timeSheet",$timeSheet_timeSheetID)}
       {/}
       </span>
     </th>
@@ -53,7 +53,7 @@
   </tr>
 
   <tr>
-	  <td>{page::help("engineer_amount")}</td>
+	  <td>{Page::help("engineer_amount")}</td>
     <td align="right" style="vertical-align:top;">Amount:</td>
     <td>
       <span style="float:left">{$total_dollars}&nbsp;</span>
@@ -63,12 +63,12 @@
       {/}
 
     </td>
-    <td align="right">Project:{page::mandatory($timeSheet_projectID)}</td>
+    <td align="right">Project:{Page::mandatory($timeSheet_projectID)}</td>
 	  <td width="30%" class="nobr"><div id="projectDropdown" style="display:inline">{$show_project_options}</div></td>
   </tr>
 
   <tr>
-	  <td>{page::help("client_billing")}</td>
+	  <td>{Page::help("client_billing")}</td>
     <td align="right" style="vertical-align:top;">Client Billing:</td>
     <td>
       <span style="float:left" class="nobr">{$total_customerBilledDollars}{$ex_gst}&nbsp;</span>
@@ -90,7 +90,7 @@
   </tr>
 
 	<tr>
-	  <td>{page::help("which_tf_to_credit")}</td>
+	  <td>{Page::help("which_tf_to_credit")}</td>
  	  <td align="right">Tagged Fund:</td>
  	  <td align="left" class='{$recipient_tfID_class}'>{=$recipient_tfID_name}</td>
     <td align="right">Approved by Manager:</td>
@@ -106,7 +106,7 @@
 	</tr>
 
 	<tr>
-    <td>{page::help("timesheet_add_invoice")}</td>
+    <td>{Page::help("timesheet_add_invoice")}</td>
     <td align="right" valign="top">Attached to Invoice:</td>
     <td class="nobr">{$attach_to_invoice_button}{$invoice_link} {$amount_allocated_label} <b>{$amount_used}{$amount_allocated}</b></td>
     <td align="right">Approved by Administrator:</td> 
@@ -118,7 +118,7 @@
     <td valign="top"></td>
     <td align="right" valign="top">Billing Note</td>
     <td colspan="2" valign="top">{if $timeSheet_status != "finished"}
-                                   {page::textarea("timeSheet_billingNote",$timeSheet_billingNote)}
+                                   {Page::textarea("timeSheet_billingNote",$timeSheet_billingNote)}
                                  {else}
                                    {$timeSheet_billingNote}
                                  {/}
@@ -133,7 +133,7 @@
           <td align="center" colspan="3">{$radio_email}</td>
         </tr>
         <tr>
-          <td width="1%">{page::help("timesheet_buttons")}</td>
+          <td width="1%">{Page::help("timesheet_buttons")}</td>
           <td align="center">{$timeSheet_ChangeStatusButton}<br><br>{if $timeSheet_timeSheetID}{$timeSheet_status_text}{/}</td>
           <td>&nbsp;</td>
         </tr>
@@ -157,6 +157,6 @@
 <br><br>
 <br><br>&nbsp;
 
-{page::footer()}
+{Page::footer()}
 
 

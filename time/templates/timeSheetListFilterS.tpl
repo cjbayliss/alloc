@@ -21,8 +21,8 @@ function refreshProjectList(show_all) {
               {$show_userID_options}
             </select>
           </td>
-          <td>{page::calendar("dateFrom",$dateFrom)}</td>
-          <td>{page::calendar("dateTo",$dateTo)}</td>
+          <td>{Page::calendar("dateFrom",$dateFrom)}</td>
+          <td>{Page::calendar("dateTo",$dateTo)}</td>
           <td><select name="status[]" multiple="true">{$show_status_options}</select></td>
         </tr>
         <tr>

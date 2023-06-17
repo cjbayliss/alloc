@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 {$t = new meta($table)}
 {$rows = $t->get_list(true)}
@@ -96,4 +96,4 @@
 <input type="hidden" name="sessID" value="{$sessID}">
 </form>
 
-{page::footer()}
+{Page::footer()}

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
   <form action="{$url_alloc_permission}" method="post">
 
 <table class="box">
@@ -43,7 +43,7 @@
   </tr>
   <tr>
     <td valign="top">Comment</td>
-    <td colspan="2" valign="top">{page::textarea("comment",$comment)}</td>
+    <td colspan="2" valign="top">{Page::textarea("comment",$comment)}</td>
   </tr>
   <tr>
     <td align="center" colspan="3">
@@ -58,6 +58,6 @@
   </form>
 
 
-{page::footer()}
+{Page::footer()}
 
 

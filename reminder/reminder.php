@@ -37,7 +37,7 @@ switch ($step) {
             "task"    => "Task",
             "general" => "General",
         ];
-        $TPL["parentTypeOptions"] = page::select_options($parent_types);
+        $TPL["parentTypeOptions"] = Page::select_options($parent_types);
         include_template("templates/reminderSelectParentTypeM.tpl");
         break;
 
@@ -90,7 +90,7 @@ switch ($step) {
             }
         }
         $TPL["parentType"] = $parentType;
-        $TPL["parentNameOptions"] = page::select_options($parent_names);
+        $TPL["parentNameOptions"] = Page::select_options($parent_names);
         include_template("templates/reminderSelectParentM.tpl");
         break;
 

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 
 
@@ -15,32 +15,32 @@
   </tr>
   <tr>
     <td><b>Basis</b></td>
-    <td><b>Start Date{page::mandatory($transactionStartDate)}</b></td>
-    <td><b>Finish Date{page::mandatory($transactionFinishDate)}</b></td>
-    <td><b>Source TF{page::mandatory($fromTfID)}</b></td>
+    <td><b>Start Date{Page::mandatory($transactionStartDate)}</b></td>
+    <td><b>Finish Date{Page::mandatory($transactionFinishDate)}</b></td>
+    <td><b>Source TF{Page::mandatory($fromTfID)}</b></td>
   </tr>
   <tr>
     <td><select name="paymentBasis" value="{$paymentBasis}">{$basisOptions}</select></td>
-    <td>{page::calendar("transactionStartDate",$transactionStartDate)}</td>
-    <td>{page::calendar("transactionFinishDate",$transactionFinishDate)}</td>
+    <td>{Page::calendar("transactionStartDate",$transactionStartDate)}</td>
+    <td>{Page::calendar("transactionFinishDate",$transactionFinishDate)}</td>
    	<td><select name="fromTfID"><option value="">{$fromTfOptions}</select></td>
   </tr>
 	<tr>
-	  <td><b>Product/Service{page::mandatory($product)}</b></td>
- 	  <td><b>Amount{page::mandatory($amount)}</b></td>
+	  <td><b>Product/Service{Page::mandatory($product)}</b></td>
+ 	  <td><b>Amount{Page::mandatory($amount)}</b></td>
  	  <td><b>Type</b></td>
-    <td><b>Destination TF{page::mandatory($tfID)}</b></td>
+    <td><b>Destination TF{Page::mandatory($tfID)}</b></td>
 	</tr>
 	<tr>
  	  <td><input type="text" size="20" name="product" value="{$product}"></td>
- 	  <td><input type="text" size="9" name="amount" value="{page::money($currencyTypeID,$amount,"%mo")}">
+ 	  <td><input type="text" size="9" name="amount" value="{Page::money($currencyTypeID,$amount,"%mo")}">
    	    <select name="currencyTypeID">{$currencyTypeOptions}</select></td>
    	<td><select name="transactionType">{$transactionTypeOptions}</select></td>
    	<td><select name="tfID"><option value="">{$tfOptions}</select></td>
  	</tr>
 
   <tr>
-    <td colspan="2" rowspan="3" valign="top"><b>Company Details{page::mandatory($companyDetails)}</b><br>{page::textarea("companyDetails",$companyDetails, array("cols"=>40))}</td>
+    <td colspan="2" rowspan="3" valign="top"><b>Company Details{Page::mandatory($companyDetails)}</b><br>{Page::textarea("companyDetails",$companyDetails, array("cols"=>40))}</td>
     <td rowspan="3" colspan="3">
       <nobr><b>Reminder email</b><br><input type="text" size="40" name="emailOne" value="{$emailOne}"></nobr><br>
       <nobr><b>Reminder email</b><br><input type="text" size="40" name="emailTwo" value="{$emailTwo}"></nobr>
@@ -78,4 +78,4 @@
 <input type="hidden" name="sessID" value="{$sessID}">
 </form>
 
-{page::footer()}
+{Page::footer()}

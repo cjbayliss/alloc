@@ -35,7 +35,7 @@ while ($db->next_record()) {
     $types[$db->f("name")] = $db->f("type");
 
     if ($db->f("type") == "text") {
-        $TPL[$db->f("name")] = page::htmlentities($db->f("value"));
+        $TPL[$db->f("name")] = Page::htmlentities($db->f("value"));
     } else if ($db->f("type") == "array") {
         $TPL[$db->f("name")] = unserialize($db->f("value"));
     }
@@ -114,12 +114,12 @@ if ($_POST["save"]) {
             if ($types[$name] == "text") {
                 // current special case for the only money field
                 if ($name == "defaultTimeSheetRate") {
-                    $value = page::money(0, $_POST[$name], "%mi");
+                    $value = Page::money(0, $_POST[$name], "%mi");
                     $c->set_value("value", $value);
                 } else {
                     $c->set_value("value", $_POST[$name]);
                 }
-                $TPL[$name] = page::htmlentities($value);
+                $TPL[$name] = Page::htmlentities($value);
             } else if ($types[$name] == "array") {
                 $c->set_value("value", serialize($_POST[$name]));
                 $TPL[$name] = $_POST[$name];
@@ -160,11 +160,11 @@ if (has("finance")) {
     $tf = new tf();
     $options = $tf->get_assoc_array("tfID", "tfName");
 }
-$TPL["mainTfOptions"] = page::select_options($options, config::get_config_item("mainTfID"));
-$TPL["outTfOptions"] = page::select_options($options, config::get_config_item("outTfID"));
-$TPL["inTfOptions"] = page::select_options($options, config::get_config_item("inTfID"));
-$TPL["taxTfOptions"] = page::select_options($options, config::get_config_item("taxTfID"));
-$TPL["expenseFormTfOptions"] = page::select_options($options, config::get_config_item("expenseFormTfID"));
+$TPL["mainTfOptions"] = Page::select_options($options, config::get_config_item("mainTfID"));
+$TPL["outTfOptions"] = Page::select_options($options, config::get_config_item("outTfID"));
+$TPL["inTfOptions"] = Page::select_options($options, config::get_config_item("inTfID"));
+$TPL["taxTfOptions"] = Page::select_options($options, config::get_config_item("taxTfID"));
+$TPL["expenseFormTfOptions"] = Page::select_options($options, config::get_config_item("expenseFormTfID"));
 
 $tabops = [
     "home"    => "Home",
@@ -180,11 +180,11 @@ $tabops = [
 ];
 
 $selected_tabops = config::get_config_item("allocTabs") or $selected_tabops = array_keys($tabops);
-$TPL["allocTabsOptions"] = page::select_options($tabops, $selected_tabops);
+$TPL["allocTabsOptions"] = Page::select_options($tabops, $selected_tabops);
 
 $m = new meta("currencyType");
 $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeName");
-$TPL["currencyOptions"] = page::select_options($currencyOptions, config::get_config_item("currency"));
+$TPL["currencyOptions"] = Page::select_options($currencyOptions, config::get_config_item("currency"));
 
 $db = new AllocDatabase();
 $display = ["", "username", ", ", "emailAddress"];
@@ -197,20 +197,20 @@ $TPL["defaultTimeSheetManagerListText"] = get_person_list(config::get_config_ite
 $TPL["defaultTimeSheetAdminListText"] = get_person_list(config::get_config_item("defaultTimeSheetAdminList"), $people_by_id);
 
 $days = ["Sun" => "Sun", "Mon" => "Mon", "Tue" => "Tue", "Wed" => "Wed", "Thu" => "Thu", "Fri" => "Fri", "Sat" => "Sat"];
-$TPL["calendarFirstDayOptions"] = page::select_options($days, config::get_config_item("calendarFirstDay"));
+$TPL["calendarFirstDayOptions"] = Page::select_options($days, config::get_config_item("calendarFirstDay"));
 
-$TPL["timeSheetPrintOptions"] = page::select_options($TPL["timeSheetPrintOptions"], $TPL["timeSheetPrint"]);
+$TPL["timeSheetPrintOptions"] = Page::select_options($TPL["timeSheetPrintOptions"], $TPL["timeSheetPrint"]);
 
 $commentTemplate = new commentTemplate();
 $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName");
 
-$TPL["rssStatusFilterOptions"] = page::select_options(task::get_task_statii_array(true), config::get_config_item("rssStatusFilter"));
+$TPL["rssStatusFilterOptions"] = Page::select_options(task::get_task_statii_array(true), config::get_config_item("rssStatusFilter"));
 
 if (has("timeUnit")) {
     $timeUnit = new timeUnit();
     $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
 }
-$TPL["timesheetRate_options"] = page::select_options($rate_type_array, config::get_config_item("defaultTimeSheetUnit"));
+$TPL["timesheetRate_options"] = Page::select_options($rate_type_array, config::get_config_item("defaultTimeSheetUnit"));
 
 $TPL["main_alloc_title"] = "Setup - " . APPLICATION_NAME;
 include_template("templates/configM.tpl");

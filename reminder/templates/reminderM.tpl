@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <script type="text/javascript" language="javascript">
 $(document).ready(function() {
@@ -53,7 +53,7 @@ $(document).ready(function() {
         <div class="enclose">
           <h6>Recipients<div>When</div></h6>
           <div style="float:left; width:47%;">
-            {echo page::htmlentities($recipients_display)}
+            {echo Page::htmlentities($recipients_display)}
           </div>
           <div style="float:right; width:50%; text-align:left;">
             {if $reminderTime && $reminderTime != "0000-00-00 00:00:00"}
@@ -112,7 +112,7 @@ $(document).ready(function() {
         </div>
 
         <h6>Description</h6>
-        {page::textarea("reminder_content",$reminder_default_content,array("height"=>"small"))}
+        {Page::textarea("reminder_content",$reminder_default_content,array("height"=>"small"))}
       </div>
 
       <div class="pane">
@@ -120,11 +120,11 @@ $(document).ready(function() {
         <div class="enclose">
           <h6>Recipients<div>When</div></h6>
           <div style="float:left; width:47%;">
-            <select name="reminder_recipient[]" multiple="true">{page::select_options($reminder_recipients,$selected_recipients)}</select>
-            <span style='float:right'>{page::help("reminder_recipient")}</span>
+            <select name="reminder_recipient[]" multiple="true">{Page::select_options($reminder_recipients,$selected_recipients)}</select>
+            <span style='float:right'>{Page::help("reminder_recipient")}</span>
           </div>
           <div style="float:right; width:50%; text-align:left;">
-            {page::calendar("reminder_date",$reminder_date)}&nbsp;&nbsp;
+            {Page::calendar("reminder_date",$reminder_date)}&nbsp;&nbsp;
             <select name="reminder_hour">{$reminder_hours}</select>
             <select name="reminder_minute">{$reminder_minutes}</select>
             <select name="reminder_meridian">{$reminder_meridians}</select>
@@ -166,4 +166,4 @@ $(document).ready(function() {
 <input type="hidden" name="sessID" value="{$sessID}">
 </form>
 
-{page::footer()}
+{Page::footer()}

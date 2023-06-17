@@ -122,7 +122,7 @@ function show_client_contacts()
         $firstColumnHTML = implode('</span><br><span class="nobr">', $generatedFirstColumnHTMLArray);
         $secondColumnHTML = implode('</span><br><span class="nobr">', $generatedSecondColumnHTMLArray);
         $otherClientContact = nl2br($clientContact->get_value('clientContactOther', DST_HTML_DISPLAY));
-        $starredClientContact = page::star("clientContact", $clientContact->get_id());
+        $starredClientContact = Page::star("clientContact", $clientContact->get_id());
         $buttons = <<<HTML
                     <nobr>
                         <button type="submit" name="clientContact_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
@@ -208,7 +208,7 @@ function show_comments()
         ["commentTemplateType" => "client"]
     );
     $TPL["commentTemplateOptions"] =
-        "<option value=\"\">Comment Templates</option>{page::select_options($ops)}";
+        "<option value=\"\">Comment Templates</option>{Page::select_options($ops)}";
     include_template("../comment/templates/commentM.tpl");
 }
 
@@ -284,7 +284,7 @@ if ($_POST["save"]) {
 
 $m = new meta("clientStatus");
 $clientStatus_array = $m->get_assoc_array("clientStatusID", "clientStatusID");
-$TPL["clientStatusOptions"] = page::select_options(
+$TPL["clientStatusOptions"] = Page::select_options(
     $clientStatus_array,
     $client->get_value("clientStatus")
 );
@@ -296,7 +296,7 @@ foreach ($clientCategories as $clientCategory) {
 }
 
 $selectedCategory = $client->get_value("clientCategory");
-$TPL["clientCategoryOptions"] = page::select_options($categoryOptions, $selectedCategory);
+$TPL["clientCategoryOptions"] = Page::select_options($categoryOptions, $selectedCategory);
 
 if ($selectedCategory) {
     $TPL["client_clientCategoryLabel"] = $categoryOptions[$selectedCategory];

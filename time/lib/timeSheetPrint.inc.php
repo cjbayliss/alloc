@@ -26,7 +26,7 @@ class timeSheetPrint
         $allocDatabase->query($q);
 
         $customerBilledDollars = $timeSheet->get_value("customerBilledDollars");
-        $currency = page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
+        $currency = Page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
 
         return [$allocDatabase, $customerBilledDollars, $timeSheet, $unit_array, $currency];
     }
@@ -61,12 +61,12 @@ class timeSheetPrint
                     $num_minus_gst += $num - ($num_minus_gst + $gst); // round it up.
                 }
 
-                $rows[$taskID]["money"] += page::money($timeSheet->get_value("currencyTypeID"), $num_minus_gst, "%mo");
-                $rows[$taskID]["gst"] += page::money($timeSheet->get_value("currencyTypeID"), $gst, "%mo");
+                $rows[$taskID]["money"] += Page::money($timeSheet->get_value("currencyTypeID"), $num_minus_gst, "%mo");
+                $rows[$taskID]["gst"] += Page::money($timeSheet->get_value("currencyTypeID"), $gst, "%mo");
                 $info["total_gst"] += $gst;
                 $info["total"] += $num_minus_gst;
             } else {
-                $rows[$taskID]["money"] += page::money($timeSheet->get_value("currencyTypeID"), $num, "%mo");
+                $rows[$taskID]["money"] += Page::money($timeSheet->get_value("currencyTypeID"), $num, "%mo");
                 $info["total"] += $num;
             }
 
@@ -90,7 +90,7 @@ class timeSheetPrint
             }
 
             $c = str_replace("\r\n", "\n", $timeSheetItem->get_value("comment"));
-            !$timeSheetItem->get_value("commentPrivate") && $c and $str[] = page::htmlentities($c);
+            !$timeSheetItem->get_value("commentPrivate") && $c and $str[] = Page::htmlentities($c);
 
             is_array($str) and $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
         }
@@ -115,11 +115,11 @@ class timeSheetPrint
             $commar = ", ";
         }
 
-        $info["total_inc_gst"] = page::money($timeSheet->get_value("currencyTypeID"), $info["total"] + $info["total_gst"], "%s%mo");
+        $info["total_inc_gst"] = Page::money($timeSheet->get_value("currencyTypeID"), $info["total"] + $info["total_gst"], "%s%mo");
 
         // If we are in dollar mode, then prefix the total with a dollar sign
-        $info["total"] = page::money($timeSheet->get_value("currencyTypeID"), $info["total"], "%s%mo");
-        $info["total_gst"] = page::money($timeSheet->get_value("currencyTypeID"), $info["total_gst"], "%s%mo");
+        $info["total"] = Page::money($timeSheet->get_value("currencyTypeID"), $info["total"], "%s%mo");
+        $info["total_gst"] = Page::money($timeSheet->get_value("currencyTypeID"), $info["total_gst"], "%s%mo");
         $rows or $rows = [];
         $info or $info = [];
         return [$rows, $info];
@@ -167,7 +167,7 @@ class timeSheetPrint
             }
 
             $c = str_replace("\r\n", "\n", $timeSheetItem->get_value("comment"));
-            !$timeSheetItem->get_value("commentPrivate") && $c && !$cs[$c] and $str[] = page::htmlentities($c);
+            !$timeSheetItem->get_value("commentPrivate") && $c && !$cs[$c] and $str[] = Page::htmlentities($c);
             $cs[$c] = true;
 
             is_array($str) and $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
@@ -243,7 +243,7 @@ class timeSheetPrint
             }
 
             $c = str_replace("\r\n", "\n", $timeSheetItem->get_value("comment"));
-            !$timeSheetItem->get_value("commentPrivate") && $c and $str[] = page::htmlentities($c);
+            !$timeSheetItem->get_value("commentPrivate") && $c and $str[] = Page::htmlentities($c);
 
             is_array($str) and $rows[$row_num]["desc"] .= trim(implode(DEFAULT_SEP, $str));
         }

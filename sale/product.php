@@ -31,11 +31,11 @@ function show_productCost_list($productID, $template, $percent = false)
             $productCost = new productCost();
             $productCost->read_db_record($db);
             $productCost->set_tpl_values();
-            $TPL["currencyOptions"] = page::select_options($currency_array, $productCost->get_value("currencyTypeID"));
-            $TPL["taxOptions"] = page::select_options(["" => "Exempt", 1 => "Included", 0 => "Excluded"], $productCost->get_value("tax"));
+            $TPL["currencyOptions"] = Page::select_options($currency_array, $productCost->get_value("currencyTypeID"));
+            $TPL["taxOptions"] = Page::select_options(["" => "Exempt", 1 => "Included", 0 => "Excluded"], $productCost->get_value("tax"));
 
             // Hardcoded AUD because productCost table uses percent and dollars in same field
-            $percent and $TPL["amount"] = page::money("AUD", $productCost->get_value("amount"), "%mo");
+            $percent and $TPL["amount"] = Page::money("AUD", $productCost->get_value("amount"), "%mo");
             include_template($template);
         }
     }
@@ -48,8 +48,8 @@ function show_productCost_new($template, $percent = false)
     $currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
     $productCost = new productCost();
     $productCost->set_values(); // wipe clean
-    $TPL["currencyOptions"] = page::select_options($currency_array, $productCost->get_value("currencyTypeID"));
-    $TPL["taxOptions"] = page::select_options(["" => "Exempt", 1 => "Included", 0 => "Excluded"], "1");
+    $TPL["currencyOptions"] = Page::select_options($currency_array, $productCost->get_value("currencyTypeID"));
+    $TPL["taxOptions"] = Page::select_options(["" => "Exempt", 1 => "Included", 0 => "Excluded"], "1");
     $TPL["display"] = "display:none";
     include_template($template);
 }
@@ -61,7 +61,7 @@ function tf_list($selected = "", $remove_these = [])
     foreach ($remove_these as $dud) {
         unset($temp[$dud]);
     }
-    echo page::select_options($temp, $selected);
+    echo Page::select_options($temp, $selected);
     return;
 }
 
@@ -155,7 +155,7 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
 
 $m = new meta("currencyType");
 $ops = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
-$TPL["sellPriceCurrencyOptions"] = page::select_options($ops, $product->get_value("sellPriceCurrencyTypeID"));
+$TPL["sellPriceCurrencyOptions"] = Page::select_options($ops, $product->get_value("sellPriceCurrencyTypeID"));
 
 $TPL["main_alloc_title"] = "Product: " . $product->get_value("productName") . " - " . APPLICATION_NAME;
 $product->set_values();

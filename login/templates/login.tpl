@@ -1,7 +1,7 @@
-{page::header()}
+{Page::header()}
 
 <div class="width">
-{page::messages()}
+{Page::messages()}
 </div>
 
 <form action="{$url_alloc_login}" method="post" id="login_form">
@@ -38,4 +38,4 @@
 </div>
 {/}
 
-{page::footer()}
+{Page::footer()}

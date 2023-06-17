@@ -4,7 +4,7 @@
   </tr>
   <tr>
     <td colspan="6">
-      {page::side_by_side_links(array("generic_ii"=>"Generic"
+      {Page::side_by_side_links(array("generic_ii"=>"Generic"
                                      ,"timeSheet_ii"=>"From Time Sheet"
                                      ,"expenseForm_ii"=>"From Expense Form"
                                      ,"productSale_ii"=>"From Sale")
@@ -26,7 +26,7 @@
         <td>Memo</td>
       </tr>
       <tr>
-        <td class="nobr">{page::calendar("iiDate",$invoiceItem_iiDate)}</td>
+        <td class="nobr">{Page::calendar("iiDate",$invoiceItem_iiDate)}</td>
         <td><input type="text" size="4" name="iiQuantity" id="iiQuantity" value="{$invoiceItem_iiQuantity}"></td>
         <td>*</td>
         <td><input type="text" size="7" name="iiUnitPrice" id="iiUnitPrice" value="{$invoiceItem_iiUnitPrice}"></td>

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <script type="text/javascript" language="javascript">
 // Make the XML request thing, specify the callback function 
 function updateStuffWithAjax() {
@@ -63,7 +63,7 @@ $(document).ready(function() {
 
 {if $task_taskID}
 {$first_div="hidden"}
-{page::side_by_side_links(array("task"=>"Main"
+{Page::side_by_side_links(array("task"=>"Main"
                                ,"comments"=>"Comments"
                                ,"reminders"=>"Reminders"
                                ,"attachments"=>"Attachments"
@@ -83,14 +83,14 @@ $(document).ready(function() {
     <th class="header">View Details
       <span>
         {$navigation_links}
-        {page::star("task",$task_taskID)}
+        {Page::star("task",$task_taskID)}
       </span>
     </th>
   </tr>
   <tr>
     <td valign="top">
       <div class="task_pane">
-        <h6>{$task_taskType}{page::mandatory($task_taskName)}</h6>
+        <h6>{$task_taskType}{Page::mandatory($task_taskName)}</h6>
         <h2 style="margin-bottom:0px; display:inline;">{$taskTypeImage} {$task_taskID} {=$task_taskName}</h2>&nbsp;{$priorityLabel}
         {if $project_projectName} 
           <h6>Project</h6>
@@ -221,7 +221,7 @@ $(document).ready(function() {
   <tr>
     <td valign="top">
       <div class="task_pane">
-        <h6>{$task_taskType}{page::mandatory($task_taskName)}</h6>
+        <h6>{$task_taskType}{Page::mandatory($task_taskName)}</h6>
         <div style="width:100%" class="">
           <table class="nopad">
             <tr>
@@ -237,7 +237,7 @@ $(document).ready(function() {
                 </select>
               </td>
               <td>
-                {page::help("taskType")}
+                {Page::help("taskType")}
               </td>
             </tr>
           </table>
@@ -250,7 +250,7 @@ $(document).ready(function() {
         <div id="parentTaskDropdown">{$parentTaskOptions}</div>
 
         <h6>Description</h6>
-        {page::textarea("taskDescription",$task_taskDescription,array("height"=>"medium","width"=>"100%"))}
+        {Page::textarea("taskDescription",$task_taskDescription,array("height"=>"medium","width"=>"100%"))}
 
         <div class="nobr">
         <h6>Tags</h6>
@@ -278,15 +278,15 @@ $(document).ready(function() {
             </select>
             <div id="closed_duplicate_div" class="hidden_field {print ($task_taskStatus == "closed_duplicate") ? "inline" : "hidden"}">
               <input type="text" name="duplicateTaskID" value="{$task_duplicateTaskID}" size="20">
-              {page::help("task_duplicate")}
+              {Page::help("task_duplicate")}
             </div>
             <div id="pending_tasks_div" class="hidden_field {print ($task_taskStatus == "pending_tasks") ? "inline" : "hidden"}">
               <input type="text" name="pendingTasksIDs" id="pendingTasksIDs" value="{$task_pendingTaskIDs}" size="20">
-              {page::help("task_pending_tasks")}
+              {Page::help("task_pending_tasks")}
             </div>
             <div id="pending_reopen_div" class="hidden_field {print ($task_taskStatus != "pending_tasks" && in_str("pending_",$task_taskStatus)) ? "inline" : "hidden"}">
-              {page::calendar("reopen_task",$reopen_task)}
-              {page::help("task_reopen_task")}
+              {Page::calendar("reopen_task",$reopen_task)}
+              {Page::help("task_reopen_task")}
             </div>
           </div>
         </div>
@@ -304,7 +304,7 @@ $(document).ready(function() {
         <div class="nobr">
           <h6>Default Interested Parties</h6> 
           <div id="interestedPartyDropdown" style="display:inline">{$interestedPartyOptions}</div>
-          {page::help("task_interested_parties")}
+          {Page::help("task_interested_parties")}
         </div>
 
         <div class="enclose">
@@ -312,7 +312,7 @@ $(document).ready(function() {
           <div style="float:left; width:40%" class="nobr">
             <input type="text" name="timeBest" value="{$task_timeBest}" size="4"> /
             <input type="text" name="timeExpected" value="{$task_timeExpected}" size="4"> /
-            <input type="text" name="timeWorst" value="{$task_timeWorst}" size="4"> {page::help("task_estimates")}
+            <input type="text" name="timeWorst" value="{$task_timeWorst}" size="4"> {Page::help("task_estimates")}
           </div>
           <div style="float:right;width:50%;" id="taskEstimatorPersonList">
             {$estimatorPersonOptions}
@@ -325,17 +325,17 @@ $(document).ready(function() {
             {$time_billed_link} {if $percentComplete && $percentComplete != "0%"}({$percentComplete}){/}
           </div>
           <div style="float:right;width:50%;">
-            <input type="text" name="timeLimit" value="{$task_timeLimit}" size="5"> {page::help("task_timeLimit")}
+            <input type="text" name="timeLimit" value="{$task_timeLimit}" size="5"> {Page::help("task_timeLimit")}
           </div>
         </div>
 
         <div class="enclose">
           <h6>Target Start<div>Target Completion</div></h6>
           <div style="float:left; width:30%">
-            {page::calendar("dateTargetStart",$task_dateTargetStart)}
+            {Page::calendar("dateTargetStart",$task_dateTargetStart)}
           </div>
           <div style="float:right; width:50%">
-            {page::calendar("dateTargetCompletion",$task_dateTargetCompletion)}
+            {Page::calendar("dateTargetCompletion",$task_dateTargetCompletion)}
           </div>
         </div>
 
@@ -358,7 +358,7 @@ $(document).ready(function() {
       <div style="margin:20px">
         {if !$task_taskID}
         <br>
-        <label for="createTaskReminder"><input type="checkbox" name="createTaskReminder" id="createTaskReminder" value="true" /> Create reminder for assignee</label> {page::help("task_create_reminder")}<br><br>
+        <label for="createTaskReminder"><input type="checkbox" name="createTaskReminder" id="createTaskReminder" value="true" /> Create reminder for assignee</label> {Page::help("task_create_reminder")}<br><br>
         {/}
 
         {if $task->can_be_deleted()}
@@ -436,4 +436,4 @@ $(document).ready(function() {
 
 <br>&nbsp;
 
-{page::footer()}
+{Page::footer()}

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <table class="box">
   <tr>
     <th colspan="2">Transaction</th>
@@ -53,4 +53,4 @@
     <td>{$transactionModifiedUser}&nbsp;{$transactionModifiedTime}</td>
   </tr>
 </table>
-{page::footer()}
+{Page::footer()}

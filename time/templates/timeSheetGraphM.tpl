@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <script>
 $(document).ready(function() {
   var points = {echo json_encode($chart1)};
@@ -71,4 +71,4 @@ $(document).ready(function() {
     </td>
   </tr>
 </table>
-{page::footer()}
+{Page::footer()}

@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <table class="box">
   <tr>
@@ -13,15 +13,15 @@
     <table align="center">
        <tr>
         <td align="right" class="transaction-approved"><strong>Total Balance:</strong></td> 
-        <td align="left" class="transaction-approved">{page::money(config::get_config_item("currency"),$balance,"%s%m %c")}</td>
+        <td align="left" class="transaction-approved">{Page::money(config::get_config_item("currency"),$balance,"%s%m %c")}</td>
       </tr>
       <tr>
         <td align="right" class="transaction-pending"><strong>Total Pending:</strong></td> 
-        <td align="left" class="transaction-pending">{page::money(config::get_config_item("currency"),$pending_amount,"%s%m %c")}</td>
+        <td align="left" class="transaction-pending">{Page::money(config::get_config_item("currency"),$pending_amount,"%s%m %c")}</td>
       </tr>
       <tr>
         <td align="right" class="transaction-approved"><strong>Opening Balance:</strong></td> 
-        <td align="left" class="transaction-approved">{page::money(config::get_config_item("currency"),$totals["opening_balance"],"%s%m %c")}</td>
+        <td align="left" class="transaction-approved">{Page::money(config::get_config_item("currency"),$totals["opening_balance"],"%s%m %c")}</td>
       </tr>
     </table>
     </td>
@@ -70,4 +70,4 @@
   </tr>
 </table>
 
-{page::footer()}
+{Page::footer()}

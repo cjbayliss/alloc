@@ -39,7 +39,7 @@ if ($_POST["delete_skill"]) {
 
 $skill_classes = skill::get_skill_classes();
 $skill_classes[""] = ">> OTHER >>";
-$TPL["new_skill_classes"] = page::select_options($skill_classes, $_POST["skill_class"]);
+$TPL["new_skill_classes"] = Page::select_options($skill_classes, $_POST["skill_class"]);
 
 $skills = skill::get_skills();
 // if a skill class is selected and a skill that is not in that class is also selected, clear the skill as this is what the filter options will do
@@ -47,7 +47,7 @@ if ($skill_class && !in_array($skills[$_POST["skill"]], $skills)) {
     $_POST["skill"] = "";
 }
 $skills[""] = ">> NEW >>";
-$TPL["new_skills"] = page::select_options($skills, $_POST["skill"]);
+$TPL["new_skills"] = Page::select_options($skills, $_POST["skill"]);
 
 $TPL["main_alloc_title"] = "Edit Skills - " . APPLICATION_NAME;
 if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT)) {

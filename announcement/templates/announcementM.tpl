@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <form action="{$url_alloc_announcement}" method="post">
 <table class="box"> 
   <tr>
@@ -12,15 +12,15 @@
   </tr>
   <tr>
     <td>Display From</td>
-    <td>{page::calendar("displayFromDate",$displayFromDate)}</td>
+    <td>{Page::calendar("displayFromDate",$displayFromDate)}</td>
   </tr>
   <tr>
     <td>Display To</td>
-    <td>{page::calendar("displayToDate",$displayToDate)}</td>
+    <td>{Page::calendar("displayToDate",$displayToDate)}</td>
   </tr>
   <tr>
     <td>Body</td>
-    <td>{page::textarea("body",$body,array("height"=>"jumbo"))}</td>
+    <td>{Page::textarea("body",$body,array("height"=>"jumbo"))}</td>
   </tr>
   <tr>
     <td colspan="2" align="center">
@@ -32,4 +32,4 @@
 <input type="hidden" name="announcementID" value="{$announcementID}">
 <input type="hidden" name="sessID" value="{$sessID}">
 </form>
-{page::footer()}
+{Page::footer()}

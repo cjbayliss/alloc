@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 <form action="{$url_alloc_transaction}" method="post">
 <input type="hidden" name="expenseFormID" value={$expenseFormID}>
 <input type="hidden" name="quantity" value={$quantity}>
@@ -14,25 +14,25 @@
     <td width="1%"></td>
   </tr>
   <tr>
-    <td>Source Tagged Fund{page::mandatory($fromTfID)}</td>
+    <td>Source Tagged Fund{Page::mandatory($fromTfID)}</td>
     <td><select name="fromTfID">
       <option value="">
       {$fromTfIDOptions}
       </select>
 	  {$fromTfIDWarning}
     </td>
-    <td class="hint">{page::help("from_transaction_tf")}</td>
+    <td class="hint">{Page::help("from_transaction_tf")}</td>
   </tr>
 
   <tr>
-    <td>Destination Tagged Fund{page::mandatory($tfID)}</td>
+    <td>Destination Tagged Fund{Page::mandatory($tfID)}</td>
     <td><select name="tfID">
       <option value="">
       {$tfIDOptions}
       </select>
 	  {$tfIDWarning}
     </td>
-    <td class="hint">{page::help("transaction_tf")}</td>
+    <td class="hint">{Page::help("transaction_tf")}</td>
   </tr>
   <tr>
   <tr>
@@ -44,8 +44,8 @@
     </td>
     <td class="hint"></td>
   </tr>
-    <td>Transaction Date{page::mandatory($transactionDate)}</td>
-    <td>{page::calendar("transactionDate",$transactionDate)}</td>
+    <td>Transaction Date{Page::mandatory($transactionDate)}</td>
+    <td>{Page::calendar("transactionDate",$transactionDate)}</td>
     <td class="hint"></td>
   </tr>
   <tr>
@@ -54,31 +54,31 @@
     <td class="hint"></td>
   </tr>
   <tr>
-    <td>Product/Description{page::mandatory($product)}</td>
+    <td>Product/Description{Page::mandatory($product)}</td>
     <td><input type="text" name="product" size="20" value="{$product}"></td>
-    <td class="hint">{page::help("transaction_product")}</td>
+    <td class="hint">{Page::help("transaction_product")}</td>
   </tr>
   <tr>
-    <td>Amount{page::mandatory($amount)}</td>
+    <td>Amount{Page::mandatory($amount)}</td>
     <td><input type="text" name="amount" size="20" value="{$amount}"><select name="currencyTypeID">{$currencyOptions}</select></td>
-    <td class="hint">{page::help("transaction_amount")}</td>
+    <td class="hint">{Page::help("transaction_amount")}</td>
   </tr>
   <tr>
-    <td>Status{page::mandatory($status)}</td>
+    <td>Status{Page::mandatory($status)}</td>
     <td><select name="status">
           {$statusOptions}
         </select>
       {if $dateApproved} Date Approved: {$dateApproved}{/}
     </td>      
-    <td class="hint">{page::help("transaction_status")}</td>
+    <td class="hint">{Page::help("transaction_status")}</td>
   </tr>
   <tr>
-    <td>Transaction Type{page::mandatory($transactionType)}</td>
+    <td>Transaction Type{Page::mandatory($transactionType)}</td>
     <td><select name="transactionType"><option value="">{$transactionTypeOptions}</select></td>      
     <td class="hint"></td>
   </tr>
   <tr>
-    <td>Exchange Rate{page::mandatory($exchangeRate)}</td>
+    <td>Exchange Rate{Page::mandatory($exchangeRate)}</td>
     <td><input type="text" name="exchangeRate" size="20" value="{$exchangeRate}"> ({$currencyTypeID} to {echo config::get_config_item("currency")})</td>
     <td class="hint"></td>
   </tr>
@@ -125,7 +125,7 @@
 </form>
 
 
-{page::footer()}
+{Page::footer()}
 
 
 

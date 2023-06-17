@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 <table class="box">
   <tr>
@@ -44,7 +44,7 @@
           <td></td>
           <td>
             <select name="value">
-              {page::select_options(person::get_username_list())};
+              {Page::select_options(person::get_username_list())};
             </select>
           <td>
             <input type="submit" name="save" value="Add">
@@ -64,4 +64,4 @@
 
 </table>
 
-{page::footer()}
+{Page::footer()}

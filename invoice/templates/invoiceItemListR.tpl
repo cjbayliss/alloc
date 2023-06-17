@@ -2,7 +2,7 @@
 <table width="100%" cellspacing="0" border="0">
 <tr>
   <td width="10%" class="top nobr">{$invoiceItem_iiDate}</td>
-  <td width="15%" class="top nobr">{$invoiceItem_iiQuantity} * {page::money($currency,$invoiceItem_iiUnitPrice,"%s%m")} = <b>{page::money($currency,$invoiceItem_iiAmount,"%s%m %c")}</b>
+  <td width="15%" class="top nobr">{$invoiceItem_iiQuantity} * {Page::money($currency,$invoiceItem_iiUnitPrice,"%s%m")} = <b>{Page::money($currency,$invoiceItem_iiAmount,"%s%m %c")}</b>
   {if $tn = config::get_config_item("taxName")}
   ({print $invoiceItem_iiTax>0? "incl":"excl"} {$tn})
   {/}

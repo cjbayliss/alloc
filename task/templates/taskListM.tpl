@@ -1,5 +1,5 @@
-{page::header()}
-{page::toolbar()}
+{Page::header()}
+{Page::toolbar()}
 
 {foreach (array)$_FORM as $k=>$v}
   {if is_array($v)}
@@ -32,4 +32,4 @@
     </td>
   </tr>
 </table>
-{page::footer()}
+{Page::footer()}

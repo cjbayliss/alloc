@@ -257,7 +257,7 @@ class expenseForm extends DatabaseEntity
         $db->query($q);
 
         while ($row = $db->row()) {
-            $amounts[$row["expenseFormID"]] .= $sp[$row["expenseFormID"]] . page::money($row["currencyTypeID"], $row["formTotal"], "%s%m");
+            $amounts[$row["expenseFormID"]] .= $sp[$row["expenseFormID"]] . Page::money($row["currencyTypeID"], $row["formTotal"], "%s%m");
             $sp[$row["expenseFormID"]] = " + ";
             $allrows[$row["expenseFormID"]] = $row;
         }

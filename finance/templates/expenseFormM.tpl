@@ -1,5 +1,5 @@
-{page::header()}
-  {page::toolbar()}
+{Page::header()}
+  {Page::toolbar()}
 
 <form name="costForm" action="{$url_alloc_expenseForm}" method="post">
 
@@ -24,7 +24,7 @@
     <td align="right">Created By:</td>
     <td>{=$user}</td>
     <td align="right" class="nobr">Seek Client Reimbursement:</td>
-    <td>{$seekClientReimbursementOption}{page::help("expenseForm_seek_reimbursement")}</td>
+    <td>{$seekClientReimbursementOption}{Page::help("expenseForm_seek_reimbursement")}</td>
   </tr>
   <tr>
     <td align="right" valign="top">Total:</td>
@@ -57,7 +57,7 @@
   </tr>
 
   <tr>
-    <td colspan="3">Enter the company name and address{page::mandatory($companyDetails)}</td> 
+    <td colspan="3">Enter the company name and address{Page::mandatory($companyDetails)}</td> 
     <td colspan="3">Project</td> 
   </tr>
   <tr>
@@ -65,11 +65,11 @@
     <td colspan="3"><select name="projectID" value="{$projectID}"><option value="">{$projectOptions}</select></td>
   </tr>
   <tr>
-    <td>Product{page::mandatory($product)}</td>
+    <td>Product{Page::mandatory($product)}</td>
     <td>Quantity</td>
-    <td>Price{page::mandatory($amount)}</td>
-    <td>Currency{page::mandatory($currencyTypeID)}</td>
-    <td>Source TF{page::mandatory($fromTfID)}</td>
+    <td>Price{Page::mandatory($amount)}</td>
+    <td>Currency{Page::mandatory($currencyTypeID)}</td>
+    <td>Source TF{Page::mandatory($fromTfID)}</td>
     <td>Date Incurred</td>
   </tr>
   <tr>
@@ -78,7 +78,7 @@
     <td><input type="text" size="9" name="amount" value="{$amount}"></td>
     <td><select name="currencyTypeID">{$currencyTypeOptions}</select></td>
     <td><select name="fromTfID"><option value="">{$fromTfOptions}</select></td>
-    <td><nobr>{page::calendar("transactionDate",$transactionDate)}</nobr>
+    <td><nobr>{Page::calendar("transactionDate",$transactionDate)}</nobr>
     <td class="right">
       <button type="submit" name="add" value="1" class="save_button default">Add Item<i class="icon-plus-sign"></i></button>
       <input type="hidden" name="transactionID" value="{$transactionID}"></td>
@@ -103,5 +103,5 @@
 {/}
 
 
-{page::footer()}
+{Page::footer()}
 

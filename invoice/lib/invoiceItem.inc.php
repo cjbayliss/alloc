@@ -160,9 +160,9 @@ class invoiceItem extends DatabaseEntity
                     $TPL["message_good"][] = "Closed Time Sheet #" . $timeSheet->get_id() . " and marked its Transactions: " . $status;
                 } else {
                     $TPL["message_help"][] = "Unable to close Time Sheet #" . $timeSheet->get_id() . " the sum of the Time Sheet's *Transactions* ("
-                        . page::money($timeSheet->get_value("currencyTypeID"), $total_timeSheet, "%s%mo %c")
+                        . Page::money($timeSheet->get_value("currencyTypeID"), $total_timeSheet, "%s%mo %c")
                         . ") is greater than the Invoice Item Transaction ("
-                        . page::money($currency, $total, "%s%mo %c") . ")";
+                        . Page::money($currency, $total, "%s%mo %c") . ")";
                 }
             }
         } else if ($expenseFormID) {
@@ -210,7 +210,7 @@ class invoiceItem extends DatabaseEntity
                 $this->get_value("timeSheetID"),
                 config::get_config_item("inTfID"),
                 $tfID,
-                page::money($this->currency, $amount, "%mi"),
+                Page::money($this->currency, $amount, "%mi"),
                 $this->get_id()
             );
             $allocDatabase->query($q);
@@ -261,8 +261,8 @@ class invoiceItem extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         while ($row = $allocDatabase->row()) {
-            $row["iiAmount"] = page::money($row["currencyTypeID"], $row["iiAmount"], "%mo");
-            $row["iiUnitPrice"] = page::money($row["currencyTypeID"], $row["iiUnitPrice"], "%mo");
+            $row["iiAmount"] = Page::money($row["currencyTypeID"], $row["iiAmount"], "%mo");
+            $row["iiUnitPrice"] = Page::money($row["currencyTypeID"], $row["iiUnitPrice"], "%mo");
             $rows[$row["invoiceItemID"]] = $row;
         }
         return (array)$rows;

@@ -77,7 +77,7 @@ while ($db->next_record()) {
             continue 2;
         }
 
-        $amount = page::money_out($transactionRepeat->get_value("currencyTypeID"), $transactionRepeat->get_value("amount"));
+        $amount = Page::money_out($transactionRepeat->get_value("currencyTypeID"), $transactionRepeat->get_value("amount"));
 
         $transaction = new transaction();
         $transaction->set_value("fromTfID", $transactionRepeat->get_value("fromTfID"));

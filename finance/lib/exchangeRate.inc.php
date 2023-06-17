@@ -66,7 +66,7 @@ class exchangeRate extends DatabaseEntity
         $date or $date = date("Y-m-d");
         $destCurrency or $destCurrency = config::get_config_item("currency");
         $er = exchangeRate::get_er($currency, $destCurrency, $date);
-        return page::money($destCurrency, $amount * $er, $format);
+        return Page::money($destCurrency, $amount * $er, $format);
     }
 
     public static function update_rate($from, $to)

@@ -26,4 +26,4 @@ $mail_text = $email_receive->fetch_mail_text();
 $new and $email_receive->set_unread(); // might have to "unread" the email, if it was new, i.e. set it back to new
 $email_receive->close();
 
-echo nl2br(trim(page::htmlentities($mail_text)));
+echo nl2br(trim(Page::htmlentities($mail_text)));
