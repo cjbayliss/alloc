@@ -8,17 +8,11 @@
 class Session
 {
 
-    public $key;          // the unique key for the session
-    public $db;           // database object
-    public $session_data; // assoc array which holds all session data
-    public $session_life; // number of seconds the session is alive for
-    public $mode;         // whether to use get or cookies
-
-    // * * * * * * * * * * * * * * * * *//
-    //                                  //
-    //         Public Methods           //
-    //                                  //
-    // * * * * * * * * * * * * * * * * *//
+    private $key;          // the unique key for the session
+    private $db;           // database object
+    private $session_data; // assoc array which holds all session data
+    private $session_life; // number of seconds the session is alive for
+    private $mode;         // whether to use get or cookies
 
     // Constructor
     public function __construct($key = "")
@@ -114,10 +108,6 @@ class Session
 
     public function MakeCookie()
     {
-
-        // Attempt to unset the test cookie
-        // SetCookie("alloc_test_cookie",FALSE,0,"/","");
-
         // Set the session cookie
         $rtn = SetCookie("alloc_cookie", $this->key, ['expires' => 0, 'path' => "/", 'domain' => ""]);
         if (!$rtn) {
@@ -182,14 +172,8 @@ class Session
         $this->Put("session_mode", $this->mode);
     }
 
-    // * * * * * * * * * * * * * * * * *//
-    //                                  //
-    //         Private Methods          //
-    //                                  //
-    // * * * * * * * * * * * * * * * * *//
-
     // Fetches data given a key
-    public function GetSessionData()
+    private function GetSessionData()
     {
         if ($this->key) {
             $row = $this->db->qr("SELECT sessData FROM sess WHERE sessID = '%s'", $this->key);
@@ -198,27 +182,21 @@ class Session
     }
 
     // if $this->session_life seconds have passed then session has expired
-    public function Expired()
+    private function Expired()
     {
         if ($this->Get("session_started") && (time() > ($this->Get("session_started") + $this->session_life))) {
             return true;
         }
     }
     // add encryption for session_data here
-    public function Encode($data)
+    private function Encode($data)
     {
         return serialize($data);
     }
 
     // and add unencryption for session_data here
-    public function UnEncode($data)
+    private function UnEncode($data)
     {
         return unserialize($data);
-    }
-
-    // errors fix me
-    public function Error($msg)
-    {
-        alloc_error($msg);
     }
 }
