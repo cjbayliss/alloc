@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class session
+class Session
 {
 
     public $key;          // the unique key for the session

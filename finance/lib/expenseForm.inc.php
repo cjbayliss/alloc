@@ -184,7 +184,7 @@ class expenseForm extends DatabaseEntity
     public function get_url()
     {
         global $sess;
-        $sess or $sess = new session();
+        $sess or $sess = new Session();
 
         $url = "finance/expenseForm.php?expenseFormID=" . $this->get_id();
 

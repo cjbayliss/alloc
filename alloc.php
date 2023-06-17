@@ -180,7 +180,7 @@ define("ALLOC_DEFAULT_RETURN_PATH_ADDRESS", config::get_config_item("allocEmailA
 $sess = false;
 if (!defined("NO_AUTH")) {
     $current_user = &singleton("current_user", new person());
-    $sess = new session();
+    $sess = new Session();
 
     // If session hasn't been started re-direct to login page
     if (!$sess->Started()) {

@@ -649,7 +649,7 @@ class timeSheet extends DatabaseEntity
     public function get_url()
     {
         global $sess;
-        $sess or $sess = new session();
+        $sess or $sess = new Session();
 
         $url = "time/timeSheet.php?timeSheetID=" . $this->get_id();
 

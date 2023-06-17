@@ -8,7 +8,7 @@
 define("NO_AUTH", 1);
 require_once("../alloc.php");
 
-$sess = new session();
+$sess = new Session();
 if (isset($_POST["forwardUrl"])) {
     $url = $_POST["forwardUrl"];
 } else if (isset($_GET["forward"])) {

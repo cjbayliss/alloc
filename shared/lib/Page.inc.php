@@ -31,7 +31,7 @@ class Page
 
         include_template(ALLOC_MOD_DIR . "shared/templates/footerS.tpl");
         // close page
-        $session = new session();
+        $session = new Session();
         $session->Save();
         if (is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id()) {
             $current_user->store_prefs();
@@ -160,7 +160,7 @@ class Page
         $str = "<a href=\"" . $TPL["url_alloc_starList"] . "\" class=\"icon-star\"></a>&nbsp;&nbsp;&nbsp;";
         $str .= $current_user->get_link() . "&nbsp;&nbsp;&nbsp;";
         if (defined("PAGE_IS_PRINTABLE") && PAGE_IS_PRINTABLE) {
-            $sess or $sess = new session();
+            $sess or $sess = new Session();
             $str .= "<a href=\"" . $sess->url($_SERVER["REQUEST_URI"]) . "media=print\">Print</a>&nbsp;&nbsp;&nbsp;";
         }
         if (have_entity_perm("config", PERM_UPDATE, $current_user, true)) {

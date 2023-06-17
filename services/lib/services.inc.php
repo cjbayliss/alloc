@@ -30,7 +30,7 @@ class services
     public static function authenticate($username, $password)
     {
         $person = new person();
-        $session = new session();
+        $session = new Session();
         $row = $person->get_valid_login_row($username, $password);
         if ($row) {
             $session->Start($row, false);
@@ -44,7 +44,7 @@ class services
 
     private function get_current_user($sessID)
     {
-        $session = new session($sessID);
+        $session = new Session($sessID);
         if ($session->Started()) {
             $person = new person();
             $person->load_current_user($session->Get("personID"));

@@ -713,7 +713,7 @@ class task extends DatabaseEntity
     public function get_url($absolute = false, $id = false)
     {
         global $sess;
-        $sess or $sess = new session();
+        $sess or $sess = new Session();
         $id or $id = $this->get_id();
         $url = "task/task.php?taskID=" . $id;
 
