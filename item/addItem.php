@@ -62,7 +62,7 @@ if ($_POST["remove_items"]) {
 $TPL["personID"] = $current_user->get_id();
 
 // item types
-$itemType = new meta("itemType");
+$itemType = new Meta("itemType");
 $TPL["itemTypes"] = Page::select_options($itemType->get_assoc_array("itemTypeID", "itemTypeID"), $item->get_value("itemType"));
 
 // setup item list (for removals)

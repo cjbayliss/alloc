@@ -210,7 +210,7 @@ class timeSheetPrint
         global $TPL;
         [$db, $customerBilledDollars, $timeSheet, $unit_array, $currency] = $this->get_timeSheetItem_vars($timeSheetID);
 
-        $meta = new meta("timeSheetItemMultiplier");
+        $meta = new Meta("timeSheetItemMultiplier");
         $multipliers = $meta->get_list();
 
         while ($db->next_record()) {

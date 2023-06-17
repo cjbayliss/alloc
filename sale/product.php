@@ -12,7 +12,7 @@ function show_productCost_list($productID, $template, $percent = false)
     global $TPL;
     unset($TPL["display"], $TPL["taxOptions"]); // otherwise the commissions don't display.
     if ($productID) {
-        $t = new meta("currencyType");
+        $t = new Meta("currencyType");
         $currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
 
         $db = new AllocDatabase();
@@ -44,7 +44,7 @@ function show_productCost_list($productID, $template, $percent = false)
 function show_productCost_new($template, $percent = false)
 {
     global $TPL;
-    $t = new meta("currencyType");
+    $t = new Meta("currencyType");
     $currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
     $productCost = new productCost();
     $productCost->set_values(); // wipe clean
@@ -153,7 +153,7 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
     alloc_redirect($TPL["url_alloc_product"] . "productID=" . $product->get_id());
 }
 
-$m = new meta("currencyType");
+$m = new Meta("currencyType");
 $ops = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
 $TPL["sellPriceCurrencyOptions"] = Page::select_options($ops, $product->get_value("sellPriceCurrencyTypeID"));
 

@@ -196,7 +196,7 @@ $tf = new tf();
 $options = $tf->get_assoc_array("tfID", "tfName");
 $TPL["fromTfOptions"] = Page::select_options($options, $selectedTfID);
 
-$m = new meta("currencyType");
+$m = new Meta("currencyType");
 $currencyOps = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
 $TPL["currencyTypeOptions"] = Page::select_options($currencyOps, $transaction_to_edit->get_value("currencyTypeID"));
 

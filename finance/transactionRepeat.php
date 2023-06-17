@@ -116,7 +116,7 @@ if ($tf->select() && !$tf->get_value("tfActive")) {
     $TPL["message_help"][] = "This expense is sourced from an inactive TF. It will not create transactions.";
 }
 
-$m = new meta("currencyType");
+$m = new Meta("currencyType");
 $currencyOps = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
 $TPL["currencyTypeOptions"] = Page::select_options($currencyOps, $transactionRepeat->get_value("currencyTypeID"));
 

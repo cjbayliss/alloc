@@ -450,7 +450,7 @@ class DatabaseEntity
         $this->all_row_fields = $db->row;
         $have_perm = $this->have_perm(PERM_READ);
         if (!$have_perm) {
-            $meta = new meta();
+            $meta = new Meta();
             $meta_tables = (array)$meta->get_tables();
             $meta_tables = array_keys($meta_tables);
             if (in_array($this->data_table, (array)$meta_tables)) {

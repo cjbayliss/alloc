@@ -182,7 +182,7 @@ $tabops = [
 $selected_tabops = config::get_config_item("allocTabs") or $selected_tabops = array_keys($tabops);
 $TPL["allocTabsOptions"] = Page::select_options($tabops, $selected_tabops);
 
-$m = new meta("currencyType");
+$m = new Meta("currencyType");
 $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeName");
 $TPL["currencyOptions"] = Page::select_options($currencyOptions, config::get_config_item("currency"));
 

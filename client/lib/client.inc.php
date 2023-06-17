@@ -317,7 +317,7 @@ class client extends DatabaseEntity
         // Load up the forms action url
         $rtn["url_form_action"] = $_FORM["url_form_action"];
 
-        $meta = new meta("clientStatus");
+        $meta = new Meta("clientStatus");
         $clientStatus_array = $meta->get_assoc_array("clientStatusID", "clientStatusID");
         $rtn["clientStatusOptions"] = Page::select_options($clientStatus_array, $_FORM["clientStatus"]);
         $rtn["clientName"] = $_FORM["clientName"];

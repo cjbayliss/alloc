@@ -267,7 +267,7 @@ function show_timeSheet_list($template)
         $timeSheetItem->get_value("comment") and $TPL["timeSheetItem_comment"] = $br . $commentPrivateText . Page::to_html($timeSheetItem->get_value("comment"));
         $TPL["timeSheetItem_unit_times_rate"] = $timeSheetItem->calculate_item_charge($timeSheet->get_value("currencyTypeID"), $timeSheetItem->get_value("rate"));
 
-        $m = new meta("timeSheetItemMultiplier");
+        $m = new Meta("timeSheetItemMultiplier");
         $tsMultipliers = $m->get_list();
         $timeSheetItem->get_value('multiplier') and $TPL["timeSheetItem_multiplier"] = $tsMultipliers[$timeSheetItem->get_value('multiplier')]['timeSheetItemMultiplierName'];
 
@@ -373,7 +373,7 @@ function show_new_timeSheet($template)
         $TPL["tsi_unit_options"] = Page::select_options($unit_array, $timeSheetItemDurationUnitID);
         $timeSheetItemDurationUnitID and $TPL["tsi_unit_label"] = $unit_array[$timeSheetItemDurationUnitID];
 
-        $m = new meta("timeSheetItemMultiplier");
+        $m = new Meta("timeSheetItemMultiplier");
         $tsMultipliers = $m->get_list();
 
         foreach ($tsMultipliers as $k => $v) {

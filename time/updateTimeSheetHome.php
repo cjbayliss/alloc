@@ -15,7 +15,7 @@ $t = timeSheetItem::parse_time_string($_REQUEST["time_item"]);
 $timeUnit = new timeUnit();
 $units = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
 
-$timeSheetItemMultiplier = new meta("timeSheetItemMultiplier");
+$timeSheetItemMultiplier = new Meta("timeSheetItemMultiplier");
 $tsims = $timeSheetItemMultiplier->get_list();
 
 foreach ($t as $k => $v) {

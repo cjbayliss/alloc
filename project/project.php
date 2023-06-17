@@ -644,11 +644,11 @@ $email_type_array = [
     "All Tasks"      => "All Tasks",
 ];
 
-$t = new meta("currencyType");
+$t = new Meta("currencyType");
 $currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
 $projectType_array = project::get_project_type_array();
 
-$m = new meta("projectStatus");
+$m = new Meta("projectStatus");
 $projectStatus_array = $m->get_assoc_array("projectStatusID", "projectStatusID");
 $timeUnit = new timeUnit();
 $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");

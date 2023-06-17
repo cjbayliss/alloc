@@ -586,7 +586,7 @@ class task extends DatabaseEntity
         $TPL["estimatorPersonOptions"] = "<select name=\"estimatorID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "estimatorID") . "</select>";
 
         // TaskType Options
-        $meta = new meta("taskType");
+        $meta = new Meta("taskType");
         $taskType_array = $meta->get_assoc_array("taskTypeID", "taskTypeID");
         $TPL["taskTypeOptions"] = Page::select_options($taskType_array, $this->get_value("taskTypeID"));
 
@@ -735,7 +735,7 @@ class task extends DatabaseEntity
         // This gets an array that is useful for building the two types of dropdown lists that taskStatus uses
         $taskStatii = task::get_task_statii();
         if ($flat) {
-            $meta = new meta("taskStatus");
+            $meta = new Meta("taskStatus");
             $taskStatii = $meta->get_assoc_array();
             foreach ($taskStatii as $status => $arr) {
                 $taskStatiiArray[$status] = task::get_task_status_thing("label", $status);
@@ -761,7 +761,7 @@ class task extends DatabaseEntity
         // etc
         static $rows;
         if (!$rows) {
-            $meta = new meta("taskStatus");
+            $meta = new Meta("taskStatus");
             $rows = $meta->get_assoc_array();
         }
         foreach ($rows as $taskStatusID => $arr) {
@@ -796,7 +796,7 @@ class task extends DatabaseEntity
         $sql_clos = null;
         $sql_open = null;
         $sql_pend = null;
-        $meta = new meta("taskStatus");
+        $meta = new Meta("taskStatus");
         $arr = $meta->get_assoc_array();
         foreach ($arr as $taskStatusID => $r) {
             $id = strtolower(substr($taskStatusID, 0, 4));
@@ -1410,7 +1410,7 @@ class task extends DatabaseEntity
         $rtn["all_tags"] = $task->get_tags(true);
         $rtn["tags"] = $_FORM["tags"];
 
-        $meta = new meta("taskType");
+        $meta = new Meta("taskType");
         $taskType_array = $meta->get_assoc_array("taskTypeID", "taskTypeID");
         $rtn["taskTypeOptions"] = Page::select_options($taskType_array, $_FORM["taskTypeID"]);
 

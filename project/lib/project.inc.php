@@ -711,7 +711,7 @@ class project extends DatabaseEntity
         $personSelect .= "</select>";
 
         $rtn["personSelect"] = $personSelect;
-        $meta = new meta("projectStatus");
+        $meta = new Meta("projectStatus");
         $projectStatus_array = $meta->get_assoc_array("projectStatusID", "projectStatusID");
         $rtn["projectStatusOptions"] = Page::select_options($projectStatus_array, $_FORM["projectStatus"]);
         $rtn["projectTypeOptions"] = Page::select_options(project::get_project_type_array(), $_FORM["projectType"]);
@@ -728,7 +728,7 @@ class project extends DatabaseEntity
         // optimization
         static $rows;
         if (!$rows) {
-            $meta = new meta("projectType");
+            $meta = new Meta("projectType");
             $rows = $meta->get_assoc_array("projectTypeID", "projectTypeID");
         }
         return $rows;

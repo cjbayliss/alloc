@@ -18,7 +18,7 @@ if ($_POST["save"]) {
     foreach ((array)$_POST[$table . "ID"] as $k => $tableID) {
         // Delete
         if (in_array($tableID, (array)$_POST["delete"])) {
-            $t = new meta($table);
+            $t = new Meta($table);
             $t->set_id($tableID);
             $t->delete();
 
@@ -37,7 +37,7 @@ if ($_POST["save"]) {
             ];
 
             $orig_tableID = $_POST[$table . "IDOrig"][$k];
-            $t = new meta($table);
+            $t = new Meta($table);
             $t->read_array($a);
             $errs = $t->validate();
             if (!$errs) {

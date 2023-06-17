@@ -282,7 +282,7 @@ if ($_POST["save"]) {
     $client->set_values("client_");
 }
 
-$m = new meta("clientStatus");
+$m = new Meta("clientStatus");
 $clientStatus_array = $m->get_assoc_array("clientStatusID", "clientStatusID");
 $TPL["clientStatusOptions"] = Page::select_options(
     $clientStatus_array,

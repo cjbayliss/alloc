@@ -112,7 +112,7 @@ function show_transaction_list($transactions = [], $template)
         $transaction->set_values();
         $TPL["display"] = "";
 
-        $m = new meta("currencyType");
+        $m = new Meta("currencyType");
         $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
         $TPL["currencyOptions"] = Page::select_options($currencyOptions, $transaction->get_value("currencyTypeID"));
         $TPL["tfList_dropdown"] = Page::select_options($tflist, $transaction->get_value("tfID"));
@@ -140,7 +140,7 @@ function show_transaction_new($template)
     $transaction = new transaction();
     $transaction->set_values(); // wipe clean
     $TPL["display"] = "display:none";
-    $m = new meta("currencyType");
+    $m = new Meta("currencyType");
     $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeID");
     $TPL["currencyOptions"] = Page::select_options($currencyOptions);
     $TPL["tfList_dropdown"] = Page::select_options($tflist);

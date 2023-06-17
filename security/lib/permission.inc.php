@@ -26,8 +26,8 @@ class permission extends DatabaseEntity
 
         $entity_class = $this->get_value("tableName");
 
-        if (meta::$tables[$entity_class]) {
-            $entity = new meta($entity_class);
+        if (Meta::$tables[$entity_class]) {
+            $entity = new Meta($entity_class);
             $permissions = $entity->permissions;
         } else if (class_exists($entity_class)) {
             $entity = new $entity_class();

@@ -143,8 +143,8 @@ function rebuild_cache($table)
     $rows_config = [];
     $cache = &singleton("cache");
 
-    if (!empty(meta::$tables[$table])) {
-        $m = new meta($table);
+    if (!empty(Meta::$tables[$table])) {
+        $m = new Meta($table);
         $cache[$table] = $m->get_list();
     } else {
         $db = new AllocDatabase();

@@ -92,7 +92,7 @@ class exchangeRate extends DatabaseEntity
         $default_currency = config::get_config_item("currency");
 
         // Get list of active currencies
-        $meta = new meta("currencyType");
+        $meta = new Meta("currencyType");
         $currencies = $meta->get_list();
 
         foreach ((array)$currencies as $code => $currency) {

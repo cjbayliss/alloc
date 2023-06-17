@@ -106,7 +106,7 @@ if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
 
 $transaction->set_tpl_values();
 
-$t = new meta("currencyType");
+$t = new Meta("currencyType");
 $currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
 $TPL["currencyOptions"] = Page::select_options($currency_array, $transaction->get_value("currencyTypeID"));
 $TPL["product"] = Page::htmlentities($transaction->get_value("product"));

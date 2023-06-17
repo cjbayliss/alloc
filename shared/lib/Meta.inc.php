@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class meta extends DatabaseEntity
+final class Meta extends DatabaseEntity
 {
 
-    private $t;
+    private $table;
 
     // This variable contains the definitive list of all the referential
     // integrity tables that the user is allowed to edit.
@@ -51,7 +51,7 @@ class meta extends DatabaseEntity
             $this->data_fields[] = "currencyTypeName";
             $this->data_fields[] = "numberToBasic";
         }
-        $this->t = $table; // for internal use
+        $this->table = $table; // for internal use
         return parent::__construct();
     }
 
@@ -80,7 +80,7 @@ class meta extends DatabaseEntity
     {
         $err = [];
         $this->get_id() or $err[] = "Please enter a Value/ID for the " . $this->get_label();
-        $this->get_value($this->t . "Seq") or $err[] = "Please enter a Sequence Number for the " . $this->get_label();
+        $this->get_value($this->table . "Seq") or $err[] = "Please enter a Sequence Number for the " . $this->get_label();
         return parent::validate($err);
     }
 }
