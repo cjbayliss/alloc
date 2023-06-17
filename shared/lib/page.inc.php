@@ -17,11 +17,11 @@ class page
         global $TPL;
         $current_user = &singleton("current_user");
 
-        if ($current_user->prefs["showFilters"]) {
+        if (!empty($current_user->prefs["showFilters"])) {
             $TPL["onLoad"][] = "show_filter();";
         }
 
-        $TPL["onLoad"] or $TPL["onLoad"] = [];
+        $TPL["onLoad"] ??= [];
 
         include_template(ALLOC_MOD_DIR . "shared/templates/headerS.tpl");
     }
@@ -209,8 +209,8 @@ class page
 
         foreach ($types as $type => $class) {
             $str = "";
-            $TPL[$type] and $str = is_array($TPL[$type])  ? implode("<br>", $TPL[$type])  : $TPL[$type];
-            $_GET[$type] and $str = is_array($_GET[$type]) ? implode("<br>", $_GET[$type]) : $_GET[$type];
+            !empty($TPL[$type]) and $str = is_array($TPL[$type])  ? implode("<br>", $TPL[$type])  : $TPL[$type];
+            !empty($_GET[$type]) and $str = is_array($_GET[$type]) ? implode("<br>", $_GET[$type]) : $_GET[$type];
             if (in_str("no_esc", $type)) {
                 $str and $msg[$type] = $str;
             } else {
@@ -456,7 +456,7 @@ class page
         $current_user = &singleton("current_user");
         $fonts = page::get_customizedFont_array();
 
-        return ($fonts[sprintf("%d", $current_user->prefs["customizedFont"])] ?? 4) + 8;
+        return ($fonts[sprintf("%d", $current_user->prefs["customizedFont"] ?? "")] ?? 4) + 8;
     }
     public static function get_customizedFont_array()
     {

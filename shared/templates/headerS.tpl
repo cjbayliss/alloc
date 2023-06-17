@@ -17,7 +17,7 @@
       function get_alloc_var(key) {
       var values = {
                     "url"               : "{$script_path}"
-                   ,"side_by_side_link" : "{$_REQUEST.sbs_link}"
+                   ,"side_by_side_link" : "{!empty($sbs_link) && $_REQUEST.sbs_link}"
                    ,"tax_percent"       : "{echo config::get_config_item('taxPercent')}"
                    ,"cal_first_day"     : "{echo config::get_config_item('calendarFirstDay')}"
                    ,"show_filters"      : "{print is_object($current_user) ? $current_user->prefs["showFilters"] : ""}"
@@ -26,4 +26,4 @@
     }
     </script>
   </head>
-  <body id="{$body_id}" class="{$current_user->prefs["privateMode"] and print "obfus"}">
+  <body id="{$body_id}" class="{!empty($current_user->prefs["privateMode"]) and print "obfus"}">
