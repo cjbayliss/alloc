@@ -65,7 +65,7 @@ class transaction extends db_entity
         if ($old["destCurrencyTypeID"] != $this->get_value("destCurrencyTypeID")) {
             $field_changed = true;
         }
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
 
         // If there already is an exchange rate set for an approved
         // transaction, then there's no need to update the exchange rate
@@ -95,8 +95,8 @@ class transaction extends db_entity
 
         $this->get_value("fromTfID") or $err[] = "Unable to save transaction without a Source TF.";
         if ($this->get_value("fromTfID") && $this->get_value("fromTfID") == $this->get_value("tfID")) {
-            $taggedFund = new tf();
-            $err[] = "Unable to save transaction with Source TF (" . $taggedFund->get_name($this->get_value("fromTfID")) . ") being the same as the Destination TF (" . $taggedFund->get_name($this->get_value("tfID")) . ") \"" . $this->get_value("product") . "\"";
+            $tf = new tf();
+            $err[] = "Unable to save transaction with Source TF (" . $tf->get_name($this->get_value("fromTfID")) . ") being the same as the Destination TF (" . $tf->get_name($this->get_value("tfID")) . ") \"" . $this->get_value("product") . "\"";
         }
         $this->get_value("quantity") or $this->set_value("quantity", 1);
         $this->get_value("transactionDate") or $this->set_value("transactionDate", date("Y-m-d"));
@@ -253,10 +253,10 @@ class transaction extends db_entity
         $tfIDs = [];
         if ($_FORM["tfName"]) {
             $q = unsafe_prepare("SELECT * FROM tf WHERE tfName = '%s'", $_FORM["tfName"]);
-            $db = new db_alloc();
-            $db->query($q);
-            $db->next_record();
-            $tfIDs[] = $db->f("tfID");
+            $dballoc = new db_alloc();
+            $dballoc->query($q);
+            $dballoc->next_record();
+            $tfIDs[] = $dballoc->f("tfID");
         }
         if ($_FORM["tfID"]) {
             $tfIDs[] = $_FORM["tfID"];
@@ -459,8 +459,8 @@ class transaction extends db_entity
         $nl = "";
         foreach ((array)$rows as $row) {
             $csv_data = [];
-            foreach ($csvHeaders as $header) {
-                $csv_data[] = $row[$header];
+            foreach ($csvHeaders as $csvHeader) {
+                $csv_data[] = $row[$csvHeader];
             }
             $csv .= $nl . implode(",", array_map('export_escape_csv', $csv_data));
             $nl = "\n";
@@ -652,9 +652,9 @@ class transaction extends db_entity
     public static function get_next_transactionGroupID()
     {
         $q = "SELECT coalesce(max(transactionGroupID)+1,1) as newNum FROM transaction";
-        $db = new db_alloc();
-        $db->query($q);
-        $db->row();
-        return $db->f("newNum");
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        $dballoc->row();
+        return $dballoc->f("newNum");
     }
 }

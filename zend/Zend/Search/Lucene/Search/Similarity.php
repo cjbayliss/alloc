@@ -35,7 +35,7 @@ abstract class Zend_Search_Lucene_Search_Similarity
      *
      * @var Zend_Search_Lucene_Search_Similarity
      */
-    private static $_defaultImpl;
+    private static $zendSearchLuceneSearchSimilarity;
 
     /**
      * Cache of decoded bytes.
@@ -47,11 +47,11 @@ abstract class Zend_Search_Lucene_Search_Similarity
      * Set the default Similarity implementation used by indexing and search
      * code.
      *
-     * @param Zend_Search_Lucene_Search_Similarity $similarity
+     * @param Zend_Search_Lucene_Search_Similarity $zendSearchLuceneSearchSimilarity
      */
-    public static function setDefault(Zend_Search_Lucene_Search_Similarity $similarity)
+    public static function setDefault(Zend_Search_Lucene_Search_Similarity $zendSearchLuceneSearchSimilarity)
     {
-        self::$_defaultImpl = $similarity;
+        self::$zendSearchLuceneSearchSimilarity = $zendSearchLuceneSearchSimilarity;
     }
 
     /**
@@ -62,12 +62,12 @@ abstract class Zend_Search_Lucene_Search_Similarity
      */
     public static function getDefault()
     {
-        if (!self::$_defaultImpl instanceof Zend_Search_Lucene_Search_Similarity) {
+        if (!self::$zendSearchLuceneSearchSimilarity instanceof Zend_Search_Lucene_Search_Similarity) {
             require_once 'Zend/Search/Lucene/Search/Similarity/Default.php';
-            self::$_defaultImpl = new Zend_Search_Lucene_Search_Similarity_Default();
+            self::$zendSearchLuceneSearchSimilarity = new Zend_Search_Lucene_Search_Similarity_Default();
         }
 
-        return self::$_defaultImpl;
+        return self::$zendSearchLuceneSearchSimilarity;
     }
 
     /**
@@ -231,17 +231,17 @@ abstract class Zend_Search_Lucene_Search_Similarity
      * Returns a score factor for the term
      *
      * @param mixed $input
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return a score factor for the term
      */
-    public function idf($input, Zend_Search_Lucene_Interface $reader)
+    public function idf($input, Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         if (!is_array($input)) {
-            return $this->idfFreq($reader->docFreq($input), $reader->count());
+            return $this->idfFreq($zendSearchLucene->docFreq($input), $zendSearchLucene->count());
         } else {
             $idf = 0.0;
             foreach ($input as $term) {
-                $idf += $this->idfFreq($reader->docFreq($term), $reader->count());
+                $idf += $this->idfFreq($zendSearchLucene->docFreq($term), $zendSearchLucene->count());
             }
             return $idf;
         }

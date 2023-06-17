@@ -73,10 +73,10 @@ abstract class Zend_Search_Lucene_Search_Query
      * Score specified document
      *
      * @param integer $docId
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return float
      */
-    abstract public function score($docId, Zend_Search_Lucene_Interface $reader);
+    abstract public function score($docId, Zend_Search_Lucene_Interface $zendSearchLucene);
 
     /**
      * Get document ids likely matching the query
@@ -93,52 +93,52 @@ abstract class Zend_Search_Lucene_Search_Query
      *
      * Query specific implementation
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      */
-    abstract public function execute(Zend_Search_Lucene_Interface $reader, $docsFilter = null);
+    abstract public function execute(Zend_Search_Lucene_Interface $zendSearchLucene, $docsFilter = null);
 
     /**
      * Constructs an appropriate Weight implementation for this query.
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Weight
      */
-    abstract public function createWeight(Zend_Search_Lucene_Interface $reader);
+    abstract public function createWeight(Zend_Search_Lucene_Interface $zendSearchLucene);
 
     /**
      * Constructs an initializes a Weight for a _top-level_query_.
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      */
-    protected function _initWeight(Zend_Search_Lucene_Interface $reader)
+    protected function _initWeight(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         // Check, that it's a top-level query and query weight is not initialized yet.
         if ($this->_weight !== null) {
             return $this->_weight;
         }
 
-        $this->createWeight($reader);
+        $this->createWeight($zendSearchLucene);
         $sum = $this->_weight->sumOfSquaredWeights();
-        $queryNorm = $reader->getSimilarity()->queryNorm($sum);
+        $queryNorm = $zendSearchLucene->getSimilarity()->queryNorm($sum);
         $this->_weight->normalize($queryNorm);
     }
 
     /**
      * Re-write query into primitive queries in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    abstract public function rewrite(Zend_Search_Lucene_Interface $index);
+    abstract public function rewrite(Zend_Search_Lucene_Interface $zendSearchLucene);
 
     /**
      * Optimize query in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    abstract public function optimize(Zend_Search_Lucene_Interface $index);
+    abstract public function optimize(Zend_Search_Lucene_Interface $zendSearchLucene);
 
     /**
      * Reset query, so it can be reused within other queries or
@@ -166,9 +166,9 @@ abstract class Zend_Search_Lucene_Search_Query
     /**
      * Query specific matches highlighting
      *
-     * @param Zend_Search_Lucene_Search_Highlighter_Interface $highlighter  Highlighter object (also contains doc for highlighting)
+     * @param Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter Highlighter object (also contains doc for highlighting)
      */
-    abstract protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $highlighter);
+    abstract protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter);
 
     /**
      * Highlight matches in $inputHTML
@@ -188,12 +188,12 @@ abstract class Zend_Search_Lucene_Search_Query
         /** Zend_Search_Lucene_Document_Html */
         require_once 'Zend/Search/Lucene/Document/Html.php';
 
-        $doc = Zend_Search_Lucene_Document_Html::loadHTML($inputHTML, false, $defaultEncoding);
-        $highlighter->setDocument($doc);
+        $zendSearchLuceneDocumentHtml = Zend_Search_Lucene_Document_Html::loadHTML($inputHTML, false, $defaultEncoding);
+        $highlighter->setDocument($zendSearchLuceneDocumentHtml);
 
         $this->_highlightMatches($highlighter);
 
-        return $doc->getHTML();
+        return $zendSearchLuceneDocumentHtml->getHTML();
     }
 
     /**

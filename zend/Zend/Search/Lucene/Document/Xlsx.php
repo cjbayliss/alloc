@@ -91,11 +91,11 @@ class Zend_Search_Lucene_Document_Xlsx extends Zend_Search_Lucene_Document_OpenX
         $coreProperties = [];
 
         // Open OpenXML package
-        $package = new ZipArchive();
-        $package->open($fileName);
+        $zipArchive = new ZipArchive();
+        $zipArchive->open($fileName);
 
         // Read relations and search for officeDocument
-        $relationsXml = $package->getFromName('_rels/.rels');
+        $relationsXml = $zipArchive->getFromName('_rels/.rels');
         if ($relationsXml === false) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('Invalid archive or corrupted .xlsx file.');
@@ -104,13 +104,13 @@ class Zend_Search_Lucene_Document_Xlsx extends Zend_Search_Lucene_Document_OpenX
         foreach ($relations->Relationship as $rel) {
             if ($rel["Type"] == Zend_Search_Lucene_Document_OpenXml::SCHEMA_OFFICEDOCUMENT) {
                 // Found office document! Read relations for workbook...
-                $workbookRelations = simplexml_load_string($package->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/_rels/" . basename($rel["Target"]) . ".rels")));
+                $workbookRelations = simplexml_load_string($zipArchive->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/_rels/" . basename($rel["Target"]) . ".rels")));
                 $workbookRelations->registerXPathNamespace("rel", Zend_Search_Lucene_Document_OpenXml::SCHEMA_RELATIONSHIP);
 
                 // Read shared strings
                 $sharedStringsPath = $workbookRelations->xpath("rel:Relationship[@Type='" . Zend_Search_Lucene_Document_Xlsx::SCHEMA_SHAREDSTRINGS . "']");
                 $sharedStringsPath = (string)$sharedStringsPath[0]['Target'];
-                $xmlStrings = simplexml_load_string($package->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . $sharedStringsPath)));
+                $xmlStrings = simplexml_load_string($zipArchive->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . $sharedStringsPath)));
                 if (isset($xmlStrings) && isset($xmlStrings->si)) {
                     foreach ($xmlStrings->si as $val) {
                         if (isset($val->t)) {
@@ -125,7 +125,7 @@ class Zend_Search_Lucene_Document_Xlsx extends Zend_Search_Lucene_Document_OpenX
                 foreach ($workbookRelations->Relationship as $workbookRelation) {
                     if ($workbookRelation["Type"] == Zend_Search_Lucene_Document_Xlsx::SCHEMA_WORKSHEETRELATION) {
                         $worksheets[str_replace('rId', '', (string)$workbookRelation["Id"])] = simplexml_load_string(
-                            $package->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . dirname($workbookRelation["Target"]) . "/" . basename($workbookRelation["Target"])))
+                            $zipArchive->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . dirname($workbookRelation["Target"]) . "/" . basename($workbookRelation["Target"])))
                         );
                     }
                 }
@@ -205,10 +205,10 @@ class Zend_Search_Lucene_Document_Xlsx extends Zend_Search_Lucene_Document_OpenX
         }
 
         // Read core properties
-        $coreProperties = $this->extractMetaData($package);
+        $coreProperties = $this->extractMetaData($zipArchive);
 
         // Close file
-        $package->close();
+        $zipArchive->close();
 
         // Store filename
         $this->addField(Zend_Search_Lucene_Field::Text('filename', $fileName, 'UTF-8'));

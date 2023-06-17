@@ -82,9 +82,9 @@ class Zend_Search_Lucene_Index_SegmentMerger
      *
      * @param Zend_Search_Lucene_Index_SegmentInfo $segment
      */
-    public function addSource(Zend_Search_Lucene_Index_SegmentInfo $segmentInfo)
+    public function addSource(Zend_Search_Lucene_Index_SegmentInfo $zendSearchLuceneIndexSegmentInfo)
     {
-        $this->_segmentInfos[$segmentInfo->getName()] = $segmentInfo;
+        $this->_segmentInfos[$zendSearchLuceneIndexSegmentInfo->getName()] = $zendSearchLuceneIndexSegmentInfo;
     }
 
     /**
@@ -216,7 +216,7 @@ class Zend_Search_Lucene_Index_SegmentMerger
         /** Zend_Search_Lucene_Index_TermsPriorityQueue */
         require_once 'Zend/Search/Lucene/Index/TermsPriorityQueue.php';
 
-        $segmentInfoQueue = new Zend_Search_Lucene_Index_TermsPriorityQueue();
+        $zendSearchLuceneIndexTermsPriorityQueue = new Zend_Search_Lucene_Index_TermsPriorityQueue();
 
         $segmentStartId = 0;
         foreach ($this->_segmentInfos as $segName => $segmentInfo) {
@@ -224,20 +224,20 @@ class Zend_Search_Lucene_Index_SegmentMerger
 
             // Skip "empty" segments
             if ($segmentInfo->currentTerm() !== null) {
-                $segmentInfoQueue->put($segmentInfo);
+                $zendSearchLuceneIndexTermsPriorityQueue->put($segmentInfo);
             }
         }
 
         $this->_writer->initializeDictionaryFiles();
 
         $termDocs = [];
-        while (($segmentInfo = $segmentInfoQueue->pop()) !== null) {
+        while (($segmentInfo = $zendSearchLuceneIndexTermsPriorityQueue->pop()) !== null) {
             // Merge positions array
             $termDocs += $segmentInfo->currentTermPositions();
 
             if (
-                $segmentInfoQueue->top() === null ||
-                $segmentInfoQueue->top()->currentTerm()->key() !=
+                $zendSearchLuceneIndexTermsPriorityQueue->top() === null ||
+                $zendSearchLuceneIndexTermsPriorityQueue->top()->currentTerm()->key() !=
                 $segmentInfo->currentTerm()->key()
             ) {
                 // We got new term
@@ -254,7 +254,7 @@ class Zend_Search_Lucene_Index_SegmentMerger
             // check, if segment dictionary is finished
             if ($segmentInfo->currentTerm() !== null) {
                 // Put segment back into the priority queue
-                $segmentInfoQueue->put($segmentInfo);
+                $zendSearchLuceneIndexTermsPriorityQueue->put($segmentInfo);
             }
         }
 

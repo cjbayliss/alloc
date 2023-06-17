@@ -28,14 +28,14 @@ class inbox extends db_entity
     public static function verify_hash($id, $hash)
     {
         $info = inbox::get_mail_info();
-        $email_receive = new email_receive($info);
-        $email_receive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
-        $email_receive->set_msg($id);
-        $email_receive->get_msg_header();
-        $rtn = ($hash == md5($email_receive->mail_headers["date"]
-            . $email_receive->get_printable_from_address()
-            . $email_receive->mail_headers["subject"]));
-        $email_receive->close();
+        $emailreceive = new email_receive($info);
+        $emailreceive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
+        $emailreceive->set_msg($id);
+        $emailreceive->get_msg_header();
+        $rtn = ($hash == md5($emailreceive->mail_headers["date"]
+            . $emailreceive->get_printable_from_address()
+            . $emailreceive->mail_headers["subject"]));
+        $emailreceive->close();
         return $rtn;
     }
 
@@ -43,12 +43,12 @@ class inbox extends db_entity
     {
         global $TPL;
         $info = inbox::get_mail_info();
-        $email_receive = new email_receive($info);
-        $email_receive->open_mailbox($info["folder"]);
+        $emailreceive = new email_receive($info);
+        $emailreceive->open_mailbox($info["folder"]);
         $mailbox = "INBOX/archive" . date("Y");
-        $email_receive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
-        $email_receive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
-        $email_receive->close();
+        $emailreceive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
+        $emailreceive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
+        $emailreceive->close();
     }
 
     public static function download_email($req = [])
@@ -56,14 +56,14 @@ class inbox extends db_entity
         $new = null;
         global $TPL;
         $info = inbox::get_mail_info();
-        $email_receive = new email_receive($info);
-        $email_receive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
-        $email_receive->set_msg($req["id"]);
-        $new_nums = $email_receive->get_new_email_msg_uids();
+        $emailreceive = new email_receive($info);
+        $emailreceive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
+        $emailreceive->set_msg($req["id"]);
+        $new_nums = $emailreceive->get_new_email_msg_uids();
         in_array($req["id"], (array)$new_nums) and $new = true;
-        [$h, $b] = $email_receive->get_raw_header_and_body();
-        $new and $email_receive->set_unread(); // might have to "unread" the email, if it was new, i.e. set it back to new
-        $email_receive->close();
+        [$h, $b] = $emailreceive->get_raw_header_and_body();
+        $new and $emailreceive->set_unread(); // might have to "unread" the email, if it was new, i.e. set it back to new
+        $emailreceive->close();
         header('Content-Type: text/plain');
         header('Content-Disposition: attachment; filename="email' . $req["id"] . '.txt"');
         echo $h . $b;
@@ -74,26 +74,26 @@ class inbox extends db_entity
     {
         global $TPL;
         $info = inbox::get_mail_info();
-        $email_receive = new email_receive($info);
-        $email_receive->open_mailbox($info["folder"]);
-        $email_receive->set_msg($req["id"]);
-        $email_receive->get_msg_header();
-        inbox::process_one_email($email_receive);
-        $email_receive->expunge();
-        $email_receive->close();
+        $emailreceive = new email_receive($info);
+        $emailreceive->open_mailbox($info["folder"]);
+        $emailreceive->set_msg($req["id"]);
+        $emailreceive->get_msg_header();
+        inbox::process_one_email($emailreceive);
+        $emailreceive->expunge();
+        $emailreceive->close();
     }
 
     public static function process_email_to_task($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
-        $email_receive = new email_receive($info);
-        $email_receive->open_mailbox($info["folder"]);
-        $email_receive->set_msg($req["id"]);
-        $email_receive->get_msg_header();
-        inbox::convert_email_to_new_task($email_receive);
-        $email_receive->expunge();
-        $email_receive->close();
+        $emailreceive = new email_receive($info);
+        $emailreceive->open_mailbox($info["folder"]);
+        $emailreceive->set_msg($req["id"]);
+        $emailreceive->get_msg_header();
+        inbox::convert_email_to_new_task($emailreceive);
+        $emailreceive->expunge();
+        $emailreceive->close();
     }
 
     public static function process_one_email($email_receive)
@@ -104,8 +104,8 @@ class inbox extends db_entity
         $orig_current_user = &$current_user;
 
         // wrap db queries in a transaction
-        $db = new db_alloc();
-        $db->start_transaction();
+        $dballoc = new db_alloc();
+        $dballoc->start_transaction();
 
         inbox::change_current_user($email_receive->mail_headers["from"]);
         $current_user = &singleton("current_user");
@@ -121,14 +121,14 @@ class inbox extends db_entity
         } catch (Exception $e) {
             $current_user = &$orig_current_user;
             singleton("current_user", $current_user);
-            $db->query("ROLLBACK");
+            $dballoc->query("ROLLBACK");
             $failed = true;
             throw new Exception($e);
         }
 
         // Commit the db, and move the email into its storage location eg: INBOX.task1234
         if (!$failed && !$TPL["message"]) {
-            $db->commit();
+            $dballoc->commit();
             $email_receive->mark_seen();
             $email_receive->archive();
         }
@@ -207,18 +207,18 @@ class inbox extends db_entity
         $task = new task();
         $task->set_id($req["taskID"]);
         if ($task->select()) {
-            $email_receive = new email_receive($info);
-            $email_receive->open_mailbox($info["folder"]);
-            $email_receive->set_msg($req["id"]);
-            $email_receive->get_msg_header();
-            $email_receive->save_email();
+            $emailreceive = new email_receive($info);
+            $emailreceive->open_mailbox($info["folder"]);
+            $emailreceive->set_msg($req["id"]);
+            $emailreceive->get_msg_header();
+            $emailreceive->save_email();
 
-            $c = comment::add_comment_from_email($email_receive, $task);
+            $c = comment::add_comment_from_email($emailreceive, $task);
             $commentID = $c->get_id();
             $commentID and $TPL["message_good_no_esc"][] = "Created comment " . $commentID . " on task " . $task->get_task_link(["prefixTaskID" => true]);
 
             // Possibly change the identity of current_user
-            [$from_address, $from_name] = parse_email_address($email_receive->mail_headers["from"]);
+            [$from_address, $from_name] = parse_email_address($emailreceive->mail_headers["from"]);
             $person = new person();
             $personID = $person->find_by_email($from_address);
             $personID or $personID = $person->find_by_name($from_name);
@@ -272,13 +272,13 @@ class inbox extends db_entity
             $recipients and $TPL["message_good"][] = "Sent email to " . $recipients;
 
             // Re-email the comment out
-            comment::send_comment($commentID, ["interested"], $email_receive);
+            comment::send_comment($commentID, ["interested"], $emailreceive);
 
             // File email away in the task's mail folder
             $mailbox = "INBOX/task" . $task->get_id();
-            $email_receive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
-            $email_receive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
-            $email_receive->close();
+            $emailreceive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
+            $emailreceive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
+            $emailreceive->close();
         }
     }
 
@@ -286,22 +286,22 @@ class inbox extends db_entity
     {
         global $TPL;
         $info = inbox::get_mail_info();
-        $email_receive = new email_receive($info);
-        $email_receive->open_mailbox($info["folder"]);
-        $email_receive->set_msg($req["id"]);
-        $email_receive->set_unread();
-        $email_receive->close();
+        $emailreceive = new email_receive($info);
+        $emailreceive->open_mailbox($info["folder"]);
+        $emailreceive->set_msg($req["id"]);
+        $emailreceive->set_unread();
+        $emailreceive->close();
     }
 
     public static function read_email($req = [])
     {
         global $TPL;
         $info = inbox::get_mail_info();
-        $email_receive = new email_receive($info);
-        $email_receive->open_mailbox($info["folder"]);
-        $email_receive->set_msg($req["id"]);
-        [$h, $b] = $email_receive->get_raw_header_and_body();
-        $email_receive->close();
+        $emailreceive = new email_receive($info);
+        $emailreceive->open_mailbox($info["folder"]);
+        $emailreceive->set_msg($req["id"]);
+        [$h, $b] = $emailreceive->get_raw_header_and_body();
+        $emailreceive->close();
     }
 
     public static function get_mail_info()
@@ -321,27 +321,27 @@ class inbox extends db_entity
         $rows = [];
         // Get list of emails
         $info = inbox::get_mail_info();
-        $email_receive = new email_receive($info);
-        $email_receive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
-        $email_receive->check_mail();
-        $new_nums = $email_receive->get_new_email_msg_uids();
-        $msg_nums = $email_receive->get_all_email_msg_uids();
+        $emailreceive = new email_receive($info);
+        $emailreceive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
+        $emailreceive->check_mail();
+        $new_nums = $emailreceive->get_new_email_msg_uids();
+        $msg_nums = $emailreceive->get_all_email_msg_uids();
 
         if ($msg_nums) {
-            foreach ($msg_nums as $num) {
+            foreach ($msg_nums as $msg_num) {
                 $row = [];
-                $email_receive->set_msg($num);
-                $email_receive->get_msg_header();
-                $row["from"] = $email_receive->get_printable_from_address();
-                in_array($num, (array)$new_nums) and $row["new"] = true;
+                $emailreceive->set_msg($msg_num);
+                $emailreceive->get_msg_header();
+                $row["from"] = $emailreceive->get_printable_from_address();
+                in_array($msg_num, (array)$new_nums) and $row["new"] = true;
 
-                $row["id"] = $num;
-                $row["date"] = $email_receive->mail_headers["date"];
-                $row["subject"] = $email_receive->mail_headers["subject"];
+                $row["id"] = $msg_num;
+                $row["date"] = $emailreceive->mail_headers["date"];
+                $row["subject"] = $emailreceive->mail_headers["subject"];
                 $rows[] = $row;
             }
         }
-        $email_receive->close();
+        $emailreceive->close();
         return $rows;
     }
 }

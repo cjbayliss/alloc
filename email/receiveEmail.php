@@ -28,11 +28,11 @@ $num_new_emails = $email_receive->get_num_new_emails();
 if ($num_new_emails > 0) {
     $msg_nums = $email_receive->get_new_email_msg_uids();
     print $nl . date("Y-m-d H:i:s") . " Found " . (is_countable($msg_nums) ? count($msg_nums) : 0) . " new/unseen emails." . $nl;
-    foreach ($msg_nums as $num) {
+    foreach ($msg_nums as $msg_num) {
         // Errors from previous iterations shouldn't affect processing of the next email
         db_alloc::$stop_doing_queries = false;
 
-        $email_receive->set_msg($num);
+        $email_receive->set_msg($msg_num);
         $email_receive->get_msg_header();
         $keys = $email_receive->get_hashes();
 

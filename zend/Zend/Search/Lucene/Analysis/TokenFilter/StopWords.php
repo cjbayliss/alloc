@@ -57,15 +57,15 @@ class Zend_Search_Lucene_Analysis_TokenFilter_StopWords extends Zend_Search_Luce
     /**
      * Normalize Token or remove it (if null is returned)
      *
-     * @param Zend_Search_Lucene_Analysis_Token $srcToken
+     * @param Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken
      * @return Zend_Search_Lucene_Analysis_Token
      */
-    public function normalize(Zend_Search_Lucene_Analysis_Token $srcToken)
+    public function normalize(Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken)
     {
-        if (array_key_exists($srcToken->getTermText(), $this->_stopSet)) {
+        if (array_key_exists($zendSearchLuceneAnalysisToken->getTermText(), $this->_stopSet)) {
             return null;
         } else {
-            return $srcToken;
+            return $zendSearchLuceneAnalysisToken;
         }
     }
 

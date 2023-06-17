@@ -185,8 +185,8 @@ class email_send
         $this->ignore_no_email_hosts and $dont_send = false;
 
         // Validate against particular bits in the url
-        foreach ($this->no_email_urls as $url) {
-            preg_match("/" . $url . "/", $_SERVER["SCRIPT_FILENAME"]) and $dont_send = true;
+        foreach ($this->no_email_urls as $no_email_url) {
+            preg_match("/" . $no_email_url . "/", $_SERVER["SCRIPT_FILENAME"]) and $dont_send = true;
         }
         $this->ignore_no_email_urls and $dont_send = false;
 

@@ -123,14 +123,14 @@ class timeSheetItem extends db_entity
     {
         $timeSheetID = $this->get_value("timeSheetID");
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $q = unsafe_prepare("SELECT invoiceItem.*
                         FROM invoiceItem
                    LEFT JOIN invoice ON invoiceItem.invoiceID = invoice.invoiceID
                        WHERE timeSheetID = %d
                          AND invoiceStatus != 'finished'", $timeSheetID);
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $ii = new invoiceItem();
             $ii->set_id($row["invoiceItemID"]);
             $ii->select();
@@ -171,12 +171,12 @@ class timeSheetItem extends db_entity
                     GROUP BY dateTimeSheetItem,personID
                      ", $dateTimeSheetItem);
 
-        $db = new db_alloc();
-        $db->query($q);
-        while ($db->next_record()) {
-            if (!$done[$db->f("personID")][$fortnights[$db->f("dateTimeSheetItem")]]) {
-                $how_many_fortnights[$db->f("personID")]++;
-                $done[$db->f("personID")][$fortnights[$db->f("dateTimeSheetItem")]] = true;
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($dballoc->next_record()) {
+            if (!$done[$dballoc->f("personID")][$fortnights[$dballoc->f("dateTimeSheetItem")]]) {
+                $how_many_fortnights[$dballoc->f("personID")]++;
+                $done[$dballoc->f("personID")][$fortnights[$dballoc->f("dateTimeSheetItem")]] = true;
             }
         }
 
@@ -286,15 +286,15 @@ class timeSheetItem extends db_entity
                      " . $filter . "
             ORDER BY timeSheet.timeSheetID,dateTimeSheetItem asc";
         $debug and print "Query: " . $q;
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->next_record()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->next_record()) {
             $print = true;
             $t = new timeSheet();
-            $t->read_db_record($db);
+            $t->read_db_record($dballoc);
 
             $tsi = new timeSheetItem();
-            $tsi->read_db_record($db);
+            $tsi->read_db_record($dballoc);
             $tsi->currency = $t->get_value("currencyTypeID");
 
             $row["secondsBilled"] = $row["hoursBilled"] = $row["timeLimit"] = $row["limitWarning"] = ""; // set these for the CLI
@@ -358,11 +358,11 @@ class timeSheetItem extends db_entity
                     GROUP BY personID
                      ", $dateTimeSheetItem);
 
-        $db = new db_alloc();
-        $db->query($q);
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
         $rows = [];
-        while ($db->next_record()) {
-            $rows[$db->f("personID")] = $db->f("avg") / 3600;
+        while ($dballoc->next_record()) {
+            $rows[$dballoc->f("personID")] = $dballoc->f("avg") / 3600;
         }
 
         // Calculate the dollar values
@@ -378,11 +378,11 @@ class timeSheetItem extends db_entity
                           " . $endDate_sql,
             $dateTimeSheetItem
         );
-        $db->query($q);
+        $dballoc->query($q);
         $rows_dollars = [];
-        while ($row = $db->row()) {
+        while ($row = $dballoc->row()) {
             $tsi = new timeSheetItem();
-            $tsi->read_db_record($db);
+            $tsi->read_db_record($dballoc);
             $rows_dollars[$row["personID"]][] = $row;
         }
         return [$rows, $rows_dollars];
@@ -423,9 +423,9 @@ class timeSheetItem extends db_entity
                         ORDER BY dateTimeSheetItem,timeSheetItemID
                          ");
 
-        $db = new db_alloc();
-        $db->query($query);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($query);
+        while ($row = $dballoc->row()) {
             $rows[] = $row;
         }
 
@@ -455,9 +455,9 @@ class timeSheetItem extends db_entity
             $start,
             $end
         );
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $info[$row["dateTimeSheetItem"]] = $row;
         }
 
@@ -497,9 +497,9 @@ class timeSheetItem extends db_entity
             $start,
             $end
         );
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $f = explode("-", $row["dateTimeSheetItem"]);
             $info[sprintf("%4d-%02d", $f[0], $f[1])] = $row; // the %02d is just to make sure the months are consistently zero padded
         }

@@ -25,7 +25,7 @@ class exchangeRate extends db_entity
         if (isset($cache[$from][$to][$date]) && (bool)strlen($cache[$from][$to][$date])) {
             return $cache[$from][$to][$date];
         }
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         if ($date) {
             $q = unsafe_prepare(
                 "SELECT *
@@ -38,8 +38,8 @@ class exchangeRate extends db_entity
                 $from,
                 $to
             );
-            $db->query($q);
-            $row = $db->row();
+            $dballoc->query($q);
+            $row = $dballoc->row();
         }
 
         if (!$row) {
@@ -54,8 +54,8 @@ class exchangeRate extends db_entity
                 $from,
                 $to
             );
-            $db->query($q);
-            $row = $db->row();
+            $dballoc->query($q);
+            $row = $dballoc->row();
         }
         $cache[$from][$to][$date] = $row["exchangeRate"];
         return $row["exchangeRate"];
@@ -73,12 +73,12 @@ class exchangeRate extends db_entity
     {
         $rate = get_exchange_rate($from, $to);
         if ($rate) {
-            $er = new exchangeRate();
-            $er->set_value("exchangeRateCreatedDate", date("Y-m-d"));
-            $er->set_value("fromCurrency", $from);
-            $er->set_value("toCurrency", $to);
-            $er->set_value("exchangeRate", $rate);
-            $er->save();
+            $exchangeRate = new exchangeRate();
+            $exchangeRate->set_value("exchangeRateCreatedDate", date("Y-m-d"));
+            $exchangeRate->set_value("fromCurrency", $from);
+            $exchangeRate->set_value("toCurrency", $to);
+            $exchangeRate->set_value("exchangeRate", $rate);
+            $exchangeRate->save();
             return $from . " -> " . $to . ":" . $rate . " ";
         } else {
             echo date("Y-m-d H:i:s") . "Unable to obtain exchange rate information for " . $from . " to " . $to . "!";

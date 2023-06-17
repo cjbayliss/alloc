@@ -267,9 +267,9 @@ abstract class Zend_Search_Lucene_FSM
      * Action execution order is defined by addEntryAction() calls
      *
      * @param integer|string $state
-     * @param Zend_Search_Lucene_FSMAction $action
+     * @param Zend_Search_Lucene_FSMAction $zendSearchLuceneFSMAction
      */
-    public function addEntryAction($state, Zend_Search_Lucene_FSMAction $action)
+    public function addEntryAction($state, Zend_Search_Lucene_FSMAction $zendSearchLuceneFSMAction)
     {
         if (!isset($this->_states[$state])) {
             require_once 'Zend/Search/Exception.php';
@@ -280,7 +280,7 @@ abstract class Zend_Search_Lucene_FSM
             $this->_entryActions[$state] = [];
         }
 
-        $this->_entryActions[$state][] = $action;
+        $this->_entryActions[$state][] = $zendSearchLuceneFSMAction;
     }
 
     /**
@@ -289,9 +289,9 @@ abstract class Zend_Search_Lucene_FSM
      * Action execution order is defined by addEntryAction() calls
      *
      * @param integer|string $state
-     * @param Zend_Search_Lucene_FSMAction $action
+     * @param Zend_Search_Lucene_FSMAction $zendSearchLuceneFSMAction
      */
-    public function addExitAction($state, Zend_Search_Lucene_FSMAction $action)
+    public function addExitAction($state, Zend_Search_Lucene_FSMAction $zendSearchLuceneFSMAction)
     {
         if (!isset($this->_states[$state])) {
             require_once 'Zend/Search/Exception.php';
@@ -302,7 +302,7 @@ abstract class Zend_Search_Lucene_FSM
             $this->_exitActions[$state] = [];
         }
 
-        $this->_exitActions[$state][] = $action;
+        $this->_exitActions[$state][] = $zendSearchLuceneFSMAction;
     }
 
     /**
@@ -312,9 +312,9 @@ abstract class Zend_Search_Lucene_FSM
      *
      * @param integer|string $state
      * @param integer|string $input
-     * @param Zend_Search_Lucene_FSMAction $action
+     * @param Zend_Search_Lucene_FSMAction $zendSearchLuceneFSMAction
      */
-    public function addInputAction($state, $inputSymbol, Zend_Search_Lucene_FSMAction $action)
+    public function addInputAction($state, $inputSymbol, Zend_Search_Lucene_FSMAction $zendSearchLuceneFSMAction)
     {
         if (!isset($this->_states[$state])) {
             require_once 'Zend/Search/Exception.php';
@@ -332,7 +332,7 @@ abstract class Zend_Search_Lucene_FSM
             $this->_inputActions[$state][$inputSymbol] = [];
         }
 
-        $this->_inputActions[$state][$inputSymbol][] = $action;
+        $this->_inputActions[$state][$inputSymbol][] = $zendSearchLuceneFSMAction;
     }
 
     /**
@@ -342,9 +342,9 @@ abstract class Zend_Search_Lucene_FSM
      *
      * @param integer|string $sourceState
      * @param integer|string $targetState
-     * @param Zend_Search_Lucene_FSMAction $action
+     * @param Zend_Search_Lucene_FSMAction $zendSearchLuceneFSMAction
      */
-    public function addTransitionAction($sourceState, $targetState, Zend_Search_Lucene_FSMAction $action)
+    public function addTransitionAction($sourceState, $targetState, Zend_Search_Lucene_FSMAction $zendSearchLuceneFSMAction)
     {
         if (!isset($this->_states[$sourceState])) {
             require_once 'Zend/Search/Exception.php';
@@ -362,7 +362,7 @@ abstract class Zend_Search_Lucene_FSM
             $this->_transitionActions[$sourceState][$targetState] = [];
         }
 
-        $this->_transitionActions[$sourceState][$targetState][] = $action;
+        $this->_transitionActions[$sourceState][$targetState][] = $zendSearchLuceneFSMAction;
     }
 
     /**

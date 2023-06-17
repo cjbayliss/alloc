@@ -84,11 +84,11 @@ class Zend_Search_Lucene_Document_Pptx extends Zend_Search_Lucene_Document_OpenX
         $coreProperties = [];
 
         // Open OpenXML package
-        $package = new ZipArchive();
-        $package->open($fileName);
+        $zipArchive = new ZipArchive();
+        $zipArchive->open($fileName);
 
         // Read relations and search for officeDocument
-        $relationsXml = $package->getFromName('_rels/.rels');
+        $relationsXml = $zipArchive->getFromName('_rels/.rels');
         if ($relationsXml === false) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('Invalid archive or corrupted .pptx file.');
@@ -97,21 +97,21 @@ class Zend_Search_Lucene_Document_Pptx extends Zend_Search_Lucene_Document_OpenX
         foreach ($relations->Relationship as $rel) {
             if ($rel["Type"] == Zend_Search_Lucene_Document_OpenXml::SCHEMA_OFFICEDOCUMENT) {
                 // Found office document! Search for slides...
-                $slideRelations = simplexml_load_string($package->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/_rels/" . basename($rel["Target"]) . ".rels")));
+                $slideRelations = simplexml_load_string($zipArchive->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/_rels/" . basename($rel["Target"]) . ".rels")));
                 foreach ($slideRelations->Relationship as $slideRel) {
                     if ($slideRel["Type"] == Zend_Search_Lucene_Document_Pptx::SCHEMA_SLIDERELATION) {
                         // Found slide!
                         $slides[str_replace('rId', '', (string)$slideRel["Id"])] = simplexml_load_string(
-                            $package->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . dirname($slideRel["Target"]) . "/" . basename($slideRel["Target"])))
+                            $zipArchive->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . dirname($slideRel["Target"]) . "/" . basename($slideRel["Target"])))
                         );
 
                         // Search for slide notes
-                        $slideNotesRelations = simplexml_load_string($package->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . dirname($slideRel["Target"]) . "/_rels/" . basename($slideRel["Target"]) . ".rels")));
+                        $slideNotesRelations = simplexml_load_string($zipArchive->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . dirname($slideRel["Target"]) . "/_rels/" . basename($slideRel["Target"]) . ".rels")));
                         foreach ($slideNotesRelations->Relationship as $slideNoteRel) {
                             if ($slideNoteRel["Type"] == Zend_Search_Lucene_Document_Pptx::SCHEMA_SLIDENOTESRELATION) {
                                 // Found slide notes!
                                 $slideNotes[str_replace('rId', '', (string)$slideRel["Id"])] = simplexml_load_string(
-                                    $package->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . dirname($slideRel["Target"]) . "/" . dirname($slideNoteRel["Target"]) . "/" . basename($slideNoteRel["Target"])))
+                                    $zipArchive->getFromName($this->absoluteZipPath(dirname($rel["Target"]) . "/" . dirname($slideRel["Target"]) . "/" . dirname($slideNoteRel["Target"]) . "/" . basename($slideNoteRel["Target"])))
                                 );
 
                                 break;
@@ -158,10 +158,10 @@ class Zend_Search_Lucene_Document_Pptx extends Zend_Search_Lucene_Document_OpenX
         }
 
         // Read core properties
-        $coreProperties = $this->extractMetaData($package);
+        $coreProperties = $this->extractMetaData($zipArchive);
 
         // Close file
-        $package->close();
+        $zipArchive->close();
 
         // Store filename
         $this->addField(Zend_Search_Lucene_Field::Text('filename', $fileName, 'UTF-8'));

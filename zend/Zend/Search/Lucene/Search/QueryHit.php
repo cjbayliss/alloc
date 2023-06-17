@@ -58,13 +58,12 @@ class Zend_Search_Lucene_Search_QueryHit
      * Constructor - pass object handle of Zend_Search_Lucene_Interface index that produced
      * the hit so the document can be retrieved easily from the hit.
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      */
-
-    public function __construct(Zend_Search_Lucene_Interface $index)
+    public function __construct(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         require_once 'Zend/Search/Lucene/Proxy.php';
-        $this->_index = new Zend_Search_Lucene_Proxy($index);
+        $this->_index = new Zend_Search_Lucene_Proxy($zendSearchLucene);
     }
 
     /**

@@ -1233,10 +1233,10 @@ class PclZip
             // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, "The parameter is a filename");
 
             // ----- Create a temporary archive
-            $v_object_archive = new PclZip($p_archive_to_add);
+            $pclZip = new PclZip($p_archive_to_add);
 
             // ----- Merge the archive
-            $v_result = $this->privMerge($v_object_archive);
+            $v_result = $this->privMerge($pclZip);
         }
 
         // ----- Invalid variable
@@ -4766,11 +4766,11 @@ class PclZip
             $v_zip_temp_name = PCLZIP_TEMPORARY_DIR.uniqid('pclzip-').'.tmp';
 
             // ----- Creates a temporary zip archive
-            $v_temp_zip = new PclZip($v_zip_temp_name);
+            $pclZip = new PclZip($v_zip_temp_name);
 
             // ----- Open the temporary zip file in write mode
             // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, "Open file in binary write mode");
-            if (($v_result = $v_temp_zip->privOpenFd('wb')) != 1) {
+            if (($v_result = $pclZip->privOpenFd('wb')) != 1) {
                 $this->privCloseFd();
 
                 // ----- Return
@@ -4790,7 +4790,7 @@ class PclZip
                 if (@fseek($this->zip_fd, $v_header_list[$i]['offset'])) {
                     // ----- Close the zip file
                     $this->privCloseFd();
-                    $v_temp_zip->privCloseFd();
+                    $pclZip->privCloseFd();
                     @unlink($v_zip_temp_name);
 
                     // ----- Error log
@@ -4807,7 +4807,7 @@ class PclZip
                 if (($v_result = $this->privReadFileHeader($v_local_header)) != 1) {
                     // ----- Close the zip file
                     $this->privCloseFd();
-                    $v_temp_zip->privCloseFd();
+                    $pclZip->privCloseFd();
                     @unlink($v_zip_temp_name);
 
                     // ----- Return
@@ -4825,10 +4825,10 @@ class PclZip
                 unset($v_local_header);
 
                 // ----- Write the file header
-                if (($v_result = $v_temp_zip->privWriteFileHeader($v_header_list[$i])) != 1) {
+                if (($v_result = $pclZip->privWriteFileHeader($v_header_list[$i])) != 1) {
                     // ----- Close the zip file
                     $this->privCloseFd();
-                    $v_temp_zip->privCloseFd();
+                    $pclZip->privCloseFd();
                     @unlink($v_zip_temp_name);
 
                     // ----- Return
@@ -4838,10 +4838,10 @@ class PclZip
                 // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 5, "Offset for this file is '".$v_header_list[$i]['offset']."'");
 
                 // ----- Read/write the data block
-                if (($v_result = PclZipUtilCopyBlock($this->zip_fd, $v_temp_zip->zip_fd, $v_header_list[$i]['compressed_size'])) != 1) {
+                if (($v_result = PclZipUtilCopyBlock($this->zip_fd, $pclZip->zip_fd, $v_header_list[$i]['compressed_size'])) != 1) {
                     // ----- Close the zip file
                     $this->privCloseFd();
-                    $v_temp_zip->privCloseFd();
+                    $pclZip->privCloseFd();
                     @unlink($v_zip_temp_name);
 
                     // ----- Return
@@ -4851,7 +4851,7 @@ class PclZip
             }
 
             // ----- Store the offset of the central dir
-            $v_offset = @ftell($v_temp_zip->zip_fd);
+            $v_offset = @ftell($pclZip->zip_fd);
             // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 5, "New offset of central dir : $v_offset");
 
             // ----- Re-Create the Central Dir files header
@@ -4859,8 +4859,8 @@ class PclZip
             for ($i = 0; $i < sizeof($v_header_list); $i++) {
                 // ----- Create the file header
                 // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 5, "Offset of file : ".$v_header_list[$i]['offset']);
-                if (($v_result = $v_temp_zip->privWriteCentralFileHeader($v_header_list[$i])) != 1) {
-                    $v_temp_zip->privCloseFd();
+                if (($v_result = $pclZip->privWriteCentralFileHeader($v_header_list[$i])) != 1) {
+                    $pclZip->privCloseFd();
                     $this->privCloseFd();
                     @unlink($v_zip_temp_name);
 
@@ -4870,7 +4870,7 @@ class PclZip
                 }
 
                 // ----- Transform the header to a 'usable' info
-                $v_temp_zip->privConvertHeader2FileInfo($v_header_list[$i], $p_result_list[$i]);
+                $pclZip->privConvertHeader2FileInfo($v_header_list[$i], $p_result_list[$i]);
             }
 
             // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, "Creates the central directory footer");
@@ -4882,13 +4882,13 @@ class PclZip
             }
 
             // ----- Calculate the size of the central header
-            $v_size = @ftell($v_temp_zip->zip_fd) - $v_offset;
+            $v_size = @ftell($pclZip->zip_fd) - $v_offset;
 
             // ----- Create the central dir footer
-            if (($v_result = $v_temp_zip->privWriteCentralHeader(sizeof($v_header_list), $v_size, $v_offset, $v_comment)) != 1) {
+            if (($v_result = $pclZip->privWriteCentralHeader(sizeof($v_header_list), $v_size, $v_offset, $v_comment)) != 1) {
                 // ----- Reset the file list
                 unset($v_header_list);
-                $v_temp_zip->privCloseFd();
+                $pclZip->privCloseFd();
                 $this->privCloseFd();
                 @unlink($v_zip_temp_name);
 
@@ -4898,7 +4898,7 @@ class PclZip
             }
 
             // ----- Close
-            $v_temp_zip->privCloseFd();
+            $pclZip->privCloseFd();
             $this->privCloseFd();
 
             // ----- Delete the zip file
@@ -4911,7 +4911,7 @@ class PclZip
             PclZipUtilRename($v_zip_temp_name, $this->zipname);
 
             // ----- Destroy the temporary archive
-            unset($v_temp_zip);
+            unset($pclZip);
         }
 
         // ----- Remove every files : reset the file

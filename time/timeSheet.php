@@ -687,8 +687,8 @@ if ($projectID != 0) {
     } else {
         (is_countable($projectManagers) ? count($projectManagers) : 0) > 1 and $TPL["manager_plural"] = "s";
         $people = &get_cached_table("person");
-        foreach ($projectManagers as $pID) {
-            $TPL["managers"] .= $commar . $people[$pID]["name"];
+        foreach ($projectManagers as $projectManager) {
+            $TPL["managers"] .= $commar . $people[$projectManager]["name"];
             $commar = ", ";
         }
     }

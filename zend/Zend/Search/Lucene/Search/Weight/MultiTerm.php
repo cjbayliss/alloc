@@ -56,24 +56,24 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
      * query - the query that this concerns.
      * reader - index reader
      *
-     * @param Zend_Search_Lucene_Search_Query $query
-     * @param Zend_Search_Lucene_Interface    $reader
+     * @param Zend_Search_Lucene_Search_Query $zendSearchLuceneSearchQuery
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      */
     public function __construct(
-        Zend_Search_Lucene_Search_Query $query,
-        Zend_Search_Lucene_Interface    $reader
+        Zend_Search_Lucene_Search_Query $zendSearchLuceneSearchQuery,
+        Zend_Search_Lucene_Interface    $zendSearchLucene
     ) {
-        $this->_query = $query;
-        $this->_reader = $reader;
+        $this->_query = $zendSearchLuceneSearchQuery;
+        $this->_reader = $zendSearchLucene;
         $this->_weights = [];
 
-        $signs = $query->getSigns();
+        $signs = $zendSearchLuceneSearchQuery->getSigns();
 
-        foreach ($query->getTerms() as $id => $term) {
+        foreach ($zendSearchLuceneSearchQuery->getTerms() as $id => $term) {
             if ($signs === null || $signs[$id] === null || $signs[$id]) {
                 require_once 'Zend/Search/Lucene/Search/Weight/Term.php';
-                $this->_weights[$id] = new Zend_Search_Lucene_Search_Weight_Term($term, $query, $reader);
-                $query->setWeight($id, $this->_weights[$id]);
+                $this->_weights[$id] = new Zend_Search_Lucene_Search_Weight_Term($term, $zendSearchLuceneSearchQuery, $zendSearchLucene);
+                $zendSearchLuceneSearchQuery->setWeight($id, $this->_weights[$id]);
             }
         }
     }
@@ -97,9 +97,9 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
     public function sumOfSquaredWeights()
     {
         $sum = 0;
-        foreach ($this->_weights as $weight) {
+        foreach ($this->_weights as $_weight) {
             // sum sub weights
-            $sum += $weight->sumOfSquaredWeights();
+            $sum += $_weight->sumOfSquaredWeights();
         }
 
         // boost each sub-weight
@@ -122,8 +122,8 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
         // incorporate boost
         $queryNorm *= $this->_query->getBoost();
 
-        foreach ($this->_weights as $weight) {
-            $weight->normalize($queryNorm);
+        foreach ($this->_weights as $_weight) {
+            $_weight->normalize($queryNorm);
         }
     }
 }

@@ -52,50 +52,50 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
     /**
      * Zend_Search_Lucene_Search_Query_Term constructor
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param boolean $sign
      */
-    public function __construct(Zend_Search_Lucene_Index_Term $term)
+    public function __construct(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm)
     {
-        $this->_term = $term;
+        $this->_term = $zendSearchLuceneIndexTerm;
     }
 
     /**
      * Re-write query into primitive queries in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    public function rewrite(Zend_Search_Lucene_Interface $index)
+    public function rewrite(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         if ($this->_term->field != null) {
             return $this;
         } else {
             require_once 'Zend/Search/Lucene/Search/Query/MultiTerm.php';
-            $query = new Zend_Search_Lucene_Search_Query_MultiTerm();
-            $query->setBoost($this->getBoost());
+            $zendSearchLuceneSearchQueryMultiTerm = new Zend_Search_Lucene_Search_Query_MultiTerm();
+            $zendSearchLuceneSearchQueryMultiTerm->setBoost($this->getBoost());
 
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            foreach ($index->getFieldNames(true) as $fieldName) {
+            foreach ($zendSearchLucene->getFieldNames(true) as $fieldName) {
                 $term = new Zend_Search_Lucene_Index_Term($this->_term->text, $fieldName);
 
-                $query->addTerm($term);
+                $zendSearchLuceneSearchQueryMultiTerm->addTerm($term);
             }
 
-            return $query->rewrite($index);
+            return $zendSearchLuceneSearchQueryMultiTerm->rewrite($zendSearchLucene);
         }
     }
 
     /**
      * Optimize query in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    public function optimize(Zend_Search_Lucene_Interface $index)
+    public function optimize(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         // Check, that index contains specified term
-        if (!$index->hasTerm($this->_term)) {
+        if (!$zendSearchLucene->hasTerm($this->_term)) {
             require_once 'Zend/Search/Lucene/Search/Query/Empty.php';
             return new Zend_Search_Lucene_Search_Query_Empty();
         }
@@ -106,13 +106,13 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
     /**
      * Constructs an appropriate Weight implementation for this query.
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Weight
      */
-    public function createWeight(Zend_Search_Lucene_Interface $reader)
+    public function createWeight(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         require_once 'Zend/Search/Lucene/Search/Weight/Term.php';
-        $this->_weight = new Zend_Search_Lucene_Search_Weight_Term($this->_term, $this, $reader);
+        $this->_weight = new Zend_Search_Lucene_Search_Weight_Term($this->_term, $this, $zendSearchLucene);
         return $this->_weight;
     }
 
@@ -120,16 +120,16 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
      * Execute query in context of index reader
      * It also initializes necessary internal structures
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      */
-    public function execute(Zend_Search_Lucene_Interface $reader, $docsFilter = null)
+    public function execute(Zend_Search_Lucene_Interface $zendSearchLucene, $docsFilter = null)
     {
-        $this->_docVector = array_flip($reader->termDocs($this->_term, $docsFilter));
-        $this->_termFreqs = $reader->termFreqs($this->_term, $docsFilter);
+        $this->_docVector = array_flip($zendSearchLucene->termDocs($this->_term, $docsFilter));
+        $this->_termFreqs = $zendSearchLucene->termFreqs($this->_term, $docsFilter);
 
         // Initialize weight if it's not done yet
-        $this->_initWeight($reader);
+        $this->_initWeight($zendSearchLucene);
     }
 
     /**
@@ -148,15 +148,15 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
      * Score specified document
      *
      * @param integer $docId
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return float
      */
-    public function score($docId, Zend_Search_Lucene_Interface $reader)
+    public function score($docId, Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         if (isset($this->_docVector[$docId])) {
-            return $reader->getSimilarity()->tf($this->_termFreqs[$docId]) *
+            return $zendSearchLucene->getSimilarity()->tf($this->_termFreqs[$docId]) *
                 $this->_weight->getValue() *
-                $reader->norm($docId, $this->_term->field) *
+                $zendSearchLucene->norm($docId, $this->_term->field) *
                 $this->getBoost();
         } else {
             return 0;
@@ -186,11 +186,11 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
     /**
      * Query specific matches highlighting
      *
-     * @param Zend_Search_Lucene_Search_Highlighter_Interface $highlighter  Highlighter object (also contains doc for highlighting)
+     * @param Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter Highlighter object (also contains doc for highlighting)
      */
-    protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $highlighter)
+    protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter)
     {
-        $highlighter->highlight($this->_term->text);
+        $zendSearchLuceneSearchHighlighter->highlight($this->_term->text);
     }
 
     /**

@@ -40,11 +40,11 @@ class projectPerson extends db_entity
     // the new role methodology.. role handle is canEditTasks, or isManager atm
     public function set_value_role($roleHandle)
     {
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
         // FIXME: 'role' is a reserved word in mariadb
         // https://mariadb.com/kb/en/roles_overview/
-        $matchRole = $database->pdo->prepare(
+        $matchRole = $dballoc->pdo->prepare(
             "SELECT * FROM role
               WHERE roleHandle = ':roleHandle'
                 AND roleLevel = 'project'"
@@ -64,10 +64,10 @@ class projectPerson extends db_entity
      */
     public static function get_projectPerson_row($projectID, $personID)
     {
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
 
-        $getProjectPerson = $database->pdo->prepare(
+        $getProjectPerson = $dballoc->pdo->prepare(
             "SELECT *
                FROM projectPerson
               WHERE projectID = :projectID
@@ -100,9 +100,9 @@ class projectPerson extends db_entity
         }
 
         // otherwise, check user's default rate
-        $database = new db_alloc();
-        $database->connect();
-        $getDefaultTimeSheetRate = $database->pdo->prepare(
+        $dballoc = new db_alloc();
+        $dballoc->connect();
+        $getDefaultTimeSheetRate = $dballoc->pdo->prepare(
             "SELECT defaultTimeSheetRate as rate, defaultTimeSheetRateUnitID as unit 
                FROM person 
               WHERE personID = :personID"

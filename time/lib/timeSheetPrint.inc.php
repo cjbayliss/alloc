@@ -22,13 +22,13 @@ class timeSheetPrint
 
         $q = unsafe_prepare("SELECT * from timeSheetItem WHERE timeSheetID=%d ", $timeSheetID);
         $q .= unsafe_prepare("GROUP BY timeSheetItemID ORDER BY dateTimeSheetItem, timeSheetItemID");
-        $db = new db_alloc();
-        $db->query($q);
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
 
         $customerBilledDollars = $timeSheet->get_value("customerBilledDollars");
         $currency = page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
 
-        return [$db, $customerBilledDollars, $timeSheet, $unit_array, $currency];
+        return [$dballoc, $customerBilledDollars, $timeSheet, $unit_array, $currency];
     }
 
     public function get_timeSheetItem_list_money($timeSheetID)
@@ -210,8 +210,8 @@ class timeSheetPrint
         global $TPL;
         [$db, $customerBilledDollars, $timeSheet, $unit_array, $currency] = $this->get_timeSheetItem_vars($timeSheetID);
 
-        $m = new meta("timeSheetItemMultiplier");
-        $multipliers = $m->get_list();
+        $meta = new meta("timeSheetItemMultiplier");
+        $multipliers = $meta->get_list();
 
         while ($db->next_record()) {
             $timeSheetItem = new timeSheetItem();
@@ -269,7 +269,7 @@ class timeSheetPrint
         $TPL["printDesc"] = $printDesc;
         $TPL["format"] = $format;
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
 
         if ($timeSheetID) {
             $timeSheet = new timeSheet();
@@ -304,16 +304,16 @@ class timeSheetPrint
 
             $timeSheet->load_pay_info();
 
-            $db->query(unsafe_prepare("SELECT max(dateTimeSheetItem) AS maxDate
+            $dballoc->query(unsafe_prepare("SELECT max(dateTimeSheetItem) AS maxDate
                                       ,min(dateTimeSheetItem) AS minDate
                                       ,count(timeSheetItemID) as count
                                   FROM timeSheetItem
                                  WHERE timeSheetID=%d ", $timeSheetID));
 
-            $db->next_record();
+            $dballoc->next_record();
             $timeSheet->set_id($timeSheetID);
             $timeSheet->select() || alloc_error("Unable to select time sheet, trying to use id: " . $timeSheetID);
-            $TPL["period"] = format_date(DATE_FORMAT, $db->f("minDate")) . " to " . format_date(DATE_FORMAT, $db->f("maxDate"));
+            $TPL["period"] = format_date(DATE_FORMAT, $dballoc->f("minDate")) . " to " . format_date(DATE_FORMAT, $dballoc->f("maxDate"));
 
             $TPL["img"] = config::get_config_item("companyImage");
             $TPL["companyContactAddress"] = config::get_config_item("companyContactAddress");
@@ -401,13 +401,13 @@ class timeSheetPrint
                     "lineCol"      => [0.8, 0.8, 0.8],
                 ];
 
-                $pdf = new Cezpdf();
-                $pdf->ezSetMargins(90, 90, 90, 90);
+                $cezpdf = new Cezpdf();
+                $cezpdf->ezSetMargins(90, 90, 90, 90);
 
-                $pdf->selectFont($font1);
-                $pdf->ezStartPageNumbers(436, 80, 10, 'right', 'Page {PAGENUM} of {TOTALPAGENUM}');
-                $pdf->ezStartPageNumbers(200, 80, 10, 'left', '<b>' . $default_id_label . ': </b>' . $TPL["timeSheetID"]);
-                $pdf->ezSetY(775);
+                $cezpdf->selectFont($font1);
+                $cezpdf->ezStartPageNumbers(436, 80, 10, 'right', 'Page {PAGENUM} of {TOTALPAGENUM}');
+                $cezpdf->ezStartPageNumbers(200, 80, 10, 'left', '<b>' . $default_id_label . ': </b>' . $TPL["timeSheetID"]);
+                $cezpdf->ezSetY(775);
 
                 $TPL["companyName"] and $contact_info[] = [$TPL["companyName"]];
                 $TPL["companyContactAddress"] and $contact_info[] = [$TPL["companyContactAddress"]];
@@ -418,32 +418,32 @@ class timeSheetPrint
                 $TPL["phone"] and $contact_info[] = [$TPL["phone"]];
                 $TPL["fax"] and $contact_info[] = [$TPL["fax"]];
 
-                $pdf->selectFont($font2);
+                $cezpdf->selectFont($font2);
 
-                $y = $pdf->ezTable($contact_info, false, "", $pdf_table_options);
-                $pdf->selectFont($font1);
+                $y = $cezpdf->ezTable($contact_info, false, "", $pdf_table_options);
+                $cezpdf->selectFont($font1);
 
                 $line_y = $y - 10;
-                $pdf->setLineStyle(1, "round");
-                $pdf->line(90, $line_y, 510, $line_y);
+                $cezpdf->setLineStyle(1, "round");
+                $cezpdf->line(90, $line_y, 510, $line_y);
 
-                $pdf->ezSetY(782);
+                $cezpdf->ezSetY(782);
                 $image_jpg = ALLOC_LOGO;
                 if (file_exists($image_jpg)) {
-                    $pdf->ezImage($image_jpg, 0, sprintf("%d", config::get_config_item("logoScaleX")), 'none');
+                    $cezpdf->ezImage($image_jpg, 0, sprintf("%d", config::get_config_item("logoScaleX")), 'none');
                     $y = 700;
                 } else {
-                    $y = $pdf->ezText($TPL["companyName"], 27, ["justification" => "right"]);
+                    $y = $cezpdf->ezText($TPL["companyName"], 27, ["justification" => "right"]);
                 }
                 $nos_y = $line_y + 22;
                 $TPL["companyNos2"] and $nos_y = $line_y + 34;
-                $pdf->ezSetY($nos_y);
-                $TPL["companyNos1"] and $y = $pdf->ezText($TPL["companyNos1"], 10, ["justification" => "right"]);
-                $TPL["companyNos2"] and $y = $pdf->ezText($TPL["companyNos2"], 10, ["justification" => "right"]);
+                $cezpdf->ezSetY($nos_y);
+                $TPL["companyNos1"] and $y = $cezpdf->ezText($TPL["companyNos1"], 10, ["justification" => "right"]);
+                $TPL["companyNos2"] and $y = $cezpdf->ezText($TPL["companyNos2"], 10, ["justification" => "right"]);
 
-                $pdf->ezSetY($line_y - 20);
-                $y = $pdf->ezText($default_header, 20, ["justification" => "center"]);
-                $pdf->ezSetY($y - 20);
+                $cezpdf->ezSetY($line_y - 20);
+                $y = $cezpdf->ezText($default_header, 20, ["justification" => "center"]);
+                $cezpdf->ezSetY($y - 20);
 
                 $ts_info[] = ["one" => "<b>" . $default_id_label . ":</b>", "two" => $TPL["timeSheetID"], "three" => "<b>Date Issued:</b>", "four" => date("d/m/Y")];
                 $ts_info[] = ["one" => "<b>Client:</b>", "two" => $TPL["clientName"], "three" => "<b>Project:</b>", "four" => $TPL["timeSheet_projectName"]];
@@ -455,9 +455,9 @@ class timeSheetPrint
                     $ts_info[] = $temp;
                 }
 
-                $y = $pdf->ezTable($ts_info, $cols, "", $pdf_table_options2);
+                $y = $cezpdf->ezTable($ts_info, $cols, "", $pdf_table_options2);
 
-                $pdf->ezSetY($y - 20);
+                $cezpdf->ezSetY($y - 20);
 
                 if ($timeSheetPrintMode == "money" || $timeSheetPrintMode == "estimate") {
                     [$rows, $info] = $this->get_timeSheetItem_list_money($TPL["timeSheetID"]);
@@ -477,8 +477,8 @@ class timeSheetPrint
                         "money" => $info["total"],
                         "gst"   => $info["total_gst"],
                     ];
-                    $y = $pdf->ezTable($rows, $cols2, "", $pdf_table_options3);
-                    $pdf->ezSetY($y - 20);
+                    $y = $cezpdf->ezTable($rows, $cols2, "", $pdf_table_options3);
+                    $cezpdf->ezSetY($y - 20);
                     if ($taxPercent !== '') {
                         $totals[] = [
                             "one" => "TOTAL " . $TPL["taxName"],
@@ -490,7 +490,7 @@ class timeSheetPrint
                         "one" => "<b>" . $default_total_label . "</b>",
                         "two" => "<b>" . $info["total_inc_gst"] . "</b>",
                     ];
-                    $y = $pdf->ezTable(
+                    $y = $cezpdf->ezTable(
                         $totals,
                         $cols3,
                         "",
@@ -503,7 +503,7 @@ class timeSheetPrint
                         "desc"  => "<b>TOTAL</b>",
                         "units" => "<b>" . $info["total"] . "</b>",
                     ];
-                    $y = $pdf->ezTable($rows, $cols2, "", $pdf_table_options3);
+                    $y = $cezpdf->ezTable($rows, $cols2, "", $pdf_table_options3);
                 } else if ($timeSheetPrintMode == "items") {
                     [$rows, $info] = $this->get_timeSheetItem_list_items($TPL["timeSheetID"]);
                     $cols2 = [
@@ -516,12 +516,12 @@ class timeSheetPrint
                         "date"  => "<b>TOTAL</b>",
                         "units" => "<b>" . $info["total"] . "</b>",
                     ];
-                    $y = $pdf->ezTable($rows, $cols2, "", $pdf_table_options3);
+                    $y = $cezpdf->ezTable($rows, $cols2, "", $pdf_table_options3);
                 }
 
-                $pdf->ezSetY($y - 20);
-                $pdf->ezText(str_replace(["<br>", "<br/>", "<br />"], "\n", $TPL["footer"]), 10);
-                $pdf->ezStream(["Content-Disposition" => "timeSheet_" . $timeSheetID . ".pdf"]);
+                $cezpdf->ezSetY($y - 20);
+                $cezpdf->ezText(str_replace(["<br>", "<br/>", "<br />"], "\n", $TPL["footer"]), 10);
+                $cezpdf->ezStream(["Content-Disposition" => "timeSheet_" . $timeSheetID . ".pdf"]);
 
                 // Else HTML format
             } else {

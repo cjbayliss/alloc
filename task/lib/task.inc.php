@@ -55,9 +55,9 @@ class task extends db_entity
         } else {
             $existing = $this->all_row_fields;
             if ($existing["taskStatus"] != $this->get_value("taskStatus")) {
-                $db = new db_alloc();
-                $db->query("call change_task_status(%d,'%s')", $this->get_id(), $this->get_value("taskStatus"));
-                $row = $db->qr("SELECT taskStatus
+                $dballoc = new db_alloc();
+                $dballoc->query("call change_task_status(%d,'%s')", $this->get_id(), $this->get_value("taskStatus"));
+                $row = $dballoc->qr("SELECT taskStatus
                                       ,dateActualCompletion
                                       ,dateActualStart
                                       ,dateClosed
@@ -136,10 +136,10 @@ class task extends db_entity
 
     public function add_pending_tasks($str)
     {
-        $db = new db_alloc();
-        $db->query("SELECT * FROM pendingTask WHERE taskID = %d", $this->get_id());
+        $dballoc = new db_alloc();
+        $dballoc->query("SELECT * FROM pendingTask WHERE taskID = %d", $this->get_id());
         $rows = [];
-        while ($row = $db->row()) {
+        while ($row = $dballoc->row()) {
             $rows[] = $row["pendingTaskID"];
         }
         asort($rows);
@@ -152,10 +152,10 @@ class task extends db_entity
         $str2 = implode(",", (array)$bits);
 
         if ($str1 != $str2) {
-            $db->query("DELETE FROM pendingTask WHERE taskID = %d", $this->get_id());
+            $dballoc->query("DELETE FROM pendingTask WHERE taskID = %d", $this->get_id());
             foreach ((array)$bits as $id) {
                 if (is_numeric($id)) {
-                    $db->query("INSERT INTO pendingTask (taskID,pendingTaskID) VALUES (%d,%d)", $this->get_id(), $id);
+                    $dballoc->query("INSERT INTO pendingTask (taskID,pendingTaskID) VALUES (%d,%d)", $this->get_id(), $id);
                 }
             }
         }
@@ -164,26 +164,26 @@ class task extends db_entity
     public function add_tags($tags = [])
     {
         (is_countable($tags) ? count($tags) : 0) == 1 and $tags = explode(",", current($tags));
-        $db = new db_alloc();
-        $db->query("DELETE FROM tag WHERE taskID = %d", $this->get_id());
+        $dballoc = new db_alloc();
+        $dballoc->query("DELETE FROM tag WHERE taskID = %d", $this->get_id());
         foreach ((array)$tags as $tag) {
             if (trim($tag)) {
-                $db->query("INSERT INTO tag (taskID,name) VALUES (%d,'%s')", $this->get_id(), trim($tag));
+                $dballoc->query("INSERT INTO tag (taskID,name) VALUES (%d,'%s')", $this->get_id(), trim($tag));
             }
         }
     }
 
     public function get_tags($all = false)
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         if ($all) {
             $q = unsafe_prepare("SELECT DISTINCT name FROM tag ORDER BY name");
         } else {
             $q = unsafe_prepare("SELECT name FROM tag WHERE taskID = %d ORDER BY name", $this->get_id());
         }
-        $db->query($q);
+        $dballoc->query($q);
         $arr = [];
-        while ($row = $db->row()) {
+        while ($row = $dballoc->row()) {
             $row["name"] and $arr[$row["name"]] = $row["name"];
         }
         return (array)$arr;
@@ -192,10 +192,10 @@ class task extends db_entity
     public function get_pending_tasks($invert = false)
     {
         $rows = [];
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $q = unsafe_prepare("SELECT * FROM pendingTask WHERE %s = %d", ($invert ? "pendingTaskID" : "taskID"), $this->get_id());
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $rows[] = $row[($invert ? "taskID" : "pendingTaskID")];
         }
         return (array)$rows;
@@ -215,9 +215,9 @@ class task extends db_entity
                     GROUP BY reminder.reminderID
                      ", $this->get_id());
 
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $rows[] = $row;
         }
         return (array)$rows;
@@ -240,9 +240,9 @@ class task extends db_entity
             }
         }
 
-        foreach ($rows as $r) {
+        foreach ($rows as $row) {
             $reminder = new reminder();
-            $reminder->set_id($r['rID']);
+            $reminder->set_id($row['rID']);
             $reminder->select();
             $reminder->deactivate();
         }
@@ -369,11 +369,11 @@ class task extends db_entity
     public function update_children($field, $value = "")
     {
         $q = unsafe_prepare("SELECT * FROM task WHERE parentTaskID = %d", $this->get_id());
-        $db = new db_alloc();
-        $db->query($q);
-        while ($db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($dballoc->row()) {
             $t = new task();
-            $t->read_db_record($db);
+            $t->read_db_record($dballoc);
             $t->set_value($field, $value);
             $t->save();
             if ($t->get_value("taskTypeID") == "Parent") {
@@ -395,7 +395,7 @@ class task extends db_entity
         $projectID or $projectID = $_GET["projectID"];
         $parentTaskID or $parentTaskID = $_GET["parentTaskID"];
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         if ($projectID) {
             [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
             // Status may be closed_<something>
@@ -449,7 +449,7 @@ class task extends db_entity
 
     public function get_all_parties($projectID = "")
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $interestedPartyOptions = [];
         if ($_GET["projectID"]) {
             $projectID = $_GET["projectID"];
@@ -509,7 +509,7 @@ class task extends db_entity
         $current_user_is_manager = null;
         $current_user = &singleton("current_user");
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
 
         if ($this->get_id()) {
             $origval = $this->get_value($field);
@@ -533,8 +533,8 @@ class task extends db_entity
                              AND projectID = %d
                         ORDER BY firstName, username
                          ", $projectID);
-            $db->query($q);
-            while ($row = $db->row()) {
+            $dballoc->query($q);
+            while ($row = $dballoc->row()) {
                 if ($managers_only && $current_user->get_id() == $row["personID"]) {
                     $current_user_is_manager = true;
                 }
@@ -563,7 +563,7 @@ class task extends db_entity
     {
         $projectID or $projectID = $_GET["projectID"];
         // Project Options - Select all projects
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $query = unsafe_prepare("SELECT projectID AS value, projectName AS label
                             FROM project
                            WHERE projectStatus IN ('Current', 'Potential') OR projectID = %d
@@ -579,15 +579,15 @@ class task extends db_entity
         global $TPL;
         $current_user = &singleton("current_user");
         global $isMessage;
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $projectID = $_GET["projectID"] or $projectID = $this->get_value("projectID");
         $TPL["personOptions"] = "<select name=\"personID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "personID") . "</select>";
         $TPL["managerPersonOptions"] = "<select name=\"managerID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "managerID") . "</select>";
         $TPL["estimatorPersonOptions"] = "<select name=\"estimatorID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "estimatorID") . "</select>";
 
         // TaskType Options
-        $taskType = new meta("taskType");
-        $taskType_array = $taskType->get_assoc_array("taskTypeID", "taskTypeID");
+        $meta = new meta("taskType");
+        $taskType_array = $meta->get_assoc_array("taskTypeID", "taskTypeID");
         $TPL["taskTypeOptions"] = page::select_options($taskType_array, $this->get_value("taskTypeID"));
 
         // Project dropdown
@@ -598,23 +598,23 @@ class task extends db_entity
         $TPL["parentTaskOptions"] = $this->get_parent_task_select();
         $TPL["interestedPartyOptions"] = $this->get_task_cc_list_select();
 
-        $db->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile
+        $dballoc->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile
                               FROM interestedParty
                          LEFT JOIN clientContact ON interestedParty.clientContactID = clientContact.clientContactID
                              WHERE entity='task'
                                AND entityID = %d
                                AND interestedPartyActive = 1
                           ORDER BY fullName", $this->get_id()));
-        while ($db->next_record()) {
-            $value = interestedParty::get_encoded_interested_party_identifier($db->f("fullName"));
+        while ($dballoc->next_record()) {
+            $value = interestedParty::get_encoded_interested_party_identifier($dballoc->f("fullName"));
             $phone = [
-                "p" => $db->f('clientContactPhone'),
-                "m" => $db->f('clientContactMobile'),
+                "p" => $dballoc->f('clientContactPhone'),
+                "m" => $dballoc->f('clientContactMobile'),
             ];
             $TPL["interestedParties"][] = [
                 'key'   => $value,
-                'name'  => $db->f("fullName"),
-                'email' => $db->f("emailAddress"),
+                'name'  => $dballoc->f("fullName"),
+                'email' => $dballoc->f("emailAddress"),
                 'phone' => $phone,
             ];
         }
@@ -653,10 +653,10 @@ class task extends db_entity
         // If we're viewing the printer friendly view
         if ($_GET["media"] == "print") {
             // Parent Task label
-            $t = new task();
-            $t->set_id($this->get_value("parentTaskID"));
-            $t->select();
-            $TPL["parentTask"] = $t->get_display_value();
+            $task = new task();
+            $task->set_id($this->get_value("parentTaskID"));
+            $task->select();
+            $TPL["parentTask"] = $task->get_display_value();
 
             // Task Type label
             $TPL["taskType"] = $this->get_value("taskTypeID");
@@ -735,8 +735,8 @@ class task extends db_entity
         // This gets an array that is useful for building the two types of dropdown lists that taskStatus uses
         $taskStatii = task::get_task_statii();
         if ($flat) {
-            $m = new meta("taskStatus");
-            $taskStatii = $m->get_assoc_array();
+            $meta = new meta("taskStatus");
+            $taskStatii = $meta->get_assoc_array();
             foreach ($taskStatii as $status => $arr) {
                 $taskStatiiArray[$status] = task::get_task_status_thing("label", $status);
             }
@@ -761,8 +761,8 @@ class task extends db_entity
         // etc
         static $rows;
         if (!$rows) {
-            $m = new meta("taskStatus");
-            $rows = $m->get_assoc_array();
+            $meta = new meta("taskStatus");
+            $rows = $meta->get_assoc_array();
         }
         foreach ($rows as $taskStatusID => $arr) {
             [$s, $ss] = explode("_", $taskStatusID);
@@ -796,8 +796,8 @@ class task extends db_entity
         $sql_clos = null;
         $sql_open = null;
         $sql_pend = null;
-        $m = new meta("taskStatus");
-        $arr = $m->get_assoc_array();
+        $meta = new meta("taskStatus");
+        $arr = $meta->get_assoc_array();
         foreach ($arr as $taskStatusID => $r) {
             $id = strtolower(substr($taskStatusID, 0, 4));
             if ($id == "open") {
@@ -1081,17 +1081,17 @@ class task extends db_entity
 
         $debug and print "\n<br>QUERY: " . $q;
         $_FORM["debug"] and print "\n<br>QUERY: " . $q;
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->next_record()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->next_record()) {
             $task = new task();
-            $task->read_db_record($db);
+            $task->read_db_record($dballoc);
             $row["taskURL"] = $task->get_url();
             $row["taskName"] = $task->get_name($_FORM);
             $row["taskLink"] = $task->get_task_link($_FORM);
             $row["project_name"] = $row["projectShortName"] or $row["project_name"] = $row["projectName"];
-            $row["projectPriority"] = $db->f("projectPriority");
-            has("project") and $row["projectPriorityLabel"] = project::get_priority_label($db->f("projectPriority"));
+            $row["projectPriority"] = $dballoc->f("projectPriority");
+            has("project") and $row["projectPriorityLabel"] = project::get_priority_label($dballoc->f("projectPriority"));
             has("project") and [$row["priorityFactor"], $row["daysUntilDue"]] = $task->get_overall_priority($row["projectPriority"], $row["priority"], $row["dateTargetCompletion"]);
             $row["taskTypeImage"] = $task->get_task_image();
             $row["taskTypeSeq"] = $_FORM["taskType_cache"][$row["taskTypeID"]]["taskTypeSeq"];
@@ -1202,16 +1202,16 @@ class task extends db_entity
             return $results[$taskID];
         }
         if ($taskID) {
-            $db = new db_alloc();
+            $dballoc = new db_alloc();
             // Get tally from timeSheetItem table
-            $db->query("SELECT sum(timeSheetItemDuration*timeUnitSeconds) as sum_of_time
+            $dballoc->query("SELECT sum(timeSheetItemDuration*timeUnitSeconds) as sum_of_time
                           FROM timeSheetItem
                      LEFT JOIN timeUnit ON timeSheetItemDurationUnitID = timeUnitID
                          WHERE taskID = %d
                       GROUP BY taskID", $taskID);
-            while ($db->next_record()) {
-                $results[$taskID] = $db->f("sum_of_time");
-                return $db->f("sum_of_time");
+            while ($dballoc->next_record()) {
+                $results[$taskID] = $dballoc->f("sum_of_time");
+                return $dballoc->f("sum_of_time");
             }
             return "";
         }
@@ -1410,8 +1410,8 @@ class task extends db_entity
         $rtn["all_tags"] = $task->get_tags(true);
         $rtn["tags"] = $_FORM["tags"];
 
-        $taskType = new meta("taskType");
-        $taskType_array = $taskType->get_assoc_array("taskTypeID", "taskTypeID");
+        $meta = new meta("taskType");
+        $taskType_array = $meta->get_assoc_array("taskTypeID", "taskTypeID");
         $rtn["taskTypeOptions"] = page::select_options($taskType_array, $_FORM["taskTypeID"]);
 
         $_FORM["taskView"] and $rtn["taskView_checked_" . $_FORM["taskView"]] = " checked";
@@ -1504,10 +1504,10 @@ class task extends db_entity
         $options = ["taskID" => $this->get_id()];
         $changes = audit::get_list($options);
 
-        foreach ($changes as $audit) {
+        foreach ($changes as $change) {
             $changeDescription = "";
-            $newValue = $audit['value'];
-            switch ($audit['field']) {
+            $newValue = $change['value'];
+            switch ($change['field']) {
                 case 'created':
                     $changeDescription = $newValue;
                     break;
@@ -1518,7 +1518,7 @@ class task extends db_entity
                     $changeDescription = "Task name set to '$newValue'.";
                     break;
                 case 'taskDescription':
-                    $changeDescription = "Task description set to <a class=\"magic\" href=\"#x\" onclick=\"$('#audit" . $audit["auditID"] . "').slideToggle('fast');\">Show</a> <div class=\"hidden\" id=\"audit" . $audit["auditID"] . "\"><div>" . $newValue . "</div></div>";
+                    $changeDescription = "Task description set to <a class=\"magic\" href=\"#x\" onclick=\"$('#audit" . $change["auditID"] . "').slideToggle('fast');\">Show</a> <div class=\"hidden\" id=\"audit" . $change["auditID"] . "\"><div>" . $newValue . "</div></div>";
                     break;
                 case 'priority':
                     $priorities = config::get_config_item("taskPriorities");
@@ -1574,7 +1574,7 @@ class task extends db_entity
                 case 'timeWorst':
                 case 'timeExpected':
                     // these cases are more or less identical
-                    switch ($audit['field']) {
+                    switch ($change['field']) {
                         case 'dateActualCompletion':
                             $fieldDesc = "actual completion date";
                             break;
@@ -1606,7 +1606,7 @@ class task extends db_entity
                     }
                     break;
             }
-            $rows[] = "<tr><td class=\"nobr\">" . $audit["dateChanged"] . "</td><td>$changeDescription</td><td>" . page::htmlentities($people_cache[$audit["personID"]]["name"]) . "</td></tr>";
+            $rows[] = "<tr><td class=\"nobr\">" . $change["dateChanged"] . "</td><td>$changeDescription</td><td>" . page::htmlentities($people_cache[$change["personID"]]["name"]) . "</td></tr>";
         }
 
         return implode("\n", $rows);
@@ -1647,32 +1647,32 @@ class task extends db_entity
             $projectShortName && $projectShortName != $projectName and $projectName .= " " . $projectShortName;
         }
 
-        $doc = new Zend_Search_Lucene_Document();
-        $doc->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
-        $doc->addField(Zend_Search_Lucene_Field::Text('name', $this->get_value("taskName"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('project', $projectName, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('pid', $this->get_value("projectID"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('creator', $creator_field, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('closer', $closer_field, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('assignee', $person_field, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('manager', $manager_field, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('modifier', $taskModifiedUser_field, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('desc', $this->get_value("taskDescription"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('priority', $this->get_value("priority"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('limit', $this->get_value("timeLimit"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('best', $this->get_value("timeBest"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('worst', $this->get_value("timeWorst"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('expected', $this->get_value("timeExpected"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('type', $this->get_value("taskTypeID"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('status', $status, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateCreated', str_replace("-", "", $this->get_value("dateCreated")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateAssigned', str_replace("-", "", $this->get_value("dateAssigned")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateClosed', str_replace("-", "", $this->get_value("dateClosed")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateTargetStart', str_replace("-", "", $this->get_value("dateTargetStart")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
-        $index->addDocument($doc);
+        $zendSearchLuceneDocument = new Zend_Search_Lucene_Document();
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('name', $this->get_value("taskName"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('project', $projectName, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('pid', $this->get_value("projectID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('creator', $creator_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('closer', $closer_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('assignee', $person_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('manager', $manager_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('modifier', $taskModifiedUser_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('desc', $this->get_value("taskDescription"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('priority', $this->get_value("priority"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('limit', $this->get_value("timeLimit"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('best', $this->get_value("timeBest"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('worst', $this->get_value("timeWorst"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('expected', $this->get_value("timeExpected"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('type', $this->get_value("taskTypeID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('status', $status, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateCreated', str_replace("-", "", $this->get_value("dateCreated")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateAssigned', str_replace("-", "", $this->get_value("dateAssigned")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateClosed', str_replace("-", "", $this->get_value("dateClosed")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTargetStart', str_replace("-", "", $this->get_value("dateTargetStart")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
+        $index->addDocument($zendSearchLuceneDocument);
     }
 
     public function add_comment_from_email($email_receive, $ignorethis)
@@ -1688,10 +1688,10 @@ class task extends db_entity
     public function can_be_deleted()
     {
         if (is_object($this) && $this->get_id()) {
-            $db = new db_alloc();
+            $dballoc = new db_alloc();
             $q = unsafe_prepare("SELECT can_delete_task(%d) as rtn", $this->get_id());
-            $db->query($q);
-            $row = $db->row();
+            $dballoc->query($q);
+            $row = $dballoc->row();
             return $row['rtn'];
         }
     }
@@ -1701,14 +1701,14 @@ class task extends db_entity
         if (is_object($this) && $this->get_id()) {
             $this->select();
             if (substr($this->get_value("taskStatus"), 0, 4) == 'open') {
-                $db = new db_alloc();
+                $dballoc = new db_alloc();
                 $q = unsafe_prepare("SELECT *
                                 FROM audit
                                WHERE taskID = %d
                                  AND field = 'taskStatus'
                             ORDER BY dateChanged DESC
                                LIMIT 2,1", $this->get_id());
-                $row = $db->qr($q);
+                $row = $dballoc->qr($q);
                 return substr($row["value"], 0, 7) == "pending";
             }
         }
@@ -1719,8 +1719,8 @@ class task extends db_entity
         if (is_object($this) && $this->get_id()) {
             $this->select();
             if (substr($this->get_value("taskStatus"), 0, 4) == 'pend') {
-                $db = new db_alloc();
-                $db->query("call change_task_status(%d,'%s')", $this->get_id(), "open_inprogress");
+                $dballoc = new db_alloc();
+                $dballoc->query("call change_task_status(%d,'%s')", $this->get_id(), "open_inprogress");
                 return true;
             }
         }
@@ -1752,10 +1752,10 @@ class task extends db_entity
             }
             $reminder->save();
             if ($reminder->get_id()) {
-                foreach ($recipients as $row) {
+                foreach ($recipients as $recipient) {
                     $reminderRecipient = new reminderRecipient();
                     $reminderRecipient->set_value("reminderID", $reminder->get_id());
-                    $reminderRecipient->set_value($row["field"], $row["who"]);
+                    $reminderRecipient->set_value($recipient["field"], $recipient["who"]);
                     $reminderRecipient->save();
                 }
             }

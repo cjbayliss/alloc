@@ -243,11 +243,11 @@ class email_receive
         if ($this->msg_uid && !$this->mail_structure) {
             $this->mail_structure = imap_fetchstructure($this->connection, $this->msg_uid, FT_UID);
         } else if ($this->msg_text) {
-            $m = new Mail_mimeDecode($this->msg_text);
+            $mailmimeDecode = new Mail_mimeDecode($this->msg_text);
             $params['include_bodies'] = true;
             $params['decode_bodies'] = true;
             $params['decode_headers'] = true;
-            $this->mail_structure = $m->decode($params);
+            $this->mail_structure = $mailmimeDecode->decode($params);
         }
     }
 
@@ -287,9 +287,9 @@ class email_receive
         $mail_html = null;
         $this->load_structure();
         $this->load_parts($this->mail_structure);
-        foreach ($this->mail_parts as $v) {
-            $s = $v["part_object"]; // structure
-            $raw_data = imap_fetchbody($this->connection, $this->msg_uid, $v["part_number"], FT_UID | FT_PEEK);
+        foreach ($this->mail_parts as $mail_part) {
+            $s = $mail_part["part_object"]; // structure
+            $raw_data = imap_fetchbody($this->connection, $this->msg_uid, $mail_part["part_number"], FT_UID | FT_PEEK);
             $thing = $this->decode_part($s->encoding, $raw_data);
             if (!$mail_text && strtolower($this->mime_types[$s->type] . "/" . $s->subtype) == "text/plain") {
                 $mail_text = $thing;
@@ -342,9 +342,9 @@ class email_receive
 
         // If there's no text/plain part, then search out a text/html one
         if (!$this->mail_text) {
-            foreach ($this->mail_parts as $v) {
-                $s = $v["part_object"]; // structure
-                $raw_data = imap_fetchbody($this->connection, $this->msg_uid, $v["part_number"], FT_UID | FT_PEEK);
+            foreach ($this->mail_parts as $mail_part) {
+                $s = $mail_part["part_object"]; // structure
+                $raw_data = imap_fetchbody($this->connection, $this->msg_uid, $mail_part["part_number"], FT_UID | FT_PEEK);
                 $thing = $this->decode_part($s->encoding, $raw_data);
                 if (strtolower($this->mime_types[$s->type] . "/" . $s->subtype) == "text/html") {
                     $this->mail_text = $thing;
@@ -442,14 +442,14 @@ class email_receive
         fputs($fh, $header . $body);
         fclose($fh);
 
-        $email = new email_send();
-        $email->set_from(config::get_config_item("AllocFromEmailAddress"));
-        $email->set_subject($subject . $s);
-        $email->set_body($text);
-        $email->set_to_address($address);
-        $email->set_message_type("orphan");
-        $email->add_attachment($dir . $filename);
-        $email->send(false);
+        $emailsend = new email_send();
+        $emailsend->set_from(config::get_config_item("AllocFromEmailAddress"));
+        $emailsend->set_subject($subject . $s);
+        $emailsend->set_body($text);
+        $emailsend->set_to_address($address);
+        $emailsend->set_message_type("orphan");
+        $emailsend->add_attachment($dir . $filename);
+        $emailsend->send(false);
 
         unlink($dir . $filename);
     }
@@ -485,9 +485,9 @@ class email_receive
         $token = new token();
         if ($keys && is_array($keys) && $token->set_hash($keys[0])) {
             if ($token->get_value("tokenEntity") == "comment") {
-                $database = new db_alloc();
-                $database->connect();
-                $getCommentMasterAndID = $database->pdo->prepare(
+                $dballoc = new db_alloc();
+                $dballoc->connect();
+                $getCommentMasterAndID = $dballoc->pdo->prepare(
                     "SELECT commentMaster,commentMasterID
                        FROM comment
                       WHERE commentID = :commentID"
@@ -577,8 +577,8 @@ class email_receive
         $header and $header_obj = $this->parse_headers($header);
         $subject = $header_obj["subject"];
 
-        $e = new email_send();
-        $e->set_headers($header);
+        $emailsend = new email_send();
+        $emailsend->set_headers($header);
 
         $str = $header_obj["in-reply-to"] . " " . $header_obj["references"];
         preg_match_all("/\.alloc\.key\.([A-Za-z0-9]{8})@/", $str, $m);
@@ -764,9 +764,9 @@ class email_receive
         // if the email has a different encoding, change it to the DB connection encoding so mysql doesn't choke
         $enc = $this->get_charset();
         if ($enc) {
-            $db = new db_alloc();
-            $db->connect();
-            $body = mb_convert_encoding($body, $db->get_encoding(), $enc);
+            $dballoc = new db_alloc();
+            $dballoc->connect();
+            $body = mb_convert_encoding($body, $dballoc->get_encoding(), $enc);
         }
         return $body;
     }

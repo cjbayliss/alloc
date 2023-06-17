@@ -52,10 +52,10 @@ abstract class Zend_Search_Lucene_Search_Query_Preprocessing extends Zend_Search
     /**
      * Optimize query in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    public function optimize(Zend_Search_Lucene_Interface $index)
+    public function optimize(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         require_once 'Zend/Search/Lucene/Exception.php';
         throw new Zend_Search_Lucene_Exception('This query is not intended to be executed.');
@@ -64,10 +64,10 @@ abstract class Zend_Search_Lucene_Search_Query_Preprocessing extends Zend_Search
     /**
      * Constructs an appropriate Weight implementation for this query.
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Weight
      */
-    public function createWeight(Zend_Search_Lucene_Interface $reader)
+    public function createWeight(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         require_once 'Zend/Search/Lucene/Exception.php';
         throw new Zend_Search_Lucene_Exception('This query is not intended to be executed.');
@@ -77,10 +77,10 @@ abstract class Zend_Search_Lucene_Search_Query_Preprocessing extends Zend_Search
      * Execute query in context of index reader
      * It also initializes necessary internal structures
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      */
-    public function execute(Zend_Search_Lucene_Interface $reader, $docsFilter = null)
+    public function execute(Zend_Search_Lucene_Interface $zendSearchLucene, $docsFilter = null)
     {
         require_once 'Zend/Search/Lucene/Exception.php';
         throw new Zend_Search_Lucene_Exception('This query is not intended to be executed.');
@@ -103,10 +103,10 @@ abstract class Zend_Search_Lucene_Search_Query_Preprocessing extends Zend_Search
      * Score specified document
      *
      * @param integer $docId
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return float
      */
-    public function score($docId, Zend_Search_Lucene_Interface $reader)
+    public function score($docId, Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         require_once 'Zend/Search/Lucene/Exception.php';
         throw new Zend_Search_Lucene_Exception('This query is not intended to be executed.');

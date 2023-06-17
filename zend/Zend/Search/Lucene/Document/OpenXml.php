@@ -73,21 +73,21 @@ abstract class Zend_Search_Lucene_Document_OpenXml extends Zend_Search_Lucene_Do
     /**
      * Extract metadata from document
      *
-     * @param ZipArchive $package    ZipArchive OpenXML package
+     * @param ZipArchive $zipArchive ZipArchive OpenXML package
      * @return array    Key-value pairs containing document meta data
      */
-    protected function extractMetaData(ZipArchive $package)
+    protected function extractMetaData(ZipArchive $zipArchive)
     {
         // Data holders
         $coreProperties = [];
 
         // Read relations and search for core properties
-        $relations = simplexml_load_string($package->getFromName("_rels/.rels"));
+        $relations = simplexml_load_string($zipArchive->getFromName("_rels/.rels"));
         foreach ($relations->Relationship as $rel) {
             if ($rel["Type"] == Zend_Search_Lucene_Document_OpenXml::SCHEMA_COREPROPERTIES) {
                 // Found core properties! Read in contents...
                 $contents = simplexml_load_string(
-                    $package->getFromName(dirname($rel["Target"]) . "/" . basename($rel["Target"]))
+                    $zipArchive->getFromName(dirname($rel["Target"]) . "/" . basename($rel["Target"]))
                 );
 
                 foreach ($contents->children(Zend_Search_Lucene_Document_OpenXml::SCHEMA_DUBLINCORE) as $child) {

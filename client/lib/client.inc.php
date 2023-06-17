@@ -36,16 +36,16 @@ class client extends db_entity
     public function delete()
     {
         // delete all contacts and comments linked with this client as well
-        $database = new db_alloc();
+        $dballoc = new db_alloc();
 
         $clientContactQuery = unsafe_prepare(
             "SELECT * FROM clientContact WHERE clientID=%d",
             $this->get_id()
         );
-        $database->query($clientContactQuery);
-        while ($database->next_record()) {
+        $dballoc->query($clientContactQuery);
+        while ($dballoc->next_record()) {
             $clientContact = new clientContact();
-            $clientContact->read_db_record($database);
+            $clientContact->read_db_record($dballoc);
             $clientContact->delete();
         }
 
@@ -53,10 +53,10 @@ class client extends db_entity
             "SELECT * FROM comment WHERE commentType = 'client' and commentLinkID=%d",
             $this->get_id()
         );
-        $database->query($commentQuery);
-        while ($database->next_record()) {
+        $dballoc->query($commentQuery);
+        while ($dballoc->next_record()) {
             $comment = new comment();
-            $comment->read_db_record($database);
+            $comment->read_db_record($dballoc);
             $comment->delete();
         }
 
@@ -86,7 +86,7 @@ class client extends db_entity
         $options = null;
         $clientNamesQuery = null;
         global $TPL;
-        $db = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
+        $dballoc = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
 
         if ($clientStatus) {
             $clientNamesQuery = unsafe_prepare(
@@ -111,7 +111,7 @@ class client extends db_entity
     public static function get_client_contact_select($clientID = "", $clientContactID = "")
     {
         $clientID or $clientID = $_GET["clientID"];
-        $db = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
+        $dballoc = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
         $clientContactQuery = unsafe_prepare(
             "SELECT clientContactName as label, clientContactID as value 
                FROM clientContact 
@@ -246,11 +246,11 @@ class client extends db_entity
            GROUP BY client.clientID
            ORDER BY clientName,clientContact.primaryContact asc";
 
-        $database = new db_alloc();
-        $database->query($clientInfoQuery);
-        while ($row = $database->next_record()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($clientInfoQuery);
+        while ($row = $dballoc->next_record()) {
             $currentClient = new client();
-            $currentClient->read_db_record($database);
+            $currentClient->read_db_record($dballoc);
 
             $row["clientCategoryLabel"] =
                 $clientCategories[$currentClient->get_value("clientCategory")];
@@ -312,13 +312,13 @@ class client extends db_entity
         $rtn = [];
         global $TPL;
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
 
         // Load up the forms action url
         $rtn["url_form_action"] = $_FORM["url_form_action"];
 
-        $m = new meta("clientStatus");
-        $clientStatus_array = $m->get_assoc_array("clientStatusID", "clientStatusID");
+        $meta = new meta("clientStatus");
+        $clientStatus_array = $meta->get_assoc_array("clientStatusID", "clientStatusID");
         $rtn["clientStatusOptions"] = page::select_options($clientStatus_array, $_FORM["clientStatus"]);
         $rtn["clientName"] = $_FORM["clientName"];
         $rtn["contactName"] = $_FORM["contactName"];
@@ -363,11 +363,11 @@ class client extends db_entity
     {
         static $clients;
         if (!$clients) {
-            $database = new db_alloc();
+            $dballoc = new db_alloc();
             $clientInfoQuery = unsafe_prepare("SELECT * FROM client");
-            $database->query($clientInfoQuery);
-            while ($database->next_record()) {
-                $clients[$database->f("clientID")] = $database->f("clientName");
+            $dballoc->query($clientInfoQuery);
+            while ($dballoc->next_record()) {
+                $clients[$dballoc->f("clientID")] = $dballoc->f("clientName");
             }
         }
 
@@ -464,9 +464,9 @@ class client extends db_entity
         $name = $this->get_name() . $ph . $fx;
 
         $q = unsafe_prepare("SELECT * FROM clientContact WHERE clientID = %d", $this->get_id());
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $c .= $nl . $row["clientContactName"];
             $row["clientContactEmail"] and $c .= " <" . $row["clientContactEmail"] . ">";
             $c .= " | ";
@@ -486,17 +486,17 @@ class client extends db_entity
         }
         $c and $contacts = $c;
 
-        $doc = new Zend_Search_Lucene_Document();
-        $doc->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
-        $doc->addField(Zend_Search_Lucene_Field::Text('name', $name, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('desc', $addresses, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('contact', $contacts, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('status', $this->get_value("clientStatus"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('modifier', $clientModifiedUser_field, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateModified', str_replace("-", "", $this->get_value("clientModifiedTime")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('category', $this->get_value("clientCategory"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateCreated', str_replace("-", "", $this->get_value("clientCreatedTime")), "utf-8"));
-        $index->addDocument($doc);
+        $zendSearchLuceneDocument = new Zend_Search_Lucene_Document();
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('name', $name, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('desc', $addresses, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('contact', $contacts, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('status', $this->get_value("clientStatus"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('modifier', $clientModifiedUser_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateModified', str_replace("-", "", $this->get_value("clientModifiedTime")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('category', $this->get_value("clientCategory"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateCreated', str_replace("-", "", $this->get_value("clientCreatedTime")), "utf-8"));
+        $index->addDocument($zendSearchLuceneDocument);
     }
 
     public function format_address($type = "street", $map_link = true)
@@ -557,7 +557,7 @@ class client extends db_entity
         }
         if ($clientID) {
             // Get all client contacts
-            $database = new db_alloc();
+            $dballoc = new db_alloc();
             $clientPartiesQuery = unsafe_prepare(
                 "SELECT clientContactName, clientContactEmail, clientContactID
                    FROM clientContact
@@ -565,12 +565,12 @@ class client extends db_entity
                     AND clientContactActive = 1",
                 $clientID
             );
-            $database->query($clientPartiesQuery);
-            while ($database->next_record()) {
-                $interestedPartyOptions[$database->f("clientContactEmail")] = [
-                    "name"            => $database->f("clientContactName"),
+            $dballoc->query($clientPartiesQuery);
+            while ($dballoc->next_record()) {
+                $interestedPartyOptions[$dballoc->f("clientContactEmail")] = [
+                    "name"            => $dballoc->f("clientContactName"),
                     "external"        => "1",
-                    "clientContactID" => $database->f("clientContactID"),
+                    "clientContactID" => $dballoc->f("clientContactID"),
                 ];
             }
         }

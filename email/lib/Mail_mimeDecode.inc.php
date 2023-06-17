@@ -203,8 +203,8 @@ class Mail_mimeDecode
         // If so, create an object and pass details to that.
         if ($isStatic and isset($params['input'])) {
 
-            $obj = new Mail_mimeDecode($params['input']);
-            $structure = $obj->decode($params);
+            $mailmimeDecode = new Mail_mimeDecode($params['input']);
+            $structure = $mailmimeDecode->decode($params);
 
             // Called statically but no input
         } elseif ($isStatic) {
@@ -336,9 +336,9 @@ class Mail_mimeDecode
                         $encoding = isset($content_transfer_encoding) ? $content_transfer_encoding['value'] : '7bit';
                         $return->body = ($this->_decode_bodies ? $this->_decodeBody($body, $encoding) : $body);
                     }
-                    $obj = new Mail_mimeDecode($body);
-                    $return->parts[] = $obj->decode(['include_bodies' => $this->_include_bodies, 'decode_bodies' => $this->_decode_bodies, 'decode_headers' => $this->_decode_headers]);
-                    unset($obj);
+                    $mailmimeDecode = new Mail_mimeDecode($body);
+                    $return->parts[] = $mailmimeDecode->decode(['include_bodies' => $this->_include_bodies, 'decode_bodies' => $this->_decode_bodies, 'decode_headers' => $this->_decode_headers]);
+                    unset($mailmimeDecode);
                     break;
 
                 default:
@@ -434,9 +434,9 @@ class Mail_mimeDecode
             $input = preg_replace("/\r\n(\t| )+/", ' ', $input);
             $headers = explode("\r\n", trim($input));
 
-            foreach ($headers as $value) {
-                $hdr_name = substr($value, 0, $pos = strpos($value, ':'));
-                $hdr_value = substr($value, $pos + 1);
+            foreach ($headers as $header) {
+                $hdr_name = substr($header, 0, $pos = strpos($header, ':'));
+                $hdr_value = substr($header, $pos + 1);
                 if ($hdr_value[0] == ' ') {
                     $hdr_value = substr($hdr_value, 1);
                 }

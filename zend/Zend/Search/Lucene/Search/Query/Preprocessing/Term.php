@@ -75,10 +75,10 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
     /**
      * Re-write query into primitive queries in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    public function rewrite(Zend_Search_Lucene_Interface $index)
+    public function rewrite(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         if ($this->_field === null) {
             require_once 'Zend/Search/Lucene/Search/Query/MultiTerm.php';
@@ -89,19 +89,19 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
 
             require_once 'Zend/Search/Lucene.php';
             if (Zend_Search_Lucene::getDefaultSearchField() === null) {
-                $searchFields = $index->getFieldNames(true);
+                $searchFields = $zendSearchLucene->getFieldNames(true);
             } else {
                 $searchFields = [Zend_Search_Lucene::getDefaultSearchField()];
             }
 
             require_once 'Zend/Search/Lucene/Search/Query/Preprocessing/Term.php';
-            foreach ($searchFields as $fieldName) {
+            foreach ($searchFields as $searchField) {
                 $subquery = new Zend_Search_Lucene_Search_Query_Preprocessing_Term(
                     $this->_word,
                     $this->_encoding,
-                    $fieldName
+                    $searchField
                 );
-                $rewrittenSubquery = $subquery->rewrite($index);
+                $rewrittenSubquery = $subquery->rewrite($zendSearchLucene);
                 foreach ($rewrittenSubquery->getQueryTerms() as $term) {
                     $query->addTerm($term);
                 }
@@ -131,7 +131,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
         // encoding is not used since we expect binary matching
         require_once 'Zend/Search/Lucene/Index/Term.php';
         $term = new Zend_Search_Lucene_Index_Term($this->_word, $this->_field);
-        if ($index->hasTerm($term)) {
+        if ($zendSearchLucene->hasTerm($term)) {
             require_once 'Zend/Search/Lucene/Search/Query/Term.php';
             $query = new Zend_Search_Lucene_Search_Query_Term($term);
             $query->setBoost($this->getBoost());
@@ -186,7 +186,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
             $query->setBoost($this->getBoost());
 
             // Get rewritten query. Important! It also fills terms matching container.
-            $rewrittenQuery = $query->rewrite($index);
+            $rewrittenQuery = $query->rewrite($zendSearchLucene);
             $this->_matches = $query->getQueryTerms();
 
             return $rewrittenQuery;
@@ -237,9 +237,9 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
     /**
      * Query specific matches highlighting
      *
-     * @param Zend_Search_Lucene_Search_Highlighter_Interface $highlighter  Highlighter object (also contains doc for highlighting)
+     * @param Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter Highlighter object (also contains doc for highlighting)
      */
-    protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $highlighter)
+    protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter)
     {
         /** Skip fields detection. We don't need it, since we expect all fields presented in the HTML body and don't differentiate them */
 
@@ -282,11 +282,11 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
             }
 
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $term = new Zend_Search_Lucene_Index_Term($pattern, $this->_field);
+            $zendSearchLuceneIndexTerm = new Zend_Search_Lucene_Index_Term($pattern, $this->_field);
             require_once 'Zend/Search/Lucene/Search/Query/Wildcard.php';
-            $query = new Zend_Search_Lucene_Search_Query_Wildcard($term);
+            $zendSearchLuceneSearchQueryWildcard = new Zend_Search_Lucene_Search_Query_Wildcard($zendSearchLuceneIndexTerm);
 
-            $query->_highlightMatches($highlighter);
+            $zendSearchLuceneSearchQueryWildcard->_highlightMatches($zendSearchLuceneSearchHighlighter);
             return;
         }
 
@@ -301,7 +301,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
         }
 
         if ((is_countable($tokens) ? count($tokens) : 0) == 1) {
-            $highlighter->highlight($tokens[0]->getTermText());
+            $zendSearchLuceneSearchHighlighter->highlight($tokens[0]->getTermText());
             return;
         }
 
@@ -310,7 +310,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Term extends Zend_Search_Luc
         foreach ($tokens as $token) {
             $words[] = $token->getTermText();
         }
-        $highlighter->highlight($words);
+        $zendSearchLuceneSearchHighlighter->highlight($words);
     }
 
     /**

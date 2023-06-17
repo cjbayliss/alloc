@@ -39,9 +39,9 @@ interface Zend_Search_Lucene_Index_TermsStream_Interface
      *
      * Prefix contains fully specified field info and portion of searched term
      *
-     * @param Zend_Search_Lucene_Index_Term $prefix
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      */
-    public function skipTo(Zend_Search_Lucene_Index_Term $prefix);
+    public function skipTo(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm);
 
     /**
      * Scans terms dictionary and returns next term

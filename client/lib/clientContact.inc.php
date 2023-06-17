@@ -47,11 +47,11 @@ class clientContact extends db_entity
      */
     private function get_people($projectID = false, $extra = '')
     {
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
 
         if ($projectID) {
-            $getProjectClientID = $database->pdo->prepare(
+            $getProjectClientID = $dballoc->pdo->prepare(
                 "SELECT clientID FROM project WHERE projectID = :projectID"
             );
             $getProjectClientID->bindValue(':projectID', $projectID, PDO::PARAM_INT);
@@ -62,7 +62,7 @@ class clientContact extends db_entity
             }
         }
 
-        $clientContactIDsAndNames = $database->pdo->prepare(
+        $clientContactIDsAndNames = $dballoc->pdo->prepare(
             "SELECT clientContactID, clientContactName
                FROM clientContact WHERE 1=1 " . $extra
         );
@@ -135,9 +135,9 @@ class clientContact extends db_entity
                        WHERE SUBSTRING(clientContactEmail,1,LOCATE('@',clientContactEmail)-1) = '%s'
                          AND clientID = %d LIMIT 1
                      ", $name, $clientID);
-        $db = new db_alloc();
-        $db->query($q);
-        $row = $db->row();
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        $row = $dballoc->row();
         return $row["clientContactID"];
     }
 
@@ -149,9 +149,9 @@ class clientContact extends db_entity
                             FROM clientContact
                            WHERE replace(replace(clientContactEmail,'<',''),'>','') = '%s'
                          ", $email);
-            $db = new db_alloc();
-            $db->query($q);
-            $row = $db->row();
+            $dballoc = new db_alloc();
+            $dballoc->query($q);
+            $row = $dballoc->row();
             return $row["clientContactID"];
         }
     }
@@ -162,13 +162,13 @@ class clientContact extends db_entity
         // to satisfy the referential integrity constraints
         $currentClientID = $this->get_id();
         if (!empty($currentClientID)) {
-            $database = new db_alloc();
+            $dballoc = new db_alloc();
             $nullifyClientContactIDQuery = unsafe_prepare(
                 "UPDATE interestedParty 
                     SET clientContactID = NULL where clientContactID = %d",
                 $currentClientID
             );
-            $database->query($nullifyClientContactIDQuery);
+            $dballoc->query($nullifyClientContactIDQuery);
 
             $nullifyCommentCreatedUserClientContactIDQuery = unsafe_prepare(
                 "UPDATE comment 
@@ -176,14 +176,14 @@ class clientContact extends db_entity
                   where commentCreatedUserClientContactID = %d",
                 $currentClientID
             );
-            $database->query($nullifyCommentCreatedUserClientContactIDQuery);
+            $dballoc->query($nullifyCommentCreatedUserClientContactIDQuery);
 
             $nullifyProjectClientContactIDQuery = unsafe_prepare(
                 "UPDATE project 
                     SET clientContactID = NULL where clientContactID = %d",
                 $currentClientID
             );
-            $database->query($nullifyProjectClientContactIDQuery);
+            $dballoc->query($nullifyProjectClientContactIDQuery);
         }
         return parent::delete();
     }
@@ -278,8 +278,8 @@ class clientContact extends db_entity
         if ($filter["starred"]) {
             $current_user = &singleton("current_user");
             $starredContacts = array_keys((array)$current_user->prefs["stars"]["clientContact"]);
-            foreach ($starredContacts as $clientContactId) {
-                $filter["clientContactID"][] = $clientContactId;
+            foreach ($starredContacts as $starredContact) {
+                $filter["clientContactID"][] = $starredContact;
             }
 
             if (!is_array($filter["clientContactID"])) {
@@ -321,13 +321,13 @@ class clientContact extends db_entity
                     " . $filter . "
            GROUP BY clientContact.clientContactID
            ORDER BY clientContactName,clientContact.primaryContact asc";
-        $database = new db_alloc();
-        $database->query($clientContactQuery);
+        $dballoc = new db_alloc();
+        $dballoc->query($clientContactQuery);
 
         $rows = [];
-        while ($row = $database->next_record()) {
+        while ($row = $dballoc->next_record()) {
             $client = new client();
-            $client->read_db_record($database);
+            $client->read_db_record($dballoc);
             $row["clientLink"] = $client->get_client_link($_FORM);
             if ($row["clientContactEmail"]) {
                 $email = page::htmlentities($row["clientContactEmail"]);

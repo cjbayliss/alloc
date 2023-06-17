@@ -35,12 +35,12 @@ class Zend_Search_Lucene_Index_SegmentWriter_StreamWriter extends Zend_Search_Lu
     /**
      * Object constructor.
      *
-     * @param Zend_Search_Lucene_Storage_Directory $directory
+     * @param Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory
      * @param string $name
      */
-    public function __construct(Zend_Search_Lucene_Storage_Directory $directory, $name)
+    public function __construct(Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory, $name)
     {
-        parent::__construct($directory, $name);
+        parent::__construct($zendSearchLuceneStorageDirectory, $name);
     }
 
     /**

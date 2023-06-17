@@ -146,18 +146,18 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
      * The relative position of the term is specified explicitly or the one immediately
      * after the last term added.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param integer $position
      */
-    public function addTerm(Zend_Search_Lucene_Index_Term $term, $position = null)
+    public function addTerm(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $position = null)
     {
-        if ((count((array) $this->_terms) != 0) && (end($this->_terms)->field != $term->field)) {
+        if ((count((array) $this->_terms) != 0) && (end($this->_terms)->field != $zendSearchLuceneIndexTerm->field)) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('All phrase terms must be in the same field: ' .
-                $term->field . ':' . $term->text);
+                $zendSearchLuceneIndexTerm->field . ':' . $zendSearchLuceneIndexTerm->text);
         }
 
-        $this->_terms[] = $term;
+        $this->_terms[] = $zendSearchLuceneIndexTerm;
         if ($position !== null) {
             $this->_offsets[] = $position;
         } else if (count((array) $this->_offsets) != 0) {
@@ -170,10 +170,10 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
     /**
      * Re-write query into primitive queries in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    public function rewrite(Zend_Search_Lucene_Interface $index)
+    public function rewrite(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         if (count((array) $this->_terms) == 0) {
             require_once 'Zend/Search/Lucene/Search/Query/Empty.php';
@@ -182,10 +182,10 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
             return $this;
         } else {
             require_once 'Zend/Search/Lucene/Search/Query/Boolean.php';
-            $query = new Zend_Search_Lucene_Search_Query_Boolean();
-            $query->setBoost($this->getBoost());
+            $zendSearchLuceneSearchQueryBoolean = new Zend_Search_Lucene_Search_Query_Boolean();
+            $zendSearchLuceneSearchQueryBoolean->setBoost($this->getBoost());
 
-            foreach ($index->getFieldNames(true) as $fieldName) {
+            foreach ($zendSearchLucene->getFieldNames(true) as $fieldName) {
                 $subquery = new Zend_Search_Lucene_Search_Query_Phrase();
                 $subquery->setSlop($this->getSlop());
 
@@ -196,24 +196,24 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
                     $subquery->addTerm($qualifiedTerm, $this->_offsets[$termId]);
                 }
 
-                $query->addSubquery($subquery);
+                $zendSearchLuceneSearchQueryBoolean->addSubquery($subquery);
             }
 
-            return $query;
+            return $zendSearchLuceneSearchQueryBoolean;
         }
     }
 
     /**
      * Optimize query in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    public function optimize(Zend_Search_Lucene_Interface $index)
+    public function optimize(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         // Check, that index contains all phrase terms
-        foreach ($this->_terms as $term) {
-            if (!$index->hasTerm($term)) {
+        foreach ($this->_terms as $_term) {
+            if (!$zendSearchLucene->hasTerm($_term)) {
                 require_once 'Zend/Search/Lucene/Search/Query/Empty.php';
                 return new Zend_Search_Lucene_Search_Query_Empty();
             }
@@ -222,10 +222,10 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
         if (count((array) $this->_terms) == 1) {
             // It's one term query
             require_once 'Zend/Search/Lucene/Search/Query/Term.php';
-            $optimizedQuery = new Zend_Search_Lucene_Search_Query_Term(reset($this->_terms));
-            $optimizedQuery->setBoost($this->getBoost());
+            $zendSearchLuceneSearchQueryTerm = new Zend_Search_Lucene_Search_Query_Term(reset($this->_terms));
+            $zendSearchLuceneSearchQueryTerm->setBoost($this->getBoost());
 
-            return $optimizedQuery;
+            return $zendSearchLuceneSearchQueryTerm;
         }
 
         if (count((array) $this->_terms) == 0) {
@@ -260,13 +260,13 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
     /**
      * Constructs an appropriate Weight implementation for this query.
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Weight
      */
-    public function createWeight(Zend_Search_Lucene_Interface $reader)
+    public function createWeight(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         require_once 'Zend/Search/Lucene/Search/Weight/Phrase.php';
-        $this->_weight = new Zend_Search_Lucene_Search_Weight_Phrase($this, $reader);
+        $this->_weight = new Zend_Search_Lucene_Search_Weight_Phrase($this, $zendSearchLucene);
         return $this->_weight;
     }
 
@@ -321,10 +321,10 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
      * Score calculator for sloppy phrase queries (terms sequence is fixed)
      *
      * @param integer $docId
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return float
      */
-    public function _sloppyPhraseFreq($docId, Zend_Search_Lucene_Interface $reader)
+    public function _sloppyPhraseFreq($docId, Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         $freq = 0;
 
@@ -386,7 +386,7 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
             }
 
             if ($minDistance <= $this->_slop) {
-                $freq += $reader->getSimilarity()->sloppyFreq($minDistance);
+                $freq += $zendSearchLucene->getSimilarity()->sloppyFreq($minDistance);
             }
         }
 
@@ -397,10 +397,10 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
      * Execute query in context of index reader
      * It also initializes necessary internal structures
      *
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      */
-    public function execute(Zend_Search_Lucene_Interface $reader, $docsFilter = null)
+    public function execute(Zend_Search_Lucene_Interface $zendSearchLucene, $docsFilter = null)
     {
         $this->_resVector = null;
 
@@ -412,11 +412,11 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
         $resVectorsSizes = [];
         $resVectorsIds = []; // is used to prevent arrays comparison
         foreach ($this->_terms as $termId => $term) {
-            $resVectors[] = array_flip($reader->termDocs($term));
+            $resVectors[] = array_flip($zendSearchLucene->termDocs($term));
             $resVectorsSizes[] = count(end($resVectors));
             $resVectorsIds[] = $termId;
 
-            $this->_termsPositions[$termId] = $reader->termPositions($term);
+            $this->_termsPositions[$termId] = $zendSearchLucene->termPositions($term);
         }
         // sort resvectors in order of subquery cardinality increasing
         array_multisort(
@@ -429,9 +429,9 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
             $resVectors
         );
 
-        foreach ($resVectors as $nextResVector) {
+        foreach ($resVectors as $reVector) {
             if ($this->_resVector === null) {
-                $this->_resVector = $nextResVector;
+                $this->_resVector = $reVector;
             } else {
                 // $this->_resVector = array_intersect_key($this->_resVector, $nextResVector);
 
@@ -440,7 +440,7 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
                  */
                 $updatedVector = [];
                 foreach ($this->_resVector as $id => $value) {
-                    if (isset($nextResVector[$id])) {
+                    if (isset($reVector[$id])) {
                         $updatedVector[$id] = $value;
                     }
                 }
@@ -457,7 +457,7 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
         // Docs are returned ordered. Used algorithm doesn't change elements order.
 
         // Initialize weight if it's not done yet
-        $this->_initWeight($reader);
+        $this->_initWeight($zendSearchLucene);
     }
 
     /**
@@ -476,24 +476,24 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
      * Score specified document
      *
      * @param integer $docId
-     * @param Zend_Search_Lucene_Interface $reader
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return float
      */
-    public function score($docId, Zend_Search_Lucene_Interface $reader)
+    public function score($docId, Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         if (isset($this->_resVector[$docId])) {
             if ($this->_slop == 0) {
                 $freq = $this->_exactPhraseFreq($docId);
             } else {
-                $freq = $this->_sloppyPhraseFreq($docId, $reader);
+                $freq = $this->_sloppyPhraseFreq($docId, $zendSearchLucene);
             }
 
             if ($freq != 0) {
-                $tf = $reader->getSimilarity()->tf($freq);
-                $weight = $this->_weight->getValue();
-                $norm = $reader->norm($docId, reset($this->_terms)->field);
+                $tf = $zendSearchLucene->getSimilarity()->tf($freq);
+                $value = $this->_weight->getValue();
+                $norm = $zendSearchLucene->norm($docId, reset($this->_terms)->field);
 
-                return $tf * $weight * $norm * $this->getBoost();
+                return $tf * $value * $norm * $this->getBoost();
             }
 
             // Included in result, but culculated freq is zero
@@ -516,16 +516,16 @@ class Zend_Search_Lucene_Search_Query_Phrase extends Zend_Search_Lucene_Search_Q
     /**
      * Query specific matches highlighting
      *
-     * @param Zend_Search_Lucene_Search_Highlighter_Interface $highlighter  Highlighter object (also contains doc for highlighting)
+     * @param Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter Highlighter object (also contains doc for highlighting)
      */
-    protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $highlighter)
+    protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter)
     {
         $words = [];
-        foreach ($this->_terms as $term) {
-            $words[] = $term->text;
+        foreach ($this->_terms as $_term) {
+            $words[] = $_term->text;
         }
 
-        $highlighter->highlight($words);
+        $zendSearchLuceneSearchHighlighter->highlight($words);
     }
 
     /**

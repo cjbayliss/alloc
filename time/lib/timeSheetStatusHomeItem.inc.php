@@ -30,7 +30,7 @@ class timeSheetStatusHomeItem extends home_item
         $current_user = &singleton("current_user");
         global $TPL;
         // Get averages for hours worked over the past fortnight and year
-        $t = new timeSheetItem();
+        $timeSheetItem = new timeSheetItem();
         $day = 60 * 60 * 24;
         // mktime(0,0,0,date("m"),date("d")-1, date("Y"))
         $today = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 1, date("Y")));
@@ -38,10 +38,10 @@ class timeSheetStatusHomeItem extends home_item
         $yestB = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 1, date("Y")));
         $fortn = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 14, date("Y")));
 
-        [$hours_sum_today, $dollars_sum_today] = $t->get_averages($today, $current_user->get_id());
-        [$hours_sum_yesterday, $dollars_sum_yesterday] = $t->get_averages($yestA, $current_user->get_id(), null, $yestB);
-        [$hours_sum_fortnight, $dollars_sum_fortnight] = $t->get_averages($fortn, $current_user->get_id());
-        [$hours_avg_fortnight, $dollars_avg_fortnight] = $t->get_fortnightly_average($current_user->get_id());
+        [$hours_sum_today, $dollars_sum_today] = $timeSheetItem->get_averages($today, $current_user->get_id());
+        [$hours_sum_yesterday, $dollars_sum_yesterday] = $timeSheetItem->get_averages($yestA, $current_user->get_id(), null, $yestB);
+        [$hours_sum_fortnight, $dollars_sum_fortnight] = $timeSheetItem->get_averages($fortn, $current_user->get_id());
+        [$hours_avg_fortnight, $dollars_avg_fortnight] = $timeSheetItem->get_fortnightly_average($current_user->get_id());
 
         $TPL["hours_sum_today"] = sprintf("%0.2f", $hours_sum_today[$current_user->get_id()]);
         $TPL["dollars_sum_today"] = page::money_print($dollars_sum_today[$current_user->get_id()]);

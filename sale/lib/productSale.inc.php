@@ -47,8 +47,8 @@ class productSale extends db_entity
                 $this->get_id(),
                 $this->get_value("extRef")
             );
-            $db = new db_alloc();
-            if ($r = $db->qr($q)) {
+            $dballoc = new db_alloc();
+            if ($r = $dballoc->qr($q)) {
                 $rtn[] = "Unable to save Product Sale, this external reference number is used in Sale " . $r["productSaleID"];
             }
         }
@@ -66,17 +66,17 @@ class productSale extends db_entity
 
     public function delete()
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $query = unsafe_prepare(
             "SELECT *
                FROM productSaleItem
               WHERE productSaleID = %d",
             $this->get_id()
         );
-        $db->query($query);
-        while ($db->next_record()) {
+        $dballoc->query($query);
+        while ($dballoc->next_record()) {
             $productSaleItem = new productSaleItem();
-            $productSaleItem->read_db_record($db);
+            $productSaleItem->read_db_record($dballoc);
             $productSaleItem->delete();
         }
         $this->delete_transactions();
@@ -121,10 +121,10 @@ class productSale extends db_entity
     public function get_productSaleItems()
     {
         $q = unsafe_prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $this->get_id());
-        $db = new db_alloc();
-        $db->query($q);
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
         $rows = [];
-        while ($row = $db->row()) {
+        while ($row = $dballoc->row()) {
             $rows[$row["productSaleItemID"]] = $row;
         }
         return $rows;
@@ -259,9 +259,9 @@ class productSale extends db_entity
             $this->set_value("status", "allocate");
 
             $items = $this->get_productSaleItems();
-            foreach ($items as $r) {
+            foreach ($items as $item) {
                 $psi = new productSaleItem();
-                $psi->set_id($r["productSaleItemID"]);
+                $psi->set_id($item["productSaleItemID"]);
                 $psi->select();
                 if (!$db->qr("SELECT transactionID FROM transaction WHERE productSaleItemID = %d", $psi->get_id())) {
                     $psi->create_transactions();
@@ -438,9 +438,9 @@ class productSale extends db_entity
             $this->get_id(),
             $productSaleItemID
         );
-        $db = new db_alloc();
-        $db->query($query);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($query);
+        while ($row = $dballoc->row()) {
             if ($row["transactionType"] == "tax") {
                 $row["saleTransactionType"] = "tax";
             } else if ($row["pc_productCostID"]) {
@@ -496,8 +496,8 @@ class productSale extends db_entity
             "productSaleCreatedUser",
             "productSaleModifiedUser",
         ];
-        foreach ($id_fields as $f) {
-            $filter[$f] and $sql[] = sprintf_implode("productSale." . $f . " = %d", $filter[$f]);
+        foreach ($id_fields as $id_field) {
+            $filter[$id_field] and $sql[] = sprintf_implode("productSale." . $id_field . " = %d", $filter[$id_field]);
         }
 
         $filter["status"] and $sql[] = sprintf_implode("productSale.status = '%s'", $filter["status"]);
@@ -521,19 +521,19 @@ class productSale extends db_entity
 
         $f .= " ORDER BY IFNULL(productSaleDate,productSaleCreatedTime)";
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $query = unsafe_prepare("SELECT productSale.*, project.projectName, client.clientName
                         FROM productSale
                    LEFT JOIN client ON productSale.clientID = client.clientID
                    LEFT JOIN project ON productSale.projectID = project.projectID
                     " . $f);
-        $db->query($query);
+        $dballoc->query($query);
         $statii = productSale::get_statii();
         $people = &get_cached_table("person");
         $rows = [];
-        while ($row = $db->next_record()) {
+        while ($row = $dballoc->next_record()) {
             $productSale = new productSale();
-            $productSale->read_db_record($db);
+            $productSale->read_db_record($dballoc);
             $row["amounts"] = $productSale->get_amounts();
             $row["statusLabel"] = $statii[$row["status"]];
             $row["salespersonLabel"] = $people[$row["personID"]]["name"];
@@ -568,7 +568,7 @@ class productSale extends db_entity
 
     public function get_all_parties($projectID = "")
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $interestedPartyOptions = [];
 
         if (!$projectID && is_object($this)) {
@@ -662,7 +662,7 @@ class productSale extends db_entity
         $current_user = &singleton("current_user");
 
         // display the list of project name.
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         if (!$_FORM['showAllProjects']) {
             $filter = "WHERE projectStatus = 'Current' ";
         }

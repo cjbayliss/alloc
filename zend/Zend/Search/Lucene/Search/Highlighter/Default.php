@@ -58,11 +58,11 @@ class Zend_Search_Lucene_Search_Highlighter_Default implements Zend_Search_Lucen
     /**
      * Set document for highlighting.
      *
-     * @param Zend_Search_Lucene_Document_Html $document
+     * @param Zend_Search_Lucene_Document_Html $zendSearchLuceneDocumentHtml
      */
-    public function setDocument(Zend_Search_Lucene_Document_Html $document)
+    public function setDocument(Zend_Search_Lucene_Document_Html $zendSearchLuceneDocumentHtml)
     {
-        $this->_doc = $document;
+        $this->_doc = $zendSearchLuceneDocumentHtml;
     }
 
     /**

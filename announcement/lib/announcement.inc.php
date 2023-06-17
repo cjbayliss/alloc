@@ -20,10 +20,10 @@ class announcement extends db_entity
 
     public function has_announcements()
     {
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
 
-        $getAnnouncements = $database->pdo->query(
+        $getAnnouncements = $dballoc->pdo->query(
             "SELECT * from announcement 
               where displayFromDate <= CURRENT_DATE()
                 and displayToDate >= CURRENT_DATE()"

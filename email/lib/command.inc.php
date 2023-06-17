@@ -225,8 +225,8 @@ class command
                     $task->add_reopen_reminder($commands["reopen"]);
                     $reopen_rows = $task->get_reopen_reminders();
                     unset($rr_bits);
-                    foreach ($reopen_rows as $rr) {
-                        $rr_bits[] = $rr["reminderTime"];
+                    foreach ($reopen_rows as $reopen_row) {
+                        $rr_bits[] = $reopen_row["reminderTime"];
                     }
                     $changes["reopen"] = implode(",", (array)$rr_bits);
                 }

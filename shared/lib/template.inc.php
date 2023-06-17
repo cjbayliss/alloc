@@ -43,8 +43,8 @@ function echo_var($matches)
     // Build up something like $var["little"][$colour]["riding"]["hood"]
     // array_shift returns the 0th element, and shortens the array by one
     $var = array_shift($bits);
-    foreach ($bits as $b) {
-        $var .= substr($b, 0, 1) == '$' ? '[' . $b . ']' : '["' . $b . '"]';
+    foreach ($bits as $bit) {
+        $var .= substr($bit, 0, 1) == '$' ? '[' . $bit . ']' : '["' . $bit . '"]';
     }
 
     if ($var && $starts_with_equals) {

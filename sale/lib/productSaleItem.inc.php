@@ -40,7 +40,7 @@ class productSaleItem extends db_entity
 
     public function get_amount_spent()
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
                     (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount
@@ -55,9 +55,9 @@ class productSaleItem extends db_entity
             $this->get_value("productSaleID"),
             $this->get_id()
         );
-        $db->query($q);
+        $dballoc->query($q);
         $rows = [];
-        while ($row = $db->row()) {
+        while ($row = $dballoc->row()) {
             $rows[] = $row;
         }
         return transaction::get_actual_amount_used($rows);
@@ -65,7 +65,7 @@ class productSaleItem extends db_entity
 
     public function get_amount_earnt()
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
                     (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount
@@ -80,9 +80,9 @@ class productSaleItem extends db_entity
             $this->get_value("productSaleID"),
             $this->get_id()
         );
-        $db->query($q);
+        $dballoc->query($q);
         $rows = [];
-        while ($row = $db->row()) {
+        while ($row = $dballoc->row()) {
             $rows[] = $row;
         }
         return transaction::get_actual_amount_used($rows);
@@ -90,7 +90,7 @@ class productSaleItem extends db_entity
 
     public function get_amount_other()
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         // Don't need to do numberToBasic conversion here
         $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
@@ -111,9 +111,9 @@ class productSaleItem extends db_entity
             $this->get_value("productSaleID"),
             $this->get_id()
         );
-        $db->query($q);
+        $dballoc->query($q);
         $rows = [];
-        while ($row = $db->row()) {
+        while ($row = $dballoc->row()) {
             $rows[] = $row;
         }
         return transaction::get_actual_amount_used($rows);
@@ -129,10 +129,10 @@ class productSaleItem extends db_entity
         $transactions = $productSale->get_transactions($this->get_id());
 
         // margin = sellPrice - GST - costs
-        foreach ($transactions as $row) {
-            $row["saleTransactionType"] == "sellPrice" and $sellPrice = exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
-            $row["saleTransactionType"] == "tax" and $tax += exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
-            $row["saleTransactionType"] == "aCost" and $costs += exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
+        foreach ($transactions as $transaction) {
+            $transaction["saleTransactionType"] == "sellPrice" and $sellPrice = exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
+            $transaction["saleTransactionType"] == "tax" and $tax += exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
+            $transaction["saleTransactionType"] == "aCost" and $costs += exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
         }
         $margin = $sellPrice - $costs;
         return $margin;
@@ -302,11 +302,11 @@ class productSaleItem extends db_entity
     public function delete_transactions()
     {
         $q = unsafe_prepare("SELECT * FROM transaction WHERE productSaleItemID = %d", $this->get_id());
-        $db = new db_alloc();
-        $db->query($q);
-        while ($db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($dballoc->row()) {
             $transaction = new transaction();
-            $transaction->read_db_record($db);
+            $transaction->read_db_record($dballoc);
             $transaction->delete();
         }
     }

@@ -19,10 +19,10 @@ class invoiceRepeat extends db_entity
             $dates = str_replace(",", " ", $dates);
             $dates = preg_replace("/\s+/", " ", trim($dates));
             $dates = explode(" ", $dates);
-            $db = new db_alloc();
-            $db->query("DELETE FROM invoiceRepeatDate WHERE invoiceRepeatID = %d", $this->get_id());
+            $dballoc = new db_alloc();
+            $dballoc->query("DELETE FROM invoiceRepeatDate WHERE invoiceRepeatID = %d", $this->get_id());
             foreach ($dates as $date) {
-                $db->query("INSERT INTO invoiceRepeatDate (invoiceRepeatID,invoiceDate) VALUES (%d,'%s')", $this->get_id(), $date);
+                $dballoc->query("INSERT INTO invoiceRepeatDate (invoiceRepeatID,invoiceDate) VALUES (%d,'%s')", $this->get_id(), $date);
             }
         }
     }
@@ -31,9 +31,9 @@ class invoiceRepeat extends db_entity
     {
         $rows = [];
         global $TPL;
-        $db = new db_alloc();
-        $db->query("SELECT * FROM invoiceRepeatDate WHERE invoiceRepeatID = %d", $this->get_id());
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query("SELECT * FROM invoiceRepeatDate WHERE invoiceRepeatID = %d", $this->get_id());
+        while ($row = $dballoc->row()) {
             $rows[] = $row["invoiceDate"];
         }
         $TPL[$prefix . "frequency"] = implode(" ", (array)$rows);

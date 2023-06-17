@@ -50,18 +50,18 @@ class Zend_Search_Lucene_Analysis_TokenFilter_LowerCaseUtf8 extends Zend_Search_
     /**
      * Normalize Token or remove it (if null is returned)
      *
-     * @param Zend_Search_Lucene_Analysis_Token $srcToken
+     * @param Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken
      * @return Zend_Search_Lucene_Analysis_Token
      */
-    public function normalize(Zend_Search_Lucene_Analysis_Token $srcToken)
+    public function normalize(Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken)
     {
         $newToken = new Zend_Search_Lucene_Analysis_Token(
-            mb_strtolower($srcToken->getTermText(), 'UTF-8'),
-            $srcToken->getStartOffset(),
-            $srcToken->getEndOffset()
+            mb_strtolower($zendSearchLuceneAnalysisToken->getTermText(), 'UTF-8'),
+            $zendSearchLuceneAnalysisToken->getStartOffset(),
+            $zendSearchLuceneAnalysisToken->getEndOffset()
         );
 
-        $newToken->setPositionIncrement($srcToken->getPositionIncrement());
+        $newToken->setPositionIncrement($zendSearchLuceneAnalysisToken->getPositionIncrement());
 
         return $newToken;
     }

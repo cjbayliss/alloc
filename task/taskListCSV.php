@@ -54,8 +54,8 @@ if ($taskListRows) {
     // header row
     fputcsv($fp, array_keys(current($taskListRows)));
 
-    foreach ($taskListRows as $row) {
-        fputcsv($fp, $row);
+    foreach ($taskListRows as $taskListRow) {
+        fputcsv($fp, $taskListRow);
     }
 
     fclose($fp);

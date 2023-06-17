@@ -57,30 +57,30 @@ abstract class Zend_Search_Lucene_Analysis_Analyzer_Common extends Zend_Search_L
     /**
      * Add Token filter to the Analyzer
      *
-     * @param Zend_Search_Lucene_Analysis_TokenFilter $filter
+     * @param Zend_Search_Lucene_Analysis_TokenFilter $zendSearchLuceneAnalysisTokenFilter
      */
-    public function addFilter(Zend_Search_Lucene_Analysis_TokenFilter $filter)
+    public function addFilter(Zend_Search_Lucene_Analysis_TokenFilter $zendSearchLuceneAnalysisTokenFilter)
     {
-        $this->_filters[] = $filter;
+        $this->_filters[] = $zendSearchLuceneAnalysisTokenFilter;
     }
 
     /**
      * Apply filters to the token. Can return null when the token was removed.
      *
-     * @param Zend_Search_Lucene_Analysis_Token $token
+     * @param Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken
      * @return Zend_Search_Lucene_Analysis_Token
      */
-    public function normalize(Zend_Search_Lucene_Analysis_Token $token)
+    public function normalize(Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken)
     {
-        foreach ($this->_filters as $filter) {
-            $token = $filter->normalize($token);
+        foreach ($this->_filters as $_filter) {
+            $zendSearchLuceneAnalysisToken = $_filter->normalize($zendSearchLuceneAnalysisToken);
 
             // resulting token can be null if the filter removes it
-            if ($token === null) {
+            if ($zendSearchLuceneAnalysisToken === null) {
                 return null;
             }
         }
 
-        return $token;
+        return $zendSearchLuceneAnalysisToken;
     }
 }

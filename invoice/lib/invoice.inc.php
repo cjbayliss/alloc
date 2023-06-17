@@ -57,9 +57,9 @@ class invoice extends db_entity
 
     public function delete()
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $q = unsafe_prepare("DELETE FROM invoiceEntity WHERE invoiceID = %d", $this->get_id());
-        $db->query($q);
+        $dballoc->query($q);
         return parent::delete();
     }
 
@@ -101,11 +101,11 @@ class invoice extends db_entity
             $person = $current_user;
         }
 
-        $db = new db_alloc();
-        $db->query("SELECT * FROM invoiceItem WHERE invoiceID=%d", $this->get_id());
-        while ($db->next_record()) {
+        $dballoc = new db_alloc();
+        $dballoc->query("SELECT * FROM invoiceItem WHERE invoiceID=%d", $this->get_id());
+        while ($dballoc->next_record()) {
             $invoice_item = new invoiceItem();
-            if ($invoice_item->read_db_record($db)) {
+            if ($invoice_item->read_db_record($dballoc)) {
                 if ($invoice_item->is_owner($person)) {
                     return true;
                 }
@@ -119,9 +119,9 @@ class invoice extends db_entity
         $invoiceItemIDs = [];
         $id = $invoiceID or $id = $this->get_id();
         $q = unsafe_prepare("SELECT invoiceItemID FROM invoiceItem WHERE invoiceID = %d", $id);
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $invoiceItemIDs[] = $row["invoiceItemID"];
         }
         return $invoiceItemIDs;
@@ -132,9 +132,9 @@ class invoice extends db_entity
         $transactionIDs = [];
         $id = $invoiceID or $id = $this->get_id();
         $q = unsafe_prepare("SELECT transactionID FROM transaction WHERE invoiceID = %d", $id);
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $transactionIDs[] = $row["transactionID"];
         }
         return $transactionIDs;
@@ -143,10 +143,10 @@ class invoice extends db_entity
     public static function get_next_invoiceNum()
     {
         $q = "SELECT coalesce(max(invoiceNum)+1,1) as newNum FROM invoice";
-        $db = new db_alloc();
-        $db->query($q);
-        $db->row();
-        return $db->f("newNum");
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        $dballoc->row();
+        return $dballoc->f("newNum");
     }
 
     public function get_invoiceItem_list_for_file($verbose = false)
@@ -249,7 +249,7 @@ class invoice extends db_entity
         $font1 = ALLOC_MOD_DIR . "util/fonts/Helvetica.afm";
         $font2 = ALLOC_MOD_DIR . "util/fonts/Helvetica-Oblique.afm";
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
 
         // Get client name
         $client = $this->get_foreign_object("client");
@@ -337,13 +337,13 @@ class invoice extends db_entity
             "lineCol"      => [0.8, 0.8, 0.8],
         ];
 
-        $pdf = new Cezpdf();
-        $pdf->ezSetMargins(90, 90, 90, 90);
+        $cezpdf = new Cezpdf();
+        $cezpdf->ezSetMargins(90, 90, 90, 90);
 
-        $pdf->selectFont($font1);
-        $pdf->ezStartPageNumbers(436, 80, 10, 'right', 'Page {PAGENUM} of {TOTALPAGENUM}');
-        $pdf->ezStartPageNumbers(200, 80, 10, 'left', '<b>' . $default_id_label . ': </b>' . $this->get_value("invoiceNum"));
-        $pdf->ezSetY(775);
+        $cezpdf->selectFont($font1);
+        $cezpdf->ezStartPageNumbers(436, 80, 10, 'right', 'Page {PAGENUM} of {TOTALPAGENUM}');
+        $cezpdf->ezStartPageNumbers(200, 80, 10, 'left', '<b>' . $default_id_label . ': </b>' . $this->get_value("invoiceNum"));
+        $cezpdf->ezSetY(775);
 
         $companyName and $contact_info[] = [$companyName];
         $companyContactAddress and $contact_info[] = [$companyContactAddress];
@@ -354,31 +354,31 @@ class invoice extends db_entity
         $phone and $contact_info[] = [$phone];
         $fax and $contact_info[] = [$fax];
 
-        $pdf->selectFont($font2);
-        $y = $pdf->ezTable($contact_info, false, "", $pdf_table_options);
-        $pdf->selectFont($font1);
+        $cezpdf->selectFont($font2);
+        $y = $cezpdf->ezTable($contact_info, false, "", $pdf_table_options);
+        $cezpdf->selectFont($font1);
 
         $line_y = $y - 10;
-        $pdf->setLineStyle(1, "round");
-        $pdf->line(90, $line_y, 510, $line_y);
+        $cezpdf->setLineStyle(1, "round");
+        $cezpdf->line(90, $line_y, 510, $line_y);
 
-        $pdf->ezSetY(782);
+        $cezpdf->ezSetY(782);
         $image_jpg = ALLOC_LOGO;
         if (file_exists($image_jpg)) {
-            $pdf->ezImage($image_jpg, 0, sprintf("%d", config::get_config_item("logoScaleX")), 'none');
+            $cezpdf->ezImage($image_jpg, 0, sprintf("%d", config::get_config_item("logoScaleX")), 'none');
             $y = 700;
         } else {
-            $y = $pdf->ezText($companyName, 27, ["justification" => "right"]);
+            $y = $cezpdf->ezText($companyName, 27, ["justification" => "right"]);
         }
         $nos_y = $line_y + 22;
         $companyNos2 and $nos_y = $line_y + 34;
-        $pdf->ezSetY($nos_y);
-        $companyNos1 and $y = $pdf->ezText($companyNos1, 10, ["justification" => "right"]);
-        $companyNos2 and $y = $pdf->ezText($companyNos2, 10, ["justification" => "right"]);
+        $cezpdf->ezSetY($nos_y);
+        $companyNos1 and $y = $cezpdf->ezText($companyNos1, 10, ["justification" => "right"]);
+        $companyNos2 and $y = $cezpdf->ezText($companyNos2, 10, ["justification" => "right"]);
 
-        $pdf->ezSetY($line_y - 20);
-        $y = $pdf->ezText($default_header, 20, ["justification" => "center"]);
-        $pdf->ezSetY($y - 20);
+        $cezpdf->ezSetY($line_y - 20);
+        $y = $cezpdf->ezText($default_header, 20, ["justification" => "center"]);
+        $cezpdf->ezSetY($y - 20);
 
         $ts_info[] = [
             "one"   => "<b>" . $default_id_label . ":</b>",
@@ -392,9 +392,9 @@ class invoice extends db_entity
             "three" => "<b>Billing Period:</b>",
             "four"  => $period,
         ];
-        $y = $pdf->ezTable($ts_info, $cols, "", $pdf_table_options2);
+        $y = $cezpdf->ezTable($ts_info, $cols, "", $pdf_table_options2);
 
-        $pdf->ezSetY($y - 20);
+        $cezpdf->ezSetY($y - 20);
 
         [$rows, $info] = $this->get_invoiceItem_list_for_file($verbose);
         $cols2 = [
@@ -413,8 +413,8 @@ class invoice extends db_entity
             "money" => $info["total"],
             "gst"   => $info["total_gst"],
         ];
-        $y = $pdf->ezTable($rows, $cols2, "", $pdf_table_options3);
-        $pdf->ezSetY($y - 20);
+        $y = $cezpdf->ezTable($rows, $cols2, "", $pdf_table_options3);
+        $cezpdf->ezSetY($y - 20);
         if ($taxPercent !== '') {
             $totals[] = ["one" => "TOTAL " . $taxName, "two" => $info["total_gst"]];
         }
@@ -423,10 +423,10 @@ class invoice extends db_entity
             "one" => "<b>TOTAL AMOUNT PAYABLE</b>",
             "two" => "<b>" . $info["total_inc_gst"] . "</b>",
         ];
-        $y = $pdf->ezTable($totals, $cols3, "", $pdf_table_options4);
+        $y = $cezpdf->ezTable($totals, $cols3, "", $pdf_table_options4);
 
-        $pdf->ezSetY($y - 20);
-        $pdf->ezText(str_replace(["<br>", "<br/>", "<br />"], "\n", $footer), 10);
+        $cezpdf->ezSetY($y - 20);
+        $cezpdf->ezText(str_replace(["<br>", "<br/>", "<br />"], "\n", $footer), 10);
 
         // Add footer
         // $all = $pdf->openObject();
@@ -437,9 +437,9 @@ class invoice extends db_entity
         // $pdf->addObject($all,'all');
 
         if ($getfile) {
-            return $pdf->ezOutput();
+            return $cezpdf->ezOutput();
         } else {
-            $pdf->ezStream(["Content-Disposition" => "invoice_" . $this->get_id() . ".pdf"]);
+            $cezpdf->ezStream(["Content-Disposition" => "invoice_" . $this->get_id() . ".pdf"]);
         }
     }
 
@@ -511,9 +511,9 @@ class invoice extends db_entity
                     FROM projectPerson LEFT JOIN project ON projectPerson.projectID = project.projectID
                    WHERE " . sprintf_implode("projectPerson.personID = %d", $filter["personID"]) . "
                      AND project.clientID IS NOT NULL";
-            $db = new db_alloc();
-            $db->query($q);
-            while ($row = $db->row()) {
+            $dballoc = new db_alloc();
+            $dballoc->query($q);
+            while ($row = $dballoc->row()) {
                 $valid_clientIDs[] = $row["clientID"];
             }
             $filter["clientID"] && !is_array($filter["clientID"]) and $filter["clientID"] = [$filter["clientID"]];
@@ -592,9 +592,9 @@ class invoice extends db_entity
             GROUP BY invoice.invoiceID
             ORDER BY invoiceDateFrom";
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         // $db->query("DROP TABLE IF EXISTS invoice_details");
-        $db->query($q1);
+        $dballoc->query($q1);
 
         $q2 = "SELECT invoice_details.*
                    , SUM(transaction_approved.amount) as amountPaidApproved
@@ -613,12 +613,12 @@ class invoice extends db_entity
 
         $debug and print "<pre>Query1: " . $q1 . "</pre>";
         $debug and print "<pre>Query2: " . $q2 . "</pre>";
-        $db->query($q2);
+        $dballoc->query($q2);
 
-        while ($row = $db->next_record()) {
+        while ($row = $dballoc->next_record()) {
             $print = true;
             $i = new invoice();
-            $i->read_db_record($db);
+            $i->read_db_record($dballoc);
             $row["amountPaidApproved"] = page::money($row["currencyTypeID"], $row["amountPaidApproved"], "%mo");
             $row["amountPaidPending"] = page::money($row["currencyTypeID"], $row["amountPaidPending"], "%mo");
             $row["amountPaidRejected"] = page::money($row["currencyTypeID"], $row["amountPaidRejected"], "%mo");
@@ -738,25 +738,25 @@ class invoice extends db_entity
 
     public static function update_invoice_dates($invoiceID)
     {
-        $db = new db_alloc();
-        $db->query(unsafe_prepare(
+        $dballoc = new db_alloc();
+        $dballoc->query(unsafe_prepare(
             "SELECT max(iiDate) AS maxDate, min(iiDate) AS minDate
                FROM invoiceItem
               WHERE invoiceID=%d",
             $invoiceID
         ));
-        $db->next_record();
+        $dballoc->next_record();
         $invoice = new invoice();
         $invoice->set_id($invoiceID);
         $invoice->select();
-        $invoice->set_value("invoiceDateFrom", $db->f("minDate"));
-        $invoice->set_value("invoiceDateTo", $db->f("maxDate"));
+        $invoice->set_value("invoiceDateFrom", $dballoc->f("minDate"));
+        $invoice->set_value("invoiceDateTo", $dballoc->f("maxDate"));
         return $invoice->save();
     }
 
     public function close_related_entities()
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $invoiceItemIDs = $this->get_invoiceItems();
         foreach ($invoiceItemIDs as $invoiceItemID) {
             $q = unsafe_prepare(
@@ -766,8 +766,8 @@ class invoice extends db_entity
                     AND status = 'pending'",
                 $invoiceItemID
             );
-            $db->query($q);
-            if (!$db->next_record()) {
+            $dballoc->query($q);
+            if (!$dballoc->next_record()) {
                 $invoiceItem = new invoiceItem();
                 $invoiceItem->set_id($invoiceItemID);
                 $invoiceItem->select();
@@ -836,8 +836,8 @@ class invoice extends db_entity
             }
         }
         if ($direction == "forwards" && $newstatus == "reconcile") {
-            $db = new db_alloc();
-            $hasItems = $db->qr("SELECT * FROM invoiceItem WHERE invoiceID = %d", $this->get_id());
+            $dballoc = new db_alloc();
+            $hasItems = $dballoc->qr("SELECT * FROM invoiceItem WHERE invoiceID = %d", $this->get_id());
             if (!$hasItems) {
                 alloc_error("Unable to submit invoice, no items have been added.");
                 return false;
@@ -853,9 +853,9 @@ class invoice extends db_entity
                    LEFT JOIN invoiceItem on transaction.invoiceItemID = invoiceItem.invoiceItemID
                        WHERE invoiceItem.invoiceID = %d AND transaction.status = 'pending'
                    ", $this->get_id());
-        $db = new db_alloc();
-        $db->query($q);
-        return $db->next_record();
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        return $dballoc->next_record();
     }
 
     public function add_timeSheet($timeSheetID = false)
@@ -869,11 +869,11 @@ class invoice extends db_entity
                 $this->get_id(),
                 $timeSheetID
             );
-            $db = new db_alloc();
-            $db->query($q);
+            $dballoc = new db_alloc();
+            $dballoc->query($q);
             // Add this time sheet to the invoice if the timeSheet hasn't already
             // been added to this invoice
-            if (!$db->row()) {
+            if (!$dballoc->row()) {
                 invoiceEntity::save_invoice_timeSheet($this->get_id(), $timeSheetID);
             }
         }
@@ -881,7 +881,7 @@ class invoice extends db_entity
 
     public function get_all_parties($projectID = "", $clientID = "")
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $interestedPartyOptions = [];
 
         if (!$projectID && is_object($this)) {

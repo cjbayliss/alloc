@@ -208,11 +208,11 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      * 0 means pre-2.1 index format
      * -1 means there are no segments files.
      *
-     * @param Zend_Search_Lucene_Storage_Directory $directory
+     * @param Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory
      * @return integer
      * @throws Zend_Search_Lucene_Exception
      */
-    public static function getActualGeneration(Zend_Search_Lucene_Storage_Directory $directory)
+    public static function getActualGeneration(Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory)
     {
         /**
          * Zend_Search_Lucene uses segments.gen file to retrieve current generation number
@@ -229,7 +229,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
         try {
             for ($count = 0; $count < self::GENERATION_RETRIEVE_COUNT; $count++) {
                 // Try to get generation file
-                $genFile = $directory->getFileObject('segments.gen', false);
+                $genFile = $zendSearchLuceneStorageDirectory->getFileObject('segments.gen', false);
 
                 $format = $genFile->readInt();
                 if ($format != (int)0xFFFFFFFE) {
@@ -252,7 +252,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
             if (strpos($e->getMessage(), 'is not readable') !== false) {
                 try {
                     // Try to open old style segments file
-                    $segmentsFile = $directory->getFileObject('segments', false);
+                    $zendSearchLuceneStorageFile = $zendSearchLuceneStorageDirectory->getFileObject('segments', false);
 
                     // It's pre-2.1 index
                     return 0;
@@ -338,9 +338,9 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      */
     private function _readPre21SegmentsFile()
     {
-        $segmentsFile = $this->_directory->getFileObject('segments');
+        $zendSearchLuceneStorageFile = $this->_directory->getFileObject('segments');
 
-        $format = $segmentsFile->readInt();
+        $format = $zendSearchLuceneStorageFile->readInt();
 
         if ($format != (int)0xFFFFFFFF) {
             require_once 'Zend/Search/Lucene/Exception.php';
@@ -348,19 +348,19 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
         }
 
         // read version
-        $segmentsFile->readLong();
+        $zendSearchLuceneStorageFile->readLong();
 
         // read segment name counter
-        $segmentsFile->readInt();
+        $zendSearchLuceneStorageFile->readInt();
 
-        $segments = $segmentsFile->readInt();
+        $segments = $zendSearchLuceneStorageFile->readInt();
 
         $this->_docCount = 0;
 
         // read segmentInfos
         for ($count = 0; $count < $segments; $count++) {
-            $segName = $segmentsFile->readString();
-            $segSize = $segmentsFile->readInt();
+            $segName = $zendSearchLuceneStorageFile->readString();
+            $segSize = $zendSearchLuceneStorageFile->readInt();
             $this->_docCount += $segSize;
 
             $this->_segmentInfos[$segName] =
@@ -522,10 +522,10 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
                 $nameCounter = 0;
             } else {
                 // Directory contains existing index
-                $segmentsFile = $this->_directory->getFileObject(self::getSegmentFileName($this->_generation));
-                $segmentsFile->seek(12); // 12 = 4 (int, file format marker) + 8 (long, index version)
+                $zendSearchLuceneStorageFile = $this->_directory->getFileObject(self::getSegmentFileName($this->_generation));
+                $zendSearchLuceneStorageFile->seek(12); // 12 = 4 (int, file format marker) + 8 (long, index version)
 
-                $nameCounter = $segmentsFile->readInt();
+                $nameCounter = $zendSearchLuceneStorageFile->readInt();
                 $this->_generation++;
             }
 
@@ -665,8 +665,8 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
     {
         $numDocs = 0;
 
-        foreach ($this->_segmentInfos as $segmentInfo) {
-            $numDocs += $segmentInfo->numDocs();
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            $numDocs += $_segmentInfo->numDocs();
         }
 
         return $numDocs;
@@ -1063,8 +1063,8 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
     public function getFieldNames($indexed = false)
     {
         $result = [];
-        foreach ($this->_segmentInfos as $segmentInfo) {
-            $result = array_merge($result, $segmentInfo->getFields($indexed));
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            $result = array_merge($result, $_segmentInfo->getFields($indexed));
         }
         return $result;
     }
@@ -1107,7 +1107,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
         $fdtFile->seek($fieldValuesPosition, SEEK_CUR);
         $fieldCount = $fdtFile->readVInt();
 
-        $doc = new Zend_Search_Lucene_Document();
+        $zendSearchLuceneDocument = new Zend_Search_Lucene_Document();
         for ($count = 0; $count < $fieldCount; $count++) {
             $fieldNum = $fdtFile->readVInt();
             $bits = $fdtFile->readByte();
@@ -1135,10 +1135,10 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
                 );
             }
 
-            $doc->addField($field);
+            $zendSearchLuceneDocument->addField($field);
         }
 
-        return $doc;
+        return $zendSearchLuceneDocument;
     }
 
     /**
@@ -1146,13 +1146,13 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      *
      * Is used for query optimization.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @return boolean
      */
-    public function hasTerm(Zend_Search_Lucene_Index_Term $term)
+    public function hasTerm(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm)
     {
-        foreach ($this->_segmentInfos as $segInfo) {
-            if ($segInfo->getTermInfo($term) !== null) {
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            if ($_segmentInfo->getTermInfo($zendSearchLuceneIndexTerm) !== null) {
                 return true;
             }
         }
@@ -1163,19 +1163,19 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
     /**
      * Returns IDs of all documents containing term.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return array
      */
-    public function termDocs(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
+    public function termDocs(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null)
     {
         $subResults = [];
         $segmentStartDocId = 0;
 
-        foreach ($this->_segmentInfos as $segmentInfo) {
-            $subResults[] = $segmentInfo->termDocs($term, $segmentStartDocId, $docsFilter);
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            $subResults[] = $_segmentInfo->termDocs($zendSearchLuceneIndexTerm, $segmentStartDocId, $docsFilter);
 
-            $segmentStartDocId += $segmentInfo->count();
+            $segmentStartDocId += $_segmentInfo->count();
         }
 
         if (count($subResults) == 0) {
@@ -1197,20 +1197,20 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      * It performs the same operation as termDocs, but return result as
      * Zend_Search_Lucene_Index_DocsFilter object
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return Zend_Search_Lucene_Index_DocsFilter
      */
-    public function termDocsFilter(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
+    public function termDocsFilter(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null)
     {
         $subResults = [];
         $segmentStartDocId = 0;
         $result = new Zend_Search_Lucene_Index_DocsFilter();
 
-        foreach ($this->_segmentInfos as $segmentInfo) {
-            $subResults[] = $segmentInfo->termDocs($term, $segmentStartDocId, $docsFilter);
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            $subResults[] = $_segmentInfo->termDocs($zendSearchLuceneIndexTerm, $segmentStartDocId, $docsFilter);
 
-            $segmentStartDocId += $segmentInfo->count();
+            $segmentStartDocId += $_segmentInfo->count();
         }
 
         if (count($subResults) == 0) {
@@ -1230,18 +1230,18 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      * Returns an array of all term freqs.
      * Result array structure: array(docId => freq, ...)
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return integer
      */
-    public function termFreqs(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
+    public function termFreqs(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null)
     {
         $result = [];
         $segmentStartDocId = 0;
-        foreach ($this->_segmentInfos as $segmentInfo) {
-            $result += $segmentInfo->termFreqs($term, $segmentStartDocId, $docsFilter);
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            $result += $_segmentInfo->termFreqs($zendSearchLuceneIndexTerm, $segmentStartDocId, $docsFilter);
 
-            $segmentStartDocId += $segmentInfo->count();
+            $segmentStartDocId += $_segmentInfo->count();
         }
 
         return $result;
@@ -1251,18 +1251,18 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      * Returns an array of all term positions in the documents.
      * Result array structure: array(docId => array(pos1, pos2, ...), ...)
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return array
      */
-    public function termPositions(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
+    public function termPositions(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null)
     {
         $result = [];
         $segmentStartDocId = 0;
-        foreach ($this->_segmentInfos as $segmentInfo) {
-            $result += $segmentInfo->termPositions($term, $segmentStartDocId, $docsFilter);
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            $result += $_segmentInfo->termPositions($zendSearchLuceneIndexTerm, $segmentStartDocId, $docsFilter);
 
-            $segmentStartDocId += $segmentInfo->count();
+            $segmentStartDocId += $_segmentInfo->count();
         }
 
         return $result;
@@ -1271,14 +1271,14 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
     /**
      * Returns the number of documents in this index containing the $term.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @return integer
      */
-    public function docFreq(Zend_Search_Lucene_Index_Term $term)
+    public function docFreq(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm)
     {
         $result = 0;
-        foreach ($this->_segmentInfos as $segInfo) {
-            $termInfo = $segInfo->getTermInfo($term);
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            $termInfo = $_segmentInfo->getTermInfo($zendSearchLuceneIndexTerm);
             if ($termInfo !== null) {
                 $result += $termInfo->docFreq;
             }
@@ -1337,8 +1337,8 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      */
     public function hasDeletions()
     {
-        foreach ($this->_segmentInfos as $segmentInfo) {
-            if ($segmentInfo->hasDeletions()) {
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            if ($_segmentInfo->hasDeletions()) {
                 return true;
             }
         }
@@ -1382,11 +1382,11 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
     /**
      * Adds a document to this index.
      *
-     * @param Zend_Search_Lucene_Document $document
+     * @param Zend_Search_Lucene_Document $zendSearchLuceneDocument
      */
-    public function addDocument(Zend_Search_Lucene_Document $document)
+    public function addDocument(Zend_Search_Lucene_Document $zendSearchLuceneDocument)
     {
-        $this->_getIndexWriter()->addDocument($document);
+        $this->_getIndexWriter()->addDocument($zendSearchLuceneDocument);
         $this->_docCount++;
 
         $this->_hasChanges = true;
@@ -1398,8 +1398,8 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
     private function _updateDocCount()
     {
         $this->_docCount = 0;
-        foreach ($this->_segmentInfos as $segInfo) {
-            $this->_docCount += $segInfo->count();
+        foreach ($this->_segmentInfos as $_segmentInfo) {
+            $this->_docCount += $_segmentInfo->count();
         }
     }
 
@@ -1447,21 +1447,21 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
         /** Zend_Search_Lucene_Index_TermsPriorityQueue */
         require_once 'Zend/Search/Lucene/Index/TermsPriorityQueue.php';
 
-        $segmentInfoQueue = new Zend_Search_Lucene_Index_TermsPriorityQueue();
+        $zendSearchLuceneIndexTermsPriorityQueue = new Zend_Search_Lucene_Index_TermsPriorityQueue();
 
         foreach ($this->_segmentInfos as $segmentInfo) {
             $segmentInfo->resetTermsStream();
 
             // Skip "empty" segments
             if ($segmentInfo->currentTerm() !== null) {
-                $segmentInfoQueue->put($segmentInfo);
+                $zendSearchLuceneIndexTermsPriorityQueue->put($segmentInfo);
             }
         }
 
-        while (($segmentInfo = $segmentInfoQueue->pop()) !== null) {
+        while (($segmentInfo = $zendSearchLuceneIndexTermsPriorityQueue->pop()) !== null) {
             if (
-                $segmentInfoQueue->top() === null ||
-                $segmentInfoQueue->top()->currentTerm()->key() !=
+                $zendSearchLuceneIndexTermsPriorityQueue->top() === null ||
+                $zendSearchLuceneIndexTermsPriorityQueue->top()->currentTerm()->key() !=
                 $segmentInfo->currentTerm()->key()
             ) {
                 // We got new term
@@ -1470,7 +1470,7 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
 
             if ($segmentInfo->nextTerm() !== null) {
                 // Put segment back into the priority queue
-                $segmentInfoQueue->put($segmentInfo);
+                $zendSearchLuceneIndexTermsPriorityQueue->put($segmentInfo);
             }
         }
 
@@ -1502,11 +1502,11 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      *
      * Prefix contains fully specified field info and portion of searched term
      *
-     * @param Zend_Search_Lucene_Index_Term $prefix
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      */
-    public function skipTo(Zend_Search_Lucene_Index_Term $prefix)
+    public function skipTo(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm)
     {
-        $this->_termsStream->skipTo($prefix);
+        $this->_termsStream->skipTo($zendSearchLuceneIndexTerm);
     }
 
     /**

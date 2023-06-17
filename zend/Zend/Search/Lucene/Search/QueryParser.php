@@ -73,7 +73,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
      *
      * @var Zend_Search_Lucene_Search_QueryToken
      */
-    private $_lastToken = null;
+    private $zendSearchLuceneSearchQueryToken = null;
 
     /**
      * Range query first term
@@ -87,7 +87,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
      *
      * @var Zend_Search_Lucene_Search_QueryParserContext
      */
-    private $_context;
+    private $zendSearchLuceneSearchQueryParserContext;
 
     /**
      * Context stack
@@ -349,16 +349,16 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
                 $queryTokens = Zend_Search_Lucene_Analysis_Analyzer::getDefault()->tokenize($strQuery, self::$_instance->_encoding);
 
                 require_once 'Zend/Search/Lucene/Search/Query/MultiTerm.php';
-                $query = new Zend_Search_Lucene_Search_Query_MultiTerm();
+                $zendSearchLuceneSearchQueryMultiTerm = new Zend_Search_Lucene_Search_Query_MultiTerm();
                 $termsSign = (self::$_instance->_defaultOperator == self::B_AND) ? true /* required term */ :
                     null /* optional term */;
 
                 require_once 'Zend/Search/Lucene/Index/Term.php';
                 foreach ($queryTokens as $token) {
-                    $query->addTerm(new Zend_Search_Lucene_Index_Term($token->getTermText()), $termsSign);
+                    $zendSearchLuceneSearchQueryMultiTerm->addTerm(new Zend_Search_Lucene_Index_Term($token->getTermText()), $termsSign);
                 }
 
-                return $query;
+                return $zendSearchLuceneSearchQueryMultiTerm;
             } else {
                 require_once 'Zend/Search/Lucene/Exception.php';
                 throw new Zend_Search_Lucene_Exception($e->getMessage(), $e->getCode(), $e);
@@ -378,8 +378,8 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
     public function addTermEntry()
     {
         require_once 'Zend/Search/Lucene/Search/QueryEntry/Term.php';
-        $entry = new Zend_Search_Lucene_Search_QueryEntry_Term($this->_currentToken->text, $this->_context->getField());
-        $this->_context->addEntry($entry);
+        $zendSearchLuceneSearchQueryEntryTerm = new Zend_Search_Lucene_Search_QueryEntry_Term($this->_currentToken->text, $this->zendSearchLuceneSearchQueryParserContext->getField());
+        $this->zendSearchLuceneSearchQueryParserContext->addEntry($zendSearchLuceneSearchQueryEntryTerm);
     }
 
     /**
@@ -388,8 +388,8 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
     public function addPhraseEntry()
     {
         require_once 'Zend/Search/Lucene/Search/QueryEntry/Phrase.php';
-        $entry = new Zend_Search_Lucene_Search_QueryEntry_Phrase($this->_currentToken->text, $this->_context->getField());
-        $this->_context->addEntry($entry);
+        $zendSearchLuceneSearchQueryEntryPhrase = new Zend_Search_Lucene_Search_QueryEntry_Phrase($this->_currentToken->text, $this->zendSearchLuceneSearchQueryParserContext->getField());
+        $this->zendSearchLuceneSearchQueryParserContext->addEntry($zendSearchLuceneSearchQueryEntryPhrase);
     }
 
     /**
@@ -397,7 +397,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
      */
     public function setField()
     {
-        $this->_context->setNextEntryField($this->_currentToken->text);
+        $this->zendSearchLuceneSearchQueryParserContext->setNextEntryField($this->_currentToken->text);
     }
 
     /**
@@ -405,7 +405,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
      */
     public function setSign()
     {
-        $this->_context->setNextEntrySign($this->_currentToken->type);
+        $this->zendSearchLuceneSearchQueryParserContext->setNextEntrySign($this->_currentToken->type);
     }
 
     /**
@@ -413,7 +413,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
      */
     public function processFuzzyProximityModifier()
     {
-        $this->_context->processFuzzyProximityModifier();
+        $this->zendSearchLuceneSearchQueryParserContext->processFuzzyProximityModifier();
     }
 
     /**
@@ -423,18 +423,18 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
      */
     public function processModifierParameter()
     {
-        if ($this->_lastToken === null) {
+        if ($this->zendSearchLuceneSearchQueryToken === null) {
             require_once 'Zend/Search/Lucene/Search/QueryParserException.php';
             throw new Zend_Search_Lucene_Search_QueryParserException('Lexeme modifier parameter must follow lexeme modifier. Char position 0.');
         }
 
-        switch ($this->_lastToken->type) {
+        switch ($this->zendSearchLuceneSearchQueryToken->type) {
             case Zend_Search_Lucene_Search_QueryToken::TT_FUZZY_PROX_MARK:
-                $this->_context->processFuzzyProximityModifier($this->_currentToken->text);
+                $this->zendSearchLuceneSearchQueryParserContext->processFuzzyProximityModifier($this->_currentToken->text);
                 break;
 
             case Zend_Search_Lucene_Search_QueryToken::TT_BOOSTING_MARK:
-                $this->_context->boost($this->_currentToken->text);
+                $this->zendSearchLuceneSearchQueryParserContext->boost($this->_currentToken->text);
                 break;
 
             default:
@@ -451,8 +451,8 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
     {
         require_once 'Zend/Search/Lucene/Search/QueryParserContext.php';
 
-        $this->_contextStack[] = $this->_context;
-        $this->_context = new Zend_Search_Lucene_Search_QueryParserContext($this->_encoding, $this->_context->getField());
+        $this->_contextStack[] = $this->zendSearchLuceneSearchQueryParserContext;
+        $this->zendSearchLuceneSearchQueryParserContext = new Zend_Search_Lucene_Search_QueryParserContext($this->_encoding, $this->zendSearchLuceneSearchQueryParserContext->getField());
     }
 
     /**
@@ -465,11 +465,11 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
             throw new Zend_Search_Lucene_Search_QueryParserException('Syntax Error: mismatched parentheses, every opening must have closing. Char position ' . $this->_currentToken->position . '.');
         }
 
-        $query = $this->_context->getQuery();
-        $this->_context = array_pop($this->_contextStack);
+        $zendSearchLuceneSearchQuery = $this->zendSearchLuceneSearchQueryParserContext->getQuery();
+        $this->zendSearchLuceneSearchQueryParserContext = array_pop($this->_contextStack);
 
         require_once 'Zend/Search/Lucene/Search/QueryEntry/Subquery.php';
-        $this->_context->addEntry(new Zend_Search_Lucene_Search_QueryEntry_Subquery($query));
+        $this->zendSearchLuceneSearchQueryParserContext->addEntry(new Zend_Search_Lucene_Search_QueryEntry_Subquery($zendSearchLuceneSearchQuery));
     }
 
     /**
@@ -477,7 +477,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
      */
     public function logicalOperator()
     {
-        $this->_context->addLogicalOperator($this->_currentToken->type);
+        $this->zendSearchLuceneSearchQueryParserContext->addLogicalOperator($this->_currentToken->type);
     }
 
     /**
@@ -501,7 +501,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
             throw new Zend_Search_Lucene_Search_QueryParserException('Range query boundary terms must be non-multiple word terms');
         } else if ((is_countable($tokens) ? count($tokens) : 0) == 1) {
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $from = new Zend_Search_Lucene_Index_Term(reset($tokens)->getTermText(), $this->_context->getField());
+            $from = new Zend_Search_Lucene_Index_Term(reset($tokens)->getTermText(), $this->zendSearchLuceneSearchQueryParserContext->getField());
         } else {
             $from = null;
         }
@@ -512,7 +512,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
             throw new Zend_Search_Lucene_Search_QueryParserException('Range query boundary terms must be non-multiple word terms');
         } else if ((is_countable($tokens) ? count($tokens) : 0) == 1) {
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $to = new Zend_Search_Lucene_Index_Term(reset($tokens)->getTermText(), $this->_context->getField());
+            $to = new Zend_Search_Lucene_Index_Term(reset($tokens)->getTermText(), $this->zendSearchLuceneSearchQueryParserContext->getField());
         } else {
             $to = null;
         }
@@ -523,10 +523,10 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
         }
 
         require_once 'Zend/Search/Lucene/Search/Query/Range.php';
-        $rangeQuery = new Zend_Search_Lucene_Search_Query_Range($from, $to, false);
+        $zendSearchLuceneSearchQueryRange = new Zend_Search_Lucene_Search_Query_Range($from, $to, false);
         require_once 'Zend/Search/Lucene/Search/QueryEntry/Subquery.php';
-        $entry = new Zend_Search_Lucene_Search_QueryEntry_Subquery($rangeQuery);
-        $this->_context->addEntry($entry);
+        $zendSearchLuceneSearchQueryEntrySubquery = new Zend_Search_Lucene_Search_QueryEntry_Subquery($zendSearchLuceneSearchQueryRange);
+        $this->zendSearchLuceneSearchQueryParserContext->addEntry($zendSearchLuceneSearchQueryEntrySubquery);
     }
 
     /**
@@ -550,7 +550,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
             throw new Zend_Search_Lucene_Search_QueryParserException('Range query boundary terms must be non-multiple word terms');
         } else if ((is_countable($tokens) ? count($tokens) : 0) == 1) {
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $from = new Zend_Search_Lucene_Index_Term(reset($tokens)->getTermText(), $this->_context->getField());
+            $from = new Zend_Search_Lucene_Index_Term(reset($tokens)->getTermText(), $this->zendSearchLuceneSearchQueryParserContext->getField());
         } else {
             $from = null;
         }
@@ -561,7 +561,7 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
             throw new Zend_Search_Lucene_Search_QueryParserException('Range query boundary terms must be non-multiple word terms');
         } else if ((is_countable($tokens) ? count($tokens) : 0) == 1) {
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $to = new Zend_Search_Lucene_Index_Term(reset($tokens)->getTermText(), $this->_context->getField());
+            $to = new Zend_Search_Lucene_Index_Term(reset($tokens)->getTermText(), $this->zendSearchLuceneSearchQueryParserContext->getField());
         } else {
             $to = null;
         }
@@ -572,9 +572,9 @@ class Zend_Search_Lucene_Search_QueryParser extends Zend_Search_Lucene_FSM
         }
 
         require_once 'Zend/Search/Lucene/Search/Query/Range.php';
-        $rangeQuery = new Zend_Search_Lucene_Search_Query_Range($from, $to, true);
+        $zendSearchLuceneSearchQueryRange = new Zend_Search_Lucene_Search_Query_Range($from, $to, true);
         require_once 'Zend/Search/Lucene/Search/QueryEntry/Subquery.php';
-        $entry = new Zend_Search_Lucene_Search_QueryEntry_Subquery($rangeQuery);
-        $this->_context->addEntry($entry);
+        $zendSearchLuceneSearchQueryEntrySubquery = new Zend_Search_Lucene_Search_QueryEntry_Subquery($zendSearchLuceneSearchQueryRange);
+        $this->zendSearchLuceneSearchQueryParserContext->addEntry($zendSearchLuceneSearchQueryEntrySubquery);
     }
 }

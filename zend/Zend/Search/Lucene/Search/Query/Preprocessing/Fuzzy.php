@@ -88,10 +88,10 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Fuzzy extends Zend_Search_Lu
     /**
      * Re-write query into primitive queries in the context of specified index
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      * @return Zend_Search_Lucene_Search_Query
      */
-    public function rewrite(Zend_Search_Lucene_Interface $index)
+    public function rewrite(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
         if ($this->_field === null) {
             require_once 'Zend/Search/Lucene/Search/Query/Boolean.php';
@@ -101,21 +101,21 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Fuzzy extends Zend_Search_Lu
 
             require_once 'Zend/Search/Lucene.php';
             if (Zend_Search_Lucene::getDefaultSearchField() === null) {
-                $searchFields = $index->getFieldNames(true);
+                $searchFields = $zendSearchLucene->getFieldNames(true);
             } else {
                 $searchFields = [Zend_Search_Lucene::getDefaultSearchField()];
             }
 
             require_once 'Zend/Search/Lucene/Search/Query/Preprocessing/Fuzzy.php';
-            foreach ($searchFields as $fieldName) {
+            foreach ($searchFields as $searchField) {
                 $subquery = new Zend_Search_Lucene_Search_Query_Preprocessing_Fuzzy(
                     $this->_word,
                     $this->_encoding,
-                    $fieldName,
+                    $searchField,
                     $this->_minimumSimilarity
                 );
 
-                $rewrittenSubquery = $subquery->rewrite($index);
+                $rewrittenSubquery = $subquery->rewrite($zendSearchLucene);
 
                 if (!($rewrittenSubquery instanceof Zend_Search_Lucene_Search_Query_Insignificant ||
                     $rewrittenSubquery instanceof Zend_Search_Lucene_Search_Query_Empty)) {
@@ -155,13 +155,13 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Fuzzy extends Zend_Search_Lu
         // encoding is not used since we expect binary matching
         require_once 'Zend/Search/Lucene/Index/Term.php';
         $term = new Zend_Search_Lucene_Index_Term($this->_word, $this->_field);
-        if ($index->hasTerm($term)) {
+        if ($zendSearchLucene->hasTerm($term)) {
             require_once 'Zend/Search/Lucene/Search/Query/Fuzzy.php';
             $query = new Zend_Search_Lucene_Search_Query_Fuzzy($term, $this->_minimumSimilarity);
             $query->setBoost($this->getBoost());
 
             // Get rewritten query. Important! It also fills terms matching container.
-            $rewrittenQuery = $query->rewrite($index);
+            $rewrittenQuery = $query->rewrite($zendSearchLucene);
             $this->_matches = $query->getQueryTerms();
 
             return $rewrittenQuery;
@@ -200,7 +200,7 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Fuzzy extends Zend_Search_Lu
             $query->setBoost($this->getBoost());
 
             // Get rewritten query. Important! It also fills terms matching container.
-            $rewrittenQuery = $query->rewrite($index);
+            $rewrittenQuery = $query->rewrite($zendSearchLucene);
             $this->_matches = $query->getQueryTerms();
 
             return $rewrittenQuery;
@@ -214,9 +214,9 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Fuzzy extends Zend_Search_Lu
     /**
      * Query specific matches highlighting
      *
-     * @param Zend_Search_Lucene_Search_Highlighter_Interface $highlighter  Highlighter object (also contains doc for highlighting)
+     * @param Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter Highlighter object (also contains doc for highlighting)
      */
-    protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $highlighter)
+    protected function _highlightMatches(Zend_Search_Lucene_Search_Highlighter_Interface $zendSearchLuceneSearchHighlighter)
     {
         /** Skip fields detection. We don't need it, since we expect all fields presented in the HTML body and don't differentiate them */
 
@@ -246,11 +246,11 @@ class Zend_Search_Lucene_Search_Query_Preprocessing_Fuzzy extends Zend_Search_Lu
         }
         if ((is_countable($tokens) ? count($tokens) : 0) == 1) {
             require_once 'Zend/Search/Lucene/Index/Term.php';
-            $term = new Zend_Search_Lucene_Index_Term($tokens[0]->getTermText(), $this->_field);
+            $zendSearchLuceneIndexTerm = new Zend_Search_Lucene_Index_Term($tokens[0]->getTermText(), $this->_field);
             require_once 'Zend/Search/Lucene/Search/Query/Fuzzy.php';
-            $query = new Zend_Search_Lucene_Search_Query_Fuzzy($term, $this->_minimumSimilarity);
+            $zendSearchLuceneSearchQueryFuzzy = new Zend_Search_Lucene_Search_Query_Fuzzy($zendSearchLuceneIndexTerm, $this->_minimumSimilarity);
 
-            $query->_highlightMatches($highlighter);
+            $zendSearchLuceneSearchQueryFuzzy->_highlightMatches($zendSearchLuceneSearchHighlighter);
             return;
         }
 

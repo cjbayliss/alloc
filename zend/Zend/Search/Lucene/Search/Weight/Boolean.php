@@ -56,22 +56,22 @@ class Zend_Search_Lucene_Search_Weight_Boolean extends Zend_Search_Lucene_Search
      * query - the query that this concerns.
      * reader - index reader
      *
-     * @param Zend_Search_Lucene_Search_Query $query
-     * @param Zend_Search_Lucene_Interface    $reader
+     * @param Zend_Search_Lucene_Search_Query $zendSearchLuceneSearchQuery
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      */
     public function __construct(
-        Zend_Search_Lucene_Search_Query $query,
-        Zend_Search_Lucene_Interface    $reader
+        Zend_Search_Lucene_Search_Query $zendSearchLuceneSearchQuery,
+        Zend_Search_Lucene_Interface    $zendSearchLucene
     ) {
-        $this->_query = $query;
-        $this->_reader = $reader;
+        $this->_query = $zendSearchLuceneSearchQuery;
+        $this->_reader = $zendSearchLucene;
         $this->_weights = [];
 
-        $signs = $query->getSigns();
+        $signs = $zendSearchLuceneSearchQuery->getSigns();
 
-        foreach ($query->getSubqueries() as $num => $subquery) {
+        foreach ($zendSearchLuceneSearchQuery->getSubqueries() as $num => $subquery) {
             if ($signs === null || $signs[$num] === null || $signs[$num]) {
-                $this->_weights[$num] = $subquery->createWeight($reader);
+                $this->_weights[$num] = $subquery->createWeight($zendSearchLucene);
             }
         }
     }
@@ -95,9 +95,9 @@ class Zend_Search_Lucene_Search_Weight_Boolean extends Zend_Search_Lucene_Search
     public function sumOfSquaredWeights()
     {
         $sum = 0;
-        foreach ($this->_weights as $weight) {
+        foreach ($this->_weights as $_weight) {
             // sum sub weights
-            $sum += $weight->sumOfSquaredWeights();
+            $sum += $_weight->sumOfSquaredWeights();
         }
 
         // boost each sub-weight
@@ -120,8 +120,8 @@ class Zend_Search_Lucene_Search_Weight_Boolean extends Zend_Search_Lucene_Search
         // incorporate boost
         $queryNorm *= $this->_query->getBoost();
 
-        foreach ($this->_weights as $weight) {
-            $weight->normalize($queryNorm);
+        foreach ($this->_weights as $_weight) {
+            $_weight->normalize($queryNorm);
         }
     }
 }

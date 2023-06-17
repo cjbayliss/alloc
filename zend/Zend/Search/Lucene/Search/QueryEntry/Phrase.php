@@ -94,7 +94,7 @@ class Zend_Search_Lucene_Search_QueryEntry_Phrase extends Zend_Search_Lucene_Sea
     {
         /** Zend_Search_Lucene_Search_Query_Preprocessing_Phrase */
         require_once 'Zend/Search/Lucene/Search/Query/Preprocessing/Phrase.php';
-        $query = new Zend_Search_Lucene_Search_Query_Preprocessing_Phrase(
+        $zendSearchLuceneSearchQueryPreprocessingPhrase = new Zend_Search_Lucene_Search_Query_Preprocessing_Phrase(
             $this->_phrase,
             $encoding,
             ($this->_field !== null) ?
@@ -103,11 +103,11 @@ class Zend_Search_Lucene_Search_QueryEntry_Phrase extends Zend_Search_Lucene_Sea
         );
 
         if ($this->_proximityQuery) {
-            $query->setSlop($this->_wordsDistance);
+            $zendSearchLuceneSearchQueryPreprocessingPhrase->setSlop($this->_wordsDistance);
         }
 
-        $query->setBoost($this->_boost);
+        $zendSearchLuceneSearchQueryPreprocessingPhrase->setBoost($this->_boost);
 
-        return $query;
+        return $zendSearchLuceneSearchQueryPreprocessingPhrase;
     }
 }

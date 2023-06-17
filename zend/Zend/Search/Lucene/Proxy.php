@@ -43,11 +43,11 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
     /**
      * Object constructor
      *
-     * @param Zend_Search_Lucene_Interface $index
+     * @param Zend_Search_Lucene_Interface $zendSearchLucene
      */
-    public function __construct(Zend_Search_Lucene_Interface $index)
+    public function __construct(Zend_Search_Lucene_Interface $zendSearchLucene)
     {
-        $this->_index = $index;
+        $this->_index = $zendSearchLucene;
         $this->_index->addReference();
     }
 
@@ -70,13 +70,13 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
      * 0 means pre-2.1 index format
      * -1 means there are no segments files.
      *
-     * @param Zend_Search_Lucene_Storage_Directory $directory
+     * @param Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory
      * @return integer
      * @throws Zend_Search_Lucene_Exception
      */
-    public static function getActualGeneration(Zend_Search_Lucene_Storage_Directory $directory)
+    public static function getActualGeneration(Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory)
     {
-        Zend_Search_Lucene::getActualGeneration($directory);
+        Zend_Search_Lucene::getActualGeneration($zendSearchLuceneStorageDirectory);
     }
 
     /**
@@ -370,24 +370,24 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
      *
      * Is used for query optimization.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @return boolean
      */
-    public function hasTerm(Zend_Search_Lucene_Index_Term $term)
+    public function hasTerm(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm)
     {
-        return $this->_index->hasTerm($term);
+        return $this->_index->hasTerm($zendSearchLuceneIndexTerm);
     }
 
     /**
      * Returns IDs of all the documents containing term.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return array
      */
-    public function termDocs(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
+    public function termDocs(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null)
     {
-        return $this->_index->termDocs($term, $docsFilter);
+        return $this->_index->termDocs($zendSearchLuceneIndexTerm, $docsFilter);
     }
 
     /**
@@ -396,50 +396,50 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
      * It performs the same operation as termDocs, but return result as
      * Zend_Search_Lucene_Index_DocsFilter object
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return Zend_Search_Lucene_Index_DocsFilter
      */
-    public function termDocsFilter(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
+    public function termDocsFilter(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null)
     {
-        return $this->_index->termDocsFilter($term, $docsFilter);
+        return $this->_index->termDocsFilter($zendSearchLuceneIndexTerm, $docsFilter);
     }
 
     /**
      * Returns an array of all term freqs.
      * Return array structure: array( docId => freq, ...)
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return integer
      */
-    public function termFreqs(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
+    public function termFreqs(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null)
     {
-        return $this->_index->termFreqs($term, $docsFilter);
+        return $this->_index->termFreqs($zendSearchLuceneIndexTerm, $docsFilter);
     }
 
     /**
      * Returns an array of all term positions in the documents.
      * Return array structure: array( docId => array( pos1, pos2, ...), ...)
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return array
      */
-    public function termPositions(Zend_Search_Lucene_Index_Term $term, $docsFilter = null)
+    public function termPositions(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null)
     {
-        return $this->_index->termPositions($term, $docsFilter);
+        return $this->_index->termPositions($zendSearchLuceneIndexTerm, $docsFilter);
     }
 
     /**
      * Returns the number of documents in this index containing the $term.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @return integer
      */
-    public function docFreq(Zend_Search_Lucene_Index_Term $term)
+    public function docFreq(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm)
     {
-        return $this->_index->docFreq($term);
+        return $this->_index->docFreq($zendSearchLuceneIndexTerm);
     }
 
     /**
@@ -489,11 +489,11 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
     /**
      * Adds a document to this index.
      *
-     * @param Zend_Search_Lucene_Document $document
+     * @param Zend_Search_Lucene_Document $zendSearchLuceneDocument
      */
-    public function addDocument(Zend_Search_Lucene_Document $document)
+    public function addDocument(Zend_Search_Lucene_Document $zendSearchLuceneDocument)
     {
-        $this->_index->addDocument($document);
+        $this->_index->addDocument($zendSearchLuceneDocument);
     }
 
     /**
@@ -537,11 +537,11 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
      *
      * Prefix contains fully specified field info and portion of searched term
      *
-     * @param Zend_Search_Lucene_Index_Term $prefix
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      */
-    public function skipTo(Zend_Search_Lucene_Index_Term $prefix)
+    public function skipTo(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm)
     {
-        return $this->_index->skipTo($prefix);
+        return $this->_index->skipTo($zendSearchLuceneIndexTerm);
     }
 
     /**

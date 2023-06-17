@@ -98,7 +98,7 @@ class db_entity
             return $permission_cache[$record_cache_key];
         }
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $query = unsafe_prepare(
             "SELECT *
                FROM permission
@@ -109,22 +109,22 @@ class db_entity
             $action,
             $action
         );
-        $db->query($query);
+        $dballoc->query($query);
 
-        while ($db->next_record()) {
+        while ($dballoc->next_record()) {
             // Ignore this record if it specifies a role the user doesn't have
-            if ($db->f("roleName") && is_object($person) && !$person->have_role($db->f("roleName"))) {
+            if ($dballoc->f("roleName") && is_object($person) && !$person->have_role($dballoc->f("roleName"))) {
                 continue;
             }
 
             // Ignore this record if it specifies that the user must be the record's owner and they are not
-            if ($db->f("entityID") == -1 && !$assume_owner && !$this->is_owner($person)) {
+            if ($dballoc->f("entityID") == -1 && !$assume_owner && !$this->is_owner($person)) {
                 continue;
             }
 
             // Cache the result in variables to prevent duplicate database lookups
             $permission_cache[$record_cache_key] = true;
-            if ($db->f("entityID") == 0) {
+            if ($dballoc->f("entityID") == 0) {
                 $permission_cache[$table_cache_key] = true;
             }
 
@@ -295,9 +295,9 @@ class db_entity
         }
 
         $write_fields = [];
-        foreach ($this->data_fields as $field) {
-            if ($this->can_write_field($field)) {
-                $write_fields[] = $field;
+        foreach ($this->data_fields as $data_field) {
+            if ($this->can_write_field($data_field)) {
+                $write_fields[] = $data_field;
             }
         }
 
@@ -350,10 +350,10 @@ class db_entity
 
                 // Update the index right now
             } else {
-                $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
-                $this->delete_search_index_doc($index);
-                $this->update_search_index_doc($index);
-                $index->commit();
+                $zendSearchLucene = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
+                $this->delete_search_index_doc($zendSearchLucene);
+                $this->update_search_index_doc($zendSearchLucene);
+                $zendSearchLucene->commit();
             }
         }
 
@@ -368,8 +368,8 @@ class db_entity
         }
         $c and $this->currency = $c;
 
-        foreach ($this->data_fields as $field) {
-            $message[] = $field->validate($this);
+        foreach ($this->data_fields as $data_field) {
+            $message[] = $data_field->validate($this);
         }
 
         $message = implode(" ", $message);
@@ -450,8 +450,8 @@ class db_entity
         $this->all_row_fields = $db->row;
         $have_perm = $this->have_perm(PERM_READ);
         if (!$have_perm) {
-            $m = new meta();
-            $meta_tables = (array)$m->get_tables();
+            $meta = new meta();
+            $meta_tables = (array)$meta->get_tables();
             $meta_tables = array_keys($meta_tables);
             if (in_array($this->data_table, (array)$meta_tables)) {
                 return true;
@@ -540,11 +540,11 @@ class db_entity
         }
         $foreign_objects = [];
         $query = unsafe_prepare("SELECT * FROM %s WHERE %s = %d", $class_name, $key_name, $this->get_id());
-        $db = new db_alloc();
-        $db->query($query);
-        while ($db->next_record()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($query);
+        while ($dballoc->next_record()) {
             $o = new $class_name;
-            $o->read_db_record($db);
+            $o->read_db_record($dballoc);
             $foreign_objects[$o->get_id()] = $o;
         }
         return $foreign_objects;
@@ -721,11 +721,11 @@ class db_entity
             $q .= " ORDER BY " . db_esc($value);
         }
 
-        $db = new db_alloc();
-        $db->query($q);
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
         $rows = [];
-        while ($row = $db->row()) {
-            if ($this->read_db_record($db)) {
+        while ($row = $dballoc->row()) {
+            if ($this->read_db_record($dballoc)) {
                 if ($value && $value != "*") {
                     $v = $row[$value];
                 } else {

@@ -49,11 +49,11 @@ interface Zend_Search_Lucene_Interface extends Zend_Search_Lucene_Index_TermsStr
      * 0 means pre-2.1 index format
      * -1 means there are no segments files.
      *
-     * @param Zend_Search_Lucene_Storage_Directory $directory
+     * @param Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory
      * @return integer
      * @throws Zend_Search_Lucene_Exception
      */
-    public static function getActualGeneration(Zend_Search_Lucene_Storage_Directory $directory);
+    public static function getActualGeneration(Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory);
 
     /**
      * Get segments file name
@@ -279,19 +279,19 @@ interface Zend_Search_Lucene_Interface extends Zend_Search_Lucene_Index_TermsStr
      *
      * Is used for query optimization.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @return boolean
      */
-    public function hasTerm(Zend_Search_Lucene_Index_Term $term);
+    public function hasTerm(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm);
 
     /**
      * Returns IDs of all the documents containing term.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return array
      */
-    public function termDocs(Zend_Search_Lucene_Index_Term $term, $docsFilter = null);
+    public function termDocs(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null);
 
     /**
      * Returns documents filter for all documents containing term.
@@ -299,39 +299,39 @@ interface Zend_Search_Lucene_Interface extends Zend_Search_Lucene_Index_TermsStr
      * It performs the same operation as termDocs, but return result as
      * Zend_Search_Lucene_Index_DocsFilter object
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return Zend_Search_Lucene_Index_DocsFilter
      */
-    public function termDocsFilter(Zend_Search_Lucene_Index_Term $term, $docsFilter = null);
+    public function termDocsFilter(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null);
 
     /**
      * Returns an array of all term freqs.
      * Return array structure: array( docId => freq, ...)
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return integer
      */
-    public function termFreqs(Zend_Search_Lucene_Index_Term $term, $docsFilter = null);
+    public function termFreqs(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null);
 
     /**
      * Returns an array of all term positions in the documents.
      * Return array structure: array( docId => array( pos1, pos2, ...), ...)
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @param Zend_Search_Lucene_Index_DocsFilter|null $docsFilter
      * @return array
      */
-    public function termPositions(Zend_Search_Lucene_Index_Term $term, $docsFilter = null);
+    public function termPositions(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm, $docsFilter = null);
 
     /**
      * Returns the number of documents in this index containing the $term.
      *
-     * @param Zend_Search_Lucene_Index_Term $term
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      * @return integer
      */
-    public function docFreq(Zend_Search_Lucene_Index_Term $term);
+    public function docFreq(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm);
 
     /**
      * Retrive similarity used by index reader
@@ -368,9 +368,9 @@ interface Zend_Search_Lucene_Interface extends Zend_Search_Lucene_Index_TermsStr
     /**
      * Adds a document to this index.
      *
-     * @param Zend_Search_Lucene_Document $document
+     * @param Zend_Search_Lucene_Document $zendSearchLuceneDocument
      */
-    public function addDocument(Zend_Search_Lucene_Document $document);
+    public function addDocument(Zend_Search_Lucene_Document $zendSearchLuceneDocument);
 
     /**
      * Commit changes resulting from delete() or undeleteAll() operations.

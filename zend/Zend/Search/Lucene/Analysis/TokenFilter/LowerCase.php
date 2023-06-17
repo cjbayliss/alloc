@@ -38,18 +38,18 @@ class Zend_Search_Lucene_Analysis_TokenFilter_LowerCase extends Zend_Search_Luce
     /**
      * Normalize Token or remove it (if null is returned)
      *
-     * @param Zend_Search_Lucene_Analysis_Token $srcToken
+     * @param Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken
      * @return Zend_Search_Lucene_Analysis_Token
      */
-    public function normalize(Zend_Search_Lucene_Analysis_Token $srcToken)
+    public function normalize(Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken)
     {
         $newToken = new Zend_Search_Lucene_Analysis_Token(
-            strtolower($srcToken->getTermText()),
-            $srcToken->getStartOffset(),
-            $srcToken->getEndOffset()
+            strtolower($zendSearchLuceneAnalysisToken->getTermText()),
+            $zendSearchLuceneAnalysisToken->getStartOffset(),
+            $zendSearchLuceneAnalysisToken->getEndOffset()
         );
 
-        $newToken->setPositionIncrement($srcToken->getPositionIncrement());
+        $newToken->setPositionIncrement($zendSearchLuceneAnalysisToken->getPositionIncrement());
 
         return $newToken;
     }

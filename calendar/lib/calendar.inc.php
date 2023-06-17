@@ -323,8 +323,8 @@ class calendar
     public function draw_row_header()
     {
         echo "\n<thead><tr>";
-        foreach ($this->days_of_week as $day) {
-            echo "<th>" . $day . "</th>";
+        foreach ($this->days_of_week as $day_of_week) {
+            echo "<th>" . $day_of_week . "</th>";
         }
         echo "</tr></thead>";
     }

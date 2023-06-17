@@ -31,8 +31,8 @@ class page
 
         include_template(ALLOC_MOD_DIR . "shared/templates/footerS.tpl");
         // close page
-        $sess = new session();
-        $sess->Save();
+        $session = new session();
+        $session->Save();
         if (is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id()) {
             $current_user->store_prefs();
         }
@@ -42,7 +42,7 @@ class page
         $menu_links = [];
         global $TPL;
         $current_user = &singleton("current_user");
-        $c = new config();
+        $config = new config();
         $tabs = config::get_config_item("allocTabs");
 
         $menu_links["home"] = [
@@ -329,9 +329,9 @@ class page
 
         // Build options from an SQL query: "SELECT col_a as value, col_b as label FROM"
         if (is_string($options)) {
-            $db = new db_alloc();
-            $db->query($options);
-            while ($row = $db->row()) {
+            $dballoc = new db_alloc();
+            $dballoc->query($options);
+            while ($row = $dballoc->row()) {
                 $rows[$row["value"]] = $row["label"];
             }
 

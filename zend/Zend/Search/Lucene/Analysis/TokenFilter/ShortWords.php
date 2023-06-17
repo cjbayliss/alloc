@@ -54,15 +54,15 @@ class Zend_Search_Lucene_Analysis_TokenFilter_ShortWords extends Zend_Search_Luc
     /**
      * Normalize Token or remove it (if null is returned)
      *
-     * @param Zend_Search_Lucene_Analysis_Token $srcToken
+     * @param Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken
      * @return Zend_Search_Lucene_Analysis_Token
      */
-    public function normalize(Zend_Search_Lucene_Analysis_Token $srcToken)
+    public function normalize(Zend_Search_Lucene_Analysis_Token $zendSearchLuceneAnalysisToken)
     {
-        if (strlen($srcToken->getTermText()) < $this->length) {
+        if (strlen($zendSearchLuceneAnalysisToken->getTermText()) < $this->length) {
             return null;
         } else {
-            return $srcToken;
+            return $zendSearchLuceneAnalysisToken;
         }
     }
 }

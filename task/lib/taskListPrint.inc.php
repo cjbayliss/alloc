@@ -16,7 +16,7 @@ class taskListPrint
         $contact_info = [];
         global $TPL;
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
 
         $TPL["companyName"] = config::get_config_item("companyName");
         $TPL["companyNos1"] = config::get_config_item("companyACN");
@@ -98,11 +98,11 @@ class taskListPrint
                 "protectRows" => 0,
             ];
 
-            $pdf = new Cezpdf(null, 'landscape');
-            $pdf->ezSetMargins(40, 40, 40, 40);
-            $pdf->selectFont($font1);
-            $pdf->ezStartPageNumbers(436, 30, 10, 'center', 'Page {PAGENUM} of {TOTALPAGENUM}');
-            $pdf->ezSetY(560);
+            $cezpdf = new Cezpdf(null, 'landscape');
+            $cezpdf->ezSetMargins(40, 40, 40, 40);
+            $cezpdf->selectFont($font1);
+            $cezpdf->ezStartPageNumbers(436, 30, 10, 'center', 'Page {PAGENUM} of {TOTALPAGENUM}');
+            $cezpdf->ezSetY(560);
 
             $TPL["companyContactAddress"] and $contact_info[] = [$TPL["companyContactAddress"]];
             $TPL["companyContactAddress2"] and $contact_info[] = [$TPL["companyContactAddress2"]];
@@ -112,37 +112,37 @@ class taskListPrint
             $TPL["phone"] and $contact_info[] = [$TPL["phone"]];
             $TPL["fax"] and $contact_info[] = [$TPL["fax"]];
 
-            $pdf->selectFont($font2);
-            $y = $pdf->ezTable($contact_info, false, "", $pdf_table_options);
-            $pdf->selectFont($font1);
+            $cezpdf->selectFont($font2);
+            $y = $cezpdf->ezTable($contact_info, false, "", $pdf_table_options);
+            $cezpdf->selectFont($font1);
 
             $line_y = $y - 10;
-            $pdf->setLineStyle(1, "round");
-            $pdf->line(40, $line_y, 801, $line_y);
+            $cezpdf->setLineStyle(1, "round");
+            $cezpdf->line(40, $line_y, 801, $line_y);
 
-            $pdf->ezSetY(570);
+            $cezpdf->ezSetY(570);
 
             $image_jpg = ALLOC_LOGO;
             if (file_exists($image_jpg)) {
-                $pdf->ezImage($image_jpg, 0, sprintf("%d", config::get_config_item("logoScaleX")), 'none');
+                $cezpdf->ezImage($image_jpg, 0, sprintf("%d", config::get_config_item("logoScaleX")), 'none');
                 $y = 700;
             } else {
-                $y = $pdf->ezText($TPL["companyName"], 27, ["justification" => "right"]);
+                $y = $cezpdf->ezText($TPL["companyName"], 27, ["justification" => "right"]);
             }
             $nos_y = $line_y + 22;
             $TPL["companyNos2"] and $nos_y = $line_y + 34;
-            $pdf->ezSetY($nos_y);
-            $TPL["companyNos1"] and $y = $pdf->ezText($TPL["companyNos1"], 10, ["justification" => "right"]);
-            $TPL["companyNos2"] and $y = $pdf->ezText($TPL["companyNos2"], 10, ["justification" => "right"]);
+            $cezpdf->ezSetY($nos_y);
+            $TPL["companyNos1"] and $y = $cezpdf->ezText($TPL["companyNos1"], 10, ["justification" => "right"]);
+            $TPL["companyNos2"] and $y = $cezpdf->ezText($TPL["companyNos2"], 10, ["justification" => "right"]);
 
-            $pdf->ezSetY($line_y - 10);
-            $y = $pdf->ezText("Task List", 20, ["justification" => "center"]);
-            $pdf->ezSetY($y - 20);
+            $cezpdf->ezSetY($line_y - 10);
+            $y = $cezpdf->ezText("Task List", 20, ["justification" => "center"]);
+            $cezpdf->ezSetY($y - 20);
 
-            $y = $pdf->ezTable($taskListRows, $fields, "", $pdf_table_options3);
+            $y = $cezpdf->ezTable($taskListRows, $fields, "", $pdf_table_options3);
 
-            $pdf->ezSetY($y - 20);
-            $pdf->ezStream();
+            $cezpdf->ezSetY($y - 20);
+            $cezpdf->ezStream();
 
             // Else HTML format
         } else {

@@ -36,13 +36,13 @@ class pdf_reader
         $result_data = null;
 
         // decode the chunks
-        foreach ($a_chunks as $chunk) {
+        foreach ($a_chunks as $a_chunk) {
             // Look at each chunk decide if we can decode it by looking at the contents of the filter
-            if (isset($chunk["data"])) {
+            if (isset($a_chunk["data"])) {
                 // look at the filter to find out which encoding has been used
-                if (strpos($chunk["filter"], "FlateDecode") !== false) {
+                if (strpos($a_chunk["filter"], "FlateDecode") !== false) {
                     // Use gzuncompress but supress error messages.
-                    $data = @gzuncompress($chunk["data"]);
+                    $data = @gzuncompress($a_chunk["data"]);
                     if (trim($data) != "") {
                         // If we got data then attempt to extract it.
                         $result_data .= ' ' . $this->ps2txt($data);

@@ -41,11 +41,11 @@ class Zend_Search_Lucene_Search_QueryEntry_Subquery extends Zend_Search_Lucene_S
     /**
      * Object constractor
      *
-     * @param Zend_Search_Lucene_Search_Query $query
+     * @param Zend_Search_Lucene_Search_Query $zendSearchLuceneSearchQuery
      */
-    public function __construct(Zend_Search_Lucene_Search_Query $query)
+    public function __construct(Zend_Search_Lucene_Search_Query $zendSearchLuceneSearchQuery)
     {
-        $this->_query = $query;
+        $this->_query = $zendSearchLuceneSearchQuery;
     }
 
     /**

@@ -34,9 +34,9 @@ class announcements_home_item extends home_item
     {
         global $TPL;
 
-        $database = new db_alloc();
-        $database->connect();
-        $getAnnoucements = $database->pdo->query(
+        $dballoc = new db_alloc();
+        $dballoc->connect();
+        $getAnnoucements = $dballoc->pdo->query(
             "SELECT *
                FROM announcement
               WHERE displayFromDate <= CURRENT_DATE()

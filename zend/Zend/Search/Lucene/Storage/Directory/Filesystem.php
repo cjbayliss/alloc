@@ -132,8 +132,8 @@ class Zend_Search_Lucene_Storage_Directory_Filesystem extends Zend_Search_Lucene
      */
     public function close()
     {
-        foreach ($this->_fileHandlers as $fileObject) {
-            $fileObject->close();
+        foreach ($this->_fileHandlers as $_fileHandler) {
+            $_fileHandler->close();
         }
 
         $this->_fileHandlers = [];

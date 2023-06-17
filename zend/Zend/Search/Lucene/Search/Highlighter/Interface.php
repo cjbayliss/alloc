@@ -33,9 +33,9 @@ interface Zend_Search_Lucene_Search_Highlighter_Interface
     /**
      * Set document for highlighting.
      *
-     * @param Zend_Search_Lucene_Document_Html $document
+     * @param Zend_Search_Lucene_Document_Html $zendSearchLuceneDocumentHtml
      */
-    public function setDocument(Zend_Search_Lucene_Document_Html $document);
+    public function setDocument(Zend_Search_Lucene_Document_Html $zendSearchLuceneDocumentHtml);
 
     /**
      * Get document for highlighting.

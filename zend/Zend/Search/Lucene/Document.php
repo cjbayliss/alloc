@@ -67,12 +67,12 @@ class Zend_Search_Lucene_Document
     /**
      * Add a field object to this document.
      *
-     * @param Zend_Search_Lucene_Field $field
+     * @param Zend_Search_Lucene_Field $zendSearchLuceneField
      * @return Zend_Search_Lucene_Document
      */
-    public function addField(Zend_Search_Lucene_Field $field)
+    public function addField(Zend_Search_Lucene_Field $zendSearchLuceneField)
     {
-        $this->_fields[$field->name] = $field;
+        $this->_fields[$zendSearchLuceneField->name] = $zendSearchLuceneField;
 
         return $this;
     }

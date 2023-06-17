@@ -127,12 +127,12 @@ class person extends db_entity
     public static function get_announcements_for_email()
     {
         $announcement = [];
-        $db = new db_alloc();
-        $db->query("SELECT * FROM announcement WHERE CURDATE() <= displayToDate AND CURDATE() >= displayFromDate");
+        $dballoc = new db_alloc();
+        $dballoc->query("SELECT * FROM announcement WHERE CURDATE() <= displayToDate AND CURDATE() >= displayFromDate");
 
-        while ($db->next_record()) {
-            $announcement["heading"] = "Announcement\n" . $db->f("heading");
-            $announcement["body"] = $db->f("body");
+        while ($dballoc->next_record()) {
+            $announcement["heading"] = "Announcement\n" . $dballoc->f("heading");
+            $announcement["body"] = $dballoc->f("body");
         }
         return $announcement;
     }
@@ -172,11 +172,11 @@ class person extends db_entity
         $query = "SELECT * FROM proficiency LEFT JOIN skill on proficiency.skillID=skill.skillID";
         $query .= unsafe_prepare(" WHERE personID=%d AND skillProficiency='%s' ORDER BY skillName", $this->get_id(), $proficiency);
 
-        $db = new db_alloc();
-        $db->query($query);
-        while ($db->next_record()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($query);
+        while ($dballoc->next_record()) {
             $skill = new skill();
-            $skill->read_db_record($db);
+            $skill->read_db_record($dballoc);
             if ($rtn) {
                 $rtn .= ", ";
             }
@@ -193,17 +193,17 @@ class person extends db_entity
         // Cache rows
         if (!$rows) {
             $q = unsafe_prepare("SELECT personID, username, firstName, surname, personActive FROM person ORDER BY firstname,surname,username");
-            $db = new db_alloc();
-            $db->query($q);
-            while ($db->next_record()) {
-                if ($db->f("firstName") && $db->f("surname")) {
-                    $name = $db->f("firstName") . " " . $db->f("surname");
+            $dballoc = new db_alloc();
+            $dballoc->query($q);
+            while ($dballoc->next_record()) {
+                if ($dballoc->f("firstName") && $dballoc->f("surname")) {
+                    $name = $dballoc->f("firstName") . " " . $dballoc->f("surname");
                 } else {
-                    $name = $db->f("username");
+                    $name = $dballoc->f("username");
                 }
 
-                $rows[$db->f("personID")] = [
-                    "active" => $db->f("personActive"),
+                $rows[$dballoc->f("personID")] = [
+                    "active" => $dballoc->f("personActive"),
                     "name"   => $name,
                 ];
             }
@@ -250,9 +250,9 @@ class person extends db_entity
     public function get_tfIDs()
     {
         $tfIDs = [];
-        $db = new db_alloc();
-        $db->query("SELECT tfID FROM tfPerson WHERE personID = %d", $this->get_id());
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query("SELECT tfID FROM tfPerson WHERE personID = %d", $this->get_id());
+        while ($row = $dballoc->row()) {
             $tfIDs[] = $row["tfID"];
         }
         return $tfIDs;
@@ -260,14 +260,14 @@ class person extends db_entity
 
     public function get_valid_login_row($username, $password = "")
     {
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $q = unsafe_prepare(
             "SELECT * FROM person WHERE username = '%s' AND personActive = 1",
             $username
         );
 
-        $db->query($q);
-        $row = $db->row();
+        $dballoc->query($q);
+        $row = $dballoc->row();
 
         if (password_verify($password, $row["password"])) {
             return $row;
@@ -312,12 +312,12 @@ class person extends db_entity
     public function store_prefs()
     {
         $save = null;
-        $p = new person();
-        $p->set_id($this->get_id());
-        $p->select();
-        $p->load_prefs();
+        $person = new person();
+        $person->set_id($this->get_id());
+        $person->select();
+        $person->load_prefs();
 
-        $old_prefs = $p->prefs or $old_prefs = [];
+        $old_prefs = $person->prefs or $old_prefs = [];
         foreach ($old_prefs as $k => $v) {
             if ($this->prefs[$k] != $v) {
                 $save = true;
@@ -331,9 +331,9 @@ class person extends db_entity
 
         if ($save || (!is_array($old_prefs) || !count($old_prefs))) {
             $arr = serialize($this->prefs);
-            $p->set_value("sessData", $arr);
-            $p->currency = config::get_config_item('currency');
-            $p->save();
+            $person->set_value("sessData", $arr);
+            $person->currency = config::get_config_item('currency');
+            $person->save();
         }
     }
 
@@ -341,7 +341,7 @@ class person extends db_entity
     {
         if (is_object($this)) {
             [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
-            $db = new db_alloc();
+            $dballoc = new db_alloc();
             $query = unsafe_prepare(
                 "SELECT *
                    FROM task
@@ -350,8 +350,8 @@ class person extends db_entity
                     AND taskStatus NOT IN (" . $ts_closed . ")",
                 $this->get_id()
             );
-            $db->query($query);
-            if ($db->next_record()) {
+            $dballoc->query($query);
+            if ($dballoc->next_record()) {
                 return true;
             }
         }
@@ -418,11 +418,11 @@ class person extends db_entity
 
         if ($filter["skill_class"]) {
             $q = unsafe_prepare("SELECT * FROM skill WHERE skillClass='%s'", $filter["skill_class"]);
-            $db = new db_alloc();
-            $db->query($q);
-            while ($db->next_record()) {
+            $dballoc = new db_alloc();
+            $dballoc->query($q);
+            while ($dballoc->next_record()) {
                 $skill = new skill();
-                $skill->read_db_record($db);
+                $skill->read_db_record($dballoc);
                 $sql2[] = unsafe_prepare("(skillID=%d)", $skill->get_id());
             }
         }
@@ -451,9 +451,9 @@ class person extends db_entity
 
         // Get averages for hours worked over the past fortnight and year
         if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT) && $_FORM["showHours"]) {
-            $t = new timeSheetItem();
-            [$ts_hrs_col_1, $ts_dollars_col_1] = $t->get_averages(date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))));
-            [$ts_hrs_col_2, $ts_dollars_col_2] = $t->get_fortnightly_average();
+            $timeSheetItem = new timeSheetItem();
+            [$ts_hrs_col_1, $ts_dollars_col_1] = $timeSheetItem->get_averages(date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))));
+            [$ts_hrs_col_2, $ts_dollars_col_2] = $timeSheetItem->get_fortnightly_average();
         } else {
             unset($_FORM["showHours"]);
         }
@@ -482,12 +482,12 @@ class person extends db_entity
             ORDER BY firstName,surname,username";
 
         $debug and print "Query: " . $q;
-        $db = new db_alloc();
-        $db->query($q);
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
 
-        while ($row = $db->next_record()) {
+        while ($row = $dballoc->next_record()) {
             $p = new person();
-            if (!$p->read_db_record($db)) {
+            if (!$p->read_db_record($dballoc)) {
                 continue;
             }
             $row = $p->perm_cleanup($row); // this is not the right way to do this - alla
@@ -627,7 +627,7 @@ class person extends db_entity
         global $TPL;
         $current_user = &singleton("current_user");
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $_FORM["showSkills"] and $rtn["show_skills_checked"] = " checked";
         $_FORM["showHours"] and $rtn["show_hours_checked"] = " checked";
         $_FORM["personActive"] and $rtn["show_all_users_checked"] = " checked";

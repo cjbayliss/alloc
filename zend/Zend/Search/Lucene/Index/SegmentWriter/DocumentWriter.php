@@ -51,12 +51,12 @@ class Zend_Search_Lucene_Index_SegmentWriter_DocumentWriter extends Zend_Search_
     /**
      * Object constructor.
      *
-     * @param Zend_Search_Lucene_Storage_Directory $directory
+     * @param Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory
      * @param string $name
      */
-    public function __construct(Zend_Search_Lucene_Storage_Directory $directory, $name)
+    public function __construct(Zend_Search_Lucene_Storage_Directory $zendSearchLuceneStorageDirectory, $name)
     {
-        parent::__construct($directory, $name);
+        parent::__construct($zendSearchLuceneStorageDirectory, $name);
 
         $this->_termDocs = [];
         $this->_termDictionary = [];
@@ -65,10 +65,10 @@ class Zend_Search_Lucene_Index_SegmentWriter_DocumentWriter extends Zend_Search_
     /**
      * Adds a document to this segment.
      *
-     * @param Zend_Search_Lucene_Document $document
+     * @param Zend_Search_Lucene_Document $zendSearchLuceneDocument
      * @throws Zend_Search_Lucene_Exception
      */
-    public function addDocument(Zend_Search_Lucene_Document $document)
+    public function addDocument(Zend_Search_Lucene_Document $zendSearchLuceneDocument)
     {
         /** Zend_Search_Lucene_Search_Similarity */
         require_once 'Zend/Search/Lucene/Search/Similarity.php';
@@ -77,8 +77,8 @@ class Zend_Search_Lucene_Index_SegmentWriter_DocumentWriter extends Zend_Search_
         $docNorms = [];
         $similarity = Zend_Search_Lucene_Search_Similarity::getDefault();
 
-        foreach ($document->getFieldNames() as $fieldName) {
-            $field = $document->getField($fieldName);
+        foreach ($zendSearchLuceneDocument->getFieldNames() as $fieldName) {
+            $field = $zendSearchLuceneDocument->getField($fieldName);
 
             if ($field->storeTermVector) {
                 /**
@@ -126,7 +126,7 @@ class Zend_Search_Lucene_Index_SegmentWriter_DocumentWriter extends Zend_Search_
                             $field->name,
                             $tokenCounter
                         ) *
-                                                                               $document->boost *
+                                                                               $zendSearchLuceneDocument->boost *
                                                                                $field->boost));
                     }
                 } else if (($fieldUtf8Value = $field->getUtf8Value()) == '') {
@@ -149,7 +149,7 @@ class Zend_Search_Lucene_Index_SegmentWriter_DocumentWriter extends Zend_Search_
                     $this->_termDocs[$termKey][$this->_docCount][] = 0; // position
 
                     $docNorms[$field->name] = chr($similarity->encodeNorm($similarity->lengthNorm($field->name, 1) *
-                                                                           $document->boost *
+                                                                           $zendSearchLuceneDocument->boost *
                                                                            $field->boost));
                 }
             }

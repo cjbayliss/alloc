@@ -98,14 +98,14 @@ if ($_POST["do_step_2"]) {
     $query["where"] = " WHERE 1=1 ";
     $query["from"] = unsafe_prepare(" FROM %s ", $db_tables[0]);
 
-    foreach ($db_tables as $table) {
-        if (class_exists($table)) {
-            $class = new $table;
+    foreach ($db_tables as $db_table) {
+        if (class_exists($db_table)) {
+            $class = new $db_table;
             $TPL["table_fields"] .= "<tr><td colspan=\"6\">&nbsp;</td></tr>";
-            $TPL["table_fields"] .= "<tr><td colspan=\"6\"><b>" . strtoupper($table) . "</b></td></tr>";
-            if (is_object($class) && $class->key_field->label == ($table . "ID")) {
+            $TPL["table_fields"] .= "<tr><td colspan=\"6\"><b>" . strtoupper($db_table) . "</b></td></tr>";
+            if (is_object($class) && $class->key_field->label == ($db_table . "ID")) {
                 if (count($db_tables) > 1) {
-                    $groupby_str = $table . "." . $table . "ID";
+                    $groupby_str = $db_table . "." . $db_table . "ID";
                     $groupby = "<input type=\"radio\" name=\"table_groupby\" value=\"";
                     $groupby .= $groupby_str . "\"";
                     $groupby .= ($_POST["table_groupby"] == $groupby_str ? " checked" : "") . ">";
@@ -123,7 +123,7 @@ if ($_POST["do_step_2"]) {
             unset($i);
             $class->data_fields[$class->key_field->get_name()] = true;
             foreach ($class->data_fields as $name => $v) {
-                $str = $table . "." . $name;
+                $str = $db_table . "." . $name;
                 if (!in_array($str, $ignored_fields)) {
                     $table_fields[] = $str;
                     $TPL["table_fields"] .= "<td valign=\"middle\">";
@@ -148,7 +148,7 @@ if ($_POST["do_step_2"]) {
                 }
             }
         } else {
-            alloc_error("class " . $table . " does not exist.. ");
+            alloc_error("class " . $db_table . " does not exist.. ");
         }
     }
     $TPL["table_fields"] .= "</tr>";
@@ -188,28 +188,28 @@ if ($_POST["do_step_3"]) {
         $table_fields = [];
     }
 
-    foreach ($table_fields as $v) {
-        if ($_POST["table_name"][$v] != "") {
-            $query["select"] .= $commar . db_esc($_POST["table_name"][$v]);
+    foreach ($table_fields as $table_field) {
+        if ($_POST["table_name"][$table_field] != "") {
+            $query["select"] .= $commar . db_esc($_POST["table_name"][$table_field]);
             $commar = ",";          // no commar the first time
 
-            if ($_POST["table_like"][$v] != "") {
-                $query["where"] .= " AND " . db_esc($_POST["table_name"][$v]) . " LIKE '" . db_esc($_POST["table_like"][$v]) . "'";
+            if ($_POST["table_like"][$table_field] != "") {
+                $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " LIKE '" . db_esc($_POST["table_like"][$table_field]) . "'";
             }
 
-            if ($_POST["table_num_op_1"][$v] != "") {
-                if (preg_match("/([^\d]{1,2})(\d\d\d\d\-\d\d?-\d\d?)/", $_POST["table_num_op_1"][$v], $m)) {
-                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$v]) . " " . db_esc($m[1]) . "'" . db_esc($m[2]) . "'";
+            if ($_POST["table_num_op_1"][$table_field] != "") {
+                if (preg_match("/([^\d]{1,2})(\d\d\d\d\-\d\d?-\d\d?)/", $_POST["table_num_op_1"][$table_field], $m)) {
+                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " " . db_esc($m[1]) . "'" . db_esc($m[2]) . "'";
                 } else {
-                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$v]) . " " . db_esc($_POST["table_num_op_1"][$v]);
+                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " " . db_esc($_POST["table_num_op_1"][$table_field]);
                 }
             }
 
-            if ($_POST["table_num_op_2"][$v] != "") {
-                if (preg_match("/([^\d]{1,2})(\d\d\d\d\-\d\d?-\d\d?)/", $_POST["table_num_op_2"][$v], $m)) {
-                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$v]) . " " . db_esc($m[1]) . "'" . db_esc($m[2]) . "'";
+            if ($_POST["table_num_op_2"][$table_field] != "") {
+                if (preg_match("/([^\d]{1,2})(\d\d\d\d\-\d\d?-\d\d?)/", $_POST["table_num_op_2"][$table_field], $m)) {
+                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " " . db_esc($m[1]) . "'" . db_esc($m[2]) . "'";
                 } else {
-                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$v]) . " " . db_esc($_POST["table_num_op_2"][$v]);
+                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " " . db_esc($_POST["table_num_op_2"][$table_field]);
                 }
             }
         }

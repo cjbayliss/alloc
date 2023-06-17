@@ -22,17 +22,17 @@ class invoiceEntity extends db_entity
     public static function create($invoiceID, $entity, $entityID, $useItems = 0)
     {
         $q = unsafe_prepare("SELECT * FROM invoiceEntity WHERE invoiceID = %d AND %sID = %d", $invoiceID, $entity, $entityID);
-        $db = new db_alloc();
-        $db->query($q);
-        $row = $db->row();
-        $ie = new invoiceEntity();
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        $row = $dballoc->row();
+        $invoiceEntity = new invoiceEntity();
         if ($row) {
-            $ie->set_id($row["invoiceEntityID"]);
+            $invoiceEntity->set_id($row["invoiceEntityID"]);
         }
-        $ie->set_value("invoiceID", $invoiceID);
-        $ie->set_value($entity . "ID", $entityID);
-        $ie->set_value("useItems", sprintf("%d", $useItems));
-        $ie->save();
+        $invoiceEntity->set_value("invoiceID", $invoiceID);
+        $invoiceEntity->set_value($entity . "ID", $entityID);
+        $invoiceEntity->set_value("useItems", sprintf("%d", $useItems));
+        $invoiceEntity->save();
     }
 
     public function get($entity, $entityID)
@@ -43,9 +43,9 @@ class invoiceEntity extends db_entity
                    LEFT JOIN invoice ON invoiceEntity.invoiceID = invoice.invoiceID
                        WHERE invoiceEntity.%sID = %d
                      ", $entity, $entityID);
-        $db = new db_alloc();
-        $db->query($q);
-        while ($row = $db->row()) {
+        $dballoc = new db_alloc();
+        $dballoc->query($q);
+        while ($row = $dballoc->row()) {
             $rows[] = $row;
         }
         return (array)$rows;
@@ -107,23 +107,23 @@ class invoiceEntity extends db_entity
 
             $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE invoiceID = %d AND timeSheetID = %d AND timeSheetItemID IS NULL
                    ", $invoiceID, $timeSheetID);
-            $db = new db_alloc();
-            $db->query($q);
-            $row = $db->row();
-            $ii = new invoiceItem();
+            $dballoc = new db_alloc();
+            $dballoc->query($q);
+            $row = $dballoc->row();
+            $invoiceItem = new invoiceItem();
             if ($row) {
-                $ii->set_id($row["invoiceItemID"]);
+                $invoiceItem->set_id($row["invoiceItemID"]);
             }
-            $ii->set_value("invoiceID", $invoiceID);
-            $ii->set_value("timeSheetID", $timeSheet->get_id());
-            $ii->set_value("iiMemo", "Time Sheet #" . $timeSheet->get_id() . " for " . person::get_fullname($timeSheet->get_value("personID")) . ", Project: " . $project->get_value("projectName"));
-            $ii->set_value("iiQuantity", $iiQuantity);
-            $ii->set_value("iiUnitPrice", $iiUnitPrice);
-            $ii->set_value("iiAmount", $amount);
-            $ii->set_value("iiDate", $date);
-            $ii->set_value("iiTax", config::get_config_item("taxPercent"));
-            $ii->currency = $timeSheet->get_value("currencyTypeID");
-            $ii->save();
+            $invoiceItem->set_value("invoiceID", $invoiceID);
+            $invoiceItem->set_value("timeSheetID", $timeSheet->get_id());
+            $invoiceItem->set_value("iiMemo", "Time Sheet #" . $timeSheet->get_id() . " for " . person::get_fullname($timeSheet->get_value("personID")) . ", Project: " . $project->get_value("projectName"));
+            $invoiceItem->set_value("iiQuantity", $iiQuantity);
+            $invoiceItem->set_value("iiUnitPrice", $iiUnitPrice);
+            $invoiceItem->set_value("iiAmount", $amount);
+            $invoiceItem->set_value("iiDate", $date);
+            $invoiceItem->set_value("iiTax", config::get_config_item("taxPercent"));
+            $invoiceItem->currency = $timeSheet->get_value("currencyTypeID");
+            $invoiceItem->save();
         } else {
             alloc_error("Unable to update related Invoice (ID:" . $invoiceID . ").");
         }
@@ -142,9 +142,9 @@ class invoiceEntity extends db_entity
         $project = $timeSheet->get_foreign_object("project");
         $client = $project->get_foreign_object("client");
 
-        $db = new db_alloc();
-        $q1 = $db->query(unsafe_prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $timeSheetID));
-        while ($row = $db->row($q1)) {
+        $dballoc = new db_alloc();
+        $q1 = $dballoc->query(unsafe_prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $timeSheetID));
+        while ($row = $dballoc->row($q1)) {
             if (isset($timeSheet->pay_info["customerBilledDollars"]) && (bool)strlen($timeSheet->pay_info["customerBilledDollars"])) {
                 $iiUnitPrice = $timeSheet->pay_info["customerBilledDollars"];
             } else {
@@ -166,8 +166,8 @@ class invoiceEntity extends db_entity
                              AND invoice.invoiceStatus != 'finished'
                         ORDER BY iiDate DESC LIMIT 1
                          ", $timeSheet->get_id(), $row["timeSheetItemID"], $invoiceID);
-            $q2 = $db->query($q);
-            $r2 = $db->row($q2);
+            $q2 = $dballoc->query($q);
+            $r2 = $dballoc->row($q2);
 
             $ii = new invoiceItem();
             if ($r2["invoiceItemID"]) {
@@ -203,19 +203,19 @@ class invoiceEntity extends db_entity
         $db = new db_alloc();
         $q2 = $db->query($q);
         $r2 = $db->row($q2);
-        $ii = new invoiceItem();
+        $invoiceItem = new invoiceItem();
         if ($r2) {
-            $ii->set_id($r2["invoiceItemID"]);
+            $invoiceItem->set_id($r2["invoiceItemID"]);
         }
-        $ii->set_value("invoiceID", $invoiceID);
-        $ii->set_value("expenseFormID", $expenseForm->get_id());
-        $ii->set_value("iiMemo", "Expense Form #" . $expenseForm->get_id() . " for " . person::get_fullname($expenseForm->get_value("expenseFormCreatedUser")));
-        $ii->set_value("iiQuantity", 1);
-        $ii->set_value("iiUnitPrice", $amount);
-        $ii->set_value("iiAmount", $amount);
-        $ii->set_value("iiDate", $row["maxDate"]);
-        $ii->set_value("iiTax", config::get_config_item("taxPercent"));
-        $ii->save();
+        $invoiceItem->set_value("invoiceID", $invoiceID);
+        $invoiceItem->set_value("expenseFormID", $expenseForm->get_id());
+        $invoiceItem->set_value("iiMemo", "Expense Form #" . $expenseForm->get_id() . " for " . person::get_fullname($expenseForm->get_value("expenseFormCreatedUser")));
+        $invoiceItem->set_value("iiQuantity", 1);
+        $invoiceItem->set_value("iiUnitPrice", $amount);
+        $invoiceItem->set_value("iiAmount", $amount);
+        $invoiceItem->set_value("iiDate", $row["maxDate"]);
+        $invoiceItem->set_value("iiTax", config::get_config_item("taxPercent"));
+        $invoiceItem->save();
     }
 
     public static function save_invoice_expenseFormItems($invoiceID, $expenseFormID)
@@ -266,19 +266,19 @@ class invoiceEntity extends db_entity
         $db = new db_alloc();
         $q2 = $db->query($q);
         $r2 = $db->row($q2);
-        $ii = new invoiceItem();
+        $invoiceItem = new invoiceItem();
         if ($r2) {
-            $ii->set_id($r2["invoiceItemID"]);
+            $invoiceItem->set_id($r2["invoiceItemID"]);
         }
-        $ii->set_value("invoiceID", $invoiceID);
-        $ii->set_value("productSaleID", $productSale->get_id());
-        $ii->set_value("iiMemo", "Sale #" . $productSale->get_id() . " for " . person::get_fullname($productSale->get_value("personID")));
-        $ii->set_value("iiQuantity", 1);
-        $ii->set_value("iiUnitPrice", $amounts["total_sellPrice_value"]);
-        $ii->set_value("iiAmount", $amounts["total_sellPrice_value"]);
-        $ii->set_value("iiDate", $row["maxDate"]);
+        $invoiceItem->set_value("invoiceID", $invoiceID);
+        $invoiceItem->set_value("productSaleID", $productSale->get_id());
+        $invoiceItem->set_value("iiMemo", "Sale #" . $productSale->get_id() . " for " . person::get_fullname($productSale->get_value("personID")));
+        $invoiceItem->set_value("iiQuantity", 1);
+        $invoiceItem->set_value("iiUnitPrice", $amounts["total_sellPrice_value"]);
+        $invoiceItem->set_value("iiAmount", $amounts["total_sellPrice_value"]);
+        $invoiceItem->set_value("iiDate", $row["maxDate"]);
         // $ii->set_value("iiTax",config::get_config_item("taxPercent"));
-        $ii->save();
+        $invoiceItem->save();
     }
 
     public static function save_invoice_productSaleItems($invoiceID, $productSaleID)

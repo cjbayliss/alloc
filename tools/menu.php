@@ -171,26 +171,26 @@ function show_misc_options($template)
     global $TPL;
 
     $TPL["br"] = "<br>\n";
-    foreach ($misc_options as $option) {
-        if ($option["entity"] != "") {
-            if (have_entity_perm($option["entity"], $option["action"], $current_user, true)) {
-                $TPL["url"] = $TPL["url_alloc_" . $option["url"]];
-                $TPL["params"] = $option["params"];
-                $TPL["text"] = $option["text"];
+    foreach ($misc_options as $misc_option) {
+        if ($misc_option["entity"] != "") {
+            if (have_entity_perm($misc_option["entity"], $misc_option["action"], $current_user, true)) {
+                $TPL["url"] = $TPL["url_alloc_" . $misc_option["url"]];
+                $TPL["params"] = $misc_option["params"];
+                $TPL["text"] = $misc_option["text"];
                 include_template($template);
             }
-        } else if ($option["function"]) {
-            $f = $option["function"];
+        } else if ($misc_option["function"]) {
+            $f = $misc_option["function"];
             if ($f()) {
-                $TPL["url"] = $TPL["url_alloc_" . $option["url"]];
-                $TPL["params"] = $option["params"];
-                $TPL["text"] = $option["text"];
+                $TPL["url"] = $TPL["url_alloc_" . $misc_option["url"]];
+                $TPL["params"] = $misc_option["params"];
+                $TPL["text"] = $misc_option["text"];
                 include_template($template);
             }
         } else {
-            $TPL["url"] = $TPL["url_alloc_" . $option["url"]];
-            $TPL["params"] = $option["params"];
-            $TPL["text"] = $option["text"];
+            $TPL["url"] = $TPL["url_alloc_" . $misc_option["url"]];
+            $TPL["params"] = $misc_option["params"];
+            $TPL["text"] = $misc_option["text"];
             include_template($template);
         }
     }
@@ -201,25 +201,25 @@ function show_finance_options($template)
     $current_user = &singleton("current_user");
     global $finance_options;
     global $TPL;
-    foreach ($finance_options as $option) {
-        if ($option["entity"] != "") {
-            if (have_entity_perm($option["entity"], $option["action"], $current_user, true)) {
-                $TPL["url"] = $TPL["url_alloc_" . $option["url"]];
-                $TPL["params"] = $option["params"];
-                $TPL["text"] = $option["text"];
+    foreach ($finance_options as $finance_option) {
+        if ($finance_option["entity"] != "") {
+            if (have_entity_perm($finance_option["entity"], $finance_option["action"], $current_user, true)) {
+                $TPL["url"] = $TPL["url_alloc_" . $finance_option["url"]];
+                $TPL["params"] = $finance_option["params"];
+                $TPL["text"] = $finance_option["text"];
                 $TPL["br"] = "<br>\n";
-                $option["br"] and $TPL["br"] = "<br><br>\n";
+                $finance_option["br"] and $TPL["br"] = "<br><br>\n";
 
                 include_template($template);
             }
-        } else if ($option["function"]) {
-            $f = $option["function"];
+        } else if ($finance_option["function"]) {
+            $f = $finance_option["function"];
             if ($f()) {
-                $TPL["url"] = $TPL["url_alloc_" . $option["url"]];
-                $TPL["params"] = $option["params"];
-                $TPL["text"] = $option["text"];
+                $TPL["url"] = $TPL["url_alloc_" . $finance_option["url"]];
+                $TPL["params"] = $finance_option["params"];
+                $TPL["text"] = $finance_option["text"];
                 $TPL["br"] = "<br>\n";
-                $option["br"] and $TPL["br"] = "<br><br>\n";
+                $finance_option["br"] and $TPL["br"] = "<br><br>\n";
                 include_template($template);
             }
         }

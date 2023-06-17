@@ -43,41 +43,41 @@ class interestedParty extends db_entity
     public static function exists($entity, $entityID, $email)
     {
         $email = str_replace(["<", ">"], "", $email);
-        $db = new db_alloc();
-        $db->query("SELECT *
+        $dballoc = new db_alloc();
+        $dballoc->query("SELECT *
                       FROM interestedParty
                      WHERE entityID = %d
                        AND entity = '%s'
                        AND emailAddress = '%s'
                    ", $entityID, $entity, $email);
-        return $db->row();
+        return $dballoc->row();
     }
 
     public function active($entity, $entityID, $email)
     {
         [$email, $name] = parse_email_address($email);
-        $db = new db_alloc();
-        $db->query("SELECT *
+        $dballoc = new db_alloc();
+        $dballoc->query("SELECT *
                       FROM interestedParty
                      WHERE entityID = %d
                        AND entity = '%s'
                        AND emailAddress = '%s'
                        AND interestedPartyActive = 1
                    ", $entityID, $entity, $email);
-        return $db->row();
+        return $dballoc->row();
     }
 
     public static function make_interested_parties($entity, $entityID, $encoded_parties = [])
     {
         $ipIDs = [];
         // Nuke entries from interestedParty
-        $db = new db_alloc();
-        $db->start_transaction();
+        $dballoc = new db_alloc();
+        $dballoc->start_transaction();
 
         // Add entries to interestedParty
         if (is_array($encoded_parties)) {
-            foreach ($encoded_parties as $encoded) {
-                $info = (new interestedParty())->get_decoded_interested_party_identifier($encoded);
+            foreach ($encoded_parties as $encoded_party) {
+                $info = (new interestedParty())->get_decoded_interested_party_identifier($encoded_party);
                 $info["entity"] = $entity;
                 $info["entityID"] = $entityID;
                 $info["emailAddress"] or $info["emailAddress"] = $info["email"];
@@ -90,9 +90,9 @@ class interestedParty extends db_entity
                        WHERE entity = '%s'
                          AND entityID = %d", $entity, $entityID);
         $ipIDs and $q .= " AND " . sprintf_implode(" AND ", "interestedPartyID != %d", $ipIDs);
-        $db->query($q);
+        $dballoc->query($q);
 
-        $db->commit();
+        $dballoc->commit();
     }
 
     public static function abbreviate($str)
@@ -113,8 +113,8 @@ class interestedParty extends db_entity
     public function get_interested_parties_string($entity, $entityID)
     {
         $q = unsafe_prepare("SELECT get_interested_parties_string('%s',%d) as parties", $entity, $entityID);
-        $db = new db_alloc();
-        $row = $db->qr($q);
+        $dballoc = new db_alloc();
+        $row = $dballoc->qr($q);
         return $row["parties"];
     }
 
@@ -128,20 +128,20 @@ class interestedParty extends db_entity
         $rtn = [];
 
         if ($entityID) {
-            $db = new db_alloc();
+            $dballoc = new db_alloc();
             $q = unsafe_prepare("SELECT *
                            FROM interestedParty
                           WHERE entity='%s'
                             AND entityID = %d
                          ", $entity, $entityID);
-            $db->query($q);
-            while ($db->row()) {
-                $ops[$db->f("emailAddress")]["name"] = $db->f("fullName");
-                $ops[$db->f("emailAddress")]["role"] = "interested";
-                $ops[$db->f("emailAddress")]["selected"] = $db->f("interestedPartyActive") && !$dont_select ? true : false;
-                $ops[$db->f("emailAddress")]["personID"] = $db->f("personID");
-                $ops[$db->f("emailAddress")]["clientContactID"] = $db->f("clientContactID");
-                $ops[$db->f("emailAddress")]["external"] = $db->f("external");
+            $dballoc->query($q);
+            while ($dballoc->row()) {
+                $ops[$dballoc->f("emailAddress")]["name"] = $dballoc->f("fullName");
+                $ops[$dballoc->f("emailAddress")]["role"] = "interested";
+                $ops[$dballoc->f("emailAddress")]["selected"] = $dballoc->f("interestedPartyActive") && !$dont_select ? true : false;
+                $ops[$dballoc->f("emailAddress")]["personID"] = $dballoc->f("personID");
+                $ops[$dballoc->f("emailAddress")]["clientContactID"] = $dballoc->f("clientContactID");
+                $ops[$dballoc->f("emailAddress")]["external"] = $dballoc->f("external");
             }
         }
 
@@ -206,9 +206,9 @@ class interestedParty extends db_entity
         [$email, $name] = parse_email_address($email);
         $row = (new interestedParty())->active($entity, $entityID, $email);
         if ($row) {
-            $ip = new interestedParty();
-            $ip->read_row_record($row);
-            $ip->delete();
+            $interestedParty = new interestedParty();
+            $interestedParty->read_row_record($row);
+            $interestedParty->delete();
         }
     }
 
@@ -218,42 +218,42 @@ class interestedParty extends db_entity
         $data["emailAddress"] = str_replace(["<", ">"], "", $data["emailAddress"]);
         // Add new entry
 
-        $ip = new interestedParty();
+        $interestedParty = new interestedParty();
         $existing = interestedParty::exists($data["entity"], $data["entityID"], $data["emailAddress"]);
         if ($existing) {
-            $ip->set_id($existing["interestedPartyID"]);
-            $ip->select();
+            $interestedParty->set_id($existing["interestedPartyID"]);
+            $interestedParty->select();
         }
-        $ip->set_value("entity", $data["entity"]);
-        $ip->set_value("entityID", $data["entityID"]);
-        $ip->set_value("fullName", $data["name"]);
-        $ip->set_value("emailAddress", $data["emailAddress"]);
-        $ip->set_value("interestedPartyActive", 1);
+        $interestedParty->set_value("entity", $data["entity"]);
+        $interestedParty->set_value("entityID", $data["entityID"]);
+        $interestedParty->set_value("fullName", $data["name"]);
+        $interestedParty->set_value("emailAddress", $data["emailAddress"]);
+        $interestedParty->set_value("interestedPartyActive", 1);
         if ($data["personID"]) {
-            $ip->set_value("personID", $data["personID"]);
-            $ip->set_value("fullName", person::get_fullname($data["personID"]));
+            $interestedParty->set_value("personID", $data["personID"]);
+            $interestedParty->set_value("fullName", person::get_fullname($data["personID"]));
         } else {
             $people or $people = &get_cached_table("person");
             foreach ($people as $personID => $p) {
                 if ($data["emailAddress"] && same_email_address($p["emailAddress"], $data["emailAddress"])) {
-                    $ip->set_value("personID", $personID);
-                    $ip->set_value("fullName", $p["name"]);
+                    $interestedParty->set_value("personID", $personID);
+                    $interestedParty->set_value("fullName", $p["name"]);
                 }
             }
         }
         $extra_interested_parties = config::get_config_item("defaultInterestedParties");
-        if (!$ip->get_value("personID") && !in_array($data["emailAddress"], (array)$extra_interested_parties)) {
-            $ip->set_value("external", 1);
+        if (!$interestedParty->get_value("personID") && !in_array($data["emailAddress"], (array)$extra_interested_parties)) {
+            $interestedParty->set_value("external", 1);
             $q = unsafe_prepare("SELECT * FROM clientContact WHERE clientContactEmail = '%s'", $data["emailAddress"]);
-            $db = new db_alloc();
-            $db->query($q);
-            if ($row = $db->row()) {
-                $ip->set_value("clientContactID", $row["clientContactID"]);
-                $ip->set_value("fullName", $row["clientContactName"]);
+            $dballoc = new db_alloc();
+            $dballoc->query($q);
+            if ($row = $dballoc->row()) {
+                $interestedParty->set_value("clientContactID", $row["clientContactID"]);
+                $interestedParty->set_value("fullName", $row["clientContactName"]);
             }
         }
-        $ip->save();
-        return $ip->get_id();
+        $interestedParty->save();
+        return $interestedParty->get_id();
     }
 
     public static function adjust_by_email_subject($email_receive, $e)
@@ -271,10 +271,10 @@ class interestedParty extends db_entity
 
         // Load up the parent object that this comment refers to, be it task or timeSheet etc
         if ($entity == "comment" && $entityID) {
-            $c = new comment();
-            $c->set_id($entityID);
-            $c->select();
-            $object = $c->get_parent_object();
+            $comment = new comment();
+            $comment->set_id($entityID);
+            $comment->select();
+            $object = $comment->get_parent_object();
         } else if (class_exists($entity) && $entityID) {
             $object = new $entity;
             $object->set_id($entityID);
@@ -395,13 +395,13 @@ class interestedParty extends db_entity
             $f = " WHERE " . implode(" AND ", $filter);
         }
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $q = "SELECT * FROM interestedParty " . $join . $f . $groupby;
 
-        $db->query($q);
-        while ($row = $db->next_record()) {
+        $dballoc->query($q);
+        while ($row = $dballoc->next_record()) {
             $interestedParty = new interestedParty();
-            $interestedParty->read_db_record($db);
+            $interestedParty->read_db_record($dballoc);
             $rows[$interestedParty->get_id()] = $row;
         }
         return (array)$rows;
@@ -449,11 +449,11 @@ class interestedParty extends db_entity
 
             $ccid = clientContact::find_by_name($ip, $projectID, 100);
             if ($ccid) {
-                $cc = new clientContact();
-                $cc->set_id($ccid);
-                $cc->select();
-                $name = $cc->get_value("clientContactName");
-                $email = $cc->get_value("clientContactEmail");
+                $clientContact = new clientContact();
+                $clientContact->set_id($ccid);
+                $clientContact->select();
+                $name = $clientContact->get_value("clientContactName");
+                $email = $clientContact->get_value("clientContactEmail");
             }
         }
         return [null, $name, $email];

@@ -308,9 +308,9 @@ class db
         $keys = [];
         $do_update = null;
         $table_keys = $this->get_table_keys($table) or $table_keys = [];
-        foreach ($table_keys as $k) {
-            $row[$k] and $do_update = true;
-            $keys[$k] = $row[$k];
+        foreach ($table_keys as $table_key) {
+            $row[$table_key] and $do_update = true;
+            $keys[$table_key] = $row[$table_key];
         }
         $row = $this->unset_invalid_field_names($table, $row, $keys);
 

@@ -76,12 +76,12 @@ class Zend_Search_Lucene_TermStreamsPriorityQueue implements Zend_Search_Lucene_
 
         $this->_termsStreamQueue = new Zend_Search_Lucene_Index_TermsPriorityQueue();
 
-        foreach ($this->_termStreams as $termStream) {
-            $termStream->resetTermsStream();
+        foreach ($this->_termStreams as $_termStream) {
+            $_termStream->resetTermsStream();
 
             // Skip "empty" containers
-            if ($termStream->currentTerm() !== null) {
-                $this->_termsStreamQueue->put($termStream);
+            if ($_termStream->currentTerm() !== null) {
+                $this->_termsStreamQueue->put($_termStream);
             }
         }
 
@@ -93,17 +93,17 @@ class Zend_Search_Lucene_TermStreamsPriorityQueue implements Zend_Search_Lucene_
      *
      * Prefix contains fully specified field info and portion of searched term
      *
-     * @param Zend_Search_Lucene_Index_Term $prefix
+     * @param Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm
      */
-    public function skipTo(Zend_Search_Lucene_Index_Term $prefix)
+    public function skipTo(Zend_Search_Lucene_Index_Term $zendSearchLuceneIndexTerm)
     {
         $this->_termsStreamQueue = new Zend_Search_Lucene_Index_TermsPriorityQueue();
 
-        foreach ($this->_termStreams as $termStream) {
-            $termStream->skipTo($prefix);
+        foreach ($this->_termStreams as $_termStream) {
+            $_termStream->skipTo($zendSearchLuceneIndexTerm);
 
-            if ($termStream->currentTerm() !== null) {
-                $this->_termsStreamQueue->put($termStream);
+            if ($_termStream->currentTerm() !== null) {
+                $this->_termsStreamQueue->put($_termStream);
             }
         }
 

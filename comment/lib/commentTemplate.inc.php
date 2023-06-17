@@ -51,8 +51,8 @@ class commentTemplate extends db_entity
                 if (is_array($projectManagers) && count($projectManagers)) {
                     $people = &get_cached_table("person");
                     $commar = "";
-                    foreach ($projectManagers as $pID) {
-                        $swap["tm"] .= $commar . $people[$pID]["name"];
+                    foreach ($projectManagers as $projectManager) {
+                        $swap["tm"] .= $commar . $people[$projectManager]["name"];
                         $commar = ", ";
                     }
                 }
@@ -66,8 +66,8 @@ class commentTemplate extends db_entity
                 if (is_countable($timeSheetAdministrators) ? count($timeSheetAdministrators) : 0) {
                     $swap["tc"] = "";
                     $comma = "";
-                    foreach ($timeSheetAdministrators as $adminID) {
-                        $swap["tc"] .= $comma . $people[$adminID]["name"];
+                    foreach ($timeSheetAdministrators as $timeSheetAdministrator) {
+                        $swap["tc"] .= $comma . $people[$timeSheetAdministrator]["name"];
                         $comma = ", ";
                     }
                 } else {

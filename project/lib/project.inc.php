@@ -60,14 +60,14 @@ class project extends db_entity
         global $TPL;
         $initialState = $this->all_row_fields;
         $taskIDs = [];
-        $database = new db_alloc();
+        $dballoc = new db_alloc();
 
         if (
             $initialState["projectStatus"] != "Archived" &&
             $this->get_value("projectStatus") == "Archived"
         ) {
-            $database->connect();
-            $projectTaskList = $database->pdo->prepare(
+            $dballoc->connect();
+            $projectTaskList = $dballoc->pdo->prepare(
                 "SELECT taskID FROM task
                   WHERE projectID = :projectID
                     AND SUBSTRING(taskStatus,1,6) != 'closed'"
@@ -76,7 +76,7 @@ class project extends db_entity
             $projectTaskList->execute();
 
             while ($row = $projectTaskList->fetch(PDO::FETCH_ASSOC)) {
-                $changeTaskStatus = $database->pdo->prepare(
+                $changeTaskStatus = $dballoc->pdo->prepare(
                     "CALL change_task_status(:taskID, 'closed_archived')"
                 );
                 $changeTaskStatus->bindValue(":taskID", $row["taskID"], PDO::PARAM_INT);
@@ -94,8 +94,8 @@ class project extends db_entity
             $initialState["projectStatus"] == "Archived" &&
             $this->get_value("projectStatus") != "Archived"
         ) {
-            $database->connect();
-            $projectTaskList = $database->pdo->prepare(
+            $dballoc->connect();
+            $projectTaskList = $dballoc->pdo->prepare(
                 "SELECT taskID FROM task
                   WHERE projectID = :projectID
                     AND taskStatus = 'closed_archived'"
@@ -104,7 +104,7 @@ class project extends db_entity
             $projectTaskList->execute();
 
             while ($row = $projectTaskList->fetch(PDO::FETCH_ASSOC)) {
-                $changeTaskStatus = $database->pdo->prepare(
+                $changeTaskStatus = $dballoc->pdo->prepare(
                     "CALL change_task_status(:taskID, get_most_recent_non_archived_taskStatus(:taskID))"
                 );
                 $changeTaskStatus->bindValue(":taskID", $row["taskID"], PDO::PARAM_INT);
@@ -128,13 +128,13 @@ class project extends db_entity
 
     public function delete()
     {
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
 
         // FIXME: this results in a sql error due to an integrity constraint
         // violation with the 'audit' table, the bug existed before the refactor
         // of this function.
-        $projectToDelete = $database->pdo->prepare("DELETE from projectPerson WHERE projectID = :projectID");
+        $projectToDelete = $dballoc->pdo->prepare("DELETE from projectPerson WHERE projectID = :projectID");
         $projectToDelete->bindValue(":projectID", $this->get_id(), PDO::PARAM_INT);
         $projectToDelete->execute();
         return parent::delete();
@@ -207,8 +207,8 @@ class project extends db_entity
             return false;
         }
 
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
 
         $projectPermissionsQuery =
             "SELECT personID, projectID, pp.roleID, ppr.roleName, ppr.roleHandle
@@ -221,7 +221,7 @@ class project extends db_entity
             $projectPermissionsQuery .= " AND ppr.roleHandle IN ('$permissionFilter')";
         }
 
-        $projectPermissionsForPerson = $database->pdo->prepare($projectPermissionsQuery);
+        $projectPermissionsForPerson = $dballoc->pdo->prepare($projectPermissionsQuery);
         $projectPermissionsForPerson->bindValue(':projectID', $this->get_id(), PDO::PARAM_INT);
         $projectPermissionsForPerson->bindValue(':personID', $person->get_id(), PDO::PARAM_INT);
         $projectPermissionsForPerson->execute();
@@ -250,10 +250,10 @@ class project extends db_entity
      */
     public function get_project_people_by_role($roleHandle = "")
     {
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
 
-        $projectPeopleByRole = $database->pdo->prepare(
+        $projectPeopleByRole = $dballoc->pdo->prepare(
             "SELECT projectPerson.personID as personID
                FROM projectPerson
           LEFT JOIN role ON projectPerson.roleID = role.roleID
@@ -449,9 +449,9 @@ class project extends db_entity
         $projectIDs = [],
         $maxlength = 35
     ) {
-        $database = new db_alloc();
-        $database->connect();
-        $projectIDsAndNames = self::get_project_type_query($database, $queryType);
+        $dballoc = new db_alloc();
+        $dballoc->connect();
+        $projectIDsAndNames = self::get_project_type_query($dballoc, $queryType);
         $projectIDsAndNames->execute();
 
         $optionsArry = [];
@@ -602,8 +602,8 @@ class project extends db_entity
         $from = $_FORM["personID"] ?
             " LEFT JOIN projectPerson on projectPerson.projectID = project.projectID " : "";
 
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
         $projectsAndClientsQuery =
             "SELECT project.*, client.*
                FROM project {$from}
@@ -616,10 +616,10 @@ class project extends db_entity
             // FIXME: cast to int within the function parameters after PHP7
             $limit = (int)$_FORM["limit"];
             $projectsAndClientsQuery .= " LIMIT :limit";
-            $getProjectsAndClients = $database->pdo->prepare($projectsAndClientsQuery);
+            $getProjectsAndClients = $dballoc->pdo->prepare($projectsAndClientsQuery);
             $getProjectsAndClients->bindParam(":limit", $limit, PDO::PARAM_INT);
         } else {
-            $getProjectsAndClients = $database->pdo->prepare($projectsAndClientsQuery);
+            $getProjectsAndClients = $dballoc->pdo->prepare($projectsAndClientsQuery);
         }
         $getProjectsAndClients->execute();
 
@@ -711,8 +711,8 @@ class project extends db_entity
         $personSelect .= "</select>";
 
         $rtn["personSelect"] = $personSelect;
-        $m = new meta("projectStatus");
-        $projectStatus_array = $m->get_assoc_array("projectStatusID", "projectStatusID");
+        $meta = new meta("projectStatus");
+        $projectStatus_array = $meta->get_assoc_array("projectStatusID", "projectStatusID");
         $rtn["projectStatusOptions"] = page::select_options($projectStatus_array, $_FORM["projectStatus"]);
         $rtn["projectTypeOptions"] = page::select_options(project::get_project_type_array(), $_FORM["projectType"]);
         $rtn["projectName"] = $_FORM["projectName"];
@@ -728,8 +728,8 @@ class project extends db_entity
         // optimization
         static $rows;
         if (!$rows) {
-            $m = new meta("projectType");
-            $rows = $m->get_assoc_array("projectTypeID", "projectTypeID");
+            $meta = new meta("projectType");
+            $rows = $meta->get_assoc_array("projectTypeID", "projectTypeID");
         }
         return $rows;
     }
@@ -747,10 +747,10 @@ class project extends db_entity
      */
     public function get_prepaid_invoice()
     {
-        $database = new db_alloc();
-        $database->connect();
+        $dballoc = new db_alloc();
+        $dballoc->connect();
 
-        $getMatchingInvoicesByProjectID = $database->pdo->prepare(
+        $getMatchingInvoicesByProjectID = $dballoc->pdo->prepare(
             "SELECT *
                FROM invoice
               WHERE projectID = :projectID
@@ -766,7 +766,7 @@ class project extends db_entity
         }
 
         if ($this->get_value("clientID")) {
-            $getMatchingInvoicesByClientID = $database->pdo->prepare(
+            $getMatchingInvoicesByClientID = $dballoc->pdo->prepare(
                 "SELECT *
                    FROM invoice
                   WHERE clientID = :clientID
@@ -797,29 +797,29 @@ class project extends db_entity
         $projectShortName && $projectShortName != $projectName and $projectName .= " " . $projectShortName;
 
         if ($this->get_value("clientID")) {
-            $c = new client();
-            $c->set_id($this->get_value("clientID"));
-            $c->select();
-            $clientName = $c->get_name();
+            $client = new client();
+            $client->set_id($this->get_value("clientID"));
+            $client->select();
+            $clientName = $client->get_name();
         }
 
-        $doc = new Zend_Search_Lucene_Document();
-        $doc->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
-        $doc->addField(Zend_Search_Lucene_Field::Text('name', $projectName, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('desc', $this->get_value("projectComments"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('cid', $this->get_value("clientID"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('client', $clientName, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('modifier', $projectModifiedUser_field, "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('type', $this->get_value("projectType"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateTargetStart', str_replace("-", "", $this->get_value("dateTargetStart")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('status', $this->get_value("projectStatus"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('priority', $this->get_value("projectPriority"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('tf', $this->get_value("cost_centre_tfID"), "utf-8"));
-        $doc->addField(Zend_Search_Lucene_Field::Text('billed', $this->get_value("customerBilledDollars"), "utf-8"));
-        $index->addDocument($doc);
+        $zendSearchLuceneDocument = new Zend_Search_Lucene_Document();
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('name', $projectName, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('desc', $this->get_value("projectComments"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('cid', $this->get_value("clientID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('client', $clientName, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('modifier', $projectModifiedUser_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('type', $this->get_value("projectType"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTargetStart', str_replace("-", "", $this->get_value("dateTargetStart")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('status', $this->get_value("projectStatus"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('priority', $this->get_value("projectPriority"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('tf', $this->get_value("cost_centre_tfID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('billed', $this->get_value("customerBilledDollars"), "utf-8"));
+        $index->addDocument($zendSearchLuceneDocument);
     }
 
     public function format_client_old()
@@ -838,10 +838,10 @@ class project extends db_entity
         $projectIDs = [];
 
         if (!$filter["projectID"] && $filter["projectType"] && $filter["projectType"] != "all") {
-            $database = new db_alloc();
-            $database->connect();
+            $dballoc = new db_alloc();
+            $dballoc->connect();
             $projectIDsAndNames = self::get_project_type_query(
-                $database,
+                $dballoc,
                 $filter["projectType"],
                 $filter["current_user"],
                 "current"
@@ -913,11 +913,11 @@ class project extends db_entity
             foreach ((array)$interestedParties as $name => $email) {
                 $interestedPartyOptions[$email]["name"] = $name;
             }
-            $database = new db_alloc();
-            $database->connect();
+            $dballoc = new db_alloc();
+            $dballoc->connect();
 
             // Get primary client contact from Project page
-            $getClientNameAndEmail = $database->pdo->prepare(
+            $getClientNameAndEmail = $dballoc->pdo->prepare(
                 "SELECT projectClientName, projectClientEMail
                    FROM project
                   WHERE projectID = :projectID"
@@ -930,7 +930,7 @@ class project extends db_entity
             $interestedPartyOptions[$clientNameAndEmail["projectClientEMail"]]["external"] = "1";
 
             // Get all other client contacts from the Client pages for this Project
-            $getClientID = $database->pdo->prepare(
+            $getClientID = $dballoc->pdo->prepare(
                 "SELECT clientID FROM project WHERE projectID = :projectID"
             );
             $getClientID->bindParam(':projectID', $projectID, PDO::PARAM_INT);
@@ -946,7 +946,7 @@ class project extends db_entity
             }
 
             // Get all the project people for this tasks project
-            $getContactDetails = $database->pdo->prepare(
+            $getContactDetails = $dballoc->pdo->prepare(
                 "SELECT emailAddress, firstName, surname, person.personID, username
                    FROM projectPerson
               LEFT JOIN person on projectPerson.personID = person.personID

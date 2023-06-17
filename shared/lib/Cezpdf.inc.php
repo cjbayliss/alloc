@@ -563,19 +563,19 @@ class Cezpdf extends Cpdf
         $this->setStrokeColor($col[0], $col[1], $col[2]);
         $cnt = 0;
         $n = is_countable($pos) ? count($pos) : 0;
-        foreach($pos as $x) {
+        foreach($pos as $po) {
             $cnt++;
             if ($cnt == 1 || $cnt == $n) {
                 $this->setLineStyle($outer);
             } else {
                 $this->setLineStyle($inner);
             }
-            $this->line($x - $gap / 2, $y0, $x - $gap / 2, $y2);
-            if ($x > $x1) {
-                $x1 = $x;
+            $this->line($po - $gap / 2, $y0, $po - $gap / 2, $y2);
+            if ($po > $x1) {
+                $x1 = $po;
             };
-            if ($x < $x0) {
-                $x0 = $x;
+            if ($po < $x0) {
+                $x0 = $po;
             };
         }
         $this->setLineStyle($outer);

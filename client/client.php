@@ -71,10 +71,10 @@ function show_client_contacts()
         ];
 
         $generatedFirstColumnHTMLArray = [];
-        foreach ($firstColumnContactfields as $field) {
-            $fieldValue = $clientContact->get_value($field, DST_HTML_DISPLAY);
+        foreach ($firstColumnContactfields as $firstColumnContactfield) {
+            $fieldValue = $clientContact->get_value($firstColumnContactfield, DST_HTML_DISPLAY);
 
-            if (!empty($fieldValue) && $field === 'clientContactName') {
+            if (!empty($fieldValue) && $firstColumnContactfield === 'clientContactName') {
                 $primaryContact = '';
                 if ($clientContact->get_value("primaryContact")) {
                     $primaryContact = " [Primary]";
@@ -84,7 +84,7 @@ function show_client_contacts()
                                     <h2 style='margin:0px; display:inline;'>{$vcardHTML}{$fieldValue}</h2>{$primaryContact}
                     HTML;
 
-            } else if (!empty($field)) {
+            } else if (!empty($firstColumnContactfield)) {
                 $generatedFirstColumnHTMLArray[] = $fieldValue;
             }
         }
@@ -98,12 +98,12 @@ function show_client_contacts()
         ];
 
         $generatedSecondColumnHTMLArray = [];
-        foreach ($seconContactColumnFields as $field) {
-            $value = $clientContact->get_value($field, DST_HTML_DISPLAY);
+        foreach ($seconContactColumnFields as $seconContactColumnField) {
+            $value = $clientContact->get_value($seconContactColumnField, DST_HTML_DISPLAY);
             // get first letter of field type, e.g. P for clientContactPhone
-            $label = strtoupper(str_replace('clientContact', '', $field)[0]);
+            $label = strtoupper(str_replace('clientContact', '', $seconContactColumnField)[0]);
 
-            if (!empty($value) && $field === 'clientContactEmail') {
+            if (!empty($value) && $seconContactColumnField === 'clientContactEmail') {
                 $value = str_replace(['<', '>', '&lt;', '&gt;'], '', $value);
                 $contactName = $clientContact->get_value('clientContactName', DST_HTML_DISPLAY);
                 $mailto = rawurlencode($contactName ? "\"{$contactName}\" <{$value}>" : $value);
@@ -291,8 +291,8 @@ $TPL["clientStatusOptions"] = page::select_options(
 
 $clientCategories = config::get_config_item("clientCategories") ?: [];
 
-foreach ($clientCategories as $cateagory) {
-    $categoryOptions[$cateagory["value"]] = $cateagory["label"];
+foreach ($clientCategories as $clientCategory) {
+    $categoryOptions[$clientCategory["value"]] = $clientCategory["label"];
 }
 
 $selectedCategory = $client->get_value("clientCategory");

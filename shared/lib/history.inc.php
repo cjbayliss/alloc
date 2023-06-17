@@ -27,7 +27,7 @@ class history extends db_entity
         $query = null;
         $current_user = &singleton("current_user");
         if (is_object($current_user)) {
-            $db = new db_alloc();
+            $dballoc = new db_alloc();
             $query = unsafe_prepare(
                 "SELECT *, historyID AS value, the_label AS label
                    FROM history
@@ -52,10 +52,10 @@ class history extends db_entity
         $ignored_files = [];
         $query = $this->get_history_query("ASC");
         if ($query) {
-            $db = new db_alloc();
-            $db->query($query);
-            while ($db->next_record()) {
-                $ignored_files[] = end(explode("/", $db->f("the_place") . $db->f("the_args")));
+            $dballoc = new db_alloc();
+            $dballoc->query($query);
+            while ($dballoc->next_record()) {
+                $ignored_files[] = end(explode("/", $dballoc->f("the_place") . $dballoc->f("the_args")));
             }
         }
         $ignored_files[] = "index.php";
@@ -80,7 +80,7 @@ class history extends db_entity
         // Save the history record LABEL with the most descriptive label
         // possible, using the class variable->display_field_name
 
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $script_name_array = explode("/", $SCRIPT_NAME);
 
         $file = end($script_name_array);
@@ -93,14 +93,14 @@ class history extends db_entity
         if ($qs) {
             $qs_array = explode("&", $qs);
 
-            foreach ($qs_array as $query_pair) {
+            foreach ($qs_array as $q_array) {
                 // Break up url query string into key/value pairs.
 
-                if (preg_match("/$CLASS_NAME/", $query_pair)) {
+                if (preg_match("/$CLASS_NAME/", $q_array)) {
                     // Look for a key like eg: transactionID so in that case it'd
                     // use the class transaction.
 
-                    $key_and_value = explode("=", $query_pair);
+                    $key_and_value = explode("=", $q_array);
                     // Break key/value up into $KEY_FIELD and $ID
                     $ID = $key_and_value[1];
                     $KEY_FIELD = $key_and_value[0];
@@ -113,11 +113,11 @@ class history extends db_entity
                             // The primary key for this db table is the same as
                             // our KEY_FIELD var which was extracted from url.
                             $query = unsafe_prepare("SELECT * FROM %s WHERE %s = %d", $CLASS_NAME, $KEY_FIELD, $ID);
-                            $db->query($query);
-                            $db->next_record();
+                            $dballoc->query($query);
+                            $dballoc->next_record();
                             // return that particular classes _default_ display field
                             // eg: for the table project, it would be projectName
-                            $rtn = $db->f($display_field);
+                            $rtn = $dballoc->f($display_field);
 
                             // But if our search for a descriptive text label failed
                             // because the above search returned a number try again
@@ -159,13 +159,13 @@ class history extends db_entity
         if (!is_object($current_user) || !$current_user->get_id()) {
             return;
         }
-        $db = new db_alloc();
+        $dballoc = new db_alloc();
         $query = unsafe_prepare("SELECT count(*) AS total FROM history WHERE personID = %d", $current_user->get_id());
-        $db->query($query);
-        $row = $db->row();
+        $dballoc->query($query);
+        $row = $dballoc->row();
         if ($row["total"] >= (3 * $this->max_to_display)) {
             $query = unsafe_prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2 * $this->max_to_display));
-            $db->query($query);
+            $dballoc->query($query);
         }
 
         $ignored_files = $this->get_ignored_files();

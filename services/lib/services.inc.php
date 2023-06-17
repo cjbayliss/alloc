@@ -30,13 +30,13 @@ class services
     public static function authenticate($username, $password)
     {
         $person = new person();
-        $sess = new session();
+        $session = new session();
         $row = $person->get_valid_login_row($username, $password);
         if ($row) {
-            $sess->Start($row, false);
-            $sess->UseGet();
-            $sess->Save();
-            return $sess->GetKey();
+            $session->Start($row, false);
+            $session->UseGet();
+            $session->Save();
+            return $session->GetKey();
         } else {
             die("Authentication Failed(1).");
         }
@@ -44,12 +44,12 @@ class services
 
     private function get_current_user($sessID)
     {
-        $sess = new session($sessID);
-        if ($sess->Started()) {
+        $session = new session($sessID);
+        if ($session->Started()) {
             $person = new person();
-            $person->load_current_user($sess->Get("personID"));
+            $person->load_current_user($session->Get("personID"));
             // update session_started, which affects session lifetime
-            $sess->Save();
+            $session->Save();
             return $person;
         }
     }
@@ -96,10 +96,10 @@ class services
 
         if (is_object($e)) {
             $projectID = $e->get_project_id();
-            $p = new project();
-            $p->set_id($projectID);
-            $p->select();
-            $client = $p->get_foreign_object("client");
+            $project = new project();
+            $project->set_id($projectID);
+            $project->select();
+            $client = $project->get_foreign_object("client");
             $clientID = $client->get_id();
         }
 
@@ -211,8 +211,8 @@ class services
             }
         }
 
-        foreach ((array)$rtn as $id => $p) {
-            $rtn[$id] = $this->reduce_person_info($p);
+        foreach ((array)$rtn as $id => $project) {
+            $rtn[$id] = $this->reduce_person_info($project);
         }
         return (array)$rtn;
     }
@@ -333,11 +333,11 @@ class services
         if ($taskID) {
             $folder = config::get_config_item("allocEmailFolder") . "/" . $entity . $taskID;
             $info = $this->init_email_info();
-            $mail = new email_receive($info);
-            $mail->open_mailbox($folder, OP_READONLY);
-            $uids = $mail->get_all_email_msg_uids();
+            $emailreceive = new email_receive($info);
+            $emailreceive->open_mailbox($folder, OP_READONLY);
+            $uids = $emailreceive->get_all_email_msg_uids();
             foreach ((array)$uids as $uid) {
-                [$header, $body] = $mail->get_raw_email_by_msg_uid($uid);
+                [$header, $body] = $emailreceive->get_raw_email_by_msg_uid($uid);
                 if ($header && $body) {
                     $m = new email_send();
                     $m->set_headers($header);
@@ -346,7 +346,7 @@ class services
                     $emails .= utf8_encode(str_replace("\r\n", "\n", $str));
                 }
             }
-            $mail->close();
+            $emailreceive->close();
         }
         return $emails;
     }
@@ -401,13 +401,13 @@ class services
         // $lockfile = ATTACHMENTS_DIR."mail.lock.person_".$current_user->get_id();
         if ($emailUID) {
             $info = $this->init_email_info();
-            $mail = new email_receive($info);
-            $mail->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
-            [$header, $body] = $mail->get_raw_email_by_msg_uid($emailUID);
-            $mail->close();
-            $m = new email_send();
-            $m->set_headers($header);
-            $timestamp = $m->get_header('Date');
+            $emailreceive = new email_receive($info);
+            $emailreceive->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
+            [$header, $body] = $emailreceive->get_raw_email_by_msg_uid($emailUID);
+            $emailreceive->close();
+            $emailsend = new email_send();
+            $emailsend->set_headers($header);
+            $timestamp = $emailsend->get_header('Date');
             $str = "From allocPSA " . date('D M  j G:i:s Y', strtotime($timestamp)) . "\r\n" . $header . $body;
             return utf8_encode(str_replace("\r\n", "\n", $str));
         }
@@ -424,10 +424,10 @@ class services
         if ($str) {
             $current_user = &singleton("current_user");
             $info = $this->init_email_info();
-            $mail = new email_receive($info);
-            $mail->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
-            $rtn = $mail->get_emails_UIDs_search($str);
-            $mail->close();
+            $emailreceive = new email_receive($info);
+            $emailreceive->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
+            $rtn = $emailreceive->get_emails_UIDs_search($str);
+            $emailreceive->close();
         }
         return (array)$rtn;
     }
@@ -444,10 +444,10 @@ class services
 
         if (!$topic) {
             $commar = "";
-            foreach ($this_methods as $method) {
-                $m = $method . "_help";
+            foreach ($this_methods as $thi_method) {
+                $m = $thi_method . "_help";
                 if (method_exists($this, $m)) {
-                    $available_topics .= $commar . $method;
+                    $available_topics .= $commar . $thi_method;
                     $commar = ", ";
                 }
             }

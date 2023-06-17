@@ -24,10 +24,10 @@ class projectCommissionPerson extends db_entity
     {
         // ensure multiple 0% entries cannot be saved.
         if ($this->get_value("commissionPercent") == 0) {
-            $database = new db_alloc();
-            $database->connect();
+            $dballoc = new db_alloc();
+            $dballoc->connect();
 
-            $getProjectCommissionPerson = $database->pdo->prepare(
+            $getProjectCommissionPerson = $dballoc->pdo->prepare(
                 "SELECT * FROM projectCommissionPerson
                   WHERE projectID = :projectID
                     AND commissionPercent = 0

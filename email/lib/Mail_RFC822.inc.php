@@ -185,8 +185,8 @@ class Mail_RFC822
     public function parseAddressList($address = null, $default_domain = null, $nest_groups = null, $validate = null, $limit = null)
     {
         if (!isset($this) || !isset($this->mailRFC822)) {
-            $obj = new Mail_RFC822($address, $default_domain, $nest_groups, $validate, $limit);
-            return $obj->parseAddressList();
+            $mailRFC822 = new Mail_RFC822($address, $default_domain, $nest_groups, $validate, $limit);
+            return $mailRFC822->parseAddressList();
         }
 
         if (isset($address)) {
@@ -577,17 +577,17 @@ class Mail_RFC822
             }
         }
 
-        foreach ($phrase_parts as $part) {
+        foreach ($phrase_parts as $phrase_part) {
             // If quoted string:
-            if (substr($part, 0, 1) == '"') {
-                if (!$this->_validateQuotedString($part)) {
+            if (substr($phrase_part, 0, 1) == '"') {
+                if (!$this->_validateQuotedString($phrase_part)) {
                     return false;
                 }
                 continue;
             }
 
             // Otherwise it's an atom:
-            if (!$this->_validateAtom($part)) {
+            if (!$this->_validateAtom($phrase_part)) {
                 return false;
             }
         }

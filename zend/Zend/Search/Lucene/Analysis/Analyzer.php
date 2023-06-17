@@ -73,7 +73,7 @@ abstract class Zend_Search_Lucene_Analysis_Analyzer
      *
      * @var Zend_Search_Lucene_Analysis_Analyzer
      */
-    private static $_defaultImpl;
+    private static $zendSearchLuceneAnalysisAnalyzer;
 
     /**
      * Input string
@@ -144,9 +144,9 @@ abstract class Zend_Search_Lucene_Analysis_Analyzer
      *
      * @param Zend_Search_Lucene_Analysis_Analyzer $similarity
      */
-    public static function setDefault(Zend_Search_Lucene_Analysis_Analyzer $analyzer)
+    public static function setDefault(Zend_Search_Lucene_Analysis_Analyzer $zendSearchLuceneAnalysisAnalyzer)
     {
-        self::$_defaultImpl = $analyzer;
+        self::$zendSearchLuceneAnalysisAnalyzer = $zendSearchLuceneAnalysisAnalyzer;
     }
 
     /**
@@ -159,10 +159,10 @@ abstract class Zend_Search_Lucene_Analysis_Analyzer
         /** Zend_Search_Lucene_Analysis_Analyzer_Common_Text_CaseInsensitive */
         require_once 'Zend/Search/Lucene/Analysis/Analyzer/Common/Text/CaseInsensitive.php';
 
-        if (!self::$_defaultImpl instanceof Zend_Search_Lucene_Analysis_Analyzer) {
-            self::$_defaultImpl = new Zend_Search_Lucene_Analysis_Analyzer_Common_Text_CaseInsensitive();
+        if (!self::$zendSearchLuceneAnalysisAnalyzer instanceof Zend_Search_Lucene_Analysis_Analyzer) {
+            self::$zendSearchLuceneAnalysisAnalyzer = new Zend_Search_Lucene_Analysis_Analyzer_Common_Text_CaseInsensitive();
         }
 
-        return self::$_defaultImpl;
+        return self::$zendSearchLuceneAnalysisAnalyzer;
     }
 }
