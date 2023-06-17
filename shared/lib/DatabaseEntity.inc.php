@@ -43,7 +43,7 @@ class DatabaseEntity
         $this->permissions[PERM_CREATE] = "Create";
 
         // convert key_field into a field object
-        $this->key_field = new db_field($this->key_field);
+        $this->key_field = new DatabaseField($this->key_field);
 
         // we're going to reload the data_fields as $name => $object
         $fields = $this->data_fields;
@@ -53,9 +53,9 @@ class DatabaseEntity
         foreach ($fields as $k => $v) {
             // This caters for per-field options.
             if (is_array($v)) {
-                $this->data_fields[$k] = new db_field($k, $v);
+                $this->data_fields[$k] = new DatabaseField($k, $v);
             } else {
-                $this->data_fields[$v] = new db_field($v);
+                $this->data_fields[$v] = new DatabaseField($v);
             }
         }
 

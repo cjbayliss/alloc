@@ -45,7 +45,7 @@ if ($_POST["save"]) {
                     $a[$table . "Active"] = in_array($orig_tableID, $_POST[$table . "Active"]);
                     $t->read_array($a);
                     $t->set_id($orig_tableID);
-                    $k = new db_field($table . "ID"); // If the primary key has changed, then it needs special handling.
+                    $k = new DatabaseField($table . "ID"); // If the primary key has changed, then it needs special handling.
                     $k->set_value($tableID);        // The primary keys in the referential integrity tables are not
                     $t->data_fields[] = $k;         // usually just auto-incrementing IDs like every other table in alloc
                     $t->update();                   // So we have to trick db_entity into letting us update a primary key.

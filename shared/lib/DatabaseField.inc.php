@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class db_field
+class DatabaseField
 {
-    public $classname = "db_field";
+    public $classname = "DatabaseField";
     public $name;
     public $value;
     public $label;
