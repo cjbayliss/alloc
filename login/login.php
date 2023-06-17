@@ -23,7 +23,7 @@ if ($sess->Started()) {
     exit();
 
     // Else log the user in
-} else if ($_POST["login"]) {
+} else if (!empty($_POST["login"])) {
     $person = new person();
     $row = $person->get_valid_login_row($_POST["username"], $_POST["password"]);
 
@@ -49,7 +49,7 @@ if ($sess->Started()) {
         alloc_redirect($url);
     }
     $error = "Invalid username or password.";
-} else if ($_POST["new_pass"]) {
+} else if (!empty($_POST["new_pass"])) {
     $db = new db_alloc();
     $db->query("SELECT * FROM person WHERE emailAddress = '%s'", $_POST["email"]);
 
@@ -85,9 +85,10 @@ if ($sess->Started()) {
     }
 }
 
-$error and alloc_error($error);
+!empty($error) and alloc_error($error);
 
-$account = $_POST["account"] or $account = $_GET["account"];
+$account = $_POST["account"] ?? "";
+$account = $account !== "" ? $_GET["account"] : "";
 $TPL["account"] = $account;
 
 if (isset($_POST["username"])) {

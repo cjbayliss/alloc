@@ -5,7 +5,7 @@
 </div>
 
 <form action="{$url_alloc_login}" method="post" id="login_form">
-{if $forward_url}
+{if !empty($forward_url)}
 <input type="hidden" name="forwardUrl" value="{$forward_url}" />
 {/}
 <div class="width whitely corner shadow">
@@ -32,7 +32,7 @@
 <input type="hidden" name="sessID" value="{$sessID}">
 </form>
 
-{if $latest_changes}
+{if !empty($latest_changes)}
 <div class="width" style="font-size:90%">
   {$latest_changes}
 </div>
