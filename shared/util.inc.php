@@ -142,7 +142,7 @@ function rebuild_cache($table)
 {
     $cache = &singleton("cache");
 
-    if (meta::$tables[$table]) {
+    if (!empty(meta::$tables[$table])) {
         $m = new meta($table);
         $cache[$table] = $m->get_list();
     } else {
@@ -179,7 +179,7 @@ function rebuild_cache($table)
 function &get_cached_table($table, $anew = false)
 {
     $cache = &singleton("cache");
-    if ($anew || !$cache[$table]) {
+    if ($anew || !isset($cache[$table])) {
         rebuild_cache($table);
     }
     return $cache[$table];
@@ -726,7 +726,11 @@ function unsafe_prepare(...$args)
 
     // Trackdown poorly formulated queries
     $err = error_get_last();
-    if ($err["type"] == 2 && in_str("sprintf", $err["message"])) {
+    if (
+        !empty($err["type"])
+        && $err["type"] == 2
+        && in_str("sprintf", $err["message"])
+    ) {
         $e = new Exception();
         alloc_error("Error in prepared query: \n" . $e->getTraceAsString() . "\n" . print_r($err, 1) . "\n" . print_r($clean_args, 1));
     }

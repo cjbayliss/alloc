@@ -24,10 +24,18 @@ class session
     public function __construct($key = "")
     {
         global $TPL;
-        $this->key = $key or $this->key = $_COOKIE["alloc_cookie"] or $this->key = $_GET["sess"] or $this->key = $_REQUEST["sessID"];
-        $TPL["sessID"] = $_GET["sess"];
+        if ($key !== "") {
+            $this->key = $key;
+        } elseif (!empty($_COOKIE["alloc_cookie"])) {
+            $this->key = $_COOKIE["alloc_cookie"];
+        } elseif (!empty($_GET["sess"])) {
+            $this->key = $_GET["sess"];
+        } elseif (!empty($_REQUEST["sessID"])) {
+            $this->key = $_REQUEST["sessID"];
+        }
+
+        $TPL["sessID"] = $_GET["sess"] ?? false;
         $this->db = new db_alloc();
-        // $this->session_life  = (5);
         $this->session_life = (config::get_config_item("allocSessionMinutes") * 60);
         $this->session_life < 1 and $this->session_life = 10000; // just in case.
         $this->session_data = $this->UnEncode($this->GetSessionData());
@@ -96,7 +104,7 @@ class session
 
     public function Get($name)
     {
-        return $this->session_data[$name];
+        return $this->session_data[$name] ?? false;
     }
 
     public function GetKey()
@@ -185,7 +193,7 @@ class session
     {
         if ($this->key) {
             $row = $this->db->qr("SELECT sessData FROM sess WHERE sessID = '%s'", $this->key);
-            return $row["sessData"];
+            return $row["sessData"] ?? "";
         }
     }
 
