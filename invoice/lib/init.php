@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class invoice_module extends module
+class invoice_module extends Module
 {
     public $module = "invoice";
     public $databaseEntities = ["invoice", "invoiceItem", "invoiceEntity"];

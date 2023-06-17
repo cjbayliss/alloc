@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class reminder_module extends module
+class reminder_module extends Module
 {
     public $module = "reminder";
     public $databaseEntities = ["reminder", "reminderRecipient"];

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class finance_module extends module
+class finance_module extends Module
 {
     public $module = "finance";
     public $databaseEntities = [

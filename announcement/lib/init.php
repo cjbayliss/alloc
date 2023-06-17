@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class announcement_module extends module
+class announcement_module extends Module
 {
     public $module = "announcement";
     public $databaseEntities = ["announcement"];

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-class sale_module extends module
+class sale_module extends Module
 {
     public $module = "sale";
     public $databaseEntities = [

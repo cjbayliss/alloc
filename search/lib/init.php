@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class search_module extends module
+class search_module extends Module
 {
     public $module = "search";
 }

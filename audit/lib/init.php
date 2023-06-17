@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class audit_module extends module
+class audit_module extends Module
 {
     public $module = "audit";
     public $databaseEntities = ["audit"];

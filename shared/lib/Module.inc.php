@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class module
+class Module
 {
     public $module = '';
     public $databaseEntities = [];   // A list of db_entity class names implemented by this module

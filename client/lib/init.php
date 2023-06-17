@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class client_module extends module
+class client_module extends Module
 {
     public $module = "client";
     public $databaseEntities = ["client", "clientContact"];

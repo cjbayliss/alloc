@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class calendar_module extends module
+class calendar_module extends Module
 {
     public $module = "calendar";
     public $databaseEntities = [];
