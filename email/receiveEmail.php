@@ -30,7 +30,7 @@ if ($num_new_emails > 0) {
     print $nl . date("Y-m-d H:i:s") . " Found " . (is_countable($msg_nums) ? count($msg_nums) : 0) . " new/unseen emails." . $nl;
     foreach ($msg_nums as $msg_num) {
         // Errors from previous iterations shouldn't affect processing of the next email
-        db_alloc::$stop_doing_queries = false;
+        AllocDatabase::$stop_doing_queries = false;
 
         $email_receive->set_msg($msg_num);
         $email_receive->get_msg_header();
@@ -61,7 +61,7 @@ if ($num_new_emails > 0) {
             }
         } catch (Exception $e) {
             // There may have been a database error, so let the database know it can run this next bit
-            db_alloc::$stop_doing_queries = false;
+            AllocDatabase::$stop_doing_queries = false;
 
             // Try forwarding the errant email
             try {

@@ -39,12 +39,12 @@ class task_message_list_home_item extends home_item
                     ORDER BY priority
                      ", $current_user->get_id());
 
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
 
-        while ($dballoc->next_record()) {
+        while ($allocDatabase->next_record()) {
             $task = new task();
-            $task->read_db_record($dballoc);
+            $task->read_db_record($allocDatabase);
             echo $br . $task->get_task_image() . $task->get_task_link(["return" => "html"]);
             $br = "<br>";
         }

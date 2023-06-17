@@ -18,7 +18,7 @@ function show_transaction_list($template_name)
     global $timeSheet;
     global $TPL;
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
 
     $amount_so_far = $timeSheet->get_amount_so_far(true);
     $total_incoming = $timeSheet->pay_info["total_customerBilledDollars"];
@@ -72,7 +72,7 @@ function show_transaction_listR($template_name)
     global $TPL;
     $current_user = &singleton("current_user");
     global $percent_array;
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query("SELECT * FROM transaction WHERE timeSheetID = %d", $timeSheet->get_id());
 
     if ($db->next_record() || $timeSheet->get_value("status") == "invoiced" || $timeSheet->get_value("status") == "finished") {
@@ -195,7 +195,7 @@ function show_main_list()
         return;
     }
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $q = unsafe_prepare("SELECT COUNT(*) AS tally FROM timeSheetItem WHERE timeSheetID = %d AND timeSheetItemID != %d", $timeSheet->get_id(), $_POST["timeSheetItem_timeSheetItemID"]);
     $db->query($q);
     $db->next_record();
@@ -214,7 +214,7 @@ function show_timeSheet_list($template)
     global $timeSheetItem;
     global $timeSheetID;
 
-    $db_task = new db_alloc();
+    $db_task = new AllocDatabase();
 
     if (is_object($timeSheet) && ($timeSheet->get_value("status") == "edit" || $timeSheet->get_value("status") == "rejected")) {
         $TPL["timeSheetItem_buttons"] = '
@@ -426,7 +426,7 @@ global $TPL;
 
 $timeSheetID = $_POST["timeSheetID"] or $timeSheetID = $_GET["timeSheetID"];
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $timeSheet = new timeSheet();
 
 if ($timeSheetID) {
@@ -452,7 +452,7 @@ if ($_REQUEST["updateRate"] && $timeSheet->get_id() && $timeSheet->can_edit_rate
         alloc_error("The person has not been added to the project.");
     } else {
         $q = unsafe_prepare("SELECT timeSheetItemID from timeSheetItem WHERE timeSheetID = %d", $timeSheet->get_id());
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
         while ($row = $db->row()) {
             $tsi = new timeSheetItem();
@@ -597,7 +597,7 @@ if (($_POST["p_button"] || $_POST["a_button"] || $_POST["r_button"]) && $timeShe
     }
 
     $query = unsafe_prepare("UPDATE transaction SET status = '%s' WHERE timeSheetID = %d AND transactionType != 'invoice'", $status, $timeSheet->get_id());
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query($query);
 
     // Take care of the transaction line items on an invoiced timesheet created by admin
@@ -652,7 +652,7 @@ if ($_GET["newTimeSheet_projectID"] && !$projectID) {
     $_GET["taskID"] and $tid = "&taskID=" . $_GET["taskID"];
 
     $projectID = $_GET["newTimeSheet_projectID"];
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $q = unsafe_prepare("SELECT * FROM timeSheet WHERE status = 'edit' AND personID = %d AND projectID = %d", $current_user->get_id(), $projectID);
     $db->query($q);
     if ($db->next_record()) {
@@ -729,7 +729,7 @@ if (is_object($timeSheet) && $timeSheet->get_id() && $timeSheet->have_perm(PERM_
     $ops["return"] = "dropdown_options";
     $invoice_list = invoice::get_list($ops);
     $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE timeSheetID = %d", $timeSheet->get_id());
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query($q);
     $row = $db->row();
     $sel_invoice = $row["invoiceID"];
@@ -875,7 +875,7 @@ switch ($timeSheet->get_value("status")) {
 // Get recipient_tfID
 $taggedFund = new tf();
 if ($timeSheet->get_value("status") == "edit") {
-    $tf_db = new db_alloc();
+    $tf_db = new AllocDatabase();
     $tf_db->query("select preferred_tfID from person where personID = %d", $timeSheet->get_value("personID"));
     $tf_db->next_record();
 

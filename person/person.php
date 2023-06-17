@@ -34,7 +34,7 @@ function show_absence_forms($template)
 {
     global $personID;
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $query = unsafe_prepare("SELECT * FROM absence WHERE personID=%d", $personID);
     $db->query($query);
     $absence = new absence();
@@ -89,7 +89,7 @@ function show_person_areasOfExpertise($template)
     ];
 
     // step through the list of skills ordered by skillclass
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     // $query = "SELECT * FROM skill ORDER BY skillClass,skillName";
     $query = "SELECT * FROM skill LEFT JOIN proficiency ON skill.skillID=proficiency.skillID";
     $query .= unsafe_prepare(" WHERE proficiency.personID=%d", $personID);
@@ -127,7 +127,7 @@ function show_skills_list()
     global $personID;
     global $skills;
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $query = unsafe_prepare("SELECT * FROM proficiency WHERE personID=%d", $personID);
     $db->query($query);
     $skills_got = [];
@@ -195,7 +195,7 @@ if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $
                 $proficiency->set_value('skillProficiency', $_POST["skillProficiency"]);
                 $proficiency->set_value('personID', $personID);
 
-                $db = new db_alloc();
+                $db = new AllocDatabase();
                 $query = unsafe_prepare("SELECT * FROM proficiency WHERE personID = %d", $personID);
                 $query .= unsafe_prepare(" AND skillID = %d", $_POST["skillID"][$i]);
                 $db->query($query);
@@ -225,7 +225,7 @@ if ($_POST["save"]) {
 
     if ($_POST["username"]) {
         $q = unsafe_prepare("SELECT personID FROM person WHERE username = '%s'", $_POST["username"]);
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
         $num_rows = $db->num_rows();
         $row = $db->row();

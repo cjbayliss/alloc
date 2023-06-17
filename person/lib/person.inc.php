@@ -127,12 +127,12 @@ class person extends DatabaseEntity
     public static function get_announcements_for_email()
     {
         $announcement = [];
-        $dballoc = new db_alloc();
-        $dballoc->query("SELECT * FROM announcement WHERE CURDATE() <= displayToDate AND CURDATE() >= displayFromDate");
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query("SELECT * FROM announcement WHERE CURDATE() <= displayToDate AND CURDATE() >= displayFromDate");
 
-        while ($dballoc->next_record()) {
-            $announcement["heading"] = "Announcement\n" . $dballoc->f("heading");
-            $announcement["body"] = $dballoc->f("body");
+        while ($allocDatabase->next_record()) {
+            $announcement["heading"] = "Announcement\n" . $allocDatabase->f("heading");
+            $announcement["body"] = $allocDatabase->f("body");
         }
         return $announcement;
     }
@@ -172,11 +172,11 @@ class person extends DatabaseEntity
         $query = "SELECT * FROM proficiency LEFT JOIN skill on proficiency.skillID=skill.skillID";
         $query .= unsafe_prepare(" WHERE personID=%d AND skillProficiency='%s' ORDER BY skillName", $this->get_id(), $proficiency);
 
-        $dballoc = new db_alloc();
-        $dballoc->query($query);
-        while ($dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($query);
+        while ($allocDatabase->next_record()) {
             $skill = new skill();
-            $skill->read_db_record($dballoc);
+            $skill->read_db_record($allocDatabase);
             if ($rtn) {
                 $rtn .= ", ";
             }
@@ -193,17 +193,17 @@ class person extends DatabaseEntity
         // Cache rows
         if (!$rows) {
             $q = unsafe_prepare("SELECT personID, username, firstName, surname, personActive FROM person ORDER BY firstname,surname,username");
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
-            while ($dballoc->next_record()) {
-                if ($dballoc->f("firstName") && $dballoc->f("surname")) {
-                    $name = $dballoc->f("firstName") . " " . $dballoc->f("surname");
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
+            while ($allocDatabase->next_record()) {
+                if ($allocDatabase->f("firstName") && $allocDatabase->f("surname")) {
+                    $name = $allocDatabase->f("firstName") . " " . $allocDatabase->f("surname");
                 } else {
-                    $name = $dballoc->f("username");
+                    $name = $allocDatabase->f("username");
                 }
 
-                $rows[$dballoc->f("personID")] = [
-                    "active" => $dballoc->f("personActive"),
+                $rows[$allocDatabase->f("personID")] = [
+                    "active" => $allocDatabase->f("personActive"),
                     "name"   => $name,
                 ];
             }
@@ -250,9 +250,9 @@ class person extends DatabaseEntity
     public function get_tfIDs()
     {
         $tfIDs = [];
-        $dballoc = new db_alloc();
-        $dballoc->query("SELECT tfID FROM tfPerson WHERE personID = %d", $this->get_id());
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query("SELECT tfID FROM tfPerson WHERE personID = %d", $this->get_id());
+        while ($row = $allocDatabase->row()) {
             $tfIDs[] = $row["tfID"];
         }
         return $tfIDs;
@@ -260,14 +260,14 @@ class person extends DatabaseEntity
 
     public function get_valid_login_row($username, $password = "")
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare(
             "SELECT * FROM person WHERE username = '%s' AND personActive = 1",
             $username
         );
 
-        $dballoc->query($q);
-        $row = $dballoc->row();
+        $allocDatabase->query($q);
+        $row = $allocDatabase->row();
 
         if (password_verify($password, $row["password"])) {
             return $row;
@@ -341,7 +341,7 @@ class person extends DatabaseEntity
     {
         if (is_object($this)) {
             [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $query = unsafe_prepare(
                 "SELECT *
                    FROM task
@@ -350,8 +350,8 @@ class person extends DatabaseEntity
                     AND taskStatus NOT IN (" . $ts_closed . ")",
                 $this->get_id()
             );
-            $dballoc->query($query);
-            if ($dballoc->next_record()) {
+            $allocDatabase->query($query);
+            if ($allocDatabase->next_record()) {
                 return true;
             }
         }
@@ -418,11 +418,11 @@ class person extends DatabaseEntity
 
         if ($filter["skill_class"]) {
             $q = unsafe_prepare("SELECT * FROM skill WHERE skillClass='%s'", $filter["skill_class"]);
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
-            while ($dballoc->next_record()) {
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
+            while ($allocDatabase->next_record()) {
                 $skill = new skill();
-                $skill->read_db_record($dballoc);
+                $skill->read_db_record($allocDatabase);
                 $sql2[] = unsafe_prepare("(skillID=%d)", $skill->get_id());
             }
         }
@@ -482,12 +482,12 @@ class person extends DatabaseEntity
             ORDER BY firstName,surname,username";
 
         $debug and print "Query: " . $q;
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
 
-        while ($row = $dballoc->next_record()) {
+        while ($row = $allocDatabase->next_record()) {
             $p = new person();
-            if (!$p->read_db_record($dballoc)) {
+            if (!$p->read_db_record($allocDatabase)) {
                 continue;
             }
             $row = $p->perm_cleanup($row); // this is not the right way to do this - alla
@@ -627,7 +627,7 @@ class person extends DatabaseEntity
         global $TPL;
         $current_user = &singleton("current_user");
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $_FORM["showSkills"] and $rtn["show_skills_checked"] = " checked";
         $_FORM["showHours"] and $rtn["show_hours_checked"] = " checked";
         $_FORM["personActive"] and $rtn["show_all_users_checked"] = " checked";

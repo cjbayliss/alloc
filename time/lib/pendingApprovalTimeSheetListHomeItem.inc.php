@@ -94,7 +94,7 @@ function get_pending_timesheet_db()
     */
 
     $current_user = &singleton("current_user");
-    $db = new db_alloc();
+    $db = new AllocDatabase();
 
     // Get all the time sheets that are in status manager, and are the responsibility of only the default manager
     if (in_array($current_user->get_id(), config::get_config_item("defaultTimeSheetManagerList"))) {
@@ -136,7 +136,7 @@ function get_pending_admin_timesheet_db()
 {
     $query = null;
     $current_user = &singleton("current_user");
-    $db = new db_alloc();
+    $db = new AllocDatabase();
 
     $timeSheetAdminPersonIDs = config::get_config_item("defaultTimeSheetAdminList");
 

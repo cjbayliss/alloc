@@ -18,7 +18,7 @@ class DatabaseEntity
     public $key_field = "";            // Set this to the table's primary key
     public $data_fields = [];     // Set this to the data fields using array("field_name1","field_name2");
     public $all_row_fields = [];  // This gets set to all fields from the row of the query result used to load this entity
-    public $db_class = "db_alloc";
+    public $databaseClass = "AllocDatabase";
     public $db;
     public $debug = false;
     public $display_field_name;        // Set this to the field to be used by the get_display_value function
@@ -98,7 +98,7 @@ class DatabaseEntity
             return $permission_cache[$record_cache_key];
         }
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $query = unsafe_prepare(
             "SELECT *
                FROM permission
@@ -109,22 +109,22 @@ class DatabaseEntity
             $action,
             $action
         );
-        $dballoc->query($query);
+        $allocDatabase->query($query);
 
-        while ($dballoc->next_record()) {
+        while ($allocDatabase->next_record()) {
             // Ignore this record if it specifies a role the user doesn't have
-            if ($dballoc->f("roleName") && is_object($person) && !$person->have_role($dballoc->f("roleName"))) {
+            if ($allocDatabase->f("roleName") && is_object($person) && !$person->have_role($allocDatabase->f("roleName"))) {
                 continue;
             }
 
             // Ignore this record if it specifies that the user must be the record's owner and they are not
-            if ($dballoc->f("entityID") == -1 && !$assume_owner && !$this->is_owner($person)) {
+            if ($allocDatabase->f("entityID") == -1 && !$assume_owner && !$this->is_owner($person)) {
                 continue;
             }
 
             // Cache the result in variables to prevent duplicate database lookups
             $permission_cache[$record_cache_key] = true;
-            if ($dballoc->f("entityID") == 0) {
+            if ($allocDatabase->f("entityID") == 0) {
                 $permission_cache[$table_cache_key] = true;
             }
 
@@ -540,11 +540,11 @@ class DatabaseEntity
         }
         $foreign_objects = [];
         $query = unsafe_prepare("SELECT * FROM %s WHERE %s = %d", $class_name, $key_name, $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($query);
-        while ($dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($query);
+        while ($allocDatabase->next_record()) {
             $o = new $class_name;
-            $o->read_db_record($dballoc);
+            $o->read_db_record($allocDatabase);
             $foreign_objects[$o->get_id()] = $o;
         }
         return $foreign_objects;
@@ -629,8 +629,8 @@ class DatabaseEntity
     public function get_db()
     {
         if (!is_object($this->db)) {
-            $db_class = $this->db_class;
-            $this->db = new $db_class;
+            $databaseClass = $this->databaseClass;
+            $this->db = new $databaseClass;
         }
         return $this->db;
     }
@@ -721,11 +721,11 @@ class DatabaseEntity
             $q .= " ORDER BY " . db_esc($value);
         }
 
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
         $rows = [];
-        while ($row = $dballoc->row()) {
-            if ($this->read_db_record($dballoc)) {
+        while ($row = $allocDatabase->row()) {
+            if ($this->read_db_record($allocDatabase)) {
                 if ($value && $value != "*") {
                     $v = $row[$value];
                 } else {

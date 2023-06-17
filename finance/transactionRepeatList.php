@@ -9,7 +9,7 @@ require_once("../alloc.php");
 
 global $TPL;
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $TPL["tfID"] = $_GET["tfID"];
 
 $TPL["main_alloc_title"] = "Repeating Expenses List - " . APPLICATION_NAME;
@@ -24,7 +24,7 @@ function show_expenseFormList($template_name)
     global $transactionRepeat;
     $current_user = &singleton("current_user");
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $transactionRepeat = new transactionRepeat();
 
     if (!$_GET["tfID"] && !$current_user->have_role("admin")) {

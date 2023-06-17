@@ -68,7 +68,7 @@ function show_new_invoiceItem($template)
         // Build dropdown lists for timeSheet and expenseForm options.
         if ($invoice->get_value("clientID")) {
             // Time Sheet dropdown
-            $db = new db_alloc();
+            $db = new AllocDatabase();
             $q = unsafe_prepare("SELECT projectID FROM project WHERE clientID = %d", $invoice->get_value("clientID"));
             $db->query($q);
             $projectIDs = [];
@@ -100,7 +100,7 @@ function show_new_invoiceItem($template)
             }
 
             // Expense Form dropdown
-            $db = new db_alloc();
+            $db = new AllocDatabase();
             $q = unsafe_prepare("SELECT expenseFormID, expenseFormCreatedUser
                             FROM expenseForm
                            WHERE expenseFormFinalised = 1
@@ -164,8 +164,8 @@ function show_invoiceItem_list()
     $transaction_info = null;
     $transaction_sum = null;
 
-    $db = new db_alloc();
-    $db2 = new db_alloc();
+    $db = new AllocDatabase();
+    $db2 = new AllocDatabase();
     $taggedFund = new tf();
 
     $q = unsafe_prepare(
@@ -415,7 +415,7 @@ function show_comments()
 
 $invoiceID = $_POST["invoiceID"] or $invoiceID = $_GET["invoiceID"];
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $invoice = new invoice();
 
 if ($invoiceID) {
@@ -498,7 +498,7 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
     }
 } else if ($_POST["delete"] && $invoice->get_value("invoiceStatus") == "edit") {
     if ($invoiceItemIDs) {
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $q = unsafe_prepare("DELETE FROM transaction WHERE invoiceItemID in (%s)", $invoiceItemIDs);
         $db->query($q);
         $q = unsafe_prepare("DELETE FROM invoiceItem WHERE invoiceItemID in (%s)", $invoiceItemIDs);

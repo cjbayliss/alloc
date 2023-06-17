@@ -8,7 +8,7 @@
 define("NO_AUTH", true);
 require_once("../alloc.php");
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 // do advanced notice emails
 $query = unsafe_prepare("SELECT *

@@ -22,9 +22,9 @@ class invoiceEntity extends DatabaseEntity
     public static function create($invoiceID, $entity, $entityID, $useItems = 0)
     {
         $q = unsafe_prepare("SELECT * FROM invoiceEntity WHERE invoiceID = %d AND %sID = %d", $invoiceID, $entity, $entityID);
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        $row = $dballoc->row();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        $row = $allocDatabase->row();
         $invoiceEntity = new invoiceEntity();
         if ($row) {
             $invoiceEntity->set_id($row["invoiceEntityID"]);
@@ -43,9 +43,9 @@ class invoiceEntity extends DatabaseEntity
                    LEFT JOIN invoice ON invoiceEntity.invoiceID = invoice.invoiceID
                        WHERE invoiceEntity.%sID = %d
                      ", $entity, $entityID);
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
         return (array)$rows;
@@ -107,9 +107,9 @@ class invoiceEntity extends DatabaseEntity
 
             $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE invoiceID = %d AND timeSheetID = %d AND timeSheetItemID IS NULL
                    ", $invoiceID, $timeSheetID);
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
-            $row = $dballoc->row();
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
+            $row = $allocDatabase->row();
             $invoiceItem = new invoiceItem();
             if ($row) {
                 $invoiceItem->set_id($row["invoiceItemID"]);
@@ -142,9 +142,9 @@ class invoiceEntity extends DatabaseEntity
         $project = $timeSheet->get_foreign_object("project");
         $client = $project->get_foreign_object("client");
 
-        $dballoc = new db_alloc();
-        $q1 = $dballoc->query(unsafe_prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $timeSheetID));
-        while ($row = $dballoc->row($q1)) {
+        $allocDatabase = new AllocDatabase();
+        $q1 = $allocDatabase->query(unsafe_prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $timeSheetID));
+        while ($row = $allocDatabase->row($q1)) {
             if (isset($timeSheet->pay_info["customerBilledDollars"]) && (bool)strlen($timeSheet->pay_info["customerBilledDollars"])) {
                 $iiUnitPrice = $timeSheet->pay_info["customerBilledDollars"];
             } else {
@@ -166,8 +166,8 @@ class invoiceEntity extends DatabaseEntity
                              AND invoice.invoiceStatus != 'finished'
                         ORDER BY iiDate DESC LIMIT 1
                          ", $timeSheet->get_id(), $row["timeSheetItemID"], $invoiceID);
-            $q2 = $dballoc->query($q);
-            $r2 = $dballoc->row($q2);
+            $q2 = $allocDatabase->query($q);
+            $r2 = $allocDatabase->row($q2);
 
             $ii = new invoiceItem();
             if ($r2["invoiceItemID"]) {
@@ -192,7 +192,7 @@ class invoiceEntity extends DatabaseEntity
         $expenseForm = new expenseForm();
         $expenseForm->set_id($expenseFormID);
         $expenseForm->select();
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query("SELECT max(transactionDate) as maxDate
                       FROM transaction
                      WHERE expenseFormID = %d", $expenseFormID);
@@ -200,7 +200,7 @@ class invoiceEntity extends DatabaseEntity
         $amount = $expenseForm->get_abs_sum_transactions();
 
         $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d AND transactionID IS NULL", $expenseFormID);
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $q2 = $db->query($q);
         $r2 = $db->row($q2);
         $invoiceItem = new invoiceItem();
@@ -223,13 +223,13 @@ class invoiceEntity extends DatabaseEntity
         $expenseForm = new expenseForm();
         $expenseForm->set_id($expenseFormID);
         $expenseForm->select();
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $q1 = $db->query("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseFormID);
         while ($row = $db->row($q1)) {
             $amount = page::money($row["currencyTypeID"], $row["amount"], "%mo");
 
             $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d AND transactionID = %d", $expenseFormID, $row["transactionID"]);
-            $db = new db_alloc();
+            $db = new AllocDatabase();
             $q2 = $db->query($q);
             $r2 = $db->row($q2);
             $ii = new invoiceItem();
@@ -255,7 +255,7 @@ class invoiceEntity extends DatabaseEntity
         $productSale = new productSale();
         $productSale->set_id($productSaleID);
         $productSale->select();
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query("SELECT max(transactionDate) as maxDate
                       FROM transaction
                      WHERE productSaleID = %d", $productSaleID);
@@ -263,7 +263,7 @@ class invoiceEntity extends DatabaseEntity
         $amounts = $productSale->get_amounts();
 
         $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE productSaleID = %d AND productSaleItemID IS NULL", $productSaleID);
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $q2 = $db->query($q);
         $r2 = $db->row($q2);
         $invoiceItem = new invoiceItem();
@@ -286,12 +286,12 @@ class invoiceEntity extends DatabaseEntity
         $productSale = new productSale();
         $productSale->set_id($productSaleID);
         $productSale->select();
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $q = unsafe_prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $productSale->get_id());
         $q1 = $db->query($q);
         while ($row = $db->row($q1)) {
             $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE productSaleID = %d AND productSaleItemID = %d", $productSaleID, $row["productSaleItemID"]);
-            $db = new db_alloc();
+            $db = new AllocDatabase();
             $q2 = $db->query($q);
             $r2 = $db->row($q2);
             $ii = new invoiceItem();

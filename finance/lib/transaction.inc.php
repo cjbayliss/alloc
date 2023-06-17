@@ -65,7 +65,7 @@ class transaction extends DatabaseEntity
         if ($old["destCurrencyTypeID"] != $this->get_value("destCurrencyTypeID")) {
             $field_changed = true;
         }
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         // If there already is an exchange rate set for an approved
         // transaction, then there's no need to update the exchange rate
@@ -253,10 +253,10 @@ class transaction extends DatabaseEntity
         $tfIDs = [];
         if ($_FORM["tfName"]) {
             $q = unsafe_prepare("SELECT * FROM tf WHERE tfName = '%s'", $_FORM["tfName"]);
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
-            $dballoc->next_record();
-            $tfIDs[] = $dballoc->f("tfID");
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
+            $allocDatabase->next_record();
+            $tfIDs[] = $allocDatabase->f("tfID");
         }
         if ($_FORM["tfID"]) {
             $tfIDs[] = $_FORM["tfID"];
@@ -352,7 +352,7 @@ class transaction extends DatabaseEntity
                       LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                          " . $filter2, $_FORM['tfIDs']);
             $debug and print "\n<br>QUERY: " . $q;
-            $db = new db_alloc();
+            $db = new AllocDatabase();
             $db->query($q);
             $db->row();
             $_FORM["opening_balance"] = $db->f("balance");
@@ -373,7 +373,7 @@ class transaction extends DatabaseEntity
              " . $order_by;
 
         $debug and print "\n<br>QUERY2: " . $q;
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
         $for_cyber = config::for_cyber();
         while ($row = $db->next_record()) {
@@ -652,9 +652,9 @@ class transaction extends DatabaseEntity
     public static function get_next_transactionGroupID()
     {
         $q = "SELECT coalesce(max(transactionGroupID)+1,1) as newNum FROM transaction";
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        $dballoc->row();
-        return $dballoc->f("newNum");
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        $allocDatabase->row();
+        return $allocDatabase->f("newNum");
     }
 }

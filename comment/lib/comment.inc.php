@@ -113,9 +113,9 @@ class comment extends DatabaseEntity
                 $commentMaster,
                 $commentMasterID
             );
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
-            while ($row = $dballoc->row()) {
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
+            while ($row = $allocDatabase->row()) {
                 if ($row["commentType"] == "comment") {
                     $rows[$row["commentLinkID"]]["children"][] = $row;
                 } else {
@@ -521,7 +521,7 @@ class comment extends DatabaseEntity
         foreach ($options as $option) {
             // Determine recipients
             if ($option == "interested") {
-                $db = new db_alloc();
+                $db = new AllocDatabase();
                 if ($entity && $entityID) {
                     $q = unsafe_prepare("SELECT * FROM interestedParty WHERE entity = '%s' AND entityID = %d AND interestedPartyActive = 1", $entity, $entityID);
                 }
@@ -766,10 +766,10 @@ class comment extends DatabaseEntity
          LEFT JOIN clientContact on comment.commentCreatedUserClientContactID = clientContact.clientContactID
                  " . $filter . "
           ORDER BY commentCreatedTime";
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
             $people = &get_cached_table("person");
-            while ($row = $dballoc->next_record()) {
+            while ($row = $allocDatabase->next_record()) {
                 $e = new $row["commentMaster"];
                 $e->set_id($row["commentMasterID"]);
                 $e->select();
@@ -944,9 +944,9 @@ class comment extends DatabaseEntity
 
         $people = &get_cached_table("person");
 
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $row["icon"] = 'icon-comments-alt';
             $row["id"] = "comment_" . $row["id"];
             $row["personID"] and $row["person"] = $people[$row["personID"]]["name"];
@@ -984,8 +984,8 @@ class comment extends DatabaseEntity
             $_FORM["maxCommentLength"]
         );
 
-        $dballoc->query($q2);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q2);
+        while ($row = $allocDatabase->row()) {
             $timeSheetItem = new timeSheetItem();
             if (!$timeSheetItem->read_row_record($row)) {
                 continue;
@@ -1024,8 +1024,8 @@ class comment extends DatabaseEntity
             $_FORM["maxCommentLength"]
         );
 
-        $dballoc->query($q3);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q3);
+        while ($row = $allocDatabase->row()) {
             // $tsiHint = new tsiHint();
             // if (!$tsiHint->read_row_record($row))
             //  continue;
@@ -1190,9 +1190,9 @@ class comment extends DatabaseEntity
         interestedParty::make_interested_parties("comment", $commentID, $ip);
         $emailRecipients[] = "interested";
 
-        $dballoc = new db_alloc();
-        $dballoc->connect();
-        $getClientContact = $dballoc->pdo->prepare(
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
+        $getClientContact = $allocDatabase->pdo->prepare(
             "SELECT * FROM clientContact 
               WHERE clientID = :clientID AND clientContactEmail = :email"
         );

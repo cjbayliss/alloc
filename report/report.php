@@ -226,7 +226,7 @@ if ($_POST["do_step_3"]) {
     $final_query = $query["start"] . $query["select"] . $query["from"] . $query["join"] . $query["where"] . $query["group"];
 
     if ($query["select"]) {
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($final_query);
 
         $fields = explode(",", $query["select"]);

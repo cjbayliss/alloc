@@ -28,7 +28,7 @@ if ($personID) {
     $person->select();
 }
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 if ($_POST["save"]) {
     // Saving a record

@@ -25,7 +25,7 @@ class exchangeRate extends DatabaseEntity
         if (isset($cache[$from][$to][$date]) && (bool)strlen($cache[$from][$to][$date])) {
             return $cache[$from][$to][$date];
         }
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         if ($date) {
             $q = unsafe_prepare(
                 "SELECT *
@@ -38,8 +38,8 @@ class exchangeRate extends DatabaseEntity
                 $from,
                 $to
             );
-            $dballoc->query($q);
-            $row = $dballoc->row();
+            $allocDatabase->query($q);
+            $row = $allocDatabase->row();
         }
 
         if (!$row) {
@@ -54,8 +54,8 @@ class exchangeRate extends DatabaseEntity
                 $from,
                 $to
             );
-            $dballoc->query($q);
-            $row = $dballoc->row();
+            $allocDatabase->query($q);
+            $row = $allocDatabase->row();
         }
         $cache[$from][$to][$date] = $row["exchangeRate"];
         return $row["exchangeRate"];

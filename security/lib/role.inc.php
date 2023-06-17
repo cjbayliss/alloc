@@ -14,10 +14,10 @@ class role extends DatabaseEntity
     public static function get_roles_array($level = "person")
     {
         $rows = [];
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT * FROM role WHERE roleLevel = '%s' ORDER BY roleSequence", $level);
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $rows[$row["roleHandle"]] = $row["roleName"];
         }
         return $rows;

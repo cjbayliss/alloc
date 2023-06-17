@@ -20,7 +20,7 @@ function show_overdue($template_name)
     global $TPL;
     $current_user = &singleton("current_user");
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $temp = mktime(0, 0, 0, date("m"), date("d"), date("Y"));
     $today = date("Y", $temp) . "-" . date("m", $temp) . "-" . date("d", $temp);
 

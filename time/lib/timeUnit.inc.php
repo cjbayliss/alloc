@@ -23,9 +23,9 @@ class timeUnit extends DatabaseEntity
     public function seconds_to_display_time_unit($seconds)
     {
         $q = "SELECT * FROM timeUnit";
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($allocDatabase->next_record()) {
             // blag someother time
         }
     }

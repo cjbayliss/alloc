@@ -19,11 +19,11 @@ class skill extends DatabaseEntity
         $query = "SELECT * FROM skill";
         $query .= unsafe_prepare(" WHERE skillName='%s'", $this->get_value('skillName'));
         $query .= unsafe_prepare(" AND skillClass='%s'", $this->get_value('skillClass'));
-        $dballoc = new db_alloc();
-        $dballoc->query($query);
-        if ($dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($query);
+        if ($allocDatabase->next_record()) {
             $skill = new skill();
-            $skill->read_db_record($dballoc);
+            $skill->read_db_record($allocDatabase);
             $this->set_id($skill->get_id());
             $this->set_value('skillDescription', $skill->get_value('skillDescription'));
             return true;
@@ -33,13 +33,13 @@ class skill extends DatabaseEntity
 
     public static function get_skill_classes()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $skill_classes = ["" => "Any Class"];
         $query = "SELECT skillClass FROM skill ORDER BY skillClass";
-        $dballoc->query($query);
-        while ($dballoc->next_record()) {
+        $allocDatabase->query($query);
+        while ($allocDatabase->next_record()) {
             $skill = new skill();
-            $skill->read_db_record($dballoc);
+            $skill->read_db_record($allocDatabase);
             if (!in_array($skill->get_value('skillClass'), $skill_classes)) {
                 $skill_classes[$skill->get_value('skillClass')] = $skill->get_value('skillClass');
             }
@@ -57,11 +57,11 @@ class skill extends DatabaseEntity
             $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
         }
         $query .= " ORDER BY skillClass,skillName";
-        $dballoc = new db_alloc();
-        $dballoc->query($query);
-        while ($dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($query);
+        while ($allocDatabase->next_record()) {
             $skill = new skill();
-            $skill->read_db_record($dballoc);
+            $skill->read_db_record($allocDatabase);
             $skills[$skill->get_id()] = sprintf("%s - %s", $skill->get_value('skillClass'), $skill->get_value('skillName'));
         }
         return $skills;

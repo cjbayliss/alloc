@@ -16,7 +16,7 @@ class taskListPrint
         $contact_info = [];
         global $TPL;
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         $TPL["companyName"] = config::get_config_item("companyName");
         $TPL["companyNos1"] = config::get_config_item("companyACN");

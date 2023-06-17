@@ -62,10 +62,10 @@ class timeSheet extends DatabaseEntity
         if ($this->get_value("status") != "edit") {
             $current_user_tfIDs = $current_user->get_tfIDs();
             $q = unsafe_prepare("SELECT * FROM transaction WHERE timeSheetID = %d", $this->get_id());
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
-            while ($dballoc->next_record()) {
-                if (is_array($current_user_tfIDs) && (in_array($dballoc->f("tfID"), $current_user_tfIDs) || in_array($dballoc->f("fromTfID"), $current_user_tfIDs))) {
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
+            while ($allocDatabase->next_record()) {
+                if (is_array($current_user_tfIDs) && (in_array($allocDatabase->f("tfID"), $current_user_tfIDs) || in_array($allocDatabase->f("fromTfID"), $current_user_tfIDs))) {
                     return true;
                 }
             }
@@ -140,7 +140,7 @@ class timeSheet extends DatabaseEntity
 
         static $rates;
         unset($this->pay_info);
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         if (!$this->get_value("projectID") || !$this->get_value("personID")) {
             return false;
@@ -155,7 +155,7 @@ class timeSheet extends DatabaseEntity
             [$this->pay_info["project_rate"], $this->pay_info["project_rateUnitID"]] = $rates[$this->get_value("projectID")][$this->get_value("personID")];
         } else {
             // Get rate for person for this particular project
-            $dballoc->query(
+            $allocDatabase->query(
                 "SELECT rate, rateUnitID, project.currencyTypeID
                    FROM projectPerson
               LEFT JOIN project on projectPerson.projectID = project.projectID
@@ -165,9 +165,9 @@ class timeSheet extends DatabaseEntity
                 $this->get_value("personID")
             );
 
-            $dballoc->next_record();
-            $this->pay_info["project_rate"] = page::money($dballoc->f("currencyTypeID"), $dballoc->f("rate"), "%mo");
-            $this->pay_info["project_rateUnitID"] = $dballoc->f("rateUnitID");
+            $allocDatabase->next_record();
+            $this->pay_info["project_rate"] = page::money($allocDatabase->f("currencyTypeID"), $allocDatabase->f("rate"), "%mo");
+            $this->pay_info["project_rateUnitID"] = $allocDatabase->f("rateUnitID");
             $rates[$this->get_value("projectID")][$this->get_value("personID")] = [$this->pay_info["project_rate"], $this->pay_info["project_rateUnitID"]];
         }
 
@@ -177,8 +177,8 @@ class timeSheet extends DatabaseEntity
         }
 
         $q = "SELECT * FROM timeUnit ORDER BY timeUnitSequence DESC";
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             if ($row["timeUnitSeconds"]) {
                 $extra_sql[] = "SUM(IF(timeUnit.timeUnitLabelA = '" . $row["timeUnitLabelA"] . "',multiplier * timeSheetItemDuration * timeUnit.timeUnitSeconds,0)) /" . $row["timeUnitSeconds"] . " as " . $row["timeUnitLabelA"];
             }
@@ -188,7 +188,7 @@ class timeSheet extends DatabaseEntity
         $extra_sql and $sql = "," . implode("\n,", $extra_sql);
 
         // Get duration for this timesheet/timeSheetItems
-        $dballoc->query(unsafe_prepare(
+        $allocDatabase->query(unsafe_prepare(
             "SELECT SUM(timeSheetItemDuration) AS total_duration,
                     SUM((timeSheetItemDuration * timeUnit.timeUnitSeconds) / 3600) AS total_duration_hours,
                     SUM((rate * pow(10,-currencyType.numberToBasic)) * timeSheetItemDuration * multiplier) AS total_dollars,
@@ -202,7 +202,7 @@ class timeSheet extends DatabaseEntity
             $this->get_id()
         ));
 
-        $row = $dballoc->row();
+        $row = $allocDatabase->row();
         $this->pay_info = array_merge((array)$this->pay_info, (array)$row);
         $this->pay_info["total_customerBilledDollars"] = page::money($currency, $this->pay_info["total_customerBilledDollars"], "%m");
         $this->pay_info["total_dollars"] = page::money($currency, $this->pay_info["total_dollars"], "%m");
@@ -234,9 +234,9 @@ class timeSheet extends DatabaseEntity
 
     public function destroyTransactions()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $query = unsafe_prepare("DELETE FROM transaction WHERE timeSheetID = %d AND transactionType != 'invoice'", $this->get_id());
-        $dballoc->query($query);
+        $allocDatabase->query($query);
     }
 
     public function createTransactions($status = "pending")
@@ -247,7 +247,7 @@ class timeSheet extends DatabaseEntity
         // So this will only create transaction if:
         // - The timesheet status is admin
         // - There is a recipient_tfID - that is the money is going to a TF
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $project = $this->get_foreign_object("project");
         $projectName = $project->get_value("projectName");
         $personName = person::get_fullname($this->get_value("personID"));
@@ -308,37 +308,37 @@ class timeSheet extends DatabaseEntity
             $rtn[$product] = $this->createTransaction($product, $this->pay_info["total_dollars"], $recipient_tfID, "timesheet", $status);
 
             // 4. Credit Project Commissions
-            $dballoc->query(
+            $allocDatabase->query(
                 "SELECT * FROM projectCommissionPerson where projectID = %d ORDER BY commissionPercent DESC",
                 $this->get_value("projectID")
             );
 
-            while ($dballoc->next_record()) {
-                if ($dballoc->f("commissionPercent") > 0) {
-                    $product = "Commission " . $dballoc->f("commissionPercent") . "% of " . $this->pay_info["currency"] . $this->pay_info["total_customerBilledDollars_minus_gst"];
+            while ($allocDatabase->next_record()) {
+                if ($allocDatabase->f("commissionPercent") > 0) {
+                    $product = "Commission " . $allocDatabase->f("commissionPercent") . "% of " . $this->pay_info["currency"] . $this->pay_info["total_customerBilledDollars_minus_gst"];
                     $product .= " from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
-                    $amount = $this->pay_info["total_customerBilledDollars_minus_gst"] * ($dballoc->f("commissionPercent") / 100);
-                    $rtn[$product] = $this->createTransaction($product, $amount, $dballoc->f("tfID"), "commission", $status);
+                    $amount = $this->pay_info["total_customerBilledDollars_minus_gst"] * ($allocDatabase->f("commissionPercent") / 100);
+                    $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission", $status);
 
                     // Suck up the rest of funds if it is a special zero % commission
-                } else if ($dballoc->f("commissionPercent") == 0) {
+                } else if ($allocDatabase->f("commissionPercent") == 0) {
                     $amount = $this->pay_info["total_customerBilledDollars_minus_gst"] - $this->get_amount_so_far();
                     $amount < 0 and $amount = 0;
 
                     // If the 0% commission is for the company tf, dump it in the company tf
-                    if ($dballoc->f("tfID") == $company_tfID) {
+                    if ($allocDatabase->f("tfID") == $company_tfID) {
                         $product = "Commission Remaining from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
-                        $rtn[$product] = $this->createTransaction($product, $amount, $dballoc->f("tfID"), "commission");
+                        $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission");
                     } else {
                         // If it's cyber do a 50/50 split with the commission tf and the company
                         if (config::for_cyber()) {
                             $amount = $amount / 2;
                             $product = "Commission Remaining from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
-                            $rtn[$product] = $this->createTransaction($product, $amount, $dballoc->f("tfID"), "commission");
+                            $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission");
                             $rtn[$product] = $this->createTransaction($product, $amount, $company_tfID, "commission", $status); // 50/50
                         } else {
                             $product = "Commission Remaining from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
-                            $rtn[$product] = $this->createTransaction($product, $amount, $dballoc->f("tfID"), "commission");
+                            $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission");
                         }
                     }
                 }
@@ -363,8 +363,8 @@ class timeSheet extends DatabaseEntity
                        WHERE timeSheetID = %d AND transactionType != 'invoice'
                      ", $this->get_id());
         $include_tax or $q .= "AND transactionType != 'tax'";
-        $dballoc = new db_alloc();
-        $r = $dballoc->qr($q);
+        $allocDatabase = new AllocDatabase();
+        $r = $allocDatabase->qr($q);
         return $r['balance'];
     }
 
@@ -539,14 +539,14 @@ class timeSheet extends DatabaseEntity
             ORDER BY dateFrom,projectName,timeSheet.status,surname";
 
         $debug and print "Query: " . $q;
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
         $status_array = timeSheet::get_timeSheet_statii();
         $people_array = &get_cached_table("person");
 
-        while ($row = $dballoc->next_record()) {
+        while ($row = $allocDatabase->next_record()) {
             $t = new timeSheet();
-            if (!$t->read_db_record($dballoc)) {
+            if (!$t->read_db_record($allocDatabase)) {
                 continue;
             }
 
@@ -596,7 +596,7 @@ class timeSheet extends DatabaseEntity
             }
 
             $p = new project();
-            $p->read_db_record($dballoc);
+            $p->read_db_record($allocDatabase);
             $row["projectLink"] = $t->get_link($p->get_name($_FORM));
             $rows[$row["timeSheetID"]] = $row;
         }
@@ -626,7 +626,7 @@ class timeSheet extends DatabaseEntity
 
         $pos = [];
         $neg = [];
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT amount * pow(10,-currencyType.numberToBasic) AS amount,
                              transaction.currencyTypeID as currency
                         FROM transaction
@@ -634,8 +634,8 @@ class timeSheet extends DatabaseEntity
                        WHERE status = 'approved'
                          AND timeSheetID = %d
                      ", $this->get_id());
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             if ($row["amount"] > 0) {
                 $pos[] = $row;
             } else {
@@ -728,7 +728,7 @@ class timeSheet extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         // display the list of project name.
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         if (!$_FORM['showAllProjects']) {
             $filter = "WHERE projectStatus = 'Current' ";
         }
@@ -889,12 +889,12 @@ class timeSheet extends DatabaseEntity
             $this->set_value("dateRejected", "");
             // Check for time overrun
             $overrun_tasks = [];
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $task_id_query = unsafe_prepare("SELECT DISTINCT taskID FROM timeSheetItem WHERE timeSheetID=%d ORDER BY dateTimeSheetItem, timeSheetItemID", $this->get_id());
-            $dballoc->query($task_id_query);
-            while ($dballoc->next_record()) {
+            $allocDatabase->query($task_id_query);
+            while ($allocDatabase->next_record()) {
                 $task = new task();
-                $task->read_db_record($dballoc);
+                $task->read_db_record($allocDatabase);
                 $task->select();
                 if ($task->get_value('timeLimit') > 0) {
                     $total_billed_time = ($task->get_time_billed(false)) / 3600;
@@ -992,8 +992,8 @@ class timeSheet extends DatabaseEntity
                 alloc_error("You do not have permission to change this timesheet.");
             }
 
-            $dballoc = new db_alloc();
-            $hasItems = $dballoc->qr("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $this->get_id());
+            $allocDatabase = new AllocDatabase();
+            $hasItems = $allocDatabase->qr("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $this->get_id());
             if (!$hasItems) {
                 return alloc_error('Unable to submit time sheet, no items have been added.');
             }
@@ -1081,8 +1081,8 @@ class timeSheet extends DatabaseEntity
                       RIGHT JOIN tfPerson ON tfPerson.personID = %d AND tfPerson.tfID = tf.tfID
                            WHERE transaction.timeSheetID = %d
                          ", $this->get_value('personID'), $this->get_id());
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
 
             // the email itself
             $email = [];
@@ -1098,15 +1098,15 @@ class timeSheet extends DatabaseEntity
 
                 EOD;
 
-            if ($dballoc->num_rows() > 0) {
+            if ($allocDatabase->num_rows() > 0) {
                 $email["body"] .= "Transaction summary:\n";
                 $status_ops = [
                     "pending"  => "Pending",
                     "approved" => "Approved",
                     "rejected" => "Rejected",
                 ];
-                while ($dballoc->next_record()) {
-                    $email["body"] .= $dballoc->f("transactionDate") . " for " . $dballoc->f("product") . ": " . $status_ops[$dballoc->f("status")] . "\n";
+                while ($allocDatabase->next_record()) {
+                    $email["body"] .= $allocDatabase->f("transactionDate") . " for " . $allocDatabase->f("product") . ": " . $status_ops[$allocDatabase->f("status")] . "\n";
                 }
             }
             $msg[] = $this->shootEmail($email);
@@ -1122,9 +1122,9 @@ class timeSheet extends DatabaseEntity
             alloc_error("You do not have permission to approve transactions for this timesheet.");
         }
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("UPDATE transaction SET status = 'approved' WHERE timeSheetID = %d AND status = 'pending'", $this->get_id());
-        $dballoc->query($q);
+        $allocDatabase->query($q);
     }
 
     public function get_email_vars()
@@ -1191,7 +1191,7 @@ class timeSheet extends DatabaseEntity
                             ORDER BY dateFrom
                                LIMIT 1
                              ", $current_user->get_id(), $stuff["timeSheetID"]);
-                $db = new db_alloc();
+                $db = new AllocDatabase();
                 $db->query($q);
                 $row = $db->row();
                 $row or alloc_error("Couldn't find an editable time sheet with that ID.");
@@ -1204,7 +1204,7 @@ class timeSheet extends DatabaseEntity
                             ORDER BY dateFrom
                                LIMIT 1
                              ", $projectID, $current_user->get_id());
-                $db = new db_alloc();
+                $db = new AllocDatabase();
                 $db->query($q);
                 $row = $db->row();
             }
@@ -1275,7 +1275,7 @@ class timeSheet extends DatabaseEntity
 
     public function get_all_parties($projectID = "")
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $interestedPartyOptions = [];
 
         if (!$projectID && is_object($this)) {
@@ -1326,7 +1326,7 @@ class timeSheet extends DatabaseEntity
     {
         // Return total amount used and total amount allocated
         if (is_object($this) && $this->get_id()) {
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             // Get most recent invoiceItem that this time sheet belongs to.
             $q = unsafe_prepare("SELECT invoiceID
                             FROM invoiceItem
@@ -1334,8 +1334,8 @@ class timeSheet extends DatabaseEntity
                         ORDER BY invoiceItem.iiDate DESC
                            LIMIT 1
                          ", $this->get_id());
-            $dballoc->query($q);
-            $row = $dballoc->row();
+            $allocDatabase->query($q);
+            $row = $allocDatabase->row();
             $invoiceID = $row["invoiceID"];
             if ($invoiceID) {
                 $invoice = new invoice();
@@ -1345,8 +1345,8 @@ class timeSheet extends DatabaseEntity
 
                 // Loop through all the other invoice items on that invoice
                 $q = unsafe_prepare("SELECT sum(iiAmount) AS totalUsed FROM invoiceItem WHERE invoiceID = %d", $invoiceID);
-                $dballoc->query($q);
-                $row2 = $dballoc->row();
+                $allocDatabase->query($q);
+                $row2 = $allocDatabase->row();
 
                 return [page::money($invoice->get_value("currencyTypeID"), $row2["totalUsed"], $fmt), $maxAmount];
             }
@@ -1395,9 +1395,9 @@ class timeSheet extends DatabaseEntity
                         FROM timeSheetItem
                        WHERE timeSheetID = %d
                     ORDER BY dateTimeSheetItem ASC", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($r = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($r = $allocDatabase->row()) {
             $desc .= $br . $r["dateTimeSheetItem"] . " " . $r["taskID"] . " " . $r["description"] . "\n";
             $r["comment"] && $r["commentPrivate"] or $desc .= $r["comment"] . "\n";
             $br = "\n";
@@ -1423,8 +1423,8 @@ class timeSheet extends DatabaseEntity
     public function can_edit_rate()
     {
         $current_user = &singleton("current_user");
-        $dballoc = new db_alloc();
-        $row = $dballoc->qr("SELECT can_edit_rate(%d,%d) as allow", $current_user->get_id(), $this->get_value("projectID"));
+        $allocDatabase = new AllocDatabase();
+        $row = $allocDatabase->qr("SELECT can_edit_rate(%d,%d) as allow", $current_user->get_id(), $this->get_value("projectID"));
         return $row["allow"];
     }
 

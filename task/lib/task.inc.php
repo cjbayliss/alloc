@@ -55,9 +55,9 @@ class task extends DatabaseEntity
         } else {
             $existing = $this->all_row_fields;
             if ($existing["taskStatus"] != $this->get_value("taskStatus")) {
-                $dballoc = new db_alloc();
-                $dballoc->query("call change_task_status(%d,'%s')", $this->get_id(), $this->get_value("taskStatus"));
-                $row = $dballoc->qr("SELECT taskStatus
+                $allocDatabase = new AllocDatabase();
+                $allocDatabase->query("call change_task_status(%d,'%s')", $this->get_id(), $this->get_value("taskStatus"));
+                $row = $allocDatabase->qr("SELECT taskStatus
                                       ,dateActualCompletion
                                       ,dateActualStart
                                       ,dateClosed
@@ -136,10 +136,10 @@ class task extends DatabaseEntity
 
     public function add_pending_tasks($str)
     {
-        $dballoc = new db_alloc();
-        $dballoc->query("SELECT * FROM pendingTask WHERE taskID = %d", $this->get_id());
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query("SELECT * FROM pendingTask WHERE taskID = %d", $this->get_id());
         $rows = [];
-        while ($row = $dballoc->row()) {
+        while ($row = $allocDatabase->row()) {
             $rows[] = $row["pendingTaskID"];
         }
         asort($rows);
@@ -152,10 +152,10 @@ class task extends DatabaseEntity
         $str2 = implode(",", (array)$bits);
 
         if ($str1 != $str2) {
-            $dballoc->query("DELETE FROM pendingTask WHERE taskID = %d", $this->get_id());
+            $allocDatabase->query("DELETE FROM pendingTask WHERE taskID = %d", $this->get_id());
             foreach ((array)$bits as $id) {
                 if (is_numeric($id)) {
-                    $dballoc->query("INSERT INTO pendingTask (taskID,pendingTaskID) VALUES (%d,%d)", $this->get_id(), $id);
+                    $allocDatabase->query("INSERT INTO pendingTask (taskID,pendingTaskID) VALUES (%d,%d)", $this->get_id(), $id);
                 }
             }
         }
@@ -164,26 +164,26 @@ class task extends DatabaseEntity
     public function add_tags($tags = [])
     {
         (is_countable($tags) ? count($tags) : 0) == 1 and $tags = explode(",", current($tags));
-        $dballoc = new db_alloc();
-        $dballoc->query("DELETE FROM tag WHERE taskID = %d", $this->get_id());
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query("DELETE FROM tag WHERE taskID = %d", $this->get_id());
         foreach ((array)$tags as $tag) {
             if (trim($tag)) {
-                $dballoc->query("INSERT INTO tag (taskID,name) VALUES (%d,'%s')", $this->get_id(), trim($tag));
+                $allocDatabase->query("INSERT INTO tag (taskID,name) VALUES (%d,'%s')", $this->get_id(), trim($tag));
             }
         }
     }
 
     public function get_tags($all = false)
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         if ($all) {
             $q = unsafe_prepare("SELECT DISTINCT name FROM tag ORDER BY name");
         } else {
             $q = unsafe_prepare("SELECT name FROM tag WHERE taskID = %d ORDER BY name", $this->get_id());
         }
-        $dballoc->query($q);
+        $allocDatabase->query($q);
         $arr = [];
-        while ($row = $dballoc->row()) {
+        while ($row = $allocDatabase->row()) {
             $row["name"] and $arr[$row["name"]] = $row["name"];
         }
         return (array)$arr;
@@ -192,10 +192,10 @@ class task extends DatabaseEntity
     public function get_pending_tasks($invert = false)
     {
         $rows = [];
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT * FROM pendingTask WHERE %s = %d", ($invert ? "pendingTaskID" : "taskID"), $this->get_id());
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $rows[] = $row[($invert ? "taskID" : "pendingTaskID")];
         }
         return (array)$rows;
@@ -215,9 +215,9 @@ class task extends DatabaseEntity
                     GROUP BY reminder.reminderID
                      ", $this->get_id());
 
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
         return (array)$rows;
@@ -369,11 +369,11 @@ class task extends DatabaseEntity
     public function update_children($field, $value = "")
     {
         $q = unsafe_prepare("SELECT * FROM task WHERE parentTaskID = %d", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($allocDatabase->row()) {
             $t = new task();
-            $t->read_db_record($dballoc);
+            $t->read_db_record($allocDatabase);
             $t->set_value($field, $value);
             $t->save();
             if ($t->get_value("taskTypeID") == "Parent") {
@@ -395,7 +395,7 @@ class task extends DatabaseEntity
         $projectID or $projectID = $_GET["projectID"];
         $parentTaskID or $parentTaskID = $_GET["parentTaskID"];
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         if ($projectID) {
             [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
             // Status may be closed_<something>
@@ -449,7 +449,7 @@ class task extends DatabaseEntity
 
     public function get_all_parties($projectID = "")
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $interestedPartyOptions = [];
         if ($_GET["projectID"]) {
             $projectID = $_GET["projectID"];
@@ -509,7 +509,7 @@ class task extends DatabaseEntity
         $current_user_is_manager = null;
         $current_user = &singleton("current_user");
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         if ($this->get_id()) {
             $origval = $this->get_value($field);
@@ -533,8 +533,8 @@ class task extends DatabaseEntity
                              AND projectID = %d
                         ORDER BY firstName, username
                          ", $projectID);
-            $dballoc->query($q);
-            while ($row = $dballoc->row()) {
+            $allocDatabase->query($q);
+            while ($row = $allocDatabase->row()) {
                 if ($managers_only && $current_user->get_id() == $row["personID"]) {
                     $current_user_is_manager = true;
                 }
@@ -563,7 +563,7 @@ class task extends DatabaseEntity
     {
         $projectID or $projectID = $_GET["projectID"];
         // Project Options - Select all projects
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $query = unsafe_prepare("SELECT projectID AS value, projectName AS label
                             FROM project
                            WHERE projectStatus IN ('Current', 'Potential') OR projectID = %d
@@ -579,7 +579,7 @@ class task extends DatabaseEntity
         global $TPL;
         $current_user = &singleton("current_user");
         global $isMessage;
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $projectID = $_GET["projectID"] or $projectID = $this->get_value("projectID");
         $TPL["personOptions"] = "<select name=\"personID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "personID") . "</select>";
         $TPL["managerPersonOptions"] = "<select name=\"managerID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "managerID") . "</select>";
@@ -598,23 +598,23 @@ class task extends DatabaseEntity
         $TPL["parentTaskOptions"] = $this->get_parent_task_select();
         $TPL["interestedPartyOptions"] = $this->get_task_cc_list_select();
 
-        $dballoc->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile
+        $allocDatabase->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile
                               FROM interestedParty
                          LEFT JOIN clientContact ON interestedParty.clientContactID = clientContact.clientContactID
                              WHERE entity='task'
                                AND entityID = %d
                                AND interestedPartyActive = 1
                           ORDER BY fullName", $this->get_id()));
-        while ($dballoc->next_record()) {
-            $value = interestedParty::get_encoded_interested_party_identifier($dballoc->f("fullName"));
+        while ($allocDatabase->next_record()) {
+            $value = interestedParty::get_encoded_interested_party_identifier($allocDatabase->f("fullName"));
             $phone = [
-                "p" => $dballoc->f('clientContactPhone'),
-                "m" => $dballoc->f('clientContactMobile'),
+                "p" => $allocDatabase->f('clientContactPhone'),
+                "m" => $allocDatabase->f('clientContactMobile'),
             ];
             $TPL["interestedParties"][] = [
                 'key'   => $value,
-                'name'  => $dballoc->f("fullName"),
-                'email' => $dballoc->f("emailAddress"),
+                'name'  => $allocDatabase->f("fullName"),
+                'email' => $allocDatabase->f("emailAddress"),
                 'phone' => $phone,
             ];
         }
@@ -1081,17 +1081,17 @@ class task extends DatabaseEntity
 
         $debug and print "\n<br>QUERY: " . $q;
         $_FORM["debug"] and print "\n<br>QUERY: " . $q;
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->next_record()) {
             $task = new task();
-            $task->read_db_record($dballoc);
+            $task->read_db_record($allocDatabase);
             $row["taskURL"] = $task->get_url();
             $row["taskName"] = $task->get_name($_FORM);
             $row["taskLink"] = $task->get_task_link($_FORM);
             $row["project_name"] = $row["projectShortName"] or $row["project_name"] = $row["projectName"];
-            $row["projectPriority"] = $dballoc->f("projectPriority");
-            has("project") and $row["projectPriorityLabel"] = project::get_priority_label($dballoc->f("projectPriority"));
+            $row["projectPriority"] = $allocDatabase->f("projectPriority");
+            has("project") and $row["projectPriorityLabel"] = project::get_priority_label($allocDatabase->f("projectPriority"));
             has("project") and [$row["priorityFactor"], $row["daysUntilDue"]] = $task->get_overall_priority($row["projectPriority"], $row["priority"], $row["dateTargetCompletion"]);
             $row["taskTypeImage"] = $task->get_task_image();
             $row["taskTypeSeq"] = $_FORM["taskType_cache"][$row["taskTypeID"]]["taskTypeSeq"];
@@ -1202,16 +1202,16 @@ class task extends DatabaseEntity
             return $results[$taskID];
         }
         if ($taskID) {
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             // Get tally from timeSheetItem table
-            $dballoc->query("SELECT sum(timeSheetItemDuration*timeUnitSeconds) as sum_of_time
+            $allocDatabase->query("SELECT sum(timeSheetItemDuration*timeUnitSeconds) as sum_of_time
                           FROM timeSheetItem
                      LEFT JOIN timeUnit ON timeSheetItemDurationUnitID = timeUnitID
                          WHERE taskID = %d
                       GROUP BY taskID", $taskID);
-            while ($dballoc->next_record()) {
-                $results[$taskID] = $dballoc->f("sum_of_time");
-                return $dballoc->f("sum_of_time");
+            while ($allocDatabase->next_record()) {
+                $results[$taskID] = $allocDatabase->f("sum_of_time");
+                return $allocDatabase->f("sum_of_time");
             }
             return "";
         }
@@ -1688,10 +1688,10 @@ class task extends DatabaseEntity
     public function can_be_deleted()
     {
         if (is_object($this) && $this->get_id()) {
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $q = unsafe_prepare("SELECT can_delete_task(%d) as rtn", $this->get_id());
-            $dballoc->query($q);
-            $row = $dballoc->row();
+            $allocDatabase->query($q);
+            $row = $allocDatabase->row();
             return $row['rtn'];
         }
     }
@@ -1701,14 +1701,14 @@ class task extends DatabaseEntity
         if (is_object($this) && $this->get_id()) {
             $this->select();
             if (substr($this->get_value("taskStatus"), 0, 4) == 'open') {
-                $dballoc = new db_alloc();
+                $allocDatabase = new AllocDatabase();
                 $q = unsafe_prepare("SELECT *
                                 FROM audit
                                WHERE taskID = %d
                                  AND field = 'taskStatus'
                             ORDER BY dateChanged DESC
                                LIMIT 2,1", $this->get_id());
-                $row = $dballoc->qr($q);
+                $row = $allocDatabase->qr($q);
                 return substr($row["value"], 0, 7) == "pending";
             }
         }
@@ -1719,8 +1719,8 @@ class task extends DatabaseEntity
         if (is_object($this) && $this->get_id()) {
             $this->select();
             if (substr($this->get_value("taskStatus"), 0, 4) == 'pend') {
-                $dballoc = new db_alloc();
-                $dballoc->query("call change_task_status(%d,'%s')", $this->get_id(), "open_inprogress");
+                $allocDatabase = new AllocDatabase();
+                $allocDatabase->query("call change_task_status(%d,'%s')", $this->get_id(), "open_inprogress");
                 return true;
             }
         }

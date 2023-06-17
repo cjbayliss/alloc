@@ -49,7 +49,7 @@ function get_parent_taskIDs($taskID)
             AND (taskID != parentTaskID OR parentTaskID IS NULL)",
         $taskID
     );
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query($q);
 
     while ($db->next_record()) {
@@ -119,7 +119,7 @@ function show_taskHistory()
 
 global $timeSheetID;
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $task = new task();
 
 // If taskID

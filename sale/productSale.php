@@ -45,7 +45,7 @@ function show_productSale_list($productSaleID, $template)
           WHERE productSaleID = %d",
         $productSaleID
     );
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query($query);
     $productClass = new product();
     while ($db->next_record()) {
@@ -196,7 +196,7 @@ if ($productSaleID) {
     $TPL["status"] = "create";
 }
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $tf = new tf();
 $tflist = $tf->get_assoc_array("tfID", "tfName");
 

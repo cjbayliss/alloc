@@ -29,7 +29,7 @@ function add_tf($tfID, $options, $warningKey, $warningValue)
     return $options;
 }
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $transaction = new transaction();
 $transaction->read_globals();
 $transactionID = $_POST["transactionID"] or $transactionID = $_GET["transactionID"];
@@ -116,7 +116,7 @@ $TPL["transactionTypeOptions"] = page::select_options($transactionTypes, $transa
 
 is_object($transaction) and $TPL["transactionTypeLink"] = $transaction->get_transaction_type_link();
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 $tf = new tf();
 $options = $tf->get_assoc_array("tfID", "tfName");

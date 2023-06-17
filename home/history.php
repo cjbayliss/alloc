@@ -14,7 +14,7 @@ $historyID = $_POST["historyID"] or $historyID = $_GET["historyID"];
 
 if ($historyID) {
     if (is_numeric($historyID)) {
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $query = unsafe_prepare("SELECT * FROM history WHERE historyID = %d", $historyID);
         $db->query($query);
         $db->next_record();

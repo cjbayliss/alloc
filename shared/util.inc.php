@@ -147,7 +147,7 @@ function rebuild_cache($table)
         $m = new meta($table);
         $cache[$table] = $m->get_list();
     } else {
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query("SELECT * FROM " . $table);
         while ($row = $db->row()) {
             $cache[$table][$db->f($table . "ID")] = $row;
@@ -623,7 +623,7 @@ function alloc_error($str = "", $force = null)
 
     // Prevent further db queries
     if ($errors_haltdb) {
-        db_alloc::$stop_doing_queries = true;
+        AllocDatabase::$stop_doing_queries = true;
     }
 
     // Throw an exception, that can be caught and handled (eg receiveEmail.php)

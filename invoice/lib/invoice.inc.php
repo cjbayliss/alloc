@@ -57,9 +57,9 @@ class invoice extends DatabaseEntity
 
     public function delete()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("DELETE FROM invoiceEntity WHERE invoiceID = %d", $this->get_id());
-        $dballoc->query($q);
+        $allocDatabase->query($q);
         return parent::delete();
     }
 
@@ -101,11 +101,11 @@ class invoice extends DatabaseEntity
             $person = $current_user;
         }
 
-        $dballoc = new db_alloc();
-        $dballoc->query("SELECT * FROM invoiceItem WHERE invoiceID=%d", $this->get_id());
-        while ($dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query("SELECT * FROM invoiceItem WHERE invoiceID=%d", $this->get_id());
+        while ($allocDatabase->next_record()) {
             $invoice_item = new invoiceItem();
-            if ($invoice_item->read_db_record($dballoc)) {
+            if ($invoice_item->read_db_record($allocDatabase)) {
                 if ($invoice_item->is_owner($person)) {
                     return true;
                 }
@@ -119,9 +119,9 @@ class invoice extends DatabaseEntity
         $invoiceItemIDs = [];
         $id = $invoiceID or $id = $this->get_id();
         $q = unsafe_prepare("SELECT invoiceItemID FROM invoiceItem WHERE invoiceID = %d", $id);
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $invoiceItemIDs[] = $row["invoiceItemID"];
         }
         return $invoiceItemIDs;
@@ -132,9 +132,9 @@ class invoice extends DatabaseEntity
         $transactionIDs = [];
         $id = $invoiceID or $id = $this->get_id();
         $q = unsafe_prepare("SELECT transactionID FROM transaction WHERE invoiceID = %d", $id);
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $transactionIDs[] = $row["transactionID"];
         }
         return $transactionIDs;
@@ -143,10 +143,10 @@ class invoice extends DatabaseEntity
     public static function get_next_invoiceNum()
     {
         $q = "SELECT coalesce(max(invoiceNum)+1,1) as newNum FROM invoice";
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        $dballoc->row();
-        return $dballoc->f("newNum");
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        $allocDatabase->row();
+        return $allocDatabase->f("newNum");
     }
 
     public function get_invoiceItem_list_for_file($verbose = false)
@@ -160,7 +160,7 @@ class invoice extends DatabaseEntity
 
         $q = unsafe_prepare("SELECT * from invoiceItem WHERE invoiceID=%d ", $this->get_id());
         $q .= unsafe_prepare("ORDER BY iiDate,invoiceItemID");
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
 
         while ($db->next_record()) {
@@ -208,7 +208,7 @@ class invoice extends DatabaseEntity
             // Get task description
             if ($invoiceItem->get_value("timeSheetID") && $verbose) {
                 $q = unsafe_prepare("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $invoiceItem->get_value("timeSheetID"));
-                $db2 = new db_alloc();
+                $db2 = new AllocDatabase();
                 $db2->query($q);
                 unset($sep);
                 unset($task_info);
@@ -249,7 +249,7 @@ class invoice extends DatabaseEntity
         $font1 = ALLOC_MOD_DIR . "util/fonts/Helvetica.afm";
         $font2 = ALLOC_MOD_DIR . "util/fonts/Helvetica-Oblique.afm";
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         // Get client name
         $client = $this->get_foreign_object("client");
@@ -511,9 +511,9 @@ class invoice extends DatabaseEntity
                     FROM projectPerson LEFT JOIN project ON projectPerson.projectID = project.projectID
                    WHERE " . sprintf_implode("projectPerson.personID = %d", $filter["personID"]) . "
                      AND project.clientID IS NOT NULL";
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
-            while ($row = $dballoc->row()) {
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
+            while ($row = $allocDatabase->row()) {
                 $valid_clientIDs[] = $row["clientID"];
             }
             $filter["clientID"] && !is_array($filter["clientID"]) and $filter["clientID"] = [$filter["clientID"]];
@@ -592,9 +592,9 @@ class invoice extends DatabaseEntity
             GROUP BY invoice.invoiceID
             ORDER BY invoiceDateFrom";
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         // $db->query("DROP TABLE IF EXISTS invoice_details");
-        $dballoc->query($q1);
+        $allocDatabase->query($q1);
 
         $q2 = "SELECT invoice_details.*
                    , SUM(transaction_approved.amount) as amountPaidApproved
@@ -613,12 +613,12 @@ class invoice extends DatabaseEntity
 
         $debug and print "<pre>Query1: " . $q1 . "</pre>";
         $debug and print "<pre>Query2: " . $q2 . "</pre>";
-        $dballoc->query($q2);
+        $allocDatabase->query($q2);
 
-        while ($row = $dballoc->next_record()) {
+        while ($row = $allocDatabase->next_record()) {
             $print = true;
             $i = new invoice();
-            $i->read_db_record($dballoc);
+            $i->read_db_record($allocDatabase);
             $row["amountPaidApproved"] = page::money($row["currencyTypeID"], $row["amountPaidApproved"], "%mo");
             $row["amountPaidPending"] = page::money($row["currencyTypeID"], $row["amountPaidPending"], "%mo");
             $row["amountPaidRejected"] = page::money($row["currencyTypeID"], $row["amountPaidRejected"], "%mo");
@@ -738,25 +738,25 @@ class invoice extends DatabaseEntity
 
     public static function update_invoice_dates($invoiceID)
     {
-        $dballoc = new db_alloc();
-        $dballoc->query(unsafe_prepare(
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query(unsafe_prepare(
             "SELECT max(iiDate) AS maxDate, min(iiDate) AS minDate
                FROM invoiceItem
               WHERE invoiceID=%d",
             $invoiceID
         ));
-        $dballoc->next_record();
+        $allocDatabase->next_record();
         $invoice = new invoice();
         $invoice->set_id($invoiceID);
         $invoice->select();
-        $invoice->set_value("invoiceDateFrom", $dballoc->f("minDate"));
-        $invoice->set_value("invoiceDateTo", $dballoc->f("maxDate"));
+        $invoice->set_value("invoiceDateFrom", $allocDatabase->f("minDate"));
+        $invoice->set_value("invoiceDateTo", $allocDatabase->f("maxDate"));
         return $invoice->save();
     }
 
     public function close_related_entities()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $invoiceItemIDs = $this->get_invoiceItems();
         foreach ($invoiceItemIDs as $invoiceItemID) {
             $q = unsafe_prepare(
@@ -766,8 +766,8 @@ class invoice extends DatabaseEntity
                     AND status = 'pending'",
                 $invoiceItemID
             );
-            $dballoc->query($q);
-            if (!$dballoc->next_record()) {
+            $allocDatabase->query($q);
+            if (!$allocDatabase->next_record()) {
                 $invoiceItem = new invoiceItem();
                 $invoiceItem->set_id($invoiceItemID);
                 $invoiceItem->select();
@@ -836,8 +836,8 @@ class invoice extends DatabaseEntity
             }
         }
         if ($direction == "forwards" && $newstatus == "reconcile") {
-            $dballoc = new db_alloc();
-            $hasItems = $dballoc->qr("SELECT * FROM invoiceItem WHERE invoiceID = %d", $this->get_id());
+            $allocDatabase = new AllocDatabase();
+            $hasItems = $allocDatabase->qr("SELECT * FROM invoiceItem WHERE invoiceID = %d", $this->get_id());
             if (!$hasItems) {
                 alloc_error("Unable to submit invoice, no items have been added.");
                 return false;
@@ -853,9 +853,9 @@ class invoice extends DatabaseEntity
                    LEFT JOIN invoiceItem on transaction.invoiceItemID = invoiceItem.invoiceItemID
                        WHERE invoiceItem.invoiceID = %d AND transaction.status = 'pending'
                    ", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        return $dballoc->next_record();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        return $allocDatabase->next_record();
     }
 
     public function add_timeSheet($timeSheetID = false)
@@ -869,11 +869,11 @@ class invoice extends DatabaseEntity
                 $this->get_id(),
                 $timeSheetID
             );
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
             // Add this time sheet to the invoice if the timeSheet hasn't already
             // been added to this invoice
-            if (!$dballoc->row()) {
+            if (!$allocDatabase->row()) {
                 invoiceEntity::save_invoice_timeSheet($this->get_id(), $timeSheetID);
             }
         }
@@ -881,7 +881,7 @@ class invoice extends DatabaseEntity
 
     public function get_all_parties($projectID = "", $clientID = "")
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $interestedPartyOptions = [];
 
         if (!$projectID && is_object($this)) {

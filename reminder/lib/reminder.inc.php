@@ -42,15 +42,15 @@ class reminder extends DatabaseEntity
     public function delete()
     {
         $q = unsafe_prepare("DELETE FROM reminderRecipient WHERE reminderID = %d", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
         return parent::delete();
     }
 
     public function get_recipients()
     {
         $recipients = [];
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $type = $this->get_value('reminderType');
         if ($type == "project") {
             $query = unsafe_prepare("SELECT *
@@ -62,25 +62,25 @@ class reminder extends DatabaseEntity
             // Modified query option: to send to all people on the project that this task is from.
             $recipients = ["-3" => "Task Manager", "-2" => "Task Assignee"];
 
-            $dballoc->query("SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID'));
-            $dballoc->next_record();
+            $allocDatabase->query("SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID'));
+            $allocDatabase->next_record();
 
-            if ($dballoc->f('projectID')) {
+            if ($allocDatabase->f('projectID')) {
                 $query = unsafe_prepare("SELECT *
                                     FROM projectPerson
                                LEFT JOIN person ON projectPerson.personID=person.personID
                                    WHERE projectPerson.projectID = %d
-                                ORDER BY person.username", $dballoc->f('projectID'));
+                                ORDER BY person.username", $allocDatabase->f('projectID'));
             } else {
                 $query = "SELECT * FROM person WHERE personActive = 1 ORDER BY username";
             }
         } else {
             $query = "SELECT * FROM person WHERE personActive = 1 ORDER BY username";
         }
-        $dballoc->query($query);
-        while ($dballoc->next_record()) {
+        $allocDatabase->query($query);
+        while ($allocDatabase->next_record()) {
             $person = new person();
-            $person->read_db_record($dballoc);
+            $person->read_db_record($allocDatabase);
             $recipients[$person->get_id()] = $person->get_name();
         }
 
@@ -95,14 +95,14 @@ class reminder extends DatabaseEntity
         $type = $this->get_value('reminderType');
 
         $selected = [];
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $query = "SELECT * from reminderRecipient WHERE reminderID = %d";
-        $dballoc->query($query, $this->get_id());
-        while ($dballoc->next_record()) {
-            if ($dballoc->f('metaPersonID')) {
-                $selected[] = $dballoc->f('metaPersonID');
+        $allocDatabase->query($query, $this->get_id());
+        while ($allocDatabase->next_record()) {
+            if ($allocDatabase->f('metaPersonID')) {
+                $selected[] = $allocDatabase->f('metaPersonID');
             } else {
-                $selected[] = $dballoc->f('personID');
+                $selected[] = $allocDatabase->f('personID');
             }
         }
 
@@ -450,14 +450,14 @@ class reminder extends DatabaseEntity
 
     public function get_all_recipients()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $query = "SELECT * FROM reminderRecipient WHERE reminderID = %d";
-        $dballoc->query($query, $this->get_id());
+        $allocDatabase->query($query, $this->get_id());
         $people = &get_cached_table("person");
         $recipients = [];
         $reminderRecipient = new reminderRecipient();
-        while ($dballoc->next_record()) {
-            $reminderRecipient->read_db_record($dballoc);
+        while ($allocDatabase->next_record()) {
+            $reminderRecipient->read_db_record($allocDatabase);
             $id = $this->get_effective_person_id($reminderRecipient);
             // hash on person ID prevents multiple emails to the same person
             $recipients[$id] = $people[$id];
@@ -467,9 +467,9 @@ class reminder extends DatabaseEntity
 
     public function update_recipients($recipients)
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $query = "DELETE FROM reminderRecipient WHERE reminderID = %d";
-        $dballoc->query($query, $this->get_id());
+        $allocDatabase->query($query, $this->get_id());
         foreach ((array)$recipients as $r) {
             $recipient = new reminderRecipient();
             $recipient->set_value('reminderID', $this->get_id());
@@ -504,7 +504,7 @@ class reminder extends DatabaseEntity
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);
         }
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = "SELECT reminder.*,reminderRecipient.*,token.*,tokenAction.*, reminder.reminderID as rID
                 FROM reminder
            LEFT JOIN reminderRecipient ON reminder.reminderID = reminderRecipient.reminderID
@@ -513,10 +513,10 @@ class reminder extends DatabaseEntity
              " . $f . "
             GROUP BY reminder.reminderID
             ORDER BY reminderTime,reminderType";
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $reminder = new reminder();
-            $reminder->read_db_record($dballoc);
+            $reminder->read_db_record($allocDatabase);
             $rows[$row['reminderID']] = $row;
         }
         return $rows;

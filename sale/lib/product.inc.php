@@ -58,11 +58,11 @@ class product extends DatabaseEntity
         $taxName = config::get_config_item("taxName");
 
         $query = unsafe_prepare("SELECT * FROM product " . $f);
-        $dballoc = new db_alloc();
-        $dballoc->query($query);
-        while ($row = $dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($query);
+        while ($row = $allocDatabase->next_record()) {
             $product = new product();
-            $product->read_db_record($dballoc);
+            $product->read_db_record($allocDatabase);
             $row["taxName"] = $taxName;
             $rows[] = $row;
         }
@@ -90,15 +90,15 @@ class product extends DatabaseEntity
     {
         $amount = null;
         $id or $id = $this->get_id();
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT amount, currencyTypeID, tax
                         FROM productCost
                        WHERE isPercentage != 1
                          AND productID = %d
                          AND productCostActive = true
                      ", $id);
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             if ($row["tax"]) {
                 [$amount_minus_tax, $amount_of_tax] = tax($row["amount"]);
                 $row["amount"] = $amount_minus_tax;

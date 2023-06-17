@@ -104,8 +104,8 @@ class inbox extends DatabaseEntity
         $orig_current_user = &$current_user;
 
         // wrap db queries in a transaction
-        $dballoc = new db_alloc();
-        $dballoc->start_transaction();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->start_transaction();
 
         inbox::change_current_user($email_receive->mail_headers["from"]);
         $current_user = &singleton("current_user");
@@ -121,14 +121,14 @@ class inbox extends DatabaseEntity
         } catch (Exception $e) {
             $current_user = &$orig_current_user;
             singleton("current_user", $current_user);
-            $dballoc->query("ROLLBACK");
+            $allocDatabase->query("ROLLBACK");
             $failed = true;
             throw new Exception($e);
         }
 
         // Commit the db, and move the email into its storage location eg: INBOX.task1234
         if (!$failed && !$TPL["message"]) {
-            $dballoc->commit();
+            $allocDatabase->commit();
             $email_receive->mark_seen();
             $email_receive->archive();
         }

@@ -25,10 +25,10 @@ class config extends DatabaseEntity
 
     public static function get_config_item_id($name = '')
     {
-        $dballoc = new db_alloc();
-        $dballoc->query(unsafe_prepare("SELECT configID FROM config WHERE name = '%s'", $name));
-        $dballoc->next_record();
-        return $dballoc->f('configID');
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query(unsafe_prepare("SELECT configID FROM config WHERE name = '%s'", $name));
+        $allocDatabase->next_record();
+        return $allocDatabase->f('configID');
     }
 
     public static function get_config_logo($anew = false)

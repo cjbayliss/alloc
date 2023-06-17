@@ -148,7 +148,7 @@ if (file_exists(ALLOC_MOD_DIR . "alloc_config.php")) {
     define("ALLOC_DB_HOST", "database");
 }
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 singleton("db", $db);
 
 // ATTACHMENTS_DIR is defined above in alloc_config.php

@@ -28,7 +28,7 @@ foreach (["client", "comment", "item", "project", "task", "timeSheet"] as $i) {
 
 $q = "SELECT * FROM indexQueue ORDER BY entity";
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $q1 = $db->query($q);
 
 echoo("Beginning ...");

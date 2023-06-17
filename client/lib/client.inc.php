@@ -36,16 +36,16 @@ class client extends DatabaseEntity
     public function delete()
     {
         // delete all contacts and comments linked with this client as well
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         $clientContactQuery = unsafe_prepare(
             "SELECT * FROM clientContact WHERE clientID=%d",
             $this->get_id()
         );
-        $dballoc->query($clientContactQuery);
-        while ($dballoc->next_record()) {
+        $allocDatabase->query($clientContactQuery);
+        while ($allocDatabase->next_record()) {
             $clientContact = new clientContact();
-            $clientContact->read_db_record($dballoc);
+            $clientContact->read_db_record($allocDatabase);
             $clientContact->delete();
         }
 
@@ -53,10 +53,10 @@ class client extends DatabaseEntity
             "SELECT * FROM comment WHERE commentType = 'client' and commentLinkID=%d",
             $this->get_id()
         );
-        $dballoc->query($commentQuery);
-        while ($dballoc->next_record()) {
+        $allocDatabase->query($commentQuery);
+        while ($allocDatabase->next_record()) {
             $comment = new comment();
-            $comment->read_db_record($dballoc);
+            $comment->read_db_record($allocDatabase);
             $comment->delete();
         }
 
@@ -86,7 +86,7 @@ class client extends DatabaseEntity
         $options = null;
         $clientNamesQuery = null;
         global $TPL;
-        $dballoc = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
+        $allocDatabase = new AllocDatabase(); // FIXME: is this doing magic or can it be deleted?
 
         if ($clientStatus) {
             $clientNamesQuery = unsafe_prepare(
@@ -111,7 +111,7 @@ class client extends DatabaseEntity
     public static function get_client_contact_select($clientID = "", $clientContactID = "")
     {
         $clientID or $clientID = $_GET["clientID"];
-        $dballoc = new db_alloc(); // FIXME: is this doing magic or can it be deleted?
+        $allocDatabase = new AllocDatabase(); // FIXME: is this doing magic or can it be deleted?
         $clientContactQuery = unsafe_prepare(
             "SELECT clientContactName as label, clientContactID as value 
                FROM clientContact 
@@ -246,11 +246,11 @@ class client extends DatabaseEntity
            GROUP BY client.clientID
            ORDER BY clientName,clientContact.primaryContact asc";
 
-        $dballoc = new db_alloc();
-        $dballoc->query($clientInfoQuery);
-        while ($row = $dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($clientInfoQuery);
+        while ($row = $allocDatabase->next_record()) {
             $currentClient = new client();
-            $currentClient->read_db_record($dballoc);
+            $currentClient->read_db_record($allocDatabase);
 
             $row["clientCategoryLabel"] =
                 $clientCategories[$currentClient->get_value("clientCategory")];
@@ -312,7 +312,7 @@ class client extends DatabaseEntity
         $rtn = [];
         global $TPL;
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         // Load up the forms action url
         $rtn["url_form_action"] = $_FORM["url_form_action"];
@@ -363,11 +363,11 @@ class client extends DatabaseEntity
     {
         static $clients;
         if (!$clients) {
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $clientInfoQuery = unsafe_prepare("SELECT * FROM client");
-            $dballoc->query($clientInfoQuery);
-            while ($dballoc->next_record()) {
-                $clients[$dballoc->f("clientID")] = $dballoc->f("clientName");
+            $allocDatabase->query($clientInfoQuery);
+            while ($allocDatabase->next_record()) {
+                $clients[$allocDatabase->f("clientID")] = $allocDatabase->f("clientName");
             }
         }
 
@@ -464,9 +464,9 @@ class client extends DatabaseEntity
         $name = $this->get_name() . $ph . $fx;
 
         $q = unsafe_prepare("SELECT * FROM clientContact WHERE clientID = %d", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $c .= $nl . $row["clientContactName"];
             $row["clientContactEmail"] and $c .= " <" . $row["clientContactEmail"] . ">";
             $c .= " | ";
@@ -557,7 +557,7 @@ class client extends DatabaseEntity
         }
         if ($clientID) {
             // Get all client contacts
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $clientPartiesQuery = unsafe_prepare(
                 "SELECT clientContactName, clientContactEmail, clientContactID
                    FROM clientContact
@@ -565,12 +565,12 @@ class client extends DatabaseEntity
                     AND clientContactActive = 1",
                 $clientID
             );
-            $dballoc->query($clientPartiesQuery);
-            while ($dballoc->next_record()) {
-                $interestedPartyOptions[$dballoc->f("clientContactEmail")] = [
-                    "name"            => $dballoc->f("clientContactName"),
+            $allocDatabase->query($clientPartiesQuery);
+            while ($allocDatabase->next_record()) {
+                $interestedPartyOptions[$allocDatabase->f("clientContactEmail")] = [
+                    "name"            => $allocDatabase->f("clientContactName"),
                     "external"        => "1",
-                    "clientContactID" => $dballoc->f("clientContactID"),
+                    "clientContactID" => $allocDatabase->f("clientContactID"),
                 ];
             }
         }

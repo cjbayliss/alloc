@@ -40,7 +40,7 @@ class productSaleItem extends DatabaseEntity
 
     public function get_amount_spent()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
                     (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount
@@ -55,9 +55,9 @@ class productSaleItem extends DatabaseEntity
             $this->get_value("productSaleID"),
             $this->get_id()
         );
-        $dballoc->query($q);
+        $allocDatabase->query($q);
         $rows = [];
-        while ($row = $dballoc->row()) {
+        while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
         return transaction::get_actual_amount_used($rows);
@@ -65,7 +65,7 @@ class productSaleItem extends DatabaseEntity
 
     public function get_amount_earnt()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
                     (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount
@@ -80,9 +80,9 @@ class productSaleItem extends DatabaseEntity
             $this->get_value("productSaleID"),
             $this->get_id()
         );
-        $dballoc->query($q);
+        $allocDatabase->query($q);
         $rows = [];
-        while ($row = $dballoc->row()) {
+        while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
         return transaction::get_actual_amount_used($rows);
@@ -90,7 +90,7 @@ class productSaleItem extends DatabaseEntity
 
     public function get_amount_other()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         // Don't need to do numberToBasic conversion here
         $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
@@ -111,9 +111,9 @@ class productSaleItem extends DatabaseEntity
             $this->get_value("productSaleID"),
             $this->get_id()
         );
-        $dballoc->query($q);
+        $allocDatabase->query($q);
         $rows = [];
-        while ($row = $dballoc->row()) {
+        while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
         return transaction::get_actual_amount_used($rows);
@@ -168,8 +168,8 @@ class productSaleItem extends DatabaseEntity
 
     public function create_transactions()
     {
-        $db = new db_alloc();
-        $db2 = new db_alloc();
+        $db = new AllocDatabase();
+        $db2 = new AllocDatabase();
 
         $product = $this->get_foreign_object("product");
         $productSale = $this->get_foreign_object("productSale");
@@ -245,8 +245,8 @@ class productSaleItem extends DatabaseEntity
 
     public function create_transactions_tax()
     {
-        $db = new db_alloc();
-        $db2 = new db_alloc();
+        $db = new AllocDatabase();
+        $db2 = new AllocDatabase();
 
         $product = $this->get_foreign_object("product");
         $productSale = $this->get_foreign_object("productSale");
@@ -302,11 +302,11 @@ class productSaleItem extends DatabaseEntity
     public function delete_transactions()
     {
         $q = unsafe_prepare("SELECT * FROM transaction WHERE productSaleItemID = %d", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($allocDatabase->row()) {
             $transaction = new transaction();
-            $transaction->read_db_record($dballoc);
+            $transaction->read_db_record($allocDatabase);
             $transaction->delete();
         }
     }

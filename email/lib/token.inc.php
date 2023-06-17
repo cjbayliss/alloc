@@ -35,10 +35,10 @@ class token extends DatabaseEntity
                       $extra
                      ", $hash);
         // echo "<br><br>".$q;
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        if ($dballoc->next_record()) {
-            $this->set_id($dballoc->f("tokenID"));
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        if ($allocDatabase->next_record()) {
+            $this->set_id($allocDatabase->f("tokenID"));
             $this->select();
             return true;
         }
@@ -73,15 +73,15 @@ class token extends DatabaseEntity
     public function increment_tokenUsed()
     {
         $q = unsafe_prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) + 1 WHERE tokenID = %d", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
     }
 
     public function decrement_tokenUsed()
     {
         $q = unsafe_prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) - 1 WHERE tokenID = %d", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
     }
 
     public function get_hash_str()
@@ -115,10 +115,10 @@ class token extends DatabaseEntity
                          AND tokenEntityID = %d
                          AND tokenAction.tokenActionMethod = '%s'
                      ", $entity, $entityID, $action);
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        if ($dballoc->next_record()) {
-            $this->set_id($dballoc->f("tokenID"));
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        if ($allocDatabase->next_record()) {
+            $this->set_id($allocDatabase->f("tokenID"));
             $this->select();
             return true;
         }
@@ -143,9 +143,9 @@ class token extends DatabaseEntity
         }
 
         $q = "SELECT * FROM token " . $filter;
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->next_record()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->next_record()) {
             $rows[$row["tokenID"]] = $row;
         }
         return (array)$rows;

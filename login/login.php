@@ -35,7 +35,7 @@ if ($sess->Started()) {
             date("Y-m-d H:i:s"),
             $row["personID"]
         );
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
 
         if ($sess->TestCookie()) {
@@ -50,7 +50,7 @@ if ($sess->Started()) {
     }
     $error = "Invalid username or password.";
 } else if (!empty($_POST["new_pass"])) {
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query("SELECT * FROM person WHERE emailAddress = '%s'", $_POST["email"]);
 
     if ($db->next_record()) {
@@ -64,7 +64,7 @@ if ($sess->Started()) {
 
         $q = unsafe_prepare("UPDATE person SET password = '%s' WHERE emailAddress = '%s'
                  ", password_hash($password, PASSWORD_BCRYPT), $_POST["email"]);
-        $db2 = new db_alloc();
+        $db2 = new AllocDatabase();
         $db2->query($q);
 
         $e = new email_send($_POST["email"], "New Password", "Your new temporary password: " . $password, "new_password");

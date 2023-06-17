@@ -19,7 +19,7 @@ class calendar
 
     public function __construct($week_start = 1, $weeks_to_display = 4)
     {
-        $this->db = new db_alloc();
+        $this->db = new AllocDatabase();
         $this->first_day_of_week = config::get_config_item("calendarFirstDay");
         $this->set_cal_date_range($week_start, $weeks_to_display);
         $this->days_of_week = $this->get_days_of_week_array($this->first_day_of_week);

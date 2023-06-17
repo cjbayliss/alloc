@@ -12,7 +12,7 @@ function show_announcements($template_name)
     global $TPL;
     $people = &get_cached_table("person");
 
-    $database = new db_alloc();
+    $database = new AllocDatabase();
     $database->connect();
     $getAnnouncements = $database->pdo->query(
         "SELECT announcement.*

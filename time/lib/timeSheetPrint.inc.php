@@ -22,13 +22,13 @@ class timeSheetPrint
 
         $q = unsafe_prepare("SELECT * from timeSheetItem WHERE timeSheetID=%d ", $timeSheetID);
         $q .= unsafe_prepare("GROUP BY timeSheetItemID ORDER BY dateTimeSheetItem, timeSheetItemID");
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
 
         $customerBilledDollars = $timeSheet->get_value("customerBilledDollars");
         $currency = page::money($timeSheet->get_value("currencyTypeID"), '', "%S");
 
-        return [$dballoc, $customerBilledDollars, $timeSheet, $unit_array, $currency];
+        return [$allocDatabase, $customerBilledDollars, $timeSheet, $unit_array, $currency];
     }
 
     public function get_timeSheetItem_list_money($timeSheetID)
@@ -269,7 +269,7 @@ class timeSheetPrint
         $TPL["printDesc"] = $printDesc;
         $TPL["format"] = $format;
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         if ($timeSheetID) {
             $timeSheet = new timeSheet();
@@ -304,16 +304,16 @@ class timeSheetPrint
 
             $timeSheet->load_pay_info();
 
-            $dballoc->query(unsafe_prepare("SELECT max(dateTimeSheetItem) AS maxDate
+            $allocDatabase->query(unsafe_prepare("SELECT max(dateTimeSheetItem) AS maxDate
                                       ,min(dateTimeSheetItem) AS minDate
                                       ,count(timeSheetItemID) as count
                                   FROM timeSheetItem
                                  WHERE timeSheetID=%d ", $timeSheetID));
 
-            $dballoc->next_record();
+            $allocDatabase->next_record();
             $timeSheet->set_id($timeSheetID);
             $timeSheet->select() || alloc_error("Unable to select time sheet, trying to use id: " . $timeSheetID);
-            $TPL["period"] = format_date(DATE_FORMAT, $dballoc->f("minDate")) . " to " . format_date(DATE_FORMAT, $dballoc->f("maxDate"));
+            $TPL["period"] = format_date(DATE_FORMAT, $allocDatabase->f("minDate")) . " to " . format_date(DATE_FORMAT, $allocDatabase->f("maxDate"));
 
             $TPL["img"] = config::get_config_item("companyImage");
             $TPL["companyContactAddress"] = config::get_config_item("companyContactAddress");

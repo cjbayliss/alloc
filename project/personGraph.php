@@ -13,7 +13,7 @@ function show_people($template_name)
     global $project;
     global $TPL;
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query($person_query);
     while ($db->next_record()) {
         $person = new person();

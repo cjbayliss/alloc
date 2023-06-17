@@ -35,7 +35,7 @@ class session
         }
 
         $TPL["sessID"] = $_GET["sess"] ?? false;
-        $this->db = new db_alloc();
+        $this->db = new AllocDatabase();
         $this->session_life = (config::get_config_item("allocSessionMinutes") * 60);
         $this->session_life < 1 and $this->session_life = 10000; // just in case.
         $this->session_data = $this->UnEncode($this->GetSessionData());

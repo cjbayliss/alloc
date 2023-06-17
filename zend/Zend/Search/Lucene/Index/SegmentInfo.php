@@ -358,16 +358,16 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         try {
             // '.del' files always stored in a separate file
             // Segment compound is not used
-            $delFile = $this->zendSearchLuceneStorageDirectory->getFileObject($this->_name . '.del');
+            $zendSearchLuceneStorageFile = $this->zendSearchLuceneStorageDirectory->getFileObject($this->_name . '.del');
 
-            $byteCount = $delFile->readInt();
+            $byteCount = $zendSearchLuceneStorageFile->readInt();
             $byteCount = ceil($byteCount / 8);
-            $bitCount = $delFile->readInt();
+            $bitCount = $zendSearchLuceneStorageFile->readInt();
 
             if ($bitCount == 0) {
                 $delBytes = '';
             } else {
-                $delBytes = $delFile->readBytes($byteCount);
+                $delBytes = $zendSearchLuceneStorageFile->readBytes($byteCount);
             }
 
             if (extension_loaded('bitset')) {
@@ -405,9 +405,9 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
      */
     private function _load21DelFile()
     {
-        $delFile = $this->zendSearchLuceneStorageDirectory->getFileObject($this->_name . '_' . base_convert($this->_delGen, 10, 36) . '.del');
+        $zendSearchLuceneStorageFile = $this->zendSearchLuceneStorageDirectory->getFileObject($this->_name . '_' . base_convert($this->_delGen, 10, 36) . '.del');
 
-        $format = $delFile->readInt();
+        $format = $zendSearchLuceneStorageFile->readInt();
 
         if ($format == (int)0xFFFFFFFF) {
             if (extension_loaded('bitset')) {
@@ -416,15 +416,15 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                 $deletions = [];
             }
 
-            $byteCount = $delFile->readInt();
-            $bitCount = $delFile->readInt();
+            $byteCount = $zendSearchLuceneStorageFile->readInt();
+            $bitCount = $zendSearchLuceneStorageFile->readInt();
 
             $delFileSize = $this->zendSearchLuceneStorageDirectory->fileLength($this->_name . '_' . base_convert($this->_delGen, 10, 36) . '.del');
             $byteNum = 0;
 
             do {
-                $dgap = $delFile->readVInt();
-                $nonZeroByte = $delFile->readByte();
+                $dgap = $zendSearchLuceneStorageFile->readVInt();
+                $nonZeroByte = $zendSearchLuceneStorageFile->readByte();
 
                 $byteNum += $dgap;
 
@@ -443,16 +443,16 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
                     }
                     return ((is_countable($deletions) ? count($deletions) : 0) > 0) ? $deletions : null;
                 }
-            } while ($delFile->tell() < $delFileSize);
+            } while ($zendSearchLuceneStorageFile->tell() < $delFileSize);
         } else {
             // $format is actually byte count
             $byteCount = ceil($format / 8);
-            $bitCount = $delFile->readInt();
+            $bitCount = $zendSearchLuceneStorageFile->readInt();
 
             if ($bitCount == 0) {
                 $delBytes = '';
             } else {
-                $delBytes = $delFile->readBytes($byteCount);
+                $delBytes = $zendSearchLuceneStorageFile->readBytes($byteCount);
             }
 
             if (extension_loaded('bitset')) {
@@ -489,15 +489,15 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             $fdtFName = $this->_sharedDocStoreOptions['segment'] . '.fdt';
 
             if (!$this->_sharedDocStoreOptions['isCompound']) {
-                $fdxFile = $this->zendSearchLuceneStorageDirectory->getFileObject($fdxFName, $shareHandler);
-                $fdxFile->seek($this->_sharedDocStoreOptions['offset'] * 8, SEEK_CUR);
+                $zendSearchLuceneStorageFile = $this->zendSearchLuceneStorageDirectory->getFileObject($fdxFName, $shareHandler);
+                $zendSearchLuceneStorageFile->seek($this->_sharedDocStoreOptions['offset'] * 8, SEEK_CUR);
 
                 if ($extension == '.fdx') {
                     // '.fdx' file is requested
-                    return $fdxFile;
+                    return $zendSearchLuceneStorageFile;
                 } else {
                     // '.fdt' file is requested
-                    $fdtStartOffset = $fdxFile->readLong();
+                    $fdtStartOffset = $zendSearchLuceneStorageFile->readLong();
 
                     $fdtFile = $this->zendSearchLuceneStorageDirectory->getFileObject($fdtFName, $shareHandler);
                     $fdtFile->seek($fdtStartOffset, SEEK_CUR);
@@ -685,7 +685,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
         }
 
         if (extension_loaded('bitset')) {
-            return is_countable(bitset_to_array($this->_deleted)) ? is_countable(bitset_to_array($this->_deleted)) ? is_countable(bitset_to_array($this->_deleted)) ? count(bitset_to_array($this->_deleted)) : 0 : 0 : 0;
+            return is_countable(bitset_to_array($this->_deleted)) ? is_countable(bitset_to_array($this->_deleted)) ? is_countable(bitset_to_array($this->_deleted)) ? is_countable(bitset_to_array($this->_deleted)) ? count(bitset_to_array($this->_deleted)) : 0 : 0 : 0 : 0;
         } else {
             return is_countable($this->_deleted) ? count($this->_deleted) : 0;
         }
@@ -1581,7 +1581,7 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
 
         if (extension_loaded('bitset')) {
             $delBytes = $this->_deleted;
-            $bitCount = is_countable(bitset_to_array($delBytes)) ? is_countable(bitset_to_array($delBytes)) ? is_countable(bitset_to_array($delBytes)) ? count(bitset_to_array($delBytes)) : 0 : 0 : 0;
+            $bitCount = is_countable(bitset_to_array($delBytes)) ? is_countable(bitset_to_array($delBytes)) ? is_countable(bitset_to_array($delBytes)) ? is_countable(bitset_to_array($delBytes)) ? count(bitset_to_array($delBytes)) : 0 : 0 : 0 : 0;
         } else {
             $byteCount = floor($this->_docCount / 8) + 1;
             $delBytes = str_repeat(chr(0), $byteCount);
@@ -1605,10 +1605,10 @@ class Zend_Search_Lucene_Index_SegmentInfo implements Zend_Search_Lucene_Index_T
             $this->_delGen++;
         }
 
-        $delFile = $this->zendSearchLuceneStorageDirectory->createFile($this->_name . '_' . base_convert($this->_delGen, 10, 36) . '.del');
-        $delFile->writeInt($this->_docCount);
-        $delFile->writeInt($bitCount);
-        $delFile->writeBytes($delBytes);
+        $zendSearchLuceneStorageFile = $this->zendSearchLuceneStorageDirectory->createFile($this->_name . '_' . base_convert($this->_delGen, 10, 36) . '.del');
+        $zendSearchLuceneStorageFile->writeInt($this->_docCount);
+        $zendSearchLuceneStorageFile->writeInt($bitCount);
+        $zendSearchLuceneStorageFile->writeBytes($delBytes);
 
         $this->_deletedDirty = false;
     }

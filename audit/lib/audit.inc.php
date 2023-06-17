@@ -49,16 +49,16 @@ class audit extends DatabaseEntity
             $entity->select();
         }
 
-        $dballoc = new db_alloc();
-        $dballoc->query("SELECT *
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query("SELECT *
                       FROM audit
                     $where_clause
                   ORDER BY dateChanged");
 
         $items = [];
-        while ($row = $dballoc->next_record()) {
+        while ($row = $allocDatabase->next_record()) {
             $audit = new audit();
-            $audit->read_db_record($dballoc);
+            $audit->read_db_record($allocDatabase);
             $rows[] = $row;
         }
 

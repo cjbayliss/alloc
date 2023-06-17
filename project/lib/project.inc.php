@@ -60,14 +60,14 @@ class project extends DatabaseEntity
         global $TPL;
         $initialState = $this->all_row_fields;
         $taskIDs = [];
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         if (
             $initialState["projectStatus"] != "Archived" &&
             $this->get_value("projectStatus") == "Archived"
         ) {
-            $dballoc->connect();
-            $projectTaskList = $dballoc->pdo->prepare(
+            $allocDatabase->connect();
+            $projectTaskList = $allocDatabase->pdo->prepare(
                 "SELECT taskID FROM task
                   WHERE projectID = :projectID
                     AND SUBSTRING(taskStatus,1,6) != 'closed'"
@@ -76,7 +76,7 @@ class project extends DatabaseEntity
             $projectTaskList->execute();
 
             while ($row = $projectTaskList->fetch(PDO::FETCH_ASSOC)) {
-                $changeTaskStatus = $dballoc->pdo->prepare(
+                $changeTaskStatus = $allocDatabase->pdo->prepare(
                     "CALL change_task_status(:taskID, 'closed_archived')"
                 );
                 $changeTaskStatus->bindValue(":taskID", $row["taskID"], PDO::PARAM_INT);
@@ -94,8 +94,8 @@ class project extends DatabaseEntity
             $initialState["projectStatus"] == "Archived" &&
             $this->get_value("projectStatus") != "Archived"
         ) {
-            $dballoc->connect();
-            $projectTaskList = $dballoc->pdo->prepare(
+            $allocDatabase->connect();
+            $projectTaskList = $allocDatabase->pdo->prepare(
                 "SELECT taskID FROM task
                   WHERE projectID = :projectID
                     AND taskStatus = 'closed_archived'"
@@ -104,7 +104,7 @@ class project extends DatabaseEntity
             $projectTaskList->execute();
 
             while ($row = $projectTaskList->fetch(PDO::FETCH_ASSOC)) {
-                $changeTaskStatus = $dballoc->pdo->prepare(
+                $changeTaskStatus = $allocDatabase->pdo->prepare(
                     "CALL change_task_status(:taskID, get_most_recent_non_archived_taskStatus(:taskID))"
                 );
                 $changeTaskStatus->bindValue(":taskID", $row["taskID"], PDO::PARAM_INT);
@@ -128,13 +128,13 @@ class project extends DatabaseEntity
 
     public function delete()
     {
-        $dballoc = new db_alloc();
-        $dballoc->connect();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
 
         // FIXME: this results in a sql error due to an integrity constraint
         // violation with the 'audit' table, the bug existed before the refactor
         // of this function.
-        $projectToDelete = $dballoc->pdo->prepare("DELETE from projectPerson WHERE projectID = :projectID");
+        $projectToDelete = $allocDatabase->pdo->prepare("DELETE from projectPerson WHERE projectID = :projectID");
         $projectToDelete->bindValue(":projectID", $this->get_id(), PDO::PARAM_INT);
         $projectToDelete->execute();
         return parent::delete();
@@ -207,8 +207,8 @@ class project extends DatabaseEntity
             return false;
         }
 
-        $dballoc = new db_alloc();
-        $dballoc->connect();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
 
         $projectPermissionsQuery =
             "SELECT personID, projectID, pp.roleID, ppr.roleName, ppr.roleHandle
@@ -221,7 +221,7 @@ class project extends DatabaseEntity
             $projectPermissionsQuery .= " AND ppr.roleHandle IN ('$permissionFilter')";
         }
 
-        $projectPermissionsForPerson = $dballoc->pdo->prepare($projectPermissionsQuery);
+        $projectPermissionsForPerson = $allocDatabase->pdo->prepare($projectPermissionsQuery);
         $projectPermissionsForPerson->bindValue(':projectID', $this->get_id(), PDO::PARAM_INT);
         $projectPermissionsForPerson->bindValue(':personID', $person->get_id(), PDO::PARAM_INT);
         $projectPermissionsForPerson->execute();
@@ -250,10 +250,10 @@ class project extends DatabaseEntity
      */
     public function get_project_people_by_role($roleHandle = "")
     {
-        $dballoc = new db_alloc();
-        $dballoc->connect();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
 
-        $projectPeopleByRole = $dballoc->pdo->prepare(
+        $projectPeopleByRole = $allocDatabase->pdo->prepare(
             "SELECT projectPerson.personID as personID
                FROM projectPerson
           LEFT JOIN role ON projectPerson.roleID = role.roleID
@@ -449,9 +449,9 @@ class project extends DatabaseEntity
         $projectIDs = [],
         $maxlength = 35
     ) {
-        $dballoc = new db_alloc();
-        $dballoc->connect();
-        $projectIDsAndNames = self::get_project_type_query($dballoc, $queryType);
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
+        $projectIDsAndNames = self::get_project_type_query($allocDatabase, $queryType);
         $projectIDsAndNames->execute();
 
         $optionsArry = [];
@@ -602,8 +602,8 @@ class project extends DatabaseEntity
         $from = $_FORM["personID"] ?
             " LEFT JOIN projectPerson on projectPerson.projectID = project.projectID " : "";
 
-        $dballoc = new db_alloc();
-        $dballoc->connect();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
         $projectsAndClientsQuery =
             "SELECT project.*, client.*
                FROM project {$from}
@@ -616,10 +616,10 @@ class project extends DatabaseEntity
             // FIXME: cast to int within the function parameters after PHP7
             $limit = (int)$_FORM["limit"];
             $projectsAndClientsQuery .= " LIMIT :limit";
-            $getProjectsAndClients = $dballoc->pdo->prepare($projectsAndClientsQuery);
+            $getProjectsAndClients = $allocDatabase->pdo->prepare($projectsAndClientsQuery);
             $getProjectsAndClients->bindParam(":limit", $limit, PDO::PARAM_INT);
         } else {
-            $getProjectsAndClients = $dballoc->pdo->prepare($projectsAndClientsQuery);
+            $getProjectsAndClients = $allocDatabase->pdo->prepare($projectsAndClientsQuery);
         }
         $getProjectsAndClients->execute();
 
@@ -747,10 +747,10 @@ class project extends DatabaseEntity
      */
     public function get_prepaid_invoice()
     {
-        $dballoc = new db_alloc();
-        $dballoc->connect();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
 
-        $getMatchingInvoicesByProjectID = $dballoc->pdo->prepare(
+        $getMatchingInvoicesByProjectID = $allocDatabase->pdo->prepare(
             "SELECT *
                FROM invoice
               WHERE projectID = :projectID
@@ -766,7 +766,7 @@ class project extends DatabaseEntity
         }
 
         if ($this->get_value("clientID")) {
-            $getMatchingInvoicesByClientID = $dballoc->pdo->prepare(
+            $getMatchingInvoicesByClientID = $allocDatabase->pdo->prepare(
                 "SELECT *
                    FROM invoice
                   WHERE clientID = :clientID
@@ -838,10 +838,10 @@ class project extends DatabaseEntity
         $projectIDs = [];
 
         if (!$filter["projectID"] && $filter["projectType"] && $filter["projectType"] != "all") {
-            $dballoc = new db_alloc();
-            $dballoc->connect();
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->connect();
             $projectIDsAndNames = self::get_project_type_query(
-                $dballoc,
+                $allocDatabase,
                 $filter["projectType"],
                 $filter["current_user"],
                 "current"
@@ -913,11 +913,11 @@ class project extends DatabaseEntity
             foreach ((array)$interestedParties as $name => $email) {
                 $interestedPartyOptions[$email]["name"] = $name;
             }
-            $dballoc = new db_alloc();
-            $dballoc->connect();
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->connect();
 
             // Get primary client contact from Project page
-            $getClientNameAndEmail = $dballoc->pdo->prepare(
+            $getClientNameAndEmail = $allocDatabase->pdo->prepare(
                 "SELECT projectClientName, projectClientEMail
                    FROM project
                   WHERE projectID = :projectID"
@@ -930,7 +930,7 @@ class project extends DatabaseEntity
             $interestedPartyOptions[$clientNameAndEmail["projectClientEMail"]]["external"] = "1";
 
             // Get all other client contacts from the Client pages for this Project
-            $getClientID = $dballoc->pdo->prepare(
+            $getClientID = $allocDatabase->pdo->prepare(
                 "SELECT clientID FROM project WHERE projectID = :projectID"
             );
             $getClientID->bindParam(':projectID', $projectID, PDO::PARAM_INT);
@@ -946,7 +946,7 @@ class project extends DatabaseEntity
             }
 
             // Get all the project people for this tasks project
-            $getContactDetails = $dballoc->pdo->prepare(
+            $getContactDetails = $allocDatabase->pdo->prepare(
                 "SELECT emailAddress, firstName, surname, person.personID, username
                    FROM projectPerson
               LEFT JOIN person on projectPerson.personID = person.personID

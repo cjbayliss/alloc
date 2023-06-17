@@ -27,7 +27,7 @@ class history extends DatabaseEntity
         $query = null;
         $current_user = &singleton("current_user");
         if (is_object($current_user)) {
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $query = unsafe_prepare(
                 "SELECT *, historyID AS value, the_label AS label
                    FROM history
@@ -52,10 +52,10 @@ class history extends DatabaseEntity
         $ignored_files = [];
         $query = $this->get_history_query("ASC");
         if ($query) {
-            $dballoc = new db_alloc();
-            $dballoc->query($query);
-            while ($dballoc->next_record()) {
-                $ignored_files[] = end(explode("/", $dballoc->f("the_place") . $dballoc->f("the_args")));
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($query);
+            while ($allocDatabase->next_record()) {
+                $ignored_files[] = end(explode("/", $allocDatabase->f("the_place") . $allocDatabase->f("the_args")));
             }
         }
         $ignored_files[] = "index.php";
@@ -80,7 +80,7 @@ class history extends DatabaseEntity
         // Save the history record LABEL with the most descriptive label
         // possible, using the class variable->display_field_name
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $script_name_array = explode("/", $SCRIPT_NAME);
 
         $file = end($script_name_array);
@@ -113,11 +113,11 @@ class history extends DatabaseEntity
                             // The primary key for this db table is the same as
                             // our KEY_FIELD var which was extracted from url.
                             $query = unsafe_prepare("SELECT * FROM %s WHERE %s = %d", $CLASS_NAME, $KEY_FIELD, $ID);
-                            $dballoc->query($query);
-                            $dballoc->next_record();
+                            $allocDatabase->query($query);
+                            $allocDatabase->next_record();
                             // return that particular classes _default_ display field
                             // eg: for the table project, it would be projectName
-                            $rtn = $dballoc->f($display_field);
+                            $rtn = $allocDatabase->f($display_field);
 
                             // But if our search for a descriptive text label failed
                             // because the above search returned a number try again
@@ -159,13 +159,13 @@ class history extends DatabaseEntity
         if (!is_object($current_user) || !$current_user->get_id()) {
             return;
         }
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $query = unsafe_prepare("SELECT count(*) AS total FROM history WHERE personID = %d", $current_user->get_id());
-        $dballoc->query($query);
-        $row = $dballoc->row();
+        $allocDatabase->query($query);
+        $row = $allocDatabase->row();
         if ($row["total"] >= (3 * $this->max_to_display)) {
             $query = unsafe_prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2 * $this->max_to_display));
-            $dballoc->query($query);
+            $allocDatabase->query($query);
         }
 
         $ignored_files = $this->get_ignored_files();

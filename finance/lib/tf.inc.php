@@ -33,7 +33,7 @@ class tf extends DatabaseEntity
         }
 
         // Get belance
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $query = unsafe_prepare(
             "SELECT sum( if(fromTfID=%d,-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                FROM transaction
@@ -55,9 +55,9 @@ class tf extends DatabaseEntity
         }
 
         // echo "<br>".$debug." q: ".$query;
-        $dballoc->query($query);
-        $dballoc->next_record() || alloc_error("TF $tfID not found in tf::get_balance");
-        return $dballoc->f("balance");
+        $allocDatabase->query($query);
+        $allocDatabase->next_record() || alloc_error("TF $tfID not found in tf::get_balance");
+        return $allocDatabase->f("balance");
     }
 
     public function is_owner($person = "")
@@ -84,9 +84,9 @@ class tf extends DatabaseEntity
     {
         $owners = [];
         $query = unsafe_prepare("SELECT * FROM tfPerson WHERE personID=%d", $personID);
-        $dballoc = new db_alloc();
-        $dballoc->query($query);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($query);
+        while ($row = $allocDatabase->row()) {
             $owners[] = $row["tfID"];
         }
         return $owners;
@@ -126,10 +126,10 @@ class tf extends DatabaseEntity
     public function get_name($tfID = false)
     {
         if ($tfID) {
-            $dballoc = new db_alloc();
-            $dballoc->query(unsafe_prepare("SELECT tfName FROM tf WHERE tfID=%d", $tfID));
-            $dballoc->next_record();
-            return $dballoc->f("tfName");
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query(unsafe_prepare("SELECT tfName FROM tf WHERE tfID=%d", $tfID));
+            $allocDatabase->next_record();
+            return $allocDatabase->f("tfName");
         }
     }
 
@@ -137,10 +137,10 @@ class tf extends DatabaseEntity
     {
         $rtn = [];
         if ($name) {
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $q = "SELECT tfID FROM tf WHERE " . sprintf_implode("tfName = '%s'", $name);
-            $dballoc->query($q);
-            while ($row = $dballoc->row()) {
+            $allocDatabase->query($q);
+            while ($row = $allocDatabase->row()) {
                 $rtn[] = $row["tfID"];
             }
         }
@@ -212,7 +212,7 @@ class tf extends DatabaseEntity
             $f2 = " AND " . implode(" AND ", $filter2);
         }
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT transaction.tfID as id, tf.tfName, transactionID, transaction.status,
                              sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                         FROM transaction
@@ -220,8 +220,8 @@ class tf extends DatabaseEntity
                    LEFT JOIN tf on transaction.tfID = tf.tfID
                        WHERE 1 AND transaction.status != 'rejected' " . $f2 . "
                     GROUP BY transaction.status,transaction.tfID");
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             if ($row["status"] == "approved") {
                 $adds[$row["id"]] = $row["balance"];
             } else if ($row["status"] == "pending") {
@@ -236,8 +236,8 @@ class tf extends DatabaseEntity
                    LEFT JOIN tf on transaction.fromTfID = tf.tfID
                        WHERE 1 AND transaction.status != 'rejected' " . $f2 . "
                     GROUP BY transaction.status,transaction.fromTfID");
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             if ($row["status"] == "approved") {
                 $subs[$row["id"]] = $row["balance"];
             } else if ($row["status"] == "pending") {
@@ -252,14 +252,14 @@ class tf extends DatabaseEntity
                     GROUP BY tf.tfID
                     ORDER BY tf.tfName");
 
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $tf = new tf();
-            $tf->read_db_record($dballoc);
+            $tf->read_db_record($allocDatabase);
             $tf->set_values();
 
-            $total = $adds[$dballoc->f("tfID")] - $subs[$dballoc->f("tfID")];
-            $pending_total = $pending_adds[$dballoc->f("tfID")] - $pending_subs[$dballoc->f("tfID")];
+            $total = $adds[$allocDatabase->f("tfID")] - $subs[$allocDatabase->f("tfID")];
+            $pending_total = $pending_adds[$allocDatabase->f("tfID")] - $pending_subs[$allocDatabase->f("tfID")];
 
             if (have_entity_perm("transaction", PERM_READ, $current_user, $tf->is_owner())) {
                 $row["tfBalance"] = page::money(config::get_config_item("currency"), $total, "%s%m %c");

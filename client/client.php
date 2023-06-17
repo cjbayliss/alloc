@@ -38,7 +38,7 @@ function show_client_contacts()
         $clientID
     );
 
-    $database = new db_alloc();
+    $database = new AllocDatabase();
     $database->query($clientContactsQuery);
     $buildHTML = [];
     while ($database->next_record()) {

@@ -92,7 +92,7 @@ function check_optional_has_line_items()
 {
     global $expenseForm;
     if (is_object($expenseForm) && $expenseForm->get_id()) {
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $q = unsafe_prepare("SELECT COUNT(*) as tally FROM transaction WHERE expenseFormID = %d", $expenseForm->get_id());
         $db->query($q);
         $db->next_record();
@@ -115,7 +115,7 @@ $current_user->check_employee();
 $expenseForm = new expenseForm();
 $transaction_to_edit = new transaction();
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 $expenseFormID = $_POST["expenseFormID"] or $expenseFormID = $_GET["expenseFormID"];
 
@@ -261,7 +261,7 @@ if ($_POST["cancel"]) {
     alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
     exit();
 } else if ($_POST["finalise"]) {
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $hasItems = $db->qr("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseForm->get_id());
     if (!$hasItems) {
         alloc_error("Unable to submit expense form, no items have been added.");
@@ -385,7 +385,7 @@ if (is_object($expenseForm) && $expenseForm->get_id() && check_optional_allow_ed
 }
 
 if (is_object($expenseForm) && $expenseForm->get_id()) {
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query(unsafe_prepare("SELECT SUM(amount * pow(10,-currencyType.numberToBasic)) AS amount,
                              transaction.currencyTypeID as currency
                         FROM transaction
@@ -408,7 +408,7 @@ if (
     $invoice_list = invoice::get_list($ops);
     $invoice_list = array_kv($invoice_list, "invoiceID", ["invoiceNum", "invoiceName"]);
     $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE expenseFormID = %d", $expenseForm->get_id());
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query($q);
     $row = $db->row();
     $sel_invoice = $row["invoiceID"];

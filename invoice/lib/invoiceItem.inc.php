@@ -34,12 +34,12 @@ class invoiceItem extends DatabaseEntity
             $person = $current_user;
         }
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT * FROM transaction WHERE invoiceItemID = %d OR transactionID = %d", $this->get_id(), $this->get_value("transactionID"));
-        $dballoc->query($q);
-        while ($dballoc->next_record()) {
+        $allocDatabase->query($q);
+        while ($allocDatabase->next_record()) {
             $transaction = new transaction();
-            $transaction->read_db_record($dballoc);
+            $transaction->read_db_record($allocDatabase);
             if ($transaction->is_owner($person)) {
                 return true;
             }
@@ -47,10 +47,10 @@ class invoiceItem extends DatabaseEntity
 
         if ($this->get_value("timeSheetID")) {
             $q = unsafe_prepare("SELECT * FROM timeSheet WHERE timeSheetID = %d", $this->get_value("timeSheetID"));
-            $dballoc->query($q);
-            while ($dballoc->next_record()) {
+            $allocDatabase->query($q);
+            while ($allocDatabase->next_record()) {
                 $timeSheet = new timeSheet();
-                $timeSheet->read_db_record($dballoc);
+                $timeSheet->read_db_record($allocDatabase);
                 if ($timeSheet->is_owner($person)) {
                     return true;
                 }
@@ -59,10 +59,10 @@ class invoiceItem extends DatabaseEntity
 
         if ($this->get_value("expenseFormID")) {
             $q = unsafe_prepare("SELECT * FROM expenseForm WHERE expenseFormID = %d", $this->get_value("expenseFormID"));
-            $dballoc->query($q);
-            while ($dballoc->next_record()) {
+            $allocDatabase->query($q);
+            while ($allocDatabase->next_record()) {
                 $expenseForm = new expenseForm();
-                $expenseForm->read_db_record($dballoc);
+                $expenseForm->read_db_record($allocDatabase);
                 if ($expenseForm->is_owner($person)) {
                     return true;
                 }
@@ -75,9 +75,9 @@ class invoiceItem extends DatabaseEntity
     public function delete()
     {
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("DELETE FROM transaction WHERE invoiceItemID = %d", $this->get_id());
-        $dballoc->query($q);
+        $allocDatabase->query($q);
 
         $invoiceID = $this->get_value("invoiceID");
         $status = parent::delete();
@@ -103,7 +103,7 @@ class invoiceItem extends DatabaseEntity
 
         // It checks for approved transactions and only approves the timesheets
         // or expenseforms that are completely paid for by an invoice item.
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $q = unsafe_prepare("SELECT amount, currencyTypeID, status
                         FROM transaction
                        WHERE invoiceItemID = %d
@@ -124,7 +124,7 @@ class invoiceItem extends DatabaseEntity
             $timeSheet->set_id($timeSheetID);
             $timeSheet->select();
 
-            $db = new db_alloc();
+            $db = new AllocDatabase();
 
             if ($timeSheet->get_value("status") == "invoiced") {
                 // If the time sheet doesn't have any transactions and it is in
@@ -185,13 +185,13 @@ class invoiceItem extends DatabaseEntity
         $transaction = new transaction();
         $invoice = $this->get_foreign_object("invoice");
         $this->currency = $invoice->get_value("currencyTypeID");
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
 
         // If there already a transaction for this invoiceItem, use it instead of creating a new one
         $q = unsafe_prepare("SELECT * FROM transaction WHERE invoiceItemID = %d ORDER BY transactionCreatedTime DESC LIMIT 1", $this->get_id());
-        $dballoc->query($q);
-        if ($dballoc->row()) {
-            $transaction->set_id($dballoc->f("transactionID"));
+        $allocDatabase->query($q);
+        if ($allocDatabase->row()) {
+            $transaction->set_id($allocDatabase->f("transactionID"));
             $transaction->select();
         }
 
@@ -213,9 +213,9 @@ class invoiceItem extends DatabaseEntity
                 page::money($this->currency, $amount, "%mi"),
                 $this->get_id()
             );
-            $dballoc->query($q);
-            if ($dballoc->row()) {
-                $transaction->set_id($dballoc->f("transactionID"));
+            $allocDatabase->query($q);
+            if ($allocDatabase->row()) {
+                $transaction->set_id($allocDatabase->f("transactionID"));
                 $transaction->select();
             }
         }
@@ -258,9 +258,9 @@ class invoiceItem extends DatabaseEntity
                    LEFT JOIN invoice ON invoice.invoiceID = invoiceItem.invoiceID
                    LEFT JOIN client ON client.clientID = invoice.clientID
                      " . $f);
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $row["iiAmount"] = page::money($row["currencyTypeID"], $row["iiAmount"], "%mo");
             $row["iiUnitPrice"] = page::money($row["currencyTypeID"], $row["iiUnitPrice"], "%mo");
             $rows[$row["invoiceItemID"]] = $row;

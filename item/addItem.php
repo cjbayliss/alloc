@@ -67,7 +67,7 @@ $TPL["itemTypes"] = page::select_options($itemType->get_assoc_array("itemTypeID"
 
 // setup item list (for removals)
 $item_list = [];
-$db = new db_alloc();
+$db = new AllocDatabase();
 $db->query("SELECT * FROM item ORDER BY itemName");
 while ($db->next_record()) {
     $item = new item();

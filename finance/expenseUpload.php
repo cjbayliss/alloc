@@ -23,7 +23,7 @@ $field_map = [
 ];
 
 if ($_POST["upload"]) {
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     is_uploaded_file($_FILES["expenses_file"]["tmp_name"]) || alloc_error("File referred to was not an uploaded file", true); // Prevent attacks by setting $expenses_file in URL
     $lines = file($_FILES["expenses_file"]["tmp_name"]);
 

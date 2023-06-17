@@ -29,7 +29,7 @@ $q = unsafe_prepare("SELECT invoiceRepeatDate.invoiceRepeatID
                  AND invoiceRepeatDate.invoiceDate <= '%s'", $today);
 
 $orig_current_user = &singleton("current_user");
-$db = new db_alloc();
+$db = new AllocDatabase();
 $id = $db->query($q);
 while ($row = $db->row($id)) {
     if ($row["currentUser"]) {

@@ -48,7 +48,7 @@ switch ($step) {
         $personID = $current_user->get_id();
         $parent_names = [];
 
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         if ($parentType == "client") {
             $query = "SELECT * FROM client WHERE clientStatus!='Archived' ORDER BY clientName";
             $db->query($query);
@@ -180,7 +180,7 @@ switch ($step) {
         }
 
         if ($reminder->get_value("reminderHash")) {
-            $db = new db_alloc();
+            $db = new AllocDatabase();
             $r = $db->qr("SELECT tokenAction
                             FROM token
                        LEFT JOIN tokenAction ON token.tokenActionID = tokenAction.tokenActionID

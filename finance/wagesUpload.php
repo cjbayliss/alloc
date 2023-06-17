@@ -22,7 +22,7 @@ $field_map = [
 ];
 
 if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
-    $db = new db_alloc();
+    $db = new AllocDatabase();
 
     $lines = file($_FILES["wages_file"]["tmp_name"]);
 

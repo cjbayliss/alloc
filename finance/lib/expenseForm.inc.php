@@ -39,10 +39,10 @@ class expenseForm extends DatabaseEntity
             // Return true if any of the transactions on the expense form are accessible by the current user
             $current_user_tfIDs = $current_user->get_tfIDs();
             $query = unsafe_prepare("SELECT * FROM transaction WHERE expenseFormID=%d", $this->get_id());
-            $dballoc = new db_alloc();
-            $dballoc->query($query);
-            while ($dballoc->next_record()) {
-                if (is_array($current_user_tfIDs) && (in_array($dballoc->f("tfID"), $current_user_tfIDs) || in_array($dballoc->f("fromTfID"), $current_user_tfIDs))) {
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($query);
+            while ($allocDatabase->next_record()) {
+                if (is_array($current_user_tfIDs) && (in_array($allocDatabase->f("tfID"), $current_user_tfIDs) || in_array($allocDatabase->f("fromTfID"), $current_user_tfIDs))) {
                     return true;
                 }
             }
@@ -82,9 +82,9 @@ class expenseForm extends DatabaseEntity
         $arr = [];
         $return = null;
         $q = unsafe_prepare("SELECT status FROM transaction WHERE expenseFormID = %d", $this->get_id());
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $arr[$row["status"]] = 1;
         }
         $arr or $arr = [];
@@ -103,9 +103,9 @@ class expenseForm extends DatabaseEntity
 
         $transactionID and $extra_sql = unsafe_prepare("AND transactionID = %d", $transactionID);
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         if ($this->is_owner()) {
-            $dballoc->query(unsafe_prepare("DELETE FROM transaction WHERE expenseFormID = %d " . $extra_sql, $this->get_id()));
+            $allocDatabase->query(unsafe_prepare("DELETE FROM transaction WHERE expenseFormID = %d " . $extra_sql, $this->get_id()));
             $transactionID and $TPL["message_good"][] = "Expense Form Line Item deleted.";
         }
     }
@@ -115,10 +115,10 @@ class expenseForm extends DatabaseEntity
         $str = null;
         $sp = null;
         global $TPL;
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         if ($this->get_id()) {
-            $dballoc->query("SELECT invoice.* FROM invoiceItem LEFT JOIN invoice on invoice.invoiceID = invoiceItem.invoiceID WHERE expenseFormID = %d", $this->get_id());
-            while ($row = $dballoc->next_record()) {
+            $allocDatabase->query("SELECT invoice.* FROM invoiceItem LEFT JOIN invoice on invoice.invoiceID = invoiceItem.invoiceID WHERE expenseFormID = %d", $this->get_id());
+            while ($row = $allocDatabase->next_record()) {
                 $str .= $sp . "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $row["invoiceID"] . "\">" . $row["invoiceNum"] . "</a>";
                 $sp = "&nbsp;&nbsp;";
             }
@@ -133,12 +133,12 @@ class expenseForm extends DatabaseEntity
         if ($this->get_value("clientID")) {
             $invoiceID and $extra = unsafe_prepare(" AND invoiceID = %d", $invoiceID);
             $client = $this->get_foreign_object("client");
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $q = unsafe_prepare("SELECT * FROM invoice WHERE clientID = %d AND invoiceStatus = 'edit' " . $extra, $this->get_value("clientID"));
-            $dballoc->query($q);
+            $allocDatabase->query($q);
 
             // Create invoice
-            if (!$dballoc->next_record()) {
+            if (!$allocDatabase->next_record()) {
                 $invoice = new invoice();
                 $invoice->set_value("clientID", $this->get_value("clientID"));
                 $invoice->set_value("invoiceDateFrom", $this->get_min_date());
@@ -151,7 +151,7 @@ class expenseForm extends DatabaseEntity
 
                 // Use existing invoice
             } else {
-                $invoiceID = $dballoc->f("invoiceID");
+                $invoiceID = $allocDatabase->f("invoiceID");
             }
 
             // Add invoiceItem and add expense form transactions to invoiceItem
@@ -165,20 +165,20 @@ class expenseForm extends DatabaseEntity
 
     public function get_min_date()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT min(transactionDate) as date FROM transaction WHERE expenseFormID = %d", $this->get_id());
-        $dballoc->query($q);
-        $dballoc->next_record();
-        return $dballoc->f('date');
+        $allocDatabase->query($q);
+        $allocDatabase->next_record();
+        return $allocDatabase->f('date');
     }
 
     public function get_max_date()
     {
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT max(transactionDate) as date FROM transaction WHERE expenseFormID = %d", $this->get_id());
-        $dballoc->query($q);
-        $dballoc->next_record();
-        return $dballoc->f('date');
+        $allocDatabase->query($q);
+        $allocDatabase->next_record();
+        return $allocDatabase->f('date');
     }
 
     public function get_url()
@@ -205,13 +205,13 @@ class expenseForm extends DatabaseEntity
         if (is_object($this)) {
             $id = $this->get_id();
         }
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS amount
                         FROM transaction
                    LEFT JOIN currencyType on transaction.currencyTypeID = currencyType.currencyTypeID
                        WHERE expenseFormID = %d", $id);
-        $dballoc->query($q);
-        $row = $dballoc->row();
+        $allocDatabase->query($q);
+        $row = $allocDatabase->row();
         return $row["amount"];
     }
 
@@ -237,9 +237,9 @@ class expenseForm extends DatabaseEntity
             $f = " AND " . implode(" AND ", $filter);
         }
 
-        $db = new db_alloc();
-        $dbTwo = new db_alloc();
-        $transDB = new db_alloc();
+        $db = new AllocDatabase();
+        $dbTwo = new AllocDatabase();
+        $transDB = new AllocDatabase();
         $expenseForm = new expenseForm();
         $transaction = new transaction();
         $rr_options = expenseForm::get_reimbursementRequired_array();
@@ -287,17 +287,17 @@ class expenseForm extends DatabaseEntity
         $q = "SELECT * FROM transaction
            LEFT JOIN transactionRepeat on transactionRepeat.transactionRepeatID = transaction.transactionRepeatID
                WHERE transaction.transactionRepeatID IS NOT NULL AND transaction.status = 'pending'";
-        $dballoc = new db_alloc();
-        $dballoc->query($q);
-        while ($row = $dballoc->row()) {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->row()) {
             $transaction = new transaction();
-            $transaction->read_db_record($dballoc);
+            $transaction->read_db_record($allocDatabase);
             $transaction->set_values();
             $transactionRepeat = new transactionRepeat();
-            $transactionRepeat->read_db_record($dballoc);
+            $transactionRepeat->read_db_record($allocDatabase);
             $transactionRepeat->set_values();
             $row["transactionType"] = $transactionTypes[$transaction->get_value("transactionType")];
-            $row["formTotal"] = $dballoc->f("amount");
+            $row["formTotal"] = $allocDatabase->f("amount");
             $row["transactionModifiedTime"] = $transaction->get_value("transactionModifiedTime");
             $row["transactionCreatedTime"] = $transaction->get_value("transactionCreatedTime");
             $row["transactionCreatedUser"] = person::get_fullname($transaction->get_value("transactionCreatedUser"));

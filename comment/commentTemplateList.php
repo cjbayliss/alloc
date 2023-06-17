@@ -12,7 +12,7 @@ function show_commentTemplate($template_name)
     global $TPL;
 
     // Run query and loop through the records
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $query = "SELECT * FROM commentTemplate ORDER BY commentTemplateType, commentTemplateName";
     $db->query($query);
     while ($db->next_record()) {

@@ -10,7 +10,7 @@ require_once("../alloc.php");
 $current_user->check_employee();
 
 $transactionRepeat = new transactionRepeat();
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 global $TPL;
 global $transactionRepeatID;

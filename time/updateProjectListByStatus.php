@@ -10,7 +10,7 @@ require_once("../alloc.php");
 
 usleep(400000);
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 if ($_GET['current']) {
     $filter = " WHERE projectStatus = 'Current'";
 }

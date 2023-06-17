@@ -28,7 +28,7 @@ if ($_POST["test_email_gateway"]) {
     }
 }
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $db->query("SELECT name,value,type FROM config");
 while ($db->next_record()) {
     $fields_to_save[] = $db->f("name");
@@ -44,7 +44,7 @@ while ($db->next_record()) {
 // echo "<pre>".print_r($_POST,1)."</pre>";
 
 if ($_POST["update_currencyless_transactions"] && $_POST["currency"]) {
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $q = unsafe_prepare("UPDATE transaction SET currencyTypeID = '%s' WHERE currencyTypeID IS NULL", $_POST["currency"]);
     $db->query($q);
     $q = unsafe_prepare("UPDATE transactionRepeat SET currencyTypeID = '%s' WHERE currencyTypeID IS NULL", $_POST["currency"]);
@@ -75,7 +75,7 @@ if ($_POST["fetch_exchange_rates"]) {
 
 if ($_POST["save"]) {
     if ($_POST["hoursInDay"]) {
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $day = $_POST["hoursInDay"] * 60 * 60;
         $q = unsafe_prepare("UPDATE timeUnit SET timeUnitSeconds = '%d' WHERE timeUnitName = 'day'", $day);
         $db->query($q);
@@ -186,7 +186,7 @@ $m = new meta("currencyType");
 $currencyOptions = $m->get_assoc_array("currencyTypeID", "currencyTypeName");
 $TPL["currencyOptions"] = page::select_options($currencyOptions, config::get_config_item("currency"));
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 $display = ["", "username", ", ", "emailAddress"];
 
 $person = new person();

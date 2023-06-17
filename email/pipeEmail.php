@@ -32,7 +32,7 @@ singleton("errors_logged", true);
 singleton("errors_thrown", true);
 unset($current_user);
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 $info = inbox::get_mail_info();
 
@@ -86,7 +86,7 @@ try {
     }
 } catch (Exception $e) {
     // There may have been a database error, so let the database know it can run this next bit
-    db_alloc::$stop_doing_queries = false;
+    AllocDatabase::$stop_doing_queries = false;
 
     // Try forwarding the errant email
     try {

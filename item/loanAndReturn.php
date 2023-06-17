@@ -22,9 +22,9 @@ function show_items($template_name)
 
     $today = date("Y") . "-" . date("m") . "-" . date("d");
 
-    $dbUsername = new db_alloc();
-    $db = new db_alloc();
-    $db2 = new db_alloc();
+    $dbUsername = new AllocDatabase();
+    $db = new AllocDatabase();
+    $db2 = new AllocDatabase();
 
     $db->query("select * from item order by itemName");
 

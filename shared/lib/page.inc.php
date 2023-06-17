@@ -123,7 +123,7 @@ class page
         $r = [];
         global $TPL;
         $current_user = &singleton("current_user");
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         has("task") and $str[] = "<option value=\"create_" . $TPL["url_alloc_task"] . "\">New Task</option>";
         has("time") and $str[] = "<option value=\"create_" . $TPL["url_alloc_timeSheet"] . "\">New Time Sheet</option>";
         has("task") and $str[] = "<option value=\"create_" . $TPL["url_alloc_task"] . "tasktype=Fault\">New Fault</option>";
@@ -141,7 +141,7 @@ class page
         $str[] = "<option value=\"\" disabled=\"disabled\">--------------------";
         $history = new history();
         $q = $history->get_history_query("DESC");
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
         while ($row = $db->row()) {
             $r["history_" . $row["value"]] = $row["the_label"];
@@ -329,9 +329,9 @@ class page
 
         // Build options from an SQL query: "SELECT col_a as value, col_b as label FROM"
         if (is_string($options)) {
-            $dballoc = new db_alloc();
-            $dballoc->query($options);
-            while ($row = $dballoc->row()) {
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($options);
+            while ($row = $allocDatabase->row()) {
                 $rows[$row["value"]] = $row["label"];
             }
 

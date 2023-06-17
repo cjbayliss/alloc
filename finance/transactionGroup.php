@@ -19,7 +19,7 @@ function show_transaction_list($template)
                    WHERE transactionGroupID = %d
                 ORDER BY transactionID
                  ", $transactionGroupID);
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query($q);
 
     while ($row = $db->row()) {

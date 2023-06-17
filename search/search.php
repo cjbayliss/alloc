@@ -32,7 +32,7 @@ $search = $_POST["search"] or $search = $_GET["search"];
 $category = $_POST["category"] or $category = $_GET["category"];
 $needle = trim($_POST["needle"]) or $needle = trim($_GET["needle"]);
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 // Project Search
 if ($search && $needle && $category == "search_projects") {
@@ -195,7 +195,7 @@ if ($search && $needle && $category == "search_projects") {
             $row["desc"] = page::htmlentities($d->getFieldValue('desc'));
 
             // get availability of loan
-            $db2 = new db_alloc();
+            $db2 = new AllocDatabase();
             $query = unsafe_prepare("SELECT * FROM loan WHERE itemID = %d AND dateReturned='0000-00-00'", $item->get_id());
             $db2->query($query);
             if ($db2->next_record()) {

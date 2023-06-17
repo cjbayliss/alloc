@@ -43,36 +43,36 @@ class interestedParty extends DatabaseEntity
     public static function exists($entity, $entityID, $email)
     {
         $email = str_replace(["<", ">"], "", $email);
-        $dballoc = new db_alloc();
-        $dballoc->query("SELECT *
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query("SELECT *
                       FROM interestedParty
                      WHERE entityID = %d
                        AND entity = '%s'
                        AND emailAddress = '%s'
                    ", $entityID, $entity, $email);
-        return $dballoc->row();
+        return $allocDatabase->row();
     }
 
     public function active($entity, $entityID, $email)
     {
         [$email, $name] = parse_email_address($email);
-        $dballoc = new db_alloc();
-        $dballoc->query("SELECT *
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->query("SELECT *
                       FROM interestedParty
                      WHERE entityID = %d
                        AND entity = '%s'
                        AND emailAddress = '%s'
                        AND interestedPartyActive = 1
                    ", $entityID, $entity, $email);
-        return $dballoc->row();
+        return $allocDatabase->row();
     }
 
     public static function make_interested_parties($entity, $entityID, $encoded_parties = [])
     {
         $ipIDs = [];
         // Nuke entries from interestedParty
-        $dballoc = new db_alloc();
-        $dballoc->start_transaction();
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->start_transaction();
 
         // Add entries to interestedParty
         if (is_array($encoded_parties)) {
@@ -90,9 +90,9 @@ class interestedParty extends DatabaseEntity
                        WHERE entity = '%s'
                          AND entityID = %d", $entity, $entityID);
         $ipIDs and $q .= " AND " . sprintf_implode(" AND ", "interestedPartyID != %d", $ipIDs);
-        $dballoc->query($q);
+        $allocDatabase->query($q);
 
-        $dballoc->commit();
+        $allocDatabase->commit();
     }
 
     public static function abbreviate($str)
@@ -113,8 +113,8 @@ class interestedParty extends DatabaseEntity
     public function get_interested_parties_string($entity, $entityID)
     {
         $q = unsafe_prepare("SELECT get_interested_parties_string('%s',%d) as parties", $entity, $entityID);
-        $dballoc = new db_alloc();
-        $row = $dballoc->qr($q);
+        $allocDatabase = new AllocDatabase();
+        $row = $allocDatabase->qr($q);
         return $row["parties"];
     }
 
@@ -128,20 +128,20 @@ class interestedParty extends DatabaseEntity
         $rtn = [];
 
         if ($entityID) {
-            $dballoc = new db_alloc();
+            $allocDatabase = new AllocDatabase();
             $q = unsafe_prepare("SELECT *
                            FROM interestedParty
                           WHERE entity='%s'
                             AND entityID = %d
                          ", $entity, $entityID);
-            $dballoc->query($q);
-            while ($dballoc->row()) {
-                $ops[$dballoc->f("emailAddress")]["name"] = $dballoc->f("fullName");
-                $ops[$dballoc->f("emailAddress")]["role"] = "interested";
-                $ops[$dballoc->f("emailAddress")]["selected"] = $dballoc->f("interestedPartyActive") && !$dont_select ? true : false;
-                $ops[$dballoc->f("emailAddress")]["personID"] = $dballoc->f("personID");
-                $ops[$dballoc->f("emailAddress")]["clientContactID"] = $dballoc->f("clientContactID");
-                $ops[$dballoc->f("emailAddress")]["external"] = $dballoc->f("external");
+            $allocDatabase->query($q);
+            while ($allocDatabase->row()) {
+                $ops[$allocDatabase->f("emailAddress")]["name"] = $allocDatabase->f("fullName");
+                $ops[$allocDatabase->f("emailAddress")]["role"] = "interested";
+                $ops[$allocDatabase->f("emailAddress")]["selected"] = $allocDatabase->f("interestedPartyActive") && !$dont_select ? true : false;
+                $ops[$allocDatabase->f("emailAddress")]["personID"] = $allocDatabase->f("personID");
+                $ops[$allocDatabase->f("emailAddress")]["clientContactID"] = $allocDatabase->f("clientContactID");
+                $ops[$allocDatabase->f("emailAddress")]["external"] = $allocDatabase->f("external");
             }
         }
 
@@ -245,9 +245,9 @@ class interestedParty extends DatabaseEntity
         if (!$interestedParty->get_value("personID") && !in_array($data["emailAddress"], (array)$extra_interested_parties)) {
             $interestedParty->set_value("external", 1);
             $q = unsafe_prepare("SELECT * FROM clientContact WHERE clientContactEmail = '%s'", $data["emailAddress"]);
-            $dballoc = new db_alloc();
-            $dballoc->query($q);
-            if ($row = $dballoc->row()) {
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->query($q);
+            if ($row = $allocDatabase->row()) {
                 $interestedParty->set_value("clientContactID", $row["clientContactID"]);
                 $interestedParty->set_value("fullName", $row["clientContactName"]);
             }
@@ -395,13 +395,13 @@ class interestedParty extends DatabaseEntity
             $f = " WHERE " . implode(" AND ", $filter);
         }
 
-        $dballoc = new db_alloc();
+        $allocDatabase = new AllocDatabase();
         $q = "SELECT * FROM interestedParty " . $join . $f . $groupby;
 
-        $dballoc->query($q);
-        while ($row = $dballoc->next_record()) {
+        $allocDatabase->query($q);
+        while ($row = $allocDatabase->next_record()) {
             $interestedParty = new interestedParty();
-            $interestedParty->read_db_record($dballoc);
+            $interestedParty->read_db_record($allocDatabase);
             $rows[$interestedParty->get_id()] = $row;
         }
         return (array)$rows;

@@ -17,7 +17,7 @@ function show_permission_list($template_name)
     if ($_REQUEST["submit"] || $_REQUEST["filter"] != "") {
         $where = " where tableName like '%" . db_esc($_REQUEST["filter"]) . "%' ";   // TODO: Add filtering to permission list
     }
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query("SELECT * FROM permission $where ORDER BY tableName, sortKey");
     while ($db->next_record()) {
         $permission = new permission();

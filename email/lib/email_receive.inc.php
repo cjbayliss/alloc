@@ -485,9 +485,9 @@ class email_receive
         $token = new token();
         if ($keys && is_array($keys) && $token->set_hash($keys[0])) {
             if ($token->get_value("tokenEntity") == "comment") {
-                $dballoc = new db_alloc();
-                $dballoc->connect();
-                $getCommentMasterAndID = $dballoc->pdo->prepare(
+                $allocDatabase = new AllocDatabase();
+                $allocDatabase->connect();
+                $getCommentMasterAndID = $allocDatabase->pdo->prepare(
                     "SELECT commentMaster,commentMasterID
                        FROM comment
                       WHERE commentID = :commentID"
@@ -764,9 +764,9 @@ class email_receive
         // if the email has a different encoding, change it to the DB connection encoding so mysql doesn't choke
         $enc = $this->get_charset();
         if ($enc) {
-            $dballoc = new db_alloc();
-            $dballoc->connect();
-            $body = mb_convert_encoding($body, $dballoc->get_encoding(), $enc);
+            $allocDatabase = new AllocDatabase();
+            $allocDatabase->connect();
+            $body = mb_convert_encoding($body, $allocDatabase->get_encoding(), $enc);
         }
         return $body;
     }

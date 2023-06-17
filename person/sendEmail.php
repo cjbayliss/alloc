@@ -15,7 +15,7 @@ if (date("D") == "Sat" || date("D") == "Sun") {
 
 // Do announcements ONCE up here.
 $announcement = person::get_announcements_for_email();
-$db = new db_alloc();
+$db = new AllocDatabase();
 $db->query("SELECT personID,emailAddress,firstName,surname FROM person WHERE personActive = '1'");
 // AND username='alla'"); // or username=\"ashridah\"");
 

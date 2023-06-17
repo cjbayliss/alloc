@@ -8,7 +8,7 @@
 define("NO_REDIRECT", 1);
 require_once("../alloc.php");
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 $product = $_GET["product"];
 $quantity = $_GET["quantity"];

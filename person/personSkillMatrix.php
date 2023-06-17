@@ -69,7 +69,7 @@ function get_people_header()
     $people_ids = [];
 
     $where = false;
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $query = "SELECT * FROM person";
     $query .= " LEFT JOIN proficiency ON person.personID=proficiency.personID";
     $query .= " LEFT JOIN skill ON proficiency.skillID=skill.skillID WHERE personActive = 1 ";
@@ -98,7 +98,7 @@ function show_skill_expertise()
 
     $currSkillClass = null;
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $query = "SELECT * FROM proficiency";
     $query .= " LEFT JOIN skill ON proficiency.skillID=skill.skillID";
     if ($talent != "" || $skill_class != "") {
@@ -124,7 +124,7 @@ function show_skill_expertise()
         }
         print sprintf("<tr>\n<th>%s</th>\n", $skill->get_value('skillName', DST_HTML_DISPLAY));
         for ($i = 0; $i < count($people_ids); $i++) {
-            $db2 = new db_alloc();
+            $db2 = new AllocDatabase();
             $query = "SELECT * FROM proficiency";
             $query .= unsafe_prepare(" WHERE skillID=%d AND personID=%d", $skill->get_id(), $people_ids[$i]);
             $db2->query($query);

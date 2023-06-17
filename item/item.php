@@ -17,7 +17,7 @@ $loanID = $_POST["loanID"] or $loanID = $_GET["loanID"];
 
 $item = new item();
 $loan = new loan();
-$db = new db_alloc();
+$db = new AllocDatabase();
 $db->query("select * from item where itemID=%d", $itemID);
 $db->next_record();
 $item->read_db_record($db);
@@ -26,7 +26,7 @@ $item->set_values();
 // new crap
 if ($current_user->have_role("admin") || $current_user->have_role("manage")) {
     $users = [];
-    $_db = new db_alloc();
+    $_db = new AllocDatabase();
     $_db->query("SELECT * FROM person ORDER BY username");
     while ($_db->next_record()) {
         $person = new person();
@@ -80,10 +80,10 @@ if ($_POST["borrowItem"]) {
 }
 
 if ($_POST["returnItem"]) {
-    $dbTemp = new db_alloc();
+    $dbTemp = new AllocDatabase();
     $dbTemp->query("select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID);
 
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $db->query("select * from loan where loan.itemID=%d and dateBorrowed>dateReturned", $itemID);
     $db->next_record();
     $loan->set_id($db->f("loanID"));

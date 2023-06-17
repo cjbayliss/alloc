@@ -391,7 +391,7 @@ if ($_POST["save"]) {
 
         // Copy project people
         $q = unsafe_prepare("SELECT * FROM projectPerson WHERE projectID = %d", $p->get_id());
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
         while ($row = $db->row()) {
             $projectPerson = new projectPerson();
@@ -405,7 +405,7 @@ if ($_POST["save"]) {
 
         // Copy commissions
         $q = unsafe_prepare("SELECT * FROM projectCommissionPerson WHERE projectID = %d", $p->get_id());
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
         while ($row = $db->row()) {
             $projectCommissionPerson = new projectCommissionPerson();
@@ -423,7 +423,7 @@ if ($_POST["save"]) {
 if ($projectID) {
     if ($_POST["person_save"]) {
         $q = unsafe_prepare("SELECT * FROM projectPerson WHERE projectID = %d", $project->get_id());
-        $db = new db_alloc();
+        $db = new AllocDatabase();
         $db->query($q);
         while ($db->next_record()) {
             $pp = new projectPerson();
@@ -492,7 +492,7 @@ if ($_POST["save_attachment"]) {
 
 $project->set_values("project_");
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 $clientID = $project->get_value("clientID") or $clientID = $_GET["clientID"];
 $client = new client();
@@ -571,7 +571,7 @@ $TPL["clientHidden"] .= "<input type=\"hidden\" id=\"clientContactID\" name=\"cl
 function get_projectPerson_hourly_rate($personID, $projectID)
 {
     $hourly_rate = null;
-    $db = new db_alloc();
+    $db = new AllocDatabase();
     $q = unsafe_prepare("SELECT rate,rateUnitID FROM projectPerson WHERE personID = %d AND projectID = %d", $personID, $projectID);
     $db->query($q);
     $db->next_record();
@@ -725,7 +725,7 @@ $TPL["taxName"] = config::get_config_item("taxName");
 $TPL["project_projectName_html"] = page::to_html($project->get_value("projectName"));
 $TPL["project_projectComments_html"] = page::to_html($project->get_value("projectComments"));
 
-$db = new db_alloc();
+$db = new AllocDatabase();
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
