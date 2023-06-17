@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class tokenAction extends db_entity
+class tokenAction extends DatabaseEntity
 {
     public $classname = "tokenAction";
     public $data_table = "tokenAction";

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class reminderRecipient extends db_entity
+class reminderRecipient extends DatabaseEntity
 {
     public $data_table = "reminderRecipient";
     public $display_field_name = "reminderRecipientID";

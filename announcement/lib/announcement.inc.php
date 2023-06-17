@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class announcement extends db_entity
+class announcement extends DatabaseEntity
 {
     public $data_table = "announcement";
     public $display_field_name = "heading";

@@ -8,7 +8,7 @@
 class project_module extends module
 {
     public $module = "project";
-    public $db_entities = [
+    public $databaseEntities = [
         "project",
         "projectPerson",
         "projectCommissionPerson",

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class permission extends db_entity
+class permission extends DatabaseEntity
 {
     public $data_table = "permission";
     public $display_field_name = "tableName";

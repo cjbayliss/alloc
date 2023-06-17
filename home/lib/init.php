@@ -8,5 +8,5 @@
 class home_module extends module
 {
     public $module = "home";
-    public $db_entities = ["history"];
+    public $databaseEntities = ["history"];
 }

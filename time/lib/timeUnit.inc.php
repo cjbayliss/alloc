@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class timeUnit extends db_entity
+class timeUnit extends DatabaseEntity
 {
     public $classname = "timeUnit";
     public $data_table = "timeUnit";

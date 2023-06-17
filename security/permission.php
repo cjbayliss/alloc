@@ -31,7 +31,7 @@ if (!$permission->get_value("tableName")) {
     $entities = [];
 
     foreach($modules as $module_name => $module) {
-        $mod_entities = $module->db_entities;
+        $mod_entities = $module->databaseEntities;
         $entities = array_merge($entities, $mod_entities);
     }
 

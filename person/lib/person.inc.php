@@ -10,7 +10,7 @@ define("PERM_PERSON_READ_MANAGEMENT", 512);
 define("PERM_PERSON_WRITE_MANAGEMENT", 1024);
 define("PERM_PERSON_WRITE_ROLES", 2048);
 
-class person extends db_entity
+class person extends DatabaseEntity
 {
     public $classname = "person";
     public $data_table = "person";

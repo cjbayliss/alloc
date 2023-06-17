@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class commentTemplate extends db_entity
+class commentTemplate extends DatabaseEntity
 {
     public $data_table = "commentTemplate";
     public $display_field_name = "commentTemplateName";

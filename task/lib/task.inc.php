@@ -7,7 +7,7 @@
 
 define("PERM_PROJECT_READ_TASK_DETAIL", 256);
 
-class task extends db_entity
+class task extends DatabaseEntity
 {
     public $classname = "task";
     public $data_table = "task";

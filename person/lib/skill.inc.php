@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class skill extends db_entity
+class skill extends DatabaseEntity
 {
     public $data_table = "skill";
     public $display_field_name = "skillName";

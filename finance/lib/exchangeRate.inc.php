@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class exchangeRate extends db_entity
+class exchangeRate extends DatabaseEntity
 {
     public $data_table = "exchangeRate";
     public $display_field_name = "exchangeRate";

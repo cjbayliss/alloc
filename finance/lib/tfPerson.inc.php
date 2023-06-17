@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class tfPerson extends db_entity
+class tfPerson extends DatabaseEntity
 {
     public $data_table = "tfPerson";
     public $display_field_name = "personID";

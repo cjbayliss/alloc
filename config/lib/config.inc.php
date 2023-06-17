@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class config extends db_entity
+class config extends DatabaseEntity
 {
     public $data_table = "config";
     public $key_field = "configID";

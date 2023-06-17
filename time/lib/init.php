@@ -8,7 +8,7 @@
 class time_module extends module
 {
     public $module = "time";
-    public $db_entities = ["timeSheet", "timeSheetItem", "timeUnit"];
+    public $databaseEntities = ["timeSheet", "timeSheetItem", "timeUnit"];
     public $home_items = [
         "timeSheetHomeItem",
         "tsiHintHomeItem",

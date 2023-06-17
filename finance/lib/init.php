@@ -8,7 +8,7 @@
 class finance_module extends module
 {
     public $module = "finance";
-    public $db_entities = [
+    public $databaseEntities = [
         "tf",
         "transaction",
         "expenseForm",

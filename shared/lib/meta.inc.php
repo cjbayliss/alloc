@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class meta extends db_entity
+class meta extends DatabaseEntity
 {
 
     private $t;

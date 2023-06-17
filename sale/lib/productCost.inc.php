@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-class productCost extends db_entity
+class productCost extends DatabaseEntity
 {
     public $classname = "productCost";
     public $data_table = "productCost";

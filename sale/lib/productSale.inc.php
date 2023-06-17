@@ -6,7 +6,7 @@
  */
 
 define("PERM_APPROVE_PRODUCT_TRANSACTIONS", 256);
-class productSale extends db_entity
+class productSale extends DatabaseEntity
 {
     public $classname = "productSale";
     public $data_table = "productSale";

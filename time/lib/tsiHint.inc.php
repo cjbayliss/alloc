@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class tsiHint extends db_entity
+class tsiHint extends DatabaseEntity
 {
     public $classname = "tsiHint";
     public $data_table = "tsiHint";

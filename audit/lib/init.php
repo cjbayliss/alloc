@@ -8,5 +8,5 @@
 class audit_module extends module
 {
     public $module = "audit";
-    public $db_entities = ["audit"];
+    public $databaseEntities = ["audit"];
 }

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class timeSheetItem extends db_entity
+class timeSheetItem extends DatabaseEntity
 {
     public $data_table = "timeSheetItem";
     public $display_field_name = "description";

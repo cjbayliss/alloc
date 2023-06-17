@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class invoiceItem extends db_entity
+class invoiceItem extends DatabaseEntity
 {
     public $data_table = "invoiceItem";
     public $display_field_name = "iiMemo";

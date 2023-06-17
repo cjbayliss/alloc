@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class client extends db_entity
+class client extends DatabaseEntity
 {
     public $classname = "client";
     public $data_table = "client";

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class expenseForm extends db_entity
+class expenseForm extends DatabaseEntity
 {
     public $data_table = "expenseForm";
     public $key_field = "expenseFormID";

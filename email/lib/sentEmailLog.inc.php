@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class sentEmailLog extends db_entity
+class sentEmailLog extends DatabaseEntity
 {
     public $classname = "sentEmailLog";
     public $data_table = "sentEmailLog";

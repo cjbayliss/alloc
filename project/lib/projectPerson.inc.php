@@ -7,7 +7,7 @@
 
 define("PERM_PROJECT_PERSON_READ_DETAILS", 256);
 
-class projectPerson extends db_entity
+class projectPerson extends DatabaseEntity
 {
     public $data_table = "projectPerson";
     public $display_field_name = "projectID";

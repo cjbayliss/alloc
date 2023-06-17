@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class proficiency extends db_entity
+class proficiency extends DatabaseEntity
 {
     public $data_table = "proficiency";
     public $display_field_name = "personID";

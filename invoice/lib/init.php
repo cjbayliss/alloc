@@ -8,5 +8,5 @@
 class invoice_module extends module
 {
     public $module = "invoice";
-    public $db_entities = ["invoice", "invoiceItem", "invoiceEntity"];
+    public $databaseEntities = ["invoice", "invoiceItem", "invoiceEntity"];
 }

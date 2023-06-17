@@ -11,9 +11,9 @@ define("PERM_DELETE", 4);
 define("PERM_CREATE", 8);
 define("PERM_READ_WRITE", PERM_READ + PERM_UPDATE + PERM_DELETE + PERM_CREATE);
 
-class db_entity
+class DatabaseEntity
 {
-    public $classname = "db_entity";   // Support phplib session variables
+    public $classname = "DatabaseEntity";   // Support phplib session variables
     public $data_table = "";           // Set this to the name of the data base table
     public $key_field = "";            // Set this to the table's primary key
     public $data_fields = [];     // Set this to the data fields using array("field_name1","field_name2");

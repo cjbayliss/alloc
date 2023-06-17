@@ -8,5 +8,5 @@
 class email_module extends module
 {
     public $module = "email";
-    public $db_entities = ["token"];
+    public $databaseEntities = ["token"];
 }

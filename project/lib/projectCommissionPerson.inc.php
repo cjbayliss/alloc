@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class projectCommissionPerson extends db_entity
+class projectCommissionPerson extends DatabaseEntity
 {
     public $data_table = "projectCommissionPerson";
     public $display_field_name = "projectID";

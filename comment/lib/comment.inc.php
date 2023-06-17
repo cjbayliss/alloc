@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class comment extends db_entity
+class comment extends DatabaseEntity
 {
     public $classname = "comment";
     public $data_table = "comment";

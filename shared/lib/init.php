@@ -11,5 +11,5 @@ require_once(__DIR__ . "/template.inc.php");
 class shared_module extends module
 {
     public $module = "shared";
-    public $db_entities = ["sentEmailLog", "interestedParty"];
+    public $databaseEntities = ["sentEmailLog", "interestedParty"];
 }

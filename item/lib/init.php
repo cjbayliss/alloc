@@ -8,5 +8,5 @@
 class item_module extends module
 {
     public $module = "item";
-    public $db_entities = ["item", "loan"];
+    public $databaseEntities = ["item", "loan"];
 }

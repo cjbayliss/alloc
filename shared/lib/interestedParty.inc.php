@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class interestedParty extends db_entity
+class interestedParty extends DatabaseEntity
 {
     public $data_table = "interestedParty";
     public $key_field = "interestedPartyID";

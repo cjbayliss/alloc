@@ -8,7 +8,7 @@
 define("PERM_PROJECT_VIEW_TASK_ALLOCS", 256);
 define("PERM_PROJECT_ADD_TASKS", 512);
 
-class project extends db_entity
+class project extends DatabaseEntity
 {
     public $classname = "project";
     public $data_table = "project";

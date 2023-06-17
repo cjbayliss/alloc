@@ -8,7 +8,7 @@
 class module
 {
     public $module = '';
-    public $db_entities = [];   // A list of db_entity class names implemented by this module
+    public $databaseEntities = [];   // A list of db_entity class names implemented by this module
     public $home_items = [];    // A list of all the home page items implemented by this module
 
     public function __construct()

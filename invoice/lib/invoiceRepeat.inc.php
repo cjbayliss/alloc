@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class invoiceRepeat extends db_entity
+class invoiceRepeat extends DatabaseEntity
 {
     public $classname = "invoiceRepeat";
     public $data_table = "invoiceRepeat";

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-class productSaleItem extends db_entity
+class productSaleItem extends DatabaseEntity
 {
     public $classname = "productSaleItem";
     public $data_table = "productSaleItem";

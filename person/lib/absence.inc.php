@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class absence extends db_entity
+class absence extends DatabaseEntity
 {
     public $data_table = "absence";
     public $display_field_name = "personID";

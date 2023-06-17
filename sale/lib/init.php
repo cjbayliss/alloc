@@ -8,7 +8,7 @@
 class sale_module extends module
 {
     public $module = "sale";
-    public $db_entities = [
+    public $databaseEntities = [
         "product",
         "productCost",
         "productSale",

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class inbox extends db_entity
+class inbox extends DatabaseEntity
 {
 
     public static function change_current_user($from)

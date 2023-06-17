@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class token extends db_entity
+class token extends DatabaseEntity
 {
     public $classname = "token";
     public $data_table = "token";

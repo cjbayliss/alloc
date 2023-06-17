@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class audit extends db_entity
+class audit extends DatabaseEntity
 {
     public $data_table = "audit";
     public $key_field = "auditID";

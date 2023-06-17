@@ -8,6 +8,6 @@
 class announcement_module extends module
 {
     public $module = "announcement";
-    public $db_entities = ["announcement"];
+    public $databaseEntities = ["announcement"];
     public $home_items = ["announcements_home_item"];
 }

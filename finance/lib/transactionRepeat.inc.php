@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class transactionRepeat extends db_entity
+class transactionRepeat extends DatabaseEntity
 {
     public $data_table = "transactionRepeat";
     public $display_field_name = "product";

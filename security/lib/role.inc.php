@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class role extends db_entity
+class role extends DatabaseEntity
 {
     public $data_table = "role";
     public $key_field = "roleID";

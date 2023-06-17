@@ -509,8 +509,8 @@ class services
         global $modules;
         // FIXME: YIKES
         foreach ($modules as $name => $object) {
-            if (is_object($object) && is_array($object->db_entities)) {
-                foreach ($object->db_entities as $entity) {
+            if (is_object($object) && is_array($object->databaseEntities)) {
+                foreach ($object->databaseEntities as $entity) {
                     unset($commar2);
                     if (class_exists($entity)) {
                         $e = new $entity;

@@ -8,5 +8,5 @@
 class reminder_module extends module
 {
     public $module = "reminder";
-    public $db_entities = ["reminder", "reminderRecipient"];
+    public $databaseEntities = ["reminder", "reminderRecipient"];
 }

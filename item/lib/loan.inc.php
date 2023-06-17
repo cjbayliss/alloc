@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class loan extends db_entity
+class loan extends DatabaseEntity
 {
     public $data_table = "loan";
     public $display_field_name = "itemID";

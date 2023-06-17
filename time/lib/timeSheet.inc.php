@@ -8,7 +8,7 @@
 define("PERM_TIME_APPROVE_TIMESHEETS", 256);
 define("PERM_TIME_INVOICE_TIMESHEETS", 512);
 
-class timeSheet extends db_entity
+class timeSheet extends DatabaseEntity
 {
     public $classname = "timeSheet";
     public $data_table = "timeSheet";

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-class transaction extends db_entity
+class transaction extends DatabaseEntity
 {
     public $classname = "transaction";
     public $data_table = "transaction";

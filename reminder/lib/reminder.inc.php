@@ -9,7 +9,7 @@
 define("REMINDER_METAPERSON_TASK_ASSIGNEE", 2);
 define("REMINDER_METAPERSON_TASK_MANAGER", 3);
 
-class reminder extends db_entity
+class reminder extends DatabaseEntity
 {
     public $data_table = "reminder";
     public $display_field_name = "reminderSubject";

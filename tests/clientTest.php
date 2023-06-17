@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 
 require_once 'shared/util.inc.php'; // IMPORTANT!!
-require_once 'shared/lib/db_entity.inc.php';
+require_once 'shared/lib/DatabaseEntity.inc.php';
 require_once 'client/lib/client.inc.php';
 
 use PHPUnit\Framework\TestCase;

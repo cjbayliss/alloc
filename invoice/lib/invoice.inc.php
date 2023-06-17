@@ -6,7 +6,7 @@
  */
 
 define("DEFAULT_SEP", "\n");
-class invoice extends db_entity
+class invoice extends DatabaseEntity
 {
     public $classname = "invoice";
     public $data_table = "invoice";
