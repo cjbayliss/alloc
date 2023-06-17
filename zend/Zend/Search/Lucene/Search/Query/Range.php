@@ -69,10 +69,8 @@ class Zend_Search_Lucene_Search_Query_Range extends Zend_Search_Lucene_Search_Qu
      * post-processing
      *
      * Array of Zend_Search_Lucene_Index_Term objects
-     *
-     * @var array
      */
-    private $_matches = null;
+    private ?array $_matches = null;
 
     /**
      * Zend_Search_Lucene_Search_Query_Range constructor.

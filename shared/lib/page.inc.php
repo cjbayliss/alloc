@@ -559,6 +559,7 @@ class page
     }
     public static function money_print($rows = [])
     {
+        $rtn = null;
         $sums = [];
         $k = null;
         $total = null;

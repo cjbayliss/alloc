@@ -556,7 +556,7 @@ $db->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, cl
                        AND interestedPartyActive = 1
                   ORDER BY fullName", $project->get_id()));
 while ($db->next_record()) {
-    $value = interestedParty::get_encoded_interested_party_identifier($db->f("fullName"), $db->f("emailAddress"));
+    $value = interestedParty::get_encoded_interested_party_identifier($db->f("fullName"));
     $phone = ["p" => $db->f('clientContactPhone'), "m" => $db->f('clientContactMobile')];
     $TPL["interestedParties"][] = ['key' => $value, 'name' => $db->f("fullName"), 'email' => $db->f("emailAddress"), 'phone' => $phone];
 }
@@ -602,8 +602,8 @@ if (is_object($project) && $project->get_id()) {
 
         $TPL["time_remaining"] and $TPL["time_remaining"] = sprintf("%0.1f", $TPL["time_remaining"]) . " Hours.";
 
-        $TPL["count_incomplete_tasks"] = count($TPL["taskListRows"]);
-        $not_quoted = count($TPL["taskListRows"]) - $count_quoted_tasks;
+        $TPL["count_incomplete_tasks"] = is_countable($TPL["taskListRows"]) ? count($TPL["taskListRows"]) : 0;
+        $not_quoted = (is_countable($TPL["taskListRows"]) ? count($TPL["taskListRows"]) : 0) - $count_quoted_tasks;
         $not_quoted and $TPL["count_not_quoted_tasks"] = "(" . sprintf("%d", $not_quoted) . " tasks not included in estimate)";
     }
 

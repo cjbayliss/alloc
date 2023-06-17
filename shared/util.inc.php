@@ -140,6 +140,7 @@ function sort_by_name($a, $b)
 
 function rebuild_cache($table)
 {
+    $rows_config = [];
     $cache = &singleton("cache");
 
     if (!empty(meta::$tables[$table])) {
@@ -449,8 +450,9 @@ function alloc_redirect($target_url)
     if (!empty($params)) {
         $params = $seperator . implode("&", $params);
     } else {
-        $params = '';
+        $params = null;
     }
+
     header("Location: " . $target_url . $params);
     exit();
 }
@@ -520,7 +522,7 @@ function get_exchange_rate($from, $to)
         $url = 'http://www.google.com/ig/calculator?hl=en&q=' . urlencode('1' . $from . '=?' . $to);
         $data = file_get_contents($url);
         $debug and print "<br>G: " . htmlentities($data);
-        $arr = json_decode($data, true);
+        $arr = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
         $rate = current(explode(" ", $arr["rhs"]));
         $debug and print "<br>Google says 5 " . $from . " is worth " . ($rate * 5) . " " . $to . " at this exchange rate: " . $rate;
     }
@@ -549,7 +551,7 @@ function array_kv($arr, $k, $v)
 
 function in_str($in, $str)
 {
-    return strpos($str, $in) !== false;
+    return strpos($str, (string) $in) !== false;
 }
 
 function rmdir_if_empty($dir)

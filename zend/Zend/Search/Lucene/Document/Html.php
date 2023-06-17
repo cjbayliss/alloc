@@ -44,35 +44,27 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
 
     /**
      * List of document header links
-     *
-     * @var array
      */
-    private $_headerLinks = [];
+    private array $_headerLinks = [];
 
     /**
      * Stored DOM representation
-     *
-     * @var DOMDocument
      */
-    private $_doc;
+    private \DOMDocument $_doc;
 
     /**
      * Exclud nofollow links flag
      *
      * If true then links with rel='nofollow' attribute are not included into
      * document links.
-     *
-     * @var boolean
      */
-    private static $_excludeNoFollowLinks = false;
+    private static bool $_excludeNoFollowLinks = false;
 
     /**
      *
      * List of inline tags
-     *
-     * @var array
      */
-    private $_inlineTags = ['a', 'abbr', 'acronym', 'dfn', 'em', 'strong', 'code', 'samp', 'kbd', 'var', 'b', 'i', 'big', 'small', 'strike', 'tt', 'u', 'font', 'span', 'bdo', 'cite', 'del', 'ins', 'q', 'sub', 'sup'];
+    private array $_inlineTags = ['a', 'abbr', 'acronym', 'dfn', 'em', 'strong', 'code', 'samp', 'kbd', 'var', 'b', 'i', 'big', 'small', 'strike', 'tt', 'u', 'font', 'span', 'bdo', 'cite', 'del', 'ins', 'q', 'sub', 'sup'];
 
     /**
      * Object constructor
@@ -421,7 +413,7 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         }
         $wordsToHighlight = call_user_func_array('array_merge', $wordsToHighlightList);
 
-        if (count($wordsToHighlight) == 0) {
+        if ((is_countable($wordsToHighlight) ? count($wordsToHighlight) : 0) == 0) {
             return $this->_doc->saveHTML();
         }
 

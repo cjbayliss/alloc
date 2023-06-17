@@ -88,7 +88,7 @@ class invoice extends db_entity
     {
         global $TPL;
         if ($payment_status) {
-            $payment_statii = invoice::get_invoice_statii_payment();
+            $payment_statii = (new invoice())->get_invoice_statii_payment();
             return "<img src=\"" . $TPL["url_alloc_images"] . "invoice_" . $payment_status . ".png\" alt=\"" . $payment_statii[$payment_status] . "\" title=\"" . $payment_statii[$payment_status] . "\">";
         }
     }
@@ -626,7 +626,7 @@ class invoice extends db_entity
 
             $payment_status = [];
             $row["statii"] = invoice::get_invoice_statii();
-            $row["payment_statii"] = invoice::get_invoice_statii_payment();
+            $row["payment_statii"] = (new invoice())->get_invoice_statii_payment();
             $row["amountPaidApproved"] == $row["iiAmountSum"] and $payment_status[] = "fully_paid";
             $row["amountPaidApproved"] > $row["iiAmountSum"] and $payment_status[] = "over_paid";
             $row["amountPaidRejected"] > 0 and $payment_status[] = "rejected";
@@ -634,7 +634,7 @@ class invoice extends db_entity
             $row["amountPaidApproved"] < $row["iiAmountSum"] and $payment_status[] = "pending";
 
             foreach ((array)$payment_status as $ps) {
-                $row["image"] .= invoice::get_invoice_statii_payment_image($ps);
+                $row["image"] .= (new invoice())->get_invoice_statii_payment_image($ps);
                 $row["status_label"] .= $ps;
             }
 
@@ -682,7 +682,7 @@ class invoice extends db_entity
     {
         $current_user = &singleton("current_user");
 
-        $page_vars = array_keys(invoice::get_list_vars());
+        $page_vars = array_keys((new invoice())->get_list_vars());
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 
@@ -714,7 +714,7 @@ class invoice extends db_entity
         $statii = invoice::get_invoice_statii();
         unset($statii["create"]);
         $rtn["statusOptions"] = page::select_options($statii, $_FORM["invoiceStatus"]);
-        $statii_payment = invoice::get_invoice_statii_payment();
+        $statii_payment = (new invoice())->get_invoice_statii_payment();
         $rtn["statusPaymentOptions"] = page::select_options($statii_payment, $_FORM["invoiceStatusPayment"]);
         $rtn["status"] = $_FORM["status"];
         $rtn["dateOne"] = $_FORM["dateOne"];
@@ -799,7 +799,7 @@ class invoice extends db_entity
         $m = null;
         $newstatus = $this->next_status($direction);
         if ($newstatus) {
-            if ($this->can_move($direction, $newstatus)) {
+            if ($this->can_move($direction)) {
                 $m = $this->{"move_status_to_" . $newstatus}($direction);
             }
             if (is_array($m)) {

@@ -21,7 +21,7 @@ function getRequestVariable($variableName)
     }
 
     if ($variableName === "options" && isset($_POST[$variableName])) {
-        $value = json_decode($_POST[$variableName], true);
+        $value = json_decode($_POST[$variableName], true, 512, JSON_THROW_ON_ERROR);
     }
 
     return $value;
@@ -38,7 +38,7 @@ if (
         getRequestVariable("username"),
         getRequestVariable("password")
     );
-    die(json_encode(["sessID" => $sessID]));
+    die(json_encode(["sessID" => $sessID], JSON_THROW_ON_ERROR));
 }
 
 $services = new services($sessID);
@@ -64,6 +64,6 @@ if ($sessID) {
         }
 
         $result = call_user_func_array([$services, $methodRequested], $args);
-        echo json_encode($result);
+        echo json_encode($result, JSON_THROW_ON_ERROR);
     }
 }

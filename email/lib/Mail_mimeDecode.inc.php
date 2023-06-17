@@ -164,9 +164,9 @@ class Mail_mimeDecode
      * @param string The input to decode
      * @access public
      */
-    public function Mail_mimeDecode($input)
+    public function __construct($input)
     {
-        [$header, $body] = $this->_splitBodyHeader($input);
+        [$header, $body] = static::_splitBodyHeader($input);
 
         $this->_input = $input;
         $this->_header = $header;
@@ -322,7 +322,7 @@ class Mail_mimeDecode
 
                     $parts = $this->_boundarySplit($body, $content_type['other']['boundary']);
                     for ($i = 0; $i < count($parts); $i++) {
-                        [$part_header, $part_body] = $this->_splitBodyHeader($parts[$i]);
+                        [$part_header, $part_body] = static::_splitBodyHeader($parts[$i]);
                         $part = $this->_decode($part_header, $part_body, $default_ctype);
                         if ($part === false) {
                             alloc_error($this->_error);
@@ -374,7 +374,7 @@ class Mail_mimeDecode
                 $structure->mime_id = $prepend . $mime_number;
                 $return[$prepend . $mime_number] = &$structure;
             }
-            for ($i = 0; $i < count($structure->parts); $i++) {
+            for ($i = 0; $i < (is_countable($structure->parts) ? count($structure->parts) : 0); $i++) {
 
                 if (!empty($structure->headers['content-type']) and substr(strtolower($structure->headers['content-type']), 0, 8) == 'message/') {
                     $prepend = $prepend . $mime_number . '.';
@@ -481,7 +481,7 @@ class Mail_mimeDecode
                 $splitRegex = '/([^;\'"]*[\'"]([^\'"]*([^\'"]*)*)[\'"][^;\'"]*|([^;]+))(;|$)/';
                 preg_match_all($splitRegex, $input, $matches);
                 $parameters = [];
-                for ($i = 0; $i < count($matches[0]); $i++) {
+                for ($i = 0; $i < (is_countable($matches[0]) ? count($matches[0]) : 0); $i++) {
                     $param = $matches[0][$i];
                     while (substr($param, -2) == '\;') {
                         $param .= $matches[0][++$i];
@@ -621,9 +621,7 @@ class Mail_mimeDecode
         $input = preg_replace("/=\r?\n/", '', $input);
 
         // Replace encoded characters
-        $input = preg_replace_callback('/=([a-f0-9]{2})/i', function ($matches) {
-            return chr(hexdec($matches[1]));
-        }, $input);
+        $input = preg_replace_callback('/=([a-f0-9]{2})/i', fn ($matches) => chr(hexdec($matches[1])), $input);
 
         return $input;
     }
@@ -649,7 +647,7 @@ class Mail_mimeDecode
         // Find all uuencoded sections
         preg_match_all("/begin ([0-7]{3}) (.+)\r?\n(.+)\r?\nend/Us", $input, $matches);
 
-        for ($j = 0; $j < count($matches[3]); $j++) {
+        for ($j = 0; $j < (is_countable($matches[3]) ? count($matches[3]) : 0); $j++) {
 
             $str = $matches[3][$j];
             $filename = $matches[2][$j];
@@ -657,23 +655,23 @@ class Mail_mimeDecode
 
             $file = '';
             $str = preg_split("/\r?\n/", trim($str));
-            $strlen = count($str);
+            $strlen = is_countable($str) ? count($str) : 0;
 
             for ($i = 0; $i < $strlen; $i++) {
                 $pos = 1;
                 $d = 0;
-                $len = (int)(((ord(substr($str[$i], 0, 1)) - 32) - ' ') & 077);
+                $len = (int)(((ord(substr($str[$i], 0, 1)) - 32) - 0) & 077);
 
                 while (($d + 3 <= $len) and ($pos + 4 <= strlen($str[$i]))) {
                     $c0 = (ord(substr($str[$i], $pos, 1)) ^ 0x20);
                     $c1 = (ord(substr($str[$i], $pos + 1, 1)) ^ 0x20);
                     $c2 = (ord(substr($str[$i], $pos + 2, 1)) ^ 0x20);
                     $c3 = (ord(substr($str[$i], $pos + 3, 1)) ^ 0x20);
-                    $file .= chr(((($c0 - ' ') & 077) << 2) | ((($c1 - ' ') & 077) >> 4));
+                    $file .= chr(((($c0 - 0) & 077) << 2) | ((($c1 - 0) & 077) >> 4));
 
-                    $file .= chr(((($c1 - ' ') & 077) << 4) | ((($c2 - ' ') & 077) >> 2));
+                    $file .= chr(((($c1 - 0) & 077) << 4) | ((($c2 - 0) & 077) >> 2));
 
-                    $file .= chr(((($c2 - ' ') & 077) << 6) | (($c3 - ' ') & 077));
+                    $file .= chr(((($c2 - 0) & 077) << 6) | (($c3 - 0) & 077));
 
                     $pos += 4;
                     $d += 3;
@@ -683,9 +681,9 @@ class Mail_mimeDecode
                     $c0 = (ord(substr($str[$i], $pos, 1)) ^ 0x20);
                     $c1 = (ord(substr($str[$i], $pos + 1, 1)) ^ 0x20);
                     $c2 = (ord(substr($str[$i], $pos + 2, 1)) ^ 0x20);
-                    $file .= chr(((($c0 - ' ') & 077) << 2) | ((($c1 - ' ') & 077) >> 4));
+                    $file .= chr(((($c0 - 0) & 077) << 2) | ((($c1 - 0) & 077) >> 4));
 
-                    $file .= chr(((($c1 - ' ') & 077) << 4) | ((($c2 - ' ') & 077) >> 2));
+                    $file .= chr(((($c1 - 0) & 077) << 4) | ((($c2 - 0) & 077) >> 2));
 
                     $pos += 3;
                     $d += 2;
@@ -694,7 +692,7 @@ class Mail_mimeDecode
                 if (($d + 1 <= $len) && ($pos + 2 <= strlen($str[$i]))) {
                     $c0 = (ord(substr($str[$i], $pos, 1)) ^ 0x20);
                     $c1 = (ord(substr($str[$i], $pos + 1, 1)) ^ 0x20);
-                    $file .= chr(((($c0 - ' ') & 077) << 2) | ((($c1 - ' ') & 077) >> 4));
+                    $file .= chr(((($c0 - 0) & 077) << 2) | ((($c1 - 0) & 077) >> 4));
                 }
             }
             $files[] = [
@@ -804,7 +802,7 @@ class Mail_mimeDecode
 
             // Multiple headers with this name
             if (is_array($headers[$hdr_name])) {
-                for ($i = 0; $i < count($hdr_value); $i++) {
+                for ($i = 0; $i < (is_countable($hdr_value) ? count($hdr_value) : 0); $i++) {
                     $output .= Mail_mimeDecode::_getXML_helper($hdr_name, $hdr_value[$i], $indent);
                 }
 
@@ -815,7 +813,7 @@ class Mail_mimeDecode
         }
 
         if (!empty($input->parts)) {
-            for ($i = 0; $i < count($input->parts); $i++) {
+            for ($i = 0; $i < (is_countable($input->parts) ? count($input->parts) : 0); $i++) {
                 $output .= $crlf . str_repeat($htab, $indent) . '<mimepart>' . $crlf .
                     Mail_mimeDecode::_getXML($input->parts[$i], $indent + 1) .
                     str_repeat($htab, $indent) . '</mimepart>' . $crlf;
@@ -858,7 +856,7 @@ class Mail_mimeDecode
 
             $params = implode('', $params);
         } else {
-            $params = '';
+            $params = null;
         }
 
         $return = str_repeat($htab, $indent) . '<header>' . $crlf .

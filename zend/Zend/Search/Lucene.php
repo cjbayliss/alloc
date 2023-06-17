@@ -103,93 +103,69 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
      * Result set limit
      *
      * 0 means no limit
-     *
-     * @var integer
      */
-    private static $_resultSetLimit = 0;
+    private static int $_resultSetLimit = 0;
 
     /**
      * Terms per query limit
      *
      * 0 means no limit
-     *
-     * @var integer
      */
-    private static $_termsPerQueryLimit = 1024;
+    private static int $_termsPerQueryLimit = 1024;
 
     /**
      * File system adapter.
-     *
-     * @var Zend_Search_Lucene_Storage_Directory
      */
-    private $_directory = null;
+    private ?\Zend_Search_Lucene_Storage_Directory_Filesystem $_directory = null;
 
     /**
      * File system adapter closing option
-     *
-     * @var boolean
      */
-    private $_closeDirOnExit = true;
+    private bool $_closeDirOnExit = true;
 
     /**
      * Writer for this index, not instantiated unless required.
-     *
-     * @var Zend_Search_Lucene_Index_Writer
      */
-    private $_writer = null;
+    private ?\Zend_Search_Lucene_Index_Writer $_writer = null;
 
     /**
      * Array of Zend_Search_Lucene_Index_SegmentInfo objects for current version of index.
-     *
-     * @var array Zend_Search_Lucene_Index_SegmentInfo
      */
-    private $_segmentInfos = [];
+    private ?array $_segmentInfos = [];
 
     /**
      * Number of documents in this index.
-     *
-     * @var integer
      */
-    private $_docCount = 0;
+    private int $_docCount = 0;
 
     /**
      * Flag for index changes
-     *
-     * @var boolean
      */
-    private $_hasChanges = false;
+    private bool $_hasChanges = false;
 
     /**
      * Signal, that index is already closed, changes are fixed and resources are cleaned up
-     *
-     * @var boolean
      */
-    private $_closed = false;
+    private bool $_closed = false;
 
     /**
      * Number of references to the index object
-     *
-     * @var integer
      */
-    private $_refCount = 0;
+    private int $_refCount = 0;
 
     /**
      * Current segment generation
-     *
-     * @var integer
      */
-    private $_generation;
+    private int $_generation;
 
-    const FORMAT_PRE_2_1 = 0;
-    const FORMAT_2_1 = 1;
-    const FORMAT_2_3 = 2;
+    public const FORMAT_PRE_2_1 = 0;
+    public const FORMAT_2_1 = 1;
+    public const FORMAT_2_3 = 2;
 
     /**
      * Index format version
-     *
-     * @var integer
      */
-    private $_formatVersion;
+    private ?int $_formatVersion = null;
 
     /**
      * Create index
@@ -220,10 +196,10 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
     }
 
     /** Generation retrieving counter */
-    const GENERATION_RETRIEVE_COUNT = 10;
+    public const GENERATION_RETRIEVE_COUNT = 10;
 
     /** Pause between generation retrieving attempts in milliseconds */
-    const GENERATION_RETRIEVE_PAUSE = 50;
+    public const GENERATION_RETRIEVE_PAUSE = 50;
 
     /**
      * Get current generation number
@@ -1503,10 +1479,8 @@ class Zend_Search_Lucene implements Zend_Search_Lucene_Interface
 
     /**
      * Terms stream priority queue object
-     *
-     * @var Zend_Search_Lucene_TermStreamsPriorityQueue
      */
-    private $_termsStream = null;
+    private ?\Zend_Search_Lucene_TermStreamsPriorityQueue $_termsStream = null;
 
     /**
      * Reset terms stream.

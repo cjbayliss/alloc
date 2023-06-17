@@ -57,7 +57,7 @@ class invoiceEntity extends db_entity
         $rtn = [];
         $expenseForm_links = [];
         $productSale_links = [];
-        $rows = invoiceEntity::get("invoice", $invoiceID); // cheating :)
+        $rows = (new invoiceEntity())->get("invoice", $invoiceID); // cheating :)
         foreach ($rows as $row) {
             if ($row["timeSheetID"]) {
                 $timeSheet = new timeSheet($row["timeSheetID"]);

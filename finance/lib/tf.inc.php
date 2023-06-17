@@ -157,7 +157,7 @@ class tf extends db_entity
 
             // If not admin, then remove the items from $requested_tfs that the user can't access
         } else {
-            $allowed_tfs = (array)tf::get_tfs_for_person($current_user->get_id());
+            $allowed_tfs = (array)(new tf())->get_tfs_for_person($current_user->get_id());
             foreach ((array)$requested_tfs as $tf) {
                 if (in_array($tf, $allowed_tfs)) {
                     $rtn[] = $tf;

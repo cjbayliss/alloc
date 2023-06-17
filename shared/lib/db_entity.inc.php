@@ -23,7 +23,7 @@ class db_entity
     public $debug = false;
     public $display_field_name;        // Set this to the field to be used by the get_display_value function
     public $cache;                     // Cache associative array stored by primary key index
-    private $fields_loaded = false;    // This internal flag just specifies whether a row from the db was loaded
+    private bool $fields_loaded = false;    // This internal flag just specifies whether a row from the db was loaded
     public $permissions = [];
     public $skip_modified_fields = null;
     public $doMoney = null;

@@ -35,39 +35,31 @@ class Zend_Search_Lucene_Index_SegmentMerger
 {
     /**
      * Target segment writer
-     *
-     * @var Zend_Search_Lucene_Index_SegmentWriter_StreamWriter
      */
-    private $_writer;
+    private \Zend_Search_Lucene_Index_SegmentWriter_StreamWriter $_writer;
 
     /**
      * Number of docs in a new segment
-     *
-     * @var integer
      */
-    private $_docCount;
+    private ?int $_docCount = null;
 
     /**
      * A set of segments to be merged
      *
      * @var array Zend_Search_Lucene_Index_SegmentInfo
      */
-    private $_segmentInfos = [];
+    private array $_segmentInfos = [];
 
     /**
      * Flag to signal, that merge is already done
-     *
-     * @var boolean
      */
-    private $_mergeDone = false;
+    private bool $_mergeDone = false;
 
     /**
      * Field map
      * [<segment_name>][<field_number>] => <target_field_number>
-     *
-     * @var array
      */
-    private $_fieldsMap = [];
+    private array $_fieldsMap = [];
 
     /**
      * Object constructor.

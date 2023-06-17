@@ -35,10 +35,8 @@ class Zend_Search_Lucene_Search_QueryEntry_Subquery extends Zend_Search_Lucene_S
 {
     /**
      * Query
-     *
-     * @var Zend_Search_Lucene_Search_Query
      */
-    private $_query;
+    private \Zend_Search_Lucene_Search_Query $_query;
 
     /**
      * Object constractor

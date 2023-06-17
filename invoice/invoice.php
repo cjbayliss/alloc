@@ -368,6 +368,7 @@ function show_attachments($invoiceID)
 
 function show_comments()
 {
+    $clientID = null;
     $interestedPartyOptions = null;
     global $invoiceID;
     global $TPL;

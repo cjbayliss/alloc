@@ -151,7 +151,7 @@ class Mail_RFC822
      *
      * @return object Mail_RFC822 A new Mail_RFC822 object.
      */
-    public function Mail_RFC822($address = null, $default_domain = null, $nest_groups = null, $validate = null, $limit = null)
+    public function __construct($address = null, $default_domain = null, $nest_groups = null, $validate = null, $limit = null)
     {
         if (isset($address)) {
             $this->address = $address;
@@ -570,7 +570,7 @@ class Mail_RFC822
         $parts = preg_split('/[ \\x09]+/', $phrase, -1, PREG_SPLIT_NO_EMPTY);
 
         $phrase_parts = [];
-        while (count($parts) > 0) {
+        while ((is_countable($parts) ? count($parts) : 0) > 0) {
             $phrase_parts[] = $this->_splitCheck($parts, ' ');
             for ($i = 0; $i < $this->index + 1; $i++) {
                 array_shift($parts);
@@ -970,7 +970,7 @@ class Mail_RFC822
      */
     public function approximateCount($data)
     {
-        return count(preg_split('/(?<!\\\\),/', $data));
+        return is_countable(preg_split('/(?<!\\\\),/', $data)) ? count(preg_split('/(?<!\\\\),/', $data)) : 0;
     }
 
     /**

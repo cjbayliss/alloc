@@ -250,7 +250,7 @@ class invoiceItem extends db_entity
     {
         $f = null;
         $rows = [];
-        $filter = invoiceItem::get_list_filter($_FORM);
+        $filter = (new invoiceItem())->get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);
         }

@@ -36,10 +36,8 @@ class Zend_Search_Lucene_Analysis_Analyzer_Common_TextNum extends Zend_Search_Lu
 {
     /**
      * Current position in a stream
-     *
-     * @var integer
      */
-    private $_position;
+    private ?int $_position = null;
 
     /**
      * Reset token stream

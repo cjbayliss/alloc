@@ -258,7 +258,7 @@ class client extends db_entity
 
             if (!empty($row["clientContactEmail"])) {
                 $clientContactName = page::htmlentities($row["clientContactName"]);
-                $clientContactEmail = page::htmlentities($$row["clientContactEmail"]);
+                $clientContactEmail = page::htmlentities(${$row}["clientContactEmail"]);
                 $row["clientContactEmail"] =
                     "<a href=\"mailto:{$clientContactName} <{$clientContactEmail}>\">{$clientContactEmail}</a>";
             }
@@ -377,8 +377,7 @@ class client extends db_entity
             $stack[$clientID] = $percent;
         }
         asort($stack);
-        end($stack);
-        $probable_clientID = key($stack);
+        $probable_clientID = array_key_last($stack);
         $client_percent = current($stack);
         return [$probable_clientID, $client_percent];
     }
@@ -502,6 +501,7 @@ class client extends db_entity
 
     public function format_address($type = "street", $map_link = true)
     {
+        $str = null;
         $stateOrRegion = null;
         $country = null;
 

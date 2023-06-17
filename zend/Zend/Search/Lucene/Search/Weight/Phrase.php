@@ -37,17 +37,13 @@ class Zend_Search_Lucene_Search_Weight_Phrase extends Zend_Search_Lucene_Search_
 {
     /**
      * IndexReader.
-     *
-     * @var Zend_Search_Lucene_Interface
      */
-    private $_reader;
+    private \Zend_Search_Lucene_Interface $_reader;
 
     /**
      * The query that this concerns.
-     *
-     * @var Zend_Search_Lucene_Search_Query_Phrase
      */
-    private $_query;
+    private \Zend_Search_Lucene_Search_Query_Phrase $_query;
 
     /**
      * Score factor

@@ -15,7 +15,7 @@ class email_receive
     public $lockfile;
     public $mbox;
     public $connection;
-    private $connect_string;
+    private ?string $connect_string = null;
     public $mail_headers;
     public $mail_structure;
     public $mail_text;
@@ -371,7 +371,7 @@ class email_receive
 
                 $attachments[$i]['name'] = $name;
             } else {
-                if (count($part->parts) > 0) {
+                if ((is_countable($part->parts) ? count($part->parts) : 0) > 0) {
                     foreach ($part->parts as $sp) {
                         if (strpos($sp->headers['content-type'], 'text/plain') !== false) {
                             $plain = $sp->body;

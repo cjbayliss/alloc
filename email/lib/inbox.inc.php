@@ -140,6 +140,7 @@ class inbox extends db_entity
 
     public static function convert_email_to_new_task($email_receive, $change_user = false)
     {
+        $personID = null;
         $ip = [];
         global $TPL;
         $current_user = &singleton("current_user");

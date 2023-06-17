@@ -36,17 +36,13 @@ class Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8 extends Zend_Search_Lucen
 {
     /**
      * Current char position in an UTF-8 stream
-     *
-     * @var integer
      */
-    private $_position;
+    private ?int $_position = null;
 
     /**
      * Current binary position in an UTF-8 stream
-     *
-     * @var integer
      */
-    private $_bytePosition;
+    private ?int $_bytePosition = null;
 
     /**
      * Object constructor

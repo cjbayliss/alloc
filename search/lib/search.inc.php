@@ -72,7 +72,7 @@ class search
                 if (is_file($dir . $file) && !is_dir($dir . $file)) {
                     $rtn[] = $dir . $file;
                 } else if (is_dir($dir . $file)) {
-                    $rtn = array_merge((array)$rtn, (array)search::get_recursive_dir_list($dir . $file));
+                    $rtn = array_merge((array)$rtn, (array)(new search())->get_recursive_dir_list($dir . $file));
                 }
             }
         }

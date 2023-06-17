@@ -79,14 +79,14 @@ class task_graph
         global $graph_completion_date;
         global $graph_type;
 
-        if (count($tasks) == 0) {
+        if ((is_countable($tasks) ? count($tasks) : 0) == 0) {
             image_die("No Tasks Found for " . $this->title);
         }
 
         // Set the enviroment variable for GD
         putenv('GDFONTPATH=' . realpath('../util'));
 
-        $this->height = count($tasks) * ($this->bar_height + $this->task_padding) * 2 + $this->top_margin + $this->bottom_margin;
+        $this->height = (is_countable($tasks) ? count($tasks) : 0) * ($this->bar_height + $this->task_padding) * 2 + $this->top_margin + $this->bottom_margin;
 
         get_date_range($tasks);
 
@@ -384,7 +384,7 @@ function get_date_range($tasks = [])
     global $graph_start_date;
     global $graph_completion_date;
 
-    if (count($tasks) == 0) {
+    if ((is_countable($tasks) ? count($tasks) : 0) == 0) {
         return;
     }
 

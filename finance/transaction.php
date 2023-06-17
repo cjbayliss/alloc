@@ -83,7 +83,7 @@ if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
     // $transaction->get_value("projectID")       or alloc_error("You must select a project");
     // $transaction->get_value("companyDetails")  or alloc_error("You must enter the company details");
 
-    if (!count($TPL["message"])) {
+    if (!(is_countable($TPL["message"]) ? count($TPL["message"]) : 0)) {
         $transaction->set_value("amount", str_replace(["$", ","], "", $transaction->get_value("amount")));
         if ($transaction->save()) { // need to check this again as transaction->save might have triggered an error
             $TPL["message_good"][] = "Transaction Saved";

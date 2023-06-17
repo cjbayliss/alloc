@@ -195,10 +195,10 @@ class Cpdf
     * this will start a new document
     * @var array array of 4 numbers, defining the bottom left and upper right corner of the page. first two are normally zero.
     */
-    public function Cpdf($pageSize = [0, 0, 612, 792])
+    public function __construct($pageSize = [0, 0, 612, 792])
     {
         $this->newDocument($pageSize);
-  
+
         // also initialize the font families that are known about already
         $this->setFontFamily('init');
         //  $this->fileIdentifier = md5('xxxxxxxx'.time());
@@ -387,7 +387,7 @@ class Cpdf
                                     break;
                             }
                             if ($k >= 0) {
-                                for ($j = count($o['info']['pages']) - 1;$j >= $k;$j--) {
+                                for ($j = (is_countable($o['info']['pages']) ? count($o['info']['pages']) : 0) - 1;$j >= $k;$j--) {
                                     $o['info']['pages'][$j + 1] = $o['info']['pages'][$j];
                                 }
                                 $o['info']['pages'][$k] = $options['id'];
@@ -409,25 +409,25 @@ class Cpdf
                 $o['info']['xObjects'][] = ['objNum' => $options['objNum'], 'label' => $options['label']];
                 break;
             case 'out':
-                if (count($o['info']['pages'])) {
+                if (is_countable($o['info']['pages']) ? count($o['info']['pages']) : 0) {
                     $res = "\n".$id." 0 obj\n<< /Type /Pages\n/Kids [";
                     foreach($o['info']['pages'] as $k => $v) {
                         $res .= $v." 0 R\n";
                     }
-                    $res .= "]\n/Count ".count($this->objects[$id]['info']['pages']);
-                    if ((isset($o['info']['fonts']) && count($o['info']['fonts'])) || isset($o['info']['procset'])) {
+                    $res .= "]\n/Count ".(is_countable($this->objects[$id]['info']['pages']) ? count($this->objects[$id]['info']['pages']) : 0);
+                    if ((isset($o['info']['fonts']) && (is_countable($o['info']['fonts']) ? count($o['info']['fonts']) : 0)) || isset($o['info']['procset'])) {
                         $res .= "\n/Resources <<";
                         if (isset($o['info']['procset'])) {
                             $res .= "\n/ProcSet ".$o['info']['procset']." 0 R";
                         }
-                        if (isset($o['info']['fonts']) && count($o['info']['fonts'])) {
+                        if (isset($o['info']['fonts']) && (is_countable($o['info']['fonts']) ? count($o['info']['fonts']) : 0)) {
                             $res .= "\n/Font << ";
                             foreach($o['info']['fonts'] as $finfo) {
                                 $res .= "\n/F".$finfo['fontNum']." ".$finfo['objNum']." 0 R";
                             }
                             $res .= " >>";
                         }
-                        if (isset($o['info']['xObjects']) && count($o['info']['xObjects'])) {
+                        if (isset($o['info']['xObjects']) && (is_countable($o['info']['xObjects']) ? count($o['info']['xObjects']) : 0)) {
                             $res .= "\n/XObject << ";
                             foreach($o['info']['xObjects'] as $finfo) {
                                 $res .= "\n/".$finfo['label']." ".$finfo['objNum']." 0 R";
@@ -467,12 +467,12 @@ class Cpdf
                 $o['info']['outlines'][] = $options;
                 break;
             case 'out':
-                if (count($o['info']['outlines'])) {
+                if (is_countable($o['info']['outlines']) ? count($o['info']['outlines']) : 0) {
                     $res = "\n".$id." 0 obj\n<< /Type /Outlines /Kids [";
                     foreach($o['info']['outlines'] as $k => $v) {
                         $res .= $v." 0 R ";
                     }
-                    $res .= "] /Count ".count($o['info']['outlines'])." >>\nendobj";
+                    $res .= "] /Count ".(is_countable($o['info']['outlines']) ? count($o['info']['outlines']) : 0)." >>\nendobj";
                 } else {
                     $res = "\n".$id." 0 obj\n<< /Type /Outlines /Count 0 >>\nendobj";
                 }
@@ -894,7 +894,7 @@ class Cpdf
                     }
                     $res .= " ]";
                 }
-                $count = count($o['info']['contents']);
+                $count = is_countable($o['info']['contents']) ? count($o['info']['contents']) : 0;
                 if ($count == 1) {
                     $res .= "\n/Contents ".$o['info']['contents'][0]." 0 R";
                 } else if ($count > 1) {
@@ -1088,7 +1088,7 @@ class Cpdf
 
                 $this->objects[$id]['info']['U'] = $uvalue;
                 $this->encryptionKey = $ukey;
-     
+
                 // initialize the arc4 array
                 break;
             case 'out':
@@ -1102,12 +1102,12 @@ class Cpdf
                 $o['info']['p'] = (($o['info']['p'] ^ 255) + 1) * -1;
                 $res .= "\n/P ".($o['info']['p']);
                 $res .= "\n>>\nendobj\n";
-      
+
                 return $res;
                 break;
         }
     }
-      
+
     /**
     * ARC4 functions
     * A series of function to implement ARC4 encoding in PHP
@@ -1187,7 +1187,7 @@ class Cpdf
             $k = ord($c[(ord($c[$a]) + ord($c[$b])) % 256]);
             $out .= chr(ord($text[$i]) ^ $k);
         }
-  
+
         return $out;
     }
 
@@ -1222,7 +1222,7 @@ class Cpdf
     */
     public function setEncryption($userPass = '', $ownerPass = '', $pc = [])
     {
-        $p = bindec(11000000);
+        $p = bindec(11_000_000);
 
         $options = ['print' => 4, 'modify' => 8, 'copy' => 16, 'add' => 32];
         foreach($pc as $k => $v) {
@@ -1494,7 +1494,7 @@ class Cpdf
                     $fbtype = '';
                 }
                 $fbfile = $basefile.'.'.$fbtype;
-                
+
                 //      $pfbfile = substr($fontName,0,strlen($fontName)-4).'.pfb';
                 //      $ttffile = substr($fontName,0,strlen($fontName)-4).'.ttf';
                 $this->addMessage('selectFont: checking for - '.$fbfile);
@@ -1902,7 +1902,7 @@ class Cpdf
 
         // if there is a state saved, then go up the stack closing them
         // then on the new page, re-open them with the right setings
-  
+
         if ($this->nStateStack) {
             for ($i = $this->nStateStack;$i >= 1;$i--) {
                 $this->restoreState($i);
@@ -2078,7 +2078,7 @@ class Cpdf
                         case 'i':
                             $j++;
                             if ($text[$j] == '>') {
-                                $p = strrpos($this->currentTextState, $text[$j - 1]);
+                                $p = strrpos($this->currentTextState, (string) $text[$j - 1]);
                                 if ($p !== false) {
                                     // then there is one to remove
                                     $this->currentTextState = substr($this->currentTextState, 0, $p).substr($this->currentTextState, $p + 1);
@@ -2122,7 +2122,7 @@ class Cpdf
                                                 switch($rk) {
                                                     case 'x':
                                                     case 'y':
-                                                        $$rk = $rv;
+                                                        ${$rk} = $rv;
                                                         break;
                                                 }
                                             }
@@ -2194,7 +2194,7 @@ class Cpdf
                                         switch($rk) {
                                             case 'x':
                                             case 'y':
-                                                $$rk = $rv;
+                                                ${$rk} = $rv;
                                                 break;
                                         }
                                     }
@@ -2260,7 +2260,7 @@ class Cpdf
                     $xp = $x;
                     $yp = $y;
                     $directive = $this->PRVTcheckTextDirective1($text, $i, $f, 1, $xp, $yp, $size, $angle, $wordSpaceAdjust);
-        
+
                     // restart the text object
                     if ($angle == 0) {
                         $this->objects[$this->currentContents]['c'] .= "\n".'BT '.sprintf('%.3f', $xp).' '.sprintf('%.3f', $yp).' Td';
@@ -2280,7 +2280,7 @@ class Cpdf
                 $i = $i + $directive - 1;
                 $start = $i + 1;
             }
-    
+
         }
         if ($start < $len) {
             $part = substr($text, $start);
@@ -2347,7 +2347,7 @@ class Cpdf
                 }
             }
         }
-  
+
         $this->currentTextState = $store_currentTextState;
         $this->setCurrentFont();
 
@@ -2432,7 +2432,7 @@ class Cpdf
                 } else {
                     $cOrd2 = $cOrd;
                 }
-  
+
                 if (isset($this->fonts[$cf]['C'][$cOrd2]['WX'])) {
                     $w += $this->fonts[$cf]['C'][$cOrd2]['WX'];
                 }
@@ -2499,7 +2499,7 @@ class Cpdf
         $this->currentTextState = $store_currentTextState;
         $this->setCurrentFont();
         if (!$test) {
-            $this->addText($x, $y, $size, $text, $angle, $adjust, $angle);
+            $this->addText($x, $y, $size, $text, $angle, $adjust);
         }
         return '';
     }
@@ -2560,7 +2560,7 @@ class Cpdf
         $this->o_contents($this->numObj, 'new');
         $this->currentContents = $this->numObj;
         $this->looseObjects[$this->numObj] = 1;
-  
+
         return $this->numObj;
     }
 
@@ -2728,7 +2728,7 @@ class Cpdf
             $errormsg = 'trouble opening file: '.$file;
         }
         set_magic_quotes_runtime($tmp);
-  
+
         if (!$error) {
             $header = chr(137).chr(80).chr(78).chr(71).chr(13).chr(10).chr(26).chr(10);
             if (substr($data, 0, 8) != $header) {
@@ -2750,7 +2750,7 @@ class Cpdf
                 $chunkLen = $this->PRVT_getBytes($data, $p, 4);
                 $chunkType = substr($data, $p + 4, 4);
                 //      echo $chunkType.' - '.$chunkLen.'<br>';
-    
+
                 switch($chunkType) {
                     case 'IHDR':
                         // this is where all the file information comes from
@@ -2799,7 +2799,7 @@ class Cpdf
                                 }
                             }
                             $transparency['data'] = $trans;
-            
+
                         } elseif($info['colorType'] == 0) { // grayscale
                             /* corresponding to entries in the plte chunk
                             Gray: 2 bytes, range 0 .. (2^bitdepth)-1
@@ -2807,7 +2807,7 @@ class Cpdf
                             //            $transparency['grayscale']=$this->PRVT_getBytes($data,$p+8,2); // g = grayscale
                             $transparency['type'] = 'indexed';
                             $transparency['data'] = ord($data[$p + 8 + 1]);
-          
+
                         } elseif($info['colorType'] == 2) { // truecolor
                             /* corresponding to entries in the plte chunk
                             Red: 2 bytes, range 0 .. (2^bitdepth)-1
@@ -2817,7 +2817,7 @@ class Cpdf
                             $transparency['r'] = $this->PRVT_getBytes($data, $p + 8, 2); // r from truecolor
                             $transparency['g'] = $this->PRVT_getBytes($data, $p + 10, 2); // g from truecolor
                             $transparency['b'] = $this->PRVT_getBytes($data, $p + 12, 2); // b from truecolor
-          
+
                         } else {
                             // unsupported transparency type
                         }
@@ -2826,10 +2826,10 @@ class Cpdf
                     default:
                         break;
                 }
-    
+
                 $p += $chunkLen + 12;
             }
-    
+
             if(!$haveHeader) {
                 $error = 1;
                 $errormsg = 'information header is missing';
@@ -2933,13 +2933,13 @@ class Cpdf
         if ($tmp) {
             set_magic_quotes_runtime(0);
         }
-  
+
         $data = fread($fp, filesize($img));
 
         if ($tmp) {
             set_magic_quotes_runtime($tmp);
         }
-  
+
         fclose($fp);
 
         $this->addJpegImage_common($data, $x, $y, $w, $h, $imageWidth, $imageHeight, $channels);
@@ -2954,10 +2954,10 @@ class Cpdf
     {
         // add a new image into the current location, as an external object
         // add the image at $x,$y, and with width and height as defined by $w & $h
-  
+
         // note that this will only work with full colour images and makes them jpg images for display
         // later versions could present lossless image formats if there is interest.
-  
+
         // there seems to be some problem here in that images that have quality set above 75 do not appear
         // not too sure why this is, but in the meantime I have restricted this to 75.
         if ($quality > 75) {
@@ -2968,7 +2968,7 @@ class Cpdf
         // height/width ratio the same, if they are both zero, then give up :)
         $imageWidth = imagesx($img);
         $imageHeight = imagesy($img);
-  
+
         if ($w <= 0 && $h <= 0) {
             return;
         }
@@ -2978,7 +2978,7 @@ class Cpdf
         if ($h == 0) {
             $h = $w * $imageHeight / $imageWidth;
         }
-  
+
         // gotta get the data out of the img..
 
         // so I write to a temp file, and then read it back.. soo ugly, my apologies.

@@ -313,38 +313,28 @@ abstract class Zend_Search_Lucene_Index_SegmentWriter
 
     /**
      * Term Dictionary file
-     *
-     * @var Zend_Search_Lucene_Storage_File
      */
-    private $_tisFile = null;
+    private ?\Zend_Search_Lucene_Storage_File $_tisFile = null;
 
     /**
      * Term Dictionary index file
-     *
-     * @var Zend_Search_Lucene_Storage_File
      */
-    private $_tiiFile = null;
+    private ?\Zend_Search_Lucene_Storage_File $_tiiFile = null;
 
     /**
      * Frequencies file
-     *
-     * @var Zend_Search_Lucene_Storage_File
      */
-    private $_frqFile = null;
+    private ?\Zend_Search_Lucene_Storage_File $_frqFile = null;
 
     /**
      * Positions file
-     *
-     * @var Zend_Search_Lucene_Storage_File
      */
-    private $_prxFile = null;
+    private ?\Zend_Search_Lucene_Storage_File $_prxFile = null;
 
     /**
      * Number of written terms
-     *
-     * @var integer
      */
-    private $_termCount;
+    private ?int $_termCount = null;
 
     /**
      * Last saved term
@@ -376,10 +366,8 @@ abstract class Zend_Search_Lucene_Index_SegmentWriter
 
     /**
      * Last term dictionary file position
-     *
-     * @var integer
      */
-    private $_lastIndexPosition;
+    private ?int $_lastIndexPosition = null;
 
     /**
      * Create dicrionary, frequency and positions files and write necessary headers
@@ -443,9 +431,9 @@ abstract class Zend_Search_Lucene_Index_SegmentWriter
         foreach ($termDocs as $docId => $termPositions) {
             $docDelta = ($docId - $prevDoc) * 2;
             $prevDoc = $docId;
-            if (count($termPositions) > 1) {
+            if ((is_countable($termPositions) ? count($termPositions) : 0) > 1) {
                 $this->_frqFile->writeVInt($docDelta);
-                $this->_frqFile->writeVInt(count($termPositions));
+                $this->_frqFile->writeVInt(is_countable($termPositions) ? count($termPositions) : 0);
             } else {
                 $this->_frqFile->writeVInt($docDelta + 1);
             }

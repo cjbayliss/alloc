@@ -89,7 +89,7 @@ class token extends db_entity
         [$usec, $sec] = explode(' ', microtime());
         $seed = $sec + ($usec * 100000);
         mt_srand($seed);
-        $randval = mt_rand(1, 99999999); // get a random 8 digit number
+        $randval = random_int(1, 99_999_999); // get a random 8 digit number
         $randval = sprintf("%-08d", $randval);
         $randval = base_convert($randval, 10, 36);
         return $randval;
@@ -136,7 +136,7 @@ class token extends db_entity
     public static function get_list($_FORM)
     {
         $rows = [];
-        $filter = token::get_list_filter($_FORM);
+        $filter = (new token())->get_list_filter($_FORM);
 
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);

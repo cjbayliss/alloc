@@ -24,7 +24,7 @@ if (isset($_GET["id"]) && $file && !bad_filename($file)) {
             $mimetype = mime_content_type($file);
 
             // Forge html for the whatsnew files
-            if (basename(dirname(dirname($file))) == "whatsnew") {
+            if (basename(dirname($file, 2)) == "whatsnew") {
                 $forged_suffix = ".html";
                 $mimetype = "text/html";
             }

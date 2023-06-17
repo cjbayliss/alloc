@@ -32,10 +32,8 @@ abstract class Zend_Search_Lucene_Search_Query
 {
     /**
      * query boost factor
-     *
-     * @var float
      */
-    private $_boost = 1;
+    private int $_boost = 1;
 
     /**
      * Query weight
@@ -46,10 +44,8 @@ abstract class Zend_Search_Lucene_Search_Query
 
     /**
      * Current highlight color
-     *
-     * @var integer
      */
-    private $_currentColorIndex = 0;
+    private int $_currentColorIndex = 0;
 
     /**
      * Gets the boost for this clause.  Documents matching

@@ -55,9 +55,9 @@ if ($_REQUEST["commentID"]) {
     if ($c->get_value("commentEmailMessageID")) {
         $str = sprintf('TEXT "%s"', $c->get_value("commentEmailMessageID"));
         $uids = $mail->get_emails_UIDs_search($str);
-        if (count($uids) == 1) {
+        if ((is_countable($uids) ? count($uids) : 0) == 1) {
             alloc_redirect($TPL["url_alloc_downloadEmail"] . "commentID=" . $_REQUEST["commentID"] . "&uid=" . $uids[0]);
-        } else if (count($uids) > 1) {
+        } else if ((is_countable($uids) ? count($uids) : 0) > 1) {
             $all_uids += $uids;
         }
     }

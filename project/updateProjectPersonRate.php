@@ -14,5 +14,5 @@ if ($_GET["project"] && $_GET["person"]) {
     $project = new project($_GET["project"]);
     $currency = $project->get_value("currencyTypeID") or $currency = config::get_config_item("currency");
     $rate['rate'] = page::money($currency, $rate['rate'], '%mo');
-    echo json_encode($rate);
+    echo json_encode($rate, JSON_THROW_ON_ERROR);
 }

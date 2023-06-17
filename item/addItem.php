@@ -22,7 +22,7 @@ if ($_POST["save"]) {
 if ($_POST["import_from_file"]) {
     if (is_uploaded_file($_FILES["import_file"]["tmp_name"])) {
         $new_items = file($_FILES["import_file"]["tmp_name"]);
-        for ($i = 1; $i < count($new_items); $i++) {
+        for ($i = 1; $i < (is_countable($new_items) ? count($new_items) : 0); $i++) {
             $item = new item();
             $item->read_globals();
             $line = str_replace("\"", "", $new_items[$i]);
@@ -50,7 +50,7 @@ if ($_POST["update_item"]) {
 }
 
 if ($_POST["remove_items"]) {
-    for ($i = 0; $i < count($_POST["itemID"]); $i++) {
+    for ($i = 0; $i < (is_countable($_POST["itemID"]) ? count($_POST["itemID"]) : 0); $i++) {
         $item = new item();
         $item->set_id($_POST["itemID"][$i]);
         $item->select();
@@ -82,10 +82,10 @@ if ($_POST["edit_items"]) {
     $item->set_id($_POST["itemID"][0]);
     $item->select();
 
-    if (count($_POST["itemID"]) < 1) {
+    if ((is_countable($_POST["itemID"]) ? count($_POST["itemID"]) : 0) < 1) {
         alloc_error("You Must Select An Item");
     } else {
-        if (count($_POST["itemID"]) > 1) {
+        if ((is_countable($_POST["itemID"]) ? count($_POST["itemID"]) : 0) > 1) {
             alloc_error("Can Only Edit 1 Item At A Time");
         }
         $TPL["edit_options"] =

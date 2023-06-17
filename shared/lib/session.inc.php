@@ -119,7 +119,7 @@ class session
         // SetCookie("alloc_test_cookie",FALSE,0,"/","");
 
         // Set the session cookie
-        $rtn = SetCookie("alloc_cookie", $this->key, 0, "/", "");
+        $rtn = SetCookie("alloc_cookie", $this->key, ['expires' => 0, 'path' => "/", 'domain' => ""]);
         if (!$rtn) {
             $this->mode = "get";
         } else if (!isset($_COOKIE["alloc_cookie"])) {
@@ -129,13 +129,13 @@ class session
 
     public function DestroyCookie()
     {
-        SetCookie("alloc_cookie", false, 0, "/", "");
+        SetCookie("alloc_cookie", false, ['expires' => 0, 'path' => "/", 'domain' => ""]);
         unset($_COOKIE["alloc_cookie"]);
     }
 
     public function SetTestCookie($val = "alloc_test_cookie")
     {
-        SetCookie("alloc_test_cookie", $val, 0, "/", "");
+        SetCookie("alloc_test_cookie", $val, ['expires' => 0, 'path' => "/", 'domain' => ""]);
     }
 
     public function TestCookie()

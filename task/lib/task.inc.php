@@ -42,7 +42,7 @@ class task extends db_entity
     ];
 
     public $permissions = [PERM_PROJECT_READ_TASK_DETAIL => "read details"];
-    private $skip_perms_check = false;
+    private bool $skip_perms_check = false;
 
     public function save()
     {
@@ -163,7 +163,7 @@ class task extends db_entity
 
     public function add_tags($tags = [])
     {
-        count($tags) == 1 and $tags = explode(",", current($tags));
+        (is_countable($tags) ? count($tags) : 0) == 1 and $tags = explode(",", current($tags));
         $db = new db_alloc();
         $db->query("DELETE FROM tag WHERE taskID = %d", $this->get_id());
         foreach ((array)$tags as $tag) {
@@ -591,7 +591,7 @@ class task extends db_entity
         $TPL["taskTypeOptions"] = page::select_options($taskType_array, $this->get_value("taskTypeID"));
 
         // Project dropdown
-        $TPL["projectOptions"] = task::get_project_options($projectID);
+        $TPL["projectOptions"] = (new task())->get_project_options($projectID);
 
         // We're building these two with the <select> tags because they will be
         // replaced by an AJAX created dropdown when the projectID changes.
@@ -606,7 +606,7 @@ class task extends db_entity
                                AND interestedPartyActive = 1
                           ORDER BY fullName", $this->get_id()));
         while ($db->next_record()) {
-            $value = interestedParty::get_encoded_interested_party_identifier($db->f("fullName"), $db->f("emailAddress"));
+            $value = interestedParty::get_encoded_interested_party_identifier($db->f("fullName"));
             $phone = [
                 "p" => $db->f('clientContactPhone'),
                 "m" => $db->f('clientContactMobile'),
@@ -970,7 +970,7 @@ class task extends db_entity
                 $children = task::get_recursive_child_tasks($taskID, $rows, $padding);
                 $padding -= 1;
 
-                if (count($children)) {
+                if (is_countable($children) ? count($children) : 0) {
                     $rtn[$taskID]["children"] = $children;
                 }
             }
@@ -1525,13 +1525,13 @@ class task extends db_entity
                     $changeDescription = sprintf('Task priority set to <span style="color: %s;">%s</span>.', $priorities[$newValue]["colour"], $priorities[$newValue]["label"]);
                     break;
                 case 'projectID':
-                    task::load_entity("project", $newValue, $newProject);
+                    (new task())->load_entity("project", $newValue, $newProject);
                     is_object($newProject) and $newProjectLink = $newProject->get_link();
                     $newProjectLink or $newProjectLink = "&lt;empty&gt;";
                     $changeDescription = "Project changed set to " . $newProjectLink . ".";
                     break;
                 case 'parentTaskID':
-                    task::load_entity("task", $newValue, $newTask);
+                    (new task())->load_entity("task", $newValue, $newTask);
                     if ($newValue) {
                         $changeDescription = sprintf("Task set to a child of %d %s.", $newTask->get_id(), $newTask->get_task_link());
                     } else {
@@ -1539,7 +1539,7 @@ class task extends db_entity
                     }
                     break;
                 case 'duplicateTaskID':
-                    task::load_entity("task", $newValue, $newTask);
+                    (new task())->load_entity("task", $newValue, $newTask);
                     if ($newValue) {
                         $changeDescription = "Task set to a duplicate of " . $newTask->get_task_link();
                     } else {

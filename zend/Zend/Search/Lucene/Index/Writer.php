@@ -84,17 +84,13 @@ class Zend_Search_Lucene_Index_Writer
 
     /**
      * File system adapter.
-     *
-     * @var Zend_Search_Lucene_Storage_Directory
      */
-    private $_directory = null;
+    private ?\Zend_Search_Lucene_Storage_Directory $_directory = null;
 
     /**
      * Changes counter.
-     *
-     * @var integer
      */
-    private $_versionUpdate = 0;
+    private int $_versionUpdate = 0;
 
     /**
      * List of the segments, created by index writer
@@ -113,19 +109,15 @@ class Zend_Search_Lucene_Index_Writer
 
     /**
      * Current segment to add documents
-     *
-     * @var Zend_Search_Lucene_Index_SegmentWriter_DocumentWriter
      */
-    private $_currentSegment = null;
+    private ?\Zend_Search_Lucene_Index_SegmentWriter_DocumentWriter $_currentSegment = null;
 
     /**
      * Array of Zend_Search_Lucene_Index_SegmentInfo objects for this index.
      *
      * It's a reference to the corresponding Zend_Search_Lucene::$_segmentInfos array
-     *
-     * @var array Zend_Search_Lucene_Index_SegmentInfo
      */
-    private $_segmentInfos;
+    private ?array $_segmentInfos = null;
 
     /**
      * Index target format version
@@ -136,10 +128,8 @@ class Zend_Search_Lucene_Index_Writer
 
     /**
      * List of indexfiles extensions
-     *
-     * @var array
      */
-    private static $_indexExtensions = ['.cfs' => '.cfs', '.cfx' => '.cfx', '.fnm' => '.fnm', '.fdx' => '.fdx', '.fdt' => '.fdt', '.tis' => '.tis', '.tii' => '.tii', '.frq' => '.frq', '.prx' => '.prx', '.tvx' => '.tvx', '.tvd' => '.tvd', '.tvf' => '.tvf', '.del' => '.del', '.sti' => '.sti'];
+    private static array $_indexExtensions = ['.cfs' => '.cfs', '.cfx' => '.cfx', '.fnm' => '.fnm', '.fdx' => '.fdx', '.fdt' => '.fdt', '.tis' => '.tis', '.tii' => '.tii', '.frq' => '.frq', '.prx' => '.prx', '.tvx' => '.tvx', '.tvd' => '.tvd', '.tvf' => '.tvf', '.del' => '.del', '.sti' => '.sti'];
 
     /**
      * Create empty index
@@ -398,7 +388,7 @@ class Zend_Search_Lucene_Index_Writer
 
         $generation = Zend_Search_Lucene::getActualGeneration($this->_directory);
         $segmentsFile = $this->_directory->getFileObject(Zend_Search_Lucene::getSegmentFileName($generation), false);
-        $newSegmentFile = $this->_directory->createFile(Zend_Search_Lucene::getSegmentFileName(++$generation), false);
+        $newSegmentFile = $this->_directory->createFile(Zend_Search_Lucene::getSegmentFileName(++$generation));
 
         try {
             $genFile = $this->_directory->getFileObject('segments.gen', false);
@@ -678,10 +668,8 @@ class Zend_Search_Lucene_Index_Writer
             // process .del files of currently used segments
             foreach ($delFiles as $segmentNumber => $segmentDelFiles) {
                 ksort($delFiles[$segmentNumber], SORT_NUMERIC);
-                array_pop($delFiles[$segmentNumber]); // remove last delete file generation from candidates for deleting
-
-                end($delFiles[$segmentNumber]);
-                $lastGenNumber = key($delFiles[$segmentNumber]);
+                array_pop($delFiles[$segmentNumber]);
+                $lastGenNumber = array_key_last($delFiles[$segmentNumber]);
                 if ($lastGenNumber > $maxGenNumber) {
                     $maxGenNumber = $lastGenNumber;
                 }

@@ -77,7 +77,7 @@ class interestedParty extends db_entity
         // Add entries to interestedParty
         if (is_array($encoded_parties)) {
             foreach ($encoded_parties as $encoded) {
-                $info = interestedParty::get_decoded_interested_party_identifier($encoded);
+                $info = (new interestedParty())->get_decoded_interested_party_identifier($encoded);
                 $info["entity"] = $entity;
                 $info["entityID"] = $entityID;
                 $info["emailAddress"] or $info["emailAddress"] = $info["email"];
@@ -204,7 +204,7 @@ class interestedParty extends db_entity
     {
         // Delete existing entries
         [$email, $name] = parse_email_address($email);
-        $row = interestedParty::active($entity, $entityID, $email);
+        $row = (new interestedParty())->active($entity, $entityID, $email);
         if ($row) {
             $ip = new interestedParty();
             $ip->read_row_record($row);
@@ -296,7 +296,7 @@ class interestedParty extends db_entity
 
                 // To unsubscribe from this conversation
             } else if ($command == "unsub" || $command == "unsubscribe") {
-                if (interestedParty::active($entity, $entityID, $emailAddress)) {
+                if ((new interestedParty())->active($entity, $entityID, $emailAddress)) {
                     interestedParty::delete_interested_party($entity, $entityID, $emailAddress);
                 }
 
@@ -316,7 +316,7 @@ class interestedParty extends db_entity
                     interestedParty::add_interested_party($data);
 
                     // Else reactivate existing IP
-                } else if (!interestedParty::active($entity, $entityID, $emailAddress)) {
+                } else if (!(new interestedParty())->active($entity, $entityID, $emailAddress)) {
                     $interestedParty = new interestedParty();
                     $interestedParty->set_id($ip["interestedPartyID"]);
                     $interestedParty->select();
@@ -388,7 +388,7 @@ class interestedParty extends db_entity
             $groupby = ' GROUP BY interestedPartyID';
         }
 
-        $filter = interestedParty::get_list_filter($_FORM);
+        $filter = (new interestedParty())->get_list_filter($_FORM);
         $_FORM["return"] or $_FORM["return"] = "html";
 
         if (is_array($filter) && count($filter)) {
@@ -467,12 +467,12 @@ class interestedParty extends db_entity
 
             // remove an ip
             if ($party[0] == "%") {
-                [$personID, $name, $email] = interestedParty::expand_ip(implode("", array_slice(str_split($party), 1)), $projectID);
+                [$personID, $name, $email] = (new interestedParty())->expand_ip(implode("", array_slice(str_split($party), 1)), $projectID);
                 interestedParty::delete_interested_party($entity, $entityID, $email);
 
                 // add an ip
             } else {
-                [$personID, $name, $email] = interestedParty::expand_ip($party, $projectID);
+                [$personID, $name, $email] = (new interestedParty())->expand_ip($party, $projectID);
                 if (!$email || strpos($email, "@") === false) {
                     alloc_error("Unable to add interested party: " . $party);
                 } else {

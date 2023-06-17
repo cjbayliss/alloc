@@ -51,10 +51,8 @@ abstract class Zend_Search_Lucene_Analysis_Analyzer_Common extends Zend_Search_L
     /**
      * The set of Token filters applied to the Token stream.
      * Array of Zend_Search_Lucene_Analysis_TokenFilter objects.
-     *
-     * @var array
      */
-    private $_filters = [];
+    private array $_filters = [];
 
     /**
      * Add Token filter to the Analyzer

@@ -35,25 +35,19 @@ class Zend_Search_Lucene_Search_Query_Term extends Zend_Search_Lucene_Search_Que
 {
     /**
      * Term to find.
-     *
-     * @var Zend_Search_Lucene_Index_Term
      */
-    private $_term;
+    private \Zend_Search_Lucene_Index_Term $_term;
 
     /**
      * Documents vector.
-     *
-     * @var array
      */
-    private $_docVector = null;
+    private ?array $_docVector = null;
 
     /**
      * Term freqs vector.
      * array(docId => freq, ...)
-     *
-     * @var array
      */
-    private $_termFreqs;
+    private ?int $_termFreqs = null;
 
     /**
      * Zend_Search_Lucene_Search_Query_Term constructor

@@ -49,17 +49,13 @@ class Zend_Search_Lucene_Search_QueryEntry_Term extends Zend_Search_Lucene_Searc
 
     /**
      * Fuzzy search query
-     *
-     * @var boolean
      */
-    private $_fuzzyQuery = false;
+    private bool $_fuzzyQuery = false;
 
     /**
      * Similarity
-     *
-     * @var float
      */
-    private $_similarity = 1.;
+    private float $_similarity = 1.;
 
     /**
      * Object constractor

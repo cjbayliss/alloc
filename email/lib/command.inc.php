@@ -14,7 +14,7 @@ class command
     public static function get_help($type)
     {
         $message = ucwords($type) . " fields:";
-        $fields = command::get_fields($type);
+        $fields = (new command())->get_fields($type);
         foreach ((array)$fields as $k => $arr) {
             $message .= "\n      " . $k . ":\t" . $arr[1];
         }

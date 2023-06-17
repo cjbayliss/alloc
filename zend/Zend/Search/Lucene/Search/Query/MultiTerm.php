@@ -37,10 +37,8 @@ class Zend_Search_Lucene_Search_Query_MultiTerm extends Zend_Search_Lucene_Searc
     /**
      * Terms to find.
      * Array of Zend_Search_Lucene_Index_Term
-     *
-     * @var array
      */
-    private $_terms = [];
+    private array $_terms = [];
 
     /**
      * Term signs.
@@ -49,27 +47,21 @@ class Zend_Search_Lucene_Search_Query_MultiTerm extends Zend_Search_Lucene_Searc
      * If null then term is neither prohibited, nor required
      *
      * If array is null then all terms are required
-     *
-     * @var array
      */
-    private $_signs;
+    private ?array $_signs = null;
 
     /**
      * Result vector.
-     *
-     * @var array
      */
-    private $_resVector = null;
+    private ?array $_resVector = null;
 
     /**
      * Terms positions vectors.
      * Array of Arrays:
      * term1Id => (docId => freq, ...)
      * term2Id => (docId => freq, ...)
-     *
-     * @var array
      */
-    private $_termsFreqs = [];
+    private array $_termsFreqs = [];
 
     /**
      * A score factor based on the fraction of all query terms
@@ -84,10 +76,8 @@ class Zend_Search_Lucene_Search_Query_MultiTerm extends Zend_Search_Lucene_Searc
     /**
      * Terms weights
      * array of Zend_Search_Lucene_Search_Weight
-     *
-     * @var array
      */
-    private $_weights = [];
+    private array $_weights = [];
 
     /**
      * Class constructor.  Create a new multi-term query object.
@@ -439,7 +429,7 @@ class Zend_Search_Lucene_Search_Query_MultiTerm extends Zend_Search_Lucene_Searc
             /**
              * This code is used as workaround for array_diff_key() slowness problem.
              */
-            if (count($this->_resVector) < count($prohibited)) {
+            if (count((array) $this->_resVector) < count($prohibited)) {
                 $updatedVector = $this->_resVector;
                 foreach ($this->_resVector as $id => $value) {
                     if (isset($prohibited[$id])) {

@@ -149,7 +149,7 @@ if ($_POST["add"]) {
         alloc_error("You do not have permission to create transactions for that Source TF.");
     }
 
-    if (!count($TPL["message"])) {
+    if (!(is_countable($TPL["message"]) ? count($TPL["message"]) : 0)) {
         $transaction->set_value("transactionType", "expense");
         $transaction->set_value("expenseFormID", $expenseForm->get_id());
         $transaction->set_value("tfID", config::get_config_item("mainTfID"));

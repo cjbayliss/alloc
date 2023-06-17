@@ -54,23 +54,18 @@ class Zend_Search_Lucene_Search_QueryParserContext
      * True means, that term is required.
      * False means, that term is prohibited.
      * null means, that term is neither prohibited, nor required
-     *
-     * @var boolean
      */
-    private $_nextEntrySign = null;
+    private ?bool $_nextEntrySign = null;
 
     /**
      * Entries grouping mode
      */
-    const GM_SIGNS = 0;  // Signs mode: '+term1 term2 -term3 +(subquery1) -(subquery2)'
-    const GM_BOOLEAN = 1;  // Boolean operators mode: 'term1 and term2  or  (subquery1) and not (subquery2)'
-
+    public const GM_SIGNS = 0;  // Signs mode: '+term1 term2 -term3 +(subquery1) -(subquery2)'
+    public const GM_BOOLEAN = 1;  // Boolean operators mode: 'term1 and term2  or  (subquery1) and not (subquery2)'
     /**
      * Grouping mode
-     *
-     * @var integer
      */
-    private $_mode = null;
+    private ?int $_mode = null;
 
     /**
      * Entries signs.
@@ -84,10 +79,8 @@ class Zend_Search_Lucene_Search_QueryParserContext
      * Query entries
      * Each entry is a Zend_Search_Lucene_Search_QueryEntry object or
      * boolean operator (Zend_Search_Lucene_Search_QueryToken class constant)
-     *
-     * @var array
      */
-    private $_entries = [];
+    private array $_entries = [];
 
     /**
      * Query string encoding
@@ -115,7 +108,7 @@ class Zend_Search_Lucene_Search_QueryParserContext
      */
     public function getField()
     {
-        return ($this->_nextEntryField !== null)  ?  $this->_nextEntryField : $this->_defaultField;
+        return $this->_nextEntryField ?? $this->_defaultField;
     }
 
     /**
@@ -259,7 +252,7 @@ class Zend_Search_Lucene_Search_QueryParserContext
         }
 
         foreach ($this->_entries as $entryId => $entry) {
-            $sign = ($this->_signs[$entryId] !== null) ?  $this->_signs[$entryId] : $defaultSign;
+            $sign = $this->_signs[$entryId] ?? $defaultSign;
             $query->addSubquery($entry->getQuery($this->_encoding), $sign);
         }
 
@@ -341,7 +334,7 @@ class Zend_Search_Lucene_Search_QueryParserContext
         $subqueries = [];
         foreach ($conjuctions as  $conjuction) {
             // Check, if it's a one term conjuction
-            if (count($conjuction) == 1) {
+            if ((is_countable($conjuction) ? count($conjuction) : 0) == 1) {
                 $subqueries[] = $conjuction[0][0]->getQuery($this->_encoding);
             } else {
                 require_once 'Zend/Search/Lucene/Search/Query/Boolean.php';

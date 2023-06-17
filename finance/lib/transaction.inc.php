@@ -316,14 +316,14 @@ class transaction extends db_entity
 
         // This is the definitive method of getting a list of transactions that need a sophisticated level of filtering
 
-        $_FORM["tfIDs"] = transaction::reduce_tfs($_FORM);
+        $_FORM["tfIDs"] = (new transaction())->reduce_tfs($_FORM);
 
         // Non-admin users must specify a valid TF
         if (!$current_user->have_role("admin") && !$_FORM["tfIDs"]) {
             return;
         }
 
-        $filter = transaction::get_list_filter($_FORM);
+        $filter = (new transaction())->get_list_filter($_FORM);
         $debug = $_FORM["debug"];
         $debug and print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
         $debug and print "\n<pre>filter: " . print_r($filter, 1) . "</pre>";
@@ -498,7 +498,7 @@ class transaction extends db_entity
     {
         $current_user = &singleton("current_user");
 
-        $page_vars = array_keys(transaction::get_list_vars());
+        $page_vars = array_keys((new transaction())->get_list_vars());
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 

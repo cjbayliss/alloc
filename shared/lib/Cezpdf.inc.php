@@ -27,7 +27,7 @@ class Cezpdf extends Cpdf
 
     // ------------------------------------------------------------------------------
 
-    public function Cezpdf($paper = 'a4', $orientation = 'portrait')
+    public function __construct($paper = 'a4', $orientation = 'portrait')
     {
         $size = [];
         // Assuming that people don't want to specify the paper size using the absolute coordinates
@@ -166,13 +166,13 @@ class Cezpdf extends Cpdf
         $this->Cpdf($size);
         $this->ez['pageWidth'] = $size[2];
         $this->ez['pageHeight'] = $size[3];
-    
+
         // also set the margins to some reasonable defaults
         $this->ez['topMargin'] = 30;
         $this->ez['bottomMargin'] = 30;
         $this->ez['leftMargin'] = 30;
         $this->ez['rightMargin'] = 30;
-    
+
         // set the current writing position to the top of the first page
         $this->y = $this->ez['pageHeight'] - $this->ez['topMargin'];
         // and get the ID of the page that was created during the instancing process.
@@ -219,7 +219,7 @@ class Cezpdf extends Cpdf
         $width = ($this->ez['pageWidth'] - $this->ez['leftMargin'] - $this->ez['rightMargin'] - ($options['num'] - 1) * $options['gap']) / $options['num'];
         $this->ez['columns']['width'] = $width;
         $this->ez['rightMargin'] = $this->ez['pageWidth'] - $this->ez['leftMargin'] - $width;
-    
+
     }
     // ------------------------------------------------------------------------------
     public function ezColumnsStop()
@@ -343,7 +343,7 @@ class Cezpdf extends Cpdf
         if (!isset($this->ez['pageNumbering'])) {
             $this->ez['pageNumbering'] = [];
         }
-        $i = count($this->ez['pageNumbering']);
+        $i = is_countable($this->ez['pageNumbering']) ? count($this->ez['pageNumbering']) : 0;
         $this->ez['pageNumbering'][$i][$this->ezPageCount] = ['x' => $x, 'y' => $y, 'pos' => $pos, 'pattern' => $pattern, 'num' => $num, 'size' => $size];
         return $i;
     }
@@ -562,7 +562,7 @@ class Cezpdf extends Cpdf
         $x1 = 0;
         $this->setStrokeColor($col[0], $col[1], $col[2]);
         $cnt = 0;
-        $n = count($pos);
+        $n = is_countable($pos) ? count($pos) : 0;
         foreach($pos as $x) {
             $cnt++;
             if ($cnt == 1 || $cnt == $n) {
@@ -601,17 +601,17 @@ class Cezpdf extends Cpdf
         } else {
             $options = [];
         }
-  
+
         $mx = 0;
         $startPage = $this->ezPageCount;
         $secondGo = 0;
 
         // $y is the position at which the top of the table should start, so the base
         // of the first text, is $y-$height-$gap-$decender, but ezText starts by dropping $height
-  
+
         // the return from this function is the total cell height, including gaps, and $y is adjusted
         // to be the postion of the bottom line
-  
+
         // begin the transaction
         $this->transaction('start');
         $ok = 0;
@@ -633,7 +633,7 @@ class Cezpdf extends Cpdf
             }
             $y = $y - $mx - $gap + $decender;
             //    $y -= $mx-$gap+$decender;
-    
+
             // now, if this has moved to a new page, then abort the transaction, move to a new page, and put it there
             // do not check on the second time around, to avoid an infinite loop
             if ($this->ezPageCount != $startPage && $secondGo == 0) {
@@ -712,7 +712,7 @@ class Cezpdf extends Cpdf
         //
         // note that the user will have had to make a font selection already or this will not
         // produce a valid pdf file.
-  
+
         if (!is_array($data)) {
             return;
         }
@@ -732,7 +732,7 @@ class Cezpdf extends Cpdf
                 $cols[$k1] = $k1;
             }
         }
-  
+
         if (!is_array($options)) {
             $options = [];
         }
@@ -751,7 +751,7 @@ class Cezpdf extends Cpdf
             }
         }
         $options['gap'] = 2 * $options['colGap'];
-  
+
         $middle = ($this->ez['pageWidth'] - $this->ez['rightMargin']) / 2 + ($this->ez['leftMargin']) / 2;
         // figure out the maximum widths of the text within each column
         $maxWidth = [];
@@ -774,7 +774,7 @@ class Cezpdf extends Cpdf
                 $maxWidth[$colName] = $w;
             }
         }
-  
+
         // calculate the start positions of each of the columns
         $pos = [];
         $x = 0;
@@ -831,7 +831,7 @@ class Cezpdf extends Cpdf
                     $cols0[$colName] += ($neededWidth - $presentWidth) / count($cols0);
                 }
             } else {
-    
+
                 $cnt = 0;
                 while ($presentWidth > $neededWidth && $cnt < 100) {
                     $cnt++; // insurance policy
@@ -926,7 +926,7 @@ class Cezpdf extends Cpdf
         $basePos = $pos;
         $baseX0 = $x0;
         $baseX1 = $x1;
-  
+
         // ok, just about ready to make me a table
         $this->setColor($options['textCol'][0], $options['textCol'][1], $options['textCol'][2]);
         $this->setStrokeColor($options['shadeCol'][0], $options['shadeCol'][1], $options['shadeCol'][2]);
@@ -977,9 +977,9 @@ class Cezpdf extends Cpdf
             }
             $x0 = $baseX0 + $dm;
             $x1 = $baseX1 + $dm;
-  
+
             $y = $this->y; // to simplify the code a bit
-  
+
             // make the table
             $height = $this->getFontHeight($options['fontSize']);
             $decender = $this->getFontDecender($options['fontSize']);
@@ -1012,7 +1012,7 @@ class Cezpdf extends Cpdf
                 $this->addObject($textObjectId);
                 $this->reopenObject($textObjectId);
             }
-  
+
             $cnt = 0;
             $newPage = 0;
             foreach($data as $row) {
@@ -1036,7 +1036,7 @@ class Cezpdf extends Cpdf
                     $mx = 0;
                     $newRow = 1;
                     while(!$abortTable && ($newPage || $newRow)) {
-      
+
                         $y -= $height;
                         if ($newPage || $y < $this->ez['bottomMargin'] || (isset($options['minRowSpace']) && $y < ($this->ez['bottomMargin'] + $options['minRowSpace']))) {
                             // check that enough rows are with the heading
@@ -1045,7 +1045,7 @@ class Cezpdf extends Cpdf
                                 $movedOnce = 1;
                                 $abortTable = 1;
                             }
-      
+
                             $y2 = $y - $mx + 2 * $height + $decender - $newRow * $height;
                             if ($options['showLines']) {
                                 if (!$options['showHeadings']) {
@@ -1069,7 +1069,7 @@ class Cezpdf extends Cpdf
                             //        $x1=$x1+$dm;
                             $x0 = $baseX0 + $dm;
                             $x1 = $baseX1 + $dm;
-  
+
                             if ($options['shaded']) {
                                 $this->saveState();
                                 $textObjectId = $this->openObject();
@@ -1102,7 +1102,7 @@ class Cezpdf extends Cpdf
                             $colNewPage = 0;
                             if (isset($row[$colName])) {
                                 if (isset($options['cols'][$colName]) && isset($options['cols'][$colName]['link']) && strlen($options['cols'][$colName]['link'])) {
-            
+
                                     $lines = explode("\n", $row[$colName]);
                                     if (isset($row[$options['cols'][$colName]['link']]) && strlen($row[$options['cols'][$colName]['link']])) {
                                         foreach($lines as $k => $v) {
@@ -1148,7 +1148,7 @@ class Cezpdf extends Cpdf
                                     }
                                 }
                             }
-  
+
                             $dy = $y + $height - $this->y + $options['rowGap'];
                             if ($dy - $height * $newPage > $mx) {
                                 $mx = $dy - $height * $newPage;
@@ -1189,7 +1189,7 @@ class Cezpdf extends Cpdf
                         }
                     } // end of while
                     $y = $y - $mx + $height;
-    
+
                     // checking row split over pages
                     if ($options['splitRows'] == 0) {
                         if ((($this->ezPageCount != $pageStart) || (isset($this->ez['columns']) && $this->ez['columns']['on'] == 1 && $columnStart != $this->ez['columns']['colNum'])) && $secondTurn == 0) {
@@ -1217,7 +1217,7 @@ class Cezpdf extends Cpdf
                     } else {
                         $ok = 1;  // don't go round the loop if splitting rows is allowed
                     }
-    
+
                 }  // end of while to check for row splitting
                 if ($abortTable) {
                     if ($ok == 0) {
@@ -1228,9 +1228,9 @@ class Cezpdf extends Cpdf
                     $this->ezNewPage();
                     break;
                 }
-    
+
             } // end of foreach ($data as $row)
-  
+
         } // end of while ($abortTable)
 
         // table has been put on the page, the rows guarded as required, commit.
@@ -1249,7 +1249,7 @@ class Cezpdf extends Cpdf
             $this->closeObject();
             $this->restoreState();
         }
-  
+
         $this->y = $y;
         return $y;
     }
@@ -1285,15 +1285,15 @@ class Cezpdf extends Cpdf
         // only set one of the next two items (leading overrides spacing)
         // 'leading' => number, defines the total height taken by the line, independent of the font height.
         // 'spacing' => a real number, though usually set to one of 1, 1.5, 2 (line spacing as used in word processing)
-  
+
         // if $test is set then this should just check if the text is going to flow onto a new page or not, returning true or false
-  
+
         // apply the filtering which will make the underlining function.
         // $text = $this->ezProcessText($text); // removed by alla
-  
+
         $newPage = false;
         $store_y = $this->y;
-  
+
         if (is_array($options) && isset($options['aleft'])) {
             $left = $options['aleft'];
         } else {
@@ -1309,13 +1309,13 @@ class Cezpdf extends Cpdf
         } else {
             $this->ez['fontSize'] = $size;
         }
-  
+
         if (is_array($options) && isset($options['justification'])) {
             $just = $options['justification'];
         } else {
             $just = 'left';
         }
-  
+
         // modifications to give leading and spacing based on those given by Craig Heydenburg 1/1/02
         if (is_array($options) && isset($options['leading'])) { // # use leading instead of spacing
             $height = $options['leading'];
@@ -1465,7 +1465,7 @@ class Cezpdf extends Cpdf
             if (!(isset($border['join']))) {
                 $border['join'] = 'round';
             }
-    
+
             $this->setStrokeColor($border['color']['red'], $border['color']['green'], $border['color']['blue']);
             $this->setLineStyle($border['width'], $border['cap'], $border['join']);
             $this->rectangle($this->ez['leftMargin'] + $pad + $offset, $this->y + $this->getFontHeight($this->ez['fontSize']) - $pad - $height, $width, $height);
@@ -1589,7 +1589,7 @@ class Cezpdf extends Cpdf
         switch($info['status']) {
             case 'start':
             case 'sol':
-    
+
                 // the beginning of the underline zone
                 if (!isset($this->ez['links'])) {
                     $this->ez['links'] = [];

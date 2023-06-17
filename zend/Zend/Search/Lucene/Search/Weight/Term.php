@@ -35,24 +35,18 @@ class Zend_Search_Lucene_Search_Weight_Term extends Zend_Search_Lucene_Search_We
 {
     /**
      * IndexReader.
-     *
-     * @var Zend_Search_Lucene_Interface
      */
-    private $_reader;
+    private \Zend_Search_Lucene_Interface $_reader;
 
     /**
      * Term
-     *
-     * @var Zend_Search_Lucene_Index_Term
      */
-    private $_term;
+    private \Zend_Search_Lucene_Index_Term $_term;
 
     /**
      * The query that this concerns.
-     *
-     * @var Zend_Search_Lucene_Search_Query
      */
-    private $_query;
+    private \Zend_Search_Lucene_Search_Query $_query;
 
     /**
      * Score factor
@@ -63,10 +57,8 @@ class Zend_Search_Lucene_Search_Weight_Term extends Zend_Search_Lucene_Search_We
 
     /**
      * Query weight
-     *
-     * @var float
      */
-    private $_queryWeight;
+    private ?float $_queryWeight = null;
 
     /**
      * Zend_Search_Lucene_Search_Weight_Term constructor

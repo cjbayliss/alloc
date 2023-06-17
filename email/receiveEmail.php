@@ -27,7 +27,7 @@ $num_new_emails = $email_receive->get_num_new_emails();
 
 if ($num_new_emails > 0) {
     $msg_nums = $email_receive->get_new_email_msg_uids();
-    print $nl . date("Y-m-d H:i:s") . " Found " . count($msg_nums) . " new/unseen emails." . $nl;
+    print $nl . date("Y-m-d H:i:s") . " Found " . (is_countable($msg_nums) ? count($msg_nums) : 0) . " new/unseen emails." . $nl;
     foreach ($msg_nums as $num) {
         // Errors from previous iterations shouldn't affect processing of the next email
         db_alloc::$stop_doing_queries = false;

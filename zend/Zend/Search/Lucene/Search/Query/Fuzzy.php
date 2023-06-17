@@ -34,28 +34,26 @@ require_once 'Zend/Search/Lucene/Search/Query.php';
 class Zend_Search_Lucene_Search_Query_Fuzzy extends Zend_Search_Lucene_Search_Query
 {
     /** Default minimum similarity */
-    const DEFAULT_MIN_SIMILARITY = 0.5;
+    public const DEFAULT_MIN_SIMILARITY = 0.5;
 
     /**
      * Maximum number of matched terms.
      * Apache Lucene defines this limitation as boolean query maximum number of clauses:
      * org.apache.lucene.search.BooleanQuery.getMaxClauseCount()
      */
-    const MAX_CLAUSE_COUNT = 1024;
+    public const MAX_CLAUSE_COUNT = 1024;
 
     /**
      * Array of precalculated max distances
      *
      * keys are integers representing a word size
      */
-    private $_maxDistances = [];
+    private array $_maxDistances = [];
 
     /**
      * Base searching term.
-     *
-     * @var Zend_Search_Lucene_Index_Term
      */
-    private $_term;
+    private \Zend_Search_Lucene_Index_Term $_term;
 
     /**
      * A value between 0 and 1 to set the required similarity
@@ -83,32 +81,24 @@ class Zend_Search_Lucene_Search_Query_Fuzzy extends Zend_Search_Lucene_Search_Qu
      * post-processing
      *
      * Array of Zend_Search_Lucene_Index_Term objects
-     *
-     * @var array
      */
-    private $_matches = null;
+    private ?array $_matches = null;
 
     /**
      * Matched terms scores
-     *
-     * @var array
      */
-    private $_scores = null;
+    private ?array $_scores = null;
 
     /**
      * Array of the term keys.
      * Used to sort terms in alphabetical order if terms have the same socres
-     *
-     * @var array
      */
-    private $_termKeys = null;
+    private ?array $_termKeys = null;
 
     /**
      * Default non-fuzzy prefix length
-     *
-     * @var integer
      */
-    private static $_defaultPrefixLength = 3;
+    private static int $_defaultPrefixLength = 3;
 
     /**
      * Zend_Search_Lucene_Search_Query_Wildcard constructor.
@@ -135,7 +125,7 @@ class Zend_Search_Lucene_Search_Query_Fuzzy extends Zend_Search_Lucene_Search_Qu
 
         $this->_term = $term;
         $this->_minimumSimilarity = $minimumSimilarity;
-        $this->_prefixLength = ($prefixLength !== null) ? $prefixLength : self::$_defaultPrefixLength;
+        $this->_prefixLength = $prefixLength ?? self::$_defaultPrefixLength;
     }
 
     /**
@@ -222,9 +212,7 @@ class Zend_Search_Lucene_Search_Query_Fuzzy extends Zend_Search_Lucene_Search_Qu
                     // Calculate similarity
                     $target = substr($index->currentTerm()->text, $prefixByteLength);
 
-                    $maxDistance = isset($this->_maxDistances[strlen($target)]) ?
-                        $this->_maxDistances[strlen($target)] :
-                        $this->_calculateMaxDistance($prefixUtf8Length, $termRestLength, strlen($target));
+                    $maxDistance = $this->_maxDistances[strlen($target)] ?? $this->_calculateMaxDistance($prefixUtf8Length, $termRestLength, strlen($target));
 
                     if ($termRestLength == 0) {
                         // we don't have anything to compare.  That means if we just add
@@ -264,9 +252,7 @@ class Zend_Search_Lucene_Search_Query_Fuzzy extends Zend_Search_Lucene_Search_Qu
                     // Calculate similarity
                     $target = $index->currentTerm()->text;
 
-                    $maxDistance = isset($this->_maxDistances[strlen($target)]) ?
-                        $this->_maxDistances[strlen($target)] :
-                        $this->_calculateMaxDistance(0, $termRestLength, strlen($target));
+                    $maxDistance = $this->_maxDistances[strlen($target)] ?? $this->_calculateMaxDistance(0, $termRestLength, strlen($target));
 
                     if ($maxDistance < abs($termRestLength - strlen($target))) {
                         // just adding the characters of term to target or vice-versa results in too many edits
@@ -451,9 +437,7 @@ class Zend_Search_Lucene_Search_Query_Fuzzy extends Zend_Search_Lucene_Search_Qu
                 // Calculate similarity
                 $target = substr($termText, $prefixByteLength);
 
-                $maxDistance = isset($this->_maxDistances[strlen($target)]) ?
-                    $this->_maxDistances[strlen($target)] :
-                    $this->_calculateMaxDistance($prefixUtf8Length, $termRestLength, strlen($target));
+                $maxDistance = $this->_maxDistances[strlen($target)] ?? $this->_calculateMaxDistance($prefixUtf8Length, $termRestLength, strlen($target));
 
                 if ($termRestLength == 0) {
                     // we don't have anything to compare.  That means if we just add

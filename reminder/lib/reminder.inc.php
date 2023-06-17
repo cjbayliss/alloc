@@ -431,7 +431,7 @@ class reminder extends db_entity
         if ($this->get_value("metaPerson") === null) {
             return $name;
         } else {
-            return sprintf("%s (%s)", reminder::get_metaperson_name($this->get_value("metaPerson")), $name);
+            return sprintf("%s (%s)", (new reminder())->get_metaperson_name($this->get_value("metaPerson")), $name);
         }
     }
 

@@ -163,7 +163,7 @@ if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POS
     // Moved all validation over into task.inc.php save()
     $success = $task->save();
 
-    count($msg) and $msg = "&message_good=" . urlencode(implode("<br>", $msg));
+    is_countable($msg) ? count($msg) : 0 and $msg = "&message_good=" . urlencode(implode("<br>", $msg));
 
     if ($success) {
         interestedParty::make_interested_parties("task", $task->get_id(), $_POST["interestedParty"]);

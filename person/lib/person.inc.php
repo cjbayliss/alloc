@@ -54,6 +54,7 @@ class person extends db_entity
 
     public function get_tasks_for_email()
     {
+        $topThree = null;
         $s = [];
         $options = [];
         // $options["projectType"] = "mine";
@@ -370,8 +371,7 @@ class person extends db_entity
         }
 
         asort($stack1);
-        end($stack1);
-        $probable1_personID = key($stack1);
+        $probable1_personID = array_key_last($stack1);
         $person_percent1 = current($stack1);
 
         if ($probable1_personID && $person_percent1 >= $certainty) {

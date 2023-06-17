@@ -159,7 +159,7 @@ $finance_options = [
 function has_whatsnew_files()
 {
     $rows = get_attachments("whatsnew", 0);
-    if (count($rows)) {
+    if (is_countable($rows) ? count($rows) : 0) {
         return true;
     }
 }

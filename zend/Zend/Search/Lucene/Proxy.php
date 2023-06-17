@@ -37,10 +37,8 @@ class Zend_Search_Lucene_Proxy implements Zend_Search_Lucene_Interface
 {
     /**
      * Index object
-     *
-     * @var Zend_Search_Lucene_Interface
      */
-    private $_index;
+    private ?\Zend_Search_Lucene_Interface $_index = null;
 
     /**
      * Object constructor

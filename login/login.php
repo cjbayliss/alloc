@@ -57,9 +57,9 @@ if ($sess->Started()) {
         // generate new random password
         $password = "";
         $pwSource = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?";
-        srand((float) microtime() * 1000000);
+        mt_srand((float) microtime() * 1_000_000);
         for ($i = 0; $i < 8; $i++) {
-            $password .= substr($pwSource, rand(0, strlen($pwSource)), 1);
+            $password .= substr($pwSource, random_int(0, strlen($pwSource)), 1);
         }
 
         $q = unsafe_prepare("UPDATE person SET password = '%s' WHERE emailAddress = '%s'

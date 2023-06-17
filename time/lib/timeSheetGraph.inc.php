@@ -30,7 +30,7 @@ class timeSheetGraph
 
         // display the list of project name.
         $db = new db_alloc();
-        $page_vars = array_keys(timeSheetGraph::get_list_vars());
+        $page_vars = array_keys((new timeSheetGraph())->get_list_vars());
         $_FORM = get_all_form_data($page_vars, $defaults);
 
         if ($_FORM["applyFilter"] && is_object($current_user)) {

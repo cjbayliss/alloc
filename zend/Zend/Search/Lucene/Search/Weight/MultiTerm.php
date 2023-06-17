@@ -35,17 +35,13 @@ class Zend_Search_Lucene_Search_Weight_MultiTerm extends Zend_Search_Lucene_Sear
 {
     /**
      * IndexReader.
-     *
-     * @var Zend_Search_Lucene_Interface
      */
-    private $_reader;
+    private \Zend_Search_Lucene_Interface $_reader;
 
     /**
      * The query that this concerns.
-     *
-     * @var Zend_Search_Lucene_Search_Query
      */
-    private $_query;
+    private \Zend_Search_Lucene_Search_Query $_query;
 
     /**
      * Query terms weights

@@ -226,7 +226,7 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
      */
     public static function getDefaultSearchField()
     {
-        if (count($this->_indices) == 0) {
+        if ((is_countable($this->_indices) ? count($this->_indices) : 0) == 0) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('Indices list is empty');
         }
@@ -267,7 +267,7 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
      */
     public static function getResultSetLimit()
     {
-        if (count($this->_indices) == 0) {
+        if ((is_countable($this->_indices) ? count($this->_indices) : 0) == 0) {
             require_once 'Zend/Search/Lucene/Exception.php';
             throw new Zend_Search_Lucene_Exception('Indices list is empty');
         }
@@ -871,10 +871,8 @@ class Zend_Search_Lucene_Interface_MultiSearcher implements Zend_Search_Lucene_I
 
     /**
      * Terms stream priority queue object
-     *
-     * @var Zend_Search_Lucene_TermStreamsPriorityQueue
      */
-    private $_termsStream = null;
+    private ?\Zend_Search_Lucene_TermStreamsPriorityQueue $_termsStream = null;
 
     /**
      * Reset terms stream.

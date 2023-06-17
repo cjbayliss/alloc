@@ -106,8 +106,7 @@ class clientContact extends db_entity
         }
 
         asort($similarityScores);
-        end($similarityScores);
-        $personWithHighestSimilarity = key($similarityScores);
+        $personWithHighestSimilarity = array_key_last($similarityScores);
         $highestSimilarityScore = current($similarityScores);
 
         if ($percent === 0) {
@@ -310,7 +309,7 @@ class clientContact extends db_entity
     public static function get_list($_FORM)
     {
         global $TPL;
-        $filter = clientContact::get_list_filter($_FORM);
+        $filter = (new clientContact())->get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
         }

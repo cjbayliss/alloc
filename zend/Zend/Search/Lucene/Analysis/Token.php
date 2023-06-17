@@ -70,10 +70,8 @@ class Zend_Search_Lucene_Analysis_Token
      * also sets the increment to the number of stop words removed before each
      * non-stop word.  Then exact phrase queries will only match when the terms
      * occur with no intervening stop words.
-     *
-     * @var integer
      */
-    private $_positionIncrement;
+    private int $_positionIncrement;
 
     /**
      * Object constructor

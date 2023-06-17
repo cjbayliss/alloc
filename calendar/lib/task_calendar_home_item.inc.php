@@ -44,6 +44,6 @@ class task_calendar_home_item extends home_item
         $calendar = new calendar($tasksGraphPlotHomeStart, $tasksGraphPlotHome);
         $calendar->set_cal_person($current_user->get_id());
         $calendar->set_return_mode("home");
-        $calendar->draw($template);
+        $calendar->draw();
     }
 }

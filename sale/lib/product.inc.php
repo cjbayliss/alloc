@@ -42,7 +42,7 @@ class product extends db_entity
 
         $f = null;
         $rows = [];
-        $filter = product::get_list_filter($_FORM);
+        $filter = (new product())->get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
         $debug and print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";

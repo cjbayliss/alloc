@@ -188,7 +188,7 @@ if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $
         } else if ($_POST["personExpertiseItem_add"]) {
             // skillID is an array if when adding but not when saving or deleting
             $skillProficiency = $proficiency->get_value('skillProficiency');
-            for ($i = 0; $i < count($_POST["skillID"]); $i++) {
+            for ($i = 0; $i < (is_countable($_POST["skillID"]) ? count($_POST["skillID"]) : 0); $i++) {
                 $proficiency = new proficiency();
 
                 $proficiency->set_value('skillID', $_POST["skillID"][$i]);

@@ -144,7 +144,7 @@ function include_template($filename, $getString = false)
         $s = DIRECTORY_SEPARATOR;
         $f = $filename;
         echo "<b style='color:red'>Error line " . $error['line'] . " in template: ";
-        echo basename(dirname(dirname($f))) . $s . basename(dirname($f)) . $s . basename($f) . "</b>";
+        echo basename(dirname($f, 2)) . $s . basename(dirname($f)) . $s . basename($f) . "</b>";
 
         $bits = explode("\n", $template);
 

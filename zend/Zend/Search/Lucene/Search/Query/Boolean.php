@@ -37,10 +37,8 @@ class Zend_Search_Lucene_Search_Query_Boolean extends Zend_Search_Lucene_Search_
     /**
      * Subqueries
      * Array of Zend_Search_Lucene_Search_Query
-     *
-     * @var array
      */
-    private $_subqueries = [];
+    private array $_subqueries = [];
 
     /**
      * Subqueries signs.
@@ -49,10 +47,8 @@ class Zend_Search_Lucene_Search_Query_Boolean extends Zend_Search_Lucene_Search_
      * If null then subquery is neither prohibited, nor required
      *
      * If array is null then all subqueries are required
-     *
-     * @var array
      */
-    private $_signs = [];
+    private ?array $_signs = [];
 
     /**
      * Result vector.
@@ -483,7 +479,7 @@ class Zend_Search_Lucene_Search_Query_Boolean extends Zend_Search_Lucene_Search_
         $resVectorsIds = []; // is used to prevent arrays comparison
         foreach ($this->_subqueries as $subqueryId => $subquery) {
             $resVectors[] = $subquery->matchedDocs();
-            $resVectorsSizes[] = count(end($resVectors));
+            $resVectorsSizes[] = is_countable(end($resVectors)) ? count(end($resVectors)) : 0;
             $resVectorsIds[] = $subqueryId;
         }
         // sort resvectors in order of subquery cardinality increasing
@@ -515,7 +511,7 @@ class Zend_Search_Lucene_Search_Query_Boolean extends Zend_Search_Lucene_Search_
                 $this->_resVector = $updatedVector;
             }
 
-            if (count($this->_resVector) == 0) {
+            if ((is_countable($this->_resVector) ? count($this->_resVector) : 0) == 0) {
                 // Empty result set, we don't need to check other terms
                 break;
             }
@@ -541,7 +537,7 @@ class Zend_Search_Lucene_Search_Query_Boolean extends Zend_Search_Lucene_Search_
             if ($this->_signs[$subqueryId] === true) {
                 // required
                 $requiredVectors[] = $subquery->matchedDocs();
-                $requiredVectorsSizes[] = count(end($requiredVectors));
+                $requiredVectorsSizes[] = is_countable(end($requiredVectors)) ? count(end($requiredVectors)) : 0;
                 $requiredVectorsIds[] = $subqueryId;
             } elseif ($this->_signs[$subqueryId] === false) {
                 // prohibited
@@ -585,7 +581,7 @@ class Zend_Search_Lucene_Search_Query_Boolean extends Zend_Search_Lucene_Search_
                 $required = $updatedVector;
             }
 
-            if (count($required) == 0) {
+            if ((is_countable($required) ? count($required) : 0) == 0) {
                 // Empty result set, we don't need to check other terms
                 break;
             }

@@ -302,7 +302,7 @@ class comment extends db_entity
         $rtn[] = '<tr>';
         $rtn[] = '  <td colspan="3"><div><pre class="comment">' . $comment . '</pre></div></td>';
         $rtn[] = '</tr>';
-        $row["children"] and $rtn[] = comment::get_comment_children($row["children"]);
+        $row["children"] and $rtn[] = (new comment())->get_comment_children($row["children"]);
         if ($row["files"] || $row["reply"]) {
             $rtn[] = '<tr>';
             $row["files"] and $rtn[] = '  <td valign="bottom" align="left">' . $row["files"] . '</td>';
@@ -394,7 +394,7 @@ class comment extends db_entity
             $rtn[] = "<tr><td colspan=\"3\" style=\"padding:0px; padding-left:6px; padding-right:6px;\">" . comment::get_comment_html_table($child) . "</td></tr>";
             if (is_array($child["children"]) && count($child["children"])) {
                 $padding += 1;
-                $rtn[] = comment::get_comment_children($child["children"], $padding);
+                $rtn[] = (new comment())->get_comment_children($child["children"], $padding);
                 $padding -= 1;
             }
         }
@@ -623,8 +623,8 @@ class comment extends db_entity
             $id = $this->get_id();
         }
 
-        $recipients = comment::get_email_recipients($selected_option, "comment", $id);
-        [$to_address, $bcc, $successful_recipients] = comment::get_email_recipient_headers($recipients, $from_address);
+        $recipients = (new comment())->get_email_recipients($selected_option, "comment", $id);
+        [$to_address, $bcc, $successful_recipients] = (new comment())->get_email_recipient_headers($recipients, $from_address);
 
         if ($to_address || $bcc || $successful_recipients) {
             $email = new email_send();
@@ -756,7 +756,7 @@ class comment extends db_entity
 
             // Or 2: get all starred comments
         } else if ($_FORM["starred"]) {
-            $filter = comment::get_list_filter($_FORM);
+            $filter = (new comment())->get_list_filter($_FORM);
             if (is_array($filter) && count($filter)) {
                 $filter = " WHERE " . implode(" AND ", $filter);
             }
@@ -910,7 +910,7 @@ class comment extends db_entity
 
         $_FORM["maxCommentLength"] or $_FORM["maxCommentLength"] = 500;
 
-        [$filter1, $filter2, $filter3] = comment::get_list_summary_filter($_FORM);
+        [$filter1, $filter2, $filter3] = (new comment())->get_list_summary_filter($_FORM);
 
         is_array($filter1) && count($filter1) and $filter1 = " AND " . implode(" AND ", $filter1);
         is_array($filter2) && count($filter2) and $filter2 = " AND " . implode(" AND ", $filter2);
@@ -1052,13 +1052,13 @@ class comment extends db_entity
         }
 
         foreach ((array)$rows as $taskID => $dates) {
-            $rtn .= comment::get_list_summary_header($tasks[$taskID], $totals[$taskID], $totals_tsiHint[$taskID], $_FORM);
+            $rtn .= (new comment())->get_list_summary_header($tasks[$taskID], $totals[$taskID], $totals_tsiHint[$taskID], $_FORM);
             foreach ($dates as $date => $more_rows) {
                 foreach ($more_rows as $row) {
-                    $rtn .= comment::get_list_summary_body($row);
+                    $rtn .= (new comment())->get_list_summary_body($row);
                 }
             }
-            $rtn .= comment::get_list_summary_footer($rows, $tasks);
+            $rtn .= (new comment())->get_list_summary_footer($rows, $tasks);
         }
         return $rtn;
     }
@@ -1398,7 +1398,7 @@ class comment extends db_entity
         $mail->open_mailbox(config::get_config_item("allocEmailFolder") . "/" . $mailbox, OP_HALFOPEN + OP_READONLY);
         $mail->check_mail();
         $msg_nums = $mail->get_all_email_msg_uids();
-        $debug and print "<hr><br><b>find_email(): " . date("Y-m-d H:i:s") . " found " . count($msg_nums) . " emails for mailbox: " . $mailbox . "</b>";
+        $debug and print "<hr><br><b>find_email(): " . date("Y-m-d H:i:s") . " found " . (is_countable($msg_nums) ? count($msg_nums) : 0) . " emails for mailbox: " . $mailbox . "</b>";
 
         // fetch and parse email
         foreach ((array)$msg_nums as $num) {

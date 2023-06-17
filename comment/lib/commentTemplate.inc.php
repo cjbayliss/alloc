@@ -63,7 +63,7 @@ class commentTemplate extends db_entity
             } else {
                 $people = &get_cached_table("person");
                 $timeSheetAdministrators = config::get_config_item('defaultTimeSheetAdminList');
-                if (count($timeSheetAdministrators)) {
+                if (is_countable($timeSheetAdministrators) ? count($timeSheetAdministrators) : 0) {
                     $swap["tc"] = "";
                     $comma = "";
                     foreach ($timeSheetAdministrators as $adminID) {

@@ -235,7 +235,7 @@ class project extends db_entity
         // Fallback time sheet manager person
         if (!$rows) {
             $people = config::get_config_item("defaultTimeSheetManagerList");
-            $rows = $people ? $people : null;
+            $rows = $people ?: null;
         }
 
         return $rows;
@@ -372,7 +372,7 @@ class project extends db_entity
         $projectStatus = false
     ) {
         $current_user = &singleton("current_user");
-        $personID = $personID ? $personID : $current_user->get_id();
+        $personID = $personID ?: $current_user->get_id();
 
         $queryType or $queryType = "mine";
         $queryProjectStatus = $projectStatus ? " AND project.projectStatus = :projectStatus " : "";
@@ -516,9 +516,7 @@ class project extends db_entity
 
         $sql = [];
         if ($filter["projectID"]) {
-            $parts = array_map(function ($projectID) {
-                return "IFNULL(project.projectID, 0) = $projectID";
-            }, (array)$filter["projectID"]);
+            $parts = array_map(fn ($projectID) => "IFNULL(project.projectID, 0) = $projectID", (array)$filter["projectID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
@@ -529,57 +527,43 @@ class project extends db_entity
 
         // FIXME: is '!== "undefined"' needed by the other filters?
         if ($filter["clientID"] && $filter["clientID"] !== "undefined") {
-            $parts = array_map(function ($clientID) {
-                return "IFNULL(project.clientID, 0) = $clientID";
-            }, (array)$filter["clientID"]);
+            $parts = array_map(fn ($clientID) => "IFNULL(project.clientID, 0) = $clientID", (array)$filter["clientID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["personID"]) {
-            $parts = array_map(function ($personID) {
-                return "IFNULL(projectPerson.personID, 0) = $personID";
-            }, (array)$filter["personID"]);
+            $parts = array_map(fn ($personID) => "IFNULL(projectPerson.personID, 0) = $personID", (array)$filter["personID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectStatus"]) {
-            $parts = array_map(function ($projectStatus) {
-                return "IFNULL(project.projectStatus, '') = '$projectStatus'";
-            }, (array)$filter["projectStatus"]);
+            $parts = array_map(fn ($projectStatus) => "IFNULL(project.projectStatus, '') = '$projectStatus'", (array)$filter["projectStatus"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectType"]) {
-            $parts = array_map(function ($projectType) {
-                return "IFNULL(project.projectType, 0) = $projectType";
-            }, (array)$filter["projectType"]);
+            $parts = array_map(fn ($projectType) => "IFNULL(project.projectType, 0) = $projectType", (array)$filter["projectType"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectName"]) {
-            $parts = array_map(function ($projectName) {
-                return "IFNULL(project.projectName, '') LIKE '%%" . $projectName . "%%'";
-            }, (array)$filter["projectName"]);
+            $parts = array_map(fn ($projectName) => "IFNULL(project.projectName, '') LIKE '%%" . $projectName . "%%'", (array)$filter["projectName"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectShortName"]) {
-            $parts = array_map(function ($projectShortName) {
-                return "IFNULL(project.projectShortName, '') LIKE '%%" . $projectShortName . "%%'";
-            }, (array)$filter["projectShortName"]);
+            $parts = array_map(fn ($projectShortName) => "IFNULL(project.projectShortName, '') LIKE '%%" . $projectShortName . "%%'", (array)$filter["projectShortName"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectNameMatches"]) {
-            $parts = array_map(function ($projectNameMatches) {
-                return "project.projectName LIKE '%%" . $projectNameMatches . "%%' OR project.projectShortName LIKE '%%" . $projectNameMatches . "%%' OR project.projectID = " . $projectNameMatches;
-            }, (array)$filter["projectNameMatches"]);
+            $parts = array_map(fn ($projectNameMatches) => "project.projectName LIKE '%%" . $projectNameMatches . "%%' OR project.projectShortName LIKE '%%" . $projectNameMatches . "%%' OR project.projectID = " . $projectNameMatches, (array)$filter["projectNameMatches"]);
 
             $sql[] = implode(" OR ", $parts);
         }
@@ -752,7 +736,7 @@ class project extends db_entity
 
     public function get_project_type()
     {
-        $ops = $this->get_project_type_array();
+        $ops = static::get_project_type_array();
         return $ops[$this->get_value("projectType")];
     }
 
@@ -874,9 +858,7 @@ class project extends db_entity
         }
 
         if (!empty($projectIDs)) {
-            $statement = array_map(function ($projectID) use ($table) {
-                return "($table.projectID = $projectID)";
-            }, (array)$projectIDs);
+            $statement = array_map(fn ($projectID) => "($table.projectID = $projectID)", (array)$projectIDs);
             return implode(" OR ", $statement);
         }
 
@@ -919,6 +901,7 @@ class project extends db_entity
     public function get_all_parties($projectID = false, $task_exists = false)
     {
 
+        $interestedPartyOptions = [];
         if (!$projectID && is_object($this)) {
             $projectID = $this->get_id();
         }
