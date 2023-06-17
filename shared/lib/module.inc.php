@@ -18,10 +18,9 @@ class module
 
     public function autoloader($class)
     {
-        $s = DIRECTORY_SEPARATOR;
-        $p = __DIR__ . $s . '..' . $s . '..' . $s . $this->module . $s . 'lib' . $s . $class . '.inc.php';
-        if (file_exists($p)) {
-            require_once($p);
+        $path = __DIR__ . '/../../' . $this->module . '/lib/' . $class . '.inc.php';
+        if (file_exists($path)) {
+            require_once($path);
         }
     }
 }
