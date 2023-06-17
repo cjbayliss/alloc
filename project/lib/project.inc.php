@@ -977,7 +977,7 @@ class project extends DatabaseEntity
         }
 
         // return an aggregation of the current task/proj/client parties + the existing interested parties
-        $interestedPartyOptions = interestedParty::get_interested_parties(
+        $interestedPartyOptions = InterestedParty::get_interested_parties(
             "project",
             $projectID,
             $interestedPartyOptions,
@@ -1021,7 +1021,7 @@ class project extends DatabaseEntity
                     $changeDescription = $newValue;
                     break;
                 case 'dip':
-                    $changeDescription = "Default parties set to " . interestedParty::abbreviate($newValue);
+                    $changeDescription = "Default parties set to " . InterestedParty::abbreviate($newValue);
                     break;
                 case 'projectShortName':
                     $changeDescription = "Project nickname set to '$newValue'.";

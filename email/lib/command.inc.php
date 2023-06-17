@@ -241,7 +241,7 @@ class command
                 $str and $message[] = $after_label . $str;
 
                 if ($commands["dip"]) {
-                    interestedParty::add_remove_ips($commands["dip"], "task", $task->get_id(), $task->get_value("projectID"));
+                    InterestedParty::add_remove_ips($commands["dip"], "task", $task->get_id(), $task->get_value("projectID"));
                 }
 
                 if (strtolower($commands["task"]) == "new") {
@@ -463,11 +463,11 @@ class command
                 $c = comment::add_comment_from_email($email_receive, $entity);
 
                 if (is_object($c) && $c->get_id()) {
-                    $quiet = interestedParty::adjust_by_email_subject($email_receive, $entity);
+                    $quiet = InterestedParty::adjust_by_email_subject($email_receive, $entity);
 
                     if ($commands["ip"]) {
                         // FIXME: does this do something?
-                        $rtn = interestedParty::add_remove_ips($commands["ip"], $entity->classname, $entity->get_id(), $entity->get_project_id());
+                        $rtn = InterestedParty::add_remove_ips($commands["ip"], $entity->classname, $entity->get_id(), $entity->get_project_id());
                     }
 
                     if (!$quiet) {
@@ -489,7 +489,7 @@ class command
         foreach ((array)$commands["ip"] as $k => $info) {
             $info["entity"] = "comment";
             $info["entityID"] = $commentID;
-            interestedParty::add_interested_party($info);
+            InterestedParty::add_interested_party($info);
         }
 
         $emailRecipients = [];

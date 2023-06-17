@@ -74,7 +74,7 @@ while ($row = $db->row($id)) {
     }
 
     if ($row["message"]) {
-        $ips = interestedParty::get_interested_parties("invoiceRepeat", $row["invoiceRepeatID"]);
+        $ips = InterestedParty::get_interested_parties("invoiceRepeat", $row["invoiceRepeatID"]);
 
         $recipients = [];
         foreach ($ips as $email => $info) {

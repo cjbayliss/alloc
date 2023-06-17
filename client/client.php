@@ -190,7 +190,7 @@ function show_comments()
     $TPL["commentsR"] = comment::util_get_comments("client", $clientID);
     $TPL["commentsR"] and $TPL["class_new_comment"] = "hidden";
     $interestedPartyOptions = $client->get_all_parties();
-    $interestedPartyOptions = interestedParty::get_interested_parties(
+    $interestedPartyOptions = InterestedParty::get_interested_parties(
         "client",
         $client->get_id(),
         $interestedPartyOptions

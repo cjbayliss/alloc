@@ -476,8 +476,8 @@ class services
 
         // Check we have the minimum of fields
         if ($data["entity"] && $data["entityID"] && $data["emailAddress"]) {
-            interestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
-            interestedParty::add_interested_party($data);
+            InterestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
+            InterestedParty::add_interested_party($data);
         }
     }
 
@@ -495,7 +495,7 @@ class services
 
         // Delete existing entries
         if ($data["entity"] && $data["entityID"] && $data["emailAddress"]) {
-            interestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
+            InterestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
         }
     }
 

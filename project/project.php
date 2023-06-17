@@ -254,7 +254,7 @@ function show_comments()
     $TPL["commentsR"] = comment::util_get_comments("project", $projectID);
     $TPL["commentsR"] and $TPL["class_new_comment"] = "hidden";
     $interestedPartyOptions = $project->get_all_parties();
-    $interestedPartyOptions = interestedParty::get_interested_parties(
+    $interestedPartyOptions = InterestedParty::get_interested_parties(
         "project",
         $project->get_id(),
         $interestedPartyOptions
@@ -351,7 +351,7 @@ if ($_POST["save"]) {
         $project->set_value("projectComments", rtrim($project->get_value("projectComments")));
         $project->save();
         $projectID = $project->get_id();
-        interestedParty::make_interested_parties("project", $project->get_id(), $_POST["interestedParty"]);
+        InterestedParty::make_interested_parties("project", $project->get_id(), $_POST["interestedParty"]);
 
         $client = new client();
         $client->set_id($project->get_value("clientID"));
@@ -556,7 +556,7 @@ $db->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, cl
                        AND interestedPartyActive = 1
                   ORDER BY fullName", $project->get_id()));
 while ($db->next_record()) {
-    $value = interestedParty::get_encoded_interested_party_identifier($db->f("fullName"));
+    $value = InterestedParty::get_encoded_interested_party_identifier($db->f("fullName"));
     $phone = ["p" => $db->f('clientContactPhone'), "m" => $db->f('clientContactMobile')];
     $TPL["interestedParties"][] = ['key' => $value, 'name' => $db->f("fullName"), 'email' => $db->f("emailAddress"), 'phone' => $phone];
 }

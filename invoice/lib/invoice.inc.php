@@ -903,7 +903,7 @@ class invoice extends DatabaseEntity
         }
 
         // return an aggregation of the current task/proj/client parties + the existing interested parties
-        $interestedPartyOptions = interestedParty::get_interested_parties("invoice", $this->get_id(), $interestedPartyOptions);
+        $interestedPartyOptions = InterestedParty::get_interested_parties("invoice", $this->get_id(), $interestedPartyOptions);
         return $interestedPartyOptions;
     }
 

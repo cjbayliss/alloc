@@ -577,7 +577,7 @@ class client extends DatabaseEntity
 
         // return an aggregation of the current task/proj/client parties + the
         // existing interested parties
-        $interestedPartyOptions = interestedParty::get_interested_parties(
+        $interestedPartyOptions = InterestedParty::get_interested_parties(
             "client",
             $clientID,
             $interestedPartyOptions

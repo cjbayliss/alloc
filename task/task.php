@@ -166,7 +166,7 @@ if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POS
     is_countable($msg) ? count($msg) : 0 and $msg = "&message_good=" . urlencode(implode("<br>", $msg));
 
     if ($success) {
-        interestedParty::make_interested_parties("task", $task->get_id(), $_POST["interestedParty"]);
+        InterestedParty::make_interested_parties("task", $task->get_id(), $_POST["interestedParty"]);
 
         // A task can only have a pending task or pending reopen date - pending task is fixed up in JS, but check here too
         if ($task->get_value("taskStatus") != "pending_tasks") {

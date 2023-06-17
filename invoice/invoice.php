@@ -388,7 +388,7 @@ function show_comments()
             $clientID = $client->get_id();
         }
 
-        $interestedPartyOptions = interestedParty::get_interested_parties(
+        $interestedPartyOptions = InterestedParty::get_interested_parties(
             "invoice",
             $invoice->get_id(),
             $interestedPartyOptions

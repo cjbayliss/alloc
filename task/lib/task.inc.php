@@ -433,7 +433,7 @@ class task extends DatabaseEntity
             foreach ((array)$extra_interested_parties as $name => $email) {
                 $interestedPartyOptions[$email]["name"] = $name;
             }
-            $interestedPartyOptions = interestedParty::get_interested_parties("task", null, $interestedPartyOptions);
+            $interestedPartyOptions = InterestedParty::get_interested_parties("task", null, $interestedPartyOptions);
         }
 
         foreach ((array)$interestedPartyOptions as $email => $info) {
@@ -497,7 +497,7 @@ class task extends DatabaseEntity
             }
         }
         // return an aggregation of the current task/proj/client parties + the existing interested parties
-        $interestedPartyOptions = interestedParty::get_interested_parties("task", $this->get_id(), $interestedPartyOptions);
+        $interestedPartyOptions = InterestedParty::get_interested_parties("task", $this->get_id(), $interestedPartyOptions);
         return $interestedPartyOptions;
     }
 
@@ -606,7 +606,7 @@ class task extends DatabaseEntity
                                AND interestedPartyActive = 1
                           ORDER BY fullName", $this->get_id()));
         while ($allocDatabase->next_record()) {
-            $value = interestedParty::get_encoded_interested_party_identifier($allocDatabase->f("fullName"));
+            $value = InterestedParty::get_encoded_interested_party_identifier($allocDatabase->f("fullName"));
             $phone = [
                 "p" => $allocDatabase->f('clientContactPhone'),
                 "m" => $allocDatabase->f('clientContactMobile'),
@@ -1512,7 +1512,7 @@ class task extends DatabaseEntity
                     $changeDescription = $newValue;
                     break;
                 case 'dip':
-                    $changeDescription = "Default parties set to " . interestedParty::abbreviate($newValue);
+                    $changeDescription = "Default parties set to " . InterestedParty::abbreviate($newValue);
                     break;
                 case 'taskName':
                     $changeDescription = "Task name set to '$newValue'.";

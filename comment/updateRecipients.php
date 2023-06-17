@@ -8,9 +8,9 @@
 define("NO_REDIRECT", 1);
 require_once("../alloc.php");
 
-interestedParty::make_interested_parties('comment', $_POST['commentID'], $_POST['comment_recipients']);
+InterestedParty::make_interested_parties('comment', $_POST['commentID'], $_POST['comment_recipients']);
 
-if (interestedParty::is_external('comment', $_POST['commentID'])) {
+if (InterestedParty::is_external('comment', $_POST['commentID'])) {
     echo 'external';
 } else {
     echo 'internal';

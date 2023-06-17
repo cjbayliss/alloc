@@ -17,7 +17,7 @@ if ($_POST["save"]) {
     $invoiceRepeat->set_value("active", 1);
     $invoiceRepeat->set_value("personID", $current_user->get_id());
     $invoiceRepeat->save($_POST["frequency"]);
-    interestedParty::make_interested_parties("invoiceRepeat", $invoiceRepeat->get_id(), $_POST["commentEmailRecipients"]);
+    InterestedParty::make_interested_parties("invoiceRepeat", $invoiceRepeat->get_id(), $_POST["commentEmailRecipients"]);
 }
 
 alloc_redirect($TPL["url_alloc_invoice"] . "invoiceID=" . $_POST["invoiceID"]);

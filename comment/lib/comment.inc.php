@@ -151,7 +151,7 @@ class comment extends DatabaseEntity
                 $new["hashHTML"] = " <em class=\"faint\">" . $new["hashKey"] . "</em>";
             }
 
-            $ip = interestedParty::get_interested_parties("comment", $new["commentID"]);
+            $ip = InterestedParty::get_interested_parties("comment", $new["commentID"]);
             foreach ((array)$ip as $email => $info) {
                 $all_parties += $ip;
                 if ($info["selected"]) {
@@ -162,7 +162,7 @@ class comment extends DatabaseEntity
                 in_array($email, (array)$sel) and $recipient_selected[] = $i["identifier"];
             }
 
-            if (interestedParty::is_external("comment", $new["commentID"])) {
+            if (InterestedParty::is_external("comment", $new["commentID"])) {
                 $new["external"] = " loud";
                 $label = "<em class='faint warn'>[ External Conversation ]</em>";
             } else {
@@ -1122,6 +1122,7 @@ class comment extends DatabaseEntity
 
     public static function get_person_and_client($from_address, $from_name, $projectID = null)
     {
+        $clientContactID = null;
         $current_user = &singleton("current_user");
         $person = new person();
         $personID = $person->find_by_email($from_address);
@@ -1187,7 +1188,7 @@ class comment extends DatabaseEntity
             $emailRecipients[] = $from_address;
         }
 
-        interestedParty::make_interested_parties("comment", $commentID, $ip);
+        InterestedParty::make_interested_parties("comment", $commentID, $ip);
         $emailRecipients[] = "interested";
 
         $allocDatabase = new AllocDatabase();
@@ -1222,8 +1223,8 @@ class comment extends DatabaseEntity
                 }
 
                 // Add the person to the interested parties list
-                if ($info["addIP"] && !interestedParty::exists("comment", $commentID, trim($email))) {
-                    $interestedParty = new interestedParty();
+                if ($info["addIP"] && !InterestedParty::exists("comment", $commentID, trim($email))) {
+                    $interestedParty = new InterestedParty();
                     $interestedParty->set_value("fullName", trim($info["name"]));
                     $interestedParty->set_value("emailAddress", trim($email));
                     $interestedParty->set_value("entityID", $commentID);

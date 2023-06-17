@@ -188,7 +188,7 @@ class inbox extends DatabaseEntity
             $ip["personID"] = $personID;
             $ip["entity"] = "task";
             $ip["entityID"] = $task->get_id();
-            interestedParty::add_interested_party($ip);
+            InterestedParty::add_interested_party($ip);
         }
         // Put current_user back to normal
         $current_user = &$orig_current_user;
@@ -254,16 +254,16 @@ class inbox extends DatabaseEntity
             }
 
             // add all the other interested parties
-            $ips = interestedParty::get_interested_parties("task", $req["taskID"], $extraips);
+            $ips = InterestedParty::get_interested_parties("task", $req["taskID"], $extraips);
             foreach ((array)$ips as $k => $inf) {
                 $inf["entity"] = "comment";
                 $inf["entityID"] = $commentID;
                 $inf["email"] and $inf["emailAddress"] = $inf["email"];
                 if ($req["emailto"] == "internal" && !$inf["external"] && !$inf["clientContactID"]) {
-                    $id = interestedParty::add_interested_party($inf);
+                    $id = InterestedParty::add_interested_party($inf);
                     $recipients[] = $inf["name"] . " " . add_brackets($k);
                 } else if ($req["emailto"] == "default") {
-                    $id = interestedParty::add_interested_party($inf);
+                    $id = InterestedParty::add_interested_party($inf);
                     $recipients[] = $inf["name"] . " " . add_brackets($k);
                 }
             }

@@ -609,7 +609,7 @@ class productSale extends DatabaseEntity
             $this_id = $this->get_id();
         }
         // return an aggregation of the current proj/client parties + the existing interested parties
-        $interestedPartyOptions = interestedParty::get_interested_parties("productSale", $this_id, $interestedPartyOptions);
+        $interestedPartyOptions = InterestedParty::get_interested_parties("productSale", $this_id, $interestedPartyOptions);
         return $interestedPartyOptions;
     }
 
