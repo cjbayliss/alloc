@@ -208,7 +208,7 @@ if (
     && is_object($current_user)
     && $current_user->get_id()
 ) {
-    $history = new history();
+    $history = new History();
     $history->save_history();
     $TPL["current_user"] = $current_user;
 }

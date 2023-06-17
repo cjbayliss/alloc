@@ -139,7 +139,7 @@ class Page
         }
         has("item") and $str[] = "<option value=\"create_" . $TPL["url_alloc_loanAndReturn"] . "\">New Item Loan</option>";
         $str[] = "<option value=\"\" disabled=\"disabled\">--------------------";
-        $history = new history();
+        $history = new History();
         $q = $history->get_history_query("DESC");
         $db = new AllocDatabase();
         $db->query($q);
