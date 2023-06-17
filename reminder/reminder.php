@@ -82,7 +82,7 @@ switch ($step) {
             }
             $db->query($query);
             while ($db->next_record()) {
-                $task = new task();
+                $task = new Task();
                 $task->read_db_record($db);
                 if (substr($task->get_value("taskStatus"), 0, 6) != "closed") {
                     $parent_names[$task->get_id()] = $task->get_value('taskName');

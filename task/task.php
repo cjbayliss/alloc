@@ -32,7 +32,7 @@ function show_task_children($template)
 
         $_GET["media"] == "print" and $options["showDescription"] = true;
         $_GET["media"] == "print" and $options["showComments"] = true;
-        $TPL["taskListRows"] = task::get_list($options);
+        $TPL["taskListRows"] = Task::get_list($options);
         $TPL["taskListOptions"] = $options;
 
         include_template($template);
@@ -120,7 +120,7 @@ function show_taskHistory()
 global $timeSheetID;
 
 $db = new AllocDatabase();
-$task = new task();
+$task = new Task();
 
 // If taskID
 
@@ -314,7 +314,7 @@ if (is_array($parentTaskIDs)) {
 // Link off to the source task, if this task is just a duplicate
 $dupeID = $task->get_value("duplicateTaskID");
 if ($dupeID) {
-    $realtask = new task();
+    $realtask = new Task();
     $realtask->set_id($dupeID);
     $realtask->select();
     $TPL["taskDuplicateLink"] = $realtask->get_task_link([
@@ -330,7 +330,7 @@ if ($dupeID) {
 $q = unsafe_prepare("SELECT taskID FROM task WHERE duplicateTaskID = %d", $task->get_id());
 $db->query($q);
 while ($row = $db->row()) {
-    $realtask = new task();
+    $realtask = new Task();
     $realtask->set_id($row["taskID"]);
     $realtask->select();
     $duds .= "<br>" . $realtask->get_task_link([
@@ -342,7 +342,7 @@ $duds and $TPL["message_help_no_esc"][] = "The following tasks have been marked 
 
 $rows = $task->get_pending_tasks();
 foreach ((array)$rows as $pendingTaskID) {
-    $realtask = new task();
+    $realtask = new Task();
     $realtask->set_id($pendingTaskID);
     $realtask->select();
     unset($st1, $st2);
@@ -363,7 +363,7 @@ $pendingTaskLinks and $TPL["message_help_no_esc"][] = "This task " . $is . " pen
 
 $rows = $task->get_pending_tasks(true);
 foreach ((array)$rows as $tID) {
-    $realtask = new task();
+    $realtask = new Task();
     $realtask->set_id($tID);
     $realtask->select();
     unset($st1, $st2);

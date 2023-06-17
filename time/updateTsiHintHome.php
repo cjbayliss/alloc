@@ -17,7 +17,7 @@ $people = person::get_people_by_username();
 foreach ($t as $k => $v) {
     if ($v) {
         if ($k == "taskID") {
-            $task = new task();
+            $task = new Task();
             $task->set_id($v);
             if ($task->select()) {
                 $v = $task->get_id() . " " . $task->get_link();

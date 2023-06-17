@@ -780,7 +780,7 @@ class comment extends DatabaseEntity
             }
             has("timeSheetItem") and $tsi_rows = timeSheetItem::get_timeSheetItemComments(null, true);
             foreach ((array)$tsi_rows as $row) {
-                $t = new task();
+                $t = new Task();
                 $t->set_id($row["taskID"]);
                 $t->select();
                 $row["entity_link"] = $t->get_link();
@@ -890,8 +890,8 @@ class comment extends DatabaseEntity
         $filter["clients"] or $sql1[] = "(commentCreatedUser IS NOT NULL)";
         $filter["clients"] && $filter["personID"] and $sql1["personID"] = unsafe_prepare("(comment.commentCreatedUser IN (%s) OR comment.commentCreatedUser IS NULL)", $filter["personID"]);
 
-        $filter["taskStatus"] and $sql1[] = task::get_taskStatus_sql($filter["taskStatus"]);
-        $filter["taskStatus"] and $sql2[] = task::get_taskStatus_sql($filter["taskStatus"]);
+        $filter["taskStatus"] and $sql1[] = Task::get_taskStatus_sql($filter["taskStatus"]);
+        $filter["taskStatus"] and $sql2[] = Task::get_taskStatus_sql($filter["taskStatus"]);
 
         return [$sql1, $sql2, $sql3];
     }
@@ -954,7 +954,7 @@ class comment extends DatabaseEntity
             $row["person"] or [$e, $row["person"]] = parse_email_address($row["commentCreatedUserText"]);
             $row["displayDate"] = format_date("Y-m-d g:ia", $row["displayDate"]);
             if (!$tasks[$row["taskID"]]) {
-                $t = new task();
+                $t = new Task();
                 $t->set_id($row["taskID"]);
                 $t->set_value("taskName", $row["taskName"]);
                 $tasks[$row["taskID"]] = $t->get_task_link(["prefixTaskID" => true]);
@@ -994,7 +994,7 @@ class comment extends DatabaseEntity
             $row["id"] = "timeitem_" . $row["id"];
             $row["person"] = $people[$row["personID"]]["name"];
             if (!$tasks[$row["taskID"]]) {
-                $t = new task();
+                $t = new Task();
                 $t->set_id($row["taskID"]);
                 $t->set_value("taskName", $row["taskName"]);
                 $tasks[$row["taskID"]] = $t->get_task_link(["prefixTaskID" => true]);
@@ -1034,7 +1034,7 @@ class comment extends DatabaseEntity
             $row["person"] = $people[$row["personID"]]["name"];
             $row["comment_text"] .= ' [by ' . $people[$row["tsiHintCreatedUser"]]["name"] . ']';
             if (!$tasks[$row["taskID"]]) {
-                $t = new task();
+                $t = new Task();
                 $t->set_id($row["taskID"]);
                 $t->set_value("taskName", $row["taskName"]);
                 $tasks[$row["taskID"]] = $t->get_task_link(["prefixTaskID" => true]);
@@ -1105,7 +1105,7 @@ class comment extends DatabaseEntity
         $projectID = null;
         $this->select();
         if ($this->get_value("commentType") == "task" && $this->get_value("commentLinkID")) {
-            $t = new task();
+            $t = new Task();
             $t->set_id($this->get_value("commentLinkID"));
             $t->select();
             $projectID = $t->get_value("projectID");

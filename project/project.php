@@ -301,7 +301,7 @@ function show_tasks()
     $options["return"] = "html";
     // $TPL["taskListRows"] is used for the budget estimatation outside of this function
     $options = ace_augment("project_page_task_list_options", $options);
-    $TPL["taskListRows"] = task::get_list($options);
+    $TPL["taskListRows"] = Task::get_list($options);
     $TPL["_FORM"] = $options;
     include_template("templates/projectTaskS.tpl");
 }
@@ -585,7 +585,7 @@ function get_projectPerson_hourly_rate($personID, $projectID)
 
 if (is_object($project) && $project->get_id()) {
     if (is_array($TPL["taskListRows"])) { // $tasks is a global defined in show_tasks() for performance reasons
-        $task = new task();
+        $task = new Task();
         foreach ($TPL["taskListRows"] as $tid => $t) {
             $hourly_rate = get_projectPerson_hourly_rate($t["personID"], $t["projectID"]);
             $time_remaining = $t["timeLimit"] - ($task->get_time_billed($t["taskID"]) / 60 / 60);

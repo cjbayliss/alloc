@@ -276,7 +276,7 @@ function show_timeSheet_list($template)
         $TPL["timeSheetItem_status"] = "";
         $row_messages = [];
         if ($timeSheetItem->get_value('taskID')) {
-            $task = new task();
+            $task = new Task();
             $task->set_id($timeSheetItem->get_value('taskID'));
             $task->select();
             if ($task->get_value('timeLimit') > 0) {

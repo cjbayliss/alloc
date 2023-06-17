@@ -79,7 +79,7 @@ class timeSheetPrint
 
             // Get task description
             if ($taskID && $TPL["printDesc"]) {
-                $t = new task();
+                $t = new Task();
                 $t->set_id($taskID);
                 $t->select();
                 $d2 = str_replace("\r\n", "\n", $t->get_value("taskDescription", DST_HTML_DISPLAY));
@@ -156,7 +156,7 @@ class timeSheetPrint
 
             // Get task description
             if ($taskID && $TPL["printDesc"]) {
-                $t = new task();
+                $t = new Task();
                 $t->set_id($taskID);
                 $t->select();
                 $d2 = str_replace("\r\n", "\n", $t->get_value("taskDescription", DST_HTML_DISPLAY));
@@ -232,7 +232,7 @@ class timeSheetPrint
 
             // Get task description
             if ($taskID && $TPL["printDesc"]) {
-                $t = new task();
+                $t = new Task();
                 $t->set_id($taskID);
                 $t->select();
                 $d2 = str_replace("\r\n", "\n", $t->get_value("taskDescription", DST_HTML_DISPLAY));

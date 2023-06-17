@@ -17,7 +17,7 @@ $options["return"] = "array";
 $options["padding"] = 0;
 $options["debug"] = 0;
 
-$tasks = task::get_list($options) or $tasks = [];
+$tasks = Task::get_list($options) or $tasks = [];
 
 foreach ($tasks as $task) {
     $objects[$task["taskID"]] = $task["object"];

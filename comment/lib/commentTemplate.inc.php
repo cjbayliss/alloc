@@ -87,7 +87,7 @@ class commentTemplate extends DatabaseEntity
         }
 
         if ($entity == "task" && $entityID) {
-            $task = new task();
+            $task = new Task();
             $task->set_id($entityID);
             $task->select();
             $swap["ti"] = $task->get_id();

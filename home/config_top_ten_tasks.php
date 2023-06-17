@@ -17,8 +17,8 @@ $defaults = [
     "form_name"       => "taskListHome_filter",
 ];
 
-$_FORM = task::load_form_data($defaults);
-$arr = task::load_task_filter($_FORM);
+$_FORM = Task::load_form_data($defaults);
+$arr = Task::load_task_filter($_FORM);
 is_array($arr) and $TPL = array_merge($TPL, $arr);
 $TPL["showCancel"] = true;
 include_template("../task/templates/taskFilterS.tpl");

@@ -62,7 +62,7 @@ class taskListPrint
         $_FORM["showPercent"] and $fields["percentComplete"] = "%";
         $_FORM["showStatus"] and $fields["taskStatusLabel"] = "Status";
 
-        $rows = task::get_list($_FORM);
+        $rows = Task::get_list($_FORM);
         $taskListRows = [];
         foreach ((array)$rows as $row) {
             $row["taskPriority"] = $taskPriorities[$row["priority"]]["label"];
@@ -146,7 +146,7 @@ class taskListPrint
 
             // Else HTML format
         } else {
-            echo task::get_list_html($taskListRows, $_FORM);
+            echo Task::get_list_html($taskListRows, $_FORM);
         }
     }
 }

@@ -62,7 +62,7 @@ class services
     public function get_task_comments($taskID)
     {
         if ($taskID) {
-            $task = new task();
+            $task = new Task();
             $task->set_id($taskID);
             $task->select();
             return $task->get_task_comments_array();

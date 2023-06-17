@@ -44,7 +44,7 @@ class audit extends DatabaseEntity
             $entity->set_id($_FORM["projectID"]);
             $entity->select();
         } else if ($_FORM["taskID"]) {
-            $entity = new task();
+            $entity = new Task();
             $entity->set_id($_FORM["taskID"]);
             $entity->select();
         }

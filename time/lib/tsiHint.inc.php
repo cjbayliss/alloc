@@ -43,7 +43,7 @@ class tsiHint extends DatabaseEntity
         $date = $stuff["date"];
 
         if ($taskID) {
-            $task = new task();
+            $task = new Task();
             $task->set_id($taskID);
             $task->select();
             $projectID = $task->get_value("projectID");

@@ -22,12 +22,12 @@ $defaults = [
 ];
 
 // Load task list
-$_FORM = task::load_form_data($defaults);
-$TPL["taskListRows"] = task::get_list($_FORM);
+$_FORM = Task::load_form_data($defaults);
+$TPL["taskListRows"] = Task::get_list($_FORM);
 $TPL["_FORM"] = $_FORM;
 
 // Load filter
-$arr = task::load_task_filter($_FORM);
+$arr = Task::load_task_filter($_FORM);
 is_array($arr) and $TPL = array_merge($TPL, $arr);
 
 // Check for updates
@@ -50,7 +50,7 @@ if ($_POST["mass_update"]) {
         ];
 
         foreach ($_POST["select"] as $taskID => $selected) {
-            $task = new task();
+            $task = new Task();
             $task->set_id($taskID);
             $task->select();
 

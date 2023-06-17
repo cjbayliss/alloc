@@ -36,7 +36,7 @@ $_FORM["showStatus"] and $fields["taskStatusLabel"] = "Status";
 $taskPriorities = config::get_config_item("taskPriorities");
 $projectPriorities = config::get_config_item("projectPriorities");
 
-$rows = task::get_list($_FORM);
+$rows = Task::get_list($_FORM);
 $taskListRows = [];
 foreach ((array)$rows as $row) {
     $row["taskPriority"] = $taskPriorities[$row["priority"]]["label"];

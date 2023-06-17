@@ -134,7 +134,7 @@ class command
             $people_by_username = person::get_people_by_username();
 
             // Else edit/create the task ...
-            $task = new task();
+            $task = new Task();
             if ($commands["task"] && strtolower($commands["task"]) != "new") {
                 $task->set_id($commands["task"]);
                 if (!$task->select()) {
@@ -288,7 +288,7 @@ class command
                     in_array($v, [1, 2, 3, 4, 5]) or $err[] = "Invalid unit. Try a number from 1-5.";
                 } else if ($k == "task") {
                     $changes[$k] = "taskID";
-                    $t = new task();
+                    $t = new Task();
                     $t->set_id($v);
                     $t->select();
                     is_object($timeSheet) && $timeSheet->get_id() && $t->get_value("projectID") != $timeSheet->get_value("projectID") and $err[] = "Invalid task. Task belongs to different project.";

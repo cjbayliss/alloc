@@ -445,13 +445,13 @@ class timeSheet extends DatabaseEntity
         $options["taskView"] = "byProject";
         $options["return"] = "array";
         $options["taskTimeSheetStatus"] = $status;
-        $taskrows = task::get_list($options);
+        $taskrows = Task::get_list($options);
         foreach ((array)$taskrows as $tid => $row) {
             $tasks[$tid] = str_repeat("&nbsp;&nbsp;&nbsp;&nbsp;", $row["padding"]) . $tid . " " . $row["taskName"];
         }
 
         if ($taskID) {
-            $t = new task();
+            $t = new Task();
             $t->set_id($taskID);
             $t->select();
             $tasks[$taskID] = $t->get_id() . " " . $t->get_name();
@@ -893,7 +893,7 @@ class timeSheet extends DatabaseEntity
             $task_id_query = unsafe_prepare("SELECT DISTINCT taskID FROM timeSheetItem WHERE timeSheetID=%d ORDER BY dateTimeSheetItem, timeSheetItemID", $this->get_id());
             $allocDatabase->query($task_id_query);
             while ($allocDatabase->next_record()) {
-                $task = new task();
+                $task = new Task();
                 $task->read_db_record($allocDatabase);
                 $task->select();
                 if ($task->get_value('timeLimit') > 0) {
@@ -1169,7 +1169,7 @@ class timeSheet extends DatabaseEntity
         $multiplier = $stuff["multiplier"];
 
         if ($taskID) {
-            $task = new task();
+            $task = new Task();
             $task->set_id($taskID);
             $task->select();
             $projectID = $task->get_value("projectID");

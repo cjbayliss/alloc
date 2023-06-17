@@ -204,7 +204,7 @@ $TPL["timeSheetPrintOptions"] = Page::select_options($TPL["timeSheetPrintOptions
 $commentTemplate = new commentTemplate();
 $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName");
 
-$TPL["rssStatusFilterOptions"] = Page::select_options(task::get_task_statii_array(true), config::get_config_item("rssStatusFilter"));
+$TPL["rssStatusFilterOptions"] = Page::select_options(Task::get_task_statii_array(true), config::get_config_item("rssStatusFilter"));
 
 if (has("timeUnit")) {
     $timeUnit = new timeUnit();

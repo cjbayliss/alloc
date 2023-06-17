@@ -273,7 +273,7 @@ class productSale extends DatabaseEntity
             // 1. from salesperson to admin
             $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname1);
             if (config::for_cyber() && !$db->qr($q)) {
-                $task = new task();
+                $task = new Task();
                 $task->set_value("projectID", $cyberadmin); // Cyber Admin Project
                 $task->set_value("taskName", $taskname1);
                 $task->set_value("managerID", $this->get_value("personID")); // salesperson
@@ -331,7 +331,7 @@ class productSale extends DatabaseEntity
             // 2. from admin to salesperson
             $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname2);
             if (config::for_cyber() && !$db->qr($q)) {
-                $task = new task();
+                $task = new Task();
                 $task->set_value("projectID", $cyberadmin); // Cyber Admin Project
                 $task->set_value("taskName", $taskname2);
                 $task->set_value("managerID", 67); // Cyber Support people (jane)
@@ -368,7 +368,7 @@ class productSale extends DatabaseEntity
             // 3. from salesperson to admin
             $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname3);
             if (config::for_cyber() && !$db->qr($q)) {
-                $task = new task();
+                $task = new Task();
                 $task->set_value("projectID", $cyberadmin); // Cyber Admin Project
                 $task->set_value("taskName", $taskname3);
                 $task->set_value("managerID", $this->get_value("personID")); // salesperson
@@ -395,7 +395,7 @@ class productSale extends DatabaseEntity
             // 4. from admin to salesperson
             $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname4);
             if (config::for_cyber() && !$db->qr($q)) {
-                $task = new task();
+                $task = new Task();
                 $task->set_value("projectID", $cyberadmin); // Cyber Admin Project
                 $task->set_value("taskName", $taskname4);
                 $task->set_value("managerID", 67); // Cyber Support people

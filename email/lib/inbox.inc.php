@@ -157,7 +157,7 @@ class inbox extends DatabaseEntity
         $email_receive->save_email();
 
         // Subject line is name, email body is body
-        $task = new task();
+        $task = new Task();
         $task->set_value("taskName", $email_receive->mail_headers["subject"]);
         $task->set_value("taskDescription", $email_receive->mail_text);
         $task->set_value("priority", "3");
@@ -204,7 +204,7 @@ class inbox extends DatabaseEntity
         $orig_current_user = &$current_user;
         $req["taskID"] = sprintf("%d", $req["taskID"]);
 
-        $task = new task();
+        $task = new Task();
         $task->set_id($req["taskID"]);
         if ($task->select()) {
             $emailreceive = new email_receive($info);

@@ -51,8 +51,8 @@ class task_list_home_item extends home_item
             $defaults["applyFilter"] = true;
         }
 
-        $_FORM = task::load_form_data($defaults);
-        $TPL["taskListRows"] = task::get_list($_FORM);
+        $_FORM = Task::load_form_data($defaults);
+        $TPL["taskListRows"] = Task::get_list($_FORM);
         $TPL["_FORM"] = $_FORM;
 
         return true;

@@ -64,7 +64,7 @@ class person extends DatabaseEntity
         $options["taskView"] = "prioritised";
         $options["taskStatus"] = "open";
 
-        $tasks = task::get_list($options);
+        $tasks = Task::get_list($options);
 
         foreach ($tasks as $task) {
             $s[] = "";
@@ -84,7 +84,7 @@ class person extends DatabaseEntity
         unset($summary, $s);
         unset($options["limit"]);
         $options["taskDate"] = "due_today";
-        $tasks = task::get_list($options);
+        $tasks = Task::get_list($options);
 
         foreach ($tasks as $task) {
             $s[] = "";
@@ -104,7 +104,7 @@ class person extends DatabaseEntity
         unset($summary, $s);
         unset($options["limit"]);
         $options["taskDate"] = "new";
-        $tasks = task::get_list($options);
+        $tasks = Task::get_list($options);
 
         foreach ($tasks as $task) {
             $s[] = "";
@@ -340,7 +340,7 @@ class person extends DatabaseEntity
     public function has_messages()
     {
         if (is_object($this)) {
-            [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
+            [$ts_open, $ts_pending, $ts_closed] = Task::get_task_status_in_set_sql();
             $allocDatabase = new AllocDatabase();
             $query = unsafe_prepare(
                 "SELECT *

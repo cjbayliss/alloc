@@ -10,7 +10,7 @@ require_once("../alloc.php");
 
 usleep(500000);
 
-$task = new task();
+$task = new Task();
 if ($_GET["taskID"]) {
     $task->set_id($_GET["taskID"]);
     $task->select();

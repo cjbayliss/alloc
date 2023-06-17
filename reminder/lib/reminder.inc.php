@@ -217,7 +217,7 @@ class reminder extends DatabaseEntity
                 return false;
             }
         } else if ($type == "task") {
-            $task = new task();
+            $task = new Task();
             $task->set_id($this->get_value('reminderLinkID'));
             if ($task->select() == false || substr($task->get_value("taskStatus"), 0, 6) == 'closed') {
                 return false;
@@ -402,7 +402,7 @@ class reminder extends DatabaseEntity
             $metaperson = -$recipient->get_value('metaPersonID');
             $type = $this->get_value("reminderType");
             if ($type == "task") {
-                $task = new task();
+                $task = new Task();
                 $task->set_id($this->get_value('reminderLinkID'));
                 $task->select();
 

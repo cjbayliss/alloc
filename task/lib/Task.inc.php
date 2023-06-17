@@ -7,9 +7,9 @@
 
 define("PERM_PROJECT_READ_TASK_DETAIL", 256);
 
-class task extends DatabaseEntity
+class Task extends DatabaseEntity
 {
-    public $classname = "task";
+    public $classname = "Task";
     public $data_table = "task";
     public $display_field_name = "taskName";
     public $key_field = "taskID";
@@ -372,7 +372,7 @@ class task extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         while ($allocDatabase->row()) {
-            $t = new task();
+            $t = new Task();
             $t->read_db_record($allocDatabase);
             $t->set_value($field, $value);
             $t->save();
@@ -397,7 +397,7 @@ class task extends DatabaseEntity
 
         $allocDatabase = new AllocDatabase();
         if ($projectID) {
-            [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
+            [$ts_open, $ts_pending, $ts_closed] = Task::get_task_status_in_set_sql();
             // Status may be closed_<something>
             $query = unsafe_prepare("SELECT taskID AS value, taskName AS label
                                 FROM task
@@ -591,7 +591,7 @@ class task extends DatabaseEntity
         $TPL["taskTypeOptions"] = Page::select_options($taskType_array, $this->get_value("taskTypeID"));
 
         // Project dropdown
-        $TPL["projectOptions"] = (new task())->get_project_options($projectID);
+        $TPL["projectOptions"] = (new Task())->get_project_options($projectID);
 
         // We're building these two with the <select> tags because they will be
         // replaced by an AJAX created dropdown when the projectID changes.
@@ -622,7 +622,7 @@ class task extends DatabaseEntity
         $TPL["task_taskStatusLabel"] = $this->get_task_status("label");
         $TPL["task_taskStatusColour"] = $this->get_task_status("colour");
         $TPL["task_taskStatusValue"] = $this->get_value("taskStatus");
-        $TPL["task_taskStatusOptions"] = Page::select_options(task::get_task_statii_array(true), $this->get_value("taskStatus"));
+        $TPL["task_taskStatusOptions"] = Page::select_options(Task::get_task_statii_array(true), $this->get_value("taskStatus"));
 
         // Project label
         if (has("project")) {
@@ -653,7 +653,7 @@ class task extends DatabaseEntity
         // If we're viewing the printer friendly view
         if ($_GET["media"] == "print") {
             // Parent Task label
-            $task = new task();
+            $task = new Task();
             $task->set_id($this->get_value("parentTaskID"));
             $task->select();
             $TPL["parentTask"] = $task->get_display_value();
@@ -733,12 +733,12 @@ class task extends DatabaseEntity
     {
         $taskStatiiArray = [];
         // This gets an array that is useful for building the two types of dropdown lists that taskStatus uses
-        $taskStatii = task::get_task_statii();
+        $taskStatii = Task::get_task_statii();
         if ($flat) {
             $meta = new Meta("taskStatus");
             $taskStatii = $meta->get_assoc_array();
             foreach ($taskStatii as $status => $arr) {
-                $taskStatiiArray[$status] = task::get_task_status_thing("label", $status);
+                $taskStatiiArray[$status] = Task::get_task_status_thing("label", $status);
             }
         } else {
             foreach ($taskStatii as $status => $sub) {
@@ -776,13 +776,13 @@ class task extends DatabaseEntity
 
     public function get_task_status($thing = "")
     {
-        return task::get_task_status_thing($thing, $this->get_value("taskStatus"));
+        return Task::get_task_status_thing($thing, $this->get_value("taskStatus"));
     }
 
     public static function get_task_status_thing($thing = "", $status = "")
     {
         [$taskStatus, $taskSubStatus] = explode("_", $status);
-        $arr = task::get_task_statii();
+        $arr = Task::get_task_statii();
         if ($thing && $arr[$taskStatus][$taskSubStatus][$thing]) {
             return $arr[$taskStatus][$taskSubStatus][$thing];
         }
@@ -863,7 +863,7 @@ class task extends DatabaseEntity
             $filter["projectNameMatches"]
         );
 
-        [$ts_open, $ts_pending, $ts_closed] = task::get_task_status_in_set_sql();
+        [$ts_open, $ts_pending, $ts_closed] = Task::get_task_status_in_set_sql();
 
         // New Tasks
         if ($filter["taskDate"] == "new") {
@@ -913,7 +913,7 @@ class task extends DatabaseEntity
         }
 
         // Task status filtering
-        $filter["taskStatus"] and $sql[] = task::get_taskStatus_sql($filter["taskStatus"]);
+        $filter["taskStatus"] and $sql[] = Task::get_taskStatus_sql($filter["taskStatus"]);
         $filter["taskTypeID"] and $sql[] = sprintf_implode("task.taskTypeID = '%s'", $filter["taskTypeID"]);
 
         // Filter on %taskName%
@@ -967,7 +967,7 @@ class task extends DatabaseEntity
                 $rtn[$taskID]["row"] = $row;
                 unset($rows[$taskID]);
                 $padding += 1;
-                $children = task::get_recursive_child_tasks($taskID, $rows, $padding);
+                $children = Task::get_recursive_child_tasks($taskID, $rows, $padding);
                 $padding -= 1;
 
                 if (is_countable($children) ? count($children) : 0) {
@@ -988,7 +988,7 @@ class task extends DatabaseEntity
             $tasks += [$row["taskID"] => $row];
 
             if ($r["children"]) {
-                [$t, $d] = task::build_recursive_task_list($r["children"], $_FORM);
+                [$t, $d] = Task::build_recursive_task_list($r["children"], $_FORM);
                 $t and $tasks += $t;
                 $d and $done += $d;
             }
@@ -1023,7 +1023,7 @@ class task extends DatabaseEntity
 
         // This is the definitive method of getting a list of tasks that need a sophisticated level of filtering
 
-        [$filter, $having] = task::get_list_filter($_FORM);
+        [$filter, $having] = Task::get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
         $debug and print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
@@ -1084,7 +1084,7 @@ class task extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         while ($row = $allocDatabase->next_record()) {
-            $task = new task();
+            $task = new Task();
             $task->read_db_record($allocDatabase);
             $row["taskURL"] = $task->get_url();
             $row["taskName"] = $task->get_name($_FORM);
@@ -1134,15 +1134,15 @@ class task extends DatabaseEntity
             } else if ($_FORM["taskView"] == "prioritised") {
                 $rows[$row["taskID"]] = $row;
                 if (is_array($rows) && count($rows)) {
-                    uasort($rows, ["task", "priority_compare"]);
+                    uasort($rows, ["Task", "priority_compare"]);
                 }
             }
         }
 
         if ($_FORM["taskView"] == "byProject") {
             $parentTaskID = $_FORM["parentTaskID"] or $parentTaskID = 0;
-            $t = task::get_recursive_child_tasks($parentTaskID, (array)$rows);
-            [$tasks, $done] = task::build_recursive_task_list($t, $_FORM);
+            $t = Task::get_recursive_child_tasks($parentTaskID, (array)$rows);
+            [$tasks, $done] = Task::build_recursive_task_list($t, $_FORM);
 
             // This bit appends the orphan tasks onto the end..
             foreach ((array)$rows as $taskID => $r) {
@@ -1277,7 +1277,7 @@ class task extends DatabaseEntity
     {
         $pipe = null;
         $taskStatiiStr = null;
-        $taskStatii = task::get_task_statii_array(true);
+        $taskStatii = Task::get_task_statii_array(true);
         foreach ($taskStatii as $k => $v) {
             $taskStatiiStr .= $pipe . $k;
             $pipe = " | ";
@@ -1342,7 +1342,7 @@ class task extends DatabaseEntity
     {
         $current_user = &singleton("current_user");
 
-        $page_vars = array_keys(task::get_list_vars());
+        $page_vars = array_keys(Task::get_list_vars());
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 
@@ -1393,7 +1393,7 @@ class task extends DatabaseEntity
     public static function load_task_filter($_FORM)
     {
         $rtn = [];
-        $task = new task();
+        $task = new Task();
 
         // Load up the forms action url
         $rtn["url_form_action"] = $_FORM["url_form_action"];
@@ -1416,7 +1416,7 @@ class task extends DatabaseEntity
 
         $_FORM["taskView"] and $rtn["taskView_checked_" . $_FORM["taskView"]] = " checked";
 
-        $taskStatii = task::get_task_statii_array();
+        $taskStatii = Task::get_task_statii_array();
         $rtn["taskStatusOptions"] = Page::select_options($taskStatii, $_FORM["taskStatus"]);
 
         $_FORM["showDescription"] and $rtn["showDescription_checked"] = " checked";
@@ -1525,13 +1525,13 @@ class task extends DatabaseEntity
                     $changeDescription = sprintf('Task priority set to <span style="color: %s;">%s</span>.', $priorities[$newValue]["colour"], $priorities[$newValue]["label"]);
                     break;
                 case 'projectID':
-                    (new task())->load_entity("project", $newValue, $newProject);
+                    (new Task())->load_entity("project", $newValue, $newProject);
                     is_object($newProject) and $newProjectLink = $newProject->get_link();
                     $newProjectLink or $newProjectLink = "&lt;empty&gt;";
                     $changeDescription = "Project changed set to " . $newProjectLink . ".";
                     break;
                 case 'parentTaskID':
-                    (new task())->load_entity("task", $newValue, $newTask);
+                    (new Task())->load_entity("task", $newValue, $newTask);
                     if ($newValue) {
                         $changeDescription = sprintf("Task set to a child of %d %s.", $newTask->get_id(), $newTask->get_task_link());
                     } else {
@@ -1539,7 +1539,7 @@ class task extends DatabaseEntity
                     }
                     break;
                 case 'duplicateTaskID':
-                    (new task())->load_entity("task", $newValue, $newTask);
+                    (new Task())->load_entity("task", $newValue, $newTask);
                     if ($newValue) {
                         $changeDescription = "Task set to a duplicate of " . $newTask->get_task_link();
                     } else {
@@ -1561,8 +1561,8 @@ class task extends DatabaseEntity
                 case 'taskStatus':
                     $changeDescription = sprintf(
                         'Task status set to <span style="background-color:%s">%s</span>.',
-                        task::get_task_status_thing("colour", $newValue),
-                        task::get_task_status_thing("label", $newValue)
+                        Task::get_task_status_thing("colour", $newValue),
+                        Task::get_task_status_thing("label", $newValue)
                     );
                     break;
                 case 'dateActualCompletion':
