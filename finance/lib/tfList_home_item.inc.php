@@ -12,7 +12,7 @@ class tfList_home_item extends home_item
         parent::__construct("", "Tagged Funds", "finance", "tfListH.tpl", "narrow", 20);
     }
 
-    public function visible()
+    public function visible(): bool
     {
         return true;
     }

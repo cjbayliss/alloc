@@ -55,7 +55,7 @@ if (preg_match("/^From /i", $email[0])) {
 }
 
 $email = implode("", (array)$email);
-$email or alloc_error("Empty email message, halting.");
+$email || alloc_error("Empty email message, halting.");
 
 $email_receive = new email_receive($info);
 $email_receive->open_mailbox(config::get_config_item("allocEmailFolder"));
@@ -76,15 +76,13 @@ try {
         }
 
         // Else if we have a key, append to comment
-    } else {
+    } elseif (same_email_address($email_receive->mail_headers["from"], ALLOC_DEFAULT_FROM_ADDRESS)) {
         // Skip over emails that are from alloc. These emails are kept only for
         // posterity and should not be parsed and downloaded and re-emailed etc.
-        if (same_email_address($email_receive->mail_headers["from"], ALLOC_DEFAULT_FROM_ADDRESS)) {
-            $email_receive->mark_seen();
-            $email_receive->archive();
-        } else {
-            inbox::process_one_email($email_receive);
-        }
+        $email_receive->mark_seen();
+        $email_receive->archive();
+    } else {
+        inbox::process_one_email($email_receive);
     }
 } catch (Exception $exception) {
     // There may have been a database error, so let the database know it can run this next bit

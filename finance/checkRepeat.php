@@ -7,7 +7,7 @@
 
 define("NO_AUTH", true);
 define("IS_GOD", true);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function timeWarp($mostRecent, $basis)
 {

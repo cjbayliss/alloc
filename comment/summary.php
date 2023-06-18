@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if ($_REQUEST["filter"]) {
     $current_user->prefs["comment_summary_list"] = $_REQUEST;

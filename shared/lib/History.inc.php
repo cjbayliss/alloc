@@ -88,7 +88,7 @@ class History extends DatabaseEntity
 
         $file = end($script_name_array);
         $CLASS_NAME = str_replace(".php", "", $file);                         // File name without .php extension
-        $dir = $script_name_array[sizeof($script_name_array) - 2];            // Directory that file is in
+        $dir = $script_name_array[count($script_name_array) - 2];            // Directory that file is in
         $qs = preg_replace("[^\?]", "", $qs);                                 // Nuke the leading question mark of the query string attached to end of url eg: ?tfID=23&anal=true
 
         // We can only get a descriptive history entry if there is a xxxID
@@ -208,7 +208,7 @@ class History extends DatabaseEntity
         }
     }
 
-    public function strip_get_session($str = "")
+    public function strip_get_session($str = ""): string
     {
         return (string)preg_replace("/sess=[A-Za-z0-9]{32}/", "", $str);
     }

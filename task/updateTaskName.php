@@ -6,7 +6,7 @@
  */
 
 define("NO_REDIRECT", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if ($_REQUEST["taskID"]) {
     $q = unsafe_prepare("SELECT taskID, taskName FROM task WHERE taskID = %d", $_REQUEST["taskID"]);

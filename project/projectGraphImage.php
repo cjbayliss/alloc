@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
-include("lib/task_graph.inc.php");
+require_once(__DIR__ . "/../alloc.php");
+include(__DIR__ . "/lib/task_graph.inc.php");
 
 $current_user = &singleton("current_user");
 global $show_weeks;
@@ -17,7 +17,7 @@ $options["return"] = "array";
 $options["padding"] = 0;
 $options["debug"] = 0;
 
-$tasks = Task::get_list($options) or $tasks = [];
+($tasks = Task::get_list($options)) || ($tasks = []);
 
 foreach ($tasks as $task) {
     $objects[$task["taskID"]] = $task["object"];

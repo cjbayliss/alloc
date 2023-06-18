@@ -54,7 +54,7 @@ class clientContact extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
 
-        if ($projectID) {
+        if ($projectID !== 0) {
             $getProjectClientID = $allocDatabase->pdo->prepare(
                 "SELECT clientID FROM project WHERE projectID = :projectID"
             );
@@ -281,7 +281,7 @@ class clientContact extends DatabaseEntity
     }
 
     // FIXME: ??
-    public function have_role($role = "")
+    public function have_role($role = ""): bool
     {
         return in_array($role, ["", "client"]);
     }
@@ -309,7 +309,7 @@ class clientContact extends DatabaseEntity
                 "(clientContact.clientContactID in (%s))",
                 $filter["clientContactID"]
             );
-        } else if ($filter["clientContactID"]) {
+        } elseif ($filter["clientContactID"]) {
             $sql[] = unsafe_prepare(
                 "(clientContact.clientContactID = %d)",
                 $filter["clientContactID"]

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $defaults = [
     "showProjectType" => true,
@@ -20,7 +20,10 @@ function show_filter()
 
     $_FORM = project::load_form_data($defaults);
     $arr = project::load_project_filter($_FORM);
-    is_array($arr) and $TPL = array_merge($TPL, $arr);
+    if (is_array($arr)) {
+        $TPL = array_merge($TPL, $arr);
+    }
+
     include_template("templates/projectListFilterS.tpl");
 }
 

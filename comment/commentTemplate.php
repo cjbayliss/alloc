@@ -5,14 +5,14 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 // Create an object to hold a commentTemplate
 $commentTemplate = new commentTemplate();
 
 // Load the commentTemplate from the database
 
-$commentTemplateID = $_POST["commentTemplateID"] or $commentTemplateID = $_GET["commentTemplateID"];
+($commentTemplateID = $_POST["commentTemplateID"]) || ($commentTemplateID = $_GET["commentTemplateID"]);
 
 if ($commentTemplateID) {
     $commentTemplate->set_id($commentTemplateID);
@@ -24,9 +24,8 @@ if ($_POST["save"]) {
     $commentTemplate->read_globals();
     $commentTemplate->save();
     alloc_redirect($TPL["url_alloc_commentTemplateList"]);
-
     // Process submission of the form using the delete button
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     $commentTemplate->delete();
     alloc_redirect($TPL["url_alloc_commentTemplateList"]);
     exit();

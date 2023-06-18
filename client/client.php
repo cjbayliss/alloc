@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function check_optional_client_exists()
 {
@@ -84,8 +84,7 @@ function show_client_contacts()
                 $generatedFirstColumnHTMLArray[] = <<<HTML
                                     <h2 style='margin:0px; display:inline;'>{$vcardHTML}{$fieldValue}</h2>{$primaryContact}
                     HTML;
-
-            } else if (!empty($firstColumnContactfield)) {
+            } elseif ($firstColumnContactfield !== '') {
                 $generatedFirstColumnHTMLArray[] = $fieldValue;
             }
         }
@@ -109,16 +108,12 @@ function show_client_contacts()
                 $contactName = $clientContact->get_value('clientContactName', DST_HTML_DISPLAY);
                 $mailto = rawurlencode($contactName ? sprintf('"%s" <%s>', $contactName, $value) : $value);
                 $generatedSecondColumnHTMLArray[] = sprintf("%s: <a href='mailto:%s'>%s</a>", $label, $mailto, $value);
-            } else if (!empty($value)) {
+            } elseif (!empty($value)) {
                 $generatedSecondColumnHTMLArray[] = sprintf('%s: %s', $label, $value);
             }
         }
 
-        if ($clientContact->get_value("clientContactActive")) {
-            $class_extra = "loud";
-        } else {
-            $class_extra = "quiet";
-        }
+        $class_extra = $clientContact->get_value("clientContactActive") ? "loud" : "quiet";
 
         $firstColumnHTML = implode('</span><br><span class="nobr">', $generatedFirstColumnHTMLArray);
         $secondColumnHTML = implode('</span><br><span class="nobr">', $generatedSecondColumnHTMLArray);
@@ -167,7 +162,7 @@ function show_client_contacts()
         if ($clientContact->get_value("clientContactActive")) {
             $TPL["clientContactActive_checked"] = " checked";
         }
-    } else if ($buildHTML) {
+    } elseif ($buildHTML !== []) {
         $TPL["class_new_client_contact"] = "hidden";
     }
 
@@ -190,14 +185,14 @@ function show_comments()
     global $TPL;
     global $client;
     $TPL["commentsR"] = comment::util_get_comments("client", $clientID);
-    $TPL["commentsR"] and $TPL["class_new_comment"] = "hidden";
+    $TPL["commentsR"] && ($TPL["class_new_comment"] = "hidden");
     $interestedPartyOptions = $client->get_all_parties();
     $interestedPartyOptions = InterestedParty::get_interested_parties(
         "client",
         $client->get_id(),
         $interestedPartyOptions
     );
-    $TPL["allParties"] = $interestedPartyOptions or $TPL["allParties"] = [];
+    ($TPL["allParties"] = $interestedPartyOptions) || ($TPL["allParties"] = []);
     $TPL["entity"] = "client";
     $TPL["entityID"] = $client->get_id();
     $TPL["clientID"] = $client->get_id();
@@ -240,7 +235,7 @@ function show_invoices()
 }
 
 $client = new client();
-$clientID = $_POST["clientID"] or $clientID = $_GET["clientID"];
+($clientID = $_POST["clientID"]) || ($clientID = $_GET["clientID"]);
 
 if ($_POST["save"]) {
     if (!$_POST["clientName"]) {
@@ -251,7 +246,6 @@ if ($_POST["save"]) {
     $client->set_value("clientModifiedTime", date("Y-m-d"));
     $clientID = $client->get_id();
     $client->set_values("client_");
-
     if (!$client->get_id()) {
         // New client.
         $client->set_value("clientCreatedTime", date("Y-m-d"));
@@ -263,7 +257,7 @@ if ($_POST["save"]) {
         $clientID = $client->get_id();
         $client->set_values("client_");
     }
-} else if ($_POST["save_attachment"]) {
+} elseif ($_POST["save_attachment"]) {
     move_attachment("client", $clientID);
     alloc_redirect(sprintf('%sclientID=%s&sbs_link=attachments', $TPL['url_alloc_client'], $clientID));
 } else {

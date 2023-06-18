@@ -5,20 +5,20 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $current_user->check_employee();
 
 global $db;
 global $today;
 
-$itemID = $_POST["itemID"] or $itemID = $_GET["itemID"];
-$loanID = $_POST["loanID"] or $loanID = $_GET["loanID"];
+($itemID = $_POST["itemID"]) || ($itemID = $_GET["itemID"]);
+($loanID = $_POST["loanID"]) || ($loanID = $_GET["loanID"]);
 
 $item = new item();
 $loan = new loan();
 $db = new AllocDatabase();
-$db->query("select * from item where itemID=%d", $itemID);
+$db->query(["select * from item where itemID=%d", $itemID]);
 $db->next_record();
 $item->read_db_record($db);
 $item->set_values();
@@ -50,7 +50,7 @@ if ($loanID) {
 }
 
 if ($_POST["borrowItem"]) {
-    $db->query("select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID);
+    $db->query(["select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID]);
 
     if ($db->next_record()) {     // if the item is already borrowed
         alloc_redirect($TPL["url_alloc_item"] . sprintf('itemID=%s&badBorrow=true&error=already_borrowed', $itemID));
@@ -82,10 +82,10 @@ if ($_POST["borrowItem"]) {
 
 if ($_POST["returnItem"]) {
     $dbTemp = new AllocDatabase();
-    $dbTemp->query("select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID);
+    $dbTemp->query(["select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID]);
 
     $db = new AllocDatabase();
-    $db->query("select * from loan where loan.itemID=%d and dateBorrowed>dateReturned", $itemID);
+    $db->query(["select * from loan where loan.itemID=%d and dateBorrowed>dateReturned", $itemID]);
     $db->next_record();
     $loan->set_id($db->f("loanID"));
     if ($loan->select()) {

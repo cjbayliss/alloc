@@ -41,7 +41,7 @@ class pendingAdminExpenseForm extends home_item
         $ops["status"] = "pending";
         $ops["finalised"] = 1;
         $TPL["expenseFormRows"] = expenseForm::get_list($ops);
-        if (is_countable($TPL["expenseFormRows"]) ? count($TPL["expenseFormRows"]) : 0) {
+        if ((is_countable($TPL["expenseFormRows"]) ? count($TPL["expenseFormRows"]) : 0) !== 0) {
             return true;
         }
     }

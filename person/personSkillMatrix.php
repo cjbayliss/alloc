@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function show_filter($template)
 {
@@ -79,7 +79,7 @@ function get_people_header()
     $query .= " LEFT JOIN skill ON proficiency.skillID=skill.skillID WHERE personActive = 1 ";
     if ($talent) {
         $query .= unsafe_prepare(" AND skill.skillID=%d", $talent);
-    } else if ($skill_class) {
+    } elseif ($skill_class) {
         $query .= unsafe_prepare(" AND skill.skillClass='%s'", $skill_class);
     }
 
@@ -88,7 +88,7 @@ function get_people_header()
     while ($db->next_record()) {
         $person = new person();
         $person->read_db_record($db);
-        array_push($people_ids, $person->get_id());
+        $people_ids[] = $person->get_id();
         $people_header .= sprintf("<th style=\"text-align:center\">%s</th>\n", $person->get_value('username'));
     }
 }
@@ -131,7 +131,8 @@ function show_skill_expertise()
         }
 
         print sprintf("<tr>\n<th>%s</th>\n", $skill->get_value('skillName', DST_HTML_DISPLAY));
-        for ($i = 0; $i < count($people_ids); ++$i) {
+        $people_idsCount = count($people_ids);
+        for ($i = 0; $i < $people_idsCount; ++$i) {
             $db2 = new AllocDatabase();
             $query = "SELECT * FROM proficiency";
             $query .= unsafe_prepare(" WHERE skillID=%d AND personID=%d", $skill->get_id(), $people_ids[$i]);
@@ -154,8 +155,8 @@ function show_skill_expertise()
     }
 }
 
-$talent or $talent = $_POST["talent"];
-$skill_class or $skill_class = $_POST["skill_class"];
+$talent || ($talent = $_POST["talent"]);
+$skill_class || ($skill_class = $_POST["skill_class"]);
 
 $TPL["main_alloc_title"] = "Skill Matrix - " . APPLICATION_NAME;
 include_template("templates/personSkillMatrix.tpl");

@@ -61,13 +61,11 @@ class reminder extends DatabaseEntity
                            LEFT JOIN person ON projectPerson.personID=person.personID
                                WHERE projectPerson.projectID = %d
                             ORDER BY person.username", $this->get_value('reminderLinkID'));
-        } else if ($type == "task") {
+        } elseif ($type == "task") {
             // Modified query option: to send to all people on the project that this task is from.
             $recipients = ["-3" => "Task Manager", "-2" => "Task Assignee"];
-
-            $allocDatabase->query("SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID'));
+            $allocDatabase->query(["SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID')]);
             $allocDatabase->next_record();
-
             if ($allocDatabase->f('projectID')) {
                 $query = unsafe_prepare("SELECT *
                                     FROM projectPerson
@@ -101,13 +99,9 @@ class reminder extends DatabaseEntity
         $selected = [];
         $allocDatabase = new AllocDatabase();
         $query = "SELECT * from reminderRecipient WHERE reminderID = %d";
-        $allocDatabase->query($query, $this->get_id());
+        $allocDatabase->query([$query, $this->get_id()]);
         while ($allocDatabase->next_record()) {
-            if ($allocDatabase->f('metaPersonID')) {
-                $selected[] = $allocDatabase->f('metaPersonID');
-            } else {
-                $selected[] = $allocDatabase->f('personID');
-            }
+            $selected[] = $allocDatabase->f('metaPersonID') ?: $allocDatabase->f('personID');
         }
 
         if (!$selected && $_GET["personID"]) {
@@ -218,7 +212,7 @@ class reminder extends DatabaseEntity
         return Page::select_options($advnotice_interval_options, $advnotice_interval);
     }
 
-    public function is_alive()
+    public function is_alive(): bool
     {
         $type = $this->get_value('reminderType');
         if ($type == "project") {
@@ -227,13 +221,13 @@ class reminder extends DatabaseEntity
             if ($project->select() == false || $project->get_value('projectStatus') == "Archived") {
                 return false;
             }
-        } else if ($type == "task") {
+        } elseif ($type == "task") {
             $task = new Task();
             $task->set_id($this->get_value('reminderLinkID'));
             if ($task->select() == false || substr($task->get_value("taskStatus"), 0, 6) == 'closed') {
                 return false;
             }
-        } else if ($type == "client") {
+        } elseif ($type == "client") {
             $client = new client();
             $client->set_id($this->get_value('reminderLinkID'));
             if ($client->select() == false || $client->get_value('clientStatus') == "Archived") {
@@ -268,11 +262,10 @@ class reminder extends DatabaseEntity
             $token = new token();
             if ($token->set_hash($this->get_value("reminderHash"))) {
                 [$entity, $method] = $token->execute();
-                if (is_object($entity) && $entity->get_id()) {
-                    if (!$entity->$method()) {
-                        $token->decrement_tokenUsed(); // next time, gadget
-                        $ok = false;
-                    }
+                if (is_object($entity) && $entity->get_id() && !$entity->$method()) {
+                    $token->decrement_tokenUsed();
+                    // next time, gadget
+                    $ok = false;
                 }
             }
         }
@@ -319,7 +312,7 @@ class reminder extends DatabaseEntity
             // Update reminder (reminderTime can be blank for task->moved_from_pending_to_open)
             if ($this->get_value('reminderRecuringInterval') == "No") {
                 $this->deactivate();
-            } else if ($this->get_value('reminderRecuringValue') != 0) {
+            } elseif ($this->get_value('reminderRecuringValue') != 0) {
                 $interval = $this->get_value('reminderRecuringValue');
                 $intervalUnit = $this->get_value('reminderRecuringInterval');
                 $newtime = $this->get_next_reminder_time(strtotime($this->get_value('reminderTime')), $interval, $intervalUnit);
@@ -1142,7 +1135,7 @@ class reminder extends DatabaseEntity
     {
         $allocDatabase = new AllocDatabase();
         $query = "SELECT * FROM reminderRecipient WHERE reminderID = %d";
-        $allocDatabase->query($query, $this->get_id());
+        $allocDatabase->query([$query, $this->get_id()]);
         $people = &get_cached_table("person");
         $recipients = [];
         $reminderRecipient = new reminderRecipient();
@@ -1160,7 +1153,7 @@ class reminder extends DatabaseEntity
     {
         $allocDatabase = new AllocDatabase();
         $query = "DELETE FROM reminderRecipient WHERE reminderID = %d";
-        $allocDatabase->query($query, $this->get_id());
+        $allocDatabase->query([$query, $this->get_id()]);
         foreach ((array)$recipients as $r) {
             $recipient = new reminderRecipient();
             $recipient->set_value('reminderID', $this->get_id());
@@ -1180,11 +1173,13 @@ class reminder extends DatabaseEntity
     public static function get_list_filter($filter = [])
     {
         $sql = [];
-        $filter["type"] and $sql[] = unsafe_prepare("reminderType='%s'", $filter["type"]);
-        $filter["id"] and $sql[] = unsafe_prepare("reminderLinkID=%d", $filter["id"]);
-        $filter["reminderID"] and $sql[] = unsafe_prepare("reminder.reminderID=%d", $filter["reminderID"]);
-        $filter["filter_recipient"] and $sql[] = unsafe_prepare("personID = %d", $filter["filter_recipient"]);
-        (isset($filter["filter_reminderActive"]) && (bool)strlen($filter["filter_reminderActive"])) and $sql[] = unsafe_prepare("reminderActive = %d", $filter["filter_reminderActive"]);
+        $filter["type"] && ($sql[] = unsafe_prepare("reminderType='%s'", $filter["type"]));
+        $filter["id"] && ($sql[] = unsafe_prepare("reminderLinkID=%d", $filter["id"]));
+        $filter["reminderID"] && ($sql[] = unsafe_prepare("reminder.reminderID=%d", $filter["reminderID"]));
+        $filter["filter_recipient"] && ($sql[] = unsafe_prepare("personID = %d", $filter["filter_recipient"]));
+        if (isset($filter["filter_reminderActive"]) && (bool)strlen($filter["filter_reminderActive"])) {
+            $sql[] = unsafe_prepare("reminderActive = %d", $filter["filter_reminderActive"]);
+        }
 
         return $sql;
     }
@@ -1223,8 +1218,8 @@ class reminder extends DatabaseEntity
         $_REQUEST["type"] = $type;
         $_REQUEST["id"] = $id;
         $TPL["reminderRows"] = reminder::get_list($_REQUEST);
-        $type and $TPL["returnToParent"] = $type;
-        $type or $TPL["returnToParent"] = "list";
+        $type && ($TPL["returnToParent"] = $type);
+        $type || ($TPL["returnToParent"] = "list");
         include_template(__DIR__ . "/../templates/reminderListS.tpl");
     }
 }

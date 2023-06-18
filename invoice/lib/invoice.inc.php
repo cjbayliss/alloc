@@ -43,7 +43,7 @@ class invoice extends DatabaseEntity
             if ($this->get_value("projectID")) {
                 $project = $this->get_foreign_object("project");
                 $currencyTypeID = $project->get_value("currencyTypeID");
-            } else if (config::get_config_item("currency")) {
+            } elseif (config::get_config_item("currency")) {
                 $currencyTypeID = config::get_config_item("currency");
             }
 
@@ -99,7 +99,7 @@ class invoice extends DatabaseEntity
         }
     }
 
-    public function is_owner($person = "")
+    public function is_owner($person = ""): bool
     {
         $current_user = &singleton("current_user");
 
@@ -108,13 +108,11 @@ class invoice extends DatabaseEntity
         }
 
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query("SELECT * FROM invoiceItem WHERE invoiceID=%d", $this->get_id());
+        $allocDatabase->query(["SELECT * FROM invoiceItem WHERE invoiceID=%d", $this->get_id()]);
         while ($allocDatabase->next_record()) {
             $invoice_item = new invoiceItem();
-            if ($invoice_item->read_db_record($allocDatabase)) {
-                if ($invoice_item->is_owner($person)) {
-                    return true;
-                }
+            if ($invoice_item->read_db_record($allocDatabase) && $invoice_item->is_owner($person)) {
+                return true;
             }
         }
 
@@ -124,7 +122,7 @@ class invoice extends DatabaseEntity
     public function get_invoiceItems($invoiceID = "")
     {
         $invoiceItemIDs = [];
-        $id = $invoiceID or $id = $this->get_id();
+        ($id = $invoiceID) || ($id = $this->get_id());
         $q = unsafe_prepare("SELECT invoiceItemID FROM invoiceItem WHERE invoiceID = %d", $id);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
@@ -138,7 +136,7 @@ class invoice extends DatabaseEntity
     public function get_transactions($invoiceID = "")
     {
         $transactionIDs = [];
-        $id = $invoiceID or $id = $this->get_id();
+        ($id = $invoiceID) || ($id = $this->get_id());
         $q = unsafe_prepare("SELECT transactionID FROM transaction WHERE invoiceID = %d", $id);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
@@ -185,7 +183,7 @@ class invoice extends DatabaseEntity
                 $num_minus_gst = $num / $taxPercentDivisor;
                 $gst = $num - $num_minus_gst;
 
-                if (($num_minus_gst + $gst) != $num) {
+                if ($num_minus_gst + $gst != $num) {
                     $num_minus_gst += $num - ($num_minus_gst + $gst); // round it up.
                 }
 
@@ -234,10 +232,14 @@ class invoice extends DatabaseEntity
                     $sep = DEFAULT_SEP;
                 }
 
-                is_array($task_info) and $str[$invoiceItem->get_id()] .= "* " . implode(DEFAULT_SEP . "* ", $task_info);
+                if (is_array($task_info)) {
+                    $str[$invoiceItem->get_id()] .= "* " . implode(DEFAULT_SEP . "* ", $task_info);
+                }
             }
 
-            is_array($str) and $rows[$invoiceItem->get_id()]["desc"] .= trim(implode(DEFAULT_SEP, $str));
+            if (is_array($str)) {
+                $rows[$invoiceItem->get_id()]["desc"] .= trim(implode(DEFAULT_SEP, $str));
+            }
         }
 
         $info["total_inc_gst"] = Page::money($currency, $info["total"] + $info["total_gst"], "%s%m");
@@ -245,8 +247,8 @@ class invoice extends DatabaseEntity
         // If we are in dollar mode, then prefix the total with a dollar sign
         $info["total"] = Page::money($currency, $info["total"], "%s%m");
         $info["total_gst"] = Page::money($currency, $info["total_gst"], "%s%m");
-        $rows or $rows = [];
-        $info or $info = [];
+        $rows || ($rows = []);
+        $info || ($info = []);
         return [$rows, $info];
     }
 
@@ -275,16 +277,16 @@ class invoice extends DatabaseEntity
         $companyNos2 = config::get_config_item("companyABN");
         $phone = config::get_config_item("companyContactPhone");
         $fax = config::get_config_item("companyContactFax");
-        $phone and $phone = "Ph: " . $phone;
-        $fax and $fax = "Fax: " . $fax;
+        $phone && ($phone = "Ph: " . $phone);
+        $fax && ($fax = "Fax: " . $fax);
         $img = config::get_config_item("companyImage");
         $companyContactAddress = config::get_config_item("companyContactAddress");
         $companyContactAddress2 = config::get_config_item("companyContactAddress2");
         $companyContactAddress3 = config::get_config_item("companyContactAddress3");
         $email = config::get_config_item("companyContactEmail");
-        $email and $companyContactEmail = "Email: " . $email;
+        $email && ($companyContactEmail = "Email: " . $email);
         $web = config::get_config_item("companyContactHomePage");
-        $web and $companyContactHomePage = "Web: " . $web;
+        $web && ($companyContactHomePage = "Web: " . $web);
         $footer = config::get_config_item("timeSheetPrintFooter");
         $taxName = config::get_config_item("taxName");
 
@@ -359,14 +361,14 @@ class invoice extends DatabaseEntity
         $cezpdf->ezStartPageNumbers(200, 80, 10, 'left', '<b>' . $default_id_label . ': </b>' . $this->get_value("invoiceNum"));
         $cezpdf->ezSetY(775);
 
-        $companyName and $contact_info[] = [$companyName];
-        $companyContactAddress and $contact_info[] = [$companyContactAddress];
-        $companyContactAddress2 and $contact_info[] = [$companyContactAddress2];
-        $companyContactAddress3 and $contact_info[] = [$companyContactAddress3];
-        $companyContactEmail and $contact_info[] = [$companyContactEmail];
-        $companyContactHomePage and $contact_info[] = [$companyContactHomePage];
-        $phone and $contact_info[] = [$phone];
-        $fax and $contact_info[] = [$fax];
+        $companyName && ($contact_info[] = [$companyName]);
+        $companyContactAddress && ($contact_info[] = [$companyContactAddress]);
+        $companyContactAddress2 && ($contact_info[] = [$companyContactAddress2]);
+        $companyContactAddress3 && ($contact_info[] = [$companyContactAddress3]);
+        $companyContactEmail && ($contact_info[] = [$companyContactEmail]);
+        $companyContactHomePage && ($contact_info[] = [$companyContactHomePage]);
+        $phone && ($contact_info[] = [$phone]);
+        $fax && ($contact_info[] = [$fax]);
 
         $cezpdf->selectFont($font2);
         $y = $cezpdf->ezTable($contact_info, false, "", $pdf_table_options);
@@ -387,10 +389,10 @@ class invoice extends DatabaseEntity
         }
 
         $nos_y = $line_y + 22;
-        $companyNos2 and $nos_y = $line_y + 34;
+        $companyNos2 && ($nos_y = $line_y + 34);
         $cezpdf->ezSetY($nos_y);
-        $companyNos1 and $y = $cezpdf->ezText($companyNos1, 10, ["justification" => "right"]);
-        $companyNos2 and $y = $cezpdf->ezText($companyNos2, 10, ["justification" => "right"]);
+        $companyNos1 && ($y = $cezpdf->ezText($companyNos1, 10, ["justification" => "right"]));
+        $companyNos2 && ($y = $cezpdf->ezText($companyNos2, 10, ["justification" => "right"]));
 
         $cezpdf->ezSetY($line_y - 20);
         $y = $cezpdf->ezText($default_header, 20, ["justification" => "center"]);
@@ -474,7 +476,7 @@ class invoice extends DatabaseEntity
     public function get_url()
     {
         global $sess;
-        $sess or $sess = new Session();
+        $sess || ($sess = new Session());
 
         $url = "invoice/invoice.php?invoiceID=" . $this->get_id();
 
@@ -484,7 +486,7 @@ class invoice extends DatabaseEntity
             // This for urls that are emailed
         } else {
             static $prefix;
-            $prefix or $prefix = config::get_config_item("allocURL");
+            $prefix || ($prefix = config::get_config_item("allocURL"));
             $url = $prefix . $url;
         }
 
@@ -496,7 +498,7 @@ class invoice extends DatabaseEntity
         return $this->get_value("invoiceNum");
     }
 
-    public function get_invoice_link($_FORM = [])
+    public function get_invoice_link($_FORM = []): string
     {
         global $TPL;
         return '<a href="' . $TPL["url_alloc_invoice"] . "invoiceID=" . $this->get_id() . '">' . $this->get_name($_FORM) . "</a>";
@@ -511,15 +513,17 @@ class invoice extends DatabaseEntity
 
         // If they want starred, load up the invoiceID filter element
         if ($filter["starred"]) {
-            foreach ((array)$current_user->prefs["stars"]["invoice"] as $k => $v) {
+            foreach (array_keys((array)$current_user->prefs["stars"]["invoice"]) as $k) {
                 $filter["invoiceID"][] = $k;
             }
 
-            is_array($filter["invoiceID"]) or $filter["invoiceID"][] = -1;
+            if (!is_array($filter["invoiceID"])) {
+                $filter["invoiceID"][] = -1;
+            }
         }
 
         // Filter invoiceID
-        $filter["invoiceID"] and $sql[] = sprintf_implode("invoice.invoiceID = %d", $filter["invoiceID"]);
+        $filter["invoiceID"] && ($sql[] = sprintf_implode("invoice.invoiceID = %d", $filter["invoiceID"]));
 
         // No point continuing if primary key specified, so return
         if ($filter["invoiceID"] || $filter["starred"]) {
@@ -537,28 +541,27 @@ class invoice extends DatabaseEntity
                 $valid_clientIDs[] = $row["clientID"];
             }
 
-            $filter["clientID"] && !is_array($filter["clientID"]) and $filter["clientID"] = [$filter["clientID"]];
+            if ($filter["clientID"] && !is_array($filter["clientID"])) {
+                $filter["clientID"] = [$filter["clientID"]];
+            }
+
             foreach ((array)$filter["clientID"] as $clientID) {
                 if (in_array($clientID, (array)$valid_clientIDs)) {
                     $approved_clientIDs[] = $clientID;
                 }
             }
 
-            $approved_clientIDs or $approved_clientIDs = (array)$valid_clientIDs;
-            if ($approved_clientIDs) {
-                $filter["clientID"] = $approved_clientIDs;
-            } else {
-                $filter["clientID"] = [0];
-            }
+            $approved_clientIDs || ($approved_clientIDs = (array)$valid_clientIDs);
+            $filter["clientID"] = $approved_clientIDs ?: [0];
         }
 
-        $filter["invoiceNum"] and $sql[] = sprintf_implode("invoice.invoiceNum = %d", $filter["invoiceNum"]);
-        $filter["dateOne"] and $sql[] = sprintf_implode("invoice.invoiceDateFrom>='%s'", $filter["dateOne"]);
-        $filter["dateTwo"] and $sql[] = sprintf_implode("invoice.invoiceDateTo<='%s'", $filter["dateTwo"]);
-        $filter["invoiceName"] and $sql[] = sprintf_implode("invoice.invoiceName like '%%%s%%'", $filter["invoiceName"]);
-        $filter["invoiceStatus"] and $sql[] = sprintf_implode("invoice.invoiceStatus = '%s'", $filter["invoiceStatus"]);
-        $filter["clientID"] and $sql[] = sprintf_implode("invoice.clientID = %d", $filter["clientID"]);
-        $filter["projectID"] and $sql[] = sprintf_implode("invoice.projectID = %d", $filter["projectID"]);
+        $filter["invoiceNum"] && ($sql[] = sprintf_implode("invoice.invoiceNum = %d", $filter["invoiceNum"]));
+        $filter["dateOne"] && ($sql[] = sprintf_implode("invoice.invoiceDateFrom>='%s'", $filter["dateOne"]));
+        $filter["dateTwo"] && ($sql[] = sprintf_implode("invoice.invoiceDateTo<='%s'", $filter["dateTwo"]));
+        $filter["invoiceName"] && ($sql[] = sprintf_implode("invoice.invoiceName like '%%%s%%'", $filter["invoiceName"]));
+        $filter["invoiceStatus"] && ($sql[] = sprintf_implode("invoice.invoiceStatus = '%s'", $filter["invoiceStatus"]));
+        $filter["clientID"] && ($sql[] = sprintf_implode("invoice.clientID = %d", $filter["clientID"]));
+        $filter["projectID"] && ($sql[] = sprintf_implode("invoice.projectID = %d", $filter["projectID"]));
         return $sql;
     }
 
@@ -570,11 +573,11 @@ class invoice extends DatabaseEntity
             $sql[] = "(COALESCE(amountPaidApproved,0) < iiAmountSum)";
             // if ($filter["invoiceStatusPayment"] == "partly_paid") {
             // $sql[] = "(amountPaidApproved < iiAmountSum)";
-        } else if ($filter["invoiceStatusPayment"] == "rejected") {
+        } elseif ($filter["invoiceStatusPayment"] == "rejected") {
             $sql[] = "(COALESCE(amountPaidRejected,0) > 0)";
-        } else if ($filter["invoiceStatusPayment"] == "fully_paid") {
+        } elseif ($filter["invoiceStatusPayment"] == "fully_paid") {
             $sql[] = "(COALESCE(amountPaidApproved,0) = iiAmountSum)";
-        } else if ($filter["invoiceStatusPayment"] == "over_paid") {
+        } elseif ($filter["invoiceStatusPayment"] == "over_paid") {
             $sql[] = "(COALESCE(amountPaidApproved,0) > iiAmountSum)";
         }
 
@@ -593,14 +596,19 @@ class invoice extends DatabaseEntity
         $filter2_having = invoice::get_list_filter2($_FORM);
 
         $debug = $_FORM["debug"];
-        $debug and print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
-        $debug and print "<pre>filter1_where: " . print_r($filter1_where, 1) . "</pre>";
-        $debug and print "<pre>filter2_having: " . print_r($filter2_having, 1) . "</pre>";
+        $debug && (print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
+        $debug && (print "<pre>filter1_where: " . print_r($filter1_where, 1) . "</pre>");
+        $debug && (print "<pre>filter2_having: " . print_r($filter2_having, 1) . "</pre>");
 
-        $_FORM["return"] or $_FORM["return"] = "html";
+        $_FORM["return"] || ($_FORM["return"] = "html");
 
-        is_array($filter1_where) && count($filter1_where) and $f1_where = " WHERE " . implode(" AND ", $filter1_where);
-        is_array($filter2_having) && count($filter2_having) and $f2_having = " HAVING " . implode(" AND ", $filter2_having);
+        if (is_array($filter1_where) && count($filter1_where)) {
+            $f1_where = " WHERE " . implode(" AND ", $filter1_where);
+        }
+
+        if (is_array($filter2_having) && count($filter2_having)) {
+            $f2_having = " HAVING " . implode(" AND ", $filter2_having);
+        }
 
         $q1 = "CREATE TEMPORARY TABLE invoice_details
               SELECT SUM(invoiceItem.iiAmount * pow(10,-currencyType.numberToBasic)) as iiAmountSum
@@ -633,8 +641,8 @@ class invoice extends DatabaseEntity
         // Don't do this! It doubles the totals!
         // LEFT JOIN tfPerson ON tfPerson.tfID = transaction_approved.tfID OR tfPerson.tfID = transaction_pending.tfID OR tfPerson.tfID = transaction_rejected.tfID
 
-        $debug and print "<pre>Query1: " . $q1 . "</pre>";
-        $debug and print "<pre>Query2: " . $q2 . "</pre>";
+        $debug && (print "<pre>Query1: " . $q1 . "</pre>");
+        $debug && (print "<pre>Query2: " . $q2 . "</pre>");
         $allocDatabase->query($q2);
 
         while ($row = $allocDatabase->next_record()) {
@@ -649,11 +657,22 @@ class invoice extends DatabaseEntity
             $payment_status = [];
             $row["statii"] = invoice::get_invoice_statii();
             $row["payment_statii"] = (new invoice())->get_invoice_statii_payment();
-            $row["amountPaidApproved"] == $row["iiAmountSum"] and $payment_status[] = "fully_paid";
-            $row["amountPaidApproved"] > $row["iiAmountSum"] and $payment_status[] = "over_paid";
-            $row["amountPaidRejected"] > 0 and $payment_status[] = "rejected";
+            if ($row["amountPaidApproved"] == $row["iiAmountSum"]) {
+                $payment_status[] = "fully_paid";
+            }
+
+            if ($row["amountPaidApproved"] > $row["iiAmountSum"]) {
+                $payment_status[] = "over_paid";
+            }
+
+            if ($row["amountPaidRejected"] > 0) {
+                $payment_status[] = "rejected";
+            }
+
             // $row["amountPaidApproved"] > 0 && $row["amountPaidApproved"] < $row["iiAmountSum"] and $payment_status[] = "partly_paid";
-            $row["amountPaidApproved"] < $row["iiAmountSum"] and $payment_status[] = "pending";
+            if ($row["amountPaidApproved"] < $row["iiAmountSum"]) {
+                $payment_status[] = "pending";
+            }
 
             foreach ((array)$payment_status as $ps) {
                 $row["image"] .= (new invoice())->get_invoice_statii_payment_image($ps);
@@ -714,7 +733,7 @@ class invoice extends DatabaseEntity
                 // defaults go here
                 $_FORM["invoiceStatus"] = "edit";
             }
-        } else if ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -812,9 +831,8 @@ class invoice extends DatabaseEntity
         $steps["backwards"]["edit"] = "";
 
         $status = $this->get_value("invoiceStatus");
-        $newstatus = $steps[$direction][$status];
 
-        return $newstatus;
+        return $steps[$direction][$status];
     }
 
     public function change_status($direction)
@@ -851,14 +869,12 @@ class invoice extends DatabaseEntity
         $this->set_value("invoiceStatus", "finished");
     }
 
-    public function can_move($direction)
+    public function can_move($direction): bool
     {
         $newstatus = $this->next_status($direction);
-        if ($direction == "forwards" && $newstatus == "finished") {
-            if ($this->has_pending_transactions()) {
-                alloc_error("There are still Invoice Items pending. This Invoice cannot be marked completed.");
-                return false;
-            }
+        if ($direction == "forwards" && $newstatus == "finished" && $this->has_pending_transactions()) {
+            alloc_error("There are still Invoice Items pending. This Invoice cannot be marked completed.");
+            return false;
         }
 
         if ($direction == "forwards" && $newstatus == "reconcile") {
@@ -925,7 +941,7 @@ class invoice extends DatabaseEntity
             $interestedPartyOptions = array_merge((array)$interestedPartyOptions, (array)$client->get_all_parties());
         }
 
-        $extra_interested_parties = config::get_config_item("defaultInterestedParties") or $extra_interested_parties = [];
+        ($extra_interested_parties = config::get_config_item("defaultInterestedParties")) || ($extra_interested_parties = []);
         foreach ($extra_interested_parties as $name => $email) {
             $interestedPartyOptions[$email] = ["name" => $name];
         }

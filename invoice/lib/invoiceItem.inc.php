@@ -29,7 +29,7 @@ class invoiceItem extends DatabaseEntity
         "iiDate",
     ];
 
-    public function is_owner($person = "")
+    public function is_owner($person = ""): bool
     {
         $current_user = &singleton("current_user");
 
@@ -126,9 +126,7 @@ class invoiceItem extends DatabaseEntity
             $timeSheet = new timeSheet();
             $timeSheet->set_id($timeSheetID);
             $timeSheet->select();
-
             $db = new AllocDatabase();
-
             if ($timeSheet->get_value("status") == "invoiced") {
                 // If the time sheet doesn't have any transactions and it is in
                 // status invoiced, then we'll simulate the "Create Default Transactions"
@@ -168,12 +166,11 @@ class invoiceItem extends DatabaseEntity
                         . Page::money($currency, $total, "%s%mo %c") . ")";
                 }
             }
-        } else if ($expenseFormID) {
+        } elseif ($expenseFormID) {
             $expenseForm = new expenseForm();
             $expenseForm->set_id($expenseFormID);
             $expenseForm->select();
             $total_expenseForm = $expenseForm->get_abs_sum_transactions();
-
             if ($total == $total_expenseForm) {
                 $expenseForm->set_status("approved");
                 $TPL["message_good"][] = "Approved Expense Form #" . $expenseForm->get_id() . ".";
@@ -243,7 +240,7 @@ class invoiceItem extends DatabaseEntity
         // Filter on invoiceID
         if ($filter["invoiceID"] && is_array($filter["invoiceID"])) {
             $sql[] = unsafe_prepare("(invoice.invoiceID in (%s))", $filter["invoiceID"]);
-        } else if ($filter["invoiceID"]) {
+        } elseif ($filter["invoiceID"]) {
             $sql[] = unsafe_prepare("(invoice.invoiceID = %d)", $filter["invoiceID"]);
         }
 

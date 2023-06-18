@@ -38,7 +38,7 @@ class tsiHint extends DatabaseEntity
 
         $people = person::get_people_by_username();
         $personID = $people[$username]["personID"];
-        $personID or alloc_error("Person " . $username . " not found.");
+        $personID || alloc_error("Person " . $username . " not found.");
 
         $taskID = $stuff["taskID"];
         $projectID = $stuff["projectID"];
@@ -54,15 +54,15 @@ class tsiHint extends DatabaseEntity
             $extra = " for task " . $taskID;
         }
 
-        $projectID or alloc_error(sprintf($errstr . "No project found%s.", $extra));
+        $projectID || alloc_error(sprintf($errstr . "No project found%s.", $extra));
 
         $row_projectPerson = projectPerson::get_projectPerson_row($projectID, $current_user->get_id());
-        $row_projectPerson or alloc_error($errstr . "The person(" . $current_user->get_id() . ") has not been added to the project(" . $projectID . ").");
+        $row_projectPerson || alloc_error($errstr . "The person(" . $current_user->get_id() . ") has not been added to the project(" . $projectID . ").");
 
         if ($row_projectPerson && $projectID) {
             // Add new time sheet item
             $tsiHint = new tsiHint();
-            $d = $date or $d = date("Y-m-d");
+            ($d = $date) || ($d = date("Y-m-d"));
             $tsiHint->set_value("date", $d);
             $tsiHint->set_value("duration", $duration);
             if (is_object($task)) {
@@ -88,20 +88,10 @@ class tsiHint extends DatabaseEntity
     public static function parse_tsiHint_string($str)
     {
         $rtn = [];
-        preg_match("/^"
-            . "([a-zA-Z0-9]+)"                      // username
-            . "\s*"
-            . "(\d\d\d\d\-\d\d?\-\d\d?\s+)?"   // date
-            . "([\d\.]+)?"          // duration
-            . "\s*"
-            . "(\d+)?"             // task id
-            . "\s*"
-            . "(.*)"               // comment
-            . "\s*"
-            . "$/i", $str, $m);
+        preg_match('/^([a-zA-Z0-9]+)\s*(\d\d\d\d\-\d\d?\-\d\d?\s+)?([\d\.]+)?\s*(\d+)?\s*(.*)\s*$/i', $str, $m);
 
         $rtn["username"] = $m[1];
-        $rtn["date"] = trim($m[2]) or $rtn["date"] = date("Y-m-d");
+        ($rtn["date"] = trim($m[2])) || ($rtn["date"] = date("Y-m-d"));
         $rtn["duration"] = $m[3];
         $rtn["taskID"] = $m[4];
         $rtn["comment"] = $m[5];

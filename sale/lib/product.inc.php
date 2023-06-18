@@ -36,9 +36,8 @@ class product extends DatabaseEntity
 
     public function get_list_filter($filter)
     {
-        $sql = null;
         // stub function for one day when you can filter products
-        return $sql;
+        return null;
     }
 
     public static function get_list($_FORM = [])
@@ -49,8 +48,8 @@ class product extends DatabaseEntity
         $filter = (new product())->get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
-        $debug and print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
-        $debug and print "\n<pre>filter: " . print_r($filter, 1) . "</pre>";
+        $debug && (print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
+        $debug && (print "\n<pre>filter: " . print_r($filter, 1) . "</pre>");
 
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);
@@ -74,7 +73,7 @@ class product extends DatabaseEntity
         return $rows;
     }
 
-    public function get_link($row = [])
+    public function get_link($row = []): string
     {
         global $TPL;
         if (is_object($this)) {
@@ -93,7 +92,7 @@ class product extends DatabaseEntity
     public static function get_buy_cost($id = false)
     {
         $amount = null;
-        $id or $id = $this->get_id();
+        $id || ($id = $this->get_id());
         $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT amount, currencyTypeID, tax
                         FROM productCost

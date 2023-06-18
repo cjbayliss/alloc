@@ -60,8 +60,8 @@ class DatabaseEntity
     public function __construct($id = false)
     {
 
-        $this->data_table or $this->data_table = get_class($this);
-        $this->classname or $this->classname = get_class($this);
+        $this->data_table || ($this->data_table = get_class($this));
+        $this->classname || ($this->classname = get_class($this));
 
         $this->permissions[PERM_READ] = "Read";
         $this->permissions[PERM_UPDATE] = "Update";
@@ -101,10 +101,8 @@ class DatabaseEntity
             return true;
         }
 
-        if (!$person) {
-            if ($current_user && is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id()) {
-                $person = $current_user;
-            }
+        if (!$person && ($current_user && is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id())) {
+            $person = $current_user;
         }
 
         $entity_id = 0;
@@ -112,7 +110,7 @@ class DatabaseEntity
         if (is_object($person) && method_exists($person, "get_id") && $person->get_id()) {
             $person_id = $person->get_id();
             $person_type = $person->classname;
-            $person_id and $person_flag = $person_type . "_" . $person_id;
+            $person_id && ($person_flag = $person_type . "_" . $person_id);
         }
 
         $record_cache_key = $this->data_table . ":" . $entity_id . ":" . $action . ":" . $person_flag . ":" . $assume_owner;
@@ -278,17 +276,17 @@ class DatabaseEntity
         $query .= ") VALUES (";
         $query .= $this->get_insert_values($this->data_fields);
         $query .= ")";
-        $this->debug and print "<br>db_entity->insert() query: " . $query;
+        $this->debug && (print "<br>db_entity->insert() query: " . $query);
         $db = $this->get_db();
         $db->query($query);
 
         $id = $db->get_insert_id();
         if ($id === 0) {
-            $this->debug and print "<br>db_entity->insert(): The previous query does not generate an AUTO_INCREMENT value`";
-        } else if ($id === false) {
-            $this->debug and print "<br>db_entity->insert(): No MySQL connection was established";
+            $this->debug && (print "<br>db_entity->insert(): The previous query does not generate an AUTO_INCREMENT value`");
+        } elseif ($id === false) {
+            $this->debug && (print "<br>db_entity->insert(): No MySQL connection was established");
         } else {
-            $this->debug and print "<br>db_entity->insert(): New ID: " . $id;
+            $this->debug && (print "<br>db_entity->insert(): New ID: " . $id);
         }
 
         $this->key_field->set_value($id);
@@ -319,11 +317,7 @@ class DatabaseEntity
         }
 
         $current_user = &singleton("current_user");
-        if (is_object($current_user) && $current_user->get_id()) {
-            $current_user_id = $current_user->get_id();
-        } else {
-            $current_user_id = "0";
-        }
+        $current_user_id = is_object($current_user) && $current_user->get_id() ? $current_user->get_id() : "0";
 
         if (!$this->skip_modified_fields) {
             if (isset($this->data_fields[$this->data_table . "ModifiedUser"]) && $current_user_id) {
@@ -345,7 +339,7 @@ class DatabaseEntity
         $query = "UPDATE " . db_esc($this->data_table) . " SET " . $this->get_name_equals_value($write_fields) . " WHERE ";
         $query .= $this->get_name_equals_value([$this->key_field]);
         $db = $this->get_db();
-        $this->debug and print "<br>db_entity->update() query: " . $query;
+        $this->debug && (print "<br>db_entity->update() query: " . $query);
         $db->query($query);
         return true;
     }
@@ -380,11 +374,7 @@ class DatabaseEntity
             return false;
         }
 
-        if ($this->is_new()) {
-            $rtn = $this->insert();
-        } else {
-            $rtn = $this->update();
-        }
+        $rtn = $this->is_new() ? $this->insert() : $this->update();
 
         // Update the search index for this entity, if any
         if (!$rtn) {
@@ -426,14 +416,14 @@ class DatabaseEntity
             $c = $this->data_fields["currencyTypeID"]->get_value();
         }
 
-        $c and $this->currency = $c;
+        $c && ($this->currency = $c);
 
         foreach ($this->data_fields as $data_field) {
             $message[] = $data_field->validate($this);
         }
 
         $message = implode(" ", $message);
-        if (!$message) {
+        if ($message === '' || $message === '0') {
             return;
         }
 
@@ -466,7 +456,7 @@ class DatabaseEntity
         // Key field
         $source_index = $source_prefix . $this->key_field->get_name();
         $this->key_field->set_value($array[$source_index], $source);
-        $this->debug and print "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", {$source})<br>\n";
+        $this->debug && (print "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", {$source})<br>\n");
         $this->fields_loaded = true;
     }
 
@@ -574,7 +564,7 @@ class DatabaseEntity
             $c = $this->data_fields["currencyTypeID"]->get_value();
         }
 
-        $c and $this->currency = $c;
+        $c && ($this->currency = $c);
         return $field->get_value($dest, $this);
     }
 
@@ -671,7 +661,7 @@ class DatabaseEntity
     public function is_owner($person = "")
     {
         $current_user = &singleton("current_user");
-        $person or $person = $current_user;
+        $person || ($person = $current_user);
         if (!is_object($person)) {
             return;
         }
@@ -757,7 +747,7 @@ class DatabaseEntity
     {
         $query = "";
         foreach ($fields as $field) {
-            if ($query) {
+            if ($query !== '' && $query !== '0') {
                 $query .= $glue;
             }
 
@@ -771,9 +761,11 @@ class DatabaseEntity
     {
         $key_sql = null;
         $extra = null;
-        $key or $key = $this->key_field->get_name();
-        $value or $value = "*";
-        $value != "*" and $key_sql = $key . ",";
+        $key || ($key = $this->key_field->get_name());
+        $value || ($value = "*");
+        if ($value != "*") {
+            $key_sql = $key . ",";
+        }
 
         $q = sprintf(
             'SELECT %s %s FROM %s WHERE 1=1 ',
@@ -787,7 +779,7 @@ class DatabaseEntity
             foreach ($sel as $s) {
                 $extra .= $pkey_sql . sprintf("%d", $s);
             }
-        } else if ($sel) {
+        } elseif ($sel) {
             $extra = $pkey_sql . db_esc($sel);
         }
 
@@ -795,9 +787,8 @@ class DatabaseEntity
         // records, we default to giving them only active records.
         if (is_object($this->data_fields[$this->data_table . "Active"]) && !isset($where[$this->data_table . "Active"])) {
             $where[$this->data_table . "Active"] = 1;
-
             // Else get all records
-        } else if ($where[$this->data_table . "Active"] == "all") {
+        } elseif ($where[$this->data_table . "Active"] == "all") {
             unset($where[$this->data_table . "Active"]);
         }
 
@@ -811,9 +802,9 @@ class DatabaseEntity
 
         if (is_object($this->data_fields[$this->data_table . "Sequence"])) {
             $q .= " ORDER BY " . db_esc($this->data_table) . "Sequence";
-        } else if (is_object($this->data_fields[$this->data_table . "Seq"])) {
+        } elseif (is_object($this->data_fields[$this->data_table . "Seq"])) {
             $q .= " ORDER BY " . db_esc($this->data_table) . "Seq";
-        } else if ($value != "*") {
+        } elseif ($value != "*") {
             $q .= " ORDER BY " . db_esc($value);
         }
 
@@ -823,11 +814,7 @@ class DatabaseEntity
         $rows = [];
         while ($row = $allocDatabase->row()) {
             if ($this->read_db_record($allocDatabase)) {
-                if ($value && $value != "*") {
-                    $v = $row[$value];
-                } else {
-                    $v = $row;
-                }
+                $v = $value && $value != "*" ? $row[$value] : $row;
 
                 $rows[$row[$key]] = $v;
             }
@@ -844,7 +831,7 @@ class DatabaseEntity
 
             if ($field && $this->key_field->get_name() == $field) {
                 $label = $this->get_id();
-            } else if ($field) {
+            } elseif ($field) {
                 $label = $this->get_value($field, DST_HTML_DISPLAY);
             }
 

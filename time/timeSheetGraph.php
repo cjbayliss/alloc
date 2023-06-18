@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $current_user = &singleton("current_user");
 
@@ -14,7 +14,10 @@ function show_filter()
     global $TPL;
     global $defaults;
     $arr = timeSheetGraph::load_filter($defaults);
-    is_array($arr) and $TPL = array_merge($TPL, $arr);
+    if (is_array($arr)) {
+        $TPL = array_merge($TPL, $arr);
+    }
+
     include_template("templates/timeSheetGraphFilterS.tpl");
 }
 
@@ -29,7 +32,7 @@ $_FORM = timeSheetGraph::load_filter($defaults);
 
 if ($_FORM["groupBy"] == "day") {
     $TPL["chart1"] = timeSheetItem::get_total_hours_worked_per_day($_FORM["personID"], $_FORM["dateFrom"], $_FORM["dateTo"]);
-} else if ($_FORM["groupBy"] == "month") {
+} elseif ($_FORM["groupBy"] == "month") {
     $TPL["chart1"] = timeSheetItem::get_total_hours_worked_per_month($_FORM["personID"], $_FORM["dateFrom"], $_FORM["dateTo"]);
 }
 

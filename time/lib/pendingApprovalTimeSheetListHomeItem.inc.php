@@ -20,7 +20,7 @@ class pendingApprovalTimeSheetListHomeItem extends home_item
         );
     }
 
-    public function visible()
+    public function visible(): bool
     {
         $current_user = &singleton("current_user");
         if (!isset($current_user)) {
@@ -34,7 +34,7 @@ class pendingApprovalTimeSheetListHomeItem extends home_item
         return (bool) has_pending_timesheet();
     }
 
-    public function render()
+    public function render(): bool
     {
         return true;
     }
@@ -51,11 +51,7 @@ function show_time_sheets_list_for_classes($template_name, $doAdmin = false)
     $current_user = &singleton("current_user");
     global $TPL;
 
-    if ($doAdmin) {
-        $db = get_pending_admin_timesheet_db();
-    } else {
-        $db = get_pending_timesheet_db();
-    }
+    $db = $doAdmin ? get_pending_admin_timesheet_db() : get_pending_timesheet_db();
 
     $people = &get_cached_table("person");
 
@@ -67,7 +63,7 @@ function show_time_sheets_list_for_classes($template_name, $doAdmin = false)
         unset($date);
         if ($timeSheet->get_value("status") == "manager") {
             $date = $timeSheet->get_value("dateSubmittedToManager");
-        } else if ($timeSheet->get_value("status") == "admin") {
+        } elseif ($timeSheet->get_value("status") == "admin") {
             $date = $timeSheet->get_value("dateSubmittedToAdmin");
         }
 
@@ -163,22 +159,14 @@ function get_pending_admin_timesheet_db()
     return $db;
 }
 
-function has_pending_admin_timesheet()
+function has_pending_admin_timesheet(): bool
 {
     $db = get_pending_admin_timesheet_db();
-    if ($db->next_record()) {
-        return true;
-    }
-
-    return false;
+    return (bool) $db->next_record();
 }
 
-function has_pending_timesheet()
+function has_pending_timesheet(): bool
 {
     $db = get_pending_timesheet_db();
-    if ($db->next_record()) {
-        return true;
-    }
-
-    return false;
+    return (bool) $db->next_record();
 }

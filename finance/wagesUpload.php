@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if (!config::get_config_item("outTfID")) {
     alloc_error("Please select a default Outgoing TF from the Setup -> Finance menu.");
@@ -47,7 +47,7 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
         $account = preg_replace("/^\d+\s.*?\s/", "", $account);
 
         // If there's a memo field then append it to account
-        $memo and $account .= " - " . $memo;
+        $memo && ($account .= " - " . $memo);
         // echo "<br>";
         // echo "<br>date: ".$transactionDate;
         // echo "<br>memo: ".$memo;
@@ -59,7 +59,11 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
             continue;
         }
 
-        if (!$transactionDate) {
+        if ($transactionDate === '') {
+            continue;
+        }
+
+        if ($transactionDate === '0') {
             continue;
         }
 
@@ -92,7 +96,7 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
         $fromTfID = $db->f("tfID");
 
         // Convert the date to yyyy-mm-dd
-        if (!preg_match("|^([0-9]{1,2})/([0-9]{1,2})/([0-9]{4})$|i", $transactionDate, $matches)) {
+        if (!preg_match("|^(\\d{1,2})/(\\d{1,2})/(\\d{4})\$|i", $transactionDate, $matches)) {
             $msg .= sprintf("<b>Warning: Could not convert date '%s'</b><br>", $transactionDate);
             continue;
         }
@@ -101,7 +105,7 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
 
         // Strip $ and , from amount
         $amount = str_replace(['$', ','], [], $amount);
-        if (!preg_match("/^[-]?[0-9]+(\\.[0-9]+)?$/", $amount)) {
+        if (!preg_match("/^[-]?\\d+(\\.\\d+)?\$/", $amount)) {
             $msg .= sprintf("<b>Warning: Could not convert amount '%s'</b><br>", $amount);
             continue;
         }

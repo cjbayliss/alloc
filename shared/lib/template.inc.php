@@ -51,17 +51,23 @@ function echo_var($matches)
         return '<?php echo Page::htmlentities(' . $var . '); ?>';
     }
 
-    if ($var) {
-        return '<?php echo ' . $var . '; ?>';
+    if ($var === '') {
+        return;
     }
+
+    if ($var === '0') {
+        return;
+    }
+
+    return '<?php echo ' . $var . '; ?>';
 }
 
 // Read a template and return the mixed php/html, ready for processing
-function get_template($filename)
+function get_template($filename): string
 {
 
     $template = implode("", (@file($filename)));
-    if ((!$template) or (empty($template))) {
+    if (!$template || $template === '') {
         echo sprintf('get_template() failure: [%s]', $filename);
     }
 
@@ -134,7 +140,9 @@ function include_template($filename, $getString = false)
     // echo "<pre>".htmlspecialchars($template)."</pre>";
 
     // Make all variables available via $var
-    is_array($TPL) && extract($TPL, EXTR_OVERWRITE);
+    if (is_array($TPL)) {
+        extract($TPL, EXTR_OVERWRITE);
+    }
 
     if ($getString) {
         // Begin buffering output to halt anything being sent to the web browser.

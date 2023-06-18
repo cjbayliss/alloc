@@ -194,7 +194,7 @@ if (!defined("NO_AUTH")) {
             : ''));
 
         // Else load up the current_user and continue
-    } else if ($sess->Get("personID")) {
+    } elseif ($sess->Get("personID")) {
         $current_user->load_current_user($sess->Get("personID"));
     }
 }

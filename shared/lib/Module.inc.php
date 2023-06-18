@@ -16,7 +16,7 @@ class Module
 
     public function __construct()
     {
-        spl_autoload_register([$this, 'autoloader']);
+        spl_autoload_register(fn ($class) => $this->autoloader($class));
     }
 
     public function autoloader($class)

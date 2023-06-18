@@ -6,13 +6,13 @@
  */
 
 // initialise the request
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 // create an object to hold an announcement
 $announcement = new announcement();
 
 // load the announcement from the database
-$announcementID = $_POST["announcementID"] or $announcementID = $_GET["announcementID"];
+($announcementID = $_POST["announcementID"]) || ($announcementID = $_GET["announcementID"]);
 if ($announcementID) {
     $announcement->set_id($announcementID);
     $announcement->select();
@@ -26,9 +26,8 @@ if ($_POST["save"]) {
     $announcement->set_value("personID", $current_user->get_id());
     $announcement->save();
     alloc_redirect($TPL["url_alloc_announcementList"]);
-
     // process submission of the form using the delete button
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     $announcement->delete();
     alloc_redirect($TPL["url_alloc_announcementList"]);
     exit();

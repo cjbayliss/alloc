@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function show_productCost_list($productID, $template, $percent = false)
 {
@@ -35,7 +35,7 @@ function show_productCost_list($productID, $template, $percent = false)
             $TPL["taxOptions"] = Page::select_options(["" => "Exempt", 1 => "Included", 0 => "Excluded"], $productCost->get_value("tax"));
 
             // Hardcoded AUD because productCost table uses percent and dollars in same field
-            $percent and $TPL["amount"] = Page::money("AUD", $productCost->get_value("amount"), "%mo");
+            $percent && ($TPL["amount"] = Page::money("AUD", $productCost->get_value("amount"), "%mo"));
             include_template($template);
         }
     }
@@ -66,7 +66,7 @@ function tf_list($selected = "", $remove_these = [])
     return;
 }
 
-$productID = $_GET["productID"] or $productID = $_POST["productID"];
+($productID = $_GET["productID"]) || ($productID = $_POST["productID"]);
 $product = new product();
 
 if ($productID) {
@@ -95,8 +95,13 @@ $TPL["taxRate"] = $taxRate;
 if ($_POST["save"]) {
     $product->read_globals();
     $product->set_value("productActive", isset($_POST["productActive"]) ? 1 : 0);
-    !$product->get_value("productName") and alloc_error("Please enter a Product Name.");
-    !$product->get_value("sellPrice") and alloc_error("Please enter a Sell Price.");
+    if (!$product->get_value("productName")) {
+        alloc_error("Please enter a Product Name.");
+    }
+
+    if (!$product->get_value("sellPrice")) {
+        alloc_error("Please enter a Sell Price.");
+    }
 
     if (!$TPL["message"]) {
         $product->save();
@@ -111,7 +116,7 @@ if ($_POST["save"]) {
     }
 
     $product->set_values();
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     $product->read_globals();
     $product->delete();
     alloc_redirect($TPL["url_alloc_productList"]);
@@ -126,9 +131,8 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
             $productCost->set_id($productCostID);
             $productCost->select();
             $productCost->delete();
-
             // Save
-        } else if (isset($_POST["amount"][$k]) && (bool)strlen($_POST["amount"][$k])) {
+        } elseif (isset($_POST["amount"][$k]) && (bool)strlen($_POST["amount"][$k])) {
             $a = [
                 "productCostID"     => $productCostID,
                 "productID"         => $productID,
@@ -140,10 +144,8 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
                 "tax"               => $_POST["tax"][$k],
                 "productCostActive" => 1,
             ];
-
             // Hardcode AUD for commissions because productCost table uses percent and dollars in same field
-            $_POST["save_commissions"] and $a["currencyTypeID"] = "AUD";
-
+            $_POST["save_commissions"] && ($a["currencyTypeID"] = "AUD");
             $productCost = new productCost();
             $productCost->read_array($a);
             // $errs = $productCost->validate();

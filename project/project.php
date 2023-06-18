@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function show_attachments()
 {
@@ -54,7 +54,7 @@ function show_transaction($template)
 
             $TPL["transaction_username"] = $db->f("username");
             $TPL["transaction_amount"] = Page::money($TPL["transaction_currenyTypeID"], $TPL["transaction_amount"], "%s%mo");
-            $TPL["transaction_type_link"] = $transaction->get_transaction_type_link() or $TPL["transaction_link"] = $transaction->get_value("transactionType");
+            ($TPL["transaction_type_link"] = $transaction->get_transaction_type_link()) || ($TPL["transaction_link"] = $transaction->get_value("transactionType"));
 
             include_template($template);
         }
@@ -254,14 +254,14 @@ function show_comments()
     global $TPL;
     global $project;
     $TPL["commentsR"] = comment::util_get_comments("project", $projectID);
-    $TPL["commentsR"] and $TPL["class_new_comment"] = "hidden";
+    $TPL["commentsR"] && ($TPL["class_new_comment"] = "hidden");
     $interestedPartyOptions = $project->get_all_parties();
     $interestedPartyOptions = InterestedParty::get_interested_parties(
         "project",
         $project->get_id(),
         $interestedPartyOptions
     );
-    $TPL["allParties"] = $interestedPartyOptions or $TPL["allParties"] = [];
+    ($TPL["allParties"] = $interestedPartyOptions) || ($TPL["allParties"] = []);
     $TPL["entity"] = "project";
     $TPL["entityID"] = $project->get_id();
     $TPL["clientID"] = $project->get_value("clientID");
@@ -312,7 +312,7 @@ function show_tasks()
 
 $current_user = &singleton("current_user");
 
-$projectID = $_POST["projectID"] or $projectID = $_GET["projectID"];
+($projectID = $_POST["projectID"]) || ($projectID = $_GET["projectID"]);
 
 $project = new project();
 
@@ -329,7 +329,6 @@ if ($projectID) {
 
 if ($_POST["save"]) {
     $project->read_globals();
-
     if (!$project->get_id()) {    // brand new project
         $definitely_new_project = true;
     }
@@ -375,13 +374,12 @@ if ($_POST["save"]) {
 
         alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $project->get_id());
     }
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     $project->read_globals();
     $project->delete();
     alloc_redirect($TPL["url_alloc_projectList"]);
-
     // If they are creating a new project that is based on an existing one
-} else if ($_POST["copy_project_save"] && $_POST["copy_projectID"] && $_POST["copy_project_name"]) {
+} elseif ($_POST["copy_project_save"] && $_POST["copy_projectID"] && $_POST["copy_project_name"]) {
     $p = new project();
     $p->set_id($_POST["copy_projectID"]);
     if ($p->select()) {
@@ -459,18 +457,17 @@ if ($projectID) {
                 $pp->delete();
             }
         }
-    } else if ($_POST["commission_save"] || $_POST["commission_delete"]) {
+    } elseif ($_POST["commission_save"] || $_POST["commission_delete"]) {
         $commission_item = new projectCommissionPerson();
         $commission_item->read_globals();
         $commission_item->read_globals("commission_");
-
         if ($_POST["commission_save"]) {
             if (!$_POST["commission_tfID"]) {
                 alloc_error("No TF selected.");
             } else {
                 $commission_item->save();
             }
-        } else if ($_POST["commission_delete"]) {
+        } elseif ($_POST["commission_delete"]) {
             $commission_item->delete();
         }
     }
@@ -498,7 +495,7 @@ $project->set_values("project_");
 
 $db = new AllocDatabase();
 
-$clientID = $project->get_value("clientID") or $clientID = $_GET["clientID"];
+($clientID = $project->get_value("clientID")) || ($clientID = $_GET["clientID"]);
 $client = new client();
 $client->set_id($clientID);
 $client->select();
@@ -522,7 +519,7 @@ if ($clientID) {
     $fou = $project->format_client_old();
 
     $temp = str_replace("<br>", "", $fou);
-    $temp and $thr = $fou;
+    $temp && ($thr = $fou);
 
     $url = $TPL["url_alloc_client"] . "clientID=" . $clientID;
 
@@ -532,7 +529,7 @@ if ($clientID) {
         $cc->select();
         $fiv = $cc->format_contact();
         $temp = str_replace("<br>", "", $fiv);
-        $temp and $thr = $fiv;
+        $temp && ($thr = $fiv);
     }
 
     $TPL["clientDetails"] = '<table width="100%">';
@@ -540,14 +537,14 @@ if ($clientID) {
     $TPL["clientDetails"] .= '<td colspan="3"><h2 style="margin-bottom:0px; display:inline;"><a href=' . $url . ">" . $TPL["client_clientName"] . "</a></h2></td>    ";
     $TPL["clientDetails"] .= "</tr>";
     $TPL["clientDetails"] .= "<tr>";
-    $one and $TPL["clientDetails"] .= '<td class="nobr"><u>Postal Address</u></td>';
-    $two and $TPL["clientDetails"] .= '<td class="nobr"><u>Street Address</u></td>';
-    $thr and $TPL["clientDetails"] .= "<td><u>Contact</u></td>";
+    $one && ($TPL["clientDetails"] .= '<td class="nobr"><u>Postal Address</u></td>');
+    $two && ($TPL["clientDetails"] .= '<td class="nobr"><u>Street Address</u></td>');
+    $thr && ($TPL["clientDetails"] .= "<td><u>Contact</u></td>");
     $TPL["clientDetails"] .= "</tr>";
     $TPL["clientDetails"] .= "<tr>";
-    $one and $TPL["clientDetails"] .= '<td valign="top">' . $one . "</td>";
-    $two and $TPL["clientDetails"] .= '<td valign="top">' . $two . "</td>";
-    $thr and $TPL["clientDetails"] .= '<td valign="top">' . $thr . "</td>";
+    $one && ($TPL["clientDetails"] .= '<td valign="top">' . $one . "</td>");
+    $two && ($TPL["clientDetails"] .= '<td valign="top">' . $two . "</td>");
+    $thr && ($TPL["clientDetails"] .= '<td valign="top">' . $thr . "</td>");
     $TPL["clientDetails"] .= "</tr>";
     $TPL["clientDetails"] .= "</table>";
 }
@@ -584,8 +581,15 @@ function get_projectPerson_hourly_rate($personID, $projectID)
     $unitID = $db->f("rateUnitID");
     $t = new timeUnit();
     $timeUnits = $t->get_assoc_array("timeUnitID", "timeUnitSeconds", $unitID);
-    ($rate && $timeUnits[$unitID]) and $hourly_rate = $rate / ($timeUnits[$unitID] / 60 / 60);
-    return $hourly_rate;
+    if (!$rate) {
+        return $hourly_rate;
+    }
+
+    if (!$timeUnits[$unitID]) {
+        return $hourly_rate;
+    }
+
+    return $rate / ($timeUnits[$unitID] / 60 / 60);
 }
 
 if (is_object($project) && $project->get_id()) {
@@ -603,14 +607,14 @@ if (is_object($project) && $project->get_id()) {
                 $TPL["time_remaining"] += $time_remaining;
             }
 
-            $t["timeLimit"] and $count_quoted_tasks++;
+            $t["timeLimit"] && $count_quoted_tasks++;
         }
 
-        $TPL["time_remaining"] and $TPL["time_remaining"] = sprintf("%0.1f", $TPL["time_remaining"]) . " Hours.";
+        $TPL["time_remaining"] && ($TPL["time_remaining"] = sprintf("%0.1f", $TPL["time_remaining"]) . " Hours.");
 
         $TPL["count_incomplete_tasks"] = is_countable($TPL["taskListRows"]) ? count($TPL["taskListRows"]) : 0;
         $not_quoted = (is_countable($TPL["taskListRows"]) ? count($TPL["taskListRows"]) : 0) - $count_quoted_tasks;
-        $not_quoted and $TPL["count_not_quoted_tasks"] = "(" . sprintf("%d", $not_quoted) . " tasks not included in estimate)";
+        $not_quoted && ($TPL["count_not_quoted_tasks"] = "(" . sprintf("%d", $not_quoted) . " tasks not included in estimate)");
     }
 
     $TPL["invoice_links"] .= '<a href="' . $TPL["url_alloc_invoice"] . "clientID=" . $clientID . "&projectID=" . $project->get_id() . '">New Invoice</a>';
@@ -661,15 +665,15 @@ $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
 $TPL["project_projectType"] = $projectType_array[$TPL["project_projectType"]];
 $TPL["projectType_options"] = Page::select_options($projectType_array, $TPL["project_projectType"]);
 $TPL["projectStatus_options"] = Page::select_options($projectStatus_array, $TPL["project_projectStatus"]);
-$TPL["project_projectPriority"] or $TPL["project_projectPriority"] = 3;
-$projectPriorities = config::get_config_item("projectPriorities") or $projectPriorities = [];
+$TPL["project_projectPriority"] || ($TPL["project_projectPriority"] = 3);
+($projectPriorities = config::get_config_item("projectPriorities")) || ($projectPriorities = []);
 $tp = [];
 foreach ($projectPriorities as $key => $arr) {
     $tp[$key] = $arr["label"];
 }
 
 $TPL["projectPriority_options"] = Page::select_options($tp, $TPL["project_projectPriority"]);
-$TPL["project_projectPriority"] and $TPL["priorityLabel"] = ' <div style="display:inline; color:' . $projectPriorities[$TPL["project_projectPriority"]]["colour"] . '">[' . $tp[$TPL["project_projectPriority"]] . "]</div>";
+$TPL["project_projectPriority"] && ($TPL["priorityLabel"] = ' <div style="display:inline; color:' . $projectPriorities[$TPL["project_projectPriority"]]["colour"] . '">[' . $tp[$TPL["project_projectPriority"]] . "]</div>");
 
 $TPL["defaultTimeSheetRate"] = $project->get_value("defaultTimeSheetRate");
 $TPL["defaultTimeSheetUnit_options"] = Page::select_options($rate_type_array, $project->get_value("defaultTimeSheetRateUnitID"));

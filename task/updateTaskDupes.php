@@ -10,7 +10,7 @@ use ZendSearch\Lucene\Lucene;
 use ZendSearch\Lucene\Search\QueryParser;
 
 define("NO_REDIRECT", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $index = new Index(ATTACHMENTS_DIR . 'search/task');
 Lucene::setResultSetLimit(10);

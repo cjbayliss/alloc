@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function show_perm_select()
 {
@@ -16,7 +16,10 @@ function show_perm_select()
         $ops = role::get_roles_array("person");
         foreach ($ops as $p => $l) {
             unset($sel);
-            in_array($p, $selected) and $sel = " checked";
+            if (in_array($p, $selected)) {
+                $sel = " checked";
+            }
+
             echo $br . '<input type="checkbox" name="perm_select[]" value="' . $p . '"' . $sel . "> " . $l;
             $br = "<br>";
         }
@@ -136,7 +139,7 @@ function show_skills_list()
     while ($db->next_record()) {
         $skill = new skill();
         $skill->read_db_record($db);
-        array_push($skills_got, $skill->get_id());
+        $skills_got[] = $skill->get_id();
     }
 
     $query = "SELECT * FROM skill ORDER BY skillClass";
@@ -173,7 +176,7 @@ function include_management_fields()
 $skill_header = false;
 $person = new person();
 
-$personID = $_POST["personID"] or $personID = $_GET["personID"];
+($personID = $_POST["personID"]) || ($personID = $_GET["personID"]);
 
 if ($personID) {
     $person->set_id($personID);
@@ -187,9 +190,9 @@ if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $
     if ($_POST["skillID"] != null) {
         if ($_POST["personExpertiseItem_delete"]) {
             $proficiency->delete();
-        } else if ($_POST["personExpertiseItem_save"]) {
+        } elseif ($_POST["personExpertiseItem_save"]) {
             $proficiency->save();
-        } else if ($_POST["personExpertiseItem_add"]) {
+        } elseif ($_POST["personExpertiseItem_add"]) {
             // skillID is an array if when adding but not when saving or deleting
             $skillProficiency = $proficiency->get_value('skillProficiency');
             for ($i = 0; $i < (is_countable($_POST["skillID"]) ? count($_POST["skillID"]) : 0); ++$i) {
@@ -213,15 +216,14 @@ if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $
 
 if ($_POST["save"]) {
     $person->read_globals();
-
     if ($person->can_write_field("perms")) {
-        $_POST["perm_select"] or $_POST["perm_select"] = [];
+        $_POST["perm_select"] || ($_POST["perm_select"] = []);
         $person->set_value("perms", implode(",", $_POST["perm_select"]));
     }
 
     if ($_POST["password1"] && $_POST["password1"] == $_POST["password2"]) {
         $person->set_value('password', password_hash($_POST["password1"], PASSWORD_BCRYPT));
-    } else if (!$_POST["password1"] && $personID) {
+    } elseif (!$_POST["password1"] && $personID) {
         // nothing required here, just don't update the password field
     } else {
         alloc_error("Please re-type the passwords");
@@ -242,7 +244,6 @@ if ($_POST["save"]) {
     }
 
     $person->set_value("personActive", $_POST["personActive"] ? 1 : "0");
-
     if (!$TPL["message"]) {
         $person->set_value("availability", rtrim($person->get_value("availability")));
         $person->set_value("areasOfInterest", rtrim($person->get_value("areasOfInterest")));
@@ -253,7 +254,7 @@ if ($_POST["save"]) {
         $person->save();
         alloc_redirect($TPL["url_alloc_personList"]);
     }
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     $person->delete();
     alloc_redirect($TPL["url_alloc_personList"]);
 }

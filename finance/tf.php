@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function show_person_list($template)
 {
@@ -52,7 +52,7 @@ function show_person_options()
 $db = new AllocDatabase();
 $tf = new tf();
 
-$tfID = $_GET["tfID"] or $tfID = $_POST["tfID"];
+($tfID = $_GET["tfID"]) || ($tfID = $_POST["tfID"]);
 if ($tfID) {
     $tf->set_id($tfID);
     $tf->select();
@@ -62,7 +62,6 @@ if ($tfID) {
 
 if ($_POST["save"]) {
     $tf->read_globals();
-
     if ($_POST["isActive"]) {
         $tf->set_value("tfActive", 1);
     } else {
@@ -86,15 +85,13 @@ if ($_POST["save"]) {
             $tf->set_value("tfComments", rtrim($tf->get_value("tfComments")));
             $tf->save();
             $TPL["message_good"][] = "Your TF has been saved.";
-            $tf_is_new and $TPL["message_help"][] = "Please now add the TF Owners who are allowed to access this TF.";
+            $tf_is_new && ($TPL["message_help"][] = "Please now add the TF Owners who are allowed to access this TF.");
         }
     }
-} else {
-    if ($_POST["delete"]) {
-        $tf->delete();
-        alloc_redirect($TPL["url_alloc_tfList"]);
-        exit();
-    }
+} elseif ($_POST["delete"]) {
+    $tf->delete();
+    alloc_redirect($TPL["url_alloc_tfList"]);
+    exit();
 }
 
 if ($_POST["person_save"] || $_POST["person_delete"]) {
@@ -103,10 +100,10 @@ if ($_POST["person_save"] || $_POST["person_delete"]) {
     $tfPerson->read_globals("person_");
     if (!$_POST["person_personID"]) {
         alloc_error("Please select a person from the dropdown list.");
-    } else if ($_POST["person_save"]) {
+    } elseif ($_POST["person_save"]) {
         $tfPerson->save();
         $TPL["message_good"][] = "Person added to TF.";
-    } else if ($_POST["person_delete"]) {
+    } elseif ($_POST["person_delete"]) {
         $tfPerson->delete();
     }
 }
@@ -118,7 +115,9 @@ if ($tf->get_value("tfModifiedUser")) {
     $TPL["tfModifiedUser"] = person::get_fullname($tf->get_value("tfModifiedUser"));
 }
 
-$tf->get_value("tfActive") || !$tf->get_id() and $TPL["tfIsActive"] = " checked";
+if ($tf->get_value("tfActive") || !$tf->get_id()) {
+    $TPL["tfIsActive"] = " checked";
+}
 
 $TPL["main_alloc_title"] = "Edit TF - " . APPLICATION_NAME;
 

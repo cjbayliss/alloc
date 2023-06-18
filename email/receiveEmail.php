@@ -6,7 +6,7 @@
  */
 
 define("NO_AUTH", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 singleton("errors_fatal", false);
 singleton("errors_format", "text");
 singleton("errors_logged", false);
@@ -49,15 +49,13 @@ if ($num_new_emails > 0) {
                 }
 
                 // Else if we have a key, append to comment
-            } else {
+            } elseif (same_email_address($email_receive->mail_headers["from"], ALLOC_DEFAULT_FROM_ADDRESS)) {
                 // Skip over emails that are from alloc. These emails are kept only for
                 // posterity and should not be parsed and downloaded and re-emailed etc.
-                if (same_email_address($email_receive->mail_headers["from"], ALLOC_DEFAULT_FROM_ADDRESS)) {
-                    $email_receive->mark_seen();
-                    $email_receive->archive();
-                } else {
-                    inbox::process_one_email($email_receive);
-                }
+                $email_receive->mark_seen();
+                $email_receive->archive();
+            } else {
+                inbox::process_one_email($email_receive);
             }
         } catch (Exception $e) {
             // There may have been a database error, so let the database know it can run this next bit

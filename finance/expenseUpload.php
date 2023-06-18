@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if (!config::get_config_item("mainTfID")) {
     alloc_error("This functionality will not work until you set a Finance TF on the Setup -> Finance screen.");
@@ -24,7 +24,11 @@ $field_map = [
 
 if ($_POST["upload"]) {
     $db = new AllocDatabase();
-    is_uploaded_file($_FILES["expenses_file"]["tmp_name"]) || alloc_error("File referred to was not an uploaded file", true); // Prevent attacks by setting $expenses_file in URL
+    if (!is_uploaded_file($_FILES["expenses_file"]["tmp_name"])) {
+        alloc_error("File referred to was not an uploaded file", true);
+    }
+
+    // Prevent attacks by setting $expenses_file in URL
     $lines = file($_FILES["expenses_file"]["tmp_name"]);
 
     foreach ($lines as $line) {
@@ -56,7 +60,7 @@ if ($_POST["upload"]) {
         }
 
         // Convert the date to yyyy-mm-dd
-        if (!preg_match("|^([0-9]{1,2})/([0-9]{1,2})'([0-9])$|i", $date, $matches)) {
+        if (!preg_match("|^(\\d{1,2})/(\\d{1,2})'(\\d)\$|i", $date, $matches)) {
             $msg .= sprintf("<b>Warning: Could not convert date '%s'</b><br>", $date);
             continue;
         }
@@ -65,7 +69,7 @@ if ($_POST["upload"]) {
 
         // Strip $ and , from amount
         $amount = str_replace(['$', ','], [], $amount);
-        if (!preg_match("/^-?[0-9]+(\\.[0-9]+)?$/", $amount)) {
+        if (!preg_match("/^-?\\d+(\\.\\d+)?\$/", $amount)) {
             $msg .= sprintf("<b>Warning: Could not convert amount '%s'</b><br>", $amount);
             continue;
         }

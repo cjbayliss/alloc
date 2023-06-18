@@ -27,7 +27,7 @@ class tsiHintHomeItem extends home_item
         return true;
     }
 
-    public function render()
+    public function render(): bool
     {
         return true;
     }

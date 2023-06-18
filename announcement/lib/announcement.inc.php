@@ -21,7 +21,7 @@ class announcement extends DatabaseEntity
         "displayToDate",
     ];
 
-    public function has_announcements()
+    public function has_announcements(): bool
     {
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
@@ -31,10 +31,6 @@ class announcement extends DatabaseEntity
               where displayFromDate <= CURRENT_DATE()
                 and displayToDate >= CURRENT_DATE()"
         );
-        if ($getAnnouncements->fetch(PDO::FETCH_ASSOC)) {
-            return true;
-        }
-
-        return false;
+        return (bool) $getAnnouncements->fetch(PDO::FETCH_ASSOC);
     }
 }

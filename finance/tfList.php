@@ -5,15 +5,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $current_user->check_employee();
 
-if ($_REQUEST["owner"]) {
-    $TPL["owner_checked"] = " checked";
-} else {
-    $TPL["owner_checked"] = "";
-}
+$TPL["owner_checked"] = $_REQUEST["owner"] ? " checked" : "";
 
 if ($_REQUEST["showall"]) {
     $TPL["showall_checked"] = " checked";

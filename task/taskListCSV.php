@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $_FORM = $_GET;
 
@@ -13,25 +13,28 @@ $_FORM = $_GET;
 $_FORM["showEdit"] = false;
 $fields["taskID"] = "ID";
 $fields["taskName"] = "Task";
-$_FORM["showProject"] and $fields["projectName"] = "Project";
-$_FORM["showPriority"] || $_FORM["showPriorityFactor"] and $fields["priorityFactor"] = "Pri";
-$_FORM["showPriority"] and $fields["taskPriority"] = "Task Pri";
-$_FORM["showPriority"] and $fields["projectPriority"] = "Proj Pri";
-$_FORM["showCreator"] and $fields["creator_name"] = "Creator";
-$_FORM["showManager"] and $fields["manager_name"] = "Manager";
-$_FORM["showAssigned"] and $fields["assignee_name"] = "Assigned To";
-$_FORM["showDate1"] and $fields["dateTargetStart"] = "Targ Start";
-$_FORM["showDate2"] and $fields["dateTargetCompletion"] = "Targ Compl";
-$_FORM["showDate3"] and $fields["dateActualStart"] = "Start";
-$_FORM["showDate4"] and $fields["dateActualCompletion"] = "Compl";
-$_FORM["showDate5"] and $fields["dateCreated"] = "Created";
-$_FORM["showTimes"] and $fields["timeBestLabel"] = "Best";
-$_FORM["showTimes"] and $fields["timeExpectedLabel"] = "Likely";
-$_FORM["showTimes"] and $fields["timeWorstLabel"] = "Worst";
-$_FORM["showTimes"] and $fields["timeActualLabel"] = "Actual";
-$_FORM["showTimes"] and $fields["timeLimitLabel"] = "Limit";
-$_FORM["showPercent"] and $fields["percentComplete"] = "%";
-$_FORM["showStatus"] and $fields["taskStatusLabel"] = "Status";
+$_FORM["showProject"] && ($fields["projectName"] = "Project");
+if ($_FORM["showPriority"] || $_FORM["showPriorityFactor"]) {
+    $fields["priorityFactor"] = "Pri";
+}
+
+$_FORM["showPriority"] && ($fields["taskPriority"] = "Task Pri");
+$_FORM["showPriority"] && ($fields["projectPriority"] = "Proj Pri");
+$_FORM["showCreator"] && ($fields["creator_name"] = "Creator");
+$_FORM["showManager"] && ($fields["manager_name"] = "Manager");
+$_FORM["showAssigned"] && ($fields["assignee_name"] = "Assigned To");
+$_FORM["showDate1"] && ($fields["dateTargetStart"] = "Targ Start");
+$_FORM["showDate2"] && ($fields["dateTargetCompletion"] = "Targ Compl");
+$_FORM["showDate3"] && ($fields["dateActualStart"] = "Start");
+$_FORM["showDate4"] && ($fields["dateActualCompletion"] = "Compl");
+$_FORM["showDate5"] && ($fields["dateCreated"] = "Created");
+$_FORM["showTimes"] && ($fields["timeBestLabel"] = "Best");
+$_FORM["showTimes"] && ($fields["timeExpectedLabel"] = "Likely");
+$_FORM["showTimes"] && ($fields["timeWorstLabel"] = "Worst");
+$_FORM["showTimes"] && ($fields["timeActualLabel"] = "Actual");
+$_FORM["showTimes"] && ($fields["timeLimitLabel"] = "Limit");
+$_FORM["showPercent"] && ($fields["percentComplete"] = "%");
+$_FORM["showStatus"] && ($fields["taskStatusLabel"] = "Status");
 
 $taskPriorities = config::get_config_item("taskPriorities");
 $projectPriorities = config::get_config_item("projectPriorities");
@@ -46,7 +49,7 @@ foreach ((array)$rows as $row) {
     $taskListRows[] = $row;
 }
 
-if ($taskListRows) {
+if ($taskListRows !== []) {
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment;filename=tasklist' . time() . '.csv');
     $fp = fopen('php://output', 'w');

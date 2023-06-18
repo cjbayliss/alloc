@@ -68,8 +68,8 @@ class exchangeRate extends DatabaseEntity
 
     public static function convert($currency, $amount, $destCurrency = false, $date = false, $format = "%m")
     {
-        $date or $date = date("Y-m-d");
-        $destCurrency or $destCurrency = config::get_config_item("currency");
+        $date || ($date = date("Y-m-d"));
+        $destCurrency || ($destCurrency = config::get_config_item("currency"));
         $er = exchangeRate::get_er($currency, $destCurrency, $date);
         return Page::money($destCurrency, $amount * $er, $format);
     }
@@ -100,7 +100,7 @@ class exchangeRate extends DatabaseEntity
         $meta = new Meta("currencyType");
         $currencies = $meta->get_list();
 
-        foreach ((array)$currencies as $code => $currency) {
+        foreach (array_keys((array)$currencies) as $code) {
             if ($code == $default_currency) {
                 continue;
             }

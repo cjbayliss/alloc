@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if (!has_report_perm()) {
     alloc_error("you don't have permission to generate reports.", true);
@@ -18,7 +18,7 @@ $TPL["do_step_2"] = $_POST["do_step_2"];
 $TPL["do_step_3"] = $_POST["do_step_3"];
 
 $modules = [];
-$current_user->have_role("admin") and $modules["transaction"] = "Transactions";
+$current_user->have_role("admin") && ($modules["transaction"] = "Transactions");
 $modules["invoice"] = "Invoices";
 $modules["project"] = "Projects";
 $modules["task"] = "Tasks";
@@ -158,7 +158,7 @@ if ($_POST["do_step_2"]) {
 
     if ($_POST["field_quotes"] == "single") {
         $s_q_sel = " selected";
-    } else if ($_POST["field_quotes"] == "double") {
+    } elseif ($_POST["field_quotes"] == "double") {
         $d_q_sel = " selected";
     }
 
@@ -166,7 +166,7 @@ if ($_POST["do_step_2"]) {
         $g_f_sel = " checked";
     }
 
-    $_POST["field_separator"] or $_POST["field_separator"] = ",";
+    $_POST["field_separator"] || ($_POST["field_separator"] = ",");
 
     $TPL["dump_options"] .= "Generate File: ";
     $TPL["dump_options"] .= '<input type="checkbox" name="generate_file"' . $g_f_sel . "> ";
@@ -251,11 +251,7 @@ if ($_POST["do_step_3"]) {
             $start_row_separator = "";
             $end_row_separator = "\n";
             $start_field_separator = "";
-            if ($_POST["field_separator"] == 'tab') {
-                $end_field_separator = chr(9);
-            } else {
-                $end_field_separator = $_POST["field_separator"];
-            }
+            $end_field_separator = $_POST["field_separator"] == 'tab' ? chr(9) : $_POST["field_separator"];
         }
 
         if ($_POST["field_quotes"] == "single") {
@@ -276,9 +272,8 @@ if ($_POST["do_step_3"]) {
                     $person = new person();
                     $person->set_id($db->f($field));
                     $person->select();
-
                     $result = $person->get_name(["format" => "nick"]);
-                } else if (stripos("tfID", $field) !== false) {
+                } elseif (stripos("tfID", $field) !== false) {
                     $result = $taggedFund->get_name($db->f($field));
                 } else {
                     $result = $db->f($field);

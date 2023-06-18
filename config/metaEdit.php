@@ -5,13 +5,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if (!have_entity_perm("config", PERM_UPDATE, $current_user, true)) {
     alloc_error("Permission denied.", true);
 }
 
-$table = $_POST["configName"] or $table = $_GET["configName"];
+($table = $_POST["configName"]) || ($table = $_GET["configName"]);
 $TPL["table"] = $table;
 
 if ($_POST["save"]) {

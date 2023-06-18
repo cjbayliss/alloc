@@ -156,7 +156,7 @@ class task_graph
 
     public function set_width($width)
     {
-        $width and $this->width = $width;
+        $width && ($this->width = $width);
     }
 
     public function set_title($title)
@@ -180,16 +180,24 @@ class task_graph
 
         // Get date values
         $date_target_start = $t["dateTargetStart"];
-        $date_target_start == "0000-00-00" and $date_target_start = "";
+        if ($date_target_start == "0000-00-00") {
+            $date_target_start = "";
+        }
 
         $date_target_completion = $t["dateTargetCompletion"];
-        $date_target_completion == "0000-00-00" and $date_target_completion = "";
+        if ($date_target_completion == "0000-00-00") {
+            $date_target_completion = "";
+        }
 
         $date_actual_start = $t["dateActualStart"];
-        $date_actual_start == "0000-00-00" and $date_actual_start = "";
+        if ($date_actual_start == "0000-00-00") {
+            $date_actual_start = "";
+        }
 
         $date_actual_completion = $t["dateActualCompletion"];
-        $date_actual_completion == "0000-00-00" and $date_actual_completion = "";
+        if ($date_actual_completion == "0000-00-00") {
+            $date_actual_completion = "";
+        }
 
         // target bar
         $color = $this->task_colors[$t["taskTypeID"]]["target"];
@@ -200,9 +208,9 @@ class task_graph
         if ($date_actual_completion == "" && $date_actual_start != "") {
             // Task isn't complete but we can forecast comlpetion using percent complete and start date - show forecast
             $forecast = $task->get_forecast_completion();
-            $forecast and $date_forecast_completion = date("Y-m-d", $forecast);
+            $forecast && ($date_forecast_completion = date("Y-m-d", $forecast));
             $color = $this->task_colors[$t["taskTypeID"]]["actual"];
-            $forecast and $this->draw_dates($date_actual_start, $date_forecast_completion, $y, $color, false);      // Forecast bar
+            $forecast && $this->draw_dates($date_actual_start, $date_forecast_completion, $y, $color, false);      // Forecast bar
             $this->draw_dates($date_actual_start, date("Y-m-d"), $y, $color, true);   // Solid bar for already completed portion
         } else {
             // Just show dates as usual
@@ -220,11 +228,7 @@ class task_graph
 
         // Register milestones
         if ($t["taskTypeID"] == 'Milestone' && ($date_target_completion || $date_actual_completion)) {
-            if ($date_actual_completion) {
-                $date_milestone = $date_actual_completion;
-            } else {
-                $date_milestone = $date_target_completion;
-            }
+            $date_milestone = $date_actual_completion ?: $date_target_completion;
 
             $this->register_milestone($date_milestone);
         }
@@ -261,13 +265,13 @@ class task_graph
             $x_start = $this->date_to_x($date_start);
             $x_completion = $this->date_to_x($date_completion);
             $this->draw_rectangle($x_start, $y, $x_completion, $y + $this->bar_height, $color, $filled);
-        } else if ($date_completion) {
+        } elseif ($date_completion) {
             // We can only show the completion date - draw a triangle
             echo_debug("Drawing completion date<br>");
             $x_completion = $this->date_to_x($date_completion);
             echo_debug(sprintf('Completion date x=%s<br>', $x_completion));
             $this->draw_polygon([$x_completion, $y, $x_completion, $y + $this->bar_height, $x_completion - 4, $y + 4], 3, $color, $filled);
-        } else if ($date_start) {
+        } elseif ($date_start) {
             // We can only show the start date - draw a triangle
             echo_debug("Drawing start date<br>");
             $x_start = $this->date_to_x($date_start);
@@ -335,11 +339,7 @@ class task_graph
     {
         $legend_bar_width = 30;
         $x2 = $x + $legend_bar_width;
-        if ($start) {
-            $points = [$x, $y, $x, $y + 8, $x + 4, $y + 4];
-        } else {
-            $points = [$x + 4, $y, $x + 4, $y + 8, $x, $y + 4];
-        }
+        $points = $start ? [$x, $y, $x, $y + 8, $x + 4, $y + 4] : [$x + 4, $y, $x + 4, $y + 8, $x, $y + 4];
 
         $this->draw_polygon($points, 3, $color, true);
         $x = $x2 + $this->task_padding;
@@ -394,11 +394,10 @@ class task_graph
 
         $graph_time_width = format_date("U", $graph_completion_date) - format_date("U", $graph_start_date);
         $time_offset = $date - format_date("U", $graph_start_date);
-        $graph_time_width and $decimal_pos = $time_offset / $graph_time_width;
+        $graph_time_width && ($decimal_pos = $time_offset / $graph_time_width);
         $working_width = $this->width - $this->left_margin - $this->right_margin;
-        $x_pos = $this->left_margin + $decimal_pos * $working_width;
 
-        return $x_pos;
+        return $this->left_margin + $decimal_pos * $working_width;
     }
 
     // Output the image

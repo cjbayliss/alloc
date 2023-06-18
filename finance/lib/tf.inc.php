@@ -29,7 +29,7 @@ class tf extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         // If no status is requested then default to approved.
-        $where["status"] or $where["status"] = "approved";
+        $where["status"] || ($where["status"] = "approved");
 
         if (!$this->is_owner() && !$current_user->have_role("admin")) {
             return false;
@@ -64,7 +64,7 @@ class tf extends DatabaseEntity
         return $allocDatabase->f("balance");
     }
 
-    public function is_owner($person = "")
+    public function is_owner($person = ""): bool
     {
         $current_user = &singleton("current_user");
         static $owners;
@@ -190,13 +190,13 @@ class tf extends DatabaseEntity
             $_FORM["owner"] = true;
         }
 
-        $_FORM["owner"] and $filter1[] = sprintf_implode("tfPerson.personID = %d", $current_user->get_id());
+        $_FORM["owner"] && ($filter1[] = sprintf_implode("tfPerson.personID = %d", $current_user->get_id()));
 
         $tfIDs = tf::get_permitted_tfs($_FORM["tfIDs"]);
-        $tfIDs and $filter1[] = sprintf_implode("tf.tfID = %d", $tfIDs);
-        $tfIDs and $filter2[] = sprintf_implode("tf.tfID = %d", $tfIDs);
-        $_FORM["showall"] or $filter1[] = "(tf.tfActive = 1)";
-        $_FORM["showall"] or $filter2[] = "(tf.tfActive = 1)";
+        $tfIDs && ($filter1[] = sprintf_implode("tf.tfID = %d", $tfIDs));
+        $tfIDs && ($filter2[] = sprintf_implode("tf.tfID = %d", $tfIDs));
+        $_FORM["showall"] || ($filter1[] = "(tf.tfActive = 1)");
+        $_FORM["showall"] || ($filter2[] = "(tf.tfActive = 1)");
 
         return [$filter1, $filter2];
     }
@@ -234,7 +234,7 @@ class tf extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             if ($row["status"] == "approved") {
                 $adds[$row["id"]] = $row["balance"];
-            } else if ($row["status"] == "pending") {
+            } elseif ($row["status"] == "pending") {
                 $pending_adds[$row["id"]] = $row["balance"];
             }
         }
@@ -250,7 +250,7 @@ class tf extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             if ($row["status"] == "approved") {
                 $subs[$row["id"]] = $row["balance"];
-            } else if ($row["status"] == "pending") {
+            } elseif ($row["status"] == "pending") {
                 $pending_subs[$row["id"]] = $row["balance"];
             }
         }
@@ -286,7 +286,7 @@ class tf extends DatabaseEntity
             $nav_links = $tf->get_nav_links();
             $row["nav_links"] = implode(" ", $nav_links);
             $row["tfActive_label"] = "";
-            $tf->get_value("tfActive") and $row["tfActive_label"] = "Y";
+            $tf->get_value("tfActive") && ($row["tfActive_label"] = "Y");
             $rows[$tf->get_id()] = $row;
         }
 

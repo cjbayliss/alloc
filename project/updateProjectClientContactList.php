@@ -6,7 +6,7 @@
  */
 
 define("NO_REDIRECT", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if ($_GET["clientID"]) {
     usleep(400000);

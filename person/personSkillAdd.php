@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 // add new skill to database
 if ($_POST["add_skill"]) {
@@ -13,7 +13,7 @@ if ($_POST["add_skill"]) {
     $skill = new skill();
     if ($_POST["new_skill_class"] != "") {
         $skill->set_value('skillClass', $_POST["new_skill_class"]);
-    } else if ($_POST["other_new_skill_class"] != "") {
+    } elseif ($_POST["other_new_skill_class"] != "") {
         $skill->set_value('skillClass', $_POST["other_new_skill_class"]);
     } else {
         $failed = true;

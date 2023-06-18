@@ -8,7 +8,7 @@
 use ZendSearch\Lucene\Index;
 use ZendSearch\Lucene\Search\QueryParser;
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function format_display_fields($str = "")
 {
@@ -32,17 +32,16 @@ function format_display_fields($str = "")
 
 global $TPL;
 
-$noRedirect = $_POST["idRedirect"] or $noRedirect = $_GET["idRedirect"];
-$search = $_POST["search"] or $search = $_GET["search"];
-$category = $_POST["category"] or $category = $_GET["category"];
-$needle = trim($_POST["needle"]) or $needle = trim($_GET["needle"]);
+($noRedirect = $_POST["idRedirect"]) || ($noRedirect = $_GET["idRedirect"]);
+($search = $_POST["search"]) || ($search = $_GET["search"]);
+($category = $_POST["category"]) || ($category = $_GET["category"]);
+($needle = trim($_POST["needle"])) || ($needle = trim($_GET["needle"]));
 
 $db = new AllocDatabase();
 
 // Project Search
 if ($search && $needle && $category == "search_projects") {
     $TPL["search_title"] = "Project Search";
-
     if (!$noRedirect && is_numeric($needle)) {
         $query = unsafe_prepare("SELECT projectID FROM project WHERE projectID = %d", $needle);
         $db->query($query);
@@ -54,7 +53,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0 : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -79,9 +78,8 @@ if ($search && $needle && $category == "search_projects") {
     }
 
     // Clients Search
-} else if ($search && $needle && $category == "search_clients") {
+} elseif ($search && $needle && $category == "search_clients") {
     $TPL["search_title"] = "Client Search";
-
     if (!$noRedirect && is_numeric($needle)) {
         $query = unsafe_prepare("SELECT clientID FROM client WHERE clientID = %d", $needle);
         $db->query($query);
@@ -93,7 +91,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0 : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -113,8 +111,11 @@ if ($search && $needle && $category == "search_projects") {
             if ($d->getFieldValue('contact')) {
                 $num_contact = count((array)explode("|+|=|", $d->getFieldValue('contact')));
                 unset($s);
-                $num_contact > 1 and $s = "s";
-                $num_contact and $num_contact = "\n\n" . $num_contact . " contact" . $s . ".\n";
+                if ($num_contact > 1) {
+                    $s = "s";
+                }
+
+                $num_contact && ($num_contact = "\n\n" . $num_contact . " contact" . $s . ".\n");
             }
 
             $desc = Page::htmlentities($d->getFieldValue('desc'));
@@ -127,9 +128,8 @@ if ($search && $needle && $category == "search_projects") {
     }
 
     // Tasks Search
-} else if ($search && $needle && $category == "search_tasks") {
+} elseif ($search && $needle && $category == "search_tasks") {
     $TPL["search_title"] = "Task Search";
-
     if (!$noRedirect && is_numeric($needle)) {
         $query = unsafe_prepare("SELECT taskID FROM task WHERE taskID = %d", $needle);
         $db->query($query);
@@ -141,7 +141,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0 : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -166,10 +166,9 @@ if ($search && $needle && $category == "search_projects") {
     }
 
     // Item Search
-} else if ($search && $needle && $category == "search_items") {
+} elseif ($search && $needle && $category == "search_items") {
     $TPL["search_title"] = "Item Search";
     $today = date("Y") . "-" . date("m") . "-" . date("d");
-
     if (!$noRedirect && is_numeric($needle)) {
         $query = unsafe_prepare("SELECT itemID FROM item WHERE itemID = %d", $needle);
         $db->query($query);
@@ -182,7 +181,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0 : 0 : 0;
 
         $p = &get_cached_table("person");
 
@@ -194,7 +193,7 @@ if ($search && $needle && $category == "search_projects") {
             $row = [];
             $row["idx"] = $hit->id;
             $author = $item->get_value("itemAuthor");
-            $author and $author = " by " . $author;
+            $author && ($author = " by " . $author);
             $row["title"] = $item->get_id() . " " . $item->get_link() . $author;
             $row["score"] = sprintf('%d%%', $hit->score * 100);
             $row["desc"] = Page::htmlentities($d->getFieldValue('desc'));
@@ -209,11 +208,7 @@ if ($search && $needle && $category == "search_projects") {
 
                 if ($loan->have_perm(PERM_READ_WRITE)) {
                     // if item is overdue
-                    if ($loan->get_value("dateToBeReturned") < $today) {
-                        $status = "Overdue";
-                    } else {
-                        $status = "Due on " . $loan->get_value("dateToBeReturned");
-                    }
+                    $status = $loan->get_value("dateToBeReturned") < $today ? "Overdue" : "Due on " . $loan->get_value("dateToBeReturned");
 
                     $row["related"] = $status . ' <a href="' . $TPL["url_alloc_item"] . "itemID=" . $item->get_id() . '&return=true">Return</a>';
 
@@ -236,7 +231,7 @@ if ($search && $needle && $category == "search_projects") {
     }
 
     // Expense Form ID search
-} else if ($search && $needle && $category == "search_expenseForm") {
+} elseif ($search && $needle && $category == "search_expenseForm") {
     if (!$noRedirect && is_numeric($needle)) {
         $query = unsafe_prepare("SELECT expenseFormID FROM expenseForm WHERE expenseFormID = %d", $needle);
         $db->query($query);
@@ -246,9 +241,8 @@ if ($search && $needle && $category == "search_projects") {
     }
 
     // Time Sheet Search
-} else if ($search && $needle && $category == "search_time") {
+} elseif ($search && $needle && $category == "search_time") {
     $TPL["search_title"] = "Time Sheet Search";
-
     if (!$noRedirect && is_numeric($needle)) {
         $query = unsafe_prepare("SELECT timeSheetID FROM timeSheet WHERE timeSheetID = %d", $needle);
         $db->query($query);
@@ -260,7 +254,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0 : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -289,9 +283,8 @@ if ($search && $needle && $category == "search_projects") {
     }
 
     // Comment Search
-} else if ($search && $needle && $category == "search_comment") {
+} elseif ($search && $needle && $category == "search_comment") {
     $TPL["search_title"] = "Comment Search";
-
     if (!$noRedirect && is_numeric($needle)) {
         $query = unsafe_prepare("SELECT commentID FROM comment WHERE commentID = %d", $needle);
         $db->query($query);
@@ -303,7 +296,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0 : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();

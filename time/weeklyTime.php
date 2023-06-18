@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function show_days($template_name)
 {
@@ -54,11 +54,7 @@ function show_timeSheetItems($template_name)
     }
 }
 
-if (isset($start_date)) {
-    $date_to_view = $start_date;
-} else {
-    $date_to_view = mktime(0, 0, 0);
-}
+$date_to_view = $start_date ?? mktime(0, 0, 0);
 
 while (date("D", $date_to_view) != "Sun") {
     $date_to_view = mktime(0, 0, 0, date("m", $date_to_view), date("d", $date_to_view) - 1, date("Y", $date_to_view));

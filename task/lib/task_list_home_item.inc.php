@@ -7,11 +7,15 @@
 
 class task_list_home_item extends home_item
 {
+    /**
+     * @var bool
+     */
+    public $has_config = true;
+
     public $date;
 
     public function __construct()
     {
-        $this->has_config = true;
         parent::__construct("top_ten_tasks", "Tasks", "task", "taskListH.tpl", "standard", 20);
     }
 
@@ -28,7 +32,7 @@ class task_list_home_item extends home_item
         }
     }
 
-    public function render()
+    public function render(): bool
     {
         global $TPL;
 

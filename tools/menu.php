@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $misc_options = [
     [
@@ -159,7 +159,7 @@ $finance_options = [
 function has_whatsnew_files()
 {
     $rows = get_attachments("whatsnew", 0);
-    if (is_countable($rows) ? count($rows) : 0) {
+    if ((is_countable($rows) ? count($rows) : 0) !== 0) {
         return true;
     }
 }
@@ -179,7 +179,7 @@ function show_misc_options($template)
                 $TPL["text"] = $misc_option["text"];
                 include_template($template);
             }
-        } else if ($misc_option["function"]) {
+        } elseif ($misc_option["function"]) {
             $f = $misc_option["function"];
             if ($f()) {
                 $TPL["url"] = $TPL["url_alloc_" . $misc_option["url"]];
@@ -208,18 +208,18 @@ function show_finance_options($template)
                 $TPL["params"] = $finance_option["params"];
                 $TPL["text"] = $finance_option["text"];
                 $TPL["br"] = "<br>\n";
-                $finance_option["br"] and $TPL["br"] = "<br><br>\n";
+                $finance_option["br"] && ($TPL["br"] = "<br><br>\n");
 
                 include_template($template);
             }
-        } else if ($finance_option["function"]) {
+        } elseif ($finance_option["function"]) {
             $f = $finance_option["function"];
             if ($f()) {
                 $TPL["url"] = $TPL["url_alloc_" . $finance_option["url"]];
                 $TPL["params"] = $finance_option["params"];
                 $TPL["text"] = $finance_option["text"];
                 $TPL["br"] = "<br>\n";
-                $finance_option["br"] and $TPL["br"] = "<br><br>\n";
+                $finance_option["br"] && ($TPL["br"] = "<br><br>\n");
                 include_template($template);
             }
         }

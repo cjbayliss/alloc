@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $current_user->check_employee();
 
@@ -15,7 +15,7 @@ $db = new AllocDatabase();
 global $TPL;
 global $transactionRepeatID;
 
-$transactionRepeatID = $_POST["transactionRepeatID"] or $transactionRepeatID = $_GET["transactionRepeatID"];
+($transactionRepeatID = $_POST["transactionRepeatID"]) || ($transactionRepeatID = $_GET["transactionRepeatID"]);
 
 if ($transactionRepeatID) {
     $transactionRepeat->set_id($transactionRepeatID);
@@ -34,10 +34,10 @@ if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"
         if ($_POST["changeTransactionStatus"] == "pending") {
             $transactionRepeat->set_value("status", "pending");
             $TPL["message_good"][] = "Repeating Expense form Pending.";
-        } else if ($_POST["changeTransactionStatus"] == "approved") {
+        } elseif ($_POST["changeTransactionStatus"] == "approved") {
             $transactionRepeat->set_value("status", "approved");
             $TPL["message_good"][] = "Repeating Expense form Approved!";
-        } else if ($_POST["changeTransactionStatus"] == "rejected") {
+        } elseif ($_POST["changeTransactionStatus"] == "rejected") {
             $transactionRepeat->set_value("status", "rejected");
             $TPL["message_good"][] = "Repeating Expense form  Rejected.";
         }
@@ -49,17 +49,20 @@ if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"
         alloc_redirect($TPL["url_alloc_transactionRepeatList"] . "tfID=" . $_POST["tfID"]);
     }
 
-    $_POST["product"] or alloc_error("Please enter a Product");
-    $_POST["amount"] or alloc_error("Please enter an Amount");
-    $_POST["fromTfID"] or alloc_error("Please select a Source TF");
-    $_POST["tfID"] or alloc_error("Please select a Destination TF");
-    $_POST["companyDetails"] or alloc_error("Please provide Company Details");
-    $_POST["transactionType"] or alloc_error("Please select a Transaction Type");
-    $_POST["transactionStartDate"] or alloc_error("You must enter the Start date in the format yyyy-mm-dd");
-    $_POST["transactionFinishDate"] or alloc_error("You must enter the Finish date in the format yyyy-mm-dd");
+    $_POST["product"] || alloc_error("Please enter a Product");
+    $_POST["amount"] || alloc_error("Please enter an Amount");
+    $_POST["fromTfID"] || alloc_error("Please select a Source TF");
+    $_POST["tfID"] || alloc_error("Please select a Destination TF");
+    $_POST["companyDetails"] || alloc_error("Please provide Company Details");
+    $_POST["transactionType"] || alloc_error("Please select a Transaction Type");
+    $_POST["transactionStartDate"] || alloc_error("You must enter the Start date in the format yyyy-mm-dd");
+    $_POST["transactionFinishDate"] || alloc_error("You must enter the Finish date in the format yyyy-mm-dd");
 
     if (!$TPL["message"]) {
-        !$transactionRepeat->get_value("status") && $transactionRepeat->set_value("status", "pending");
+        if (!$transactionRepeat->get_value("status")) {
+            $transactionRepeat->set_value("status", "pending");
+        }
+
         $transactionRepeat->set_value("companyDetails", rtrim($transactionRepeat->get_value("companyDetails")));
         $transactionRepeat->save();
         alloc_redirect($TPL["url_alloc_transactionRepeat"] . "transactionRepeatID=" . $transactionRepeat->get_id());
@@ -71,7 +74,7 @@ if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"
 $TPL["reimbursementRequired_checked"] = $transactionRepeat->get_value("reimbursementRequired") ? " checked" : "";
 
 if ($transactionRepeat->get_value("transactionRepeatModifiedUser")) {
-    $db->query("select username from person where personID=%d", $transactionRepeat->get_value("transactionRepeatModifiedUser"));
+    $db->query(["select username from person where personID=%d", $transactionRepeat->get_value("transactionRepeatModifiedUser")]);
     $db->next_record();
     $TPL["user"] = $db->f("username");
 }
@@ -88,7 +91,7 @@ if (have_entity_perm("tf", PERM_READ, $current_user, false)) {
         $transactionRepeat->get_value("tfID"),
         $transactionRepeat->get_value("fromTfID")
     );
-} else if (have_entity_perm("tf", PERM_READ, $current_user, true)) {
+} elseif (have_entity_perm("tf", PERM_READ, $current_user, true)) {
     // Person can only read TF records that they own
     $q = unsafe_prepare(
         "SELECT tf.tfID AS value, tf.tfName AS label
@@ -139,11 +142,11 @@ if (is_object($transactionRepeat) && $transactionRepeat->get_id() && $current_us
 
 if (is_object($transactionRepeat) && $transactionRepeat->get_id() && $transactionRepeat->get_value("status") == "pending") {
     $TPL["message_help"][] = "This Repeating Expense will only create Transactions once its status is Approved.";
-} else if (!$transactionRepeat->get_id()) {
+} elseif (!$transactionRepeat->get_id()) {
     $TPL["message_help"][] = "Complete all the details and click the Save button to create an automatically Repeating Expense";
 }
 
-$transactionRepeat->get_value("status") and $TPL["statusLabel"] = " - " . ucwords($transactionRepeat->get_value("status"));
+$transactionRepeat->get_value("status") && ($TPL["statusLabel"] = " - " . ucwords($transactionRepeat->get_value("status")));
 
 $TPL["taxName"] = config::get_config_item("taxName");
 

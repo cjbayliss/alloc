@@ -6,7 +6,7 @@
  */
 
 define("NO_REDIRECT", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if ($_GET["task_type"] && $_GET["timeSheetID"]) {
     usleep(400000);

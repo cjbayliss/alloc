@@ -8,9 +8,13 @@
 class project_list_home_item extends home_item
 {
 
+    /**
+     * @var bool
+     */
+    public $has_config = true;
+
     public function __construct()
     {
-        $this->has_config = true;
         parent::__construct(
             "project_list",
             "Project List",
@@ -35,7 +39,7 @@ class project_list_home_item extends home_item
         }
     }
 
-    public function render()
+    public function render(): bool
     {
         $options = [];
         $current_user = &singleton("current_user");

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $defaults = [
     "return"     => "html",
@@ -23,7 +23,10 @@ function show_filter()
     global $defaults;
     $_FORM = person::load_form_data($defaults);
     $arr = person::load_person_filter($_FORM);
-    is_array($arr) and $TPL = array_merge($TPL, $arr);
+    if (is_array($arr)) {
+        $TPL = array_merge($TPL, $arr);
+    }
+
     include_template("templates/personListFilterS.tpl");
 }
 

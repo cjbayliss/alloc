@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if (!have_entity_perm("config", PERM_UPDATE, $current_user, true)) {
     alloc_error("Permission denied.", true);
@@ -36,7 +36,7 @@ while ($db->next_record()) {
 
     if ($db->f("type") == "text") {
         $TPL[$db->f("name")] = Page::htmlentities($db->f("value"));
-    } else if ($db->f("type") == "array") {
+    } elseif ($db->f("type") == "array") {
         $TPL[$db->f("name")] = unserialize($db->f("value"));
     }
 }
@@ -70,7 +70,7 @@ if ($_POST["update_currencyless_transactions"] && $_POST["currency"]) {
 
 if ($_POST["fetch_exchange_rates"]) {
     $rtn = exchangeRate::download();
-    $rtn and $TPL["message_good"] = $rtn;
+    $rtn && ($TPL["message_good"] = $rtn);
 }
 
 if ($_POST["save"]) {
@@ -121,7 +121,7 @@ if ($_POST["save"]) {
                 }
 
                 $TPL[$name] = Page::htmlentities($value);
-            } else if ($types[$name] == "array") {
+            } elseif ($types[$name] == "array") {
                 $c->set_value("value", serialize($_POST[$name]));
                 $TPL[$name] = $_POST[$name];
             }
@@ -142,13 +142,11 @@ if ($_POST["save"]) {
         $c->save();
     }
 
-    $TPL["message"] or $TPL["message_good"] = "Saved configuration.";
-} else if ($_POST["delete_logo"]) {
+    $TPL["message"] || ($TPL["message_good"] = "Saved configuration.");
+} elseif ($_POST["delete_logo"]) {
     foreach ([ALLOC_LOGO, ALLOC_LOGO_SMALL] as $logo) {
-        if (file_exists($logo)) {
-            if (unlink($logo)) {
-                $TPL["message_good"][] = "Deleted " . $logo;
-            }
+        if (file_exists($logo) && unlink($logo)) {
+            $TPL["message_good"][] = "Deleted " . $logo;
         }
 
         if (file_exists($logo)) {
@@ -183,7 +181,7 @@ $tabops = [
     "tools"   => "Tools",
 ];
 
-$selected_tabops = config::get_config_item("allocTabs") or $selected_tabops = array_keys($tabops);
+($selected_tabops = config::get_config_item("allocTabs")) || ($selected_tabops = array_keys($tabops));
 $TPL["allocTabsOptions"] = Page::select_options($tabops, $selected_tabops);
 
 $m = new Meta("currencyType");
@@ -223,5 +221,5 @@ include_template("templates/configM.tpl");
 function get_person_list(array $person_ids, array $people)
 {
     $selected_people = array_intersect_key($people, array_flip($person_ids));
-    return $selected_people ? implode(", ", $selected_people) : "<i>none</i>";
+    return $selected_people !== [] ? implode(", ", $selected_people) : "<i>none</i>";
 }

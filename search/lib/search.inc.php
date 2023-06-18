@@ -19,7 +19,9 @@ class search
             if ($fp) {
                 while (!feof($fp)) {
                     $line = stream_get_line($fp, 65535, "\n"); // faster than fgets
-                    strpos(strtolower($line), strtolower($needle)) !== false and $rtn[] = $line;
+                    if (stripos($line, strtolower($needle)) !== false) {
+                        $rtn[] = $line;
+                    }
                 }
 
                 fclose($fp);
@@ -32,18 +34,18 @@ class search
     public function get_trimmed_description($haystack, $needle, $category)
     {
 
-        $position = strpos(strtolower($haystack), strtolower($needle));
+        $position = stripos($haystack, strtolower($needle));
         if ($position !== false) {
             $prefix = "...";
             $suffix = "...";
 
             // Nuke trailing ellipses if the string ends in the match
-            if (strlen(substr($haystack, $position)) == strlen($needle)) {
+            if (strlen(substr($haystack, $position)) === strlen($needle)) {
                 $suffix = "";
             }
 
             $buffer = 30;
-            $position = $position - $buffer;
+            $position -= $buffer;
 
             // Reset position to zero cause negative number will make it wrap around,
             // and nuke ellipses prefix because the string begins with the match
@@ -54,8 +56,7 @@ class search
 
             $str = substr($haystack, $position, strlen($needle) + 100);
             $str = str_replace($needle, "[[[" . $needle . "]]]", $str);
-            $str = $prefix . $str . $suffix;
-            return $str;
+            return $prefix . $str . $suffix;
         }
 
         if ($category == "Clients") {
@@ -73,7 +74,7 @@ class search
             if (!in_array($file, $dont_search_these_dirs)) {
                 if (is_file($dir . $file) && !is_dir($dir . $file)) {
                     $rtn[] = $dir . $file;
-                } else if (is_dir($dir . $file)) {
+                } elseif (is_dir($dir . $file)) {
                     $rtn = array_merge((array)$rtn, (array)(new search())->get_recursive_dir_list($dir . $file));
                 }
             }

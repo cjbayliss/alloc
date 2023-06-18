@@ -40,7 +40,7 @@ class productSale extends DatabaseEntity
             $orig->select();
             $orig_status = $orig->get_value("status");
             if ($orig_status == "allocate" && $this->get_value("status") == "admin") {
-            } else if (!$this->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS)) {
+            } elseif (!$this->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS)) {
                 $rtn[] = "Unable to save Product Sale, user does not have correct permissions.";
             }
         }
@@ -111,7 +111,7 @@ class productSale extends DatabaseEntity
             }
 
             // -2 == META: Salesperson TF
-        } else if ($tfID == -2) {
+        } elseif ($tfID == -2) {
             if ($this->get_value("personID")) {
                 $person = new person();
                 $person->set_id($this->get_value("personID"));
@@ -123,9 +123,9 @@ class productSale extends DatabaseEntity
             } else {
                 alloc_error("Unable to use META: Salesperson TF. No product salesperson set.");
             }
-        } else if ($tfID == -3) {
+        } elseif ($tfID == -3) {
             $tfID = $this->get_value("tfID");
-            $tfID or alloc_error("Unable to use META: Sale TF not set.");
+            $tfID || alloc_error("Unable to use META: Sale TF not set.");
         }
 
         return $tfID;
@@ -150,7 +150,7 @@ class productSale extends DatabaseEntity
 
         $label = null;
         $rows = $this->get_productSaleItems();
-        $rows or $rows = [];
+        $rows || ($rows = []);
         $rtn = [];
         $sellPrice_label = null;
         $sellPriceCurr = [];
@@ -179,10 +179,14 @@ class productSale extends DatabaseEntity
         foreach ((array)$sellPriceCurr as $code => $amount) {
             $label .= $sep . Page::money($code, $amount, "%s%mo %c");
             $sep = " + ";
-            $code != config::get_config_item("currency") and $show = true;
+            if ($code != config::get_config_item("currency")) {
+                $show = true;
+            }
         }
 
-        $show && $label and $sellPrice_label = " (" . $label . ")";
+        if ($show && $label) {
+            $sellPrice_label = " (" . $label . ")";
+        }
 
         $total_sellPrice_plus_gst = add_tax($total_sellPrice);
 
@@ -199,7 +203,7 @@ class productSale extends DatabaseEntity
     public function create_transactions()
     {
         $rows = $this->get_productSaleItems();
-        $rows or $rows = [];
+        $rows || ($rows = []);
 
         foreach ($rows as $row) {
             $productSaleItem = new productSaleItem();
@@ -211,7 +215,7 @@ class productSale extends DatabaseEntity
     public function delete_transactions()
     {
         $rows = $this->get_productSaleItems();
-        $rows or $rows = [];
+        $rows || ($rows = []);
 
         foreach ($rows as $row) {
             $productSaleItem = new productSaleItem();
@@ -273,7 +277,6 @@ class productSale extends DatabaseEntity
 
         if ($status == "edit") {
             $this->set_value("status", "allocate");
-
             $items = $this->get_productSaleItems();
             foreach ($items as $item) {
                 $psi = new productSaleItem();
@@ -283,9 +286,8 @@ class productSale extends DatabaseEntity
                     $psi->create_transactions();
                 }
             }
-        } else if ($status == "allocate") {
+        } elseif ($status == "allocate") {
             $this->set_value("status", "admin");
-
             // 1. from salesperson to admin
             $q = unsafe_prepare("SELECT * FROM task WHERE projectID = %d AND taskName = '%s'", $cyberadmin, $taskname1);
             if (config::for_cyber() && !$db->qr($q)) {
@@ -330,7 +332,7 @@ class productSale extends DatabaseEntity
                     $TPL["message_good"][] = "Emailed task comment to " . $p1->get_value("emailAddress") . ", " . $p2->get_value("emailAddress") . ".";
                 }
             }
-        } else if ($status == "admin" && $this->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS)) {
+        } elseif ($status == "admin" && $this->have_perm(PERM_APPROVE_PRODUCT_TRANSACTIONS)) {
             $this->set_value("status", "finished");
             if ($_REQUEST["changeTransactionStatus"]) {
                 $rows = $this->get_productSaleItems();
@@ -338,7 +340,7 @@ class productSale extends DatabaseEntity
                     $ids[] = $row["productSaleItemID"];
                 }
 
-                if ($ids) {
+                if ($ids !== []) {
                     $q = unsafe_prepare("UPDATE transaction SET status = '%s' WHERE productSaleItemID in (%s)", $_REQUEST["changeTransactionStatus"], $ids);
                     $db = new AllocDatabase();
                     $db->query($q);
@@ -460,9 +462,9 @@ class productSale extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             if ($row["transactionType"] == "tax") {
                 $row["saleTransactionType"] = "tax";
-            } else if ($row["pc_productCostID"]) {
+            } elseif ($row["pc_productCostID"]) {
                 $row["saleTransactionType"] = $row["pc_isPercentage"] ? "aPerc" : "aCost";
-            } else if (!$done && $row["transactionType"] == "sale" && !$row["productCostID"]) {
+            } elseif (!$done && $row["transactionType"] == "sale" && !$row["productCostID"]) {
                 $done = true;
                 $row["saleTransactionType"] = "sellPrice";
             }
@@ -479,9 +481,9 @@ class productSale extends DatabaseEntity
 
         if ($this->get_value("status") == "finished" && $current_user->have_role("admin")) {
             $this->set_value("status", "admin");
-        } else if ($this->get_value("status") == "admin" && $current_user->have_role("admin")) {
+        } elseif ($this->get_value("status") == "admin" && $current_user->have_role("admin")) {
             $this->set_value("status", "allocate");
-        } else if ($this->get_value("status") == "allocate") {
+        } elseif ($this->get_value("status") == "allocate") {
             $this->set_value("status", "edit");
         }
     }
@@ -493,15 +495,17 @@ class productSale extends DatabaseEntity
 
         // If they want starred, load up the productSaleID filter element
         if ($filter["starred"]) {
-            foreach ((array)$current_user->prefs["stars"]["productSale"] as $k => $v) {
+            foreach (array_keys((array)$current_user->prefs["stars"]["productSale"]) as $k) {
                 $filter["productSaleID"][] = $k;
             }
 
-            is_array($filter["productSaleID"]) or $filter["productSaleID"][] = -1;
+            if (!is_array($filter["productSaleID"])) {
+                $filter["productSaleID"][] = -1;
+            }
         }
 
         // Filter productSaleID
-        $filter["productSaleID"] and $sql[] = sprintf_implode("productSale.productSaleID = %d", $filter["productSaleID"]);
+        $filter["productSaleID"] && ($sql[] = sprintf_implode("productSale.productSaleID = %d", $filter["productSaleID"]));
 
         // No point continuing if primary key specified, so return
         if ($filter["productSaleID"] || $filter["starred"]) {
@@ -517,10 +521,10 @@ class productSale extends DatabaseEntity
             "productSaleModifiedUser",
         ];
         foreach ($id_fields as $id_field) {
-            $filter[$id_field] and $sql[] = sprintf_implode("productSale." . $id_field . " = %d", $filter[$id_field]);
+            $filter[$id_field] && ($sql[] = sprintf_implode("productSale." . $id_field . " = %d", $filter[$id_field]));
         }
 
-        $filter["status"] and $sql[] = sprintf_implode("productSale.status = '%s'", $filter["status"]);
+        $filter["status"] && ($sql[] = sprintf_implode("productSale.status = '%s'", $filter["status"]));
 
         return $sql;
     }
@@ -532,8 +536,8 @@ class productSale extends DatabaseEntity
         $filter = productSale::get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
-        $debug and print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
-        $debug and print "\n<pre>filter: " . print_r($filter, 1) . "</pre>";
+        $debug && (print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
+        $debug && (print "\n<pre>filter: " . print_r($filter, 1) . "</pre>");
 
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);
@@ -565,7 +569,7 @@ class productSale extends DatabaseEntity
         return (array)$rows;
     }
 
-    public function get_link($row = [])
+    public function get_link($row = []): string
     {
         global $TPL;
         if (is_object($this)) {
@@ -600,7 +604,7 @@ class productSale extends DatabaseEntity
             $interestedPartyOptions = $project->get_all_parties();
         }
 
-        $extra_interested_parties = config::get_config_item("defaultInterestedParties") or $extra_interested_parties = [];
+        ($extra_interested_parties = config::get_config_item("defaultInterestedParties")) || ($extra_interested_parties = []);
         foreach ($extra_interested_parties as $name => $email) {
             $interestedPartyOptions[$email] = ["name" => $name];
         }
@@ -610,22 +614,22 @@ class productSale extends DatabaseEntity
                 $p = new person();
                 $p->set_id($this->get_value("personID"));
                 $p->select();
-                $p->get_value("emailAddress") and $interestedPartyOptions[$p->get_value("emailAddress")] = [
+                $p->get_value("emailAddress") && ($interestedPartyOptions[$p->get_value("emailAddress")] = [
                     "name"     => $p->get_name(),
                     "selected" => true,
                     "personID" => $this->get_value("personID"),
-                ];
+                ]);
             }
 
             if ($this->get_value("productSaleCreatedUser")) {
                 $p = new person();
                 $p->set_id($this->get_value("productSaleCreatedUser"));
                 $p->select();
-                $p->get_value("emailAddress") and $interestedPartyOptions[$p->get_value("emailAddress")] = [
+                $p->get_value("emailAddress") && ($interestedPartyOptions[$p->get_value("emailAddress")] = [
                     "name"     => $p->get_name(),
                     "selected" => true,
                     "personID" => $this->get_value("productSaleCreatedUser"),
-                ];
+                ]);
             }
 
             $this_id = $this->get_id();
@@ -667,7 +671,7 @@ class productSale extends DatabaseEntity
                 $_FORM["status"] = "edit";
                 $_FORM["personID"] = $current_user->get_id();
             }
-        } else if ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;

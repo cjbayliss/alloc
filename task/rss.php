@@ -1,6 +1,6 @@
 <?php
 
-include_once('../alloc.php');
+include_once(__DIR__ . '/../alloc.php');
 
 $max_events = config::get_config_item('rssEntries');
 $show_project = config::get_config_item('rssShowProject');
@@ -13,7 +13,7 @@ $events = [];
 
 // create an artifical sort key. Creation/audit date is not unique, and creation should
 // come before any status changes.
-function gen_key($prefix = 0)
+function gen_key($prefix = 0): string
 {
     static $subidx = 0;
     // this falls apart if the feed runs to more than 9999 items
@@ -32,7 +32,7 @@ function escape_xml($string)
 $people = &get_cached_table('person');
 
 // summary mode is the abbreviated version for the IRC bot
-$summary = $_GET['summary'] ? true : false;
+$summary = (bool) $_GET['summary'];
 
 // can't be filtered in the query because it would break the history playback
 $status_types = config::get_config_item('rssStatusFilter');
@@ -50,14 +50,10 @@ while ($row = $db->next_record()) {
     $key = $row['dateChanged'] . gen_key(1);
     $el = ["date" => $row['dateChanged']];
 
-    if (!$row['personID']) {
-        $name = "Unassigned";
-    } else {
-        $name = $people[$row['personID']]['username'];
-    }
+    $name = $row['personID'] ? $people[$row['personID']]['username'] : "Unassigned";
 
     // 'value' contains the true task status, whereas 'taskStatus' does not.
-    if ($row['field'] != "taskStatus" || array_search($row['value'], $status_types, true) !== false) {
+    if ($row['field'] != "taskStatus" || in_array($row['value'], $status_types, true)) {
         $taskName = escape_xml($row['taskName']);
         $project = null;
         if ($show_project) {
@@ -69,12 +65,10 @@ while ($row = $db->next_record()) {
 
         if ($summary) {
             $el['desc'] = sprintf('%s: %d %s "%s" %s', $name, $row['taskID'], $projectName, $taskName, $row['value']);
-        } else {
-            if ($row['field'] == "taskStatus") {
-                $el['desc'] = sprintf('Task #%d "%s" (%s) status changed to %s', $row['taskID'], $taskName, $projectName, $row['value']);
-            } else if ($row['field'] == "personID") {
-                $el['desc'] = sprintf('Task #%d "%s" (%s) assigned to %s', $row['taskID'], $taskName, $projectName, $name);
-            }
+        } elseif ($row['field'] == "taskStatus") {
+            $el['desc'] = sprintf('Task #%d "%s" (%s) status changed to %s', $row['taskID'], $taskName, $projectName, $row['value']);
+        } elseif ($row['field'] == "personID") {
+            $el['desc'] = sprintf('Task #%d "%s" (%s) assigned to %s', $row['taskID'], $taskName, $projectName, $name);
         }
 
         $events[$key] = $el;

@@ -8,12 +8,12 @@
 class inbox extends DatabaseEntity
 {
 
-    public static function change_current_user($from)
+    public static function change_current_user($from): bool
     {
         [$from_address, $from_name] = parse_email_address($from);
         $person = new person();
         $personID = $person->find_by_email($from_address);
-        $personID or $personID = $person->find_by_name($from_name);
+        $personID || ($personID = $person->find_by_name($from_name));
 
         // If we've determined a personID from the $from_address
         if ($personID) {
@@ -49,8 +49,8 @@ class inbox extends DatabaseEntity
         $emailreceive->open_mailbox($info["folder"]);
 
         $mailbox = "INBOX/archive" . date("Y");
-        $emailreceive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
-        $emailreceive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
+        $emailreceive->create_mailbox($mailbox) && ($TPL["message_good"][] = "Created mailbox: " . $mailbox);
+        $emailreceive->move_mail($req["id"], $mailbox) && ($TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox);
         $emailreceive->close();
     }
 
@@ -64,9 +64,12 @@ class inbox extends DatabaseEntity
         $emailreceive->set_msg($req["id"]);
 
         $new_nums = $emailreceive->get_new_email_msg_uids();
-        in_array($req["id"], (array)$new_nums) and $new = true;
+        if (in_array($req["id"], (array)$new_nums)) {
+            $new = true;
+        }
+
         [$h, $b] = $emailreceive->get_raw_header_and_body();
-        $new and $emailreceive->set_unread(); // might have to "unread" the email, if it was new, i.e. set it back to new
+        $new && $emailreceive->set_unread(); // might have to "unread" the email, if it was new, i.e. set it back to new
         $emailreceive->close();
         header('Content-Type: text/plain');
         header('Content-Disposition: attachment; filename="email' . $req["id"] . '.txt"');
@@ -127,7 +130,7 @@ class inbox extends DatabaseEntity
             singleton("current_user", $current_user);
             $allocDatabase->query("ROLLBACK");
             $failed = true;
-            throw new Exception($exception);
+            throw new Exception($exception, $exception->getCode(), $exception);
         }
 
         // Commit the db, and move the email into its storage location eg: INBOX.task1234
@@ -174,7 +177,7 @@ class inbox extends DatabaseEntity
                 mkdir($dir);
                 foreach ((array)$email_receive->mimebits as $file) {
                     $fh = fopen($dir . DIRECTORY_SEPARATOR . $file["name"], "wb");
-                    fputs($fh, $file["blob"]);
+                    fwrite($fh, $file["blob"]);
                     fclose($fh);
                 }
             }
@@ -183,9 +186,9 @@ class inbox extends DatabaseEntity
 
             $msg = "Created task " . $task->get_task_link(["prefixTaskID" => true]) . " and moved the email to the task's mail folder.";
             $mailbox = "INBOX/task" . $task->get_id();
-            $email_receive->create_mailbox($mailbox) and $msg .= "\nCreated mailbox: " . $mailbox;
-            $email_receive->archive($mailbox) and $msg .= "\nMoved email to " . $mailbox;
-            $msg and $TPL["message_good_no_esc"][] = $msg;
+            $email_receive->create_mailbox($mailbox) && ($msg .= "\nCreated mailbox: " . $mailbox);
+            $email_receive->archive($mailbox) && ($msg .= "\nMoved email to " . $mailbox);
+            $msg && ($TPL["message_good_no_esc"][] = $msg);
 
             [$from_address, $from_name] = parse_email_address($email_receive->mail_headers["from"]);
             $ip["emailAddress"] = $from_address;
@@ -221,13 +224,13 @@ class inbox extends DatabaseEntity
 
             $c = comment::add_comment_from_email($emailreceive, $task);
             $commentID = $c->get_id();
-            $commentID and $TPL["message_good_no_esc"][] = "Created comment " . $commentID . " on task " . $task->get_task_link(["prefixTaskID" => true]);
+            $commentID && ($TPL["message_good_no_esc"][] = "Created comment " . $commentID . " on task " . $task->get_task_link(["prefixTaskID" => true]));
 
             // Possibly change the identity of current_user
             [$from_address, $from_name] = parse_email_address($emailreceive->mail_headers["from"]);
             $person = new person();
             $personID = $person->find_by_email($from_address);
-            $personID or $personID = $person->find_by_name($from_name);
+            $personID || ($personID = $person->find_by_name($from_name));
             if ($personID) {
                 $current_user = new person();
                 $current_user->load_current_user($personID);
@@ -265,26 +268,26 @@ class inbox extends DatabaseEntity
             foreach ((array)$ips as $k => $inf) {
                 $inf["entity"] = "comment";
                 $inf["entityID"] = $commentID;
-                $inf["email"] and $inf["emailAddress"] = $inf["email"];
+                $inf["email"] && ($inf["emailAddress"] = $inf["email"]);
                 if ($req["emailto"] == "internal" && !$inf["external"] && !$inf["clientContactID"]) {
                     $id = InterestedParty::add_interested_party($inf);
                     $recipients[] = $inf["name"] . " " . add_brackets($k);
-                } else if ($req["emailto"] == "default") {
+                } elseif ($req["emailto"] == "default") {
                     $id = InterestedParty::add_interested_party($inf);
                     $recipients[] = $inf["name"] . " " . add_brackets($k);
                 }
             }
 
-            $recipients and $recipients = implode(", ", (array)$recipients);
-            $recipients and $TPL["message_good"][] = "Sent email to " . $recipients;
+            $recipients && ($recipients = implode(", ", (array)$recipients));
+            $recipients && ($TPL["message_good"][] = "Sent email to " . $recipients);
 
             // Re-email the comment out
             comment::send_comment($commentID, ["interested"], $emailreceive);
 
             // File email away in the task's mail folder
             $mailbox = "INBOX/task" . $task->get_id();
-            $emailreceive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
-            $emailreceive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
+            $emailreceive->create_mailbox($mailbox) && ($TPL["message_good"][] = "Created mailbox: " . $mailbox);
+            $emailreceive->move_mail($req["id"], $mailbox) && ($TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox);
             $emailreceive->close();
         }
     }
@@ -313,14 +316,7 @@ class inbox extends DatabaseEntity
 
     public static function get_mail_info()
     {
-        $info = [];
-        $info["host"] = config::get_config_item("allocEmailHost");
-        $info["port"] = config::get_config_item("allocEmailPort");
-        $info["username"] = config::get_config_item("allocEmailUsername");
-        $info["password"] = config::get_config_item("allocEmailPassword");
-        $info["protocol"] = config::get_config_item("allocEmailProtocol");
-        $info["folder"] = config::get_config_item("allocEmailFolder");
-        return $info;
+        return ["host" => config::get_config_item("allocEmailHost"), "port" => config::get_config_item("allocEmailPort"), "username" => config::get_config_item("allocEmailUsername"), "password" => config::get_config_item("allocEmailPassword"), "protocol" => config::get_config_item("allocEmailProtocol"), "folder" => config::get_config_item("allocEmailFolder")];
     }
 
     public static function get_list()
@@ -341,7 +337,9 @@ class inbox extends DatabaseEntity
                 $emailreceive->set_msg($msg_num);
                 $emailreceive->get_msg_header();
                 $row["from"] = $emailreceive->get_printable_from_address();
-                in_array($msg_num, (array)$new_nums) and $row["new"] = true;
+                if (in_array($msg_num, (array)$new_nums)) {
+                    $row["new"] = true;
+                }
 
                 $row["id"] = $msg_num;
                 $row["date"] = $emailreceive->mail_headers["date"];

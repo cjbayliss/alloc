@@ -25,7 +25,7 @@ class announcements_home_item extends home_item
         return $announcement->has_announcements();
     }
 
-    public function render()
+    public function render(): bool
     {
         return true;
     }

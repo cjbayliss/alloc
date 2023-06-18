@@ -17,7 +17,7 @@ class skill extends DatabaseEntity
 
     // return true if a skill with same name and class already exists
     // and update fields of current if it does exist
-    public function skill_exists()
+    public function skill_exists(): bool
     {
         $query = "SELECT * FROM skill";
         $query .= unsafe_prepare(" WHERE skillName='%s'", $this->get_value('skillName'));

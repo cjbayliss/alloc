@@ -167,7 +167,9 @@ class calendar
         );
 
         $current_user = &singleton("current_user");
-        $current_user->have_role("admin") || $current_user->have_role("manage") or $query .= unsafe_prepare(" AND personID = %d", $current_user->get_id());
+        if (!$current_user->have_role("admin") && !$current_user->have_role("manage")) {
+            $query .= unsafe_prepare(" AND personID = %d", $current_user->get_id());
+        }
 
         $this->db->query($query);
         $absences = [];
@@ -233,7 +235,7 @@ class calendar
             ++$i;
         }
 
-        $i = $i - ($this->week_start * 7);
+        $i -= $this->week_start * 7;
         $sunday_day = date("d", mktime(0, 0, 0, date("m"), date("d") + $i, date("Y")));
         $sunday_month = date("m", mktime(0, 0, 0, date("m"), date("d") + $i, date("Y")));
         $sunday_year = date("Y", mktime(0, 0, 0, date("m"), date("d") + $i, date("Y")));
@@ -261,23 +263,23 @@ class calendar
                 $d->set_links($this->get_link_new_task($date) . $this->get_link_new_reminder($date) . $this->get_link_new_absence($date));
 
                 // Tasks to be Started
-                $tasks_to_start[$date] or $tasks_to_start[$date] = [];
+                $tasks_to_start[$date] || ($tasks_to_start[$date] = []);
                 foreach ($tasks_to_start[$date] as $t) {
                     unset($extra);
-                    $t["timeLimit"] and $extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")";
+                    $t["timeLimit"] && ($extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")");
                     $d->start_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . Page::htmlentities($t["taskName"] . $extra) . "</a>";
                 }
 
                 // Tasks to be Completed
-                $tasks_to_complete[$date] or $tasks_to_complete[$date] = [];
+                $tasks_to_complete[$date] || ($tasks_to_complete[$date] = []);
                 foreach ($tasks_to_complete[$date] as $t) {
                     unset($extra);
-                    $t["timeLimit"] and $extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")";
+                    $t["timeLimit"] && ($extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")");
                     $d->complete_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . Page::htmlentities($t["taskName"] . $extra) . "</a>";
                 }
 
                 // Reminders
-                $reminders[$date] or $reminders[$date] = [];
+                $reminders[$date] || ($reminders[$date] = []);
                 foreach ($reminders[$date] as $r) {
 
                     unset($wrap_start, $wrap_end);
@@ -287,12 +289,12 @@ class calendar
                     }
 
                     $text = Page::htmlentities($r["reminderSubject"]);
-                    $r["reminderTime"] and $text = date("g:ia", $r["reminderTime"]) . " " . $text;
+                    $r["reminderTime"] && ($text = date("g:ia", $r["reminderTime"]) . " " . $text);
                     $d->reminders[] = '<a href="' . $TPL["url_alloc_reminder"] . '&step=3&reminderID=' . $r["reminderID"] . '&returnToParent=' . $this->rtp . '&personID=' . $r["personID"] . '">' . $wrap_start . $text . $wrap_end . '</a>';
                 }
 
                 // Absences
-                $absences[$date] or $absences[$date] = [];
+                $absences[$date] || ($absences[$date] = []);
                 foreach ($absences[$date] as $a) {
                     $d->absences[] = '<a href="' . $TPL["url_alloc_absence"] . 'absenceID=' . $a["absenceID"] . '&returnToParent=' . $this->rtp . '">' . person::get_fullname($a["personID"]) . ': ' . Page::htmlentities($a["absenceType"]) . '</a>';
                 }
@@ -352,48 +354,45 @@ class calendar
         echo "</tr></thead>";
     }
 
-    public function get_link_new_task($date)
+    public function get_link_new_task($date): string
     {
         global $TPL;
         $link = '<a href="' . $TPL["url_alloc_task"] . 'dateTargetStart=' . $date . '&personID=' . $this->person->get_id() . '">';
         $link .= $this->get_img_new_task();
-        $link .= "</a>";
-        return $link;
+        return $link . "</a>";
     }
 
-    public function get_link_new_reminder($date)
+    public function get_link_new_reminder($date): string
     {
         global $TPL;
         $time = urlencode($date . " 9:00am");
         $link = '<a href="' . $TPL["url_alloc_reminder"] . 'parentType=general&step=2&returnToParent=' . $this->rtp . '&reminderTime=' . $time;
         $link .= '&personID=' . $this->person->get_id() . '">';
         $link .= $this->get_img_new_reminder();
-        $link .= "</a>";
-        return $link;
+        return $link . "</a>";
     }
 
-    public function get_link_new_absence($date)
+    public function get_link_new_absence($date): string
     {
         global $TPL;
         $link = '<a href="' . $TPL["url_alloc_absence"] . 'date=' . $date . '&personID=' . $this->person->get_id() . '&returnToParent=' . $this->rtp . '">';
         $link .= $this->get_img_new_absence();
-        $link .= "</a>";
-        return $link;
+        return $link . "</a>";
     }
 
-    public function get_img_new_task()
+    public function get_img_new_task(): string
     {
         global $TPL;
         return '<img border="0" src="' . $TPL["url_alloc_images"] . 'task.gif" alt="New Task" title="New Task">';
     }
 
-    public function get_img_new_reminder()
+    public function get_img_new_reminder(): string
     {
         global $TPL;
         return '<img border="0" src="' . $TPL["url_alloc_images"] . 'reminder.gif" alt="New Reminder" title="New Reminder">';
     }
 
-    public function get_img_new_absence()
+    public function get_img_new_absence(): string
     {
         global $TPL;
         return '<img border="0" src="' . $TPL["url_alloc_images"] . 'absence.gif" alt="New Absence" title="New Absence">';

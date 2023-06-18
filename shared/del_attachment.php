@@ -7,11 +7,11 @@
 
 // For use like get_attachment.php?entity=project&id=5&file=foo.bar
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
-$id = $_GET["id"] or $id = $_POST["id"];
-$file = $_GET["file"] or $file = $_POST["file"];
-$entity = $_GET["entity"] or $entity = $_POST["entity"];
+($id = $_GET["id"]) || ($id = $_POST["id"]);
+($file = $_GET["file"]) || ($file = $_POST["file"]);
+($entity = $_GET["entity"]) || ($entity = $_POST["entity"]);
 
 $id = sprintf("%d", $id);
 
@@ -27,12 +27,11 @@ if (
     $dir = ATTACHMENTS_DIR . $entity . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR;
     $file = $dir . $file;
 
-    if ($e->has_attachment_permission_delete($current_user) && file_exists($file)) {
-        if (dirname($file) == dirname($dir . ".")) { // last check
-            unlink($file);
-            alloc_redirect($TPL["url_alloc_" . $entity] . $entity . "ID=" . $id . "&sbs_link=attachments");
-            exit();
-        }
+    if ($e->has_attachment_permission_delete($current_user) && file_exists($file) && dirname($file) === dirname($dir . ".")) {
+        // last check
+        unlink($file);
+        alloc_redirect($TPL["url_alloc_" . $entity] . $entity . "ID=" . $id . "&sbs_link=attachments");
+        exit();
     }
 }
 

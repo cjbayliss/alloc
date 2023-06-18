@@ -7,12 +7,12 @@
 
 // For use like get_attachment.php?entity=project&id=5&file=foo.bar
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if (isset($_GET["id"]) && $_GET["part"]) {
     $comment = new comment();
     $comment->set_id($_GET["id"]);
-    $comment->select() or die("Bad _GET[id]");
+    $comment->select() || die("Bad _GET[id]");
     [$mail, $text, $mimebits] = $comment->find_email(false, true);
     if (!$mail) {
         [$mail, $text, $mimebits] = $comment->find_email(false, true, true);

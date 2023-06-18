@@ -57,7 +57,7 @@ class timeSheetPrint
                 $num_minus_gst = $num / $taxPercentDivisor;
                 $gst = $num - $num_minus_gst;
 
-                if (($num_minus_gst + $gst) != $num) {
+                if ($num_minus_gst + $gst != $num) {
                     $num_minus_gst += $num - ($num_minus_gst + $gst); // round it up.
                 }
 
@@ -75,7 +75,9 @@ class timeSheetPrint
 
             unset($str);
             $d = $timeSheetItem->get_value('taskID', DST_HTML_DISPLAY) . ": " . $timeSheetItem->get_value('description', DST_HTML_DISPLAY);
-            $d && !$rows[$taskID]["desc"] and $str[] = "<b>" . $d . "</b>"; // inline because the PDF needs it that way
+            if ($d && !$rows[$taskID]["desc"]) {
+                $str[] = "<b>" . $d . "</b>";
+            } // inline because the PDF needs it that way
 
             // Get task description
             if ($taskID && $TPL["printDesc"]) {
@@ -85,20 +87,27 @@ class timeSheetPrint
                 $d2 = str_replace("\r\n", "\n", $t->get_value("taskDescription", DST_HTML_DISPLAY));
                 $d2 .= "\n";
 
-                $d2 && !$d2s[$taskID] and $str[] = $d2;
-                $d2 and $d2s[$taskID] = true;
+                if ($d2 && !$d2s[$taskID]) {
+                    $str[] = $d2;
+                }
+
+                $d2 && ($d2s[$taskID] = true);
             }
 
             $c = str_replace("\r\n", "\n", $timeSheetItem->get_value("comment"));
-            !$timeSheetItem->get_value("commentPrivate") && $c and $str[] = Page::htmlentities($c);
+            if (!$timeSheetItem->get_value("commentPrivate") && $c) {
+                $str[] = Page::htmlentities($c);
+            }
 
-            is_array($str) and $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
+            if (is_array($str)) {
+                $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
+            }
         }
 
         // Group by units ie, a particular row/task might have  3 Weeks, 2 Hours
         // of work done.
         $commar = "";
-        $units or $units = [];
+        $units || ($units = []);
         foreach ($units as $tid => $u) {
             unset($commar);
             foreach ($u as $unit => $amount) {
@@ -109,7 +118,7 @@ class timeSheetPrint
         }
 
         $commar = "";
-        $i or $i = [];
+        $i || ($i = []);
         foreach ($i as $unit => $amount) {
             $info["total_units"] .= $commar . $amount . " " . $unit;
             $commar = ", ";
@@ -120,8 +129,8 @@ class timeSheetPrint
         // If we are in dollar mode, then prefix the total with a dollar sign
         $info["total"] = Page::money($timeSheet->get_value("currencyTypeID"), $info["total"], "%s%mo");
         $info["total_gst"] = Page::money($timeSheet->get_value("currencyTypeID"), $info["total_gst"], "%s%mo");
-        $rows or $rows = [];
-        $info or $info = [];
+        $rows || ($rows = []);
+        $info || ($info = []);
         return [$rows, $info];
     }
 
@@ -142,7 +151,7 @@ class timeSheetPrint
             $timeSheetItem->read_db_record($db);
 
             $taskID = sprintf("%d", $timeSheetItem->get_value("taskID"));
-            $taskID or $taskID = "hey"; // Catch entries without task selected. ie timesheetitem.comment entries.
+            $taskID || ($taskID = "hey"); // Catch entries without task selected. ie timesheetitem.comment entries.
 
             $num = sprintf("%0.2f", $timeSheetItem->get_value("timeSheetItemDuration"));
             // $info["total"] += $num;
@@ -152,7 +161,9 @@ class timeSheetPrint
 
             unset($str);
             $d = $timeSheetItem->get_value('taskID', DST_HTML_DISPLAY) . ": " . $timeSheetItem->get_value('description', DST_HTML_DISPLAY);
-            $d && !$rows[$taskID]["desc"] and $str[] = "<b>" . $d . "</b>";
+            if ($d && !$rows[$taskID]["desc"]) {
+                $str[] = "<b>" . $d . "</b>";
+            }
 
             // Get task description
             if ($taskID && $TPL["printDesc"]) {
@@ -162,21 +173,29 @@ class timeSheetPrint
                 $d2 = str_replace("\r\n", "\n", $t->get_value("taskDescription", DST_HTML_DISPLAY));
                 $d2 .= "\n";
 
-                $d2 && !$d2s[$taskID] and $str[] = $d2;
-                $d2 and $d2s[$taskID] = true;
+                if ($d2 && !$d2s[$taskID]) {
+                    $str[] = $d2;
+                }
+
+                $d2 && ($d2s[$taskID] = true);
             }
 
             $c = str_replace("\r\n", "\n", $timeSheetItem->get_value("comment"));
-            !$timeSheetItem->get_value("commentPrivate") && $c && !$cs[$c] and $str[] = Page::htmlentities($c);
+            if (!$timeSheetItem->get_value("commentPrivate") && $c && !$cs[$c]) {
+                $str[] = Page::htmlentities($c);
+            }
+
             $cs[$c] = true;
 
-            is_array($str) and $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
+            if (is_array($str)) {
+                $rows[$taskID]["desc"] .= trim(implode(DEFAULT_SEP, $str));
+            }
         }
 
         // Group by units ie, a particular row/task might have  3 Weeks, 2 Hours
         // of work done.
         $commar = "";
-        $units or $units = [];
+        $units || ($units = []);
         foreach ($units as $tid => $u) {
             unset($commar);
             foreach ($u as $unit => $amount) {
@@ -187,7 +206,7 @@ class timeSheetPrint
         }
 
         $commar = "";
-        $i or $i = [];
+        $i || ($i = []);
         foreach ($i as $unit => $amount) {
             $info["total"] .= $commar . $amount . " " . $unit;
             $commar = ", ";
@@ -195,8 +214,8 @@ class timeSheetPrint
 
         $timeSheet->load_pay_info();
         $info["total"] = $timeSheet->pay_info["summary_unit_totals"];
-        $rows or $rows = [];
-        $info or $info = [];
+        $rows || ($rows = []);
+        $info || ($info = []);
         return [$rows, $info];
     }
 
@@ -228,7 +247,9 @@ class timeSheetPrint
 
             unset($str);
             $d = $timeSheetItem->get_value('taskID', DST_HTML_DISPLAY) . ": " . $timeSheetItem->get_value('description', DST_HTML_DISPLAY);
-            $d && !$rows[$row_num]["desc"] and $str[] = "<b>" . $d . "</b>";
+            if ($d && !$rows[$row_num]["desc"]) {
+                $str[] = "<b>" . $d . "</b>";
+            }
 
             // Get task description
             if ($taskID && $TPL["printDesc"]) {
@@ -238,20 +259,27 @@ class timeSheetPrint
                 $d2 = str_replace("\r\n", "\n", $t->get_value("taskDescription", DST_HTML_DISPLAY));
                 $d2 .= "\n";
 
-                $d2 && !$d2s[$taskID] and $str[] = $d2;
-                $d2 and $d2s[$taskID] = true;
+                if ($d2 && !$d2s[$taskID]) {
+                    $str[] = $d2;
+                }
+
+                $d2 && ($d2s[$taskID] = true);
             }
 
             $c = str_replace("\r\n", "\n", $timeSheetItem->get_value("comment"));
-            !$timeSheetItem->get_value("commentPrivate") && $c and $str[] = Page::htmlentities($c);
+            if (!$timeSheetItem->get_value("commentPrivate") && $c) {
+                $str[] = Page::htmlentities($c);
+            }
 
-            is_array($str) and $rows[$row_num]["desc"] .= trim(implode(DEFAULT_SEP, $str));
+            if (is_array($str)) {
+                $rows[$row_num]["desc"] .= trim(implode(DEFAULT_SEP, $str));
+            }
         }
 
         $timeSheet->load_pay_info();
         $info["total"] = $timeSheet->pay_info["summary_unit_totals"];
-        $rows or $rows = [];
-        $info or $info = [];
+        $rows || ($rows = []);
+        $info || ($info = []);
         return [$rows, $info];
     }
 
@@ -299,8 +327,8 @@ class timeSheetPrint
             unset($br);
             $phone = config::get_config_item("companyContactPhone");
             $fax = config::get_config_item("companyContactFax");
-            $phone and $TPL["phone"] = "Ph: " . $phone;
-            $fax and $TPL["fax"] = "Fax: " . $fax;
+            $phone && ($TPL["phone"] = "Ph: " . $phone);
+            $fax && ($TPL["fax"] = "Fax: " . $fax);
 
             $timeSheet->load_pay_info();
 
@@ -320,9 +348,9 @@ class timeSheetPrint
             $TPL["companyContactAddress2"] = config::get_config_item("companyContactAddress2");
             $TPL["companyContactAddress3"] = config::get_config_item("companyContactAddress3");
             $email = config::get_config_item("companyContactEmail");
-            $email and $TPL["companyContactEmail"] = "Email: " . $email;
+            $email && ($TPL["companyContactEmail"] = "Email: " . $email);
             $web = config::get_config_item("companyContactHomePage");
-            $web and $TPL["companyContactHomePage"] = "Web: " . $web;
+            $web && ($TPL["companyContactHomePage"] = "Web: " . $web);
 
             $TPL["footer"] = config::get_config_item("timeSheetPrintFooter");
             $TPL["taxName"] = config::get_config_item("taxName");
@@ -410,14 +438,14 @@ class timeSheetPrint
                 $cezpdf->ezStartPageNumbers(200, 80, 10, 'left', '<b>' . $default_id_label . ': </b>' . $TPL["timeSheetID"]);
                 $cezpdf->ezSetY(775);
 
-                $TPL["companyName"] and $contact_info[] = [$TPL["companyName"]];
-                $TPL["companyContactAddress"] and $contact_info[] = [$TPL["companyContactAddress"]];
-                $TPL["companyContactAddress2"] and $contact_info[] = [$TPL["companyContactAddress2"]];
-                $TPL["companyContactAddress3"] and $contact_info[] = [$TPL["companyContactAddress3"]];
-                $TPL["companyContactEmail"] and $contact_info[] = [$TPL["companyContactEmail"]];
-                $TPL["companyContactHomePage"] and $contact_info[] = [$TPL["companyContactHomePage"]];
-                $TPL["phone"] and $contact_info[] = [$TPL["phone"]];
-                $TPL["fax"] and $contact_info[] = [$TPL["fax"]];
+                $TPL["companyName"] && ($contact_info[] = [$TPL["companyName"]]);
+                $TPL["companyContactAddress"] && ($contact_info[] = [$TPL["companyContactAddress"]]);
+                $TPL["companyContactAddress2"] && ($contact_info[] = [$TPL["companyContactAddress2"]]);
+                $TPL["companyContactAddress3"] && ($contact_info[] = [$TPL["companyContactAddress3"]]);
+                $TPL["companyContactEmail"] && ($contact_info[] = [$TPL["companyContactEmail"]]);
+                $TPL["companyContactHomePage"] && ($contact_info[] = [$TPL["companyContactHomePage"]]);
+                $TPL["phone"] && ($contact_info[] = [$TPL["phone"]]);
+                $TPL["fax"] && ($contact_info[] = [$TPL["fax"]]);
 
                 $cezpdf->selectFont($font2);
 
@@ -438,10 +466,10 @@ class timeSheetPrint
                 }
 
                 $nos_y = $line_y + 22;
-                $TPL["companyNos2"] and $nos_y = $line_y + 34;
+                $TPL["companyNos2"] && ($nos_y = $line_y + 34);
                 $cezpdf->ezSetY($nos_y);
-                $TPL["companyNos1"] and $y = $cezpdf->ezText($TPL["companyNos1"], 10, ["justification" => "right"]);
-                $TPL["companyNos2"] and $y = $cezpdf->ezText($TPL["companyNos2"], 10, ["justification" => "right"]);
+                $TPL["companyNos1"] && ($y = $cezpdf->ezText($TPL["companyNos1"], 10, ["justification" => "right"]));
+                $TPL["companyNos2"] && ($y = $cezpdf->ezText($TPL["companyNos2"], 10, ["justification" => "right"]));
 
                 $cezpdf->ezSetY($line_y - 20);
                 $y = $cezpdf->ezText($default_header, 20, ["justification" => "center"]);
@@ -500,7 +528,7 @@ class timeSheetPrint
                         "",
                         $pdf_table_options4
                     );
-                } else if ($timeSheetPrintMode == "units") {
+                } elseif ($timeSheetPrintMode == "units") {
                     [$rows, $info] = $this->get_timeSheetItem_list_units($TPL["timeSheetID"]);
                     $cols2 = ["desc" => "Description", "units" => "Units"];
                     $rows[] = [
@@ -508,7 +536,7 @@ class timeSheetPrint
                         "units" => "<b>" . $info["total"] . "</b>",
                     ];
                     $y = $cezpdf->ezTable($rows, $cols2, "", $pdf_table_options3);
-                } else if ($timeSheetPrintMode == "items") {
+                } elseif ($timeSheetPrintMode == "items") {
                     [$rows, $info] = $this->get_timeSheetItem_list_items($TPL["timeSheetID"]);
                     $cols2 = [
                         "date"              => "Date",

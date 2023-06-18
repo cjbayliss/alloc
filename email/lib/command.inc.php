@@ -92,11 +92,11 @@ class command
         $m = null;
         if ($commands["command"] == "edit_timeSheetItem") {
             [$s, $m] = $this->edit_timeSheetItem($commands);
-        } else if ($commands["command"] == "edit_task") {
+        } elseif ($commands["command"] == "edit_task") {
             [$s, $m] = $this->edit_task($commands, $email_receive);
-        } else if ($commands["command"] == "add_comment") {
+        } elseif ($commands["command"] == "add_comment") {
             [$s, $m] = $this->add_comment($commands);
-        } else if ($commands["command"] == "edit_reminder") {
+        } elseif ($commands["command"] == "edit_reminder") {
             [$s, $m] = $this->edit_reminder($commands);
         }
 
@@ -128,7 +128,7 @@ class command
         if ($commands["task"]) {
             unset($changes);
 
-            $taskPriorities = config::get_config_item("taskPriorities") or $taskPriorities = [];
+            ($taskPriorities = config::get_config_item("taskPriorities")) || ($taskPriorities = []);
             foreach ($taskPriorities as $k => $v) {
                 $priorities[strtolower($v["label"])] = $k;
             }
@@ -149,19 +149,19 @@ class command
                 if ($k == "assign") {
                     $changes[$k] = "personID";
                     $v = $people_by_username[$v]["personID"];
-                    $v or alloc_error("Unrecognized username.");
+                    $v || alloc_error("Unrecognized username.");
                 }
 
                 if ($k == "manage") {
                     $changes[$k] = "managerID";
                     $v = $people_by_username[$v]["personID"];
-                    $v or alloc_error("Unrecognized username.");
+                    $v || alloc_error("Unrecognized username.");
                 }
 
                 if ($k == "estimator") {
                     $changes[$k] = "estimatorID";
                     $v = $people_by_username[$v]["personID"];
-                    $v or alloc_error("Unrecognized username.");
+                    $v || alloc_error("Unrecognized username.");
                 }
 
                 // transform from priority label to priority ID
@@ -200,17 +200,15 @@ class command
                 $changes["tags"] = implode(",", $task->get_tags());
             }
 
-            if (strtolower($commands["task"]) == "new") {
-                if (!$commands["desc"] && is_object($email_receive)) {
-                    $task->set_value("taskDescription", $email_receive->get_converted_encoding());
-                }
+            if (strtolower($commands["task"]) == "new" && (!$commands["desc"] && is_object($email_receive))) {
+                $task->set_value("taskDescription", $email_receive->get_converted_encoding());
             }
 
             $after_label = "After:  ";
             if (strtolower($commands["task"]) != "new") {
                 $str = $this->condense_changes($changes, $task->row());
-                $str and $status[] = "msg";
-                $str and $message[] = "Before: " . $str;
+                $str && ($status[] = "msg");
+                $str && ($message[] = "Before: " . $str);
             } else {
                 $after_label = "Fields: ";
             }
@@ -242,8 +240,8 @@ class command
                 }
 
                 $str = $this->condense_changes($changes, $task->row());
-                $str and $status[] = "msg";
-                $str and $message[] = $after_label . $str;
+                $str && ($status[] = "msg");
+                $str && ($message[] = $after_label . $str);
 
                 if ($commands["dip"]) {
                     InterestedParty::add_remove_ips($commands["dip"], "task", $task->get_id(), $task->get_value("projectID"));
@@ -292,13 +290,17 @@ class command
                 // Validate/coerce the fields
                 if ($k == "unit") {
                     $changes[$k] = "timeSheetItemDurationUnitID";
-                    in_array($v, [1, 2, 3, 4, 5]) or $err[] = "Invalid unit. Try a number from 1-5.";
-                } else if ($k == "task") {
+                    if (!in_array($v, [1, 2, 3, 4, 5])) {
+                        $err[] = "Invalid unit. Try a number from 1-5.";
+                    }
+                } elseif ($k == "task") {
                     $changes[$k] = "taskID";
                     $t = new Task();
                     $t->set_id($v);
                     $t->select();
-                    is_object($timeSheet) && $timeSheet->get_id() && $t->get_value("projectID") != $timeSheet->get_value("projectID") and $err[] = "Invalid task. Task belongs to different project.";
+                    if (is_object($timeSheet) && $timeSheet->get_id() && $t->get_value("projectID") != $timeSheet->get_value("projectID")) {
+                        $err[] = "Invalid task. Task belongs to different project.";
+                    }
                 }
 
                 // Plug the value in
@@ -311,8 +313,8 @@ class command
             $after_label2 = "After:  ";
             if (strtolower($commands["item"]) != "new") {
                 $str = $this->condense_changes($changes, $timeSheetItem->row());
-                $str and $status[] = "msg";
-                $str and $message[] = "Before: " . $str;
+                $str && ($status[] = "msg");
+                $str && ($message[] = "Before: " . $str);
             } else {
                 $after_label2 = "Fields: ";
             }
@@ -322,13 +324,12 @@ class command
                 $timeSheetItem->delete();
                 $status[] = "yay";
                 $message[] = "Time sheet item " . $id . " deleted.";
-
                 // Save timeSheetItem
-            } else if (!$err && $commands["item"] && $timeSheetItem->save()) {
+            } elseif (!$err && $commands["item"] && $timeSheetItem->save()) {
                 $timeSheetItem->select();
                 $str = $this->condense_changes($changes, $timeSheetItem->row());
-                $str and $status[] = "msg";
-                $str and $message[] = $after_label2 . $str;
+                $str && ($status[] = "msg");
+                $str && ($message[] = $after_label2 . $str);
                 $status[] = "yay";
                 if (strtolower($commands["item"]) == "new") {
                     $message[] = "Time sheet item " . $timeSheetItem->get_id() . " created.";
@@ -337,7 +338,7 @@ class command
                 }
 
                 // Problems
-            } else if ($err && $commands["item"]) {
+            } elseif ($err && $commands["item"]) {
                 alloc_error("Problem updating time sheet item: " . implode("\n", (array)$err));
             }
         }
@@ -352,10 +353,10 @@ class command
         $id = $commands["reminder"];
         $options = $commands;
         $reminder = new reminder();
-        if ($id and $id != "new") {
+        if ($id && $id != "new") {
             $reminder->set_id($id);
             $reminder->select();
-        } else if ($id == "new") {
+        } elseif ($id == "new") {
             // extra sanity checks, partially filled in reminder isn't much good
             if (!$options['date'] || !$options['subject'] || !$options['recipients']) {
                 $status[] = "err";
@@ -366,10 +367,10 @@ class command
             if ($options['task']) {
                 $reminder->set_value('reminderType', 'task');
                 $reminder->set_value('reminderLinkID', $options['task']);
-            } else if ($options['project']) {
+            } elseif ($options['project']) {
                 $reminder->set_value('reminderType', 'project');
                 $reminder->set_value('reminderLinkID', $options['project']);
-            } else if ($options['client']) {
+            } elseif ($options['client']) {
                 $reminder->set_value('reminderLinkID', $options['client']);
                 $reminder->set_value('reminderType', 'client');
             }
@@ -454,7 +455,10 @@ class command
 
                 if (is_numeric($t["duration"]) && $current_user->get_id()) {
                     $timeSheet = new timeSheet();
-                    is_object($email_receive) and $t["msg_uid"] = $email_receive->msg_uid;
+                    if (is_object($email_receive)) {
+                        $t["msg_uid"] = $email_receive->msg_uid;
+                    }
+
                     $tsi_row = $timeSheet->add_timeSheetItem($t);
                     $status[] = $tsi_row["status"];
                     $message[] = $tsi_row["message"];
@@ -490,7 +494,7 @@ class command
             }
 
             // Bad or missing key, then error
-        } else if ($email_receive) {
+        } elseif ($email_receive) {
             alloc_error("Bad or missing key. Unable to process email.");
         }
     }
@@ -522,7 +526,7 @@ class command
         $str = null;
         $sep = "";
         foreach ((array)$changes as $label => $field) {
-            $v = $fields[$field] or $v = $field;
+            ($v = $fields[$field]) || ($v = $field);
             $str .= $sep . $label . ": " . $v;
             $sep = ", ";
         }

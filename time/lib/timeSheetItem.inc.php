@@ -87,10 +87,7 @@ class timeSheetItem extends DatabaseEntity
     public static function parse_time_string($str)
     {
         $rtn = [];
-        preg_match("/^"
-            . "(\d\d\d\d\-\d\d?\-\d\d?\s+)?"   // date
-            . "([\d\.]+)?"          // duration
-            . "\s*"
+        preg_match('/^(\d\d\d\d\-\d\d?\-\d\d?\s+)?([\d\.]+)?\s*'
             . "(hours|hour|hrs|hr|days|day|weeks|week|months|month|fixed)?" // unit
             . "\s*"
             . "(x\s*[\d\.]+)?"     // multiplier eg: x 1.5
@@ -102,17 +99,17 @@ class timeSheetItem extends DatabaseEntity
             // ."(private)?"        # whether the comment is private
             . "$/i", $str, $m);
 
-        $rtn["date"] = trim($m[1]) or $rtn["date"] = date("Y-m-d");
+        ($rtn["date"] = trim($m[1])) || ($rtn["date"] = date("Y-m-d"));
         $rtn["duration"] = $m[2];
         $rtn["unit"] = $m[3];
-        $rtn["multiplier"] = str_replace(["x", "X", " "], "", $m[4]) or $rtn["multiplier"] = 1;
+        ($rtn["multiplier"] = str_replace(["x", "X", " "], "", $m[4])) || ($rtn["multiplier"] = 1);
         $rtn["taskID"] = $m[5];
         $rtn["comment"] = $m[6];
         // $rtn["private"] = $m[7];
 
         // use the first letter of the unit for the lookup
         $tu = ["h" => 1, "d" => 2, "w" => 3, "m" => 4, "f" => 5];
-        $rtn["unit"] = $tu[$rtn["unit"][0]] or $rtn["unit"] = 1;
+        ($rtn["unit"] = $tu[$rtn["unit"][0]]) || ($rtn["unit"] = 1);
 
         // change 2010/10/27 to 2010-10-27
         $rtn["date"] = str_replace("/", "-", $rtn["date"]);
@@ -142,8 +139,9 @@ class timeSheetItem extends DatabaseEntity
             $ii->select();
             if ($ii->get_value("timeSheetItemID") == $this->get_id()) {
                 $ii->delete();
-            } else if (!$ii->get_value("timeSheetItemID")) {
-                invoiceEntity::save_invoice_timeSheet($row["invoiceID"], $timeSheetID);  // will update the existing invoice item
+            } elseif (!$ii->get_value("timeSheetItemID")) {
+                invoiceEntity::save_invoice_timeSheet($row["invoiceID"], $timeSheetID);
+                // will update the existing invoice item
             }
         }
 
@@ -170,7 +168,7 @@ class timeSheetItem extends DatabaseEntity
         }
 
         $dateTimeSheetItem = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 365, date("Y")));
-        $personID and $personID_sql = unsafe_prepare(" AND personID = %d", $personID);
+        $personID && ($personID_sql = unsafe_prepare(" AND personID = %d", $personID));
 
         $q = unsafe_prepare("SELECT DISTINCT dateTimeSheetItem, personID
                         FROM timeSheetItem
@@ -229,9 +227,8 @@ class timeSheetItem extends DatabaseEntity
         // If timeSheetID is an array
         if ($filter["timeSheetID"] && is_array($filter["timeSheetID"])) {
             $timeSheetIDs = $filter["timeSheetID"];
-
             // Else
-        } else if ($filter["timeSheetID"] && is_numeric($filter["timeSheetID"])) {
+        } elseif ($filter["timeSheetID"] && is_numeric($filter["timeSheetID"])) {
             $timeSheetIDs[] = $filter["timeSheetID"];
         }
 
@@ -248,7 +245,10 @@ class timeSheetItem extends DatabaseEntity
         }
 
         if ($filter["date"]) {
-            in_array($filter["dateComparator"], ["=", "!=", ">", ">=", "<", "<="]) or $filter["dateComparator"] = '=';
+            if (!in_array($filter["dateComparator"], ["=", "!=", ">", ">=", "<", "<="])) {
+                $filter["dateComparator"] = '=';
+            }
+
             $sql[] = unsafe_prepare("(timeSheetItem.dateTimeSheetItem " . $filter["dateComparator"] . " '%s')", $filter["date"]);
         }
 
@@ -281,9 +281,9 @@ class timeSheetItem extends DatabaseEntity
         $filter = timeSheetItem::get_list_filter($_FORM);
 
         $debug = $_FORM["debug"];
-        $debug and print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
-        $debug and print "<pre>filter: " . print_r($filter, 1) . "</pre>";
-        $_FORM["return"] or $_FORM["return"] = "html";
+        $debug && (print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
+        $debug && (print "<pre>filter: " . print_r($filter, 1) . "</pre>");
+        $_FORM["return"] || ($_FORM["return"] = "html");
 
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
@@ -293,7 +293,7 @@ class timeSheetItem extends DatabaseEntity
            LEFT JOIN timeSheet ON timeSheet.timeSheetID = timeSheetItem.timeSheetID
                      " . $filter . "
             ORDER BY timeSheet.timeSheetID,dateTimeSheetItem asc";
-        $debug and print "Query: " . $q;
+        $debug && (print "Query: " . $q);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         while ($row = $allocDatabase->next_record()) {
@@ -310,7 +310,10 @@ class timeSheetItem extends DatabaseEntity
                 $task = $tsi->get_foreign_object('task');
                 $row["secondsBilled"] = $task->get_time_billed();
                 $row["hoursBilled"] = sprintf("%0.2f", $row["secondsBilled"] / 60 / 60);
-                $task->get_value('timeLimit') && $row["hoursBilled"] > $task->get_value('timeLimit') and $row["limitWarning"] = 'Exceeds Limit!';
+                if ($task->get_value('timeLimit') && $row["hoursBilled"] > $task->get_value('timeLimit')) {
+                    $row["limitWarning"] = 'Exceeds Limit!';
+                }
+
                 $row["timeLimit"] = $task->get_value("timeLimit");
             }
 
@@ -360,8 +363,8 @@ class timeSheetItem extends DatabaseEntity
 
         $personID_sql = null;
         $endDate_sql = null;
-        $personID and $personID_sql = unsafe_prepare(" AND timeSheetItem.personID = %d", $personID);
-        $endDate and $endDate_sql = unsafe_prepare(" AND timeSheetItem.dateTimeSheetItem <= '%s'", $endDate);
+        $personID && ($personID_sql = unsafe_prepare(" AND timeSheetItem.personID = %d", $personID));
+        $endDate && ($endDate_sql = unsafe_prepare(" AND timeSheetItem.dateTimeSheetItem <= '%s'", $endDate));
 
         $q = unsafe_prepare("SELECT personID
                            , SUM(timeSheetItemDuration*timeUnitSeconds) " . $divisor . " AS avg
@@ -413,17 +416,14 @@ class timeSheetItem extends DatabaseEntity
 
         if ($taskID) {
             $where = unsafe_prepare("timeSheetItem.taskID = %d", $taskID);
-        } else if ($starred) {
+        } elseif ($starred) {
             $current_user = &singleton("current_user");
             $timeSheetItemIDs = [];
-            foreach ((array)$current_user->prefs["stars"]["timeSheetItem"] as $k => $v) {
-                $timeSheetItemIDs[] = $k;
-            }
-
+            $timeSheetItemIDs = array_keys((array)$current_user->prefs["stars"]["timeSheetItem"]);
             $where = unsafe_prepare("(timeSheetItem.timeSheetItemID in (%s))", $timeSheetItemIDs);
         }
 
-        $where or $where = " 1 ";
+        $where || ($where = " 1 ");
 
         // Get list of comments from timeSheetItem table
         $query = unsafe_prepare("SELECT timeSheetID
@@ -447,7 +447,10 @@ class timeSheetItem extends DatabaseEntity
             $rows[] = $row;
         }
 
-        is_array($rows) or $rows = [];
+        if (!is_array($rows)) {
+            return [];
+        }
+
         return $rows;
     }
 
@@ -457,9 +460,9 @@ class timeSheetItem extends DatabaseEntity
         $points = [];
         $current_user = &singleton("current_user");
 
-        $personID or $personID = $current_user->get_id();
-        $start or $start = date("Y-m-d", time() - (60 * 60 * 24 * 28));
-        $end or $end = date("Y-m-d");
+        $personID || ($personID = $current_user->get_id());
+        $start || ($start = date("Y-m-d", time() - (60 * 60 * 24 * 28)));
+        $end || ($end = date("Y-m-d"));
 
         $q = unsafe_prepare(
             "SELECT dateTimeSheetItem, sum(timeSheetItemDuration*timeUnitSeconds) / 3600 AS hours
@@ -498,9 +501,9 @@ class timeSheetItem extends DatabaseEntity
         $points = [];
         $current_user = &singleton("current_user");
 
-        $personID or $personID = $current_user->get_id();
-        $start or $start = date("Y-m-d", time() - (60 * 60 * 24 * 28));
-        $end or $end = date("Y-m-d");
+        $personID || ($personID = $current_user->get_id());
+        $start || ($start = date("Y-m-d", time() - (60 * 60 * 24 * 28)));
+        $end || ($end = date("Y-m-d"));
 
         $q = unsafe_prepare(
             "SELECT CONCAT(YEAR(dateTimeSheetItem),'-',MONTH(dateTimeSheetItem)) AS dateTimeSheetItem

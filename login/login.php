@@ -6,12 +6,12 @@
  */
 
 define("NO_AUTH", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $sess = new Session();
 if (isset($_POST["forwardUrl"])) {
     $url = $_POST["forwardUrl"];
-} else if (isset($_GET["forward"])) {
+} elseif (isset($_GET["forward"])) {
     $url = $_GET["forward"];
 } else {
     $url = $sess->GetUrl($TPL["url_alloc_home"]);
@@ -21,12 +21,10 @@ if (isset($_POST["forwardUrl"])) {
 if ($sess->Started()) {
     alloc_redirect($url);
     exit();
-
     // Else log the user in
-} else if (!empty($_POST["login"])) {
+} elseif (!empty($_POST["login"])) {
     $person = new person();
     $row = $person->get_valid_login_row($_POST["username"], $_POST["password"]);
-
     if ($row) {
         $sess->Start($row);
 
@@ -50,10 +48,9 @@ if ($sess->Started()) {
     }
 
     $error = "Invalid username or password.";
-} else if (!empty($_POST["new_pass"])) {
+} elseif (!empty($_POST["new_pass"])) {
     $db = new AllocDatabase();
-    $db->query("SELECT * FROM person WHERE emailAddress = '%s'", $_POST["email"]);
-
+    $db->query(["SELECT * FROM person WHERE emailAddress = '%s'", $_POST["email"]]);
     if ($db->next_record()) {
         // generate new random password
         $password = "";
@@ -80,13 +77,13 @@ if ($sess->Started()) {
     }
 
     // Else if just visiting the page
-} else {
-    if (!$sess->TestCookie()) {
-        $sess->SetTestCookie();
-    }
+} elseif (!$sess->TestCookie()) {
+    $sess->SetTestCookie();
 }
 
-!empty($error) and alloc_error($error);
+if (!empty($error)) {
+    alloc_error($error);
+}
 
 $account = $_POST["account"] ?? "";
 $account = $account !== "" ? $_GET["account"] : "";
@@ -94,7 +91,7 @@ $TPL["account"] = $account;
 
 if (isset($_POST["username"])) {
     $TPL["username"] = $_POST["username"];
-} else if ($sess->TestCookie() != "alloc_test_cookie") {
+} elseif ($sess->TestCookie() != "alloc_test_cookie") {
     $TPL["username"] = $sess->TestCookie();
 } else {
     $TPL["username"] = "";
@@ -127,7 +124,7 @@ if (is_array($files) && count($files)) {
         }
     }
 
-    $str and $TPL["latest_changes"] = $str;
+    $str && ($TPL["latest_changes"] = $str);
 }
 
 $TPL["body_id"] = "login";

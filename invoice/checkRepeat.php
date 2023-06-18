@@ -6,7 +6,7 @@
  */
 
 define("NO_AUTH", true);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 singleton("errors_fatal", true);
 singleton("errors_format", "text");
 singleton("errors_logged", true);
@@ -83,7 +83,7 @@ while ($row = $db->row($id)) {
         }
 
         $commentID = comment::add_comment("invoice", $i->get_id(), $row["message"], "invoice", $i->get_id());
-        if ($recipients) {
+        if ($recipients !== []) {
             $emailRecipients = comment::add_interested_parties($commentID, null, $recipients);
             comment::attach_invoice($commentID, $i->get_id(), $verbose = true);
 

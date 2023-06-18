@@ -53,7 +53,7 @@ class DatabaseField
 
     public function has_value()
     {
-        return isset($this->value) && (bool)strlen($this->value);
+        return $this->value !== null && (bool)strlen($this->value);
     }
 
     public function get_name()
@@ -69,7 +69,7 @@ class DatabaseField
     public function get_value($dest = DST_VARIABLE, $parent = null)
     {
         if ($dest == DST_DATABASE) {
-            if ((isset($this->value) && (bool)strlen($this->value)) || $this->empty_to_null == false) {
+            if (($this->value !== null && (bool)strlen($this->value)) || $this->empty_to_null == false) {
                 return "'" . db_esc($this->value) . "'";
             }
 
@@ -77,7 +77,7 @@ class DatabaseField
         }
 
         if ($dest == DST_HTML_DISPLAY) {
-            if ($this->type == "money" && (isset($this->value) && (bool)strlen($this->value))) {
+            if ($this->type == "money" && ($this->value !== null && (bool)strlen($this->value))) {
                 $c = $parent->currency;
                 if ($this->currency && isset($parent->data_fields[$this->currency])) {
                     $c = $parent->get_value($this->currency);
@@ -85,7 +85,7 @@ class DatabaseField
 
                 if (!$c) {
                     alloc_error("db_field::get_value(): No currency specified for " . $parent->classname . "." . $this->name . " (currency:" . $c . ")");
-                } else if ($this->value == $parent->all_row_fields[$this->name]) {
+                } elseif ($this->value == $parent->all_row_fields[$this->name]) {
                     return Page::money($c, $this->value, "%mo");
                 }
             }

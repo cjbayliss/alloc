@@ -5,16 +5,19 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 if (!have_entity_perm("config", PERM_UPDATE, $current_user, true)) {
     alloc_error("Permission denied.", true);
 }
 
-$configName = $_POST["configName"] or $configName = $_GET["configName"];
+($configName = $_POST["configName"]) || ($configName = $_GET["configName"]);
 $TPL["configName"] = $configName;
 
-$configType = $_POST["configType"] or $configType = $_GET["configType"] or $configType = "array";
+if (!($configType = $_POST["configType"]) && !($configType = $_GET["configType"])) {
+    $configType = "array";
+}
+
 $TPL["configType"] = $configType;
 
 if ($configName) {
@@ -38,7 +41,7 @@ if ($_POST["save"]) {
         $config->set_value("value", serialize($arr));
         $config->save();
     }
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     $arr = config::get_config_item($configName);
     if ($configType == "people") {
         unset($arr[array_search($_POST["value"], $arr, true)]);
@@ -52,7 +55,7 @@ if ($_POST["save"]) {
 
 if (file_exists("templates/configEdit_" . $configName . ".tpl")) {
     include_template("templates/configEdit_" . $configName . ".tpl");
-} else if (file_exists("templates/configEdit_" . $configType . ".tpl")) {
+} elseif (file_exists("templates/configEdit_" . $configType . ".tpl")) {
     include_template("templates/configEdit_" . $configType . ".tpl");
 } else {
     include_template("templates/configEdit.tpl");

@@ -34,7 +34,9 @@ class commentTemplate extends DatabaseEntity
         $clientID = null;
         // Actually do the text substitution
         $current_user = &singleton("current_user");
-        is_object($current_user) and $swap["cu"] = person::get_fullname($current_user->get_id());
+        if (is_object($current_user)) {
+            $swap["cu"] = person::get_fullname($current_user->get_id());
+        }
 
         if ($entity == "timeSheet" && $entityID) {
             $timeSheet = new timeSheet();
@@ -66,7 +68,7 @@ class commentTemplate extends DatabaseEntity
             } else {
                 $people = &get_cached_table("person");
                 $timeSheetAdministrators = config::get_config_item('defaultTimeSheetAdminList');
-                if (is_countable($timeSheetAdministrators) ? count($timeSheetAdministrators) : 0) {
+                if ((is_countable($timeSheetAdministrators) ? count($timeSheetAdministrators) : 0) !== 0) {
                     $swap["tc"] = "";
                     $comma = "";
                     foreach ($timeSheetAdministrators as $timeSheetAdministrator) {

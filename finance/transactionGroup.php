@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function show_transaction_list($template)
 {
@@ -71,7 +71,7 @@ function add_inactive_tf($tfID, $options)
 
 $tf = new tf();
 $tflist = $tf->get_assoc_array("tfID", "tfName");
-$transactionGroupID = $_POST["transactionGroupID"] or $transactionGroupID = $_GET["transactionGroupID"];
+($transactionGroupID = $_POST["transactionGroupID"]) || ($transactionGroupID = $_GET["transactionGroupID"]);
 if (!$transactionGroupID) {
     $transactionGroupID = transaction::get_next_transactionGroupID();
 }
@@ -79,7 +79,9 @@ if (!$transactionGroupID) {
 $TPL["transactionGroupID"] = $transactionGroupID;
 
 if ($_POST["save_transactions"]) {
-    is_array($_POST["deleteTransaction"]) or $_POST["deleteTransaction"] = [];
+    if (!is_array($_POST["deleteTransaction"])) {
+        $_POST["deleteTransaction"] = [];
+    }
 
     if (is_array($_POST["transactionID"]) && count($_POST["transactionID"])) {
         foreach ($_POST["transactionID"] as $k => $transactionID) {
@@ -91,9 +93,8 @@ if ($_POST["save_transactions"]) {
                 $transaction->delete();
                 $deleted .= $commar1 . $transactionID;
                 $commar1 = ", ";
-
                 // Save
-            } else if ($_POST["amount"][$k]) {
+            } elseif ($_POST["amount"][$k]) {
                 $a = [
                     "amount"             => $_POST["amount"][$k],
                     "tfID"               => $_POST["tfID"][$k],
@@ -106,7 +107,6 @@ if ($_POST["save_transactions"]) {
                     "transactionGroupID" => $transactionGroupID,
                     "transactionID"      => $_POST["transactionID"][$k],
                 ];
-
                 $transaction = new transaction();
                 if ($_POST["transactionID"][$k]) {
                     $transaction->set_id($_POST["transactionID"][$k]);
@@ -127,8 +127,8 @@ if ($_POST["save_transactions"]) {
         }
     }
 
-    $saved and $TPL["message_good"][] = "Transaction " . $saved . " saved.";
-    $deleted and $TPL["message_good"][] = "Transaction " . $deleted . " deleted.";
+    $saved && ($TPL["message_good"][] = "Transaction " . $saved . " saved.");
+    $deleted && ($TPL["message_good"][] = "Transaction " . $deleted . " deleted.");
     alloc_redirect($TPL["url_alloc_transactionGroup"] . "transactionGroupID=" . $transactionGroupID);
 }
 

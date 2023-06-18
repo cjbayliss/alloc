@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $current_user->check_employee();
 
@@ -90,8 +90,9 @@ if ($_POST["edit_items"]) {
         }
 
         $TPL["edit_options"] =
-            "<table><tr>\n"
-            . "  <td>Name: </td>\n"
+            '<table><tr>
+  <td>Name: </td>
+'
             . '  <td colspan="2"><input size="40" type="text" name="update_itemName" value="' . $item->get_value("itemName") . "\"></td>\n"
             . "</tr><tr>\n"
             . "  <td>Notes: </td>\n"

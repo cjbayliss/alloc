@@ -82,7 +82,7 @@ class InterestedParty extends DatabaseEntity
                 $info = (new InterestedParty())->get_decoded_interested_party_identifier($encoded_party);
                 $info["entity"] = $entity;
                 $info["entityID"] = $entityID;
-                $info["emailAddress"] or $info["emailAddress"] = $info["email"];
+                $info["emailAddress"] || ($info["emailAddress"] = $info["email"]);
                 $ipIDs[] = InterestedParty::add_interested_party($info);
             }
         }
@@ -91,7 +91,7 @@ class InterestedParty extends DatabaseEntity
                          SET interestedPartyActive = 0
                        WHERE entity = '%s'
                          AND entityID = %d", $entity, $entityID);
-        $ipIDs and $q .= " AND " . sprintf_implode(" AND ", "interestedPartyID != %d", $ipIDs);
+        $ipIDs && ($q .= " AND " . sprintf_implode(" AND ", "interestedPartyID != %d", $ipIDs));
         $allocDatabase->query($q);
 
         $allocDatabase->commit();
@@ -102,13 +102,13 @@ class InterestedParty extends DatabaseEntity
         $rtn = [];
         $bits = explode(",", $str);
         foreach ((array)$bits as $bit) {
-            if ($bit) {
+            if ($bit !== '' && $bit !== '0') {
                 [$name, $address] = explode("<", $bit);
                 $rtn[] = Page::htmlentities(trim($name)) . "<span class='hidden'> " . Page::htmlentities("<" . $address) . "</span>";
             }
         }
 
-        if ($rtn) {
+        if ($rtn !== []) {
             return "<span>" . implode(", ", $rtn) . "&nbsp;&nbsp;<a href='' onClick='$(this).parent().find(\"span\").slideToggle(\"fast\"); return false;'>Show</a></span>";
         }
     }
@@ -141,7 +141,7 @@ class InterestedParty extends DatabaseEntity
             while ($allocDatabase->row()) {
                 $ops[$allocDatabase->f("emailAddress")]["name"] = $allocDatabase->f("fullName");
                 $ops[$allocDatabase->f("emailAddress")]["role"] = "interested";
-                $ops[$allocDatabase->f("emailAddress")]["selected"] = $allocDatabase->f("interestedPartyActive") && !$dont_select ? true : false;
+                $ops[$allocDatabase->f("emailAddress")]["selected"] = $allocDatabase->f("interestedPartyActive") && !$dont_select;
                 $ops[$allocDatabase->f("emailAddress")]["personID"] = $allocDatabase->f("personID");
                 $ops[$allocDatabase->f("emailAddress")]["clientContactID"] = $allocDatabase->f("clientContactID");
                 $ops[$allocDatabase->f("emailAddress")]["external"] = $allocDatabase->f("external");
@@ -164,7 +164,7 @@ class InterestedParty extends DatabaseEntity
         return $rtn;
     }
 
-    public static function get_encoded_interested_party_identifier($info = [])
+    public static function get_encoded_interested_party_identifier($info = []): string
     {
         return base64_encode(serialize($info));
     }
@@ -184,7 +184,7 @@ class InterestedParty extends DatabaseEntity
 
         $counter = 0;
         foreach ((array)$parties as $email => $info) {
-            $info["name"] or $info["name"] = $email;
+            $info["name"] || ($info["name"] = $email);
             if ($info["name"]) {
                 unset($sel, $c);
                 ++$counter;
@@ -194,8 +194,11 @@ class InterestedParty extends DatabaseEntity
                 }
 
                 $c = "";
-                $info["selected"] and $sel = " checked";
-                !$info["internal"] && $info["external"] and $c .= " warn";
+                $info["selected"] && ($sel = " checked");
+                if (!$info["internal"] && $info["external"]) {
+                    $c .= " warn";
+                }
+
                 $str .= '<span width="150px" class="nobr ' . $c . '" id="td_ect_' . $counter . '" style="float:left; width:150px; margin-bottom:5px;">';
                 $str .= '<input id="ect_' . $counter . '" type="checkbox" name="commentEmailRecipients[]" value="' . $info["identifier"] . '"' . $sel . "> ";
                 $str .= '<label for="ect_' . $counter . '" title="' . $info["name"] . " &lt;" . $info["email"] . '&gt;">' . Page::htmlentities($info["name"]) . "</label></span>";
@@ -239,7 +242,7 @@ class InterestedParty extends DatabaseEntity
             $interestedParty->set_value("personID", $data["personID"]);
             $interestedParty->set_value("fullName", person::get_fullname($data["personID"]));
         } else {
-            $people or $people = &get_cached_table("person");
+            $people || ($people = &get_cached_table("person"));
             foreach ($people as $personID => $p) {
                 if ($data["emailAddress"] && same_email_address($p["emailAddress"], $data["emailAddress"])) {
                     $interestedParty->set_value("personID", $personID);
@@ -283,7 +286,7 @@ class InterestedParty extends DatabaseEntity
             $comment->set_id($entityID);
             $comment->select();
             $object = $comment->get_parent_object();
-        } else if (class_exists($entity) && $entityID) {
+        } elseif (class_exists($entity) && $entityID) {
             $object = new $entity;
             $object->set_id($entityID);
             $object->select();
@@ -301,17 +304,15 @@ class InterestedParty extends DatabaseEntity
             // If "quiet" in the subject line, then the email/comment won't be re-emailed out again
             if ($command == "quiet") {
                 $quiet = true;
-
                 // To unsubscribe from this conversation
-            } else if ($command == "unsub" || $command == "unsubscribe") {
+            } elseif ($command == "unsub" || $command == "unsubscribe") {
                 if ((new InterestedParty())->active($entity, $entityID, $emailAddress)) {
                     InterestedParty::delete_interested_party($entity, $entityID, $emailAddress);
                 }
 
                 // To subscribe to this conversation
-            } else if ($command == "sub" || $command == "subscribe") {
+            } elseif ($command == "sub" || $command == "subscribe") {
                 $ip = InterestedParty::exists($entity, $entityID, $emailAddress);
-
                 if (!$ip) {
                     $data = [
                         "entity"          => $entity,
@@ -322,9 +323,8 @@ class InterestedParty extends DatabaseEntity
                         "clientContactID" => $clientContactID,
                     ];
                     InterestedParty::add_interested_party($data);
-
                     // Else reactivate existing IP
-                } else if (!(new InterestedParty())->active($entity, $entityID, $emailAddress)) {
+                } elseif (!(new InterestedParty())->active($entity, $entityID, $emailAddress)) {
                     $interestedParty = new InterestedParty();
                     $interestedParty->set_id($ip["interestedPartyID"]);
                     $interestedParty->select();
@@ -333,33 +333,30 @@ class InterestedParty extends DatabaseEntity
                 }
 
                 // If there's a number/duration then add some time to a time sheet
-            } else if (is_object($current_user) && $current_user->get_id() && preg_match("/([\.\d]+)/i", $command, $m)) {
+            } elseif (is_object($current_user) && $current_user->get_id() && preg_match("/([\.\d]+)/i", $command, $m)) {
                 $duration = $m[1];
-
-                if (is_numeric($duration)) {
-                    if (is_object($object) && $object->classname == "task" && $object->get_id() && $current_user->get_id()) {
-                        $timeSheet = new timeSheet();
-                        $tsi_row = $timeSheet->add_timeSheetItem([
-                            "taskID"     => $object->get_id(),
-                            "duration"   => $duration,
-                            "comment"    => $body,
-                            "msg_uid"    => $msg_uid,
-                            "msg_id"     => $email_receive->mail_headers["message-id"],
-                            "multiplier" => 1,
-                        ]);
-                        $timeUnit = new timeUnit();
-                        $units = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
-                        $unitLabel = $units[$tsi_row["timeSheetItemDurationUnitID"]];
-                    }
+                if (is_numeric($duration) && (is_object($object) && $object->classname == "task" && $object->get_id() && $current_user->get_id())) {
+                    $timeSheet = new timeSheet();
+                    $tsi_row = $timeSheet->add_timeSheetItem([
+                        "taskID"     => $object->get_id(),
+                        "duration"   => $duration,
+                        "comment"    => $body,
+                        "msg_uid"    => $msg_uid,
+                        "msg_id"     => $email_receive->mail_headers["message-id"],
+                        "multiplier" => 1,
+                    ]);
+                    $timeUnit = new timeUnit();
+                    $units = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelA");
+                    $unitLabel = $units[$tsi_row["timeSheetItemDurationUnitID"]];
                 }
 
                 // Otherwise assume it's a status change
-            } else if (is_object($current_user) && $current_user->get_id() && $command) {
+            } elseif (is_object($current_user) && $current_user->get_id() && $command) {
                 if (is_object($object) && $object->get_id()) {
                     $object->set_value("taskStatus", $command);
                     if ($command2 && preg_match("/dup/i", $command)) {
                         $object->set_value("duplicateTaskID", $command2);
-                    } else if ($command2 && preg_match("/tasks/i", $command)) {
+                    } elseif ($command2 && preg_match("/tasks/i", $command)) {
                         $object->add_pending_tasks($command2);
                     }
 
@@ -375,14 +372,14 @@ class InterestedParty extends DatabaseEntity
     {
         $sql = [];
         $filter["emailAddress"] = str_replace(["<", ">"], "", $filter["emailAddress"]);
-        $filter["emailAddress"] and $sql[] = unsafe_prepare("(interestedParty.emailAddress LIKE '%%%s%%')", $filter["emailAddress"]);
-        $filter["fullName"] and $sql[] = unsafe_prepare("(interestedParty.fullName LIKE '%%%s%%')", $filter["fullName"]);
-        $filter["personID"] and $sql[] = unsafe_prepare("(interestedParty.personID = %d)", $filter["personID"]);
-        $filter["clientContactID"] and $sql[] = unsafe_prepare("(interestedParty.clientContactID = %d)", $filter["clientContactID"]);
-        $filter["entity"] and $sql[] = unsafe_prepare("(interestedParty.entity = '%s')", $filter["entity"]);
-        $filter["entityID"] and $sql[] = unsafe_prepare("(interestedParty.entityID = %d)", $filter["entityID"]);
-        $filter["active"] and $sql[] = unsafe_prepare("(interestedParty.interestedPartyActive = %d)", $filter["active"]);
-        $filter["taskID"] and $sql[] = unsafe_prepare("(comment.commentMaster='task' AND comment.commentMasterID=%d)", $filter["taskID"]);
+        $filter["emailAddress"] && ($sql[] = unsafe_prepare("(interestedParty.emailAddress LIKE '%%%s%%')", $filter["emailAddress"]));
+        $filter["fullName"] && ($sql[] = unsafe_prepare("(interestedParty.fullName LIKE '%%%s%%')", $filter["fullName"]));
+        $filter["personID"] && ($sql[] = unsafe_prepare("(interestedParty.personID = %d)", $filter["personID"]));
+        $filter["clientContactID"] && ($sql[] = unsafe_prepare("(interestedParty.clientContactID = %d)", $filter["clientContactID"]));
+        $filter["entity"] && ($sql[] = unsafe_prepare("(interestedParty.entity = '%s')", $filter["entity"]));
+        $filter["entityID"] && ($sql[] = unsafe_prepare("(interestedParty.entityID = %d)", $filter["entityID"]));
+        $filter["active"] && ($sql[] = unsafe_prepare("(interestedParty.interestedPartyActive = %d)", $filter["active"]));
+        $filter["taskID"] && ($sql[] = unsafe_prepare("(comment.commentMaster='task' AND comment.commentMasterID=%d)", $filter["taskID"]));
         return $sql;
     }
 
@@ -399,7 +396,7 @@ class InterestedParty extends DatabaseEntity
         }
 
         $filter = (new InterestedParty())->get_list_filter($_FORM);
-        $_FORM["return"] or $_FORM["return"] = "html";
+        $_FORM["return"] || ($_FORM["return"] = "html");
 
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);
@@ -444,7 +441,7 @@ class InterestedParty extends DatabaseEntity
         // Jon Smith         alloc fullname or client fullname
 
         // username
-        $people or $people = person::get_people_by_username();
+        $people || ($people = person::get_people_by_username());
         if (preg_match("/^\w+$/i", $ip)) {
             return [$people[$ip]["personID"], $people[$ip]["name"], $people[$ip]["emailAddress"]];
         }

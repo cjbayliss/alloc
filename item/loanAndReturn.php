@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $current_user->check_employee();
 
@@ -44,11 +44,7 @@ function show_items($template_name)
         if ($loan->get_value("dateReturned") == "0000-00-00") {
             if ($loan->have_perm(PERM_READ_WRITE)) {
                 // if item is overdue
-                if ($loan->get_value("dateToBeReturned") < $today) {
-                    $ret = "Return Now!";
-                } else {
-                    $ret = "Return";
-                }
+                $ret = $loan->get_value("dateToBeReturned") < $today ? "Return Now!" : "Return";
 
                 $TPL["itemAction"] = '<td><a href="' . $TPL["url_alloc_item"]
                     . "itemID=" . $TPL["itemID"]

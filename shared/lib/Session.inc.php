@@ -35,7 +35,11 @@ class Session
         $TPL["sessID"] = $_GET["sess"] ?? false;
         $this->allocDatabase = new AllocDatabase();
         $this->session_life = (config::get_config_item("allocSessionMinutes") * 60);
-        $this->session_life < 1 and $this->session_life = 10000; // just in case.
+        if ($this->session_life < 1) {
+            $this->session_life = 10000;
+        }
+
+        // just in case.
         $this->session_data = $this->UnEncode($this->GetSessionData());
         $this->mode = $this->Get("session_mode");
 
@@ -84,7 +88,7 @@ class Session
     {
         if ($this->Expired()) {
             $this->Destroy();
-        } else if ($this->Started()) {
+        } elseif ($this->Started()) {
             $this->Put("session_started", time());
             $this->allocDatabase->query(
                 "UPDATE sess SET sessData = '%s' WHERE sessID = '%s'",
@@ -125,7 +129,7 @@ class Session
         $rtn = SetCookie("alloc_cookie", $this->key, ['expires' => 0, 'path' => "/", 'domain' => ""]);
         if (!$rtn) {
             $this->mode = "get";
-        } else if (!isset($_COOKIE["alloc_cookie"])) {
+        } elseif (!isset($_COOKIE["alloc_cookie"])) {
             $_COOKIE["alloc_cookie"] = $this->key;
         }
     }
@@ -151,15 +155,13 @@ class Session
         return $this->url($url);
     }
 
-    public function url($url = "")
+    public function url($url = ""): string
     {
         $extra = null;
         $url = preg_replace("/[&?]+$/", "", $url);
 
-        if ($this->mode == "get") {
-            if (!strpos($url, "sess=") && $this->key) {
-                $extra = "sess=" . $this->key . "&";
-            }
+        if ($this->mode == "get" && (!strpos($url, "sess=") && $this->key)) {
+            $extra = "sess=" . $this->key . "&";
         }
 
         if (strpos($url, "?")) {
@@ -209,7 +211,7 @@ class Session
     }
 
     // add encryption for session_data here
-    private function Encode($data)
+    private function Encode($data): string
     {
         return serialize($data);
     }

@@ -10,7 +10,7 @@ class report_module extends Module
     public $module = "report";
 }
 
-function has_report_perm()
+function has_report_perm(): bool
 {
     $current_user = &singleton("current_user");
     if (is_object($current_user)) {

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 global $TPL;
 $current_user = &singleton("current_user");
@@ -40,7 +40,7 @@ $emailRecipients = comment::add_interested_parties($commentID, $_REQUEST["commen
 $files = [];
 
 // If someone uploads attachments
-if ($_FILES) {
+if ($_FILES !== []) {
     $files = rejig_files_array($_FILES);
 }
 
@@ -51,8 +51,12 @@ if ($_REQUEST["attach_timeSheet"]) {
 
 // Attach any alloc generated invoice pdf
 if ($_REQUEST["attach_invoice"]) {
-    $_REQUEST["attach_invoice"] == $_REQUEST["generate_pdf_verbose"] and $verbose = true; // select
-    $_REQUEST["generate_pdf_verbose"] and $verbose = true; // link
+    if ($_REQUEST["attach_invoice"] == $_REQUEST["generate_pdf_verbose"]) {
+        $verbose = true;
+    }
+
+    // select
+    $_REQUEST["generate_pdf_verbose"] && ($verbose = true); // link
     $files[] = comment::attach_invoice($commentID, $_REQUEST["commentMasterID"], $verbose);
 }
 
@@ -72,7 +76,7 @@ foreach ((array)$files as $k => $f) {
     $fullpath = $dir . DIRECTORY_SEPARATOR . $f["name"];
     if ($f["blob"]) {
         file_put_contents($fullpath, $f["blob"]);
-    } else if ($f["tmp_name"]) {
+    } elseif ($f["tmp_name"]) {
         rename($f["tmp_name"], $fullpath);
     }
 

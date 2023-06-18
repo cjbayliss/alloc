@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 global $TPL;
 
@@ -29,8 +29,8 @@ function show_expenseFormList($template_name)
 
     if (!$_GET["tfID"] && !$current_user->have_role("admin")) {
         $tfIDs = $current_user->get_tfIDs();
-        $tfIDs and $sql = unsafe_prepare("WHERE tfID in (%s)", $tfIDs);
-    } else if ($_GET["tfID"]) {
+        $tfIDs && ($sql = unsafe_prepare("WHERE tfID in (%s)", $tfIDs));
+    } elseif ($_GET["tfID"]) {
         $sql = unsafe_prepare("WHERE tfID = %d", $_GET["tfID"]);
     }
 

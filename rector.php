@@ -45,8 +45,10 @@ return static function (RectorConfig $rectorConfig): void {
     // define sets of rules
     $rectorConfig->sets([
         LevelSetList::UP_TO_PHP_74,
+        SetList::PHP_74,
         SetList::NAMING,
         SetList::EARLY_RETURN,
         SetList::CODING_STYLE,
+        SetList::CODE_QUALITY,
     ]);
 };

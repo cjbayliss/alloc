@@ -20,7 +20,7 @@ class task_message_list_home_item extends home_item
         return $current_user->has_messages();
     }
 
-    public function render()
+    public function render(): bool
     {
         return true;
     }

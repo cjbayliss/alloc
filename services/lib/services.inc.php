@@ -61,7 +61,7 @@ class services
      */
     public function get_task_comments($taskID)
     {
-        if ($taskID) {
+        if ($taskID !== '' && $taskID !== '0') {
             $task = new Task();
             $task->set_id($taskID);
             $task->select();
@@ -87,8 +87,13 @@ class services
             $e = new $entity;
             $e->set_id($entityID);
             $e->select();
-            in_array("default", $people) and $default_recipients = $e->get_all_parties();
-            in_array("internal", $people) and $internal_recipients = $e->get_all_parties();
+            if (in_array("default", $people)) {
+                $default_recipients = $e->get_all_parties();
+            }
+
+            if (in_array("internal", $people)) {
+                $internal_recipients = $e->get_all_parties();
+            }
         }
 
         // remove default and internal from the array
@@ -134,7 +139,7 @@ class services
                 }
 
                 // email addresses
-            } else if (in_str("@", $person)) {
+            } elseif (in_str("@", $person)) {
                 foreach ($person_table as $pid => $data) {
                     if (same_email_address($person, $data["emailAddress"]) && $data["personActive"]) {
                         $rtn[$data["emailAddress"]] = $data;
@@ -157,12 +162,11 @@ class services
                 $rtn[$e] = ["emailAddress" => $e, "name" => $n];
                 $bad_person = false;
                 continue;
-
                 // usernames, partial and full names
             } else {
                 foreach ($person_table as $pid => $data) {
                     // If matches username
-                    if (strtolower($person) == strtolower($data["username"]) && $data["personActive"]) {
+                    if (strtolower($person) === strtolower($data["username"]) && $data["personActive"]) {
                         $rtn[$data["emailAddress"]] = $data;
                         $bad_person = false;
                         continue 2;
@@ -171,7 +175,7 @@ class services
 
                 foreach ($person_table as $pid => $data) {
                     // If matches name
-                    if (strtolower($person) == strtolower($data["firstName"] . " " . $data["surname"]) && $data["personActive"]) {
+                    if (strtolower($person) === strtolower($data["firstName"] . " " . $data["surname"]) && $data["personActive"]) {
                         $rtn[$data["emailAddress"]] = $data;
                         $bad_person = false;
                         continue 2;
@@ -180,7 +184,7 @@ class services
 
                 foreach ($person_table as $pid => $data) {
                     // If matches a section of name, eg: a search for "Ale" will match the full name "Alex Lance"
-                    if (strtolower($person) == strtolower(substr(strtolower($data["firstName"] . " " . $data["surname"]), 0, strlen($person))) && $data["personActive"]) {
+                    if (strtolower($person) === strtolower(substr(strtolower($data["firstName"] . " " . $data["surname"]), 0, strlen($person))) && $data["personActive"]) {
                         $rtn[$data["emailAddress"]] = $data;
                         $bad_person = false;
                         continue 2;
@@ -232,8 +236,11 @@ class services
         $rtn = [];
         $rtn["personID"] = $person["personID"];
         $rtn["username"] = $person["username"];
-        $rtn["name"] = $person["name"] or $rtn["name"] = $person["clientContactName"];
-        $rtn["emailAddress"] = $person["emailAddress"] or $rtn["emailAddress"] = $person["clientContactEmail"] or $rtn["emailAddress"] = $person["email"];
+        ($rtn["name"] = $person["name"]) || ($rtn["name"] = $person["clientContactName"]);
+        if (!($rtn["emailAddress"] = $person["emailAddress"]) && !($rtn["emailAddress"] = $person["clientContactEmail"])) {
+            $rtn["emailAddress"] = $person["email"];
+        }
+
         $rtn["clientContactID"] = $person["clientContactID"];
         return $rtn;
     }
@@ -317,7 +324,7 @@ class services
     public function search_emails($str)
     {
         $emails = null;
-        if ($str) {
+        if ($str !== '' && $str !== '0') {
             $uids = $this->get_comment_email_uids_search($str);
             foreach ((array)$uids as $uid) {
                 $emails .= $this->get_email($uid);
@@ -337,8 +344,8 @@ class services
     {
         $emails = null;
         $current_user = &singleton("current_user");
-        $entity or $entity = "task";
-        if ($taskID) {
+        $entity || ($entity = "task");
+        if ($taskID !== 0) {
             $folder = config::get_config_item("allocEmailFolder") . "/" . $entity . $taskID;
             $info = $this->init_email_info();
             $emailreceive = new email_receive($info);
@@ -371,9 +378,9 @@ class services
         $str = "";
         $br = "";
         $people = &get_cached_table("person");
-        has("time") and $rows = timeSheetItem::get_timeSheetItemComments($taskID);
+        has("time") && ($rows = timeSheetItem::get_timeSheetItemComments($taskID));
         foreach ((array)$rows as $row) {
-            $d = $row["timeSheetItemCreatedTime"] or $d = $row["date"];
+            ($d = $row["timeSheetItemCreatedTime"]) || ($d = $row["date"]);
             $timestamp = format_date("U", $d);
             $name = $people[$row["personID"]]["name"];
             $str .= $br . "From allocPSA " . date('D M  j G:i:s Y', $timestamp);
@@ -411,7 +418,7 @@ class services
     {
         $current_user = &singleton("current_user");
         // $lockfile = ATTACHMENTS_DIR."mail.lock.person_".$current_user->get_id();
-        if ($emailUID) {
+        if ($emailUID !== 0) {
             $info = $this->init_email_info();
             $emailreceive = new email_receive($info);
             $emailreceive->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
@@ -433,7 +440,7 @@ class services
     public function get_comment_email_uids_search($str)
     {
         $rtn = null;
-        if ($str) {
+        if ($str !== '' && $str !== '0') {
             $current_user = &singleton("current_user");
             $info = $this->init_email_info();
             $emailreceive = new email_receive($info);
@@ -456,7 +463,7 @@ class services
         $available_topics = null;
         $this_methods = get_class_methods($this);
 
-        if (!$topic) {
+        if ($topic === '' || $topic === '0') {
             $commar = "";
             foreach ($this_methods as $thi_method) {
                 $m = $thi_method . "_help";
@@ -483,11 +490,9 @@ class services
      */
     public function save_interestedParty($options)
     {
+        $v = null;
         $data = [];
-        // Python will submit None instead of ''
-        foreach ($options as $k => $v) {
-            strtolower($v) != 'none' and $data[$k] = $v;
-        }
+        $data = array_filter($options, static fn ($v) => strtolower($v) != 'none');
 
         // Check we have the minimum of fields
         if ($data["entity"] && $data["entityID"] && $data["emailAddress"]) {
@@ -502,11 +507,9 @@ class services
      */
     public function delete_interestedParty($options)
     {
+        $v = null;
         $data = [];
-        // Python will submit None instead of ''
-        foreach ($options as $k => $v) {
-            strtolower($v) != 'none' and $data[$k] = $v;
-        }
+        $data = array_filter($options, static fn ($v) => strtolower($v) != 'none');
 
         // Delete existing entries
         if (!$data["entity"]) {
@@ -579,7 +582,7 @@ class services
             return ["status" => "msg", "message" => command::get_help($entity)];
         }
 
-        if ($options) {
+        if ($options !== []) {
             $command = new command();
             return $command->run_commands($options);
         }

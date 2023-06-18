@@ -9,7 +9,7 @@ use ZendSearch\Lucene\Lucene;
 
 define("NO_AUTH", true);
 define("IS_GOD", true);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 ini_set('max_execution_time', 180000);
 ini_set('memory_limit', "512M");
@@ -66,7 +66,7 @@ while ($row = $db->row($q1)) {
     $e->update_search_index_doc($index);
 
     // Nuke item from queue
-    $db->query("DELETE FROM indexQueue WHERE indexQueueID = %d", $row["indexQueueID"]);
+    $db->query(["DELETE FROM indexQueue WHERE indexQueueID = %d", $row["indexQueueID"]]);
 }
 
 // commit index

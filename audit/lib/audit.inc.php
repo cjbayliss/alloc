@@ -45,7 +45,7 @@ class audit extends DatabaseEntity
             $entity = new project();
             $entity->set_id($_FORM["projectID"]);
             $entity->select();
-        } else if ($_FORM["taskID"]) {
+        } elseif ($_FORM["taskID"]) {
             $entity = new Task();
             $entity->set_id($_FORM["taskID"]);
             $entity->select();
@@ -76,8 +76,8 @@ class audit extends DatabaseEntity
     public static function get_list_filter($filter)
     {
         $sql = [];
-        $filter["taskID"] and $sql[] = unsafe_prepare("(taskID = %d)", $filter["taskID"]);
-        $filter["projectID"] and $sql[] = unsafe_prepare("(projectID = %d)", $filter["projectID"]);
+        $filter["taskID"] && ($sql[] = unsafe_prepare("(taskID = %d)", $filter["taskID"]));
+        $filter["projectID"] && ($sql[] = unsafe_prepare("(projectID = %d)", $filter["projectID"]));
         return $sql;
     }
 

@@ -128,11 +128,7 @@ function get_alloc_urls($TPL, $sess = false)
     ];
 
     foreach ($alloc_urls as $k => $v) {
-        if (is_object($sess)) {
-            $TPL[$k] = $sess->url(SCRIPT_PATH . $v);
-        } else {
-            $TPL[$k] = SCRIPT_PATH . $v;
-        }
+        $TPL[$k] = is_object($sess) ? $sess->url(SCRIPT_PATH . $v) : SCRIPT_PATH . $v;
     }
 
     return $TPL;

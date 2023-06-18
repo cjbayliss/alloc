@@ -31,7 +31,7 @@ class pendingAdminApprovalTimeSheetListHomeItem extends home_item
         }
     }
 
-    public function render()
+    public function render(): bool
     {
         return true;
     }

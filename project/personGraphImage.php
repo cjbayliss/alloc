@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
-include("lib/task_graph.inc.php");
+require_once(__DIR__ . "/../alloc.php");
+include(__DIR__ . "/lib/task_graph.inc.php");
 
 if ($_GET["projectID"]) {
     $options["projectIDs"][] = $_GET["projectID"];
@@ -27,7 +27,7 @@ $task_graph->set_title($_GET["graphTitle"]);
 $task_graph->set_width($_GET["graphWidth"]);
 $task_graph->bottom_margin = 20;
 
-$tasks = Task::get_list($options) or $tasks = [];
+($tasks = Task::get_list($options)) || ($tasks = []);
 
 foreach ($tasks as $task) {
     $objects[$task["taskID"]] = $task["object"];

@@ -32,14 +32,14 @@ class permission extends DatabaseEntity
         if (Meta::$tables[$entity_class]) {
             $entity = new Meta($entity_class);
             $permissions = $entity->permissions;
-        } else if (class_exists($entity_class)) {
+        } elseif (class_exists($entity_class)) {
             $entity = new $entity_class();
             $permissions = $entity->permissions;
         }
 
         foreach ((array)$permissions as $a => $d) {
             if ((($actions & $a) == $a) && $d != "") {
-                if ($description) {
+                if ($description !== '' && $description !== '0') {
                     $description .= ",";
                 }
 

@@ -6,7 +6,7 @@
  */
 
 define("NO_REDIRECT", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 // usleep(1000);
 
@@ -23,14 +23,10 @@ foreach ($t as $k => $v) {
         if ($k == "taskID") {
             $task = new Task();
             $task->set_id($v);
-            if ($task->select()) {
-                $v = $task->get_id() . " " . $task->get_link();
-            } else {
-                $v = "Task " . $v . " not found.";
-            }
-        } else if ($k == "unit") {
+            $v = $task->select() ? $task->get_id() . " " . $task->get_link() : "Task " . $v . " not found.";
+        } elseif ($k == "unit") {
             $v = $units[$v];
-        } else if ($k == "multiplier") {
+        } elseif ($k == "multiplier") {
             $v = $tsims[sprintf("%0.2f", $v)]["timeSheetItemMultiplierName"];
         }
 
@@ -42,8 +38,8 @@ foreach ($t as $k => $v) {
 // Task: 102 This is the task
 // Comment: This is the comment
 $str[] = "<tr><td>" . $rtn["date"] . " </td><td class='nobr bold'> " . $rtn["duration"] . " " . $rtn["unit"] . "</td><td class='nobr'>&times; " . $rtn["multiplier"] . "</td></tr>";
-$rtn["taskID"] and $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
-$rtn["comment"] and $str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>";
+$rtn["taskID"] && ($str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>");
+$rtn["comment"] && ($str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>");
 
 if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
     $t = timeSheetItem::parse_time_string($_REQUEST["time_item"]);
@@ -51,7 +47,7 @@ if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
     if (!is_numeric($t["duration"])) {
         $status = "bad";
         $extra = "Time not added. Duration not found.";
-    } else if (!is_numeric($t["taskID"])) {
+    } elseif (!is_numeric($t["taskID"])) {
         $status = "bad";
         $extra = "Time not added. Task not found.";
     }
@@ -72,5 +68,5 @@ if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
 }
 
 // $extra and array_unshift($str, "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>");
-$extra and $str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>";
+$extra && ($str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>");
 print json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"], JSON_THROW_ON_ERROR);

@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
-$absenceID = $_POST["absenceID"] or $absenceID = $_GET["absenceID"];
-$returnToParent = $_GET["returnToParent"] or $returnToParent = $_POST["returnToParent"];
+($absenceID = $_POST["absenceID"]) || ($absenceID = $_GET["absenceID"]);
+($returnToParent = $_GET["returnToParent"]) || ($returnToParent = $_POST["returnToParent"]);
 $TPL["returnToParent"] = $returnToParent;
 $urls["home"] = $TPL["url_alloc_home"];
 $urls["calendar"] = $TPL["url_alloc_taskCalendar"] . "personID=" . $personID;
@@ -22,7 +22,10 @@ if ($absenceID) {
 }
 
 $person = new person();
-$personID = $personID or $personID = $_POST["personID"] or $personID = $_GET["personID"];
+if (!($personID = $personID) && !($personID = $_POST["personID"])) {
+    $personID = $_GET["personID"];
+}
+
 if ($personID) {
     $person->set_id($personID);
     $person->select();
@@ -37,15 +40,15 @@ if ($_POST["save"]) {
     $success = $absence->save();
     if ($success && !$TPL["message"]) {
         $url = $TPL["url_alloc_person"] . "personID=" . $personID;
-        $urls[$returnToParent] and $url = $urls[$returnToParent];
+        $urls[$returnToParent] && ($url = $urls[$returnToParent]);
         alloc_redirect($url);
     }
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     // Deleting a record
     $absence->read_globals();
     $absence->delete();
     $url = $TPL["url_alloc_person"] . "personID=" . $personID;
-    $urls[$returnToParent] and $url = $urls[$returnToParent];
+    $urls[$returnToParent] && ($url = $urls[$returnToParent]);
     alloc_redirect($url);
 }
 
@@ -53,7 +56,7 @@ if ($_POST["save"]) {
 $absence->read_globals();
 $absence->set_value("personID", $person->get_id());
 $absence->set_values("absence_");
-$_GET["date"] and $TPL["absence_dateFrom"] = $_GET["date"];
+$_GET["date"] && ($TPL["absence_dateFrom"] = $_GET["date"]);
 $TPL["personName"] = $person->get_name();
 
 // Set up the options for the absence type.

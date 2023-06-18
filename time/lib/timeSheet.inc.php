@@ -57,7 +57,7 @@ class timeSheet extends DatabaseEntity
         }
 
         $project = $this->get_foreign_object("project");
-        $managers = $project->get_timeSheetRecipients() or $managers = [];
+        ($managers = $project->get_timeSheetRecipients()) || ($managers = []);
         if (in_array($current_user->get_id(), $managers)) {
             return true;
         }
@@ -165,15 +165,11 @@ class timeSheet extends DatabaseEntity
             [$this->pay_info["project_rate"], $this->pay_info["project_rateUnitID"]] = $rates[$this->get_value("projectID")][$this->get_value("personID")];
         } else {
             // Get rate for person for this particular project
-            $allocDatabase->query(
-                "SELECT rate, rateUnitID, project.currencyTypeID
+            $allocDatabase->query(["SELECT rate, rateUnitID, project.currencyTypeID
                    FROM projectPerson
               LEFT JOIN project on projectPerson.projectID = project.projectID
                   WHERE projectPerson.projectID = %d
-                    AND projectPerson.personID = %d",
-                $this->get_value("projectID"),
-                $this->get_value("personID")
-            );
+                    AND projectPerson.personID = %d", $this->get_value("projectID"), $this->get_value("personID")]);
 
             $allocDatabase->next_record();
             $this->pay_info["project_rate"] = Page::money($allocDatabase->f("currencyTypeID"), $allocDatabase->f("rate"), "%mo");
@@ -196,7 +192,7 @@ class timeSheet extends DatabaseEntity
             $timeUnitRows[] = $row;
         }
 
-        $extra_sql and $sql = "," . implode("\n,", $extra_sql);
+        $extra_sql && ($sql = "," . implode("\n,", $extra_sql));
 
         // Get duration for this timesheet/timeSheetItems
         $allocDatabase->query(unsafe_prepare(
@@ -242,7 +238,7 @@ class timeSheet extends DatabaseEntity
         $taxPercentDivisor = ($taxPercent / 100) + 1;
         $this->pay_info["total_dollars_minus_gst"] = Page::money($currency, $this->pay_info["total_dollars"] / $taxPercentDivisor, "%m");
         $this->pay_info["total_customerBilledDollars_minus_gst"] = Page::money($currency, $this->pay_info["total_customerBilledDollars"] / $taxPercentDivisor, "%m");
-        $this->pay_info["total_dollars_not_null"] = $this->pay_info["total_customerBilledDollars"] or $this->pay_info["total_dollars_not_null"] = $this->pay_info["total_dollars"];
+        ($this->pay_info["total_dollars_not_null"] = $this->pay_info["total_customerBilledDollars"]) || ($this->pay_info["total_dollars_not_null"] = $this->pay_info["total_dollars"]);
         $this->pay_info["currency"] = Page::money($currency, '', "%S");
     }
 
@@ -266,7 +262,7 @@ class timeSheet extends DatabaseEntity
         $projectName = $project->get_value("projectName");
         $personName = person::get_fullname($this->get_value("personID"));
         $company_tfID = config::get_config_item("mainTfID");
-        $cost_centre = $project->get_value("cost_centre_tfID") or $cost_centre = $company_tfID;
+        ($cost_centre = $project->get_value("cost_centre_tfID")) || ($cost_centre = $company_tfID);
         $this->fromTfID = $cost_centre;
         $this->load_pay_info();
 
@@ -297,74 +293,67 @@ class timeSheet extends DatabaseEntity
         // This is just for internal transactions
         if ($_POST["create_transactions_default"] && $this->pay_info["total_customerBilledDollars"] == 0) {
             $this->pay_info["total_customerBilledDollars_minus_gst"] = $this->pay_info["total_dollars"];
-
             // 1. Credit Employee TF
             $product = "Timesheet #" . $this->get_id() . " for " . $projectName . " (" . $this->pay_info["summary_unit_totals"] . ")";
             $rtn[$product] = $this->createTransaction($product, $this->pay_info["total_dollars"], $recipient_tfID, "timesheet", $status);
-
             // 2. Payment Insurance
             // removed
-        } else if ($_POST["create_transactions_default"]) {
+        } elseif ($_POST["create_transactions_default"]) {
             /*  This was previously named "Simple" transactions. Ho ho.
-                On the Project page we care about these following variables:
-                - Client Billed At $amount eg: $121
-                - The projectPersons rate for this project eg: $50;
+                            On the Project page we care about these following variables:
+                            - Client Billed At $amount eg: $121
+                            - The projectPersons rate for this project eg: $50;
 
-                $121 after gst == $110
-                cyber get 28.5% of $110
-                djk get $50
-                commissions
-                whatever is left of the $110 goes to the 0% commissions
-            */
-
+                            $121 after gst == $110
+                            cyber get 28.5% of $110
+                            djk get $50
+                            commissions
+                            whatever is left of the $110 goes to the 0% commissions
+                        */
             // 1. Credit TAX/GST Cost Centre
             $product = $taxName . " " . $taxPercent . "% for timesheet #" . $this->get_id();
             $rtn[$product] = $this->createTransaction($product, ($this->pay_info["total_customerBilledDollars"] - $this->pay_info["total_customerBilledDollars_minus_gst"]), $taxTfID, "tax", $status);
-
             // 3. Credit Employee TF
             $product = "Timesheet #" . $this->get_id() . " for " . $projectName . " (" . $this->pay_info["summary_unit_totals"] . ")";
             $rtn[$product] = $this->createTransaction($product, $this->pay_info["total_dollars"], $recipient_tfID, "timesheet", $status);
-
             // 4. Credit Project Commissions
-            $allocDatabase->query(
-                "SELECT * FROM projectCommissionPerson where projectID = %d ORDER BY commissionPercent DESC",
-                $this->get_value("projectID")
-            );
-
+            $allocDatabase->query(["SELECT * FROM projectCommissionPerson where projectID = %d ORDER BY commissionPercent DESC", $this->get_value("projectID")]);
             while ($allocDatabase->next_record()) {
                 if ($allocDatabase->f("commissionPercent") > 0) {
                     $product = "Commission " . $allocDatabase->f("commissionPercent") . "% of " . $this->pay_info["currency"] . $this->pay_info["total_customerBilledDollars_minus_gst"];
                     $product .= " from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
                     $amount = $this->pay_info["total_customerBilledDollars_minus_gst"] * ($allocDatabase->f("commissionPercent") / 100);
                     $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission", $status);
-
                     // Suck up the rest of funds if it is a special zero % commission
-                } else if ($allocDatabase->f("commissionPercent") == 0) {
+                } elseif ($allocDatabase->f("commissionPercent") == 0) {
                     $amount = $this->pay_info["total_customerBilledDollars_minus_gst"] - $this->get_amount_so_far();
-                    $amount < 0 and $amount = 0;
+                    if ($amount < 0) {
+                        $amount = 0;
+                    }
 
                     // If the 0% commission is for the company tf, dump it in the company tf
                     if ($allocDatabase->f("tfID") == $company_tfID) {
                         $product = "Commission Remaining from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
                         $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission");
-                    } else {
+                    } elseif (config::for_cyber()) {
                         // If it's cyber do a 50/50 split with the commission tf and the company
-                        if (config::for_cyber()) {
-                            $amount = $amount / 2;
-                            $product = "Commission Remaining from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
-                            $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission");
-                            $rtn[$product] = $this->createTransaction($product, $amount, $company_tfID, "commission", $status); // 50/50
-                        } else {
-                            $product = "Commission Remaining from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
-                            $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission");
-                        }
+                        $amount /= 2;
+                        $product = "Commission Remaining from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
+                        $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission");
+                        $rtn[$product] = $this->createTransaction($product, $amount, $company_tfID, "commission", $status);
+                        // 50/50
+                    } else {
+                        $product = "Commission Remaining from timesheet #" . $this->get_id() . ".  Project: " . $projectName;
+                        $rtn[$product] = $this->createTransaction($product, $amount, $allocDatabase->f("tfID"), "commission");
                     }
                 }
             }
         }
 
         foreach ($rtn as $error => $v) {
-            $v != 1 and $errmsg .= "<br>FAILED: " . $error;
+            if ($v != 1) {
+                $errmsg .= "<br>FAILED: " . $error;
+            }
         }
 
         if ($errmsg !== null) {
@@ -382,7 +371,7 @@ class timeSheet extends DatabaseEntity
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                        WHERE timeSheetID = %d AND transactionType != 'invoice'
                      ", $this->get_id());
-        $include_tax or $q .= "AND transactionType != 'tax'";
+        $include_tax || ($q .= "AND transactionType != 'tax'");
         $allocDatabase = new AllocDatabase();
         $r = $allocDatabase->qr($q);
         return $r['balance'];
@@ -396,8 +385,8 @@ class timeSheet extends DatabaseEntity
             return 1;
         }
 
-        $status or $status = "pending";
-        $fromTfID or $fromTfID = $this->fromTfID;
+        $status || ($status = "pending");
+        $fromTfID || ($fromTfID = $this->fromTfID);
 
         if ($tfID == 0 || !$tfID || !is_numeric($tfID) || !is_numeric($amount)) {
             return "Error -> \$tfID: " . $tfID . "  and  \$amount: " . $amount;
@@ -417,7 +406,7 @@ class timeSheet extends DatabaseEntity
         return 1;
     }
 
-    public function shootEmail($email)
+    public function shootEmail($email): string
     {
 
         $addr = $email["to"];
@@ -451,7 +440,7 @@ class timeSheet extends DatabaseEntity
         return "Problem sending email to: " . $email->to_address;
     }
 
-    public function get_task_list_dropdown($status, $timeSheetID, $taskID = "")
+    public function get_task_list_dropdown($status, $timeSheetID, $taskID = ""): string
     {
 
         $options = [];
@@ -459,7 +448,7 @@ class timeSheet extends DatabaseEntity
         if (is_object($this)) {
             $personID = $this->get_value('personID');
             $projectID = $this->get_value('projectID');
-        } else if ($timeSheetID) {
+        } elseif ($timeSheetID) {
             $t = new timeSheet();
             $t->set_id($timeSheetID);
             $t->select();
@@ -495,34 +484,42 @@ class timeSheet extends DatabaseEntity
 
         // If they want starred, load up the timeSheetID filter element
         if ($filter["starred"]) {
-            foreach ((array)$current_user->prefs["stars"]["timeSheet"] as $k => $v) {
+            foreach (array_keys((array)$current_user->prefs["stars"]["timeSheet"]) as $k) {
                 $filter["timeSheetID"][] = $k;
             }
 
-            is_array($filter["timeSheetID"]) or $filter["timeSheetID"][] = -1;
+            if (!is_array($filter["timeSheetID"])) {
+                $filter["timeSheetID"][] = -1;
+            }
         }
 
         // Filter timeSheetID
-        $filter["timeSheetID"] and $sql[] = sprintf_implode("timeSheet.timeSheetID = %d", $filter["timeSheetID"]);
+        $filter["timeSheetID"] && ($sql[] = sprintf_implode("timeSheet.timeSheetID = %d", $filter["timeSheetID"]));
 
         // No point continuing if primary key specified, so return
         if ($filter["timeSheetID"] || $filter["starred"]) {
             return $sql;
         }
 
-        $filter["tfID"] and $sql[] = sprintf_implode("timeSheet.recipient_tfID = %d", $filter["tfID"]);
-        $filter["projectID"] and $sql[] = sprintf_implode("timeSheet.projectID = %d", $filter["projectID"]);
-        $filter["taskID"] and $sql[] = sprintf_implode("timeSheetItem.taskID = %d", $filter["taskID"]);
-        $filter["personID"] and $sql[] = sprintf_implode("timeSheet.personID = %d", $filter["personID"]);
-        $filter["status"] and $sql[] = sprintf_implode("timeSheet.status = '%s'", $filter["status"]);
+        $filter["tfID"] && ($sql[] = sprintf_implode("timeSheet.recipient_tfID = %d", $filter["tfID"]));
+        $filter["projectID"] && ($sql[] = sprintf_implode("timeSheet.projectID = %d", $filter["projectID"]));
+        $filter["taskID"] && ($sql[] = sprintf_implode("timeSheetItem.taskID = %d", $filter["taskID"]));
+        $filter["personID"] && ($sql[] = sprintf_implode("timeSheet.personID = %d", $filter["personID"]));
+        $filter["status"] && ($sql[] = sprintf_implode("timeSheet.status = '%s'", $filter["status"]));
 
         if ($filter["dateFrom"]) {
-            in_array($filter["dateFromComparator"], ["=", "!=", ">", ">=", "<", "<="]) or $filter["dateFromComparator"] = '=';
+            if (!in_array($filter["dateFromComparator"], ["=", "!=", ">", ">=", "<", "<="])) {
+                $filter["dateFromComparator"] = '=';
+            }
+
             $sql[] = unsafe_prepare("(timeSheet.dateFrom " . $filter['dateFromComparator'] . " '%s')", $filter["dateFrom"]);
         }
 
         if ($filter["dateTo"]) {
-            in_array($filter["dateToComparator"], ["=", "!=", ">", ">=", "<", "<="]) or $filter["dateToComparator"] = '=';
+            if (!in_array($filter["dateToComparator"], ["=", "!=", ">", ">=", "<", "<="])) {
+                $filter["dateToComparator"] = '=';
+            }
+
             $sql[] = unsafe_prepare("(timeSheet.dateTo " . $filter['dateToComparator'] . " '%s')", $filter["dateTo"]);
         }
 
@@ -541,23 +538,19 @@ class timeSheet extends DatabaseEntity
 
         global $TPL;
         $current_user = &singleton("current_user");
-        $_FORM["showShortProjectLink"] and $_FORM["showProjectLink"] = true;
+        $_FORM["showShortProjectLink"] && ($_FORM["showProjectLink"] = true);
         $filter = timeSheet::get_list_filter($_FORM);
 
         // Used in timeSheetListS.tpl
         $extra["showFinances"] = $_FORM["showFinances"];
 
         $debug = $_FORM["debug"];
-        $debug and print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>";
-        $debug and print "<pre>filter: " . print_r($filter, 1) . "</pre>";
+        $debug && (print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
+        $debug && (print "<pre>filter: " . print_r($filter, 1) . "</pre>");
 
-        $_FORM["return"] or $_FORM["return"] = "html";
+        $_FORM["return"] || ($_FORM["return"] = "html");
 
-        if (is_array($filter) && count($filter)) {
-            $filter = " WHERE " . implode(" AND ", $filter);
-        } else {
-            $filter = "";
-        }
+        $filter = is_array($filter) && count($filter) ? " WHERE " . implode(" AND ", $filter) : "";
 
         $q = "SELECT timeSheet.*, person.personID, projectName, projectShortName
                 FROM timeSheet
@@ -568,7 +561,7 @@ class timeSheet extends DatabaseEntity
             GROUP BY timeSheet.timeSheetID
             ORDER BY dateFrom,projectName,timeSheet.status,surname";
 
-        $debug and print "Query: " . $q;
+        $debug && (print "Query: " . $q);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
 
@@ -682,7 +675,7 @@ class timeSheet extends DatabaseEntity
     public function get_url()
     {
         global $sess;
-        $sess or $sess = new Session();
+        $sess || ($sess = new Session());
 
         $url = "time/timeSheet.php?timeSheetID=" . $this->get_id();
 
@@ -692,16 +685,16 @@ class timeSheet extends DatabaseEntity
             // This for urls that are emailed
         } else {
             static $prefix;
-            $prefix or $prefix = config::get_config_item("allocURL");
+            $prefix || ($prefix = config::get_config_item("allocURL"));
             $url = $prefix . $url;
         }
 
         return $url;
     }
 
-    public function get_link($text = false)
+    public function get_link($text = false): string
     {
-        $text or $text = $this->get_id();
+        $text || ($text = $this->get_id());
         return '<a href="' . $this->get_url() . '">' . $text . "</a>";
     }
 
@@ -745,7 +738,7 @@ class timeSheet extends DatabaseEntity
                 $_FORM["status"] = "edit";
                 $_FORM["personID"] = $current_user->get_id();
             }
-        } else if ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -852,7 +845,7 @@ class timeSheet extends DatabaseEntity
         $steps["backwards"]["manager"] = "edit";
         $status = $this->get_value("status");
         $newstatus = $steps[$direction][$status];
-        if ($newstatus) {
+        if ($newstatus !== '' && $newstatus !== '0') {
             $m = $this->{"email_move_status_to_" . $newstatus}($direction, $info);
             // $this->save();
             if (is_array($m)) {
@@ -895,8 +888,7 @@ class timeSheet extends DatabaseEntity
                 Rejected By: {$info["people_cache"][$current_user->get_id()]["name"]}
 
                 EOD;
-            $this->get_value("billingNote")
-                and $email["body"] .= "Billing Note: " . $this->get_value("billingNote");
+            $this->get_value("billingNote") && ($email["body"] .= "Billing Note: " . $this->get_value("billingNote"));
             $msg[] = $this->shootEmail($email);
 
             $this->set_value("dateSubmittedToAdmin", "");
@@ -922,7 +914,7 @@ class timeSheet extends DatabaseEntity
             // forward to manager requires the timesheet to be owned by the current
             // user or TIME_INVOICE_TIMESHEETS
             // project managers may not do this
-            if (!($this->get_value("personID") == $current_user->get_id() || $this->have_perm(PERM_TIME_INVOICE_TIMESHEETS))) {
+            if ($this->get_value("personID") != $current_user->get_id() && !$this->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
                 alloc_error("You do not have permission to change this timesheet.");
             }
 
@@ -976,13 +968,12 @@ class timeSheet extends DatabaseEntity
                     re-submission.{$overrun_notice}
 
                     EOD;
-                $this->get_value("billingNote") and
-                    $email["body"] .= "\n\nBilling Note: " . $this->get_value("billingNote");
+                $this->get_value("billingNote") && ($email["body"] .= "\n\nBilling Note: " . $this->get_value("billingNote"));
                 $msg[] = $this->shootEmail($email);
             }
 
             // Can get backwards to "manager" only from "admin"
-        } else if ($direction == "backwards") {
+        } elseif ($direction == "backwards") {
             // admin->manager requires APPROVE_TIMESHEETS
             if (!$this->have_perm(PERM_TIME_INVOICE_TIMESHEETS)) {
                 // no permission, go away
@@ -1005,8 +996,7 @@ class timeSheet extends DatabaseEntity
                  Rejected By: {$info["people_cache"][$current_user->get_id()]["name"]}
 
                 EOD;
-            $this->get_value("billingNote")
-                and $email["body"] .= "Billing Note: " . $this->get_value("billingNote");
+            $this->get_value("billingNote") && ($email["body"] .= "Billing Note: " . $this->get_value("billingNote"));
             $msg[] = $this->shootEmail($email);
             $this->set_value("dateRejected", date("Y-m-d"));
         }
@@ -1039,7 +1029,7 @@ class timeSheet extends DatabaseEntity
             }
 
             $allocDatabase = new AllocDatabase();
-            $hasItems = $allocDatabase->qr("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $this->get_id());
+            $hasItems = $allocDatabase->qr(["SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $this->get_id()]);
             if (!$hasItems) {
                 return alloc_error('Unable to submit time sheet, no items have been added.');
             }
@@ -1072,8 +1062,7 @@ class timeSheet extends DatabaseEntity
                     satisfactory, make it editable again for re-submission.
 
                     EOD;
-                $this->get_value("billingNote")
-                    and $email["body"] .= "Billing Note: " . $this->get_value("billingNote");
+                $this->get_value("billingNote") && ($email["body"] .= "Billing Note: " . $this->get_value("billingNote"));
                 $msg[] = $this->shootEmail($email);
             }
 
@@ -1227,10 +1216,10 @@ class timeSheet extends DatabaseEntity
             $extra = " for task " . $taskID;
         }
 
-        $projectID or alloc_error(sprintf($errstr . "No project found%s.", $extra));
+        $projectID || alloc_error(sprintf($errstr . "No project found%s.", $extra));
 
         $row_projectPerson = projectPerson::get_projectPerson_row($projectID, $current_user->get_id());
-        $row_projectPerson or alloc_error($errstr . "The person(" . $current_user->get_id() . ") has not been added to the project(" . $projectID . ").");
+        $row_projectPerson || alloc_error($errstr . "The person(" . $current_user->get_id() . ") has not been added to the project(" . $projectID . ").");
 
         if ($row_projectPerson && $projectID) {
             if ($stuff["timeSheetID"]) {
@@ -1245,7 +1234,7 @@ class timeSheet extends DatabaseEntity
                 $db = new AllocDatabase();
                 $db->query($q);
                 $row = $db->row();
-                $row or alloc_error("Couldn't find an editable time sheet with that ID.");
+                $row || alloc_error("Couldn't find an editable time sheet with that ID.");
             } else {
                 $q = unsafe_prepare("SELECT *
                                 FROM timeSheet
@@ -1281,7 +1270,7 @@ class timeSheet extends DatabaseEntity
                 $timeSheetID = $row["timeSheetID"];
             }
 
-            $timeSheetID or alloc_error($errstr . "Couldn't locate an existing, or create a new Time Sheet.");
+            $timeSheetID || alloc_error($errstr . "Couldn't locate an existing, or create a new Time Sheet.");
 
             // Add new time sheet item
             if ($timeSheetID) {
@@ -1292,7 +1281,7 @@ class timeSheet extends DatabaseEntity
                 $tsi = new timeSheetItem();
                 $tsi->currency = $timeSheet->get_value("currencyTypeID");
                 $tsi->set_value("timeSheetID", $timeSheetID);
-                $d = $date or $d = date("Y-m-d");
+                ($d = $date) || ($d = date("Y-m-d"));
                 $tsi->set_value("dateTimeSheetItem", $d);
                 $tsi->set_value("timeSheetItemDuration", $duration);
                 $tsi->set_value("timeSheetItemDurationUnitID", $unit);
@@ -1339,7 +1328,7 @@ class timeSheet extends DatabaseEntity
             $interestedPartyOptions = $project->get_all_parties();
         }
 
-        $extra_interested_parties = config::get_config_item("defaultInterestedParties") or $extra_interested_parties = [];
+        ($extra_interested_parties = config::get_config_item("defaultInterestedParties")) || ($extra_interested_parties = []);
         foreach ($extra_interested_parties as $name => $email) {
             $interestedPartyOptions[$email] = ["name" => $name];
         }
@@ -1349,24 +1338,24 @@ class timeSheet extends DatabaseEntity
                 $p = new person();
                 $p->set_id($this->get_value("personID"));
                 $p->select();
-                $p->get_value("emailAddress") and $interestedPartyOptions[$p->get_value("emailAddress")] = [
+                $p->get_value("emailAddress") && ($interestedPartyOptions[$p->get_value("emailAddress")] = [
                     "name"     => $p->get_value("firstName") . " " . $p->get_value("surname"),
                     "role"     => "assignee",
                     "selected" => false,
                     "personID" => $this->get_value("personID"),
-                ];
+                ]);
             }
 
             if ($this->get_value("approvedByManagerPersonID")) {
                 $p = new person();
                 $p->set_id($this->get_value("approvedByManagerPersonID"));
                 $p->select();
-                $p->get_value("emailAddress") and $interestedPartyOptions[$p->get_value("emailAddress")] = [
+                $p->get_value("emailAddress") && ($interestedPartyOptions[$p->get_value("emailAddress")] = [
                     "name"     => $p->get_value("firstName") . " " . $p->get_value("surname"),
                     "role"     => "manager",
                     "selected" => true,
                     "personID" => $this->get_value("approvedByManagerPersonID"),
-                ];
+                ]);
             }
 
             $this_id = $this->get_id();
@@ -1413,7 +1402,7 @@ class timeSheet extends DatabaseEntity
         return $this->is_owner();
     }
 
-    public function get_name($_FORM = [])
+    public function get_name($_FORM = []): string
     {
         $project = new project();
         $project->set_id($this->get_value("projectID"));
@@ -1443,7 +1432,9 @@ class timeSheet extends DatabaseEntity
             $project->select();
             $projectName = $project->get_name();
             $projectShortName = $project->get_name(["showShortProjectLink" => true]);
-            $projectShortName && $projectShortName != $projectName and $projectName .= " " . $projectShortName;
+            if ($projectShortName && $projectShortName != $projectName) {
+                $projectName .= " " . $projectShortName;
+            }
         }
 
         $q = unsafe_prepare("SELECT dateTimeSheetItem, taskID, description, comment, commentPrivate
@@ -1454,7 +1445,10 @@ class timeSheet extends DatabaseEntity
         $allocDatabase->query($q);
         while ($r = $allocDatabase->row()) {
             $desc .= $br . $r["dateTimeSheetItem"] . " " . $r["taskID"] . " " . $r["description"] . "\n";
-            $r["comment"] && $r["commentPrivate"] or $desc .= $r["comment"] . "\n";
+            if (!($r["comment"] && $r["commentPrivate"])) {
+                $desc .= $r["comment"] . "\n";
+            }
+
             $br = "\n";
         }
 
@@ -1481,7 +1475,7 @@ class timeSheet extends DatabaseEntity
     {
         $current_user = &singleton("current_user");
         $allocDatabase = new AllocDatabase();
-        $row = $allocDatabase->qr("SELECT can_edit_rate(%d,%d) as allow", $current_user->get_id(), $this->get_value("projectID"));
+        $row = $allocDatabase->qr(["SELECT can_edit_rate(%d,%d) as allow", $current_user->get_id(), $this->get_value("projectID")]);
         return $row["allow"];
     }
 

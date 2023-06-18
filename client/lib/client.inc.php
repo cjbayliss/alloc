@@ -76,19 +76,19 @@ class client extends DatabaseEntity
         return $current_user->is_employee();
     }
 
-    public static function has_attachment_permission($person)
+    public static function has_attachment_permission($person): bool
     {
         // Placeholder for security check in shared/get_attchment.php
         return true;
     }
 
-    public static function has_attachment_permission_delete($person)
+    public static function has_attachment_permission_delete($person): bool
     {
         // Placeholder for security check in shared/get_attchment.php
         return true;
     }
 
-    public static function get_client_select($clientStatus = "", $clientID = "")
+    public static function get_client_select($clientStatus = "", $clientID = ""): string
     {
         $options = null;
         $clientNamesQuery = null;
@@ -111,13 +111,12 @@ class client extends DatabaseEntity
         $str = '<select id="clientID" name="clientID" style="width:100%;">';
         $str .= '<option value="">';
         $str .= $options;
-        $str .= "</select>";
-        return $str;
+        return $str . "</select>";
     }
 
-    public static function get_client_contact_select($clientID = "", $clientContactID = "")
+    public static function get_client_contact_select($clientID = "", $clientContactID = ""): string
     {
-        $clientID or $clientID = $_GET["clientID"];
+        $clientID || ($clientID = $_GET["clientID"]);
         $allocDatabase = new AllocDatabase(); // FIXME: is this doing magic or can it be deleted?
         $clientContactQuery = unsafe_prepare(
             "SELECT clientContactName as label, clientContactID as value 
@@ -140,7 +139,7 @@ class client extends DatabaseEntity
         return $this->get_value("clientName");
     }
 
-    public function get_client_link($_FORM = [])
+    public function get_client_link($_FORM = []): string
     {
         global $TPL;
         return '<a href="'
@@ -159,11 +158,13 @@ class client extends DatabaseEntity
 
         // If they want starred, load up the clientID filter element
         if ($filter["starred"]) {
-            foreach ((array)$current_user->prefs["stars"]["client"] as $k => $v) {
+            foreach (array_keys((array)$current_user->prefs["stars"]["client"]) as $k) {
                 $filter["clientID"][] = $k;
             }
 
-            is_array($filter["clientID"]) or $filter["clientID"][] = -1;
+            if (!is_array($filter["clientID"])) {
+                $filter["clientID"][] = -1;
+            }
         }
 
         // Filter on clientID
@@ -203,7 +204,7 @@ class client extends DatabaseEntity
 
         if ($filter["clientLetter"] && $filter["clientLetter"] == "A") {
             $sql[] = "(clientName like 'A%' or clientName REGEXP '^[^[:alpha:]]')";
-        } else if ($filter["clientLetter"] && $filter["clientLetter"] != "ALL") {
+        } elseif ($filter["clientLetter"] && $filter["clientLetter"] != "ALL") {
             $sql[] = sprintf_implode("clientName LIKE '%s%%'", $filter["clientLetter"]);
         }
 
@@ -306,7 +307,7 @@ class client extends DatabaseEntity
                 $_FORM["clientLetter"] = "A";
                 $_FORM["clientStatus"] = "Current";
             }
-        } else if ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -345,7 +346,7 @@ class client extends DatabaseEntity
 
         $clientCategories = [];
         $clientCategory = $_FORM["clientCategory"];
-        $clientDataArray = config::get_config_item("clientCategories") or $clientDataArray = [];
+        ($clientDataArray = config::get_config_item("clientCategories")) || ($clientDataArray = []);
         foreach ($clientDataArray as $client => $category) {
             $clientCategories[$category["value"]] = $category["label"];
         }
@@ -361,7 +362,7 @@ class client extends DatabaseEntity
         return $rtn;
     }
 
-    public function get_url()
+    public function get_url(): string
     {
         global $TPL;
         global $sess; // FIXME: can this be deleted?
@@ -416,7 +417,7 @@ class client extends DatabaseEntity
 
         $options = client::get_list(["clientStatus" => "Current"]);
         $options = array_kv($options, "clientID", "clientName");
-        $client->get_id() and $options[$client->get_id()] = $client->get_value("clientName");
+        $client->get_id() && ($options[$client->get_id()] = $client->get_value("clientName"));
         $client_select = "<select id=\"clientID\" name=\"clientID\" onChange=\"makeAjaxRequest('"
             . $TPL["url_alloc_updateProjectListByClient"]
             . "clientID='+$('#clientID').attr('value')+'&onlymine="
@@ -448,30 +449,33 @@ class client extends DatabaseEntity
         $clientModifiedUser = $this->get_value("clientModifiedUser");
         $clientModifiedUser_field = $clientModifiedUser . " " . $person[$clientModifiedUser]["username"] . " " . $person[$clientModifiedUser]["name"];
 
-        $this->get_value("clientStreetAddressOne") and $postal[] = $this->get_value("clientStreetAddressOne");
-        $this->get_value("clientSuburbOne") and $postal[] = $this->get_value("clientSuburbOne");
-        $this->get_value("clientStateOne") and $postal[] = $this->get_value("clientStateOne");
-        $this->get_value("clientPostcodeOne") and $postal[] = $this->get_value("clientPostcodeOne");
-        $this->get_value("clientCountryOne") and $postal[] = $this->get_value("clientCountryOne");
+        $this->get_value("clientStreetAddressOne") && ($postal[] = $this->get_value("clientStreetAddressOne"));
+        $this->get_value("clientSuburbOne") && ($postal[] = $this->get_value("clientSuburbOne"));
+        $this->get_value("clientStateOne") && ($postal[] = $this->get_value("clientStateOne"));
+        $this->get_value("clientPostcodeOne") && ($postal[] = $this->get_value("clientPostcodeOne"));
+        $this->get_value("clientCountryOne") && ($postal[] = $this->get_value("clientCountryOne"));
         $p = implode("\n", (array)$postal);
-        $p and $p = "Postal Address:\n" . $p;
+        $p && ($p = "Postal Address:\n" . $p);
 
-        $this->get_value("clientStreetAddressTwo") and $street[] = $this->get_value("clientStreetAddressTwo");
-        $this->get_value("clientSuburbTwo") and $street[] = $this->get_value("clientSuburbTwo");
-        $this->get_value("clientStateTwo") and $street[] = $this->get_value("clientStateTwo");
-        $this->get_value("clientPostcodeTwo") and $street[] = $this->get_value("clientPostcodeTwo");
-        $this->get_value("clientCountryTwo") and $street[] = $this->get_value("clientCountryTwo");
+        $this->get_value("clientStreetAddressTwo") && ($street[] = $this->get_value("clientStreetAddressTwo"));
+        $this->get_value("clientSuburbTwo") && ($street[] = $this->get_value("clientSuburbTwo"));
+        $this->get_value("clientStateTwo") && ($street[] = $this->get_value("clientStateTwo"));
+        $this->get_value("clientPostcodeTwo") && ($street[] = $this->get_value("clientPostcodeTwo"));
+        $this->get_value("clientCountryTwo") && ($street[] = $this->get_value("clientCountryTwo"));
         $s = implode("\n", (array)$street);
-        $s and $s = "Street Address:\n" . $s;
+        $s && ($s = "Street Address:\n" . $s);
 
-        $p && $s and $p .= "\n\n";
+        if ($p && $s) {
+            $p .= "\n\n";
+        }
+
         $addresses = $p . $s;
 
-        $this->get_value("clientPhoneOne") and $ph = "Ph: " . $this->get_value("clientPhoneOne");
-        $this->get_value("clientFaxOne") and $fx = "Fax: " . $this->get_value("clientFaxOne");
+        $this->get_value("clientPhoneOne") && ($ph = "Ph: " . $this->get_value("clientPhoneOne"));
+        $this->get_value("clientFaxOne") && ($fx = "Fax: " . $this->get_value("clientFaxOne"));
 
-        $ph and $ph = " " . $ph;
-        $fx and $fx = " " . $fx;
+        $ph && ($ph = " " . $ph);
+        $fx && ($fx = " " . $fx);
         $name = $this->get_name() . $ph . $fx;
 
         $q = unsafe_prepare("SELECT * FROM clientContact WHERE clientID = %d", $this->get_id());
@@ -479,24 +483,24 @@ class client extends DatabaseEntity
         $allocDatabase->query($q);
         while ($row = $allocDatabase->row()) {
             $c .= $nl . $row["clientContactName"];
-            $row["clientContactEmail"] and $c .= " <" . $row["clientContactEmail"] . ">";
+            $row["clientContactEmail"] && ($c .= " <" . $row["clientContactEmail"] . ">");
             $c .= " | ";
-            $row["clientContactStreetAddress"] and $c .= " " . $row["clientContactStreetAddress"];
-            $row["clientContactSuburb"] and $c .= " " . $row["clientContactSuburb"];
-            $row["clientContactState"] and $c .= " " . $row["clientContactState"];
-            $row["clientContactPostcode"] and $c .= " " . $row["clientContactPostcode"];
-            $row["clientContactCountry"] and $c .= " " . $row["clientContactCountry"];
+            $row["clientContactStreetAddress"] && ($c .= " " . $row["clientContactStreetAddress"]);
+            $row["clientContactSuburb"] && ($c .= " " . $row["clientContactSuburb"]);
+            $row["clientContactState"] && ($c .= " " . $row["clientContactState"]);
+            $row["clientContactPostcode"] && ($c .= " " . $row["clientContactPostcode"]);
+            $row["clientContactCountry"] && ($c .= " " . $row["clientContactCountry"]);
             $c .= " | ";
-            $row["clientContactPhone"] and $c .= " Ph: " . $row["clientContactPhone"];
-            $row["clientContactMobile"] and $c .= " Mob: " . $row["clientContactMobile"];
-            $row["clientContactFax"] and $c .= " Fax: " . $row["clientContactFax"];
-            $row["primaryContact"] and $c .= " Primary contact";
+            $row["clientContactPhone"] && ($c .= " Ph: " . $row["clientContactPhone"]);
+            $row["clientContactMobile"] && ($c .= " Mob: " . $row["clientContactMobile"]);
+            $row["clientContactFax"] && ($c .= " Fax: " . $row["clientContactFax"]);
+            $row["primaryContact"] && ($c .= " Primary contact");
             $c .= " | ";
-            $row["clientContactOther"] and $c .= " " . $row["clientContactOther"];
+            $row["clientContactOther"] && ($c .= " " . $row["clientContactOther"]);
             $nl = "|+|=|";
         }
 
-        $c and $contacts = $c;
+        $c && ($contacts = $c);
 
         // ZendSearch
         $zendSearchLuceneDocument = new Document();
@@ -525,7 +529,7 @@ class client extends DatabaseEntity
             $stateOrRegion = $this->get_value("clientStateOne", DST_HTML_DISPLAY);
             $postCode = $this->get_value("clientPostcodeOne", DST_HTML_DISPLAY);
             $country = $this->get_value("clientCountryOne", DST_HTML_DISPLAY);
-        } else if ($type == "street") {
+        } elseif ($type == "street") {
             $postalOrStreetAddress = $this->get_value("clientStreetAddressTwo", DST_HTML_DISPLAY);
             $suburb = $this->get_value("clientSuburbTwo", DST_HTML_DISPLAY);
             $stateOrRegion = $this->get_value("clientStateTwo", DST_HTML_DISPLAY);
@@ -552,12 +556,12 @@ class client extends DatabaseEntity
                 $map_base
             );
             $str = sprintf('<a href="%s">%s<br/>%s %s %s<br/>%s</a>', $address, $postalOrStreetAddress, $suburb, $stateOrRegion, $postCode, $country);
-        } else if ($postalOrStreetAddress != "") {
+        } elseif ($postalOrStreetAddress != "") {
             $str = $postalOrStreetAddress;
-            $suburb and $str .= "<br>" . $suburb;
-            $stateOrRegion and $str .= " " . $stateOrRegion;
-            $postCode and $str .= " " . $postCode;
-            $country and $str .= "<br>" . $country;
+            $suburb && ($str .= "<br>" . $suburb);
+            $stateOrRegion && ($str .= " " . $stateOrRegion);
+            $postCode && ($str .= " " . $postCode);
+            $country && ($str .= "<br>" . $country);
         }
 
         return $str;

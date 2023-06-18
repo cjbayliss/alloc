@@ -7,11 +7,15 @@
 
 class task_calendar_home_item extends home_item
 {
+    /**
+     * @var bool
+     */
+    public $has_config = true;
+
     public $date;
 
     public function __construct()
     {
-        $this->has_config = true;
         parent::__construct("task_calendar_home_item", "Calendar", "calendar", "taskCalendarS.tpl", "standard", 30);
     }
 
@@ -30,7 +34,7 @@ class task_calendar_home_item extends home_item
         }
     }
 
-    public function render()
+    public function render(): bool
     {
         return true;
     }

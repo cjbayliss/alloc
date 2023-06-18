@@ -29,9 +29,9 @@ class token extends DatabaseEntity
     public function set_hash($hash, $validate = true)
     {
         $extra = null;
-        $validate and $extra = " AND tokenActive = 1";
-        $validate and $extra .= " AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)";
-        $validate and $extra .= unsafe_prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s"));
+        $validate && ($extra = " AND tokenActive = 1");
+        $validate && ($extra .= " AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)");
+        $validate && ($extra .= unsafe_prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s")));
 
         $q = unsafe_prepare("SELECT * FROM token
                        WHERE tokenHash = '%s'
@@ -90,15 +90,14 @@ class token extends DatabaseEntity
         $allocDatabase->query($q);
     }
 
-    public function get_hash_str()
+    public function get_hash_str(): string
     {
         [$usec, $sec] = explode(' ', microtime());
         $seed = $sec + ($usec * 100000);
         mt_srand($seed);
         $randval = random_int(1, 99_999_999); // get a random 8 digit number
         $randval = sprintf("%-08d", $randval);
-        $randval = base_convert($randval, 10, 36);
-        return $randval;
+        return base_convert($randval, 10, 36);
     }
 
     public function generate_hash()
@@ -134,9 +133,9 @@ class token extends DatabaseEntity
     public function get_list_filter($filter = [])
     {
         $sql = [];
-        $filter["tokenEntity"] and $sql[] = sprintf_implode("token.tokenEntity = '%s'", $filter["tokenEntity"]);
-        $filter["tokenEntityID"] and $sql[] = sprintf_implode("token.tokenEntityID = %d", $filter["tokenEntityID"]);
-        $filter["tokenHash"] and $sql[] = sprintf_implode("token.tokenHash = '%s'", $filter["tokenHash"]);
+        $filter["tokenEntity"] && ($sql[] = sprintf_implode("token.tokenEntity = '%s'", $filter["tokenEntity"]));
+        $filter["tokenEntityID"] && ($sql[] = sprintf_implode("token.tokenEntityID = %d", $filter["tokenEntityID"]));
+        $filter["tokenHash"] && ($sql[] = sprintf_implode("token.tokenHash = '%s'", $filter["tokenHash"]));
         return $sql;
     }
 

@@ -5,23 +5,23 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $TPL["main_alloc_title"] = "Add reminder - " . APPLICATION_NAME;
 
-$reminderID = $_POST["reminderID"] or $reminderID = $_GET["reminderID"];
-$step = $_POST["step"] or $step = $_GET["step"];
-$parentType = $_POST["parentType"] or $parentType = $_GET["parentType"];
-$parentID = $_POST["parentID"] or $parentID = $_GET["parentID"];
-$returnToParent = $_POST["returnToParent"] or $returnToParent = $_GET["returnToParent"];
+($reminderID = $_POST["reminderID"]) || ($reminderID = $_GET["reminderID"]);
+($step = $_POST["step"]) || ($step = $_GET["step"]);
+($parentType = $_POST["parentType"]) || ($parentType = $_GET["parentType"]);
+($parentID = $_POST["parentID"]) || ($parentID = $_GET["parentID"]);
+($returnToParent = $_POST["returnToParent"]) || ($returnToParent = $_GET["returnToParent"]);
 $TPL["returnToParent"] = $returnToParent;
 $parentID = sprintf("%d", $parentID);
 
 // Hacks to get reminders to work from the task calendar
-$_GET["reminderTime"] and $TPL["reminderTime"] = $_GET["reminderTime"];
-$_GET["personID"] and $TPL["personID"] = $_GET["personID"];
+$_GET["reminderTime"] && ($TPL["reminderTime"] = $_GET["reminderTime"]);
+$_GET["personID"] && ($TPL["personID"] = $_GET["personID"]);
 
-$step or $step = 1;
+$step || ($step = 1);
 
 if ($parentType == "general" && $step == 2) {
     ++$step;
@@ -57,7 +57,7 @@ switch ($step) {
                 $client->read_db_record($db);
                 $parent_names[$client->get_id()] = $client->get_value('clientName');
             }
-        } else if ($parentType == "project") {
+        } elseif ($parentType == "project") {
             if ($current_user->have_role("admin")) {
                 $query = "SELECT * FROM project WHERE projectStatus != 'Archived' ORDER BY projectName";
             } else {
@@ -75,7 +75,7 @@ switch ($step) {
                 $project->read_db_record($db);
                 $parent_names[$project->get_id()] = $project->get_value('projectName');
             }
-        } else if ($parentType == "task") {
+        } elseif ($parentType == "task") {
             if ($current_user->have_role("admin")) {
                 $query = "SELECT * FROM task";
             } else {
@@ -124,10 +124,10 @@ switch ($step) {
         if ($parentType == "client") {
             $TPL["return_address"] = $TPL["url_alloc_client"] . "clientID=" . $parentID;
             $TPL["reminder_goto_parent"] = '<a href="' . $TPL["return_address"] . '">Goto Client</a>';
-        } else if ($parentType == "project") {
+        } elseif ($parentType == "project") {
             $TPL["return_address"] = $TPL["url_alloc_project"] . "projectID=" . $parentID;
             $TPL["reminder_goto_parent"] = '<a href="' . $TPL["return_address"] . '">Goto Project</a>';
-        } else if ($parentType == "task") {
+        } elseif ($parentType == "task") {
             $TPL["return_address"] = $TPL["url_alloc_task"] . "taskID=" . $parentID;
             $TPL["reminder_goto_parent"] = '<a href="' . $TPL["return_address"] . '">Goto Task</a>';
         }
@@ -149,7 +149,7 @@ switch ($step) {
         $TPL["reminderID"] = $reminder->get_id();
 
         [$d, $t] = explode(" ", $reminder->get_value("reminderTime"));
-        $TPL["reminder_date"] = $d or $TPL["reminder_date"] = date("Y-m-d");
+        ($TPL["reminder_date"] = $d) || ($TPL["reminder_date"] = date("Y-m-d"));
 
         $TPL["reminder_hours"] = $reminder->get_hour_options();
         $TPL["reminder_minutes"] = $reminder->get_minute_options();
@@ -162,19 +162,17 @@ switch ($step) {
         // subject
         if ($reminder->get_value('reminderSubject') != "") {
             $TPL["reminder_default_subject"] = $reminder->get_value('reminderSubject');
-        } else {
-            if ($parentType == "client") {
-                $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderClient"), "client", $parentID);
-                $TPL["reminder_default_content"] = config::get_config_item("allocURL") . "client/client.php?clientID=" . $parentID;
-            } else if ($parentType == "project") {
-                $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderProject"), "project", $parentID);
-                $TPL["reminder_default_content"] = config::get_config_item("allocURL") . "project/project.php?projectID=" . $parentID;
-            } else if ($parentType == "task") {
-                $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderTask"), "task", $parentID);
-                $TPL["reminder_default_content"] = config::get_config_item("allocURL") . "task/task.php?taskID=" . $parentID;
-            } else if ($parentType == "general") {
-                $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderOther"), "");
-            }
+        } elseif ($parentType == "client") {
+            $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderClient"), "client", $parentID);
+            $TPL["reminder_default_content"] = config::get_config_item("allocURL") . "client/client.php?clientID=" . $parentID;
+        } elseif ($parentType == "project") {
+            $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderProject"), "project", $parentID);
+            $TPL["reminder_default_content"] = config::get_config_item("allocURL") . "project/project.php?projectID=" . $parentID;
+        } elseif ($parentType == "task") {
+            $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderTask"), "task", $parentID);
+            $TPL["reminder_default_content"] = config::get_config_item("allocURL") . "task/task.php?taskID=" . $parentID;
+        } elseif ($parentType == "general") {
+            $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderOther"), "");
         }
 
         $TPL["reminder_default_content"] .= "\n" . $reminder->get_value('reminderContent');
@@ -211,7 +209,6 @@ switch ($step) {
             }
 
             $reminder = new reminder();
-
             if (isset($_POST["reminder_update"])) {
                 $reminder->set_id($_POST["reminder_id"]);
                 $reminder->select();
@@ -229,9 +226,8 @@ switch ($step) {
             $reminder->set_value('reminderLinkID', $parentID);
             $reminder->set_value('reminderModifiedUser', $current_user->get_id());
             $reminder->set_modified_time();
-            $no or $reminder->set_value('reminderTime', $_POST["reminder_date"] . " " . $_POST["reminder_hour"] . ":" . $_POST["reminder_minute"] . ":00");
+            $no || $reminder->set_value('reminderTime', $_POST["reminder_date"] . " " . $_POST["reminder_hour"] . ":" . $_POST["reminder_minute"] . ":00");
             $reminder->set_value('reminderHash', $_POST["reminderHash"]);
-
             if (!$_POST["reminder_recuring_value"]) {
                 $reminder->set_value('reminderRecuringInterval', 'No');
                 $reminder->set_value('reminderRecuringValue', '0');
@@ -261,7 +257,7 @@ switch ($step) {
             $returnToParent = "reminder";
             $reminderID = $reminder->get_id();
             $TPL["message_good"][] = "Reminder saved.";
-        } else if ($_POST["reminder_delete"] && $_POST["reminder_id"]) {
+        } elseif ($_POST["reminder_delete"] && $_POST["reminder_id"]) {
             $reminder = new reminder();
             $reminder->set_id($_POST["reminder_id"]);
             $reminder->delete();

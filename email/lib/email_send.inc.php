@@ -46,15 +46,15 @@ class email_send
     public function __construct($to_address = "", $subject = "", $body = "", $message_type = "")
     {
         $this->default_headers = "X-Mailer: " . APPLICATION_NAME . " " . APPLICATION_VERSION;
-        $to_address and $this->set_to_address($to_address);
-        $subject and $this->set_subject($subject);
-        $body and $this->set_body($body);
-        $message_type and $this->set_message_type($message_type);
+        $to_address && $this->set_to_address($to_address);
+        $subject && $this->set_subject($subject);
+        $body && $this->set_body($body);
+        $message_type && $this->set_message_type($message_type);
     }
 
     public function set_to_address($to = false)
     {
-        $to or $to = $this->to_address;
+        $to || ($to = $this->to_address);
         // $to or $to = ALLOC_DEFAULT_TO_ADDRESS; // no
         $this->to_address = $to;
         $this->del_header("to");
@@ -62,54 +62,54 @@ class email_send
 
     public function set_body($body = false, $body_without_attachments = "")
     {
-        $body or $body = $this->body;
+        $body || ($body = $this->body);
         $this->body = $body;
         $this->body_without_attachments = $body_without_attachments;
     }
 
     public function set_message_type($message_type = false)
     {
-        $message_type or $message_type = $this->message_type;
+        $message_type || ($message_type = $this->message_type);
         $this->message_type = $message_type;
     }
 
     public function set_from($from = false)
     {
-        $from or $from = $this->from;
-        $from or $from = APPLICATION_NAME . " " . ALLOC_DEFAULT_FROM_ADDRESS;
+        $from || ($from = $this->from);
+        $from || ($from = APPLICATION_NAME . " " . ALLOC_DEFAULT_FROM_ADDRESS);
         $this->add_header("From", $from);
         $this->from = $from;
     }
 
     public function set_content_type($type = false)
     {
-        $type or $type = "text/plain; charset=utf-8; format=flowed";
+        $type || ($type = "text/plain; charset=utf-8; format=flowed");
         $this->add_header("Content-Type", $type);
     }
 
     public function set_subject($subject = false)
     {
-        $subject or $subject = $this->subject;
+        $subject || ($subject = $this->subject);
         $this->subject = $subject;
         $this->del_header("subject");
     }
 
     public function set_reply_to($email = false)
     {
-        $email or $email = ALLOC_DEFAULT_FROM_ADDRESS;
+        $email || ($email = ALLOC_DEFAULT_FROM_ADDRESS);
         $this->add_header("Reply-To", $email);
     }
 
     public function set_date($date = false)
     {
         // Date: Tue, 07 Jun 2011 15:37:32 +1000
-        $date or $date = date("D, d M Y H:i:s O");
+        $date || ($date = date("D, d M Y H:i:s O"));
         $this->add_header("Date", $date);
     }
 
     public function set_message_id($hash = false)
     {
-        $hash and $hash = ".alloc.key." . $hash;
+        $hash && ($hash = ".alloc.key." . $hash);
         [$usec, $sec] = explode(" ", microtime());
         $time = $sec . $usec;
         $time = base_convert($time, 10, 36);
@@ -124,7 +124,7 @@ class email_send
         return $h;
     }
 
-    public function send($use_default_headers = true)
+    public function send($use_default_headers = true): bool
     {
 
         $return_path = null;
@@ -146,7 +146,7 @@ class email_send
                 $this->body .= $this->get_bottom_mime_header();
             }
 
-            $this->to_address or $this->to_address = null;
+            $this->to_address || ($this->to_address = null);
             $this->headers = trim($this->headers) . "\n" . trim($this->default_headers);
             $this->headers = str_replace("\r\n", "\n", $this->headers);
             $this->headers = str_replace("\n", PHP_EOL, $this->headers); // according to php.net/mail
@@ -172,7 +172,7 @@ class email_send
 
     public function set_headers($headers = "")
     {
-        $headers or $headers = $this->headers;
+        $headers || ($headers = $this->headers);
         $headers = preg_replace("/\r?\n\s+/", " ", $headers);
         $this->headers = $headers;
     }
@@ -211,15 +211,18 @@ class email_send
     {
         $dont_send = null;
         // Validate against particular hosts
-        in_array($_SERVER["SERVER_NAME"], $this->no_email_hosts) and $dont_send = true;
-        $this->ignore_no_email_hosts and $dont_send = false;
+        if (in_array($_SERVER["SERVER_NAME"], $this->no_email_hosts)) {
+            $dont_send = true;
+        }
+
+        $this->ignore_no_email_hosts && ($dont_send = false);
 
         // Validate against particular bits in the url
         foreach ($this->no_email_urls as $no_email_url) {
-            preg_match("/" . $no_email_url . "/", $_SERVER["SCRIPT_FILENAME"]) and $dont_send = true;
+            preg_match("/" . $no_email_url . "/", $_SERVER["SCRIPT_FILENAME"]) && ($dont_send = true);
         }
 
-        $this->ignore_no_email_urls and $dont_send = false;
+        $this->ignore_no_email_urls && ($dont_send = false);
 
         // Invert return
         return !$dont_send;
@@ -229,7 +232,10 @@ class email_send
     {
         $current_user = &singleton("current_user");
         $sentEmailLog = new sentEmailLog();
-        $to = $this->to_address or $to = $this->get_header("Cc") or $to = $this->get_header("Bcc");
+        if (!($to = $this->to_address) && !($to = $this->get_header("Cc"))) {
+            $to = $this->get_header("Bcc");
+        }
+
         $sentEmailLog->set_value("sentEmailTo", $to);
         $sentEmailLog->set_value("sentEmailSubject", $this->subject);
         $sentEmailLog->set_value("sentEmailBody", substr($this->body_without_attachments, 0, 65000)); // length of a TEXT column
@@ -263,7 +269,7 @@ class email_send
         }
     }
 
-    public function get_bottom_mime_header()
+    public function get_bottom_mime_header(): string
     {
         return "\n\n--" . $this->get_mime_boundary() . "--";
     }
@@ -304,8 +310,7 @@ class email_send
         if (preg_match("/multipart/i", $content_type) && preg_match("/boundary/i", $content_type)) {
             // Suck out the mime boundary
             preg_match('/boundary="?([^"]*)"?/i', $content_type, $matches);
-            $mime_boundary = $matches[1];
-            return $mime_boundary;
+            return $matches[1];
         }
     }
 }

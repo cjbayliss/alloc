@@ -13,7 +13,7 @@ class timeSheetStatusHomeItem extends home_item
         parent::__construct("time_status_list", "Time Sheet Statistics", "time", "timeSheetStatusHomeM.tpl", "narrow", 29);
     }
 
-    public function visible()
+    public function visible(): bool
     {
         $current_user = &singleton("current_user");
 
@@ -32,7 +32,7 @@ class timeSheetStatusHomeItem extends home_item
         return (bool) $current_user->prefs["showTimeSheetStatsHome"];
     }
 
-    public function render()
+    public function render(): bool
     {
         $current_user = &singleton("current_user");
         global $TPL;

@@ -35,10 +35,10 @@ class productSaleItem extends DatabaseEntity
     public function validate($_ = null)
     {
         $err = [];
-        $this->get_value("productID") or $err[] = "Please select a Product.";
-        $this->get_value("productSaleID") or $err[] = "Please select a Product Sale.";
-        $this->get_value("sellPrice") or $err[] = "Please enter a Sell Price.";
-        $this->get_value("quantity") or $err[] = "Please enter a Quantity.";
+        $this->get_value("productID") || ($err[] = "Please select a Product.");
+        $this->get_value("productSaleID") || ($err[] = "Please select a Product Sale.");
+        $this->get_value("sellPrice") || ($err[] = "Please enter a Sell Price.");
+        $this->get_value("quantity") || ($err[] = "Please enter a Quantity.");
         return parent::validate($err);
     }
 
@@ -137,13 +137,20 @@ class productSaleItem extends DatabaseEntity
 
         // margin = sellPrice - GST - costs
         foreach ($transactions as $transaction) {
-            $transaction["saleTransactionType"] == "sellPrice" and $sellPrice = exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
-            $transaction["saleTransactionType"] == "tax" and $tax += exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
-            $transaction["saleTransactionType"] == "aCost" and $costs += exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
+            if ($transaction["saleTransactionType"] == "sellPrice") {
+                $sellPrice = exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
+            }
+
+            if ($transaction["saleTransactionType"] == "tax") {
+                $tax += exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
+            }
+
+            if ($transaction["saleTransactionType"] == "aCost") {
+                $costs += exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
+            }
         }
 
-        $margin = $sellPrice - $costs;
-        return $margin;
+        return $sellPrice - $costs;
     }
 
     public function get_amount_unallocated()
@@ -154,9 +161,9 @@ class productSaleItem extends DatabaseEntity
     public function create_transaction($fromTfID, $tfID, $amount, $description, $currency = false, $productCostID = false, $transactionType = 'sale')
     {
         global $TPL;
-        $currency or $currency = config::get_config_item("currency");
+        $currency || ($currency = config::get_config_item("currency"));
         $productSale = $this->get_foreign_object("productSale");
-        $date = $productSale->get_value("productSaleDate") or $date = date("Y-m-d");
+        ($date = $productSale->get_value("productSaleDate")) || ($date = date("Y-m-d"));
         $tfID = $productSale->translate_meta_tfID($tfID);
         $fromTfID = $productSale->translate_meta_tfID($fromTfID);
         $transaction = new transaction();

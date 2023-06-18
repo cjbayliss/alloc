@@ -17,13 +17,12 @@ class config extends DatabaseEntity
     {
         $table = &get_cached_table("config", $anew);
         if ($table[$name]["type"] == "array") {
-            $val = unserialize($table[$name]["value"]) or $val = [];
+            ($val = unserialize($table[$name]["value"])) || ($val = []);
             return $val;
         }
 
         if ($table[$name]["type"] == "text") {
-            $val = $table[$name]["value"];
-            return $val;
+            return $table[$name]["value"];
         }
     }
 

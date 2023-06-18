@@ -26,7 +26,7 @@ class timeSheetHomeItem extends home_item
         }
     }
 
-    public function render()
+    public function render(): bool
     {
         $current_user = &singleton("current_user");
         global $TPL;

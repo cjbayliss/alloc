@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $current_user->check_employee();
 
@@ -29,7 +29,9 @@ function show_filter()
     $invoice = new invoice();
     $_FORM = $invoice->load_form_data($defaults);
     $arr = $invoice->load_invoice_filter($_FORM);
-    is_array($arr) and $TPL = array_merge($TPL, $arr);
+    if (is_array($arr)) {
+        $TPL = array_merge($TPL, $arr);
+    }
 
     $payment_statii = $invoice->get_invoice_statii_payment();
     $summary = "";

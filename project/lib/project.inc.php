@@ -69,10 +69,8 @@ class project extends DatabaseEntity
         $taskIDs = [];
         $allocDatabase = new AllocDatabase();
 
-        if (
-            $initialState["projectStatus"] != "Archived" &&
-            $this->get_value("projectStatus") == "Archived"
-        ) {
+        if ($initialState["projectStatus"] != "Archived" &&
+        $this->get_value("projectStatus") == "Archived") {
             $allocDatabase->connect();
             $projectTaskList = $allocDatabase->pdo->prepare(
                 "SELECT taskID FROM task
@@ -81,7 +79,6 @@ class project extends DatabaseEntity
             );
             $projectTaskList->bindValue(":projectID", $this->get_id(), PDO::PARAM_INT);
             $projectTaskList->execute();
-
             while ($row = $projectTaskList->fetch(PDO::FETCH_ASSOC)) {
                 $changeTaskStatus = $allocDatabase->pdo->prepare(
                     "CALL change_task_status(:taskID, 'closed_archived')"
@@ -92,15 +89,13 @@ class project extends DatabaseEntity
             }
 
             $taskIDs = implode(', ', $taskIDs) ?: '';
-            if (!empty($taskIDs)) {
+            if ($taskIDs !== '') {
                 $TPL["message_good"][] =
                     "All open and pending tasks ({$taskIDs}) have had their
                     status changed to Closed: Archived.";
             }
-        } else if (
-            $initialState["projectStatus"] == "Archived" &&
-            $this->get_value("projectStatus") != "Archived"
-        ) {
+        } elseif ($initialState["projectStatus"] == "Archived" &&
+        $this->get_value("projectStatus") != "Archived") {
             $allocDatabase->connect();
             $projectTaskList = $allocDatabase->pdo->prepare(
                 "SELECT taskID FROM task
@@ -109,7 +104,6 @@ class project extends DatabaseEntity
             );
             $projectTaskList->bindValue(":projectID", $this->get_id(), PDO::PARAM_INT);
             $projectTaskList->execute();
-
             while ($row = $projectTaskList->fetch(PDO::FETCH_ASSOC)) {
                 $changeTaskStatus = $allocDatabase->pdo->prepare(
                     "CALL change_task_status(:taskID, get_most_recent_non_archived_taskStatus(:taskID))"
@@ -120,7 +114,7 @@ class project extends DatabaseEntity
             }
 
             $taskIDs = implode(', ', $taskIDs) ?: '';
-            if (!empty($taskIDs)) {
+            if ($taskIDs !== '') {
                 $TPL["message_good"][] =
                     "All archived tasks ({$taskIDs}) have been set back to their
                     former task status.";
@@ -151,7 +145,7 @@ class project extends DatabaseEntity
     public function get_url()
     {
         global $sess;
-        $sess or $sess = new Session();
+        $sess || ($sess = new Session());
 
         $url = "project/project.php?projectID=" . $this->get_id();
 
@@ -161,7 +155,7 @@ class project extends DatabaseEntity
             // This for urls that are emailed
         } else {
             static $prefix;
-            $prefix or $prefix = config::get_config_item("allocURL");
+            $prefix || ($prefix = config::get_config_item("allocURL"));
             $url = $prefix . $url;
         }
 
@@ -170,11 +164,7 @@ class project extends DatabaseEntity
 
     public function get_name($_FORM = [])
     {
-        if ($_FORM["showShortProjectLink"] && $this->get_value("projectShortName")) {
-            $field = "projectShortName";
-        } else {
-            $field = "projectName";
-        }
+        $field = $_FORM["showShortProjectLink"] && $this->get_value("projectShortName") ? "projectShortName" : "projectName";
 
         if ($_FORM["return"] == "html") {
             return $this->get_value($field, DST_HTML_DISPLAY);
@@ -186,7 +176,7 @@ class project extends DatabaseEntity
     public function is_owner($person = "")
     {
         $current_user = &singleton("current_user");
-        $person or $person = $current_user;
+        $person || ($person = $current_user);
 
         // If brand new record then let it be created.
         if (!$this->get_id()) {
@@ -225,7 +215,7 @@ class project extends DatabaseEntity
           LEFT JOIN role ppr ON ppr.roleID = pp.roleID
               WHERE projectID = :projectID and personID = :personID";
 
-        if (!empty($permissions) && is_array($permissions)) {
+        if ($permissions !== [] && is_array($permissions)) {
             $permissionFilter = implode("', '", $permissions);
             $projectPermissionsQuery .= sprintf(" AND ppr.roleHandle IN ('%s')", $permissionFilter);
         }
@@ -242,7 +232,7 @@ class project extends DatabaseEntity
         $rows = $this->get_project_people_by_role("timeSheetRecipient");
 
         // Fallback time sheet manager person
-        if (!$rows) {
+        if ($rows === []) {
             $people = config::get_config_item("defaultTimeSheetManagerList");
             $rows = $people ?: null;
         }
@@ -292,12 +282,12 @@ class project extends DatabaseEntity
     public function get_project_manager()
     {
         $projectManager = $this->get_project_people_by_role("timeSheetRecipient");
-        if (!empty($projectManager)) {
+        if ($projectManager !== []) {
             return $projectManager[0];
         }
 
         $projectManager = $this->get_project_people_by_role("isManager");
-        if (!empty($projectManager)) {
+        if ($projectManager !== []) {
             return $projectManager[0];
         }
 
@@ -383,7 +373,7 @@ class project extends DatabaseEntity
         $current_user = &singleton("current_user");
         $personID = $personID ?: $current_user->get_id();
 
-        $queryType or $queryType = "mine";
+        $queryType || ($queryType = "mine");
         $queryProjectStatus = $projectStatus ? " AND project.projectStatus = :projectStatus " : "";
 
         $baseSql = "SELECT project.projectID, project.projectName
@@ -437,7 +427,7 @@ class project extends DatabaseEntity
     {
         $options = [];
         $current_user = &singleton("current_user");
-        $clientID and $options["clientID"] = $clientID;
+        $clientID && ($options["clientID"] = $clientID);
         $options["projectStatus"] = "Current";
         $options["showProjectType"] = true;
         if ($onlymine) {
@@ -448,7 +438,7 @@ class project extends DatabaseEntity
         return array_kv($ops, "projectID", "label");
     }
 
-    public static function get_list_dropdown($type = "mine", $projectIDs = [])
+    public static function get_list_dropdown($type = "mine", $projectIDs = []): string
     {
         $options = self::get_list_dropdown_options($type, $projectIDs);
         return '<select name="projectID[]" size="9" style="width:275px;" multiple="true">' . $options . "</select>";
@@ -473,7 +463,7 @@ class project extends DatabaseEntity
         return Page::select_options($optionsArry, $projectIDs, $maxlength);
     }
 
-    public function get_dropdown_by_client($clientID = null, $onlymine = false)
+    public function get_dropdown_by_client($clientID = null, $onlymine = false): string
     {
         $dropdownHtml = '<select id="projectID" name="projectID"><option></option>';
         $clientList = project::get_list_by_client($clientID, $onlymine);
@@ -482,9 +472,7 @@ class project extends DatabaseEntity
             $clientList[$this->get_id()] = $this->get_value("projectName");
         }
 
-        $dropdownHtml .= Page::select_options($clientList, $this->get_id()) . "</select>";
-
-        return $dropdownHtml;
+        return $dropdownHtml . (Page::select_options($clientList, $this->get_id()) . "</select>");
     }
 
     // FIXME: these two functions should not exist
@@ -516,7 +504,7 @@ class project extends DatabaseEntity
     private static function createSQLFilerConditions($filter = [])
     {
         if ($filter["starred"]) {
-            foreach ((array)singleton("current_user")->prefs["stars"]["project"] as $projectID => $_) {
+            foreach (array_keys((array)singleton("current_user")->prefs["stars"]["project"]) as $projectID) {
                 $filter["projectID"][] = $projectID;
             }
 
@@ -604,11 +592,7 @@ class project extends DatabaseEntity
         $_FORM["return"] = $_FORM["return"] ?: "html";
 
         $filter = self::createSQLFilerConditions($_FORM);
-        if (is_array($filter) && count($filter)) {
-            $filter = " WHERE " . implode(" AND ", $filter);
-        } else {
-            $filter = "";
-        }
+        $filter = is_array($filter) && count($filter) ? " WHERE " . implode(" AND ", $filter) : "";
 
         $from = $_FORM["personID"] ?
             " LEFT JOIN projectPerson on projectPerson.projectID = project.projectID " : "";
@@ -703,7 +687,7 @@ class project extends DatabaseEntity
                 $_FORM["projectStatus"] = "Current";
                 $_FORM["personID"] = $current_user->get_id();
             }
-        } else if ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -809,7 +793,9 @@ class project extends DatabaseEntity
         $projectModifiedUser_field = $projectModifiedUser . " " . $p[$projectModifiedUser]["username"] . " " . $p[$projectModifiedUser]["name"];
         $projectName = $this->get_name();
         $projectShortName = $this->get_name(["showShortProjectLink" => true]);
-        $projectShortName && $projectShortName != $projectName and $projectName .= " " . $projectShortName;
+        if ($projectShortName && $projectShortName != $projectName) {
+            $projectName .= " " . $projectShortName;
+        }
 
         if ($this->get_value("clientID")) {
             $client = new client();
@@ -841,15 +827,15 @@ class project extends DatabaseEntity
     public function format_client_old()
     {
         $str = null;
-        $this->get_value("projectClientName") and $str .= $this->get_value("projectClientName", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("projectClientAddress") and $str .= $this->get_value("projectClientAddress", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("projectClientPhone") and $str .= $this->get_value("projectClientPhone", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("projectClientMobile") and $str .= $this->get_value("projectClientMobile", DST_HTML_DISPLAY) . "<br>";
-        $this->get_value("projectClientEMail") and $str .= $this->get_value("projectClientEMail", DST_HTML_DISPLAY) . "<br>";
+        $this->get_value("projectClientName") && ($str .= $this->get_value("projectClientName", DST_HTML_DISPLAY) . "<br>");
+        $this->get_value("projectClientAddress") && ($str .= $this->get_value("projectClientAddress", DST_HTML_DISPLAY) . "<br>");
+        $this->get_value("projectClientPhone") && ($str .= $this->get_value("projectClientPhone", DST_HTML_DISPLAY) . "<br>");
+        $this->get_value("projectClientMobile") && ($str .= $this->get_value("projectClientMobile", DST_HTML_DISPLAY) . "<br>");
+        $this->get_value("projectClientEMail") && ($str .= $this->get_value("projectClientEMail", DST_HTML_DISPLAY) . "<br>");
         return $str;
     }
 
-    public static function get_projectID_sql($filter, $table = "project")
+    public static function get_projectID_sql($filter, $table = "project"): string
     {
         $projectIDs = [];
 
@@ -873,7 +859,7 @@ class project extends DatabaseEntity
             $projectIDs[] = $filter["projectID"];
         }
 
-        if (!empty($projectIDs)) {
+        if ($projectIDs !== []) {
             $statement = array_map(static fn ($projectID) => sprintf('(%s.projectID = %s)', $table, $projectID), (array)$projectIDs);
             return implode(" OR ", $statement);
         }
@@ -881,7 +867,7 @@ class project extends DatabaseEntity
         return sprintf("(%s.projectID = 0)", $table);
     }
 
-    public function get_cc_list_select($projectID = "")
+    public function get_cc_list_select($projectID = ""): string
     {
         $options = [];
         $interestedParty = [];
@@ -911,8 +897,7 @@ class project extends DatabaseEntity
             }
         }
 
-        $str = '<select name="interestedParty[]" multiple="true">' . Page::select_options($options, $interestedParty, 100, false) . "</select>";
-        return $str;
+        return '<select name="interestedParty[]" multiple="true">' . Page::select_options($options, $interestedParty, 100, false) . "</select>";
     }
 
     public function get_all_parties($projectID = false, $task_exists = false)
@@ -977,7 +962,7 @@ class project extends DatabaseEntity
                 // FIXME: alloc should not care about first names and surnames
                 if ($contact["firstName"] && $contact["surname"]) {
                     $name = $contact["firstName"] . " " . $contact["surname"];
-                } else if ($contact["firstName"] || $contact["surname"]) {
+                } elseif ($contact["firstName"] || $contact["surname"]) {
                     $name = $contact["firstName"] ? $contact["fistName"] : $contact["surname"];
                 } else {
                     $name = $contact["username"];
@@ -1007,7 +992,7 @@ class project extends DatabaseEntity
 
     public static function get_priority_label($p = "")
     {
-        $projectPriorities = config::get_config_item("projectPriorities") or $projectPriorities = [];
+        ($projectPriorities = config::get_config_item("projectPriorities")) || ($projectPriorities = []);
         $pp = [];
         foreach ($projectPriorities as $key => $arr) {
             $pp[$key] = $arr["label"];
@@ -1024,7 +1009,7 @@ class project extends DatabaseEntity
         include_template(__DIR__ . "/../templates/projectListS.tpl");
     }
 
-    public function get_changes_list()
+    public function get_changes_list(): string
     {
         // This function returns HTML rows for the changes that have been made to this project
         $rows = [];
@@ -1051,14 +1036,20 @@ class project extends DatabaseEntity
                     break;
                 case 'clientID':
                     $newClient = new client($newValue);
-                    is_object($newClient) and $newClientLink = $newClient->get_link();
-                    $newClientLink or $newClientLink = "&lt;empty&gt;";
+                    if (is_object($newClient)) {
+                        $newClientLink = $newClient->get_link();
+                    }
+
+                    $newClientLink || ($newClientLink = "&lt;empty&gt;");
                     $changeDescription = "Client set to " . $newClientLink . ".";
                     break;
                 case 'clientContactID':
                     $newClientContact = new clientContact($newValue);
-                    is_object($newClientContact) and $newClientContactLink = $newClientContact->get_link();
-                    $newClientContactLink or $newClientContactLink = "&lt;empty&gt;";
+                    if (is_object($newClientContact)) {
+                        $newClientContactLink = $newClientContact->get_link();
+                    }
+
+                    $newClientContactLink || ($newClientContactLink = "&lt;empty&gt;");
                     $changeDescription = "Client contact set to " . $newClientContactLink . ".";
                     break;
                 case 'projectType':
@@ -1078,8 +1069,11 @@ class project extends DatabaseEntity
                     break;
                 case 'cost_centre_tfID':
                     $newCostCentre = new tf($newValue);
-                    is_object($newCostCentre) and $newCostCentreLink = $newCostCentre->get_link();
-                    $newCostCentreLink or $newCostCentreLink = "&lt;empty&gt;";
+                    if (is_object($newCostCentre)) {
+                        $newCostCentreLink = $newCostCentre->get_link();
+                    }
+
+                    $newCostCentreLink || ($newCostCentreLink = "&lt;empty&gt;");
                     $changeDescription = "Cost centre TF set to " . $newCostCentreLink . ".";
                     break;
                 case 'customerBilledDollars':

@@ -57,7 +57,7 @@ class invoiceEntity extends DatabaseEntity
         return (array)$rows;
     }
 
-    public function get_links($invoiceID)
+    public function get_links($invoiceID): string
     {
         $timeSheet_links = [];
         $rtn = [];
@@ -81,9 +81,9 @@ class invoiceEntity extends DatabaseEntity
             }
         }
 
-        $timeSheet_links and $rtn[] = "Time Sheet: " . implode(", ", (array)$timeSheet_links);
-        $expenseForm_links and $rtn[] = "Expense Form: " . implode(", ", (array)$expenseForm_links);
-        $productSale_links and $rtn[] = "Product Sale: " . implode(", ", (array)$productSale_links);
+        $timeSheet_links && ($rtn[] = "Time Sheet: " . implode(", ", (array)$timeSheet_links));
+        $expenseForm_links && ($rtn[] = "Expense Form: " . implode(", ", (array)$expenseForm_links));
+        $productSale_links && ($rtn[] = "Product Sale: " . implode(", ", (array)$productSale_links));
         return implode(" / ", (array)$rtn);
     }
 
@@ -97,7 +97,7 @@ class invoiceEntity extends DatabaseEntity
             $timeSheet->select();
             $timeSheet->load_pay_info();
             $project = $timeSheet->get_foreign_object("project");
-            $date = $timeSheet->get_value("dateFrom") or $date = date("Y-m-d");
+            ($date = $timeSheet->get_value("dateFrom")) || ($date = date("Y-m-d"));
 
             // customerBilledDollars will not be set if the actual field is blank,
             // and thus there won't be a usable total_customerBilledDollars.
@@ -145,7 +145,7 @@ class invoiceEntity extends DatabaseEntity
 
         $currency = $timeSheet->get_value("currencyTypeID");
         $timeSheet->load_pay_info();
-        $amount = $timeSheet->pay_info["total_customerBilledDollars"] or $amount = $timeSheet->pay_info["total_dollars"];
+        ($amount = $timeSheet->pay_info["total_customerBilledDollars"]) || ($amount = $timeSheet->pay_info["total_dollars"]);
 
         $project = $timeSheet->get_foreign_object("project");
         $client = $project->get_foreign_object("client");
@@ -203,9 +203,9 @@ class invoiceEntity extends DatabaseEntity
         $expenseForm->select();
 
         $db = new AllocDatabase();
-        $db->query("SELECT max(transactionDate) as maxDate
+        $db->query(["SELECT max(transactionDate) as maxDate
                       FROM transaction
-                     WHERE expenseFormID = %d", $expenseFormID);
+                     WHERE expenseFormID = %d", $expenseFormID]);
         $row = $db->row();
         $amount = $expenseForm->get_abs_sum_transactions();
 
@@ -236,7 +236,7 @@ class invoiceEntity extends DatabaseEntity
         $expenseForm->select();
 
         $db = new AllocDatabase();
-        $q1 = $db->query("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseFormID);
+        $q1 = $db->query(["SELECT * FROM transaction WHERE expenseFormID = %d", $expenseFormID]);
         while ($row = $db->row($q1)) {
             $amount = Page::money($row["currencyTypeID"], $row["amount"], "%mo");
 
@@ -270,9 +270,9 @@ class invoiceEntity extends DatabaseEntity
         $productSale->select();
 
         $db = new AllocDatabase();
-        $db->query("SELECT max(transactionDate) as maxDate
+        $db->query(["SELECT max(transactionDate) as maxDate
                       FROM transaction
-                     WHERE productSaleID = %d", $productSaleID);
+                     WHERE productSaleID = %d", $productSaleID]);
         $row = $db->row();
         $amounts = $productSale->get_amounts();
 
@@ -324,7 +324,10 @@ class invoiceEntity extends DatabaseEntity
             $row["sellPrice"] = Page::money($ii->currency, $row["sellPrice"] / $row["quantity"], "%mo");
             $ii->set_value("iiUnitPrice", $row["sellPrice"]);
             $ii->set_value("iiAmount", $row["sellPrice"] * $row["quantity"]);
-            $d = $productSale->get_value("productSaleDate") or $d = $productSale->get_value("productSaleModifiedTime") or $d = $productSale->get_value("productSaleCreatedTime");
+            if (!($d = $productSale->get_value("productSaleDate")) && !($d = $productSale->get_value("productSaleModifiedTime"))) {
+                $d = $productSale->get_value("productSaleCreatedTime");
+            }
+
             $ii->set_value("iiDate", $d);
             // $ii->set_value("iiTax",config::get_config_item("taxPercent")); // product sale items are always excl GST
             $ii->save();

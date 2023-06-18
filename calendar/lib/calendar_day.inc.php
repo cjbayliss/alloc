@@ -37,9 +37,8 @@ class calendar_day
 
         if ($this->date == date("Y-m-d")) {
             $this->class = "today";
-
             // Toggle every second month to have slightly different coloured shading
-        } else if (date("n", format_date("U", $this->date)) % 2 == 0) {
+        } elseif (date("n", format_date("U", $this->date)) % 2 == 0) {
             $this->class = "even";
         }
     }

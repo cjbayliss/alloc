@@ -1,7 +1,7 @@
 <?php
 
 define("NO_AUTH", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 singleton("errors_fatal", true);
 singleton("errors_format", "text");
 singleton("errors_logged", false);
@@ -12,9 +12,9 @@ function getRequestVariable($variableName)
 {
     if (isset($_GET[$variableName])) {
         $value = $_GET[$variableName];
-    } else if (isset($_POST[$variableName])) {
+    } elseif (isset($_POST[$variableName])) {
         $value = $_POST[$variableName];
-    } else if (isset($_REQUEST[$variableName])) {
+    } elseif (isset($_REQUEST[$variableName])) {
         $value = $_REQUEST[$variableName];
     }
 

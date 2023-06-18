@@ -10,7 +10,6 @@ return $config->setRules([
     '@PSR2' => true,
     'array_indentation' => true,
     'binary_operator_spaces' => ['operators' => ['=>' => 'align_single_space_minimal']],
-    'elseif' => false,
     'no_extra_blank_lines' => true,
     'no_multiline_whitespace_around_double_arrow' => true,
     'no_multiple_statements_per_line' => true,

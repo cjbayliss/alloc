@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
-$download = $_GET["download"] or $download = $_POST["download"];
-$applyFilter = $_GET["applyFilter"] or $applyFilter = $_POST["applyFilter"];
+($download = $_GET["download"]) || ($download = $_POST["download"]);
+($applyFilter = $_GET["applyFilter"]) || ($applyFilter = $_POST["applyFilter"]);
 
 $defaults = [
     "url_form_action" => $TPL["url_alloc_searchTransaction"],
@@ -22,7 +22,10 @@ function show_filter()
     global $defaults;
     $_FORM = transaction::load_form_data($defaults);
     $arr = transaction::load_transaction_filter($_FORM);
-    is_array($arr) and $TPL = array_merge($TPL, $arr);
+    if (is_array($arr)) {
+        $TPL = array_merge($TPL, $arr);
+    }
+
     include_template("templates/searchTransactionFilterS.tpl");
 }
 

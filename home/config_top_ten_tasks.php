@@ -6,7 +6,7 @@
  */
 
 define("NO_REDIRECT", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $defaults = [
     "showHeader"      => true,
@@ -19,6 +19,9 @@ $defaults = [
 
 $_FORM = Task::load_form_data($defaults);
 $arr = Task::load_task_filter($_FORM);
-is_array($arr) and $TPL = array_merge($TPL, $arr);
+if (is_array($arr)) {
+    $TPL = array_merge($TPL, $arr);
+}
+
 $TPL["showCancel"] = true;
 include_template("../task/templates/taskFilterS.tpl");

@@ -6,7 +6,7 @@
  */
 
 // Format a time offset in seconds to (+|-)HH:MM
-function format_offset($secs)
+function format_offset($secs): string
 {
     // sign will be included in the hours
     $sign = $secs < 0 ? '' : '+';
@@ -52,16 +52,13 @@ function format_date($format = "Y/m/d", $date = "")
     // If looks like this: 2003-07-07 21:37:01
     if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2} [\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
         [$d, $t] = explode(" ", $date);
-
         // If looks like this: 2003-07-07
-    } else if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2}$/", $date)) {
+    } elseif (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2}$/", $date)) {
         $d = $date;
-
         // If looks like this: 12:01:01
-    } else if (preg_match("/^[\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
+    } elseif (preg_match("/^[\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
         $d = "2000-01-01";
         $t = $date;
-
         // Nasty hobbitses!
     } else {
         if ($date) {
@@ -82,8 +79,14 @@ function add_brackets($email = "")
     if ($email) {
         $l = strpos($email, "<");
         $r = strpos($email, ">");
-        $l === false and $email = "<" . $email;
-        $r === false and $email .= ">";
+        if ($l === false) {
+            $email = "<" . $email;
+        }
+
+        if ($r === false) {
+            $email .= ">";
+        }
+
         return $email;
     }
 }
@@ -115,13 +118,21 @@ function get_all_form_data($array = [], $defaults = [])
     // Load up $_FORM with $_GET and $_POST
     $_FORM = [];
     foreach ($array as $name) {
-        $_FORM[$name] = $_POST[$name] or $_FORM[$name] = $_GET[$name] or $_FORM[$name] = $defaults[$name];
+        if ($_FORM[$name] = $_POST[$name]) {
+            continue;
+        }
+
+        if ($_FORM[$name] = $_GET[$name]) {
+            continue;
+        }
+
+        $_FORM[$name] = $defaults[$name];
     }
 
     return $_FORM;
 }
 
-function timetook($start, $friendly_output = true)
+function timetook($start, $friendly_output = true): string
 {
     $end = microtime();
     [$start_micro, $start_epoch, $end_micro, $end_epoch] = explode(" ", $start . " " . $end);
@@ -132,7 +143,7 @@ function timetook($start, $friendly_output = true)
         $unit = " seconds.";
         if ($dur > 60) {
             $unit = " mins.";
-            $dur = $dur / 60;
+            $dur /= 60;
         }
 
         return sprintf("%0.5f", $dur) . $unit;
@@ -175,7 +186,7 @@ function rebuild_cache($table)
 
         uasort($people, "sort_by_name");
         $cache["person"] = $people;
-    } else if ($table == "config") {
+    } elseif ($table == "config") {
         // Special processing for config table
         $config = $cache["config"];
         foreach ($config as $id => $row) {
@@ -217,7 +228,7 @@ function util_show_attachments($entity, $id, $options = [])
         return; // no rows, and no buttons, leave the whole thing out.
     }
 
-    $rows or $rows = [];
+    $rows || ($rows = []);
     foreach ($rows as $row) {
         $TPL["attachments"] .= "<tr><td>" . $row["file"] . '</td><td class="nobr">' . $row["mtime"] . "</td><td>" . $row["size"] . "</td>";
         $TPL["attachments"] .= '<td align="right" width="1%" style="padding:5px;">' . $row["delete"] . "</td></tr>";
@@ -232,16 +243,24 @@ function get_filesize_label($file)
     return get_size_label($size);
 }
 
-function get_size_label($size)
+function get_size_label($size): ?string
 {
-    $rtn = null;
-    $size > 1023 and $rtn = sprintf("%dK", $size / 1024);
-    $size < 1024 and $rtn = sprintf("%d", $size);
-    $size > (1024 * 1024) and $rtn = sprintf("%0.1fM", $size / (1024 * 1024));
-    return $rtn;
+    if ($size > 1023) {
+        return sprintf("%dK", $size / 1024);
+    }
+
+    if ($size < 1024) {
+        return sprintf("%d", $size);
+    }
+
+    if ($size > (1024 * 1024)) {
+        return sprintf("%0.1fM", $size / (1024 * 1024));
+    }
+
+    return null;
 }
 
-function get_file_type_image($file)
+function get_file_type_image($file): string
 {
     $types = [];
     global $TPL;
@@ -257,11 +276,11 @@ function get_file_type_image($file)
 
     $type = strtolower(substr($file, -3));
     $icon_dir = ALLOC_MOD_DIR . "images" . DIRECTORY_SEPARATOR . "fileicons" . DIRECTORY_SEPARATOR;
-    if ($types[$type]) {
+    if ($types[$type] !== '' && $types[$type] !== '0') {
         $t = $types[$type];
-    } else if (file_exists($icon_dir . $type . ".gif")) {
+    } elseif (file_exists($icon_dir . $type . ".gif")) {
         $t = $type . ".gif";
-    } else if (file_exists($icon_dir . $type . ".png")) {
+    } elseif (file_exists($icon_dir . $type . ".png")) {
         $t = $type . ".png";
     } else {
         $t = "unknown.gif";
@@ -317,7 +336,9 @@ function get_attachments($entity, $id, $ops = [])
             closedir($handle);
         }
 
-        is_array($rows) && usort($rows, "sort_by_mtime");
+        if (is_array($rows)) {
+            usort($rows, "sort_by_mtime");
+        }
     }
 
     return $rows;
@@ -330,7 +351,7 @@ function rejig_files_array($f)
     if ($f) {
         foreach ($f as $key => $thing) {
             if (is_array($f[$key]["tmp_name"])) {
-                foreach ($f[$key]["tmp_name"] as $k => $v) {
+                foreach (array_keys($f[$key]["tmp_name"]) as $k) {
                     if ($f[$key]["tmp_name"][$k]) {
                         $files[] = [
                             "name"     => $f[$key]["name"][$k],
@@ -341,7 +362,7 @@ function rejig_files_array($f)
                         ];
                     }
                 }
-            } else if ($f[$key]["tmp_name"]) {
+            } elseif ($f[$key]["tmp_name"]) {
                 $files[] = [
                     "name"     => $f[$key]["name"],
                     "tmp_name" => $f[$key]["tmp_name"],
@@ -475,11 +496,7 @@ function alloc_redirect($target_url)
     }
 
     // the first argument of header() must be a string
-    if (!empty($params)) {
-        $params = $seperator . implode("&", $params);
-    } else {
-        $params = null;
-    }
+    $params = $params === [] ? null : $seperator . implode("&", $params);
 
     header("Location: " . $target_url . $params);
     exit();
@@ -515,7 +532,7 @@ function image_create_from_file($path)
         IMAGETYPE_XBM  => 'imagecreatefromwxbm',
     ];
 
-    if (!$functions[$info[2]]) {
+    if ($functions[$info[2]] === '' || $functions[$info[2]] === '0') {
         echo sprintf('no function to handle %d', $info[2]);
         return false;
     }
@@ -540,22 +557,22 @@ function get_exchange_rate($from, $to)
     $debug = $_REQUEST["debug"];
 
     usleep(500000); // So we don't hit their servers too hard
-    $debug and print "<br>";
+    $debug && (print "<br>");
 
     $url = 'http://finance.yahoo.com/d/quotes.csv?f=l1d1t1&s=' . $from . $to . '=X';
     $data = file_get_contents($url);
-    $debug and print "<br>Y: " . htmlentities($data);
+    $debug && (print "<br>Y: " . htmlentities($data));
     $results = explode(",", $data);
     $rate = $results[0];
-    $debug and print "<br>Yahoo says 5 " . $from . " is worth " . ($rate * 5) . " " . $to . " at this exchange rate: " . $rate;
+    $debug && (print "<br>Yahoo says 5 " . $from . " is worth " . ($rate * 5) . " " . $to . " at this exchange rate: " . $rate);
 
-    if (!$rate) {
+    if ($rate === '' || $rate === '0') {
         $url = 'http://www.google.com/ig/calculator?hl=en&q=' . urlencode('1' . $from . '=?' . $to);
         $data = file_get_contents($url);
-        $debug and print "<br>G: " . htmlentities($data);
+        $debug && (print "<br>G: " . htmlentities($data));
         $arr = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
         $rate = current(explode(" ", $arr["rhs"]));
-        $debug and print "<br>Google says 5 " . $from . " is worth " . ($rate * 5) . " " . $to . " at this exchange rate: " . $rate;
+        $debug && (print "<br>Google says 5 " . $from . " is worth " . ($rate * 5) . " " . $to . " at this exchange rate: " . $rate);
     }
 
     return trim($rate);
@@ -571,7 +588,7 @@ function array_kv($arr, $k, $v)
                 $rtn[$value[$k]] .= $sep . $value[$i];
                 $sep = " ";
             }
-        } else if ($k) {
+        } elseif ($k) {
             $rtn[$value[$k]] = $value[$v];
         } else {
             $rtn[$key] = $value[$v];
@@ -588,12 +605,16 @@ function in_str($in, $str)
 
 function rmdir_if_empty($dir)
 {
-    if (is_dir($dir)) {
-        // Nuke dir if empty
-        if (dir_is_empty($dir)) {
-            rmdir($dir);
-        }
+    // Nuke dir if empty
+    if (!is_dir($dir)) {
+        return;
     }
+
+    if (!dir_is_empty($dir)) {
+        return;
+    }
+
+    rmdir($dir);
 }
 
 function dir_is_empty($dir)
@@ -617,7 +638,10 @@ function tax($amount, $taxPercent = null)
 {
     // take a tax included amount and return the untaxed amount, and the amount of tax
     // eg: 500 including 10% tax, returns array(454.54, 45.45)
-    (isset($taxPercent) && (bool)strlen($taxPercent)) or $taxPercent = config::get_config_item("taxPercent");
+    if (!(isset($taxPercent) && (bool)strlen($taxPercent))) {
+        $taxPercent = config::get_config_item("taxPercent");
+    }
+
     $amount_minus_tax = $amount / (($taxPercent / 100) + 1);
     $amount_of_tax = $amount / ((100 / $taxPercent) + 1);
     return [$amount_minus_tax, $amount_of_tax];
@@ -633,9 +657,13 @@ function alloc_error($str = "", $force = null)
     $errors_logged = &singleton("errors_logged");
     $errors_thrown = &singleton("errors_thrown");
     $errors_fatal = &singleton("errors_fatal");
-    isset($force) and $errors_fatal = $force; // permit override
+    if (isset($force)) {
+        $errors_fatal = $force;
+    }
+
+    // permit override
     $errors_format = &singleton("errors_format");
-    $errors_format or $errors_format = "html";
+    $errors_format || ($errors_format = "html");
     $errors_haltdb = &singleton("errors_haltdb");
 
     // Load up a nicely rendered html error
@@ -685,7 +713,7 @@ function alloc_error($str = "", $force = null)
  *
  * @return void
  */
-function sprintf_implode(...$args)
+function sprintf_implode(...$args): string
 {
     $glue = " OR ";
     if (!in_str("%", $args[0])) {
@@ -700,7 +728,7 @@ function sprintf_implode(...$args)
             continue;
         }
 
-        if (count($arg) == $length) {
+        if (count($arg) === $length) {
             continue;
         }
 
@@ -768,7 +796,7 @@ function unsafe_prepare(...$args)
     // Trackdown poorly formulated queries
     $err = error_get_last();
     if (
-        !empty($err["type"])
+        $err["type"] !== 0
         && $err["type"] == 2
         && in_str("sprintf", $err["message"])
     ) {

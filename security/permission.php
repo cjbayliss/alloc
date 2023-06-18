@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $permission = new permission();
-$permissionID = $_POST["permissionID"] or $permissionID = $_GET["permissionID"];
+($permissionID = $_POST["permissionID"]) || ($permissionID = $_GET["permissionID"]);
 
 if ($permissionID) {
     $permission->set_id($permissionID);
@@ -19,7 +19,7 @@ $actions_array = $_POST["actions_array"];
 if (is_array($actions_array)) {
     $actions = 0;
     foreach ($actions_array as $k => $a) {
-        $actions = $actions | $a;
+        $actions |= $a;
     }
 }
 
@@ -57,7 +57,7 @@ if ($_POST["save"]) {
     $permission->set_value("comment", rtrim($permission->get_value("comment")));
     $permission->save();
     alloc_redirect($TPL["url_alloc_permissionList"]);
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     $permission->delete();
     alloc_redirect($TPL["url_alloc_permissionList"]);
 }
@@ -67,7 +67,7 @@ $permission->select();
 
 $TPL["roleNameOptions"] = Page::select_options(permission::get_roles(), $permission->get_value("roleName"));
 
-$table_name = $_POST["tableName"] or $table_name = $permission->get_value("tableName");
+($table_name = $_POST["tableName"]) || ($table_name = $permission->get_value("tableName"));
 $entity = new $table_name;
 
 foreach ($entity->permissions as $value => $label) {

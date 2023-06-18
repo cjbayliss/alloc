@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 function dump_email($uid, $mail)
 {
@@ -57,7 +57,7 @@ if ($_REQUEST["commentID"]) {
         $uids = $mail->get_emails_UIDs_search($str);
         if ((is_countable($uids) ? count($uids) : 0) == 1) {
             alloc_redirect($TPL["url_alloc_downloadEmail"] . "commentID=" . $_REQUEST["commentID"] . "&uid=" . $uids[0]);
-        } else if ((is_countable($uids) ? count($uids) : 0) > 1) {
+        } elseif ((is_countable($uids) ? count($uids) : 0) > 1) {
             $all_uids += $uids;
         }
     }
@@ -66,13 +66,13 @@ if ($_REQUEST["commentID"]) {
     if ($hash) {
         $str = sprintf('TEXT "%s"', $hash);
         $uids = $mail->get_emails_UIDs_search($str);
-        $uids and $all_uids += $uids;
+        $uids && ($all_uids += $uids);
     }
 
     $str = sprintf('FROM "%s" ', $c->get_value("commentCreatedUserText"));
     $str .= sprintf(' ON "%s"', format_date("d-M-Y", $c->get_value("commentCreatedTime")));
     $uids = $mail->get_emails_UIDs_search($str);
-    $uids and $all_uids += $uids;
+    $uids && ($all_uids += $uids);
 
     // Couldn't get a body text search to work! Refuses to match long needles.
     // echo "<br><br>Using FROM and DATE:".print_r($uids,1);

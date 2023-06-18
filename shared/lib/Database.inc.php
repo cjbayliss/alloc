@@ -48,9 +48,9 @@ class Database
      * established even if one already exists. Default is false.
      * @return bool True if the connection is successful, false otherwise.
      */
-    public function connect($force = false)
+    public function connect($force = false): bool
     {
-        if ($force || !isset($this->pdo)) {
+        if ($force || $this->pdo === null) {
             try {
                 $host = $this->hostname ? sprintf('host=%s;', $this->hostname) : "";
                 $dbname = $this->database ? sprintf('dbname=%s;', $this->database) : "";
@@ -111,13 +111,13 @@ class Database
             $m = "Error: " . $errno . " There are other records in the database that depend on the item you just tried to delete.
             Remove those other records first and then try to delete this item again.
             <br><br>" . $msg;
-        } else if ($errno == 1216) {
+        } elseif ($errno == 1216) {
             $m = "Error: " . $errno . " The parent record of the item you just tried to create does not exist in the database.
             Create that other record first and then try to create this item again.
             <br><br>" . $msg;
-        } else if (preg_match("/(ALLOC ERROR:([^']*)')/m", $msg, $matches)) {
+        } elseif (preg_match("/(ALLOC ERROR:([^']*)')/m", $msg, $matches)) {
             $m = "Error: " . $matches[2];
-        } else if ($msg) {
+        } elseif ($msg) {
             $m = "Error: " . $msg;
         }
 
@@ -128,7 +128,7 @@ class Database
         $this->error = $msg;
     }
 
-    public function get_error()
+    public function get_error(): string
     {
         return trim($this->error);
     }
@@ -144,13 +144,19 @@ class Database
             return $str;
         }
 
-        if (!isset($this->pdo)) {
+        if ($this->pdo === null) {
             $this->connect();
         }
 
         $v = $this->pdo->quote($str);
-        substr($v, -1) == "'" and $v = substr($v, 0, -1);
-        substr($v, 0, 1) == "'" and $v = substr($v, 1);
+        if (substr($v, -1) == "'") {
+            $v = substr($v, 0, -1);
+        }
+
+        if (substr($v, 0, 1) == "'") {
+            return substr($v, 1);
+        }
+
         return $v;
     }
 
@@ -214,7 +220,7 @@ class Database
 
     public function num($pdo_statement = "")
     {
-        $pdo_statement or $pdo_statement = $this->pdo_statement;
+        $pdo_statement || ($pdo_statement = $this->pdo_statement);
         return $pdo_statement->rowCount();
     }
 
@@ -240,10 +246,10 @@ class Database
     public function row($pdo_statement = "", $method = PDO::FETCH_ASSOC)
     {
         if (!self::$stop_doing_queries) {
-            $pdo_statement or $pdo_statement = $this->pdo_statement;
+            $pdo_statement || ($pdo_statement = $this->pdo_statement);
             if ($pdo_statement) {
                 unset($this->row);
-                if (isset($this->pos)) {
+                if ($this->pos !== null) {
                     $this->row = $pdo_statement->fetch($method, PDO::FETCH_ORI_ABS, $this->pos);
                     unset($this->pos);
                 } else {
@@ -300,7 +306,7 @@ class Database
             $fields[$table][] = $row["Field"];
         }
 
-        $fields[$table] or $fields[$table] = [];
+        $fields[$table] || ($fields[$table] = []);
         return $fields[$table];
     }
 
@@ -326,9 +332,9 @@ class Database
         $q = null;
         $keys = [];
         $do_update = null;
-        $table_keys = $this->get_table_keys($table) or $table_keys = [];
+        ($table_keys = $this->get_table_keys($table)) || ($table_keys = []);
         foreach ($table_keys as $table_key) {
-            $row[$table_key] and $do_update = true;
+            $row[$table_key] && ($do_update = true);
             $keys[$table_key] = $row[$table_key];
         }
 
@@ -341,7 +347,7 @@ class Database
                 $this->get_update_str($row),
                 $this->get_update_str($keys, " AND ")
             );
-            sizeof($row) and $this->query($q);
+            (is_countable($row) ? count($row) : 0) && $this->query($q);
             reset($keys);
             return current($keys);
         }
@@ -352,7 +358,7 @@ class Database
             $this->get_insert_str_fields($row),
             $this->get_insert_str_values($row)
         );
-        sizeof($row) and $this->query($q);
+        (is_countable($row) ? count($row) : 0) && $this->query($q);
         return $this->get_insert_id();
     }
 
@@ -364,7 +370,7 @@ class Database
             $table,
             $this->get_update_str($row, " AND ")
         );
-        if (sizeof($row)) {
+        if ((is_countable($row) ? count($row) : 0) !== 0) {
             $pdo_statement = $this->query($q);
             return $pdo_statement->rowCount();
         }
@@ -417,7 +423,7 @@ class Database
             }
         }
 
-        $row or $row = [];
+        $row || ($row = []);
         return $row;
     }
 

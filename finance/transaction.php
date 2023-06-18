@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 $current_user->check_employee();
 
 $current_user = &singleton("current_user");
@@ -33,7 +33,7 @@ function add_tf($tfID, $options, $warningKey, $warningValue)
 $db = new AllocDatabase();
 $transaction = new transaction();
 $transaction->read_globals();
-$transactionID = $_POST["transactionID"] or $transactionID = $_GET["transactionID"];
+($transactionID = $_POST["transactionID"]) || ($transactionID = $_GET["transactionID"]);
 
 if ($transactionID && !$_GET["new"]) {
     $transaction->set_id($transactionID);
@@ -67,25 +67,23 @@ $transaction->set_values();
 
 if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
     /*
-  if ($transaction->get_value("status") != "pending") {
-    alloc_error("This transaction is no longer editable.");
-  }
-*/
+      if ($transaction->get_value("status") != "pending") {
+        alloc_error("This transaction is no longer editable.");
+      }
+    */
     $transaction->read_globals();
-
     // Tweaked validation to allow reporting of multiple errors
-    $transaction->get_value("amount") or alloc_error("You must enter a valid amount");
-    $transaction->get_value("transactionDate") or alloc_error("You must enter a date for the transaction");
-    $transaction->get_value("product") or alloc_error("You must enter a product");
-    $transaction->get_value("status") or alloc_error("You must set the status of the transaction");
-    $transaction->get_value("fromTfID") or alloc_error("You must select a Source Tagged Fund to take this transaction from");
-    $transaction->get_value("tfID") or alloc_error("You must select a Destination Tagged Fund to add this transaction against");
-    $transaction->get_value("transactionType") or alloc_error("You must set a transaction type");
-    $transaction->get_value("currencyTypeID") or alloc_error("You must set a transaction currency");
+    $transaction->get_value("amount") || alloc_error("You must enter a valid amount");
+    $transaction->get_value("transactionDate") || alloc_error("You must enter a date for the transaction");
+    $transaction->get_value("product") || alloc_error("You must enter a product");
+    $transaction->get_value("status") || alloc_error("You must set the status of the transaction");
+    $transaction->get_value("fromTfID") || alloc_error("You must select a Source Tagged Fund to take this transaction from");
+    $transaction->get_value("tfID") || alloc_error("You must select a Destination Tagged Fund to add this transaction against");
+    $transaction->get_value("transactionType") || alloc_error("You must set a transaction type");
+    $transaction->get_value("currencyTypeID") || alloc_error("You must set a transaction currency");
     // $transaction->get_value("projectID")       or alloc_error("You must select a project");
     // $transaction->get_value("companyDetails")  or alloc_error("You must enter the company details");
-
-    if (!(is_countable($TPL["message"]) ? count($TPL["message"]) : 0)) {
+    if ((is_countable($TPL["message"]) ? count($TPL["message"]) : 0) === 0) {
         $transaction->set_value("amount", str_replace(["$", ","], "", $transaction->get_value("amount")));
         if ($transaction->save()) { // need to check this again as transaction->save might have triggered an error
             $TPL["message_good"][] = "Transaction Saved";
@@ -101,7 +99,7 @@ if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
             alloc_redirect($TPL["url_alloc_transaction"] . "transactionID=" . $transaction->get_id());
         }
     }
-} else if ($_POST["delete"]) {
+} elseif ($_POST["delete"]) {
     $transaction->delete();
     alloc_redirect($TPL["url_alloc_transactionList"] . "tfID=" . $transaction->get_value("tfID"));
 }
@@ -116,7 +114,9 @@ $TPL["statusOptions"] = Page::select_options(["pending" => "Pending", "rejected"
 $transactionTypes = transaction::get_transactionTypes();
 $TPL["transactionTypeOptions"] = Page::select_options($transactionTypes, $transaction->get_value("transactionType"));
 
-is_object($transaction) and $TPL["transactionTypeLink"] = $transaction->get_transaction_type_link();
+if (is_object($transaction)) {
+    $TPL["transactionTypeLink"] = $transaction->get_transaction_type_link();
+}
 
 $db = new AllocDatabase();
 

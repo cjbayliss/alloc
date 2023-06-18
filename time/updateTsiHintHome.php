@@ -6,7 +6,7 @@
  */
 
 define("NO_REDIRECT", 1);
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 // usleep(1000);
 
@@ -19,13 +19,9 @@ foreach ($t as $k => $v) {
         if ($k == "taskID") {
             $task = new Task();
             $task->set_id($v);
-            if ($task->select()) {
-                $v = $task->get_id() . " " . $task->get_link();
-            } else {
-                $v = "Task " . $v . " not found.";
-            }
-        } else if ($k == "username") {
-            $name = $people[$v]["name"] or $name = $people[$v]["username"];
+            $v = $task->select() ? $task->get_id() . " " . $task->get_link() : "Task " . $v . " not found.";
+        } elseif ($k == "username") {
+            ($name = $people[$v]["name"]) || ($name = $people[$v]["username"]);
         }
 
         $rtn[$k] = $v;
@@ -38,8 +34,8 @@ foreach ($t as $k => $v) {
 
 $str[] = "<table>";
 $str[] = "<tr><td>" . $name . " " . $rtn["date"] . " </td><td class='nobr bold'> " . $rtn["duration"] . " Hours</td><td class='nobr'></td></tr>";
-$rtn["taskID"] and $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
-$rtn["comment"] and $str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>";
+$rtn["taskID"] && ($str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>");
+$rtn["comment"] && ($str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>");
 $str[] = "</table>";
 
 print implode("\n", $str);

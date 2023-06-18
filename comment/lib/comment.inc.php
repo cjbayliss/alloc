@@ -66,7 +66,9 @@ class comment extends DatabaseEntity
                     }
                 }
 
-                is_dir($dir) && rmdir($dir);
+                if (is_dir($dir)) {
+                    rmdir($dir);
+                }
             }
         }
 
@@ -170,7 +172,9 @@ class comment extends DatabaseEntity
             }
 
             foreach ($all_parties as $email => $i) {
-                in_array($email, (array)$sel) and $recipient_selected[] = $i["identifier"];
+                if (in_array($email, (array)$sel)) {
+                    $recipient_selected[] = $i["identifier"];
+                }
             }
 
             if (InterestedParty::is_external("comment", $new["commentID"])) {
@@ -226,7 +230,7 @@ class comment extends DatabaseEntity
                 $new["form"] .= '</form>';
             }
 
-            $v["commentMimeParts"] and $files = unserialize($v["commentMimeParts"]);
+            $v["commentMimeParts"] && ($files = unserialize($v["commentMimeParts"]));
             if (is_array($files)) {
                 foreach ($files as $file) {
                     $new["files"] .= '<div align="center" style="float:left; display:inline; margin-right:14px;">';
@@ -237,7 +241,7 @@ class comment extends DatabaseEntity
                 }
             }
 
-            $v["commentEmailRecipients"] and $new["emailed"] = 'Emailed to ' . Page::htmlentities($v["commentEmailRecipients"]);
+            $v["commentEmailRecipients"] && ($new["emailed"] = 'Emailed to ' . Page::htmlentities($v["commentEmailRecipients"]));
         }
 
         return (array)$new;
@@ -253,9 +257,9 @@ class comment extends DatabaseEntity
         // Need to get timeSheet comments too for task comments
         if ($entity == "task") {
             $rows = comment::get_comments($entity, $id);
-            has("time") and $rows2 = timeSheetItem::get_timeSheetItemComments($id);
-            $rows or $rows = [];
-            $rows2 or $rows2 = [];
+            has("time") && ($rows2 = timeSheetItem::get_timeSheetItemComments($id));
+            $rows || ($rows = []);
+            $rows2 || ($rows2 = []);
             $rows = array_merge($rows, $rows2);
             if (is_array($rows)) {
                 usort($rows, ["comment", "sort_task_comments_callback_func"]);
@@ -276,7 +280,7 @@ class comment extends DatabaseEntity
                 $children[] = comment::get_one_comment_array($c, $all_parties);
             }
 
-            $children and $v["children"] = $children;
+            $children && ($v["children"] = $children);
             $new_rows[] = comment::get_one_comment_array($v, $all_parties);
         }
 
@@ -296,11 +300,11 @@ class comment extends DatabaseEntity
         return $rtn;
     }
 
-    public static function get_comment_html_table($row = [])
+    public static function get_comment_html_table($row = []): string
     {
         $rtn = [];
         global $TPL;
-        $comment = comment::add_shrinky_divs(Page::htmlentities($row["comment"]), $row["commentID"]);
+        $comment = comment::add_shrinky_divs($row["commentID"], Page::htmlentities($row["comment"]));
         $rtn[] = '<div class="panel' . $row["external"] . ' corner pcomment" data-comment-id="' . $row["commentID"] . '">';
         $rtn[] = '<table width="100%" cellspacing="0" border="0">';
         $rtn[] = '<tr>';
@@ -308,7 +312,7 @@ class comment extends DatabaseEntity
         $rtn[] = '  <td align="right" style="padding-bottom:0px;" class="nobr">' . $row["form"] . $row["recipient_editor"] . '</td>';
         if ($row["commentID"]) {
             $rtn[] = '  <td align="right" width="1%">' . Page::star("comment", $row["commentID"]) . '</td>';
-        } else if ($row["timeSheetItemID"]) {
+        } elseif ($row["timeSheetItemID"]) {
             $rtn[] = '  <td align="right" width="1%">' . Page::star("timeSheetItem", $row["timeSheetItemID"]) . '</td>';
         }
 
@@ -319,13 +323,13 @@ class comment extends DatabaseEntity
         $rtn[] = '<tr>';
         $rtn[] = '  <td colspan="3"><div><pre class="comment">' . $comment . '</pre></div></td>';
         $rtn[] = '</tr>';
-        $row["children"] and $rtn[] = (new comment())->get_comment_children($row["children"]);
+        $row["children"] && ($rtn[] = (new comment())->get_comment_children($row["children"]));
         if ($row["files"] || $row["reply"]) {
             $rtn[] = '<tr>';
-            $row["files"] and $rtn[] = '  <td valign="bottom" align="left">' . $row["files"] . '</td>';
+            $row["files"] && ($rtn[] = '  <td valign="bottom" align="left">' . $row["files"] . '</td>');
             $cs = 2;
-            $row["files"] or $cs = 3;
-            $row["reply"] and $rtn[] = '  <td valign="bottom" align="right" colspan="' . $cs . '">' . $row["reply"] . '</td>';
+            $row["files"] || ($cs = 3);
+            $row["reply"] && ($rtn[] = '  <td valign="bottom" align="right" colspan="' . $cs . '">' . $row["reply"] . '</td>');
             $rtn[] = '</tr>';
         }
 
@@ -334,20 +338,22 @@ class comment extends DatabaseEntity
         return implode("\n", $rtn);
     }
 
-    public static function get_comment_attribution($comment = [])
+    public static function get_comment_attribution($comment = []): string
     {
         $d = $comment["date"];
-        strlen($comment["date"]) > 10 and $d = format_date("Y-m-d g:ia", $comment["date"]);
+        if (strlen($comment["date"]) > 10) {
+            $d = format_date("Y-m-d g:ia", $comment["date"]);
+        }
+
         $str = '<b>' . comment::get_comment_author($comment) . '</b> <span class="comment_date">' . $d . "</span>";
         if ($comment["commentModifiedTime"] || $comment["commentModifiedUser"]) {
             $str .= ", last modified by <b>" . person::get_fullname($comment["commentModifiedUser"]) . "</b> " . format_date("Y-m-d g:ia", $comment["commentModifiedTime"]);
         }
 
-        $str .= $comment["ts_label"];
-        return $str;
+        return $str . $comment["ts_label"];
     }
 
-    public static function add_shrinky_divs($html = "", $commentID)
+    public static function add_shrinky_divs($commentID, $html = "")
     {
         $sig_start_position = null;
         $sig_started = null;
@@ -365,9 +371,8 @@ class comment extends DatabaseEntity
                 $started = true;
                 $start_position = $k;
                 $new_lines[$k] = $line;
-            } else if ($started && !preg_match("/^&gt;/", $line)) {
+            } elseif ($started && !preg_match("/^&gt;/", $line)) {
                 $num_lines_hidden = $k - $start_position;
-
                 if ($num_lines_hidden > 3) {
                     $onClick = "return set_grow_shrink('comment_" . $commentID . "','button_comment_" . $commentID . "','true');";
                     $new_lines[$start_position - 1] .= '<div class="hidden_text button_' . $class . ' on_click" onclick="' . $onClick . '"> --- ' . $num_lines_hidden . " lines hidden, click to show --- </div>";
@@ -401,13 +406,14 @@ class comment extends DatabaseEntity
             $new_lines2[$sig_start_position - 1] .= '<div style="display:inline;" class="hidden_text button_' . $class . '"> --- ' . $sig_num_lines_hidden . " lines hidden (signature) --- <br></div>";
             $new_lines2[$sig_start_position - 1] .= '<div style="display:none;" class="hidden_text ' . $class . '">';
             $new_lines2[count($new_lines2)] .= "</div>";
-        } else if ($sig_started !== null) {
+        } elseif ($sig_started !== null) {
+            
         }
 
         return ltrim(rtrim(implode("\n", $new_lines2)));
     }
 
-    public function get_comment_children($children = [], $padding = 1)
+    public function get_comment_children($children = [], $padding = 1): string
     {
         $rtn = [];
         foreach ($children as $child) {
@@ -428,13 +434,13 @@ class comment extends DatabaseEntity
         $author = null;
         if ($comment["commentCreatedUserText"]) {
             $author = Page::htmlentities($comment["commentCreatedUserText"]);
-        } else if ($comment["clientContactID"]) {
+        } elseif ($comment["clientContactID"]) {
             $clientContact = new clientContact();
             $clientContact->set_id($comment["clientContactID"]);
             $clientContact->select();
             // $author = " <a href=\"".$TPL["url_alloc_client"]."clientID=".$cc->get_value("clientID")."\">".$cc->get_value("clientContactName")."</a>";
             $author = $clientContact->get_value("clientContactName");
-        } else if ($comment["personID"]) {
+        } elseif ($comment["personID"]) {
             $author = person::get_fullname($comment["personID"]);
         }
 
@@ -449,7 +455,7 @@ class comment extends DatabaseEntity
             $p->set_id($personID);
             $p->select();
             $email = $p->get_from();
-        } else if ($comment["clientContactID"]) {
+        } elseif ($comment["clientContactID"]) {
             $clientContact = new clientContact();
             $clientContact->set_id($comment["clientContactID"]);
             $clientContact->select();
@@ -495,7 +501,7 @@ class comment extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         $commentID = comment::add_comment($entity->classname, $entity->get_id(), $email_receive->get_converted_encoding());
-        $commentID or alloc_error("Unable to create an alloc comment (" . $entity->classname . ":" . $entity->get_id() . ") from email.");
+        $commentID || alloc_error("Unable to create an alloc comment (" . $entity->classname . ":" . $entity->get_id() . ") from email.");
 
         $comment = new comment();
         $comment->set_id($commentID);
@@ -508,8 +514,8 @@ class comment extends DatabaseEntity
         // Try figure out and populate the commentCreatedUser/commentCreatedUserClientContactID fields
         [$from_address, $from_name] = parse_email_address($email_receive->mail_headers["from"]);
         [$personID, $clientContactID, $from_name] = comment::get_person_and_client($from_address, $from_name, $entity->get_project_id());
-        $personID and $comment->set_value('commentCreatedUser', $personID);
-        $clientContactID and $comment->set_value('commentCreatedUserClientContactID', $clientContactID);
+        $personID && $comment->set_value('commentCreatedUser', $personID);
+        $clientContactID && $comment->set_value('commentCreatedUserClientContactID', $clientContactID);
 
         $comment->set_value("commentCreatedUserText", $email_receive->mail_headers["from"]);
         $comment->set_value("commentEmailMessageID", $email_receive->mail_headers["message-id"]);
@@ -528,7 +534,10 @@ class comment extends DatabaseEntity
             if ($e->classname == "task" && substr($e->get_value("taskStatus"), 0, 4) != "open") {
                 $tmp = $current_user;
                 $current_user = new person();
-                $personID = $e->get_value("managerID") or $personID = $e->get_value("personID") or $personID = $e->get_value("creatorID");
+                if (!($personID = $e->get_value("managerID")) && !($personID = $e->get_value("personID"))) {
+                    $personID = $e->get_value("creatorID");
+                }
+
                 $current_user->load_current_user($personID); // fake identity
                 singleton("current_user", $current_user);
                 $e->set_value("taskStatus", "open_inprogress");
@@ -540,7 +549,7 @@ class comment extends DatabaseEntity
         return $comment;
     }
 
-    public function get_email_recipients($options = [], $entity, $entityID)
+    public function get_email_recipients($entity, $entityID, $options = [])
     {
         $recipients = [];
         $people = &get_cached_table("person");
@@ -559,11 +568,11 @@ class comment extends DatabaseEntity
                     $row["name"] = $row["fullName"];
                     $recipients[] = $row;
                 }
-            } else if (is_int($option)) {
+            } elseif (is_int($option)) {
                 $recipients[] = $people[$option];
-            } else if (is_string($option) && preg_match("/@/", $option)) {
+            } elseif (is_string($option) && preg_match("/@/", $option)) {
                 [$email, $name] = parse_email_address($option);
-                $email and $recipients[] = ["name" => $name, "emailAddress" => $email];
+                $email && ($recipients[] = ["name" => $name, "emailAddress" => $email]);
             }
         }
 
@@ -586,9 +595,9 @@ class comment extends DatabaseEntity
 
             if ($recipient["firstName"] && $recipient["surname"]) {
                 $recipient_full_name = $recipient["firstName"] . " " . $recipient["surname"];
-            } else if ($recipient["fullName"]) {
+            } elseif ($recipient["fullName"]) {
                 $recipient_full_name = $recipient["fullName"];
-            } else if ($recipient["name"]) {
+            } elseif ($recipient["name"]) {
                 $recipient_full_name = $recipient["name"];
             }
 
@@ -604,7 +613,7 @@ class comment extends DatabaseEntity
 
                 $done[$recipient["emailAddress"]] = true;
 
-                $name = $recipient_full_name or $name = $recipient["emailAddress"];
+                ($name = $recipient_full_name) || ($name = $recipient["emailAddress"]);
                 $email_without_name = $recipient["emailAddress"];
                 if ($recipient_full_name) {
                     $name_and_email = $recipient_full_name . " <" . $recipient["emailAddress"] . ">";
@@ -615,12 +624,11 @@ class comment extends DatabaseEntity
                 if ($emailMethod == "to") {
                     $to_address[] = $name_and_email;
                     $successful_recipients[] = $name_and_email;
-                } else if ($emailMethod == "bcc") {
+                } elseif ($emailMethod == "bcc") {
                     $bcc[] = $email_without_name;
                     $successful_recipients[] = $name_and_email;
-
                     // The To address contains no actual email addresses, ie "Alex Lance": ; all the real recipients are in the Bcc.
-                } else if ($emailMethod == "tobcc") {
+                } elseif ($emailMethod == "tobcc") {
                     if (!same_email_address(ALLOC_DEFAULT_FROM_ADDRESS, $email_without_name)) {
                         $to_address[] = '"' . $name . '": ;';
                         $successful_recipients[] = $name_and_email;
@@ -650,13 +658,9 @@ class comment extends DatabaseEntity
             [$from_address, $from_name] = parse_email_address($email_receive->mail_headers["from"]);
         }
 
-        if ($is_a_reply_comment) {
-            $id = $this->get_value("commentLinkID");
-        } else {
-            $id = $this->get_id();
-        }
+        $id = $is_a_reply_comment ? $this->get_value("commentLinkID") : $this->get_id();
 
-        $recipients = (new comment())->get_email_recipients($selected_option, "comment", $id);
+        $recipients = (new comment())->get_email_recipients("comment", $id, $selected_option);
         [$to_address, $bcc, $successful_recipients] = (new comment())->get_email_recipient_headers($recipients, $from_address);
 
         if ($to_address || $bcc || $successful_recipients) {
@@ -713,9 +717,12 @@ class comment extends DatabaseEntity
 
             if (!$subject) {
                 $tpl = config::get_config_item("emailSubject_" . $e->classname . "Comment");
-                $tpl and $subject = commentTemplate::populate_string($tpl, $e->classname, $e->get_id());
-                $e->classname != "task" and $prefix = ucwords($e->classname) . " Comment: ";
-                $subject or $subject = $prefix . $e->get_id() . " " . $e->get_name(DST_VARIABLE);
+                $tpl && ($subject = commentTemplate::populate_string($tpl, $e->classname, $e->get_id()));
+                if ($e->classname != "task") {
+                    $prefix = ucwords($e->classname) . " Comment: ";
+                }
+
+                $subject || ($subject = $prefix . $e->get_id() . " " . $e->get_name(DST_VARIABLE));
             }
 
             $emailsend->set_subject($subject . " " . $subject_extra);
@@ -723,8 +730,10 @@ class comment extends DatabaseEntity
 
             // If from name is empty, then use the email address instead
             // eg: From: jon@jonny.com -> From: "jon@jonny.com via allocPSA" <alloc@cyber.com>
-            $from_name or $from_name = $from_address;
-            is_object($current_user) && !$from_name and $from_name = $current_user->get_name();
+            $from_name || ($from_name = $from_address);
+            if (is_object($current_user) && !$from_name) {
+                $from_name = $current_user->get_name();
+            }
 
             if (defined("ALLOC_DEFAULT_FROM_ADDRESS") && ALLOC_DEFAULT_FROM_ADDRESS) {
                 if (config::for_cyber()) {
@@ -758,17 +767,19 @@ class comment extends DatabaseEntity
 
         // If they want starred, load up the commentID filter element
         if ($filter["starred"]) {
-            foreach ((array)$current_user->prefs["stars"]["comment"] as $k => $v) {
+            foreach (array_keys((array)$current_user->prefs["stars"]["comment"]) as $k) {
                 $filter["commentID"][] = $k;
             }
 
-            is_array($filter["commentID"]) or $filter["commentID"][] = -1;
+            if (!is_array($filter["commentID"])) {
+                $filter["commentID"][] = -1;
+            }
         }
 
         // Filter ocommentID
         if ($filter["commentID"] && is_array($filter["commentID"])) {
             $sql[] = unsafe_prepare("(comment.commentID in (%s))", $filter["commentID"]);
-        } else if ($filter["commentID"]) {
+        } elseif ($filter["commentID"]) {
             $sql[] = unsafe_prepare("(comment.commentID = %d)", $filter["commentID"]);
         }
 
@@ -790,7 +801,7 @@ class comment extends DatabaseEntity
             }
 
             // Or 2: get all starred comments
-        } else if ($_FORM["starred"]) {
+        } elseif ($_FORM["starred"]) {
             $filter = (new comment())->get_list_filter($_FORM);
             if (is_array($filter) && count($filter)) {
                 $filter = " WHERE " . implode(" AND ", $filter);
@@ -809,12 +820,12 @@ class comment extends DatabaseEntity
                 $e->set_id($row["commentMasterID"]);
                 $e->select();
                 $row["entity_link"] = $e->get_link();
-                $row["personID"] and $row["person"] = $people[$row["personID"]]["name"];
-                $row["clientContactName"] and $row["person"] = $row["clientContactName"];
+                $row["personID"] && ($row["person"] = $people[$row["personID"]]["name"]);
+                $row["clientContactName"] && ($row["person"] = $row["clientContactName"]);
                 $rows[] = $row;
             }
 
-            has("timeSheetItem") and $tsi_rows = timeSheetItem::get_timeSheetItemComments(null, true);
+            has("timeSheetItem") && ($tsi_rows = timeSheetItem::get_timeSheetItemComments(null, true));
             foreach ((array)$tsi_rows as $row) {
                 $t = new Task();
                 $t->set_id($row["taskID"]);
@@ -823,7 +834,7 @@ class comment extends DatabaseEntity
                 $row["commentMaster"] = "Task";
                 $row["commentMasterID"] = $row["taskID"];
                 $row["commentCreatedTime"] = $row["date"];
-                $row["personID"] and $row["person"] = $people[$row["personID"]]["name"];
+                $row["personID"] && ($row["person"] = $people[$row["personID"]]["name"]);
                 $rows[] = $row;
             }
 
@@ -911,26 +922,28 @@ class comment extends DatabaseEntity
         $sql2 = [];
         $sql3 = [];
         // This takes care of projectID singular and plural
-        has("project") and $projectIDs = project::get_projectID_sql($filter, "task");
-        $projectIDs and $sql1["projectIDs"] = $projectIDs;
-        $projectIDs and $sql2["projectIDs"] = $projectIDs;
-        $filter['taskID'] and $sql1[] = unsafe_prepare("(task.taskID = %d)", $filter["taskID"]);
-        $filter['taskID'] and $sql2[] = unsafe_prepare("(task.taskID = %d)", $filter["taskID"]);
-        $filter['taskID'] and $sql3[] = unsafe_prepare("(tsiHint.taskID = %d)", $filter["taskID"]);
-        $filter["fromDate"] and $sql1[] = unsafe_prepare("(date(commentCreatedTime) >= '%s')", $filter["fromDate"]);
-        $filter["fromDate"] and $sql2[] = unsafe_prepare("(dateTimeSheetItem >= '%s')", $filter["fromDate"]);
-        $filter["fromDate"] and $sql3[] = unsafe_prepare("(tsiHint.date >= '%s')", $filter["fromDate"]);
-        $filter["toDate"] and $sql1[] = unsafe_prepare("(date(commentCreatedTime) < '%s')", $filter["toDate"]);
-        $filter["toDate"] and $sql2[] = unsafe_prepare("(dateTimeSheetItem < '%s')", $filter["toDate"]);
-        $filter["toDate"] and $sql3[] = unsafe_prepare("(tsiHint.date < '%s')", $filter["toDate"]);
-        $filter["personID"] and $sql1["personID"] = unsafe_prepare("(comment.commentCreatedUser IN (%s))", $filter["personID"]);
-        $filter["personID"] and $sql2[] = unsafe_prepare("(timeSheetItem.personID IN (%s))", $filter["personID"]);
-        $filter["personID"] and $sql3[] = unsafe_prepare("(tsiHint.personID IN (%s))", $filter["personID"]);
-        $filter["clients"] or $sql1[] = "(commentCreatedUser IS NOT NULL)";
-        $filter["clients"] && $filter["personID"] and $sql1["personID"] = unsafe_prepare("(comment.commentCreatedUser IN (%s) OR comment.commentCreatedUser IS NULL)", $filter["personID"]);
+        has("project") && ($projectIDs = project::get_projectID_sql($filter, "task"));
+        $projectIDs && ($sql1["projectIDs"] = $projectIDs);
+        $projectIDs && ($sql2["projectIDs"] = $projectIDs);
+        $filter['taskID'] && ($sql1[] = unsafe_prepare("(task.taskID = %d)", $filter["taskID"]));
+        $filter['taskID'] && ($sql2[] = unsafe_prepare("(task.taskID = %d)", $filter["taskID"]));
+        $filter['taskID'] && ($sql3[] = unsafe_prepare("(tsiHint.taskID = %d)", $filter["taskID"]));
+        $filter["fromDate"] && ($sql1[] = unsafe_prepare("(date(commentCreatedTime) >= '%s')", $filter["fromDate"]));
+        $filter["fromDate"] && ($sql2[] = unsafe_prepare("(dateTimeSheetItem >= '%s')", $filter["fromDate"]));
+        $filter["fromDate"] && ($sql3[] = unsafe_prepare("(tsiHint.date >= '%s')", $filter["fromDate"]));
+        $filter["toDate"] && ($sql1[] = unsafe_prepare("(date(commentCreatedTime) < '%s')", $filter["toDate"]));
+        $filter["toDate"] && ($sql2[] = unsafe_prepare("(dateTimeSheetItem < '%s')", $filter["toDate"]));
+        $filter["toDate"] && ($sql3[] = unsafe_prepare("(tsiHint.date < '%s')", $filter["toDate"]));
+        $filter["personID"] && ($sql1["personID"] = unsafe_prepare("(comment.commentCreatedUser IN (%s))", $filter["personID"]));
+        $filter["personID"] && ($sql2[] = unsafe_prepare("(timeSheetItem.personID IN (%s))", $filter["personID"]));
+        $filter["personID"] && ($sql3[] = unsafe_prepare("(tsiHint.personID IN (%s))", $filter["personID"]));
+        $filter["clients"] || ($sql1[] = "(commentCreatedUser IS NOT NULL)");
+        if ($filter["clients"] && $filter["personID"]) {
+            $sql1["personID"] = unsafe_prepare("(comment.commentCreatedUser IN (%s) OR comment.commentCreatedUser IS NULL)", $filter["personID"]);
+        }
 
-        $filter["taskStatus"] and $sql1[] = Task::get_taskStatus_sql($filter["taskStatus"]);
-        $filter["taskStatus"] and $sql2[] = Task::get_taskStatus_sql($filter["taskStatus"]);
+        $filter["taskStatus"] && ($sql1[] = Task::get_taskStatus_sql($filter["taskStatus"]));
+        $filter["taskStatus"] && ($sql2[] = Task::get_taskStatus_sql($filter["taskStatus"]));
 
         return [$sql1, $sql2, $sql3];
     }
@@ -947,13 +960,21 @@ class comment extends DatabaseEntity
         // $_FORM["fromDate"] = "2010-08-20";
         // $_FORM["projectID"] = "22";
 
-        $_FORM["maxCommentLength"] or $_FORM["maxCommentLength"] = 500;
+        $_FORM["maxCommentLength"] || ($_FORM["maxCommentLength"] = 500);
 
         [$filter1, $filter2, $filter3] = (new comment())->get_list_summary_filter($_FORM);
 
-        is_array($filter1) && count($filter1) and $filter1 = " AND " . implode(" AND ", $filter1);
-        is_array($filter2) && count($filter2) and $filter2 = " AND " . implode(" AND ", $filter2);
-        is_array($filter3) && count($filter3) and $filter3 = " AND " . implode(" AND ", $filter3);
+        if (is_array($filter1) && count($filter1)) {
+            $filter1 = " AND " . implode(" AND ", $filter1);
+        }
+
+        if (is_array($filter2) && count($filter2)) {
+            $filter2 = " AND " . implode(" AND ", $filter2);
+        }
+
+        if (is_array($filter3) && count($filter3)) {
+            $filter3 = " AND " . implode(" AND ", $filter3);
+        }
 
         if ($_FORM["clients"]) {
             $client_join = " LEFT JOIN clientContact on comment.commentCreatedUserClientContactID = clientContact.clientContactID";
@@ -988,11 +1009,11 @@ class comment extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $row["icon"] = 'icon-comments-alt';
             $row["id"] = "comment_" . $row["id"];
-            $row["personID"] and $row["person"] = $people[$row["personID"]]["name"];
-            $row["clientContactName"] and $row["person"] = $row["clientContactName"];
-            $row["person"] or [$e, $row["person"]] = parse_email_address($row["commentCreatedUserText"]);
+            $row["personID"] && ($row["person"] = $people[$row["personID"]]["name"]);
+            $row["clientContactName"] && ($row["person"] = $row["clientContactName"]);
+            $row["person"] || ([$e, $row["person"]] = parse_email_address($row["commentCreatedUserText"]));
             $row["displayDate"] = format_date("Y-m-d g:ia", $row["displayDate"]);
-            if (!$tasks[$row["taskID"]]) {
+            if ($tasks[$row["taskID"]] === '' || $tasks[$row["taskID"]] === '0') {
                 $t = new Task();
                 $t->set_id($row["taskID"]);
                 $t->set_value("taskName", $row["taskName"]);
@@ -1034,7 +1055,7 @@ class comment extends DatabaseEntity
             $row["icon"] = 'icon-time';
             $row["id"] = "timeitem_" . $row["id"];
             $row["person"] = $people[$row["personID"]]["name"];
-            if (!$tasks[$row["taskID"]]) {
+            if ($tasks[$row["taskID"]] === '' || $tasks[$row["taskID"]] === '0') {
                 $t = new Task();
                 $t->set_id($row["taskID"]);
                 $t->set_value("taskName", $row["taskName"]);
@@ -1075,7 +1096,7 @@ class comment extends DatabaseEntity
             $row["id"] = "tsihint_" . $row["id"];
             $row["person"] = $people[$row["personID"]]["name"];
             $row["comment_text"] .= ' [by ' . $people[$row["tsiHintCreatedUser"]]["name"] . ']';
-            if (!$tasks[$row["taskID"]]) {
+            if ($tasks[$row["taskID"]] === '' || $tasks[$row["taskID"]] === '0') {
                 $t = new Task();
                 $t->set_id($row["taskID"]);
                 $t->set_value("taskName", $row["taskName"]);
@@ -1108,7 +1129,7 @@ class comment extends DatabaseEntity
         return $rtn;
     }
 
-    public function get_list_summary_header($task, $totals, $totals_tsiHint, $_FORM = [])
+    public function get_list_summary_header($task, $totals, $totals_tsiHint, $_FORM = []): string
     {
 
         $rtn = [];
@@ -1139,7 +1160,7 @@ class comment extends DatabaseEntity
         return include_template(__DIR__ . "/../templates/summaryR.tpl", true);
     }
 
-    public function get_list_summary_footer($rows, $tasks)
+    public function get_list_summary_footer($rows, $tasks): string
     {
         $rtn = [];
         $rtn[] = "</table>";
@@ -1155,9 +1176,9 @@ class comment extends DatabaseEntity
             $t->set_id($this->get_value("commentLinkID"));
             $t->select();
             $projectID = $t->get_value("projectID");
-        } else if ($this->get_value("commentType") == "project" && $this->get_value("commentLinkID")) {
+        } elseif ($this->get_value("commentType") == "project" && $this->get_value("commentLinkID")) {
             $projectID = $this->get_value("commentLinkID");
-        } else if ($this->get_value("commentType") == "timeSheet" && $this->get_value("commentLinkID")) {
+        } elseif ($this->get_value("commentType") == "timeSheet" && $this->get_value("commentLinkID")) {
             $t = new timeSheet();
             $t->set_id($this->get_value("commentLinkID"));
             $t->select();
@@ -1173,19 +1194,19 @@ class comment extends DatabaseEntity
         $current_user = &singleton("current_user");
         $person = new person();
         $personID = $person->find_by_email($from_address);
-        $personID or $personID = $person->find_by_name($from_name);
+        $personID || ($personID = $person->find_by_name($from_name));
 
         if (!$personID) {
             $cc = new clientContact();
             $clientContactID = $cc->find_by_email($from_address);
-            $clientContactID or $clientContactID = $cc->find_by_name($from_name, $projectID);
+            $clientContactID || ($clientContactID = $cc->find_by_name($from_name, $projectID));
         }
 
         // If we don't have a $from_name, but we do have a personID or clientContactID, get proper $from_name
         if (!$from_name) {
             if ($personID) {
                 $from_name = person::get_fullname($personID);
-            } else if ($clientContactID) {
+            } elseif ($clientContactID) {
                 $cc = new clientContact();
                 $cc->set_id($clientContactID);
                 $cc->select();
@@ -1214,8 +1235,8 @@ class comment extends DatabaseEntity
         if ($commentType && $commentLinkID) {
             $comment = new comment();
             $comment->updateSearchIndexLater = true;
-            $commentMaster and $comment->set_value('commentMaster', $commentMaster);
-            $commentMasterID and $comment->set_value('commentMasterID', $commentMasterID);
+            $commentMaster && $comment->set_value('commentMaster', $commentMaster);
+            $commentMasterID && $comment->set_value('commentMasterID', $commentMasterID);
             $comment->set_value('commentType', $commentType);
             $comment->set_value('commentLinkID', $commentLinkID);
             $comment->set_value('comment', rtrim($comment_text));
@@ -1251,9 +1272,9 @@ class comment extends DatabaseEntity
             if ($email && in_str("@", $email)) {
                 unset($lt, $gt); // used above
                 $str = $info["name"];
-                $str and $str .= " ";
-                $str and $lt = "<";
-                $str and $gt = ">";
+                $str && ($str .= " ");
+                $str && ($lt = "<");
+                $str && ($gt = ">");
                 $str .= $lt . str_replace(["<", ">"], "", $email) . $gt;
                 $emailRecipients[] = $str;
 
@@ -1429,7 +1450,9 @@ class comment extends DatabaseEntity
             $str = (string)ob_get_clean();
 
             $suffix = ".html";
-            $options != "html" && $options != "html_plus" and $suffix = ".pdf";
+            if ($options != "html" && $options != "html_plus") {
+                $suffix = ".pdf";
+            }
 
             $rtn["name"] = "taskList_" . $projectID . $suffix;
             $rtn["blob"] = $str;
@@ -1452,11 +1475,11 @@ class comment extends DatabaseEntity
         $emailreceive->check_mail();
 
         $msg_nums = $emailreceive->get_all_email_msg_uids();
-        $debug and print "<hr><br><b>find_email(): " . date("Y-m-d H:i:s") . " found " . (is_countable($msg_nums) ? count($msg_nums) : 0) . " emails for mailbox: " . $mailbox . "</b>";
+        $debug && (print "<hr><br><b>find_email(): " . date("Y-m-d H:i:s") . " found " . (is_countable($msg_nums) ? count($msg_nums) : 0) . " emails for mailbox: " . $mailbox . "</b>");
 
         // fetch and parse email
         foreach ((array)$msg_nums as $num) {
-            $debug and print "<hr><br>Examining message number: " . $num;
+            $debug && (print "<hr><br>Examining message number: " . $num);
             unset($mimebits);
             // this will stream output
             $emailreceive->set_msg($num);
@@ -1487,22 +1510,22 @@ class comment extends DatabaseEntity
 
             similar_text($text1, $text2, $percent);
             if ($percent >= 99 && ($from1 == $from2 || !$from2 || same_email_address($from1, config::get_config_item("AllocFromEmailAddress"))) && (($date > $date1 && $date < $date3) || $ignore_date)) {
-                $debug and print "<br><b style='color:green'>Found you! Msg no: " . $num . " in mailbox: " . $mailbox . " for commentID: " . $this->get_id() . "</b>";
+                $debug && (print "<br><b style='color:green'>Found you! Msg no: " . $num . " in mailbox: " . $mailbox . " for commentID: " . $this->get_id() . "</b>");
 
                 foreach ((array)$emailreceive->mail_parts as $v) {
                     $s = $v["part_object"]; // structure
                     $raw_data = imap_fetchbody($emailreceive->connection, $emailreceive->msg_uid, $v["part_number"], FT_UID | FT_PEEK);
                     $thing = $emailreceive->decode_part($s->encoding, $raw_data);
                     $filename = $emailreceive->get_parameter_attribute_value($s->parameters, "name");
-                    $filename or $filename = $emailreceive->get_parameter_attribute_value($s->parameters, "filename");
-                    $filename or $filename = $emailreceive->get_parameter_attribute_value($s->dparameters, "name");
-                    $filename or $filename = $emailreceive->get_parameter_attribute_value($s->dparameters, "filename");
+                    $filename || ($filename = $emailreceive->get_parameter_attribute_value($s->parameters, "filename"));
+                    $filename || ($filename = $emailreceive->get_parameter_attribute_value($s->dparameters, "name"));
+                    $filename || ($filename = $emailreceive->get_parameter_attribute_value($s->dparameters, "filename"));
                     $bits = [];
                     $bits["part"] = $v["part_number"];
                     $bits["name"] = $filename;
                     $bits["size"] = strlen($thing);
-                    $get_blobs and $bits["blob"] = $thing;
-                    $filename and $mimebits[] = $bits;
+                    $get_blobs && ($bits["blob"] = $thing);
+                    $filename && ($mimebits[] = $bits);
                 }
 
                 $emailreceive->close();
@@ -1510,14 +1533,14 @@ class comment extends DatabaseEntity
             }
 
             similar_text($text1, $text2, $percent);
-            $debug and print "<br>TEXT: " . sprintf("%d", $text1 == $text2) . " (" . sprintf("%d", $percent) . "%)";
+            $debug && (print "<br>TEXT: " . sprintf("%d", $text1 === $text2) . " (" . sprintf("%d", $percent) . "%)");
             // $debug and print "<br>Text1:<br>".$text1."<br>* * *<br>";
             // $debug and print "Text2:<br>".$text2."<br>+ + +</br>";
-            $debug and print "<br>FROM: " . sprintf("%d", ($from1 == $from2 || !$from2 || same_email_address($from1, config::get_config_item("AllocFromEmailAddress"))));
-            $debug and print " From1: " . Page::htmlentities($from1);
-            $debug and print " From2: " . Page::htmlentities($from2);
-            $debug and print "<br>DATE: " . sprintf("%d", $date > $date1 && $date < $date3) . " (" . date("Y-m-d H:i:s", $date) . " | " . date("Y-m-d H:i:s", $date1) . " | " . date("Y-m-d H:i:s", $date3) . ")";
-            $debug and print "<br>";
+            $debug && (print "<br>FROM: " . sprintf("%d", ($from1 == $from2 || !$from2 || same_email_address($from1, config::get_config_item("AllocFromEmailAddress")))));
+            $debug && (print " From1: " . Page::htmlentities($from1));
+            $debug && (print " From2: " . Page::htmlentities($from2));
+            $debug && (print "<br>DATE: " . sprintf("%d", $date > $date1 && $date < $date3) . " (" . date("Y-m-d H:i:s", $date) . " | " . date("Y-m-d H:i:s", $date1) . " | " . date("Y-m-d H:i:s", $date3) . ")");
+            $debug && (print "<br>");
         }
 
         $emailreceive->close();
@@ -1530,7 +1553,7 @@ class comment extends DatabaseEntity
         $x = 2; // mime part 1 will be the message text
         foreach ((array)$files as $file) {
             $bits = [];
-            $bits["part"] = $file["part"] or $bits["part"] = $x++;
+            ($bits["part"] = $file["part"]) || ($bits["part"] = $x++);
             $bits["name"] = $file["name"];
             $bits["size"] = $file["size"];
             $mimebits[] = $bits;

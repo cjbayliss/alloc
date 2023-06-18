@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once("../alloc.php");
+require_once(__DIR__ . "/../alloc.php");
 
 $TPL["main_alloc_title"] = "Task List - " . APPLICATION_NAME;
 
@@ -28,60 +28,58 @@ $TPL["_FORM"] = $_FORM;
 
 // Load filter
 $arr = Task::load_task_filter($_FORM);
-is_array($arr) and $TPL = array_merge($TPL, $arr);
+if (is_array($arr)) {
+    $TPL = array_merge($TPL, $arr);
+}
 
 // Check for updates
-if ($_POST["mass_update"]) {
-    if ($_POST["select"]) {
-        $allowed_auto_fields = [
-            "dateTargetStart",
-            "dateTargetCompletion",
-            "dateActualStart",
-            "dateActualCompletion",
-            "managerID",
-            "timeLimit",
-            "timeBest",
-            "timeWorst",
-            "timeExpected",
-            "priority",
-            "taskTypeID",
-            "taskStatus",
-            "personID",
-        ];
+if ($_POST["mass_update"] && $_POST["select"]) {
+    $allowed_auto_fields = [
+        "dateTargetStart",
+        "dateTargetCompletion",
+        "dateActualStart",
+        "dateActualCompletion",
+        "managerID",
+        "timeLimit",
+        "timeBest",
+        "timeWorst",
+        "timeExpected",
+        "priority",
+        "taskTypeID",
+        "taskStatus",
+        "personID",
+    ];
+    foreach ($_POST["select"] as $taskID => $selected) {
+        $task = new Task();
+        $task->set_id($taskID);
+        $task->select();
 
-        foreach ($_POST["select"] as $taskID => $selected) {
-            $task = new Task();
-            $task->set_id($taskID);
-            $task->select();
-
-            // Special case: projectID and parentTaskID have to be done together
-            if ($_POST["update_action"] == "projectIDAndParentTaskID") {
-                // Can't set self to be parent
-                if ($_POST["parentTaskID"] != $task->get_id()) {
-                    $task->set_value("parentTaskID", $_POST["parentTaskID"]);
-                }
-
-                // If task is a parent, change the project of that tasks children
-                if ($_POST["projectID"] != $task->get_value("projectID") && $task->get_value("taskTypeID") == "Parent") {
-                    $task->update_children("projectID", $_POST["projectID"]);
-                }
-
-                $task->set_value("projectID", $_POST["projectID"]);
-                $task->updateSearchIndexLater = true;
-                $task->save();
-
-                // All other cases are generic and can be handled by a single clause
-            } else if ($_POST["update_action"] && in_array($_POST["update_action"], $allowed_auto_fields)) {
-                $task->set_value($_POST["update_action"], $_POST[$_POST["update_action"]]);
-                $task->updateSearchIndexLater = true;
-                $task->save();
+        // Special case: projectID and parentTaskID have to be done together
+        if ($_POST["update_action"] == "projectIDAndParentTaskID") {
+            // Can't set self to be parent
+            if ($_POST["parentTaskID"] != $task->get_id()) {
+                $task->set_value("parentTaskID", $_POST["parentTaskID"]);
             }
-        }
 
-        $TPL["message_good"][] = "Tasks updated.";
-        $url = $_POST["returnURL"] or $url = $TPL["url_alloc_taskList"];
-        alloc_redirect($url);
+            // If task is a parent, change the project of that tasks children
+            if ($_POST["projectID"] != $task->get_value("projectID") && $task->get_value("taskTypeID") == "Parent") {
+                $task->update_children("projectID", $_POST["projectID"]);
+            }
+
+            $task->set_value("projectID", $_POST["projectID"]);
+            $task->updateSearchIndexLater = true;
+            $task->save();
+            // All other cases are generic and can be handled by a single clause
+        } elseif ($_POST["update_action"] && in_array($_POST["update_action"], $allowed_auto_fields)) {
+            $task->set_value($_POST["update_action"], $_POST[$_POST["update_action"]]);
+            $task->updateSearchIndexLater = true;
+            $task->save();
+        }
     }
+
+    $TPL["message_good"][] = "Tasks updated.";
+    ($url = $_POST["returnURL"]) || ($url = $TPL["url_alloc_taskList"]);
+    alloc_redirect($url);
 }
 
 if (!$current_user->prefs["taskList_filter"]) {
