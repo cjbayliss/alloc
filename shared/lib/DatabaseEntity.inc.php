@@ -782,12 +782,19 @@ class DatabaseEntity
             $extra = $pkey_sql . db_esc($sel);
         }
 
-        // If they haven't specifically asked for inactive or all
-        // records, we default to giving them only active records.
-        if (is_object($this->data_fields[$this->data_table . "Active"]) && !isset($where[$this->data_table . "Active"])) {
+        // If they haven't specifically asked for inactive or all records, we
+        // default to giving them only active records.
+        if (
+            isset($this->data_fields[$this->data_table . "Active"])
+            && is_object($this->data_fields[$this->data_table . "Active"])
+            && !isset($where[$this->data_table . "Active"])
+        ) {
             $where[$this->data_table . "Active"] = 1;
             // Else get all records
-        } elseif ($where[$this->data_table . "Active"] == "all") {
+        } elseif (
+            isset($where[$this->data_table . "Active"])
+            && $where[$this->data_table . "Active"] == "all"
+        ) {
             unset($where[$this->data_table . "Active"]);
         }
 

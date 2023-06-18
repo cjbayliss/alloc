@@ -430,19 +430,19 @@
     <td valign="top" width="20%"><nobr>Project Priorities</nobr></td>
     <td>
       <a href="{$url_alloc_configEdit}configName=projectPriorities">Edit:</a>
-      {unset($br)}
+      {$br = ""}
       {foreach $projectPriorities as $k => $arr}
           {$br}<span style="color:{$arr.colour}">{$k} {$arr.label}</span>
           {$br = ", "}
       {/}
-    </td> 
+    </td>
     <td width="1%">{Page::help("config_projectPriorities.html")}</td>
   </tr>
   <tr>
     <td valign="top" width="20%"><nobr>Task Priorities</nobr></td>
     <td>
       <a href="{$url_alloc_configEdit}configName=taskPriorities">Edit:</a>
-      {unset($br)}
+      {$br = ""}
       {foreach $taskPriorities as $k => $arr}
           {$br}<span style="color:{$arr.colour}">{$k} {$arr.label}</span>
           {$br = ", "}
@@ -454,7 +454,7 @@
     <td valign="top" width="20%"><nobr>Client Categories</nobr></td>
     <td>
       <a href="{$url_alloc_configEdit}configName=clientCategories">Edit:</a>
-      {unset($br)}
+      {$br = ""}
       {foreach $clientCategories as $k => $arr}
           {$br}{$arr.label}
           {$br = ", "}
@@ -469,7 +469,7 @@
       <td>{$label}</td>
       <td>
       <a href="{$url_alloc_metaEdit}configName={$table}">Edit:</a>
-      {unset($br)}
+      {$br = ""}
       {$t = new meta($table)}
       {$rows = $t->get_list()}
       {foreach $rows as $row}{echo $br.$row[$table."ID"]}{$br = ", "}{/}

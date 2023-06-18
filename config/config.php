@@ -11,7 +11,7 @@ if (!have_entity_perm("config", PERM_UPDATE, $current_user, true)) {
     alloc_error("Permission denied.", true);
 }
 
-if ($_POST["test_email_gateway"]) {
+if (!empty($_POST["test_email_gateway"])) {
     $info["host"] = config::get_config_item("allocEmailHost");
     $info["port"] = config::get_config_item("allocEmailPort");
     $info["username"] = config::get_config_item("allocEmailUsername");
@@ -41,9 +41,7 @@ while ($db->next_record()) {
     }
 }
 
-// echo "<pre>".print_r($_POST,1)."</pre>";
-
-if ($_POST["update_currencyless_transactions"] && $_POST["currency"]) {
+if (!empty($_POST["update_currencyless_transactions"]) && !empty($_POST["currency"])) {
     $db = new AllocDatabase();
     $q = unsafe_prepare("UPDATE transaction SET currencyTypeID = '%s' WHERE currencyTypeID IS NULL", $_POST["currency"]);
     $db->query($q);
@@ -68,12 +66,12 @@ if ($_POST["update_currencyless_transactions"] && $_POST["currency"]) {
     $_POST["save"] = true;
 }
 
-if ($_POST["fetch_exchange_rates"]) {
+if (!empty($_POST["fetch_exchange_rates"])) {
     $rtn = exchangeRate::download();
     $rtn && ($TPL["message_good"] = $rtn);
 }
 
-if ($_POST["save"]) {
+if (!empty($_POST["save"])) {
     if ($_POST["hoursInDay"]) {
         $db = new AllocDatabase();
         $day = $_POST["hoursInDay"] * 60 * 60;
@@ -143,7 +141,7 @@ if ($_POST["save"]) {
     }
 
     $TPL["message"] || ($TPL["message_good"] = "Saved configuration.");
-} elseif ($_POST["delete_logo"]) {
+} elseif (!empty($_POST["delete_logo"])) {
     foreach ([ALLOC_LOGO, ALLOC_LOGO_SMALL] as $logo) {
         if (file_exists($logo) && unlink($logo)) {
             $TPL["message_good"][] = "Deleted " . $logo;
