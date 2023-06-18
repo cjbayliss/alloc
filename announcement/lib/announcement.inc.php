@@ -8,8 +8,11 @@
 class announcement extends DatabaseEntity
 {
     public $data_table = "announcement";
+
     public $display_field_name = "heading";
+
     public $key_field = "announcementID";
+
     public $data_fields = [
         "heading",
         "body",

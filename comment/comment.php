@@ -75,6 +75,7 @@ foreach ((array)$files as $k => $f) {
     } else if ($f["tmp_name"]) {
         rename($f["tmp_name"], $fullpath);
     }
+
     $files[$k]["fullpath"] = $fullpath;
 }
 
@@ -92,6 +93,7 @@ foreach ((array)$files as $k => $f) {
         unlink($f["fullpath"]);
     }
 }
+
 rmdir_if_empty($dir);
 
 // Re-direct browser back home

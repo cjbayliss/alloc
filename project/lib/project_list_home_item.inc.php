@@ -43,6 +43,7 @@ class project_list_home_item extends home_item
         if (isset($current_user->prefs["projectListNum"]) && $current_user->prefs["projectListNum"] != "all") {
             $options["limit"] = sprintf("%d", $current_user->prefs["projectListNum"]);
         }
+
         $options["projectStatus"] = "Current";
         $options["personID"] = $current_user->get_id();
         $TPL["projectListRows"] = project::getFilteredProjectList($options);

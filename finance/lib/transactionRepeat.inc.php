@@ -8,8 +8,11 @@
 class transactionRepeat extends DatabaseEntity
 {
     public $data_table = "transactionRepeat";
+
     public $display_field_name = "product";
+
     public $key_field = "transactionRepeatID";
+
     public $data_fields = [
         "companyDetails" => ["empty_to_null" => false],
         "payToName"      => ["empty_to_null" => false],

@@ -35,9 +35,11 @@ if (isset($_GET["id"]) && $file && !bad_filename($file)) {
             fpassthru($fp);
             exit;
         }
+
         echo "File not found.";
         exit;
     }
+
     echo "Permission denied.";
     exit;
 }

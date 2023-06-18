@@ -8,6 +8,7 @@
 class finance_module extends Module
 {
     public $module = "finance";
+
     public $databaseEntities = [
         "tf",
         "transaction",
@@ -15,5 +16,6 @@ class finance_module extends Module
         "tfPerson",
         "transactionRepeat",
     ];
+
     public $home_items = ["tfList_home_item", "pendingAdminExpenseForm"];
 }

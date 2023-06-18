@@ -8,9 +8,13 @@
 class product extends DatabaseEntity
 {
     public $classname = "product";
+
     public $data_table = "product";
+
     public $display_field_name = "productName";
+
     public $key_field = "productID";
+
     public $data_fields = [
         "productName",
         "sellPrice" => [
@@ -74,9 +78,10 @@ class product extends DatabaseEntity
     {
         global $TPL;
         if (is_object($this)) {
-            return "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $this->get_id() . "\">" . $this->get_value("productName", DST_HTML_DISPLAY) . "</a>";
+            return '<a href="' . $TPL["url_alloc_product"] . "productID=" . $this->get_id() . '">' . $this->get_value("productName", DST_HTML_DISPLAY) . "</a>";
         }
-        return "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $row["productID"] . "\">" . Page::htmlentities($row["productName"]) . "</a>";
+
+        return '<a href="' . $TPL["url_alloc_product"] . "productID=" . $row["productID"] . '">' . Page::htmlentities($row["productName"]) . "</a>";
     }
 
     public function get_list_vars()
@@ -102,8 +107,10 @@ class product extends DatabaseEntity
                 [$amount_minus_tax, $amount_of_tax] = tax($row["amount"]);
                 $row["amount"] = $amount_minus_tax;
             }
+
             $amount += exchangeRate::convert($row["currencyTypeID"], $row["amount"]);
         }
+
         return $amount;
     }
 

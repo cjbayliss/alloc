@@ -8,10 +8,15 @@
 class invoiceRepeat extends DatabaseEntity
 {
     public $classname = "invoiceRepeat";
+
     public $data_table = "invoiceRepeat";
+
     public $display_field_name = "invoiceRepeatID";
+
     public $key_field = "invoiceRepeatID";
+
     public $data_fields = ["invoiceID", "personID", "message", "active"];
+
     public function save($dates = "")
     {
         $rtn = parent::save();
@@ -36,6 +41,7 @@ class invoiceRepeat extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $rows[] = $row["invoiceDate"];
         }
+
         $TPL[$prefix . "frequency"] = implode(" ", (array)$rows);
         return parent::set_values($prefix);
     }
@@ -53,6 +59,7 @@ class invoiceRepeat extends DatabaseEntity
         if (is_object($this) && $this->get_id()) {
             return InterestedParty::get_interested_parties("invoiceRepeat", $this->get_id(), $interestedPartyOptions);
         }
+
         return $interestedPartyOptions;
     }
 }

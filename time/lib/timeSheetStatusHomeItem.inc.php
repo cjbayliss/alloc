@@ -20,12 +20,15 @@ class timeSheetStatusHomeItem extends home_item
         if (!isset($current_user->prefs["showTimeSheetStatsHome"])) {
             $current_user->prefs["showTimeSheetStatsHome"] = 1;
         }
+
         if (!isset($current_user)) {
             return false;
         }
+
         if (!$current_user->is_employee()) {
             return false;
         }
+
         return (bool) $current_user->prefs["showTimeSheetStatsHome"];
     }
 

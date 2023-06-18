@@ -33,7 +33,8 @@ if ($current_user->have_role("admin") || $current_user->have_role("manage")) {
         $person->read_db_record($_db);
         $users[$person->get_id()] = $person->get_value('username');
     }
-    $TPL["userSelect"] = "<select name=\"userID\">" . Page::select_options($users, $current_user->get_id()) . "</select><br>\n";
+
+    $TPL["userSelect"] = '<select name="userID">' . Page::select_options($users, $current_user->get_id()) . "</select><br>\n";
 } else {
     $TPL["userSelect"] = "";
 }
@@ -52,9 +53,10 @@ if ($_POST["borrowItem"]) {
     $db->query("select * from loan where itemID=%d and dateReturned='0000-00-00'", $itemID);
 
     if ($db->next_record()) {     // if the item is already borrowed
-        alloc_redirect($TPL["url_alloc_item"] . "itemID=$itemID&badBorrow=true&error=already_borrowed");
+        alloc_redirect($TPL["url_alloc_item"] . sprintf('itemID=%s&badBorrow=true&error=already_borrowed', $itemID));
         exit();
     }
+
     // else lets make a new loan!
     $loan = new loan();
     $loan->read_globals();
@@ -66,10 +68,12 @@ if ($_POST["borrowItem"]) {
             $person->set_id($_POST["userID"]);
             $person->select();
         }
+
         $loan->set_value("personID", $_POST["userID"]);
     } else {
         $loan->set_value("personID", $current_user->get_id());
     }
+
     $loan->set_value("dateBorrowed", $today);
     $loan->set_value("dateReturned", "0000-00-00");
     $loan->save();

@@ -8,9 +8,13 @@
 class timeSheetItem extends DatabaseEntity
 {
     public $data_table = "timeSheetItem";
+
     public $display_field_name = "description";
+
     public $key_field = "timeSheetItemID";
+
     public $skip_tsi_status_check;
+
     public $data_fields = [
         "timeSheetID",
         "dateTimeSheetItem",
@@ -66,9 +70,11 @@ class timeSheetItem extends DatabaseEntity
         if (!is_object($timeSheet) || !$timeSheet->get_id()) {
             alloc_error("Unknown time sheet.");
         }
+
         if ($timeSheet->get_value("status") != "edit" && !$this->skip_tsi_status_check) {
             alloc_error("Time sheet is not at status edit");
         }
+
         if (!$this->is_owner()) {
             alloc_error("Time sheet is not editable for you.");
         }
@@ -140,6 +146,7 @@ class timeSheetItem extends DatabaseEntity
                 invoiceEntity::save_invoice_timeSheet($row["invoiceID"], $timeSheetID);  // will update the existing invoice item
             }
         }
+
         return parent::delete();
     }
 
@@ -155,10 +162,11 @@ class timeSheetItem extends DatabaseEntity
         $x = 0;
         while ($x < 365) {
             if ($x % 14 == 0) {
-                $fortnight++;
+                ++$fortnight;
             }
+
             $fortnights[date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 365 + $x, date("Y")))] = $fortnight;
-            $x++;
+            ++$x;
         }
 
         $dateTimeSheetItem = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 365, date("Y")));
@@ -175,7 +183,7 @@ class timeSheetItem extends DatabaseEntity
         $allocDatabase->query($q);
         while ($allocDatabase->next_record()) {
             if (!$done[$allocDatabase->f("personID")][$fortnights[$allocDatabase->f("dateTimeSheetItem")]]) {
-                $how_many_fortnights[$allocDatabase->f("personID")]++;
+                ++$how_many_fortnights[$allocDatabase->f("personID")];
                 $done[$allocDatabase->f("personID")][$fortnights[$allocDatabase->f("dateTimeSheetItem")]] = true;
             }
         }
@@ -305,17 +313,21 @@ class timeSheetItem extends DatabaseEntity
                 $task->get_value('timeLimit') && $row["hoursBilled"] > $task->get_value('timeLimit') and $row["limitWarning"] = 'Exceeds Limit!';
                 $row["timeLimit"] = $task->get_value("timeLimit");
             }
+
             $row["rate"] = $tsi->get_value("rate", DST_HTML_DISPLAY);
             $row["worth"] = Page::money($tsi->currency, $row["rate"] * $tsi->get_value("multiplier") * $tsi->get_value("timeSheetItemDuration"), "%m");
 
             $rows[$row["timeSheetItemID"]] = $row;
         }
-        if (!$print) {
+
+        if ($print === null) {
             return;
         }
+
         if ($_FORM["return"] != "array") {
             return;
         }
+
         return $rows;
     }
 
@@ -363,6 +375,7 @@ class timeSheetItem extends DatabaseEntity
 
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
+
         $rows = [];
         while ($allocDatabase->next_record()) {
             $rows[$allocDatabase->f("personID")] = $allocDatabase->f("avg") / 3600;
@@ -388,6 +401,7 @@ class timeSheetItem extends DatabaseEntity
             $tsi->read_db_record($allocDatabase);
             $rows_dollars[$row["personID"]][] = $row;
         }
+
         return [$rows, $rows_dollars];
     }
 
@@ -405,6 +419,7 @@ class timeSheetItem extends DatabaseEntity
             foreach ((array)$current_user->prefs["stars"]["timeSheetItem"] as $k => $v) {
                 $timeSheetItemIDs[] = $k;
             }
+
             $where = unsafe_prepare("(timeSheetItem.timeSheetItemID in (%s))", $timeSheetItemIDs);
         }
 
@@ -471,7 +486,7 @@ class timeSheetItem extends DatabaseEntity
         while (mktime(0, 0, 0, $sm, $sd + $x, $sy) <= mktime(0, 0, 0, $em, $ed, $ey)) {
             $d = date("Y-m-d", mktime(0, 0, 0, $sm, $sd + $x, $sy));
             $points[] = [$d . " 12:00PM", sprintf("%.2F", $info[$d]["hours"])];
-            $x++;
+            ++$x;
         }
 
         return $points;
@@ -518,7 +533,7 @@ class timeSheetItem extends DatabaseEntity
             $time = mktime(0, 0, 0, date("m", $s) + $x, 1, date("Y", $s));
             $d = date("Y-m", $time);
             $points[] = [$d, sprintf("%d", $info[$d]["hours"])];
-            $x++;
+            ++$x;
         }
 
         return $points;

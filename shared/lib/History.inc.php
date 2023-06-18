@@ -14,6 +14,7 @@ class History extends DatabaseEntity
     public $max_to_display = 40;
 
     public $key_field = "historyID";
+
     public $data_fields = [
         "the_time",
         "the_place",
@@ -40,6 +41,7 @@ class History extends DatabaseEntity
                 $this->max_to_display
             );
         }
+
         return $query;
     }
 
@@ -58,6 +60,7 @@ class History extends DatabaseEntity
                 $ignored_files[] = end(explode("/", $allocDatabase->f("the_place") . $allocDatabase->f("the_args")));
             }
         }
+
         $ignored_files[] = "index.php";
         $ignored_files[] = "home.php";
         $ignored_files[] = "taskList.php";
@@ -96,7 +99,7 @@ class History extends DatabaseEntity
             foreach ($qs_array as $q_array) {
                 // Break up url query string into key/value pairs.
 
-                if (preg_match("/$CLASS_NAME/", $q_array)) {
+                if (preg_match(sprintf('/%s/', $CLASS_NAME), $q_array)) {
                     // Look for a key like eg: transactionID so in that case it'd
                     // use the class transaction.
 
@@ -138,6 +141,7 @@ class History extends DatabaseEntity
                                     $rtn = $ID;
                                 }
                             }
+
                             $rtn = ": " . $rtn;
                             return ucwords($CLASS_NAME) . $rtn;
                         }
@@ -145,6 +149,7 @@ class History extends DatabaseEntity
                 }
             }
         }
+
         return false;
     }
 
@@ -159,6 +164,7 @@ class History extends DatabaseEntity
         if (!is_object($current_user) || !$current_user->get_id()) {
             return;
         }
+
         $allocDatabase = new AllocDatabase();
         $query = unsafe_prepare("SELECT count(*) AS total FROM history WHERE personID = %d", $current_user->get_id());
         $allocDatabase->query($query);

@@ -8,9 +8,13 @@
 class tsiHint extends DatabaseEntity
 {
     public $classname = "tsiHint";
+
     public $data_table = "tsiHint";
+
     public $display_field_name = "projectID";
+
     public $key_field = "tsiHintID";
+
     public $data_fields = [
         "taskID",
         "personID",
@@ -64,6 +68,7 @@ class tsiHint extends DatabaseEntity
             if (is_object($task)) {
                 $tsiHint->set_value("taskID", sprintf("%d", $taskID));
             }
+
             $tsiHint->set_value("personID", $personID);
             $tsiHint->set_value("comment", $comment);
             $tsiHint->save();
@@ -76,6 +81,7 @@ class tsiHint extends DatabaseEntity
                 "message" => $ID,
             ];
         }
+
         alloc_error($errstr . "Time hint not added.");
     }
 

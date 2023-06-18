@@ -10,8 +10,11 @@ define("PERM_PROJECT_PERSON_READ_DETAILS", 256);
 class projectPerson extends DatabaseEntity
 {
     public $data_table = "projectPerson";
+
     public $display_field_name = "projectID";
+
     public $key_field = "projectPersonID";
+
     public $data_fields = [
         "personID",
         "projectID",
@@ -30,6 +33,7 @@ class projectPerson extends DatabaseEntity
         if (!$this->get_id()) {
             return true;
         }
+
         $project = new project();
         $project->set_id($this->get_value("projectID"));
         $project->select();
@@ -102,6 +106,7 @@ class projectPerson extends DatabaseEntity
         // otherwise, check user's default rate
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
+
         $getDefaultTimeSheetRate = $allocDatabase->pdo->prepare(
             "SELECT defaultTimeSheetRate as rate, defaultTimeSheetRateUnitID as unit 
                FROM person 
@@ -109,6 +114,7 @@ class projectPerson extends DatabaseEntity
         );
         $getDefaultTimeSheetRate->bindValue(":personID", $personID, PDO::PARAM_INT);
         $getDefaultTimeSheetRate->execute();
+
         $defaultTimeSheetRate = $getDefaultTimeSheetRate->fetch(PDO::FETCH_ASSOC);
 
         if ((isset($defaultTimeSheetRate['rate']) && (bool)strlen($defaultTimeSheetRate['rate'])) && $defaultTimeSheetRate['unit']) {
@@ -119,6 +125,7 @@ class projectPerson extends DatabaseEntity
                     $project->get_value("currencyTypeID")
                 );
             }
+
             return $defaultTimeSheetRate;
         }
 
@@ -133,6 +140,7 @@ class projectPerson extends DatabaseEntity
                     $project->get_value("currencyTypeID")
                 );
             }
+
             return ['rate' => $rate, 'unit' => $unit];
         }
     }

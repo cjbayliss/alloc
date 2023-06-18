@@ -32,6 +32,7 @@ if ($_POST["upload"]) {
         if (trim($line) == "") {
             continue;
         }
+
         // Read field values from the line
         $fields = explode("\t", $line);
 
@@ -49,27 +50,32 @@ if ($_POST["upload"]) {
         if (stripos("total", $date) !== false) {
             continue;
         }
+
         if ($date == "Date") {
             continue;
         }
+
         // Convert the date to yyyy-mm-dd
         if (!preg_match("|^([0-9]{1,2})/([0-9]{1,2})'([0-9])$|i", $date, $matches)) {
-            $msg .= "<b>Warning: Could not convert date '$date'</b><br>";
+            $msg .= sprintf("<b>Warning: Could not convert date '%s'</b><br>", $date);
             continue;
         }
+
         $date = sprintf("200%d-%02d-%02d", $matches[3], $matches[2], $matches[1]);
 
         // Strip $ and , from amount
         $amount = str_replace(['$', ','], [], $amount);
         if (!preg_match("/^-?[0-9]+(\\.[0-9]+)?$/", $amount)) {
-            $msg .= "<b>Warning: Could not convert amount '$amount'</b><br>";
+            $msg .= sprintf("<b>Warning: Could not convert amount '%s'</b><br>", $amount);
             continue;
         }
+
         // Ignore positive amounts
         if ($amount > 0) {
-            $msg .= "<b>Warning: Ignored positive '$amount' for $memo on $date</b><br>";
+            $msg .= sprintf("<b>Warning: Ignored positive '%s' for %s on %s</b><br>", $amount, $memo, $date);
             continue;
         }
+
         // Find the TF ID for the expense
         $query = unsafe_prepare("SELECT * FROM tf WHERE tfActive = 1 AND quickenAccount='%s'", $account);
         echo $query;
@@ -77,7 +83,7 @@ if ($_POST["upload"]) {
         if ($db->next_record()) {
             $fromTfID = $db->f("tfID");
         } else {
-            $msg .= "<b>Warning: Could not find active TF for account '$account'</b><br>";
+            $msg .= sprintf("<b>Warning: Could not find active TF for account '%s'</b><br>", $account);
             continue;
         }
 
@@ -85,9 +91,10 @@ if ($_POST["upload"]) {
         $query = unsafe_prepare("SELECT * FROM transaction WHERE transactionType='expense' AND transactionDate='%s' AND product='%s' AND amount > %0.3f and amount < %0.3f", $date, $memo, $amount - 0.004, $amount + 0.004);
         $db->query($query);
         if ($db->next_record()) {
-            $msg .= "Warning: Expense '$memo' on $date already exixsts.<br>";
+            $msg .= sprintf("Warning: Expense '%s' on %s already exixsts.<br>", $memo, $date);
             continue;
         }
+
         // Create a transaction object and then save it
         $transaction = new transaction();
         $transaction->set_value("companyDetails", $description);
@@ -100,11 +107,12 @@ if ($_POST["upload"]) {
         $transaction->set_value("quantity", 1);
         $transaction->set_value("invoiceItemID", "0");
         $transaction->set_value("transactionType", "expense");
-        $transaction->set_value("transactionDate", "$date");
+        $transaction->set_value("transactionDate", $date);
         $transaction->save();
 
-        $msg .= "Expense '$memo' on $date saved.<br>";
+        $msg .= sprintf("Expense '%s' on %s saved.<br>", $memo, $date);
     }
+
     $TPL["msg"] = $msg;
 }
 

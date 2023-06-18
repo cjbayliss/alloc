@@ -17,12 +17,15 @@ function getRequestVariable($variableName)
     } else if (isset($_REQUEST[$variableName])) {
         $value = $_REQUEST[$variableName];
     }
+
     if ($variableName !== "options") {
         return null;
     }
+
     if (!isset($_POST[$variableName])) {
         return null;
     }
+
     return json_decode($_POST[$variableName], true, 512, JSON_THROW_ON_ERROR);
 }
 

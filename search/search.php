@@ -21,8 +21,10 @@ function format_display_fields($str = "")
             foreach ($cells as $cell) {
                 $t .= "<td>" . str_replace(["\n", "\r", "<br>", "<br />"], " ", substr($cell, 0, 200)) . "</td>";
             }
+
             $t .= "</tr>";
         }
+
         $t .= "</table>";
         return "<div>" . $t . "</div>";
     }
@@ -52,7 +54,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -91,7 +93,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -139,7 +141,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -180,7 +182,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
 
         $p = &get_cached_table("person");
 
@@ -212,7 +214,8 @@ if ($search && $needle && $category == "search_projects") {
                     } else {
                         $status = "Due on " . $loan->get_value("dateToBeReturned");
                     }
-                    $row["related"] = $status . " <a href=\"" . $TPL["url_alloc_item"] . "itemID=" . $item->get_id() . "&return=true\">Return</a>";
+
+                    $row["related"] = $status . ' <a href="' . $TPL["url_alloc_item"] . "itemID=" . $item->get_id() . '&return=true">Return</a>';
 
                     // Else you dont have permission to loan or return so just show status
                 } else {
@@ -225,7 +228,7 @@ if ($search && $needle && $category == "search_projects") {
                     }
                 }
             } else {
-                $row["related"] = "Available <a href=\"" . $TPL["url_alloc_item"] . "itemID=" . $item->get_id() . "&borrow=true\">Borrow</a>";
+                $row["related"] = 'Available <a href="' . $TPL["url_alloc_item"] . "itemID=" . $item->get_id() . '&borrow=true">Borrow</a>';
             }
 
             $TPL["search_results"][] = $row;
@@ -257,7 +260,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -300,7 +303,7 @@ if ($search && $needle && $category == "search_projects") {
         $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
-        $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
+        $TPL["hits_count"] = is_countable($hits) ? is_countable($hits) ? count($hits) : 0 : 0;
 
         foreach ($hits as $hit) {
             $d = $hit->getDocument();
@@ -326,7 +329,7 @@ $TPL["search_category_options"] = Page::get_category_options($category);
 $TPL["needle"] = $needle;
 $TPL["needle2"] = $needle;
 if (!$needle || $noRedirect) {
-    $TPL["redir"] = "checked=\"1\"";
+    $TPL["redir"] = 'checked="1"';
 }
 
 $TPL["main_alloc_title"] = "Search - " . APPLICATION_NAME;

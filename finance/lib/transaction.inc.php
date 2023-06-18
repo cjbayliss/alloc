@@ -8,9 +8,13 @@
 class transaction extends DatabaseEntity
 {
     public $classname = "transaction";
+
     public $data_table = "transaction";
+
     public $display_field_name = "product";
+
     public $key_field = "transactionID";
+
     public $data_fields = [
         "companyDetails" => ["empty_to_null" => false],
         "product"        => ["empty_to_null" => false],
@@ -62,9 +66,11 @@ class transaction extends DatabaseEntity
         if ($old["currencyTypeID"] != $this->get_value("currencyTypeID")) {
             $field_changed = true;
         }
+
         if ($old["destCurrencyTypeID"] != $this->get_value("destCurrencyTypeID")) {
             $field_changed = true;
         }
+
         $allocDatabase = new AllocDatabase();
 
         // If there already is an exchange rate set for an approved
@@ -96,8 +102,9 @@ class transaction extends DatabaseEntity
         $this->get_value("fromTfID") or $err[] = "Unable to save transaction without a Source TF.";
         if ($this->get_value("fromTfID") && $this->get_value("fromTfID") == $this->get_value("tfID")) {
             $tf = new tf();
-            $err[] = "Unable to save transaction with Source TF (" . $tf->get_name($this->get_value("fromTfID")) . ") being the same as the Destination TF (" . $tf->get_name($this->get_value("tfID")) . ") \"" . $this->get_value("product") . "\"";
+            $err[] = "Unable to save transaction with Source TF (" . $tf->get_name($this->get_value("fromTfID")) . ") being the same as the Destination TF (" . $tf->get_name($this->get_value("tfID")) . ') "' . $this->get_value("product") . '"';
         }
+
         $this->get_value("quantity") or $this->set_value("quantity", 1);
         $this->get_value("transactionDate") or $this->set_value("transactionDate", date("Y-m-d"));
 
@@ -106,9 +113,11 @@ class transaction extends DatabaseEntity
         if ($status != "pending" && !$current_user->have_role("admin")) {
             $err[] = "Unable to save transaction unless status is pending.";
         }
+
         if ($old["status"] == "pending" && $old["status"] != $this->get_value("status") && !$current_user->have_role("admin")) {
             $err[] = "Unable to change transaction status unless you have admin perm.";
         }
+
         return parent::validate($err);
     }
 
@@ -123,10 +132,12 @@ class transaction extends DatabaseEntity
             $expenseForm = $this->get_foreign_object("expenseForm");
             return $expenseForm->is_owner($person);
         }
+
         if ($this->get_value("timeSheetID")) {
             $timeSheet = $this->get_foreign_object("timeSheet");
             return $timeSheet->is_owner($person);
         }
+
         if ($this->get_value("productSaleItemID")) {
             $productSaleItem = $this->get_foreign_object("productSaleItem");
             return $productSaleItem->is_owner();
@@ -142,6 +153,7 @@ class transaction extends DatabaseEntity
         if ($toTf->is_owner($person)) {
             return true;
         }
+
         return (bool) $fromTf->is_owner($person);
     }
 
@@ -185,13 +197,14 @@ class transaction extends DatabaseEntity
             $prefix or $prefix = config::get_config_item("allocURL");
             $url = $prefix . $url;
         }
+
         return $url;
     }
 
     public function get_transaction_link($_FORM = [])
     {
         $_FORM["return"] or $_FORM["return"] = "html";
-        $rtn = "<a href=\"" . $this->get_url() . "\">";
+        $rtn = '<a href="' . $this->get_url() . '">';
         $rtn .= $this->get_name($_FORM);
         $rtn .= "</a>";
         return $rtn;
@@ -202,6 +215,7 @@ class transaction extends DatabaseEntity
         if ($_FORM["return"] == "html") {
             return $this->get_value("product", DST_HTML_DISPLAY);
         }
+
         return $this->get_value("product");
     }
 
@@ -219,13 +233,14 @@ class transaction extends DatabaseEntity
                 $invoiceItem = $this->get_foreign_object("invoiceItem");
                 $invoice = $invoiceItem->get_foreign_object("invoice");
             }
-            $invoice->get_id() and $str = "<a href=\"" . $invoice->get_url() . "\">" . $transactionTypes[$type] . " " . $invoice->get_value("invoiceNum") . "</a>";
+
+            $invoice->get_id() and $str = '<a href="' . $invoice->get_url() . '">' . $transactionTypes[$type] . " " . $invoice->get_value("invoiceNum") . "</a>";
 
             // Transaction is from an expenseform
         } else if ($type == "expense") {
             $expenseForm = $this->get_foreign_object("expenseForm");
             if ($expenseForm->get_id() && $expenseForm->have_perm(PERM_READ_WRITE)) {
-                $str = "<a href=\"" . $expenseForm->get_url() . "\">" . $transactionTypes[$type] . " " . $this->get_value("expenseFormID") . "</a>";
+                $str = '<a href="' . $expenseForm->get_url() . '">' . $transactionTypes[$type] . " " . $this->get_value("expenseFormID") . "</a>";
             }
 
             // Had to rewrite this so that people who had transactions on other peoples timesheets
@@ -233,17 +248,17 @@ class transaction extends DatabaseEntity
         } else if ($type == "timesheet" && $this->get_value("timeSheetID")) {
             $timeSheet = new timeSheet();
             $timeSheet->set_id($this->get_value("timeSheetID"));
-            $str = "<a href=\"" . $timeSheet->get_url() . "\">" . $transactionTypes[$type] . " " . $this->get_value("timeSheetID") . "</a>";
+            $str = '<a href="' . $timeSheet->get_url() . '">' . $transactionTypes[$type] . " " . $this->get_value("timeSheetID") . "</a>";
         } else if (($type == "commission" || $type == "tax") && $this->get_value("timeSheetID")) {
             $timeSheet = new timeSheet();
             $timeSheet->set_id($this->get_value("timeSheetID"));
-            $str = "<a href=\"" . $timeSheet->get_url() . "\">" . $transactionTypes[$type] . " (Time Sheet " . $this->get_value("timeSheetID") . ")</a>";
+            $str = '<a href="' . $timeSheet->get_url() . '">' . $transactionTypes[$type] . " (Time Sheet " . $this->get_value("timeSheetID") . ")</a>";
         } else {
             $str = $transactionTypes[$type];
         }
 
         if ($this->get_value("transactionGroupID")) {
-            $str .= " <a href=\"" . $TPL["url_alloc_transactionGroup"] . "transactionGroupID=" . $this->get_value("transactionGroupID") . "\">Group " . $this->get_value("transactionGroupID") . "</a>";
+            $str .= ' <a href="' . $TPL["url_alloc_transactionGroup"] . "transactionGroupID=" . $this->get_value("transactionGroupID") . '">Group ' . $this->get_value("transactionGroupID") . "</a>";
         }
 
         return $str;
@@ -259,12 +274,15 @@ class transaction extends DatabaseEntity
             $allocDatabase->next_record();
             $tfIDs[] = $allocDatabase->f("tfID");
         }
+
         if ($_FORM["tfID"]) {
             $tfIDs[] = $_FORM["tfID"];
         }
+
         if ($_FORM["tfIDs"]) {
             $tfIDs = array_merge((array)$tfIDs, (array)$_FORM["tfIDs"]);
         }
+
         return tf::get_permitted_tfs($tfIDs);
     }
 
@@ -298,7 +316,7 @@ class transaction extends DatabaseEntity
         $_FORM["fromTfID"] and $sql["fromTfID"] = unsafe_prepare("(fromTfID=%d)", $_FORM["fromTfID"]);
         $_FORM["expenseFormID"] and $sql["expenseFormID"] = unsafe_prepare("(expenseFormID=%d)", $_FORM["expenseFormID"]);
         $_FORM["transactionID"] and $sql["transactionID"] = unsafe_prepare("(transactionID=%d)", $_FORM["transactionID"]);
-        $_FORM["product"] and $sql["product"] = unsafe_prepare("(product LIKE \"%%%s%%\")", $_FORM["product"]);
+        $_FORM["product"] and $sql["product"] = unsafe_prepare('(product LIKE "%%%s%%")', $_FORM["product"]);
         $_FORM["amount"] and $sql["amount"] = unsafe_prepare("(amount = '%s')", $_FORM["amount"]);
 
         return $sql;
@@ -339,6 +357,7 @@ class transaction extends DatabaseEntity
         if (is_array($filter2) && count($filter2)) {
             $filter2 = " WHERE " . implode(" AND ", $filter2);
         }
+
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
         }
@@ -376,10 +395,11 @@ class transaction extends DatabaseEntity
         $debug and print "\n<br>QUERY2: " . $q;
         $db = new AllocDatabase();
         $db->query($q);
+
         $for_cyber = config::for_cyber();
         while ($row = $db->next_record()) {
             // echo "<pre>".print_r($row,1)."</pre>";
-            $i++;
+            ++$i;
             $t = new transaction();
             if (!$t->read_db_record($db)) {
                 continue;
@@ -401,8 +421,8 @@ class transaction extends DatabaseEntity
             $row["transactionTypeLink"] = $t->get_transaction_type_link() or $row["transactionTypeLink"] = $row["transactionType"];
             $row["transactionSortDate"] = format_date("Y-m-d", $row["transactionSortDate"]);
 
-            $row["fromTfIDLink"] = "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $row["fromTfID"] . "\">" . Page::htmlentities($row["fromTfName"]) . "</a>";
-            $row["tfIDLink"] = "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $row["tfID"] . "\">" . Page::htmlentities($row["tfName"]) . "</a>";
+            $row["fromTfIDLink"] = '<a href="' . $TPL["url_alloc_transactionList"] . "tfID=" . $row["fromTfID"] . '">' . Page::htmlentities($row["fromTfName"]) . "</a>";
+            $row["tfIDLink"] = '<a href="' . $TPL["url_alloc_transactionList"] . "tfID=" . $row["tfID"] . '">' . Page::htmlentities($row["tfName"]) . "</a>";
 
             if ($t->get_value("status") == "approved") {
                 $running_balance += $amount;
@@ -463,9 +483,11 @@ class transaction extends DatabaseEntity
             foreach ($csvHeaders as $csvHeader) {
                 $csv_data[] = $row[$csvHeader];
             }
+
             $csv .= $nl . implode(",", array_map('export_escape_csv', $csv_data));
             $nl = "\n";
         }
+
         return implode(",", array_map('export_escape_csv', $csvHeaders)) . "\n" . $csv;
     }
 
@@ -555,12 +577,12 @@ class transaction extends DatabaseEntity
         if ($m == 13) {
             $m = 1;
         } else {
-            $y -= 1;
+            --$y;
         }
 
         $label_monthDate = date($display_format);
 
-        for ($j = 0; $j < 13; $j++) {
+        for ($j = 0; $j < 13; ++$j) {
             $label = date($display_format, mktime(0, 0, 0, $m, 1, $y));
             $monthDate = date("Y-m-d", mktime(0, 0, 0, $m, 1, $y));
 
@@ -571,15 +593,15 @@ class transaction extends DatabaseEntity
 
             $link = $TPL["url_alloc_transactionList"] . "tfID=" . $_FORM["tfID"] . "&monthDate=" . $monthDate . "&applyFilter=true";
             $bold and $rtn["month_links"] .= "<b>";
-            $rtn["month_links"] .= $sp . "<a href=\"" . $link . "\">" . $label . "</a>";
+            $rtn["month_links"] .= $sp . '<a href="' . $link . '">' . $label . "</a>";
             $bold and $rtn["month_links"] .= "</b>";
             $sp = "&nbsp;&nbsp;";
 
             if ($m == 12) {
                 $m = 1;
-                $y += 1;
+                ++$y;
             } else {
-                $m += 1;
+                ++$m;
             }
         }
 

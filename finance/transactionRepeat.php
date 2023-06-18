@@ -64,6 +64,7 @@ if ($_POST["save"] || $_POST["delete"] || $_POST["pending"] || $_POST["approved"
         $transactionRepeat->save();
         alloc_redirect($TPL["url_alloc_transactionRepeat"] . "transactionRepeatID=" . $transactionRepeat->get_id());
     }
+
     $transactionRepeat->set_values();
 }
 
@@ -110,6 +111,7 @@ $tf->set_id($transactionRepeat->get_value("tfID"));
 if ($tf->select() && !$tf->get_value("tfActive")) {
     $TPL["message_help"][] = "This expense is allocated to an inactive TF. It will not create transactions.";
 }
+
 $tf = new tf();
 $tf->set_id($transactionRepeat->get_value("fromTfID"));
 if ($tf->select() && !$tf->get_value("tfActive")) {

@@ -129,6 +129,7 @@ class taskListPrint
             } else {
                 $y = $cezpdf->ezText($TPL["companyName"], 27, ["justification" => "right"]);
             }
+
             $nos_y = $line_y + 22;
             $TPL["companyNos2"] and $nos_y = $line_y + 34;
             $cezpdf->ezSetY($nos_y);

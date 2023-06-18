@@ -8,5 +8,6 @@
 class audit_module extends Module
 {
     public $module = "audit";
+
     public $databaseEntities = ["audit"];
 }

@@ -14,11 +14,17 @@ define("PERM_TIME_INVOICE_TIMESHEETS", 512);
 class timeSheet extends DatabaseEntity
 {
     public $classname = "timeSheet";
+
     public $data_table = "timeSheet";
+
     public $display_field_name = "projectID";
+
     public $key_field = "timeSheetID";
+
     public $pay_info = null;
+
     public $fromTfID;
+
     public $data_fields = [
         "projectID",
         "dateFrom",
@@ -148,6 +154,7 @@ class timeSheet extends DatabaseEntity
         if (!$this->get_value("projectID") || !$this->get_value("personID")) {
             return false;
         }
+
         $currency = $this->get_value("currencyTypeID");
 
         // The unit labels
@@ -185,6 +192,7 @@ class timeSheet extends DatabaseEntity
             if ($row["timeUnitSeconds"]) {
                 $extra_sql[] = "SUM(IF(timeUnit.timeUnitLabelA = '" . $row["timeUnitLabelA"] . "',multiplier * timeSheetItemDuration * timeUnit.timeUnitSeconds,0)) /" . $row["timeUnitSeconds"] . " as " . $row["timeUnitLabelA"];
             }
+
             $timeUnitRows[] = $row;
         }
 
@@ -221,12 +229,15 @@ class timeSheet extends DatabaseEntity
         if (!isset($this->pay_info["total_dollars"])) {
             $this->pay_info["total_dollars"] = 0;
         }
+
         if (!isset($this->pay_info["total_duration"])) {
             $this->pay_info["total_duration"] = 0;
         }
+
         if (!isset($this->pay_info["total_duration_hours"])) {
             $this->pay_info["total_duration_hours"] = 0;
         }
+
         $taxPercent = config::get_config_item("taxPercent");
         $taxPercentDivisor = ($taxPercent / 100) + 1;
         $this->pay_info["total_dollars_minus_gst"] = Page::money($currency, $this->pay_info["total_dollars"] / $taxPercentDivisor, "%m");
@@ -263,11 +274,13 @@ class timeSheet extends DatabaseEntity
             return "ERROR: Status of the timesheet must be 'invoiced' to Create Transactions.
               The status is currently: " . $this->get_value("status");
         }
+
         if ($this->get_value("recipient_tfID") == "") {
             return "ERROR: There is no recipient Tagged Fund to credit for this timesheet.
               Go to Tools -> New Tagged Fund, add a new TF and add the owner. Then go
               to People -> Select the user and set their Preferred Payment TF.";
         }
+
         if (!$cost_centre || $cost_centre == 0) {
             return "ERROR: There is no cost centre associated with the project.";
         }
@@ -353,10 +366,12 @@ class timeSheet extends DatabaseEntity
         foreach ($rtn as $error => $v) {
             $v != 1 and $errmsg .= "<br>FAILED: " . $error;
         }
-        if ($errmsg) {
+
+        if ($errmsg !== null) {
             $this->destroyTransactions();
             $rtnmsg .= "<br>Failed to create transactions... " . $errmsg;
         }
+
         return $rtnmsg;
     }
 
@@ -387,6 +402,7 @@ class timeSheet extends DatabaseEntity
         if ($tfID == 0 || !$tfID || !is_numeric($tfID) || !is_numeric($amount)) {
             return "Error -> \$tfID: " . $tfID . "  and  \$amount: " . $amount;
         }
+
         $transaction = new transaction();
         $transaction->set_value("product", $product);
         $transaction->set_value("amount", $amount);
@@ -419,15 +435,19 @@ class timeSheet extends DatabaseEntity
         if ($dummy) {
             return "Elected not to send email.";
         }
+
         if (!$email->is_valid_url()) {
             return "Almost sent email to: " . $email->to_address;
         }
+
         if (!$email->to_address) {
             return "Could not send email, invalid email address: " . $email->to_address;
         }
+
         if ($email->send()) {
             return "Sent email to: " . $email->to_address;
         }
+
         return "Problem sending email to: " . $email->to_address;
     }
 
@@ -465,7 +485,7 @@ class timeSheet extends DatabaseEntity
         }
 
         $dropdown_options = Page::select_options((array)$tasks, $taskID, 100);
-        return "<select name=\"timeSheetItem_taskID\" style=\"width:400px\"><option value=\"\">" . $dropdown_options . "</select>";
+        return '<select name="timeSheetItem_taskID" style="width:400px"><option value="">' . $dropdown_options . "</select>";
     }
 
     public static function get_list_filter($filter = [])
@@ -478,6 +498,7 @@ class timeSheet extends DatabaseEntity
             foreach ((array)$current_user->prefs["stars"]["timeSheet"] as $k => $v) {
                 $filter["timeSheetID"][] = $k;
             }
+
             is_array($filter["timeSheetID"]) or $filter["timeSheetID"][] = -1;
         }
 
@@ -499,10 +520,12 @@ class timeSheet extends DatabaseEntity
             in_array($filter["dateFromComparator"], ["=", "!=", ">", ">=", "<", "<="]) or $filter["dateFromComparator"] = '=';
             $sql[] = unsafe_prepare("(timeSheet.dateFrom " . $filter['dateFromComparator'] . " '%s')", $filter["dateFrom"]);
         }
+
         if ($filter["dateTo"]) {
             in_array($filter["dateToComparator"], ["=", "!=", ">", ">=", "<", "<="]) or $filter["dateToComparator"] = '=';
             $sql[] = unsafe_prepare("(timeSheet.dateTo " . $filter['dateToComparator'] . " '%s')", $filter["dateTo"]);
         }
+
         return $sql;
     }
 
@@ -548,6 +571,7 @@ class timeSheet extends DatabaseEntity
         $debug and print "Query: " . $q;
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
+
         $status_array = timeSheet::get_timeSheet_statii();
         $people_array = &get_cached_table("person");
 
@@ -577,6 +601,7 @@ class timeSheet extends DatabaseEntity
             ) {
                 $row["hoursWarn"] = Page::help("This time sheet has gone over " . $current_user->prefs["timeSheetHoursWarn"] . " hours.", Page::warn());
             }
+
             if (
                 $t->get_value("status") == "edit" && (isset($current_user->prefs["timeSheetDaysWarn"]) && (bool)strlen($current_user->prefs["timeSheetDaysWarn"]))
                 && (time() - format_date("U", $t->get_value("dateFrom"))) / 60 / 60 / 24 >= $current_user->prefs["timeSheetDaysWarn"]
@@ -597,6 +622,7 @@ class timeSheet extends DatabaseEntity
                 foreach ((array)$pos as $v) {
                     $pos_tallies[] = $v;
                 }
+
                 foreach ((array)$neg as $v) {
                     $neg_tallies[] = $v;
                 }
@@ -616,6 +642,7 @@ class timeSheet extends DatabaseEntity
         if (!$_FORM["noextra"]) {
             return ["rows" => (array)$rows, "extra" => $extra];
         }
+
         return (array)$rows;
     }
 
@@ -668,13 +695,14 @@ class timeSheet extends DatabaseEntity
             $prefix or $prefix = config::get_config_item("allocURL");
             $url = $prefix . $url;
         }
+
         return $url;
     }
 
     public function get_link($text = false)
     {
         $text or $text = $this->get_id();
-        return "<a href=\"" . $this->get_url() . "\">" . $text . "</a>";
+        return '<a href="' . $this->get_url() . '">' . $text . "</a>";
     }
 
     public static function get_list_vars()
@@ -738,7 +766,8 @@ class timeSheet extends DatabaseEntity
         if (!$_FORM['showAllProjects']) {
             $filter = "WHERE projectStatus = 'Current' ";
         }
-        $query = unsafe_prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
+
+        $query = unsafe_prepare(sprintf('SELECT projectID AS value, projectName AS label FROM project %s ORDER by projectName', $filter));
         $rtn["show_project_options"] = Page::select_options($query, $_FORM["projectID"], 70);
 
         // display the list of user name.
@@ -759,6 +788,7 @@ class timeSheet extends DatabaseEntity
         if (!$_FORM["status"]) {
             $_FORM["status"][] = 'edit';
         }
+
         $rtn["show_status_options"] = Page::select_options($status_array, $_FORM["status"]);
 
         // display the date from filter value
@@ -783,9 +813,10 @@ class timeSheet extends DatabaseEntity
 
         $rows = $invoiceEntity->get("timeSheet", $this->get_id());
         foreach ($rows as $row) {
-            $str .= $sp . "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $row["invoiceID"] . "\">" . $row["invoiceNum"] . "</a>";
+            $str .= $sp . '<a href="' . $TPL["url_alloc_invoice"] . "invoiceID=" . $row["invoiceID"] . '">' . $row["invoiceNum"] . "</a>";
             $sp = "&nbsp;&nbsp;";
         }
+
         return $str;
     }
 
@@ -810,6 +841,7 @@ class timeSheet extends DatabaseEntity
             $steps["forwards"]["rejected"] = "admin";
             $steps["backwards"]["admin"] = "edit";
         }
+
         $steps["forwards"][""] = "edit";
         $steps["forwards"]["manager"] = "admin";
         $steps["forwards"]["admin"] = "invoiced";
@@ -847,6 +879,7 @@ class timeSheet extends DatabaseEntity
                 // error, go away
                 alloc_error("You do not have permission to change this timesheet.");
             }
+
             $email = [];
             $email["type"] = "timesheet_reject";
             $email["to"] = $info["timeSheet_personID_email"];
@@ -872,6 +905,7 @@ class timeSheet extends DatabaseEntity
             $this->set_value("approvedByManagerPersonID", "");
             $this->set_value("dateRejected", date("Y-m-d"));
         }
+
         $this->set_value("status", "rejected");
         return $msg;
     }
@@ -891,6 +925,7 @@ class timeSheet extends DatabaseEntity
             if (!($this->get_value("personID") == $current_user->get_id() || $this->have_perm(PERM_TIME_INVOICE_TIMESHEETS))) {
                 alloc_error("You do not have permission to change this timesheet.");
             }
+
             $this->set_value("dateSubmittedToManager", date("Y-m-d"));
             $this->set_value("dateRejected", "");
             // Check for time overrun
@@ -908,17 +943,19 @@ class timeSheet extends DatabaseEntity
                         $overrun_tasks[] = sprintf(" * %d %s (limit: %.02f hours, billed so far: %.02f hours)", $task->get_id(), $task->get_value('taskName'), $task->get_value('timeLimit'), $total_billed_time);
                     }
                 }
+
                 $hasItems = true;
             }
 
-            if (!$hasItems) {
+            if ($hasItems === null) {
                 return alloc_error('Unable to submit time sheet, no items have been added.');
             }
 
-            if (count($overrun_tasks)) {
+            if ($overrun_tasks !== []) {
                 $overrun_notice = "\n\nThe following tasks billed on this timesheet have exceeded their time estimates:\n";
                 $overrun_notice .= implode("\n", $overrun_tasks);
             }
+
             foreach ($info["projectManagers"] as $pm) {
                 $email = [];
                 $email["type"] = "timesheet_submit";
@@ -936,13 +973,14 @@ class timeSheet extends DatabaseEntity
 
                     A timesheet has been submitted for your approval. If it is satisfactory,
                     submit the timesheet to the Administrator. If not, make it editable again for
-                    re-submission.$overrun_notice
+                    re-submission.{$overrun_notice}
 
                     EOD;
                 $this->get_value("billingNote") and
                     $email["body"] .= "\n\nBilling Note: " . $this->get_value("billingNote");
                 $msg[] = $this->shootEmail($email);
             }
+
             // Can get backwards to "manager" only from "admin"
         } else if ($direction == "backwards") {
             // admin->manager requires APPROVE_TIMESHEETS
@@ -950,6 +988,7 @@ class timeSheet extends DatabaseEntity
                 // no permission, go away
                 alloc_error("You do not have permission to change this timesheet.");
             }
+
             $email = [];
             $email["type"] = "timesheet_reject";
             $email["to"] = $info["approvedByManagerPersonID_email"];
@@ -971,6 +1010,7 @@ class timeSheet extends DatabaseEntity
             $msg[] = $this->shootEmail($email);
             $this->set_value("dateRejected", date("Y-m-d"));
         }
+
         $this->set_value("status", "manager");
         $this->set_value("dateSubmittedToAdmin", "");
         $this->set_value("approvedByAdminPersonID", "");
@@ -1008,6 +1048,7 @@ class timeSheet extends DatabaseEntity
                 $this->set_value("approvedByManagerPersonID", $current_user->get_id());
                 $extra = " Approved By: " . person::get_fullname($current_user->get_id());
             }
+
             $this->set_value("status", "admin");
             $this->set_value("dateSubmittedToAdmin", date("Y-m-d"));
             $this->set_value("dateRejected", "");
@@ -1046,6 +1087,7 @@ class timeSheet extends DatabaseEntity
 
             $this->set_value("approvedByAdminPersonID", "");
         }
+
         $this->set_value("status", "admin");
         return $msg;
     }
@@ -1066,6 +1108,7 @@ class timeSheet extends DatabaseEntity
         ) {
             $this->set_value("approvedByManagerPersonID", $current_user->get_id());
         }
+
         $this->set_value("approvedByAdminPersonID", $current_user->get_id());
         $this->set_value("status", "invoiced");
     }
@@ -1115,6 +1158,7 @@ class timeSheet extends DatabaseEntity
                     $email["body"] .= $allocDatabase->f("transactionDate") . " for " . $allocDatabase->f("product") . ": " . $status_ops[$allocDatabase->f("status")] . "\n";
                 }
             }
+
             $msg[] = $this->shootEmail($email);
             $this->set_value("status", "finished");
             return $msg;
@@ -1140,6 +1184,7 @@ class timeSheet extends DatabaseEntity
         if ($rtn) {
             return $rtn;
         }
+
         // Get vars for the emails below
         $rtn["people_cache"] = $people_cache = &get_cached_table("person");
         $project = $this->get_foreign_object("project");
@@ -1256,6 +1301,7 @@ class timeSheet extends DatabaseEntity
                     $tsi->set_value("taskID", sprintf("%d", $taskID));
                     $_POST["timeSheetItem_taskID"] = sprintf("%d", $taskID); // this gets used in timeSheetItem->save();
                 }
+
                 $tsi->set_value("personID", $current_user->get_id());
                 $tsi->set_value("rate", Page::money($timeSheet->get_value("currencyTypeID"), $row_projectPerson["rate"], "%mo"));
                 $tsi->set_value("multiplier", $multiplier);
@@ -1275,6 +1321,7 @@ class timeSheet extends DatabaseEntity
         if ($ID) {
             return ["status" => "yay", "message" => $ID];
         }
+
         alloc_error($errstr . "Time not added.");
     }
 
@@ -1309,6 +1356,7 @@ class timeSheet extends DatabaseEntity
                     "personID" => $this->get_value("personID"),
                 ];
             }
+
             if ($this->get_value("approvedByManagerPersonID")) {
                 $p = new person();
                 $p->set_id($this->get_value("approvedByManagerPersonID"));
@@ -1320,8 +1368,10 @@ class timeSheet extends DatabaseEntity
                     "personID" => $this->get_value("approvedByManagerPersonID"),
                 ];
             }
+
             $this_id = $this->get_id();
         }
+
         // return an aggregation of the current task/proj/client parties + the existing interested parties
         $interestedPartyOptions = InterestedParty::get_interested_parties("timeSheet", $this_id, $interestedPartyOptions);
         return $interestedPartyOptions;
@@ -1423,6 +1473,7 @@ class timeSheet extends DatabaseEntity
         $zendSearchLuceneDocument->addField(Field::Text('dateAdmin', str_replace("-", "", $this->get_value("dateSubmittedToAdmin")), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('dateFrom', str_replace("-", "", $this->get_value("dateFrom")), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('dateTo', str_replace("-", "", $this->get_value("dateTo")), "utf-8"));
+
         $index->addDocument($zendSearchLuceneDocument);
     }
 

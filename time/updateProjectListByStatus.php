@@ -14,6 +14,7 @@ $db = new AllocDatabase();
 if ($_GET['current']) {
     $filter = " WHERE projectStatus = 'Current'";
 }
-$query = unsafe_prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
+
+$query = unsafe_prepare(sprintf('SELECT projectID AS value, projectName AS label FROM project %s ORDER by projectName', $filter));
 
 echo '<select name="projectID[]" multiple="true" style="width:100%">' . Page::select_options($query, null, 70) . '</select>';

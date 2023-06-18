@@ -58,18 +58,23 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
         if ($transactionDate == "Date") {
             continue;
         }
+
         if (!$transactionDate) {
             continue;
         }
+
         if (strpos("_____", $transactionDate) !== false) {
             continue;
         }
+
         if (strpos("���", $transactionDate) !== false) {
             continue;
         }
+
         if (stripos("total", $transactionDate) !== false) {
             continue;
         }
+
         // If the employeeNum field is blank use the previous employeeNum
         // if (!$employeeNum) {
         //    $employeeNum = $prev_employeeNum;
@@ -80,22 +85,24 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
         $query = unsafe_prepare("SELECT * FROM tf WHERE qpEmployeeNum=%d", $employeeNum);
         $db->query($query);
         if (!$db->next_record()) {
-            $msg .= "<b>Warning: Could not find TF for employee number '$employeeNum' $name</b><br>";
+            $msg .= sprintf("<b>Warning: Could not find TF for employee number '%s' %s</b><br>", $employeeNum, $name);
             continue;
         }
+
         $fromTfID = $db->f("tfID");
 
         // Convert the date to yyyy-mm-dd
         if (!preg_match("|^([0-9]{1,2})/([0-9]{1,2})/([0-9]{4})$|i", $transactionDate, $matches)) {
-            $msg .= "<b>Warning: Could not convert date '$transactionDate'</b><br>";
+            $msg .= sprintf("<b>Warning: Could not convert date '%s'</b><br>", $transactionDate);
             continue;
         }
+
         $transactionDate = sprintf("%04d-%02d-%02d", $matches[3], $matches[2], $matches[1]);
 
         // Strip $ and , from amount
         $amount = str_replace(['$', ','], [], $amount);
         if (!preg_match("/^[-]?[0-9]+(\\.[0-9]+)?$/", $amount)) {
-            $msg .= "<b>Warning: Could not convert amount '$amount'</b><br>";
+            $msg .= sprintf("<b>Warning: Could not convert amount '%s'</b><br>", $amount);
             continue;
         }
 
@@ -108,7 +115,7 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
                         WHERE fromTfID=%d AND transactionDate='%s' AND amount=%d", $fromTfID, $transactionDate, Page::money(config::get_config_item("currency"), $amount, "%mi"));
         $db->query($query);
         if ($db->next_record()) {
-            $msg .= "Warning: Salary for employee #$employeeNum $name on $transactionDate already exists as transaction #" . $db->f("transactionID") . "<br>";
+            $msg .= sprintf('Warning: Salary for employee #%s %s on %s already exists as transaction #', $employeeNum, $name, $transactionDate) . $db->f("transactionID") . "<br>";
             continue;
         }
 
@@ -126,8 +133,9 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
         $transaction->set_value("transactionType", "salary");
         $transaction->save();
 
-        $msg .= "\$$amount for employee $employeeNum $name on $transactionDate saved<br>";
+        $msg .= sprintf('$%s for employee %s %s on %s saved<br>', $amount, $employeeNum, $name, $transactionDate);
     }
+
     $TPL["msg"] = $msg;
 }
 

@@ -38,6 +38,7 @@ class services
             $session->Save();
             return $session->GetKey();
         }
+
         die("Authentication Failed(1).");
     }
 
@@ -112,9 +113,11 @@ class services
             if (!$info["selected"]) {
                 continue;
             }
+
             if ($info["external"]) {
                 continue;
             }
+
             $rtn[$email] = $this->reduce_person_info($info);
         }
 
@@ -165,6 +168,7 @@ class services
                         continue 2;
                     }
                 }
+
                 foreach ($person_table as $pid => $data) {
                     // If matches name
                     if (strtolower($person) == strtolower($data["firstName"] . " " . $data["surname"]) && $data["personActive"]) {
@@ -173,6 +177,7 @@ class services
                         continue 2;
                     }
                 }
+
                 foreach ($person_table as $pid => $data) {
                     // If matches a section of name, eg: a search for "Ale" will match the full name "Alex Lance"
                     if (strtolower($person) == strtolower(substr(strtolower($data["firstName"] . " " . $data["surname"]), 0, strlen($person))) && $data["personActive"]) {
@@ -199,6 +204,7 @@ class services
                     $bad_person = false;
                     continue;
                 }
+
                 if ($ccID = clientContact::find_by_partial_name($person, $projectID)) {
                     $cc = new clientContact();
                     $cc->set_id($ccID);
@@ -217,6 +223,7 @@ class services
         foreach ((array)$rtn as $id => $project) {
             $rtn[$id] = $this->reduce_person_info($project);
         }
+
         return (array)$rtn;
     }
 
@@ -242,6 +249,7 @@ class services
         if ($rtn["status"] == "yay") {
             return $rtn["message"];
         }
+
         die(print_r($rtn, 1));
     }
 
@@ -256,6 +264,7 @@ class services
         $timeSheet = new timeSheet();
         $timeSheet->set_id($timeSheetID);
         $timeSheet->select();
+
         $rtn = $timeSheet->change_status($direction);
         $timeSheet->save();
         return $rtn;
@@ -290,10 +299,13 @@ class services
                 if (!$rtn && $echoed) {
                     return ["error" => $echoed];
                 }
+
                 return $rtn["rows"] ?? $rtn;
             }
+
             die("Entity method '" . $entity . "::get_list()' does not exist.");
         }
+
         die("Entity '" . $entity . "' does not exist.");
     }
 
@@ -311,6 +323,7 @@ class services
                 $emails .= $this->get_email($uid);
             }
         }
+
         return $emails;
     }
 
@@ -341,8 +354,10 @@ class services
                     $emails .= utf8_encode(str_replace("\r\n", "\n", $str));
                 }
             }
+
             $emailreceive->close();
         }
+
         return $emails;
     }
 
@@ -367,6 +382,7 @@ class services
             $str .= "\n\n" . $name . " " . $row["duration"] . " " . $row["comment"];
             $br = "\n\n";
         }
+
         return $str;
     }
 
@@ -382,6 +398,7 @@ class services
         if (!$info["host"]) {
             die("Email mailbox host not defined, assuming email fetch function is inactive.");
         }
+
         return $info;
     }
 
@@ -424,6 +441,7 @@ class services
             $rtn = $emailreceive->get_emails_UIDs_search($str);
             $emailreceive->close();
         }
+
         return (array)$rtn;
     }
 
@@ -447,12 +465,15 @@ class services
                     $commar = ", ";
                 }
             }
+
             die("Help is available for the following methods: " . $available_topics);
         }
+
         $m = $topic . "_help";
         if (method_exists($this, $m)) {
             return $this->$m();
         }
+
         die("No help exists for this method: " . $topic);
     }
 
@@ -486,16 +507,20 @@ class services
         foreach ($options as $k => $v) {
             strtolower($v) != 'none' and $data[$k] = $v;
         }
+
         // Delete existing entries
         if (!$data["entity"]) {
             return;
         }
+
         if (!$data["entityID"]) {
             return;
         }
+
         if (!$data["emailAddress"]) {
             return;
         }
+
         InterestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
     }
 
@@ -512,9 +537,11 @@ class services
             if (!is_object($object)) {
                 continue;
             }
+
             if (!is_array($object->databaseEntities)) {
                 continue;
             }
+
             foreach ($object->databaseEntities as $entity) {
                 unset($commar2);
                 if (class_exists($entity)) {
@@ -534,6 +561,7 @@ class services
                 }
             }
         }
+
         die("Usage: get_list(entity, options). The following entities are available: " . $rtn);
     }
 
@@ -550,6 +578,7 @@ class services
         if (strtolower($options[$entity]) == "help") {
             return ["status" => "msg", "message" => command::get_help($entity)];
         }
+
         if ($options) {
             $command = new command();
             return $command->run_commands($options);

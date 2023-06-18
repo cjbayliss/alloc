@@ -106,9 +106,11 @@ function check_optional_show_line_item_add()
     if (!is_object($expenseForm)) {
         return false;
     }
+
     if (!$expenseForm->get_id()) {
         return false;
     }
+
     return $expenseForm->get_value("expenseFormFinalised") != 1;
 }
 
@@ -144,6 +146,7 @@ if ($_POST["add"]) {
     if ($_POST["amount"] === "") {
         alloc_error("You must enter the Price.");
     }
+
     $_POST["amount"] = $_POST["amount"] * $_POST["quantity"];
 
     $transaction = new transaction();
@@ -195,6 +198,7 @@ if ($transaction_to_edit->get_value("fromTfID")) {
     } else {
         $selectedTfID = 0;
     }
+
     $selectedProject = 0;
 }
 
@@ -246,6 +250,7 @@ if ($_POST["cancel"]) {
         alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
         exit();
     }
+
     if ($_POST["changeTransactionStatus"] == "approved") {
         $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
         $expenseForm->save();
@@ -253,6 +258,7 @@ if ($_POST["cancel"]) {
         alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
         exit();
     }
+
     if ($_POST["changeTransactionStatus"] == "rejected") {
         $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
         $expenseForm->save();
@@ -260,30 +266,34 @@ if ($_POST["cancel"]) {
         alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
         exit();
     }
+
     if ($_POST["save"]) {
         $expenseForm->read_globals();
         if ($expenseForm->get_value("reimbursementRequired") == 0 || $expenseForm->get_value("reimbursementRequired") == 1) {
             $expenseForm->set_value("paymentMethod", "");
         }
+
         $expenseForm->set_value("seekClientReimbursement", $_POST["seekClientReimbursement"] ? 1 : 0);
         $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
         $expenseForm->save();
         alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
         exit();
     }
+
     if ($_POST["finalise"]) {
         $db = new AllocDatabase();
-        $hasItems = $db->qr("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseForm->get_id());
+        $hasItems = $db->qr(["SELECT * FROM transaction WHERE expenseFormID = %d", $expenseForm->get_id()]);
         if (!$hasItems) {
             alloc_error("Unable to submit expense form, no items have been added.");
             alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
             exit();
         }
-    
+
         $expenseForm->read_globals();
         if ($expenseForm->get_value("reimbursementRequired") == 0 || $expenseForm->get_value("reimbursementRequired") == 1) {
             $expenseForm->set_value("paymentMethod", "");
         }
+
         $expenseForm->set_value("seekClientReimbursement", $_POST["seekClientReimbursement"] ? 1 : 0);
         $expenseForm->set_value("expenseFormFinalised", 1);
         $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
@@ -291,6 +301,7 @@ if ($_POST["cancel"]) {
         alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
         exit();
     }
+
     if ($_POST["unfinalise"]) {
         $expenseForm->read_globals();
         $expenseForm->set_value("expenseFormFinalised", 0);
@@ -299,6 +310,7 @@ if ($_POST["cancel"]) {
         alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
         exit();
     }
+
     if ($_POST["attach_transactions_to_invoice"] && $current_user->have_role("admin")) {
         $expenseForm->save_to_invoice($_POST["attach_to_invoiceID"]);
     }
@@ -335,8 +347,8 @@ $TPL["rr_label"] = $rr_options[$expenseForm->get_value("reimbursementRequired")]
 
 foreach ($rr_options as $value => $label) {
     unset($extra);
-    $value == 2 and $extra = " <select name=\"paymentMethod\">" . $paymentOptions . "</select>";
-    $reimbursementRequiredRadios .= $br . "<input type=\"radio\" name=\"reimbursementRequired\" value=\"" . $value . "\"" . $rr_checked[$value] . ">" . $label . $extra;
+    $value == 2 and $extra = ' <select name="paymentMethod">' . $paymentOptions . "</select>";
+    $reimbursementRequiredRadios .= $br . '<input type="radio" name="reimbursementRequired" value="' . $value . '"' . $rr_checked[$value] . ">" . $label . $extra;
     $br = "<br>";
 }
 
@@ -350,8 +362,8 @@ if ($expenseForm->get_value("seekClientReimbursement")) {
 }
 
 $TPL["seekClientReimbursementLabel"] = $scr_label;
-$seekClientReimbursementOption = "<input type=\"checkbox\" value=\"1\" name=\"seekClientReimbursement\"" . $scr_sel . ">";
-$scr_hidden = "<input type=\"hidden\" name=\"seekClientReimbursement\" value=\"" . $expenseForm->get_value("seekClientReimbursement") . "\">";
+$seekClientReimbursementOption = '<input type="checkbox" value="1" name="seekClientReimbursement"' . $scr_sel . ">";
+$scr_hidden = '<input type="hidden" name="seekClientReimbursement" value="' . $expenseForm->get_value("seekClientReimbursement") . '">';
 $TPL["seekClientReimbursementOption"] = $scr_label . $scr_hidden;
 
 $c = new client();
@@ -368,13 +380,13 @@ if (is_object($expenseForm) && $expenseForm->get_id() && check_optional_allow_ed
   <button type="submit" name="finalise" value="1" class="save_button">To Admin<i class="icon-arrow-right"></i></button>
   ';
 
-    $TPL["paymentMethodOptions"] = "<select name=\"paymentMethod\">" . $paymentOptions . "</select>";
+    $TPL["paymentMethodOptions"] = '<select name="paymentMethod">' . $paymentOptions . "</select>";
     $TPL["reimbursementRequiredOption"] = $reimbursementRequiredRadios;
     $TPL["seekClientReimbursementOption"] = $seekClientReimbursementOption;
     $options["clientStatus"] = "Current";
     $ops = client::get_list($options);
     $ops = array_kv($ops, "clientID", "clientName");
-    $TPL["field_clientID"] = "<select name=\"clientID\"><option value=\"\">" . Page::select_options($ops, $expenseForm->get_value("clientID")) . "</select>";
+    $TPL["field_clientID"] = '<select name="clientID"><option value="">' . Page::select_options($ops, $expenseForm->get_value("clientID")) . "</select>";
     $TPL["field_expenseFormComment"] = Page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));
 } else if (is_object($expenseForm) && $expenseForm->get_id() && $current_user->have_role("admin")) {
     $TPL["expenseFormButtons"] .= '
@@ -388,13 +400,13 @@ if (is_object($expenseForm) && $expenseForm->get_id() && check_optional_allow_ed
 } else if (is_object($expenseForm) && !$expenseForm->get_value("expenseFormFinalised")) {
     $TPL["expenseFormButtons"] .= '&nbsp;
          <button type="submit" name="save" value="1" class="save_button">Create Expense Form<i class="icon-ok-sign"></i></button>';
-    $TPL["paymentMethodOptions"] = "<select name=\"paymentMethod\">" . $paymentOptions . "</select>";
+    $TPL["paymentMethodOptions"] = '<select name="paymentMethod">' . $paymentOptions . "</select>";
     $TPL["reimbursementRequiredOption"] = $reimbursementRequiredRadios;
     $TPL["seekClientReimbursementOption"] = $seekClientReimbursementOption;
     $options["clientStatus"] = "Current";
     $ops = client::get_list($options);
     $ops = array_kv($ops, "clientID", "clientName");
-    $TPL["field_clientID"] = "<select name=\"clientID\"><option value=\"\">" . Page::select_options($ops, $expenseForm->get_value("clientID")) . "</select>";
+    $TPL["field_clientID"] = '<select name="clientID"><option value="">' . Page::select_options($ops, $expenseForm->get_value("clientID")) . "</select>";
     $TPL["field_expenseFormComment"] = Page::textarea("expenseFormComment", $expenseForm->get_value("expenseFormComment", DST_HTML_DISPLAY));
 }
 
@@ -410,6 +422,7 @@ if (is_object($expenseForm) && $expenseForm->get_id()) {
     while ($row = $db->row()) {
         $rows[] = $row;
     }
+
     $TPL["formTotal"] = Page::money_print($rows);
 }
 
@@ -426,10 +439,10 @@ if (
     $db->query($q);
     $row = $db->row();
     $sel_invoice = $row["invoiceID"];
-    $TPL["attach_to_invoice_button"] = "<select name=\"attach_to_invoiceID\">";
-    $TPL["attach_to_invoice_button"] .= "<option value=\"create_new\">Create New Invoice</option>";
+    $TPL["attach_to_invoice_button"] = '<select name="attach_to_invoiceID">';
+    $TPL["attach_to_invoice_button"] .= '<option value="create_new">Create New Invoice</option>';
     $TPL["attach_to_invoice_button"] .= Page::select_options($invoice_list, $sel_invoice) . "</select>";
-    $TPL["attach_to_invoice_button"] .= "<input type=\"submit\" name=\"attach_transactions_to_invoice\" value=\"Add to Invoice\"> ";
+    $TPL["attach_to_invoice_button"] .= '<input type="submit" name="attach_transactions_to_invoice" value="Add to Invoice"> ';
     $TPL["invoice_label"] = "Invoice:";
 }
 

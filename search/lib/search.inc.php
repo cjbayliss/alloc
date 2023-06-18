@@ -21,9 +21,11 @@ class search
                     $line = stream_get_line($fp, 65535, "\n"); // faster than fgets
                     strpos(strtolower($line), strtolower($needle)) !== false and $rtn[] = $line;
                 }
+
                 fclose($fp);
             }
         }
+
         return $rtn;
     }
 
@@ -76,6 +78,7 @@ class search
                 }
             }
         }
+
         return $rtn;
     }
 }

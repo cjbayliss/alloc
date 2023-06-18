@@ -8,8 +8,11 @@
 class permission extends DatabaseEntity
 {
     public $data_table = "permission";
+
     public $display_field_name = "tableName";
+
     public $key_field = "permissionID";
+
     public $data_fields = [
         "tableName",
         "entityID",
@@ -39,6 +42,7 @@ class permission extends DatabaseEntity
                 if ($description) {
                     $description .= ",";
                 }
+
                 $description .= $d;
             }
         }

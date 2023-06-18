@@ -13,9 +13,13 @@ define("PERM_PERSON_WRITE_ROLES", 2048);
 class person extends DatabaseEntity
 {
     public $classname = "person";
+
     public $data_table = "person";
+
     public $display_field_name = "username";
+
     public $key_field = "personID";
+
     public $data_fields = [
         "username",
         "lastLoginDate",
@@ -45,6 +49,7 @@ class person extends DatabaseEntity
     ];
 
     public $prefs = [];
+
     public $permissions = [
         PERM_PERSON_READ_DETAILS     => "read details",
         PERM_PERSON_READ_MANAGEMENT  => "read management fields",
@@ -74,6 +79,7 @@ class person extends DatabaseEntity
             $s[] = $task["taskStatusLabel"];
             $s[] = $task["taskURL"];
         }
+
         $summary = implode("\n", $s);
 
         if ($summary) {
@@ -94,6 +100,7 @@ class person extends DatabaseEntity
             $s[] = $task["taskStatusLabel"];
             $s[] = $task["taskURL"];
         }
+
         $summary = implode("\n", $s);
 
         if ($summary) {
@@ -114,6 +121,7 @@ class person extends DatabaseEntity
             $s[] = $task["taskStatusLabel"];
             $s[] = $task["taskURL"];
         }
+
         $summary = implode("\n", $s);
 
         if ($summary) {
@@ -134,6 +142,7 @@ class person extends DatabaseEntity
             $announcement["heading"] = "Announcement\n" . $allocDatabase->f("heading");
             $announcement["body"] = $allocDatabase->f("body");
         }
+
         return $announcement;
     }
 
@@ -153,6 +162,7 @@ class person extends DatabaseEntity
         if (in_array("employee", $permissions)) {
             return true;
         }
+
         return false;
     }
 
@@ -179,8 +189,10 @@ class person extends DatabaseEntity
             if ($rtn) {
                 $rtn .= ", ";
             }
+
             $rtn .= $skill->get_value('skillName');
         }
+
         return $rtn;
     }
 
@@ -242,6 +254,7 @@ class person extends DatabaseEntity
         if ($_FORM["return"] == "html") {
             return Page::htmlentities($rtn);
         }
+
         return $rtn;
     }
 
@@ -253,6 +266,7 @@ class person extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $tfIDs[] = $row["tfID"];
         }
+
         return $tfIDs;
     }
 
@@ -321,13 +335,14 @@ class person extends DatabaseEntity
                 $save = true;
             }
         }
+
         foreach ($this->prefs as $k => $v) {
             if ($old_prefs[$k] != $v) {
                 $save = true;
             }
         }
 
-        if ($save || (!is_array($old_prefs) || !count($old_prefs))) {
+        if ($save || (!is_array($old_prefs) || $old_prefs === [])) {
             $arr = serialize($this->prefs);
             $person->set_value("sessData", $arr);
             $person->currency = config::get_config_item('currency');
@@ -353,6 +368,7 @@ class person extends DatabaseEntity
                 return true;
             }
         }
+
         return false;
     }
 
@@ -374,9 +390,11 @@ class person extends DatabaseEntity
         if (!$probable1_personID) {
             return;
         }
+
         if ($person_percent1 < $certainty) {
             return;
         }
+
         return $probable1_personID;
     }
 
@@ -388,9 +406,11 @@ class person extends DatabaseEntity
             if (!$row["personActive"]) {
                 continue;
             }
+
             if ($email != str_replace(["<", ">"], "", $row["emailAddress"])) {
                 continue;
             }
+
             return $personID;
         }
     }
@@ -469,6 +489,7 @@ class person extends DatabaseEntity
         if (is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
         }
+
         if (is_array($filter2) && count($filter2)) {
             unset($filter["skill"]);
             $filter .= " AND " . implode(" OR ", $filter2);
@@ -495,6 +516,7 @@ class person extends DatabaseEntity
             if (!$p->read_db_record($allocDatabase)) {
                 continue;
             }
+
             $row = $p->perm_cleanup($row); // this is not the right way to do this - alla
             $print = true;
             $_FORM["showHours"] and $row["hoursSum"] = $ts_hrs_col_1[$row["personID"]];
@@ -512,11 +534,11 @@ class person extends DatabaseEntity
                 $novice_skills = $p->get_skills('Novice');
 
                 $skills = [];
-                $senior_skills and $skills[] = "<img src=\"../images/skill_senior.png\" alt=\"Senior=\"> " . Page::htmlentities($senior_skills);
-                $advanced_skills and $skills[] = "<img src=\"../images/skill_advanced.png\" alt=\"Advanced=\"> " . Page::htmlentities($advanced_skills);
-                $intermediate_skills and $skills[] = "<img src=\"../images/skill_intermediate.png\" alt=\"Intermediate=\"> " . Page::htmlentities($intermediate_skills);
-                $junior_skills and $skills[] = "<img src=\"../images/skill_junior.png\" alt=\"Junior=\"> " . Page::htmlentities($junior_skills);
-                $novice_skills and $skills[] = "<img src=\"../images/skill_novice.png\" alt=\"Novice\"> " . Page::htmlentities($novice_skills);
+                $senior_skills and $skills[] = '<img src="../images/skill_senior.png" alt="Senior="> ' . Page::htmlentities($senior_skills);
+                $advanced_skills and $skills[] = '<img src="../images/skill_advanced.png" alt="Advanced="> ' . Page::htmlentities($advanced_skills);
+                $intermediate_skills and $skills[] = '<img src="../images/skill_intermediate.png" alt="Intermediate="> ' . Page::htmlentities($intermediate_skills);
+                $junior_skills and $skills[] = '<img src="../images/skill_junior.png" alt="Junior="> ' . Page::htmlentities($junior_skills);
+                $novice_skills and $skills[] = '<img src="../images/skill_novice.png" alt="Novice"> ' . Page::htmlentities($novice_skills);
                 $row["skills_list"] = implode("<br>", $skills);
             }
 
@@ -538,16 +560,20 @@ class person extends DatabaseEntity
         if ($print && $_FORM["return"] == "array") {
             return $rows;
         }
+
         if ($print && $_FORM["return"] == "html") {
-            return "<table class=\"list sortable\">" . $summary . "</table>";
+            return '<table class="list sortable">' . $summary . "</table>";
         }
-        if ($print) {
+
+        if ($print !== null) {
             return $rows;
         }
+
         if ($_FORM["return"] != "html") {
             return $rows;
         }
-        return "<table style=\"width:100%\"><tr><td colspan=\"10\" style=\"text-align:center\"><b>No People Found</b></td></tr></table>";
+
+        return '<table style="width:100%"><tr><td colspan="10" style="text-align:center"><b>No People Found</b></td></tr></table>';
     }
 
     public static function get_list_tr_header($_FORM)
@@ -568,6 +594,7 @@ class person extends DatabaseEntity
                 $summary[] = '<img src="../images/skill_novice.png" alt="Novice" align="absmiddle"> Novice';
                 $summary[] = "</th>";
             }
+
             $_FORM["showHours"] and $summary[] = "<th>Sum Prev Fort</th>";
             $_FORM["showHours"] and $summary[] = "<th>Avg Per Fort</th>";
             $_FORM["showLinks"] and $summary[] = "<th></th>";
@@ -663,6 +690,7 @@ class person extends DatabaseEntity
         if ($skill_class && !in_array($skills[$_FORM["skill"]], $skills)) {
             $_FORM["skill"] = "";
         }
+
         $rtn["skills"] = Page::select_options($skills, $_FORM["skill"]);
 
         return $rtn;
@@ -672,7 +700,7 @@ class person extends DatabaseEntity
     {
         global $TPL;
         $_FORM["return"] or $_FORM["return"] = "html";
-        return "<a href=\"" . $TPL["url_alloc_person"] . "personID=" . $this->get_id() . "\">" . $this->get_name($_FORM) . "</a>";
+        return '<a href="' . $TPL["url_alloc_person"] . "personID=" . $this->get_id() . '">' . $this->get_name($_FORM) . "</a>";
     }
 
     public static function get_people_by_username($field = "username")
@@ -682,6 +710,7 @@ class person extends DatabaseEntity
         foreach ($people as $personID => $person) {
             $people_by_username[$person[$field]] = $person;
         }
+
         return $people_by_username;
     }
 }

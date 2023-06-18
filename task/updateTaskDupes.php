@@ -21,7 +21,7 @@ $hits = $index->find($needle);
 foreach ($hits as $hit) {
     $d = $hit->getDocument();
     $str .= "<div style='padding-bottom:3px'>";
-    $str .= "<a href=\"" . $TPL["url_alloc_task"] . "taskID=" . $d->getFieldValue('id') . "\">" . $d->getFieldValue('id') . " " . $d->getFieldValue('name') . "</a>";
+    $str .= '<a href="' . $TPL["url_alloc_task"] . "taskID=" . $d->getFieldValue('id') . '">' . $d->getFieldValue('id') . " " . $d->getFieldValue('name') . "</a>";
     $str .= "</div>";
 }
 

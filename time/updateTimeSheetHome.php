@@ -33,6 +33,7 @@ foreach ($t as $k => $v) {
         } else if ($k == "multiplier") {
             $v = $tsims[sprintf("%0.2f", $v)]["timeSheetItemMultiplierName"];
         }
+
         $rtn[$k] = $v;
     }
 }

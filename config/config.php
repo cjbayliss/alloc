@@ -119,11 +119,13 @@ if ($_POST["save"]) {
                 } else {
                     $c->set_value("value", $_POST[$name]);
                 }
+
                 $TPL[$name] = Page::htmlentities($value);
             } else if ($types[$name] == "array") {
                 $c->set_value("value", serialize($_POST[$name]));
                 $TPL[$name] = $_POST[$name];
             }
+
             $c->save();
             $TPL["message_good"] = "Saved configuration.";
         }
@@ -148,6 +150,7 @@ if ($_POST["save"]) {
                 $TPL["message_good"][] = "Deleted " . $logo;
             }
         }
+
         if (file_exists($logo)) {
             alloc_error("Unable to delete " . $logo);
         }
@@ -160,6 +163,7 @@ if (has("finance")) {
     $tf = new tf();
     $options = $tf->get_assoc_array("tfID", "tfName");
 }
+
 $TPL["mainTfOptions"] = Page::select_options($options, config::get_config_item("mainTfID"));
 $TPL["outTfOptions"] = Page::select_options($options, config::get_config_item("outTfID"));
 $TPL["inTfOptions"] = Page::select_options($options, config::get_config_item("inTfID"));
@@ -210,6 +214,7 @@ if (has("timeUnit")) {
     $timeUnit = new timeUnit();
     $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
 }
+
 $TPL["timesheetRate_options"] = Page::select_options($rate_type_array, config::get_config_item("defaultTimeSheetUnit"));
 
 $TPL["main_alloc_title"] = "Setup - " . APPLICATION_NAME;

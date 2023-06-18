@@ -24,9 +24,9 @@ function show_new_invoiceItem($template)
     }
 
     $TPL["div1"] = "";
-    $TPL["div2"] = " class=\"hidden\"";
-    $TPL["div3"] = " class=\"hidden\"";
-    $TPL["div4"] = " class=\"hidden\"";
+    $TPL["div2"] = ' class="hidden"';
+    $TPL["div3"] = ' class="hidden"';
+    $TPL["div4"] = ' class="hidden"';
 
     if (is_object($invoice) && $invoice->get_value("invoiceStatus") == 'edit' && $current_user->have_role('admin')) {
         // If we are editing an existing invoiceItem
@@ -44,15 +44,15 @@ function show_new_invoiceItem($template)
 
             if ($invoiceItem->get_value("timeSheetID")) {
                 unset($TPL["div2"]);
-                $TPL["div1"] = " class=\"hidden\"";
+                $TPL["div1"] = ' class="hidden"';
                 $TPL["sbs_link"] = "timeSheet_ii";
             } else if ($invoiceItem->get_value("expenseFormID")) {
                 unset($TPL["div3"]);
-                $TPL["div1"] = " class=\"hidden\"";
+                $TPL["div1"] = ' class="hidden"';
                 $TPL["sbs_link"] = "expenseForm_ii";
             } else if ($invoiceItem->get_value("productSaleID")) {
                 unset($TPL["div4"]);
-                $TPL["div1"] = " class=\"hidden\"";
+                $TPL["div1"] = ' class="hidden"';
                 $TPL["sbs_link"] = "productSale_ii";
             }
 
@@ -75,6 +75,7 @@ function show_new_invoiceItem($template)
             while ($row = $db->row()) {
                 $projectIDs[] = $row["projectID"];
             }
+
             if ($projectIDs) {
                 $q = unsafe_prepare("SELECT timeSheet.*, project.projectName
                                 FROM timeSheet
@@ -116,6 +117,7 @@ function show_new_invoiceItem($template)
             if ($invoiceItem->get_value("expenseFormID")) {
                 $id = $invoiceItem->get_value("expenseFormID");
             }
+
             $TPL["expenseFormOptions"] = Page::select_options($expenseFormOptions, $id, 90);
 
             $q = unsafe_prepare("SELECT *
@@ -132,9 +134,11 @@ function show_new_invoiceItem($template)
                 $ps_row = $productSale->get_amounts();
                 $productSaleOptions[$row["productSaleID"]] = "Sale #" . $row["productSaleID"] . " " . $ps_row["total_sellPrice"] . " " . person::get_fullname($row["personID"]);
             }
+
             if ($invoiceItem->get_value("productSaleID")) {
                 $id = $invoiceItem->get_value("productSaleID");
             }
+
             $TPL["productSaleOptions"] = Page::select_options($productSaleOptions, $id, 90);
         }
 
@@ -184,6 +188,7 @@ function show_invoiceItem_list()
         if (!$invoiceItem->read_db_record($db)) {
             continue;
         }
+
         $invoiceItem->set_tpl_values("invoiceItem_");
 
         unset($transaction_sum);
@@ -222,9 +227,11 @@ function show_invoiceItem_list()
             if ($db2->f("transaction_status") == "approved") {
                 $one_approved = true;
             }
+
             if ($db2->f("transaction_status") == "rejected") {
                 $one_rejected = true;
             }
+
             if ($db2->f("transaction_status") == "pending") {
                 $one_pending = true;
             }
@@ -233,10 +240,10 @@ function show_invoiceItem_list()
 
             $db2->f("transaction_status") != "rejected" and $transaction_sum += $db2->f("transaction_amount");
             $transaction_info .= $br . ucwords($db2->f("transaction_status")) . " Transaction ";
-            $transaction_info .= "<a href=\"" . $TPL["url_alloc_transaction"] . "transactionID=" . $db2->f("transactionID") . "\">#" . $db2->f("transactionID") . "</a>";
+            $transaction_info .= '<a href="' . $TPL["url_alloc_transaction"] . "transactionID=" . $db2->f("transactionID") . '">#' . $db2->f("transactionID") . "</a>";
             $transaction_info .= " from ";
-            $transaction_info .= "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_fromTfID") . "\">" . $taggedFund->get_name($db2->f("transaction_fromTfID")) . "</a>";
-            $transaction_info .= " to <a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_tfID") . "\">" . $taggedFund->get_name($db2->f("transaction_tfID")) . "</a>";
+            $transaction_info .= '<a href="' . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_fromTfID") . '">' . $taggedFund->get_name($db2->f("transaction_fromTfID")) . "</a>";
+            $transaction_info .= ' to <a href="' . $TPL["url_alloc_transactionList"] . "tfID=" . $db2->f("transaction_tfID") . '">' . $taggedFund->get_name($db2->f("transaction_tfID")) . "</a>";
             $transaction_info .= " for <b>" . Page::money($db2->f("currencyTypeID"), $db2->f("transaction_amount"), "%s%m") . "</b>";
             $br = "<br>";
         }
@@ -299,6 +306,7 @@ function show_invoiceItem_list()
                 $selected_tfID = $project->get_value("cost_centre_tfID");
                 $selected_tfID or $selected_tfID = $transaction->get_value("tfID");
             }
+
             $selected_tfID or $selected_tfID = config::get_config_item("mainTfID");
 
             // $tf_options = Page::select_options($tf_array, $selected_tfID);
@@ -308,26 +316,26 @@ function show_invoiceItem_list()
 
             unset($radio_buttons);
             if ($current_user->have_role('admin')) {
-                $radio_buttons = "<label class='radio corner' for=\"invoiceItemStatus_rejected_" . $invoiceItem->get_id() . "\">Not Going To Be Paid";
-                $radio_buttons .= "<input type=\"radio\" id=\"invoiceItemStatus_rejected_" . $invoiceItem->get_id() . "\" name=\"invoiceItemStatus[" . $invoiceItem->get_id() . "]\"";
-                $radio_buttons .= " value=\"rejected\"" . $sel["rejected"] . ">";
+                $radio_buttons = "<label class='radio corner' for=\"invoiceItemStatus_rejected_" . $invoiceItem->get_id() . '">Not Going To Be Paid';
+                $radio_buttons .= '<input type="radio" id="invoiceItemStatus_rejected_' . $invoiceItem->get_id() . '" name="invoiceItemStatus[' . $invoiceItem->get_id() . ']"';
+                $radio_buttons .= ' value="rejected"' . $sel["rejected"] . ">";
                 $radio_buttons .= "</label>";
 
                 $radio_buttons .= "&nbsp;&nbsp;";
-                $radio_buttons .= "<label class='radio corner' for=\"invoiceItemStatus_pending_" . $invoiceItem->get_id() . "\">Pending";
-                $radio_buttons .= "<input type=\"radio\" id=\"invoiceItemStatus_pending_" . $invoiceItem->get_id() . "\" name=\"invoiceItemStatus[" . $invoiceItem->get_id() . "]\"";
-                $radio_buttons .= " value=\"pending\"" . $sel["pending"] . ">";
+                $radio_buttons .= "<label class='radio corner' for=\"invoiceItemStatus_pending_" . $invoiceItem->get_id() . '">Pending';
+                $radio_buttons .= '<input type="radio" id="invoiceItemStatus_pending_' . $invoiceItem->get_id() . '" name="invoiceItemStatus[' . $invoiceItem->get_id() . ']"';
+                $radio_buttons .= ' value="pending"' . $sel["pending"] . ">";
                 $radio_buttons .= "</label>";
 
                 $radio_buttons .= "&nbsp;&nbsp;";
-                $radio_buttons .= "<label class='radio corner' for=\"invoiceItemStatus_approved_" . $invoiceItem->get_id() . "\">Paid";
-                $radio_buttons .= "<input type=\"radio\" id=\"invoiceItemStatus_approved_" . $invoiceItem->get_id() . "\" name=\"invoiceItemStatus[" . $invoiceItem->get_id() . "]\"";
-                $radio_buttons .= " value=\"approved\"" . $sel["approved"] . ">";
+                $radio_buttons .= "<label class='radio corner' for=\"invoiceItemStatus_approved_" . $invoiceItem->get_id() . '">Paid';
+                $radio_buttons .= '<input type="radio" id="invoiceItemStatus_approved_' . $invoiceItem->get_id() . '" name="invoiceItemStatus[' . $invoiceItem->get_id() . ']"';
+                $radio_buttons .= ' value="approved"' . $sel["approved"] . ">";
                 $radio_buttons .= "</label>";
 
                 $TPL["invoiceItem_buttons_top"] = $radio_buttons;
-                $TPL["invoiceItem_buttons_top"] .= "&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"text\" size=\"7\" name=\"invoiceItemAmountPaid[" . $invoiceItem->get_id() . "]\" value=\"" . $amount . "\">";
-                $TPL["invoiceItem_buttons_top"] .= "<input type=\"hidden\" name=\"invoiceItemAmountPaidTfID[" . $invoiceItem->get_id() . "]\" value=\"" . $selected_tfID . "\">";
+                $TPL["invoiceItem_buttons_top"] .= '&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" size="7" name="invoiceItemAmountPaid[' . $invoiceItem->get_id() . ']" value="' . $amount . '">';
+                $TPL["invoiceItem_buttons_top"] .= '<input type="hidden" name="invoiceItemAmountPaidTfID[' . $invoiceItem->get_id() . ']" value="' . $selected_tfID . '">';
             }
 
             unset($TPL["invoiceItem_buttons"]);
@@ -346,11 +354,11 @@ function show_invoiceItem_list()
             $t->load_pay_info();
             $amount = $t->pay_info["total_customerBilledDollars"] or $amount = $t->pay_info["total_dollars"];
 
-            $TPL["invoiceItem_iiMemo"] = "<a href=\"" . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $invoiceItem->get_value("timeSheetID") . "\">" . $invoiceItem->get_value("iiMemo") . " (Currently: $" . $amount . ", Status: " . $t->get_timeSheet_status() . ")</a>";
+            $TPL["invoiceItem_iiMemo"] = '<a href="' . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $invoiceItem->get_value("timeSheetID") . '">' . $invoiceItem->get_value("iiMemo") . " (Currently: $" . $amount . ", Status: " . $t->get_timeSheet_status() . ")</a>";
         } else if ($invoiceItem->get_value("expenseFormID")) {
             $ep = $invoiceItem->get_foreign_object("expenseForm");
             $total = $ep->get_abs_sum_transactions();
-            $TPL["invoiceItem_iiMemo"] = "<a href=\"" . $TPL["url_alloc_expenseForm"] . "expenseFormID=" . $invoiceItem->get_value("expenseFormID") . "\">" . $invoiceItem->get_value("iiMemo") . " (Currently: " . Page::money(config::get_config_item("currency"), $total, "%s%m %c") . ", Status: " . $ep->get_status() . ")</a>";
+            $TPL["invoiceItem_iiMemo"] = '<a href="' . $TPL["url_alloc_expenseForm"] . "expenseFormID=" . $invoiceItem->get_value("expenseFormID") . '">' . $invoiceItem->get_value("iiMemo") . " (Currently: " . Page::money(config::get_config_item("currency"), $total, "%s%m %c") . ", Status: " . $ep->get_status() . ")</a>";
         }
 
         $TPL["currency"] = $invoice->get_value("currencyTypeID");
@@ -399,7 +407,7 @@ function show_comments()
         $TPL["clientID"] = $clientID;
         $commentTemplate = new commentTemplate();
         $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "invoice"]);
-        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
+        $TPL["commentTemplateOptions"] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
 
         $ops = [
             ""                     => "Format as...",
@@ -461,6 +469,7 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
         $client->select();
         $invoice->set_value("invoiceName", $client->get_value("clientName"));
     }
+
     if ($_POST["save_and_MoveForward"]) {
         $direction = "forwards";
     } else if ($_POST["save_and_MoveBack"]) {
@@ -471,17 +480,18 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
         if (!$invoice->get_value("invoiceStatus")) {
             $invoice->set_value("invoiceStatus", "edit");
         }
+
         // Save invoice Item approved/rejected info
         $invoiceItemIDs = $invoice->get_invoiceItems();
-        foreach ($invoiceItemIDs as $iiID) {
-            $status = $_POST["invoiceItemStatus"][$iiID];
+        foreach ($invoiceItemIDs as $invoiceItemID) {
+            $status = $_POST["invoiceItemStatus"][$invoiceItemID];
             if ($status || $_POST["changeTransactionStatus"]) {
                 $_POST["changeTransactionStatus"] and $status = $_POST["changeTransactionStatus"];
                 if ($status) {
                     $ii = new invoiceItem();
-                    $ii->set_id($iiID);
+                    $ii->set_id($invoiceItemID);
                     $ii->select();
-                    $ii->create_transaction($_POST["invoiceItemAmountPaid"][$iiID], $invoice->get_value("tfID"), $status);
+                    $ii->create_transaction($_POST["invoiceItemAmountPaid"][$invoiceItemID], $invoice->get_value("tfID"), $status);
                 }
             }
         }
@@ -563,6 +573,7 @@ if ($_POST["save"] || $_POST["save_and_MoveForward"] || $_POST["save_and_MoveBac
         $TPL["message_good"][] = "Invoice Item deleted.";
         alloc_redirect($TPL["url_alloc_invoice"] . "invoiceID=" . $invoiceID);
     }
+
     // Displaying a record
     $invoice->set_id($invoiceID);
     $invoice->select();
@@ -612,6 +623,7 @@ foreach ($statii as $s => $label) {
         $pre = "<b>";
         $suf = "</b>";
     }
+
     $TPL["invoice_status_label"] .= $sep . $pre . $label . $suf;
     $sep = "&nbsp;&nbsp;|&nbsp;&nbsp;";
 }
@@ -648,6 +660,7 @@ if ($invoice->get_value("tfID")) {
     $tf_link = $tf->get_link();
     $tf_sel = $invoice->get_value("tfID");
 }
+
 $tf_sel or $tf_sel = config::get_config_item("mainTfID");
 $tf_select = "<select id='tfID' name='tfID'>" . Page::select_options($tf->get_assoc_array("tfID", "tfName"), $tf_sel) . "</select>";
 
@@ -756,6 +769,7 @@ if (is_object($invoice) && $invoice->get_id()) {
                 }
             }
         }
+
         $TPL["message_help_no_esc"][] = "This invoice is also a template for the scheduled creation of new invoices on the following dates:
                               <br>" . implode("&nbsp;&nbsp;", (array)$links) . "
                               <br>Click the Repeating Invoice link for more information.";
@@ -773,6 +787,7 @@ if (is_object($invoice) && $invoice->get_id()) {
                                    repeating invoice " . $i->get_value("invoiceNum") . "</a>";
     }
 }
+
 $TPL["invoice"] = $invoice;
 $TPL["invoiceRepeat"] = $invoiceRepeat;
 

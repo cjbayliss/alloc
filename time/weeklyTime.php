@@ -12,7 +12,7 @@ function show_days($template_name)
     global $date_to_view;
     global $TPL;
 
-    for ($day_offset = 0; $day_offset < 7; $day_offset++) {
+    for ($day_offset = 0; $day_offset < 7; ++$day_offset) {
         $TPL["timesheet_date"] = date("Y-m-d (D)", $date_to_view);
         $TPL["daily_hours_total"] = 0;
         include_template($template_name);
@@ -67,8 +67,8 @@ while (date("D", $date_to_view) != "Sun") {
 $TPL["timesheet_date"] = date("Y-m-d (D)", $date_to_view);
 $prev_week = mktime(0, 0, 0, date("m", $date_to_view), date("d", $date_to_view) - 7, date("Y", $date_to_view));
 $next_week = mktime(0, 0, 0, date("m", $date_to_view), date("d", $date_to_view) + 7, date("Y", $date_to_view));
-$TPL["prev_week_url"] = $TPL["url_alloc_weeklyTime"] . "start_date=$prev_week";
-$TPL["next_week_url"] = $TPL["url_alloc_weeklyTime"] . "start_date=$next_week";
+$TPL["prev_week_url"] = $TPL["url_alloc_weeklyTime"] . sprintf('start_date=%s', $prev_week);
+$TPL["next_week_url"] = $TPL["url_alloc_weeklyTime"] . sprintf('start_date=%s', $next_week);
 
 $TPL["main_alloc_title"] = "Weekly Timesheet View - " . APPLICATION_NAME;
 include_template("templates/weeklyTimeM.tpl");

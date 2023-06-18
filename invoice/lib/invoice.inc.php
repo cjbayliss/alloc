@@ -9,9 +9,13 @@ define("DEFAULT_SEP", "\n");
 class invoice extends DatabaseEntity
 {
     public $classname = "invoice";
+
     public $data_table = "invoice";
+
     public $display_field_name = "invoiceName";
+
     public $key_field = "invoiceID";
+
     public $data_fields = [
         "invoiceName",
         "clientID",
@@ -46,12 +50,14 @@ class invoice extends DatabaseEntity
             if (!($this->get_value("maxAmount") !== null && (bool)strlen($this->get_value("maxAmount")))) {
                 $this->set_value("maxAmount", '');
             }
+
             if ($currencyTypeID) {
                 $this->set_value("currencyTypeID", $currencyTypeID);
             } else {
                 alloc_error("Unable to save invoice. No currency is able to be determined. Either attach this invoice to a project, or set a Main Currency on the Setup -> Finance screen.");
             }
         }
+
         return parent::save();
     }
 
@@ -89,7 +95,7 @@ class invoice extends DatabaseEntity
         global $TPL;
         if ($payment_status) {
             $payment_statii = (new invoice())->get_invoice_statii_payment();
-            return "<img src=\"" . $TPL["url_alloc_images"] . "invoice_" . $payment_status . ".png\" alt=\"" . $payment_statii[$payment_status] . "\" title=\"" . $payment_statii[$payment_status] . "\">";
+            return '<img src="' . $TPL["url_alloc_images"] . "invoice_" . $payment_status . '.png" alt="' . $payment_statii[$payment_status] . '" title="' . $payment_statii[$payment_status] . '">';
         }
     }
 
@@ -111,6 +117,7 @@ class invoice extends DatabaseEntity
                 }
             }
         }
+
         return false;
     }
 
@@ -124,6 +131,7 @@ class invoice extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $invoiceItemIDs[] = $row["invoiceItemID"];
         }
+
         return $invoiceItemIDs;
     }
 
@@ -137,6 +145,7 @@ class invoice extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $transactionIDs[] = $row["transactionID"];
         }
+
         return $transactionIDs;
     }
 
@@ -217,15 +226,20 @@ class invoice extends DatabaseEntity
                         $task_info[$db2->f("taskID")] = $db2->f("description");
                         $sep = DEFAULT_SEP;
                     }
+
                     if (!$db2->f("commentPrivate") && $db2->f("comment")) {
                         $task_info[$db2->f("taskID")] .= $sep . "  <i>- " . $db2->f("comment") . "</i>";
                     }
+
                     $sep = DEFAULT_SEP;
                 }
+
                 is_array($task_info) and $str[$invoiceItem->get_id()] .= "* " . implode(DEFAULT_SEP . "* ", $task_info);
             }
+
             is_array($str) and $rows[$invoiceItem->get_id()]["desc"] .= trim(implode(DEFAULT_SEP, $str));
         }
+
         $info["total_inc_gst"] = Page::money($currency, $info["total"] + $info["total_gst"], "%s%m");
 
         // If we are in dollar mode, then prefix the total with a dollar sign
@@ -363,6 +377,7 @@ class invoice extends DatabaseEntity
         $cezpdf->line(90, $line_y, 510, $line_y);
 
         $cezpdf->ezSetY(782);
+
         $image_jpg = ALLOC_LOGO;
         if (file_exists($image_jpg)) {
             $cezpdf->ezImage($image_jpg, 0, sprintf("%d", config::get_config_item("logoScaleX")), 'none');
@@ -370,6 +385,7 @@ class invoice extends DatabaseEntity
         } else {
             $y = $cezpdf->ezText($companyName, 27, ["justification" => "right"]);
         }
+
         $nos_y = $line_y + 22;
         $companyNos2 and $nos_y = $line_y + 34;
         $cezpdf->ezSetY($nos_y);
@@ -408,6 +424,7 @@ class invoice extends DatabaseEntity
         if ($taxPercent === '') {
             unset($cols2["gst"]);
         }
+
         $rows[] = [
             "desc"  => "<b>TOTAL</b>",
             "money" => $info["total"],
@@ -418,6 +435,7 @@ class invoice extends DatabaseEntity
         if ($taxPercent !== '') {
             $totals[] = ["one" => "TOTAL " . $taxName, "two" => $info["total_gst"]];
         }
+
         $totals[] = ["one" => "TOTAL CHARGES", "two" => $info["total"]];
         $totals[] = [
             "one" => "<b>TOTAL AMOUNT PAYABLE</b>",
@@ -439,6 +457,7 @@ class invoice extends DatabaseEntity
         if ($getfile) {
             return $cezpdf->ezOutput();
         }
+
         $cezpdf->ezStream(["Content-Disposition" => "invoice_" . $this->get_id() . ".pdf"]);
     }
 
@@ -468,6 +487,7 @@ class invoice extends DatabaseEntity
             $prefix or $prefix = config::get_config_item("allocURL");
             $url = $prefix . $url;
         }
+
         return $url;
     }
 
@@ -479,7 +499,7 @@ class invoice extends DatabaseEntity
     public function get_invoice_link($_FORM = [])
     {
         global $TPL;
-        return "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $this->get_id() . "\">" . $this->get_name($_FORM) . "</a>";
+        return '<a href="' . $TPL["url_alloc_invoice"] . "invoiceID=" . $this->get_id() . '">' . $this->get_name($_FORM) . "</a>";
     }
 
     public static function get_list_filter($filter = [])
@@ -494,6 +514,7 @@ class invoice extends DatabaseEntity
             foreach ((array)$current_user->prefs["stars"]["invoice"] as $k => $v) {
                 $filter["invoiceID"][] = $k;
             }
+
             is_array($filter["invoiceID"]) or $filter["invoiceID"][] = -1;
         }
 
@@ -515,12 +536,14 @@ class invoice extends DatabaseEntity
             while ($row = $allocDatabase->row()) {
                 $valid_clientIDs[] = $row["clientID"];
             }
+
             $filter["clientID"] && !is_array($filter["clientID"]) and $filter["clientID"] = [$filter["clientID"]];
             foreach ((array)$filter["clientID"] as $clientID) {
                 if (in_array($clientID, (array)$valid_clientIDs)) {
                     $approved_clientIDs[] = $clientID;
                 }
             }
+
             $approved_clientIDs or $approved_clientIDs = (array)$valid_clientIDs;
             if ($approved_clientIDs) {
                 $filter["clientID"] = $approved_clientIDs;
@@ -587,7 +610,7 @@ class invoice extends DatabaseEntity
            LEFT JOIN invoiceItem on invoiceItem.invoiceID = invoice.invoiceID
            LEFT JOIN client ON invoice.clientID = client.clientID
            LEFT JOIN currencyType on invoice.currencyTypeID = currencyType.currencyTypeID
-             $f1_where
+             {$f1_where}
             GROUP BY invoice.invoiceID
             ORDER BY invoiceDateFrom";
 
@@ -605,7 +628,7 @@ class invoice extends DatabaseEntity
            LEFT JOIN transaction transaction_pending on invoiceItem.invoiceItemID = transaction_pending.invoiceItemID AND transaction_pending.status='pending'
            LEFT JOIN transaction transaction_rejected on invoiceItem.invoiceItemID = transaction_rejected.invoiceItemID AND transaction_rejected.status='rejected'
             GROUP BY invoice_details.invoiceID
-             $f2_having
+             {$f2_having}
             ORDER BY invoiceDateFrom";
         // Don't do this! It doubles the totals!
         // LEFT JOIN tfPerson ON tfPerson.tfID = transaction_approved.tfID OR tfPerson.tfID = transaction_pending.tfID OR tfPerson.tfID = transaction_rejected.tfID
@@ -745,6 +768,7 @@ class invoice extends DatabaseEntity
             $invoiceID
         ));
         $allocDatabase->next_record();
+
         $invoice = new invoice();
         $invoice->set_id($invoiceID);
         $invoice->select();
@@ -801,6 +825,7 @@ class invoice extends DatabaseEntity
             if ($this->can_move($direction)) {
                 $m = $this->{"move_status_to_" . $newstatus}($direction);
             }
+
             if (is_array($m)) {
                 return implode("<br>", $m);
             }
@@ -822,6 +847,7 @@ class invoice extends DatabaseEntity
         if ($direction == "forwards") {
             $this->close_related_entities();
         }
+
         $this->set_value("invoiceStatus", "finished");
     }
 
@@ -834,14 +860,16 @@ class invoice extends DatabaseEntity
                 return false;
             }
         }
+
         if ($direction == "forwards" && $newstatus == "reconcile") {
             $allocDatabase = new AllocDatabase();
-            $hasItems = $allocDatabase->qr("SELECT * FROM invoiceItem WHERE invoiceID = %d", $this->get_id());
+            $hasItems = $allocDatabase->qr(["SELECT * FROM invoiceItem WHERE invoiceID = %d", $this->get_id()]);
             if (!$hasItems) {
                 alloc_error("Unable to submit invoice, no items have been added.");
                 return false;
             }
         }
+
         return true;
     }
 
@@ -891,6 +919,7 @@ class invoice extends DatabaseEntity
             $project = new project($projectID);
             $interestedPartyOptions = $project->get_all_parties();
         }
+
         if ($clientID) {
             $client = new client($clientID);
             $interestedPartyOptions = array_merge((array)$interestedPartyOptions, (array)$client->get_all_parties());

@@ -48,6 +48,7 @@ if ($sess->Started()) {
         $sess->Save();
         alloc_redirect($url);
     }
+
     $error = "Invalid username or password.";
 } else if (!empty($_POST["new_pass"])) {
     $db = new AllocDatabase();
@@ -58,7 +59,7 @@ if ($sess->Started()) {
         $password = "";
         $pwSource = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?";
         mt_srand((float) microtime() * 1_000_000);
-        for ($i = 0; $i < 8; $i++) {
+        for ($i = 0; $i < 8; ++$i) {
             $password .= substr($pwSource, random_int(0, strlen($pwSource)), 1);
         }
 
@@ -103,7 +104,7 @@ if (isset($_GET["forward"])) {
     $TPL["forward_url"] = strip_tags($_GET["forward"]);
 }
 
-$TPL["status_line"] = APPLICATION_NAME . " " . APPLICATION_VERSION . " &copy; " . date("Y") . " <a href=\"http://www.cyber.com.au\">Cyber IT Solutions</a>";
+$TPL["status_line"] = APPLICATION_NAME . " " . APPLICATION_VERSION . " &copy; " . date("Y") . ' <a href="http://www.cyber.com.au">Cyber IT Solutions</a>';
 
 if (!is_dir(ATTACHMENTS_DIR . "whatsnew" . DIRECTORY_SEPARATOR . "0")) {
     mkdir(ATTACHMENTS_DIR . "whatsnew" . DIRECTORY_SEPARATOR . "0");
@@ -115,15 +116,17 @@ if (is_array($files) && count($files)) {
     while ($f = array_pop($files)) {
         // Only show entries that are newer that 4 weeks old
         if (format_date("U", basename($f["path"])) > time() - (60 * 60 * 24 * 28)) {
-            $x++;
+            ++$x;
             if ($x > 3) {
                 break;
             }
+
             $str .= $br . "<b>" . $f["restore_name"] . "</b>";
             $str .= "<br><ul>" . trim(file_get_contents($f["path"])) . "</ul>";
             $br = "<br><br>";
         }
     }
+
     $str and $TPL["latest_changes"] = $str;
 }
 

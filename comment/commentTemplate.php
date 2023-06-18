@@ -31,6 +31,7 @@ if ($_POST["save"]) {
     alloc_redirect($TPL["url_alloc_commentTemplateList"]);
     exit();
 }
+
 // Load data for display in the template
 $commentTemplate->set_values();
 

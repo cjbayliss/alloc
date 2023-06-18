@@ -36,7 +36,7 @@ $q1 = $db->query($q);
 echoo("Beginning ...");
 
 while ($row = $db->row($q1)) {
-    $z++;
+    ++$z;
     if ($z % 1000 == 0 && is_object($index)) {
         echoo($z . " Committing index: " . $current_index);
         $index->commit();

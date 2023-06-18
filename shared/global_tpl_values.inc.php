@@ -134,5 +134,6 @@ function get_alloc_urls($TPL, $sess = false)
             $TPL[$k] = SCRIPT_PATH . $v;
         }
     }
+
     return $TPL;
 }

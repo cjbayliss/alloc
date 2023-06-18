@@ -34,6 +34,7 @@ if ($_POST["do_step_2"]) {
     if (!is_array($fields)) {
         $fields = [];
     }
+
     $ignored_fields = [];
     $table_fields = [];
     $db_tables = [];
@@ -101,20 +102,21 @@ if ($_POST["do_step_2"]) {
     foreach ($db_tables as $db_table) {
         if (class_exists($db_table)) {
             $class = new $db_table;
-            $TPL["table_fields"] .= "<tr><td colspan=\"6\">&nbsp;</td></tr>";
-            $TPL["table_fields"] .= "<tr><td colspan=\"6\"><b>" . strtoupper($db_table) . "</b></td></tr>";
+            $TPL["table_fields"] .= '<tr><td colspan="6">&nbsp;</td></tr>';
+            $TPL["table_fields"] .= '<tr><td colspan="6"><b>' . strtoupper($db_table) . "</b></td></tr>";
             if (is_object($class) && $class->key_field->label == ($db_table . "ID")) {
                 if (count($db_tables) > 1) {
                     $groupby_str = $db_table . "." . $db_table . "ID";
-                    $groupby = "<input type=\"radio\" name=\"table_groupby\" value=\"";
-                    $groupby .= $groupby_str . "\"";
+                    $groupby = '<input type="radio" name="table_groupby" value="';
+                    $groupby .= $groupby_str . '"';
                     $groupby .= ($_POST["table_groupby"] == $groupby_str ? " checked" : "") . ">";
                     $groupby = "<b>Group by this table</b> " . $groupby;
                 } else {
                     $groupby = "&nbsp;";
                 }
             }
-            $TPL["table_fields"] .= "<tr><td colspan=\"6\">" . $groupby . "</td></tr><tr>";
+
+            $TPL["table_fields"] .= '<tr><td colspan="6">' . $groupby . "</td></tr><tr>";
             $TPL["table_fields"] .= "<td>&nbsp;</td>";
             $TPL["table_fields"] .= "<td><b>Like (john smit%)</b></td><td><b>Numerical (>=5)</b></td>";
             $TPL["table_fields"] .= "<td>&nbsp;</td>";
@@ -126,18 +128,18 @@ if ($_POST["do_step_2"]) {
                 $str = $db_table . "." . $name;
                 if (!in_array($str, $ignored_fields)) {
                     $table_fields[] = $str;
-                    $TPL["table_fields"] .= "<td valign=\"middle\">";
-                    $TPL["table_fields"] .= "\n<input type=\"checkbox\" name=\"table_name[" . $str . "]\" value=\"";
-                    $TPL["table_fields"] .= $str . "\"" . ($_POST["table_name"][$str] == $str ? " checked" : "") . ">";
+                    $TPL["table_fields"] .= '<td valign="middle">';
+                    $TPL["table_fields"] .= "\n<input type=\"checkbox\" name=\"table_name[" . $str . ']" value="';
+                    $TPL["table_fields"] .= $str . '"' . ($_POST["table_name"][$str] == $str ? " checked" : "") . ">";
                     $TPL["table_fields"] .= $name;
-                    $TPL["table_fields"] .= "</td><td valign=\"middle\">";
-                    $TPL["table_fields"] .= "\n<input type=\"text\" name=\"table_like[" . $str . "]\"";
-                    $TPL["table_fields"] .= "value=\"" . $_POST["table_like"][$str] . "\"size=\"15\">\n";
-                    $TPL["table_fields"] .= "</td><td valign=\"middle\">";
-                    $TPL["table_fields"] .= "<input type=\"text\" name=\"table_num_op_1[" . $str . "]\" value=\"";
-                    $TPL["table_fields"] .= $_POST["table_num_op_1"][$str] . "\" size=\"8\"> and ";
-                    $TPL["table_fields"] .= "<input type=\"text\" name=\"table_num_op_2[" . $str . "]\" value=\"";
-                    $TPL["table_fields"] .= $_POST["table_num_op_2"][$str] . "\" size=\"8\">";
+                    $TPL["table_fields"] .= '</td><td valign="middle">';
+                    $TPL["table_fields"] .= "\n<input type=\"text\" name=\"table_like[" . $str . ']"';
+                    $TPL["table_fields"] .= 'value="' . $_POST["table_like"][$str] . "\"size=\"15\">\n";
+                    $TPL["table_fields"] .= '</td><td valign="middle">';
+                    $TPL["table_fields"] .= '<input type="text" name="table_num_op_1[' . $str . ']" value="';
+                    $TPL["table_fields"] .= $_POST["table_num_op_1"][$str] . '" size="8"> and ';
+                    $TPL["table_fields"] .= '<input type="text" name="table_num_op_2[' . $str . ']" value="';
+                    $TPL["table_fields"] .= $_POST["table_num_op_2"][$str] . '" size="8">';
                     $TPL["table_fields"] .= "</td>";
                     if (isset($i)) {
                         $TPL["table_fields"] .= "</tr><tr>";
@@ -151,6 +153,7 @@ if ($_POST["do_step_2"]) {
             alloc_error("class " . $db_table . " does not exist.. ");
         }
     }
+
     $TPL["table_fields"] .= "</tr>";
 
     if ($_POST["field_quotes"] == "single") {
@@ -162,18 +165,19 @@ if ($_POST["do_step_2"]) {
     if ($_POST["generate_file"]) {
         $g_f_sel = " checked";
     }
+
     $_POST["field_separator"] or $_POST["field_separator"] = ",";
 
     $TPL["dump_options"] .= "Generate File: ";
-    $TPL["dump_options"] .= "<input type=\"checkbox\" name=\"generate_file\"" . $g_f_sel . "> ";
+    $TPL["dump_options"] .= '<input type="checkbox" name="generate_file"' . $g_f_sel . "> ";
     $TPL["dump_options"] .= " with field separator ";
-    $TPL["dump_options"] .= "<input type=\"text\" name=\"field_separator\" size=\"5\" value=\"";
+    $TPL["dump_options"] .= '<input type="text" name="field_separator" size="5" value="';
     $TPL["dump_options"] .= $_POST["field_separator"] . "\"> (type 'tab' for tab).";
     $TPL["dump_options"] .= "<br>Quotes around fields: ";
-    $TPL["dump_options"] .= "<select name=\"field_quotes\">";
-    $TPL["dump_options"] .= "<option value=\"\">None";
-    $TPL["dump_options"] .= "<option value=\"single\"" . $s_q_sel . ">Single";
-    $TPL["dump_options"] .= "<option value=\"double\"" . $d_q_sel . ">Double";
+    $TPL["dump_options"] .= '<select name="field_quotes">';
+    $TPL["dump_options"] .= '<option value="">None';
+    $TPL["dump_options"] .= '<option value="single"' . $s_q_sel . ">Single";
+    $TPL["dump_options"] .= '<option value="double"' . $d_q_sel . ">Double";
     $TPL["dump_options"] .= "</select><br>";
     $TPL["dump_options"] .= '<br><br>
   <button type="submit" name="do_step_3" value="1" class="filter_button">Generate Database Report<i class="icon-cogs"></i></button>
@@ -234,6 +238,7 @@ if ($_POST["do_step_3"]) {
         foreach ($fields as $field) {
             $TPL["result_row"] .= "<th>" . $field . "</th>";
         }
+
         $TPL["result_row"] .= "</tr>";
 
         if (!$_POST["generate_file"]) {
@@ -256,8 +261,9 @@ if ($_POST["do_step_3"]) {
         if ($_POST["field_quotes"] == "single") {
             $quotes = "'";
         }
+
         if ($_POST["field_quotes"] == "double") {
-            $quotes = "\"";
+            $quotes = '"';
         }
 
         $taggedFund = new tf();
@@ -277,15 +283,18 @@ if ($_POST["do_step_3"]) {
                 } else {
                     $result = $db->f($field);
                 }
+
                 $TPL["result_row"] .= $start_field_separator;
                 $TPL["result_row"] .= $quotes . $result . $quotes;
                 if (isset($fields[$k + 1]) || !$_POST["generate_file"]) {
                     $TPL["result_row"] .= $end_field_separator;
                 }
             }
+
             $TPL["result_row"] .= $end_row_separator;
-            $counter++;
+            ++$counter;
         }
+
         $TPL["counter"] = "Number of rows(s): " . $counter;
 
         if ($_POST["generate_file"]) {

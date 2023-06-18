@@ -22,6 +22,7 @@ class inbox extends DatabaseEntity
             singleton("current_user", $current_user);
             return true;
         }
+
         return false;
     }
 
@@ -32,6 +33,7 @@ class inbox extends DatabaseEntity
         $emailreceive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
         $emailreceive->set_msg($id);
         $emailreceive->get_msg_header();
+
         $rtn = ($hash == md5($emailreceive->mail_headers["date"]
             . $emailreceive->get_printable_from_address()
             . $emailreceive->mail_headers["subject"]));
@@ -45,6 +47,7 @@ class inbox extends DatabaseEntity
         $info = inbox::get_mail_info();
         $emailreceive = new email_receive($info);
         $emailreceive->open_mailbox($info["folder"]);
+
         $mailbox = "INBOX/archive" . date("Y");
         $emailreceive->create_mailbox($mailbox) and $TPL["message_good"][] = "Created mailbox: " . $mailbox;
         $emailreceive->move_mail($req["id"], $mailbox) and $TPL["message_good"][] = "Moved email " . $req["id"] . " to " . $mailbox;
@@ -59,6 +62,7 @@ class inbox extends DatabaseEntity
         $emailreceive = new email_receive($info);
         $emailreceive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
         $emailreceive->set_msg($req["id"]);
+
         $new_nums = $emailreceive->get_new_email_msg_uids();
         in_array($req["id"], (array)$new_nums) and $new = true;
         [$h, $b] = $emailreceive->get_raw_header_and_body();
@@ -118,12 +122,12 @@ class inbox extends DatabaseEntity
 
         try {
             $command->run_commands($commands, $email_receive);
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             $current_user = &$orig_current_user;
             singleton("current_user", $current_user);
             $allocDatabase->query("ROLLBACK");
             $failed = true;
-            throw new Exception($e);
+            throw new Exception($exception);
         }
 
         // Commit the db, and move the email into its storage location eg: INBOX.task1234
@@ -174,6 +178,7 @@ class inbox extends DatabaseEntity
                     fclose($fh);
                 }
             }
+
             rmdir_if_empty(ATTACHMENTS_DIR . DIRECTORY_SEPARATOR . "task" . DIRECTORY_SEPARATOR . $task->get_id());
 
             $msg = "Created task " . $task->get_task_link(["prefixTaskID" => true]) . " and moved the email to the task's mail folder.";
@@ -190,6 +195,7 @@ class inbox extends DatabaseEntity
             $ip["entityID"] = $task->get_id();
             InterestedParty::add_interested_party($ip);
         }
+
         // Put current_user back to normal
         $current_user = &$orig_current_user;
         singleton("current_user", $current_user);
@@ -243,6 +249,7 @@ class inbox extends DatabaseEntity
                     $extraips[$p->get_value("emailAddress")]["selected"] = 1;
                 }
             }
+
             if ($task->get_value("managerID")) {
                 $p = new person($task->get_value("managerID"));
                 if ($p->get_value("emailAddress")) {
@@ -324,6 +331,7 @@ class inbox extends DatabaseEntity
         $emailreceive = new email_receive($info);
         $emailreceive->open_mailbox($info["folder"], OP_HALFOPEN | OP_READONLY);
         $emailreceive->check_mail();
+
         $new_nums = $emailreceive->get_new_email_msg_uids();
         $msg_nums = $emailreceive->get_all_email_msg_uids();
 
@@ -341,6 +349,7 @@ class inbox extends DatabaseEntity
                 $rows[] = $row;
             }
         }
+
         $emailreceive->close();
         return $rows;
     }

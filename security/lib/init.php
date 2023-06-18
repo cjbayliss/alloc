@@ -8,5 +8,6 @@
 class security_module extends Module
 {
     public $module = "security";
+
     public $databaseEntities = ["permission", "role"];
 }

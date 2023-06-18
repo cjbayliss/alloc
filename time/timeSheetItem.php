@@ -25,6 +25,7 @@ if (($_POST["timeSheetItem_save"] || $_POST["timeSheetItem_edit"] || $_POST["tim
         $timeSheetItem->set_id($timeSheetItemID);
         $timeSheetItem->select();
     }
+
     $timeSheetItem->read_globals();
     $timeSheetItem->read_globals("timeSheetItem_");
 

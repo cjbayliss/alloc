@@ -8,6 +8,8 @@
 class calendar_module extends Module
 {
     public $module = "calendar";
+
     public $databaseEntities = [];
+
     public $home_items = ["task_calendar_home_item"];
 }

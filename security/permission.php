@@ -46,6 +46,7 @@ if (!$permission->get_value("tableName")) {
     foreach ($ops as $op) {
         $table_name_options[$op] = $op;
     }
+
     $TPL["tableNameOptions"] = Page::select_options($table_name_options, $permission->get_value("tableName"));
     include_template("templates/permissionTableM.tpl");
     exit();

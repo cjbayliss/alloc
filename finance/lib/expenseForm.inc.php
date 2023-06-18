@@ -8,7 +8,9 @@
 class expenseForm extends DatabaseEntity
 {
     public $data_table = "expenseForm";
+
     public $key_field = "expenseFormID";
+
     public $data_fields = [
         "expenseFormModifiedUser",
         "expenseFormModifiedTime",
@@ -30,6 +32,7 @@ class expenseForm extends DatabaseEntity
         if ($person == "") {
             $person = $current_user;
         }
+
         // Return true if this user created the expense form
         if ($person->get_id() == $this->get_value("expenseFormCreatedUser", DST_VARIABLE)) {
             return true;
@@ -87,12 +90,14 @@ class expenseForm extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $arr[$row["status"]] = 1;
         }
+
         $arr or $arr = [];
         $sp = "";
         foreach ($arr as $s => $v) {
             $return .= $sp . $s;
             $sp = "&nbsp;&amp;&nbsp;";
         }
+
         return $return;
     }
 
@@ -119,9 +124,10 @@ class expenseForm extends DatabaseEntity
         if ($this->get_id()) {
             $allocDatabase->query("SELECT invoice.* FROM invoiceItem LEFT JOIN invoice on invoice.invoiceID = invoiceItem.invoiceID WHERE expenseFormID = %d", $this->get_id());
             while ($row = $allocDatabase->next_record()) {
-                $str .= $sp . "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $row["invoiceID"] . "\">" . $row["invoiceNum"] . "</a>";
+                $str .= $sp . '<a href="' . $TPL["url_alloc_invoice"] . "invoiceID=" . $row["invoiceID"] . '">' . $row["invoiceNum"] . "</a>";
                 $sp = "&nbsp;&nbsp;";
             }
+
             return $str;
         }
     }
@@ -197,6 +203,7 @@ class expenseForm extends DatabaseEntity
             $prefix or $prefix = config::get_config_item("allocURL");
             $url = $prefix . $url;
         }
+
         return $url;
     }
 
@@ -205,6 +212,7 @@ class expenseForm extends DatabaseEntity
         if (is_object($this)) {
             $id = $this->get_id();
         }
+
         $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS amount
                         FROM transaction
@@ -261,6 +269,7 @@ class expenseForm extends DatabaseEntity
             $sp[$row["expenseFormID"]] = " + ";
             $allrows[$row["expenseFormID"]] = $row;
         }
+
         foreach ((array)$allrows as $expenseFormID => $row) {
             $expenseForm = new expenseForm();
             if ($expenseForm->read_row_record($row)) {
@@ -276,6 +285,7 @@ class expenseForm extends DatabaseEntity
                 $rows[] = $row;
             }
         }
+
         return (array)$rows;
     }
 
@@ -303,6 +313,7 @@ class expenseForm extends DatabaseEntity
             $row["transactionCreatedUser"] = person::get_fullname($transaction->get_value("transactionCreatedUser"));
             $rows[] = $row;
         }
+
         return (array)$rows;
     }
 }

@@ -15,22 +15,46 @@ define("PERM_READ_WRITE", PERM_READ + PERM_UPDATE + PERM_DELETE + PERM_CREATE);
 
 class DatabaseEntity
 {
-    public $classname = "DatabaseEntity";   // Support phplib session variables
-    public $data_table = "";           // Set this to the name of the data base table
-    public $key_field = "";            // Set this to the table's primary key
-    public $data_fields = [];     // Set this to the data fields using array("field_name1","field_name2");
-    public $all_row_fields = [];  // This gets set to all fields from the row of the query result used to load this entity
+    public $classname = "DatabaseEntity";
+
+    // Support phplib session variables
+    public $data_table = "";
+
+    // Set this to the name of the data base table
+    public $key_field = "";
+
+    // Set this to the table's primary key
+    public $data_fields = [];
+
+    // Set this to the data fields using array("field_name1","field_name2");
+    public $all_row_fields = [];
+
+    // This gets set to all fields from the row of the query result used to load this entity
     public $databaseClass = "AllocDatabase";
+
     public $db;
+
     public $debug = false;
-    public $display_field_name;        // Set this to the field to be used by the get_display_value function
-    public $cache;                     // Cache associative array stored by primary key index
-    private bool $fields_loaded = false;    // This internal flag just specifies whether a row from the db was loaded
+
+    public $display_field_name;
+
+    // Set this to the field to be used by the get_display_value function
+    public $cache;
+
+    // Cache associative array stored by primary key index
+    private bool $fields_loaded = false;
+
+    // This internal flag just specifies whether a row from the db was loaded
     public $permissions = [];
+
     public $skip_modified_fields = null;
+
     public $doMoney = null;
+
     public $updateSearchIndexLater = null;
+
     public $currency = null;
+
     private $filter_class = null;
 
     public function __construct($id = false)
@@ -97,6 +121,7 @@ class DatabaseEntity
         if (isset($permission_cache[$table_cache_key])) {
             return $permission_cache[$table_cache_key];
         }
+
         if (isset($permission_cache[$record_cache_key])) {
             return $permission_cache[$record_cache_key];
         }
@@ -144,11 +169,13 @@ class DatabaseEntity
         if (!$this->has_key_values()) {
             return false;
         }
+
         if ($this->data_table && $this->key_field) {
             $query = "SELECT * FROM " . db_esc($this->data_table) . " WHERE " . $this->get_name_equals_value([$this->key_field], " AND ");
             if ($this->debug) {
-                echo "db_entity->select query: $query<br>\n";
+                echo "db_entity->select query: {$query}<br>\n";
             }
+
             $db = $this->get_db();
             $db->query($query);
             if ($db->next_record()) {
@@ -166,6 +193,7 @@ class DatabaseEntity
                 $row[$field_name] = $str;
             }
         }
+
         return $row;
     }
 
@@ -182,13 +210,16 @@ class DatabaseEntity
             ));
             return false;
         }
+
         if (!$this->has_key_values()) {
             return false;
         }
+
         $query = "DELETE FROM " . db_esc($this->data_table) . " WHERE " . $this->get_name_equals_value([$this->key_field], " AND ");
         if ($this->debug) {
-            echo "db_entity->delete query: $query<br>\n";
+            echo "db_entity->delete query: {$query}<br>\n";
         }
+
         $db = $this->get_db();
         $db->query($query);
 
@@ -204,11 +235,13 @@ class DatabaseEntity
         } else {
             $current_user_id = "0";
         }
+
         if (!$this->have_perm(PERM_CREATE)) {
             $current_user = &singleton("current_user");
             if (is_object($this) && method_exists($this, "get_id")) {
                 $this_id = $this->get_id();
             }
+
             alloc_error(sprintf(
                 "Person %d does not have permission %s for %s #%d",
                 $current_user_id,
@@ -222,12 +255,15 @@ class DatabaseEntity
         if (isset($this->data_fields[$this->data_table . "CreatedUser"]) && $current_user_id) {
             $this->set_value($this->data_table . "CreatedUser", $current_user_id);
         }
+
         if (isset($this->data_fields[$this->data_table . "CreatedTime"])) {
             $this->set_value($this->data_table . "CreatedTime", date("Y-m-d H:i:s"));
         }
+
         if (isset($this->data_fields[$this->data_table . "ModifiedUser"])) {
             // $this->set_value($this->data_table."ModifiedUser", $current_user_id);
         }
+
         if (isset($this->data_fields[$this->data_table . "ModifiedTime"])) {
             // $this->set_value($this->data_table."ModifiedTime", date("Y-m-d H:i:s"));
         }
@@ -254,6 +290,7 @@ class DatabaseEntity
         } else {
             $this->debug and print "<br>db_entity->insert(): New ID: " . $id;
         }
+
         $this->key_field->set_value($id);
 
         return true;
@@ -292,6 +329,7 @@ class DatabaseEntity
             if (isset($this->data_fields[$this->data_table . "ModifiedUser"]) && $current_user_id) {
                 $this->set_value($this->data_table . "ModifiedUser", $current_user_id);
             }
+
             if (isset($this->data_fields[$this->data_table . "ModifiedTime"])) {
                 $this->set_value($this->data_table . "ModifiedTime", date("Y-m-d H:i:s"));
             }
@@ -317,6 +355,7 @@ class DatabaseEntity
         if (!$this->has_key_values()) {
             return true;
         }
+
         if ($this->key_field->has_value() && $this->key_field->get_name() && $this->key_field->get_value()) {
             $db = $this->get_db();
             $row = $db->qr("SELECT " . db_esc($this->key_field->get_name()) . "
@@ -335,6 +374,7 @@ class DatabaseEntity
             alloc_error(implode(" ", $error));
             return false;
         }
+
         if (strlen($error) && $error) {
             alloc_error($error);
             return false;
@@ -345,19 +385,24 @@ class DatabaseEntity
         } else {
             $rtn = $this->update();
         }
+
         // Update the search index for this entity, if any
         if (!$rtn) {
             return $rtn;
         }
+
         if (!$this->get_id()) {
             return $rtn;
         }
+
         if (!$this->classname) {
             return $rtn;
         }
+
         if (!is_dir(ATTACHMENTS_DIR . 'search/' . $this->classname)) {
             return $rtn;
         }
+
         // Update the index asynchronously (later from a job running search/updateIndex.php)
         if ($this->updateSearchIndexLater) {
             $db = $this->get_db();
@@ -370,6 +415,7 @@ class DatabaseEntity
             $this->update_search_index_doc($searchIndex);
             $searchIndex->commit();
         }
+
         return $rtn;
     }
 
@@ -379,6 +425,7 @@ class DatabaseEntity
         if (isset($this->data_fields["currencyTypeID"]) && ($this->data_fields["currencyTypeID"]->get_value() !== null && (bool)strlen($this->data_fields["currencyTypeID"]->get_value()))) {
             $c = $this->data_fields["currencyTypeID"]->get_value();
         }
+
         $c and $this->currency = $c;
 
         foreach ($this->data_fields as $data_field) {
@@ -389,9 +436,11 @@ class DatabaseEntity
         if (!$message) {
             return;
         }
+
         if (!preg_match("/[a-zA-Z0-9]+/", $message)) {
             return;
         }
+
         return $message;
     }
 
@@ -417,7 +466,7 @@ class DatabaseEntity
         // Key field
         $source_index = $source_prefix . $this->key_field->get_name();
         $this->key_field->set_value($array[$source_index], $source);
-        $this->debug and print "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", $source)<br>\n";
+        $this->debug and print "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", {$source})<br>\n";
         $this->fields_loaded = true;
     }
 
@@ -473,8 +522,10 @@ class DatabaseEntity
             if (in_array($this->data_table, (array)$meta_tables)) {
                 return true;
             }
+
             $this->clear();
         }
+
         return $have_perm;
     }
 
@@ -487,6 +538,7 @@ class DatabaseEntity
         if (!$have_perm) {
             $this->clear();
         }
+
         return $have_perm;
     }
 
@@ -508,10 +560,11 @@ class DatabaseEntity
     {
         $field = $this->data_fields[$field_name];
         if (!is_object($field)) {
-            $msg = "Field $field_name does not exist in " . $this->data_table;
+            $msg = sprintf('Field %s does not exist in ', $field_name) . $this->data_table;
             alloc_error($msg);
             return $msg;
         }
+
         if (!$this->can_read_field($field_name)) {
             return "Permission denied to " . $this->permissions[$this->data_fields[$field_name]->read_perm_name] . " of " . $this->data_table . "." . $field_name;
         }
@@ -520,6 +573,7 @@ class DatabaseEntity
         if (isset($this->data_fields["currencyTypeID"]) && ($this->data_fields["currencyTypeID"]->get_value() !== null && (bool)strlen($this->data_fields["currencyTypeID"]->get_value()))) {
             $c = $this->data_fields["currencyTypeID"]->get_value();
         }
+
         $c and $this->currency = $c;
         return $field->get_value($dest, $this);
     }
@@ -544,6 +598,7 @@ class DatabaseEntity
         if ($key_name == "") {
             $key_name = $class_name . "ID";
         }
+
         $object = new $class_name;
         $object->set_id($this->get_value($key_name, DST_VARIABLE));
         $object->select();
@@ -555,6 +610,7 @@ class DatabaseEntity
         if ($key_name == "") {
             $key_name = $this->key_field->get_name();
         }
+
         $foreign_objects = [];
         $query = unsafe_prepare("SELECT * FROM %s WHERE %s = %d", $class_name, $key_name, $this->get_id());
         $allocDatabase = new AllocDatabase();
@@ -564,6 +620,7 @@ class DatabaseEntity
             $o->read_db_record($allocDatabase);
             $foreign_objects[$o->get_id()] = $o;
         }
+
         return $foreign_objects;
     }
 
@@ -581,8 +638,10 @@ class DatabaseEntity
                     return "";
                 }
             }
+
             return $this->get_value($this->display_field_name, $dst);
         }
+
         return "#" . $this->get_id();
     }
 
@@ -592,9 +651,11 @@ class DatabaseEntity
         if (!is_object($field)) {
             return true;
         }
+
         if (!$field->read_perm_name) {
             return true;
         }
+
         return $this->have_perm($field->read_perm_name);
     }
 
@@ -603,6 +664,7 @@ class DatabaseEntity
         if (is_string($field)) {
             $field = $this->data_fields[$field];
         }
+
         return $field->write_perm_name == 0 || $this->have_perm($field->write_perm_name);
     }
 
@@ -613,15 +675,19 @@ class DatabaseEntity
         if (!is_object($person)) {
             return;
         }
+
         if ($person->classname != "person") {
             return;
         }
+
         if (isset($this->data_fields["personID"])) {
             return $this->get_value("personID") == $person->get_id();
         }
+
         if ($this->key_field->get_name() == "personID") {
             return $this->get_id() == $person->get_id();
         }
+
         echo "Warning: could not determine owner for " . $this->data_table . "<br>";
     }
 
@@ -639,8 +705,9 @@ class DatabaseEntity
         // Key field
         $this->key_field->clear_value();
         if ($this->debug) {
-            echo "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", $source)<br>\n";
+            echo "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", {$source})<br>\n";
         }
+
         $this->fields_loaded = false;
     }
 
@@ -654,8 +721,10 @@ class DatabaseEntity
             $databaseClass = $this->databaseClass;
             $this->db = new $databaseClass;
         }
+
         return $this->db;
     }
+
     public function get_insert_fields($fields)
     {
         $comma = null;
@@ -666,8 +735,10 @@ class DatabaseEntity
                 $comma = ",";
             }
         }
+
         return $rtn;
     }
+
     public function get_insert_values($fields)
     {
         $comma = null;
@@ -678,8 +749,10 @@ class DatabaseEntity
                 $comma = ",";
             }
         }
+
         return $rtn;
     }
+
     public function get_name_equals_value($fields, $glue = ",")
     {
         $query = "";
@@ -687,6 +760,7 @@ class DatabaseEntity
             if ($query) {
                 $query .= $glue;
             }
+
             $query .= $field->get_name() . " = " . $field->get_value(DST_DATABASE);
         }
 
@@ -745,6 +819,7 @@ class DatabaseEntity
 
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
+
         $rows = [];
         while ($row = $allocDatabase->row()) {
             if ($this->read_db_record($allocDatabase)) {
@@ -753,9 +828,11 @@ class DatabaseEntity
                 } else {
                     $v = $row;
                 }
+
                 $rows[$row[$key]] = $v;
             }
         }
+
         return $rows;
     }
 
@@ -770,7 +847,8 @@ class DatabaseEntity
             } else if ($field) {
                 $label = $this->get_value($field, DST_HTML_DISPLAY);
             }
-            return "<a href=\"" . $TPL["url_alloc_" . $this->classname] . $this->key_field->get_name() . "=" . $this->get_id() . "\">" . $label . "</a>";
+
+            return '<a href="' . $TPL["url_alloc_" . $this->classname] . $this->key_field->get_name() . "=" . $this->get_id() . '">' . $label . "</a>";
         }
     }
 
@@ -787,6 +865,7 @@ class DatabaseEntity
                 $index->delete($hit->id);
             }
         }
+
         return $index;
     }
 

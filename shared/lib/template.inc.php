@@ -50,6 +50,7 @@ function echo_var($matches)
     if ($var && $starts_with_equals) {
         return '<?php echo Page::htmlentities(' . $var . '); ?>';
     }
+
     if ($var) {
         return '<?php echo ' . $var . '; ?>';
     }
@@ -61,7 +62,7 @@ function get_template($filename)
 
     $template = implode("", (@file($filename)));
     if ((!$template) or (empty($template))) {
-        echo "get_template() failure: [$filename]";
+        echo sprintf('get_template() failure: [%s]', $filename);
     }
 
     // This allows us to use curly braces in our templates for javascript and CSS rules
@@ -117,9 +118,10 @@ function get_template($filename)
         $searches[] = $s;
         $replaces[] = $r;
     }
+
     $template = str_replace($searches, $replaces, $template);
 
-    return "?>$template<?php ";
+    return sprintf('?>%s<?php ', $template);
 }
 
 // This is the publically callable function, used to include template files

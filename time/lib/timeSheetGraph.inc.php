@@ -11,6 +11,7 @@ class timeSheetGraph
     public function __construct()
     {
     }
+
     public function get_list_vars()
     {
         return [

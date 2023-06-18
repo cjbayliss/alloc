@@ -14,6 +14,7 @@ function show_announcements($template_name)
 
     $database = new AllocDatabase();
     $database->connect();
+
     $getAnnouncements = $database->pdo->query(
         "SELECT announcement.*
            FROM announcement

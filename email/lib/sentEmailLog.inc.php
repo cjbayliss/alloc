@@ -8,8 +8,11 @@
 class sentEmailLog extends DatabaseEntity
 {
     public $classname = "sentEmailLog";
+
     public $data_table = "sentEmailLog";
+
     public $key_field = "sentEmailLogID";
+
     public $data_fields = [
         "sentEmailTo",
         "sentEmailSubject",

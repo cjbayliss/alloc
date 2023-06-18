@@ -19,9 +19,11 @@ class tsiHintHomeItem extends home_item
         if (!$current_user->have_role("manage")) {
             return;
         }
+
         if (!$current_user->prefs["showTimeSheetItemHintHome"]) {
             return;
         }
+
         return true;
     }
 

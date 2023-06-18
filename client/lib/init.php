@@ -8,5 +8,6 @@
 class client_module extends Module
 {
     public $module = "client";
+
     public $databaseEntities = ["client", "clientContact"];
 }

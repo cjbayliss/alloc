@@ -7,14 +7,22 @@
 
 class calendar_day
 {
-    public $date;          // Y-m-d
-    public $day;           // Mon
-    public $display_date;  // m-Y
+    public $date;
+
+    public $day;
+
+    public $display_date;
+
     public $links;
+
     public $class;
+
     public $absences = [];
+
     public $start_tasks = [];
+
     public $complete_tasks = [];
+
     public $reminders = [];
 
     public function __construct()
@@ -60,15 +68,16 @@ class calendar_day
             $rows[] = "<br>To be complete:";
             $rows[] = implode("<br>", $this->complete_tasks);
         }
+
         if ($this->reminders) {
             $rows[] = "<br>Reminders:";
             $rows[] = implode("<br>", $this->reminders);
         }
 
-        echo "\n<td class=\"calendar_day " . $this->class . "\">";
+        echo "\n<td class=\"calendar_day " . $this->class . '">';
         echo "<h1>" . $this->links . $this->display_date . "</h1>";
 
-        if (count($rows)) {
+        if ($rows !== []) {
             echo implode("<br>", $rows);
         }
 

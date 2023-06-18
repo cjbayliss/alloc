@@ -8,5 +8,6 @@
 class reminder_module extends Module
 {
     public $module = "reminder";
+
     public $databaseEntities = ["reminder", "reminderRecipient"];
 }

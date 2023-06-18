@@ -11,9 +11,13 @@ use ZendSearch\Lucene\Document\Field;
 class item extends DatabaseEntity
 {
     public $classname = "item";
+
     public $data_table = "item";
+
     public $display_field_name = "itemName";
+
     public $key_field = "itemID";
+
     public $data_fields = [
         "itemModifiedUser",
         "itemName",
@@ -41,6 +45,7 @@ class item extends DatabaseEntity
         $zendSearchLuceneDocument->addField(Field::Text('creator', $person_field, "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('modifier', $itemModifiedUser_field, "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('dateModified', str_replace("-", "", $this->get_value("itemModifiedTime")), "utf-8"));
+
         $index->addDocument($zendSearchLuceneDocument);
     }
 }

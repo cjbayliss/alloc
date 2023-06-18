@@ -9,8 +9,11 @@ define("PERM_APPROVE_PRODUCT_TRANSACTIONS", 256);
 class productSale extends DatabaseEntity
 {
     public $classname = "productSale";
+
     public $data_table = "productSale";
+
     public $key_field = "productSaleID";
+
     public $data_fields = [
         "clientID",
         "projectID",
@@ -25,6 +28,7 @@ class productSale extends DatabaseEntity
         "extRef",
         "extRefDate",
     ];
+
     public $permissions = [PERM_APPROVE_PRODUCT_TRANSACTIONS => "approve product transactions"];
 
     public function validate($_ = null)
@@ -62,9 +66,11 @@ class productSale extends DatabaseEntity
         if (!$this->get_id()) {
             return true;
         }
+
         if ($this->get_value("productSaleCreatedUser") == $current_user->get_id()) {
             return true;
         }
+
         return $this->get_value("personID") == $current_user->get_id();
     }
 
@@ -83,6 +89,7 @@ class productSale extends DatabaseEntity
             $productSaleItem->read_db_record($allocDatabase);
             $productSaleItem->delete();
         }
+
         $this->delete_transactions();
         return parent::delete();
     }
@@ -98,6 +105,7 @@ class productSale extends DatabaseEntity
                 $project->select();
                 $tfID = $project->get_value("cost_centre_tfID");
             }
+
             if (!$tfID) {
                 alloc_error("Unable to use META: Project TF. Please ensure the project has a TF set, or adjust the transactions.");
             }
@@ -119,6 +127,7 @@ class productSale extends DatabaseEntity
             $tfID = $this->get_value("tfID");
             $tfID or alloc_error("Unable to use META: Sale TF not set.");
         }
+
         return $tfID;
     }
 
@@ -127,10 +136,12 @@ class productSale extends DatabaseEntity
         $q = unsafe_prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $this->get_id());
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
+
         $rows = [];
         while ($row = $allocDatabase->row()) {
             $rows[$row["productSaleItemID"]] = $row;
         }
+
         return $rows;
     }
 
@@ -170,6 +181,7 @@ class productSale extends DatabaseEntity
             $sep = " + ";
             $code != config::get_config_item("currency") and $show = true;
         }
+
         $show && $label and $sellPrice_label = " (" . $label . ")";
 
         $total_sellPrice_plus_gst = add_tax($total_sellPrice);
@@ -245,7 +257,7 @@ class productSale extends DatabaseEntity
             $hasItems = true;
         }
 
-        if (!$hasItems) {
+        if ($hasItems === null) {
             return alloc_error("No sale items have been added.");
         }
 
@@ -267,7 +279,7 @@ class productSale extends DatabaseEntity
                 $psi = new productSaleItem();
                 $psi->set_id($item["productSaleItemID"]);
                 $psi->select();
-                if (!$db->qr("SELECT transactionID FROM transaction WHERE productSaleItemID = %d", $psi->get_id())) {
+                if (!$db->qr(["SELECT transactionID FROM transaction WHERE productSaleItemID = %d", $psi->get_id()])) {
                     $psi->create_transactions();
                 }
             }
@@ -325,6 +337,7 @@ class productSale extends DatabaseEntity
                 foreach ($rows as $row) {
                     $ids[] = $row["productSaleItemID"];
                 }
+
                 if ($ids) {
                     $q = unsafe_prepare("UPDATE transaction SET status = '%s' WHERE productSaleItemID in (%s)", $_REQUEST["changeTransactionStatus"], $ids);
                     $db = new AllocDatabase();
@@ -453,8 +466,10 @@ class productSale extends DatabaseEntity
                 $done = true;
                 $row["saleTransactionType"] = "sellPrice";
             }
+
             $rows[] = $row;
         }
+
         return $rows;
     }
 
@@ -481,6 +496,7 @@ class productSale extends DatabaseEntity
             foreach ((array)$current_user->prefs["stars"]["productSale"] as $k => $v) {
                 $filter["productSaleID"][] = $k;
             }
+
             is_array($filter["productSaleID"]) or $filter["productSaleID"][] = -1;
         }
 
@@ -553,9 +569,10 @@ class productSale extends DatabaseEntity
     {
         global $TPL;
         if (is_object($this)) {
-            return "<a href=\"" . $TPL["url_alloc_productSale"] . "productSaleID=" . $this->get_id() . "\">" . $this->get_id() . "</a>";
+            return '<a href="' . $TPL["url_alloc_productSale"] . "productSaleID=" . $this->get_id() . '">' . $this->get_id() . "</a>";
         }
-        return "<a href=\"" . $TPL["url_alloc_productSale"] . "productSaleID=" . $row["productSaleID"] . "\">" . $row["productSaleID"] . "</a>";
+
+        return '<a href="' . $TPL["url_alloc_productSale"] . "productSaleID=" . $row["productSaleID"] . '">' . $row["productSaleID"] . "</a>";
     }
 
     public static function get_statii()
@@ -599,6 +616,7 @@ class productSale extends DatabaseEntity
                     "personID" => $this->get_value("personID"),
                 ];
             }
+
             if ($this->get_value("productSaleCreatedUser")) {
                 $p = new person();
                 $p->set_id($this->get_value("productSaleCreatedUser"));
@@ -609,8 +627,10 @@ class productSale extends DatabaseEntity
                     "personID" => $this->get_value("productSaleCreatedUser"),
                 ];
             }
+
             $this_id = $this->get_id();
         }
+
         // return an aggregation of the current proj/client parties + the existing interested parties
         $interestedPartyOptions = InterestedParty::get_interested_parties("productSale", $this_id, $interestedPartyOptions);
         return $interestedPartyOptions;
@@ -669,7 +689,8 @@ class productSale extends DatabaseEntity
         if (!$_FORM['showAllProjects']) {
             $filter = "WHERE projectStatus = 'Current' ";
         }
-        $query = unsafe_prepare("SELECT projectID AS value, projectName AS label FROM project $filter ORDER by projectName");
+
+        $query = unsafe_prepare(sprintf('SELECT projectID AS value, projectName AS label FROM project %s ORDER by projectName', $filter));
         $rtn["show_project_options"] = Page::select_options($query, $_FORM["projectID"], 70);
 
         // display the list of user name.

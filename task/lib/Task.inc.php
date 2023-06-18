@@ -13,9 +13,13 @@ define("PERM_PROJECT_READ_TASK_DETAIL", 256);
 class Task extends DatabaseEntity
 {
     public $classname = "Task";
+
     public $data_table = "task";
+
     public $display_field_name = "taskName";
+
     public $key_field = "taskID";
+
     public $data_fields = [
         "taskName",
         "taskDescription",
@@ -45,6 +49,7 @@ class Task extends DatabaseEntity
     ];
 
     public $permissions = [PERM_PROJECT_READ_TASK_DETAIL => "read details"];
+
     private bool $skip_perms_check = false;
 
     public function save()
@@ -141,10 +146,12 @@ class Task extends DatabaseEntity
     {
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query("SELECT * FROM pendingTask WHERE taskID = %d", $this->get_id());
+
         $rows = [];
         while ($row = $allocDatabase->row()) {
             $rows[] = $row["pendingTaskID"];
         }
+
         asort($rows);
 
         $bits = preg_split("/\b/", $str);
@@ -184,11 +191,13 @@ class Task extends DatabaseEntity
         } else {
             $q = unsafe_prepare("SELECT name FROM tag WHERE taskID = %d ORDER BY name", $this->get_id());
         }
+
         $allocDatabase->query($q);
         $arr = [];
         while ($row = $allocDatabase->row()) {
             $row["name"] and $arr[$row["name"]] = $row["name"];
         }
+
         return (array)$arr;
     }
 
@@ -201,6 +210,7 @@ class Task extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $rows[] = $row[($invert ? "taskID" : "pendingTaskID")];
         }
+
         return (array)$rows;
     }
 
@@ -223,6 +233,7 @@ class Task extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
+
         return (array)$rows;
     }
 
@@ -267,6 +278,7 @@ class Task extends DatabaseEntity
             if (strlen($date) <= "10") {
                 $date .= " 08:30:00";
             }
+
             $this->add_notification($tokenActionID, $maxUsed, $name, $desc, $recipients, $date);
         }
     }
@@ -310,6 +322,7 @@ class Task extends DatabaseEntity
             $reminder->set_value('reminderAdvNoticeInterval', "No");
             $reminder->set_value('reminderAdvNoticeValue', "0");
         }
+
         $reminder->set_value('reminderTime', $date);
         $reminder->save();
         // the negative is due to ugly reminder internals
@@ -410,7 +423,8 @@ class Task extends DatabaseEntity
                             ORDER BY taskName", $projectID, $parentTaskID);
             $options = Page::select_options($query, $parentTaskID, 70);
         }
-        return "<select name=\"parentTaskID\"><option value=\"\">" . $options . "</select>";
+
+        return '<select name="parentTaskID"><option value="">' . $options . "</select>";
     }
 
     public function get_task_cc_list_select($projectID = "")
@@ -428,14 +442,17 @@ class Task extends DatabaseEntity
             if ($_GET["projectID"]) {
                 $projectID = $_GET["projectID"];
             }
+
             if ($projectID) {
                 $project = new project($projectID);
                 $interestedPartyOptions = $project->get_all_parties();
             }
+
             $extra_interested_parties = config::get_config_item("defaultInterestedParties");
             foreach ((array)$extra_interested_parties as $name => $email) {
                 $interestedPartyOptions[$email]["name"] = $name;
             }
+
             $interestedPartyOptions = InterestedParty::get_interested_parties("task", null, $interestedPartyOptions);
         }
 
@@ -443,11 +460,13 @@ class Task extends DatabaseEntity
             if ($info["role"] == "interested" && $info["selected"]) {
                 $selected[] = $info["identifier"];
             }
+
             if ($email) {
                 $options[$info["identifier"]] = trim(Page::htmlentities(trim($info["name"]) . " <" . $email . ">"));
             }
         }
-        return "<select name=\"interestedParty[]\" multiple=\"true\">" . Page::select_options($options, $selected, 100, false) . "</select>";
+
+        return '<select name="interestedParty[]" multiple="true">' . Page::select_options($options, $selected, 100, false) . "</select>";
     }
 
     public function get_all_parties($projectID = "")
@@ -459,14 +478,17 @@ class Task extends DatabaseEntity
         } else if (!$projectID) {
             $projectID = $this->get_value("projectID");
         }
+
         if ($projectID) {
             $project = new project($projectID);
             $interestedPartyOptions = $project->get_all_parties(false, $this->get_id());
         }
+
         $extra_interested_parties = config::get_config_item("defaultInterestedParties") or $extra_interested_parties = [];
         foreach ($extra_interested_parties as $name => $email) {
             $interestedPartyOptions[$email]["name"] = $name;
         }
+
         if ($this->get_value("creatorID")) {
             $p = new person();
             $p->set_id($this->get_value("creatorID"));
@@ -477,6 +499,7 @@ class Task extends DatabaseEntity
                 $interestedPartyOptions[$p->get_value("emailAddress")]["personID"] = $this->get_value("creatorID");
             }
         }
+
         if ($this->get_value("personID")) {
             $p = new person();
             $p->set_id($this->get_value("personID"));
@@ -488,6 +511,7 @@ class Task extends DatabaseEntity
                 $interestedPartyOptions[$p->get_value("emailAddress")]["selected"] = 1;
             }
         }
+
         if ($this->get_value("managerID")) {
             $p = new person();
             $p->set_id($this->get_value("managerID"));
@@ -499,6 +523,7 @@ class Task extends DatabaseEntity
                 $interestedPartyOptions[$p->get_value("emailAddress")]["selected"] = 1;
             }
         }
+
         // return an aggregation of the current task/proj/client parties + the existing interested parties
         $interestedPartyOptions = InterestedParty::get_interested_parties("task", $this->get_id(), $interestedPartyOptions);
         return $interestedPartyOptions;
@@ -541,6 +566,7 @@ class Task extends DatabaseEntity
                 if ($managers_only && $current_user->get_id() == $row["personID"]) {
                     $current_user_is_manager = true;
                 }
+
                 $ops[$row["personID"]] = $peoplenames[$row["personID"]];
             }
 
@@ -584,9 +610,9 @@ class Task extends DatabaseEntity
         global $isMessage;
         $allocDatabase = new AllocDatabase();
         $projectID = $_GET["projectID"] or $projectID = $this->get_value("projectID");
-        $TPL["personOptions"] = "<select name=\"personID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "personID") . "</select>";
-        $TPL["managerPersonOptions"] = "<select name=\"managerID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "managerID") . "</select>";
-        $TPL["estimatorPersonOptions"] = "<select name=\"estimatorID\"><option value=\"\">" . $this->get_personList_dropdown($projectID, "estimatorID") . "</select>";
+        $TPL["personOptions"] = '<select name="personID"><option value="">' . $this->get_personList_dropdown($projectID, "personID") . "</select>";
+        $TPL["managerPersonOptions"] = '<select name="managerID"><option value="">' . $this->get_personList_dropdown($projectID, "managerID") . "</select>";
+        $TPL["estimatorPersonOptions"] = '<select name="estimatorID"><option value="">' . $this->get_personList_dropdown($projectID, "estimatorID") . "</select>";
 
         // TaskType Options
         $meta = new Meta("taskType");
@@ -639,7 +665,7 @@ class Task extends DatabaseEntity
         $projectPriorities = config::get_config_item("projectPriorities") or $projectPriorities = [];
         $priority = $this->get_value("priority") or $priority = 3;
         $TPL["priorityOptions"] = Page::select_options(array_kv($taskPriorities, null, "label"), $priority);
-        $TPL["priorityLabel"] = " <div style=\"display:inline; color:" . $taskPriorities[$priority]["colour"] . "\">[";
+        $TPL["priorityLabel"] = ' <div style="display:inline; color:' . $taskPriorities[$priority]["colour"] . '">[';
 
         if (is_object($p)) {
             [$priorityFactor, $daysUntilDue] = $this->get_overall_priority($p->get_value("projectPriority"), $this->get_value("priority"), $this->get_value("dateTargetCompletion"));
@@ -651,6 +677,7 @@ class Task extends DatabaseEntity
         } else {
             $TPL["priorityLabel"] .= $this->get_priority_label();
         }
+
         $TPL["priorityLabel"] .= "]</div>";
 
         // If we're viewing the printer friendly view
@@ -685,7 +712,7 @@ class Task extends DatabaseEntity
     public function get_task_link($_FORM = [])
     {
         $_FORM["return"] or $_FORM["return"] = "html";
-        $rtn = "<a href=\"" . $this->get_url() . "\">";
+        $rtn = '<a href="' . $this->get_url() . '">';
         $rtn .= $this->get_name($_FORM);
         $rtn .= "</a>";
         return $rtn;
@@ -694,7 +721,7 @@ class Task extends DatabaseEntity
     public function get_task_image()
     {
         global $TPL;
-        return "<img class=\"taskType\" alt=\"" . $this->get_value("taskTypeID") . "\" title=\"" . $this->get_value("taskTypeID") . "\" src=\"" . $TPL["url_alloc_images"] . "taskType_" . strtolower($this->get_value("taskTypeID")) . ".gif\">";
+        return '<img class="taskType" alt="' . $this->get_value("taskTypeID") . '" title="' . $this->get_value("taskTypeID") . '" src="' . $TPL["url_alloc_images"] . "taskType_" . strtolower($this->get_value("taskTypeID")) . '.gif">';
     }
 
     public function get_name($_FORM = [])
@@ -710,6 +737,7 @@ class Task extends DatabaseEntity
         } else {
             $rtn = $id . $this->get_value("taskName");
         }
+
         return $rtn;
     }
 
@@ -729,6 +757,7 @@ class Task extends DatabaseEntity
             $prefix or $prefix = config::get_config_item("allocURL");
             $url = $prefix . $url;
         }
+
         return $url;
     }
 
@@ -767,6 +796,7 @@ class Task extends DatabaseEntity
             $meta = new Meta("taskStatus");
             $rows = $meta->get_assoc_array();
         }
+
         foreach ($rows as $taskStatusID => $arr) {
             [$s, $ss] = explode("_", $taskStatusID);
             $rtn[$s][$ss] = [
@@ -774,6 +804,7 @@ class Task extends DatabaseEntity
                 "colour" => $arr["taskStatusColour"],
             ];
         }
+
         return $rtn;
     }
 
@@ -789,9 +820,11 @@ class Task extends DatabaseEntity
         if (!$thing) {
             return;
         }
+
         if (!$arr[$taskStatus][$taskSubStatus][$thing]) {
             return;
         }
+
         return $arr[$taskStatus][$taskSubStatus][$thing];
     }
 
@@ -818,6 +851,7 @@ class Task extends DatabaseEntity
                 $commar3 = ",";
             }
         }
+
         return [$sql_open, $sql_pend, $sql_clos];
     }
 
@@ -827,9 +861,11 @@ class Task extends DatabaseEntity
         if (!is_array($status)) {
             $status = [$status];
         }
+
         foreach ((array)$status as $s) {
             $lengths[] = strlen($s);
         }
+
         return sprintf_implode("SUBSTRING(task.taskStatus,1,%d) = '%s'", $lengths, $status);
     }
 
@@ -845,6 +881,7 @@ class Task extends DatabaseEntity
             foreach ((array)$current_user->prefs["stars"]["task"] as $k => $v) {
                 $filter["taskID"][] = $k;
             }
+
             is_array($filter["taskID"]) or $filter["taskID"][] = -1;
         }
 
@@ -936,6 +973,7 @@ class Task extends DatabaseEntity
             foreach ((array)$filter["tags"] as $k => $tag) {
                 $tag and $tags[] = $tag;
             }
+
             $tags and $sql[] = sprintf_implode("seltag.name = '%s'", $tags);
             $having = unsafe_prepare("HAVING count(DISTINCT seltag.name) = %d", count($tags));
         }
@@ -973,15 +1011,16 @@ class Task extends DatabaseEntity
                 $row["padding"] = $padding;
                 $rtn[$taskID]["row"] = $row;
                 unset($rows[$taskID]);
-                $padding += 1;
+                ++$padding;
                 $children = Task::get_recursive_child_tasks($taskID, $rows, $padding);
-                $padding -= 1;
+                --$padding;
 
                 if (is_countable($children) ? count($children) : 0) {
                     $rtn[$taskID]["children"] = $children;
                 }
             }
         }
+
         return $rtn;
     }
 
@@ -1000,6 +1039,7 @@ class Task extends DatabaseEntity
                 $d and $done += $d;
             }
         }
+
         return [$tasks, $done];
     }
 
@@ -1016,6 +1056,7 @@ class Task extends DatabaseEntity
         } else {
             $mult = 8;
         }
+
         $daysUntilDue and $daysUntilDue = sprintf("%d", ceil($daysUntilDue));
         return [sprintf("%0.2f", ($taskPriority * $projectPriority ** 2) * $mult / 10), $daysUntilDue];
     }
@@ -1042,6 +1083,7 @@ class Task extends DatabaseEntity
         if ($_FORM["limit"] || $_FORM["limit"] === 0 || $_FORM["limit"] === "0") {
             $limit = unsafe_prepare("limit %d", $_FORM["limit"]);
         }
+
         $_FORM["return"] or $_FORM["return"] = "html";
 
         $_FORM["people_cache"] = &get_cached_table("person");
@@ -1123,6 +1165,7 @@ class Task extends DatabaseEntity
             if (!$_FORM["skipObject"]) {
                 $_FORM["return"] == "array" and $row["object"] = $task;
             }
+
             $row["padding"] = $_FORM["padding"];
             $row["taskID"] = $task->get_id();
             $row["parentTaskID"] = $task->get_value("parentTaskID");
@@ -1136,6 +1179,7 @@ class Task extends DatabaseEntity
             if ($_FORM["showComments"] && $comments = comment::util_get_comments("task", $row["taskID"])) {
                 $row["comments"] = $comments;
             }
+
             if ($_FORM["taskView"] == "byProject") {
                 $rows[$task->get_id()] = ["parentTaskID" => $row["parentTaskID"], "row" => $row];
             } else if ($_FORM["taskView"] == "prioritised") {
@@ -1188,6 +1232,7 @@ class Task extends DatabaseEntity
         foreach ($taskPriorities as $k => $v) {
             $tp[$k] = $v["label"];
         }
+
         return Page::select_options($tp, $priority);
     }
 
@@ -1197,10 +1242,12 @@ class Task extends DatabaseEntity
         if (!is_object($this)) {
             return;
         }
+
         if ($this->get_value("taskTypeID") != "Parent") {
             return;
         }
-        return "<a class=\"noprint\" href=\"" . $TPL["url_alloc_task"] . "projectID=" . $this->get_value("projectID") . "&parentTaskID=" . $this->get_id() . "\">New Subtask</a>";
+
+        return '<a class="noprint" href="' . $TPL["url_alloc_task"] . "projectID=" . $this->get_value("projectID") . "&parentTaskID=" . $this->get_id() . '">New Subtask</a>';
     }
 
     public function get_time_billed($taskID = "")
@@ -1209,9 +1256,11 @@ class Task extends DatabaseEntity
         if (is_object($this) && !$taskID) {
             $taskID = $this->get_id();
         }
+
         if ($results[$taskID]) {
             return $results[$taskID];
         }
+
         if ($taskID) {
             $allocDatabase = new AllocDatabase();
             // Get tally from timeSheetItem table
@@ -1224,6 +1273,7 @@ class Task extends DatabaseEntity
                 $results[$taskID] = $allocDatabase->f("sum_of_time");
                 return $allocDatabase->f("sum_of_time");
             }
+
             return "";
         }
     }
@@ -1397,6 +1447,7 @@ class Task extends DatabaseEntity
         } else {
             unset($_FORM["showComments"]);
         }
+
         $_FORM["taskView"] or $_FORM["taskView"] = "byProject";
         return $_FORM;
     }
@@ -1526,10 +1577,10 @@ class Task extends DatabaseEntity
                     $changeDescription = "Default parties set to " . InterestedParty::abbreviate($newValue);
                     break;
                 case 'taskName':
-                    $changeDescription = "Task name set to '$newValue'.";
+                    $changeDescription = sprintf("Task name set to '%s'.", $newValue);
                     break;
                 case 'taskDescription':
-                    $changeDescription = "Task description set to <a class=\"magic\" href=\"#x\" onclick=\"$('#audit" . $change["auditID"] . "').slideToggle('fast');\">Show</a> <div class=\"hidden\" id=\"audit" . $change["auditID"] . "\"><div>" . $newValue . "</div></div>";
+                    $changeDescription = "Task description set to <a class=\"magic\" href=\"#x\" onclick=\"$('#audit" . $change["auditID"] . "').slideToggle('fast');\">Show</a> <div class=\"hidden\" id=\"audit" . $change["auditID"] . '"><div>' . $newValue . "</div></div>";
                     break;
                 case 'priority':
                     $priorities = config::get_config_item("taskPriorities");
@@ -1548,6 +1599,7 @@ class Task extends DatabaseEntity
                     } else {
                         $changeDescription = "Task no longer a child task.";
                     }
+
                     break;
                 case 'duplicateTaskID':
                     (new Task())->load_entity("task", $newValue, $newTask);
@@ -1556,6 +1608,7 @@ class Task extends DatabaseEntity
                     } else {
                         $changeDescription = "Task is no longer a duplicate.";
                     }
+
                     break;
                 case 'personID':
                     $changeDescription = "Task assigned to " . $people_cache[$newValue]["name"] . ".";
@@ -1610,14 +1663,17 @@ class Task extends DatabaseEntity
                         case 'timeExpected':
                             $fieldDesc = "expected estimate";
                     }
+
                     if ($newValue) {
-                        $changeDescription = "The $fieldDesc was set to $newValue.";
+                        $changeDescription = sprintf('The %s was set to %s.', $fieldDesc, $newValue);
                     } else {
-                        $changeDescription = "The $fieldDesc was removed.";
+                        $changeDescription = sprintf('The %s was removed.', $fieldDesc);
                     }
+
                     break;
             }
-            $rows[] = "<tr><td class=\"nobr\">" . $change["dateChanged"] . "</td><td>$changeDescription</td><td>" . Page::htmlentities($people_cache[$change["personID"]]["name"]) . "</td></tr>";
+
+            $rows[] = '<tr><td class="nobr">' . $change["dateChanged"] . sprintf('</td><td>%s</td><td>', $changeDescription) . Page::htmlentities($people_cache[$change["personID"]]["name"]) . "</td></tr>";
         }
 
         return implode("\n", $rows);
@@ -1683,6 +1739,7 @@ class Task extends DatabaseEntity
         $zendSearchLuceneDocument->addField(Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
+
         $index->addDocument($zendSearchLuceneDocument);
     }
 
@@ -1748,6 +1805,7 @@ class Task extends DatabaseEntity
         $token->set_value("tokenMaxUsed", $maxUsed);
         $token->set_value("tokenCreatedBy", $current_user->get_id());
         $token->set_value("tokenCreatedDate", date("Y-m-d H:i:s"));
+
         $hash = $token->generate_hash();
         $token->set_value("tokenHash", $hash);
         $token->save();
@@ -1761,6 +1819,7 @@ class Task extends DatabaseEntity
             if ($datetime) {
                 $reminder->set_value("reminderTime", $datetime);
             }
+
             $reminder->save();
             if ($reminder->get_id()) {
                 foreach ($recipients as $recipient) {

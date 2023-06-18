@@ -9,8 +9,11 @@ define("DEFAULT_SEP", "\n");
 class invoiceEntity extends DatabaseEntity
 {
     public $classname = "invoiceEntity";
+
     public $data_table = "invoiceEntity";
+
     public $key_field = "invoiceEntityID";
+
     public $data_fields = [
         "invoiceID",
         "timeSheetID",
@@ -24,11 +27,13 @@ class invoiceEntity extends DatabaseEntity
         $q = unsafe_prepare("SELECT * FROM invoiceEntity WHERE invoiceID = %d AND %sID = %d", $invoiceID, $entity, $entityID);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
+
         $row = $allocDatabase->row();
         $invoiceEntity = new invoiceEntity();
         if ($row) {
             $invoiceEntity->set_id($row["invoiceEntityID"]);
         }
+
         $invoiceEntity->set_value("invoiceID", $invoiceID);
         $invoiceEntity->set_value($entity . "ID", $entityID);
         $invoiceEntity->set_value("useItems", sprintf("%d", $useItems));
@@ -48,6 +53,7 @@ class invoiceEntity extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
+
         return (array)$rows;
     }
 
@@ -114,6 +120,7 @@ class invoiceEntity extends DatabaseEntity
             if ($row) {
                 $invoiceItem->set_id($row["invoiceItemID"]);
             }
+
             $invoiceItem->set_value("invoiceID", $invoiceID);
             $invoiceItem->set_value("timeSheetID", $timeSheet->get_id());
             $invoiceItem->set_value("iiMemo", "Time Sheet #" . $timeSheet->get_id() . " for " . person::get_fullname($timeSheet->get_value("personID")) . ", Project: " . $project->get_value("projectName"));
@@ -135,6 +142,7 @@ class invoiceEntity extends DatabaseEntity
         $timeSheet = new timeSheet();
         $timeSheet->set_id($timeSheetID);
         $timeSheet->select();
+
         $currency = $timeSheet->get_value("currencyTypeID");
         $timeSheet->load_pay_info();
         $amount = $timeSheet->pay_info["total_customerBilledDollars"] or $amount = $timeSheet->pay_info["total_dollars"];
@@ -173,6 +181,7 @@ class invoiceEntity extends DatabaseEntity
             if ($r2["invoiceItemID"]) {
                 $ii->set_id($r2["invoiceItemID"]);
             }
+
             $ii->currency = $currency;
             $ii->set_value("invoiceID", $invoiceID);
             $ii->set_value("timeSheetID", $timeSheet->get_id());
@@ -192,6 +201,7 @@ class invoiceEntity extends DatabaseEntity
         $expenseForm = new expenseForm();
         $expenseForm->set_id($expenseFormID);
         $expenseForm->select();
+
         $db = new AllocDatabase();
         $db->query("SELECT max(transactionDate) as maxDate
                       FROM transaction
@@ -207,6 +217,7 @@ class invoiceEntity extends DatabaseEntity
         if ($r2) {
             $invoiceItem->set_id($r2["invoiceItemID"]);
         }
+
         $invoiceItem->set_value("invoiceID", $invoiceID);
         $invoiceItem->set_value("expenseFormID", $expenseForm->get_id());
         $invoiceItem->set_value("iiMemo", "Expense Form #" . $expenseForm->get_id() . " for " . person::get_fullname($expenseForm->get_value("expenseFormCreatedUser")));
@@ -223,6 +234,7 @@ class invoiceEntity extends DatabaseEntity
         $expenseForm = new expenseForm();
         $expenseForm->set_id($expenseFormID);
         $expenseForm->select();
+
         $db = new AllocDatabase();
         $q1 = $db->query("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseFormID);
         while ($row = $db->row($q1)) {
@@ -236,6 +248,7 @@ class invoiceEntity extends DatabaseEntity
             if ($r2) {
                 $ii->set_id($r2["invoiceItemID"]);
             }
+
             $ii->currency = $row["currencyTypeID"];
             $ii->set_value("invoiceID", $invoiceID);
             $ii->set_value("expenseFormID", $expenseForm->get_id());
@@ -255,6 +268,7 @@ class invoiceEntity extends DatabaseEntity
         $productSale = new productSale();
         $productSale->set_id($productSaleID);
         $productSale->select();
+
         $db = new AllocDatabase();
         $db->query("SELECT max(transactionDate) as maxDate
                       FROM transaction
@@ -270,6 +284,7 @@ class invoiceEntity extends DatabaseEntity
         if ($r2) {
             $invoiceItem->set_id($r2["invoiceItemID"]);
         }
+
         $invoiceItem->set_value("invoiceID", $invoiceID);
         $invoiceItem->set_value("productSaleID", $productSale->get_id());
         $invoiceItem->set_value("iiMemo", "Sale #" . $productSale->get_id() . " for " . person::get_fullname($productSale->get_value("personID")));
@@ -286,6 +301,7 @@ class invoiceEntity extends DatabaseEntity
         $productSale = new productSale();
         $productSale->set_id($productSaleID);
         $productSale->select();
+
         $db = new AllocDatabase();
         $q = unsafe_prepare("SELECT * FROM productSaleItem WHERE productSaleID = %d", $productSale->get_id());
         $q1 = $db->query($q);
@@ -298,6 +314,7 @@ class invoiceEntity extends DatabaseEntity
             if ($r2) {
                 $ii->set_id($r2["invoiceItemID"]);
             }
+
             $ii->currency = $row["sellPriceCurrencyTypeID"];
             $ii->set_value("invoiceID", $invoiceID);
             $ii->set_value("productSaleID", $productSale->get_id());

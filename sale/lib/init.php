@@ -8,11 +8,13 @@
 class sale_module extends Module
 {
     public $module = "sale";
+
     public $databaseEntities = [
         "product",
         "productCost",
         "productSale",
         "productSaleItem",
     ];
+
     public $home_items = ["saleListHomeItemAdmin", "saleListHomeItem"];
 }

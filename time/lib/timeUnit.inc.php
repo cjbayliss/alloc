@@ -8,9 +8,13 @@
 class timeUnit extends DatabaseEntity
 {
     public $classname = "timeUnit";
+
     public $data_table = "timeUnit";
+
     public $display_field_name = "timeUnitLabelA";
+
     public $key_field = "timeUnitID";
+
     public $data_fields = [
         "timeUnitName",
         "timeUnitLabelA",

@@ -9,6 +9,7 @@ class command
 {
 
     public $commands;
+
     public $email_receive;
 
     public static function get_help($type)
@@ -18,6 +19,7 @@ class command
         foreach ((array)$fields as $k => $arr) {
             $message .= "\n      " . $k . ":\t" . $arr[1];
         }
+
         return $message;
     }
 
@@ -190,6 +192,7 @@ class command
                 foreach ($reopen_rows as $rr) {
                     $rr_bits[] = $rr["reminderTime"];
                 }
+
                 $changes["reopen"] = implode(",", (array)$rr_bits);
             }
 
@@ -221,6 +224,7 @@ class command
                     $task->add_pending_tasks($commands["pend"]);
                     $changes["pend"] = implode(",", (array)$task->get_pending_tasks());
                 }
+
                 if (isset($commands["reopen"])) {
                     $task->add_reopen_reminder($commands["reopen"]);
                     $reopen_rows = $task->get_reopen_reminders();
@@ -228,6 +232,7 @@ class command
                     foreach ($reopen_rows as $reopen_row) {
                         $rr_bits[] = $reopen_row["reminderTime"];
                     }
+
                     $changes["reopen"] = implode(",", (array)$rr_bits);
                 }
 
@@ -257,6 +262,7 @@ class command
                 alloc_error("Problem updating task: " . implode("\n", (array)$err));
             }
         }
+
         return [$status, $message];
     }
 
@@ -277,6 +283,7 @@ class command
                     alloc_error("Unable to select time sheet item with ID: " . $commands["item"]);
                 }
             }
+
             $timeSheet = $timeSheetItem->get_foreign_object("timeSheet");
             $timeSheetItem->currency = $timeSheet->get_value("currencyTypeID");
             $timeSheetItem->set_value("rate", $timeSheetItem->get_value("rate", DST_HTML_DISPLAY));
@@ -334,6 +341,7 @@ class command
                 alloc_error("Problem updating time sheet item: " . implode("\n", (array)$err));
             }
         }
+
         return [$status, $message];
     }
 
@@ -381,6 +389,7 @@ class command
             $options['frequency'] = $freq;
             $options['frequency_units'] = $units_of_time[strtolower($units)];
         }
+
         if ($options['notice']) {
             [$freq, $units] = sscanf($options['notice'], "%d%c");
             $options['notice'] = $freq;
@@ -410,9 +419,11 @@ class command
             if ($options['recipients']) {
                 $recipients = array_unique(array_merge($recipients, $options['recipients']));
             }
+
             if ($options['recipients_remove']) {
                 $recipients = array_diff($recipients, $options['recipients_remove']);
             }
+
             $reminder->update_recipients($recipients);
         }
 
@@ -423,6 +434,7 @@ class command
             $status[] = "err";
             $message[] = "Reminder not saved.";
         }
+
         return [$status, $message];
     }
 
@@ -449,6 +461,7 @@ class command
                 }
             }
         }
+
         return [$status, $message];
     }
 
@@ -475,6 +488,7 @@ class command
                     }
                 }
             }
+
             // Bad or missing key, then error
         } else if ($email_receive) {
             alloc_error("Bad or missing key. Unable to process email.");
@@ -512,6 +526,7 @@ class command
             $str .= $sep . $label . ": " . $v;
             $sep = ", ";
         }
+
         return $str;
     }
 }

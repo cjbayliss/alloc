@@ -8,8 +8,11 @@
 class tf extends DatabaseEntity
 {
     public $data_table = "tf";
+
     public $display_field_name = "tfName";
+
     public $key_field = "tfID";
+
     public $data_fields = [
         "tfName",
         "tfComments",
@@ -51,12 +54,13 @@ class tf extends DatabaseEntity
                 $op = $value[0];
                 $value = $value[1];
             }
+
             $query .= " AND " . $column_name . $op . " '" . db_esc($value) . "'";
         }
 
         // echo "<br>".$debug." q: ".$query;
         $allocDatabase->query($query);
-        $allocDatabase->next_record() || alloc_error("TF $tfID not found in tf::get_balance");
+        $allocDatabase->next_record() || alloc_error(sprintf('TF %s not found in tf::get_balance', $tfID));
         return $allocDatabase->f("balance");
     }
 
@@ -76,6 +80,7 @@ class tf extends DatabaseEntity
         if (isset($owners[$person->get_id()])) {
             return in_array($this->get_id(), $owners[$person->get_id()]);
         }
+
         $owners[$person->get_id()] = $this->get_tfs_for_person($person->get_id());
         return in_array($this->get_id(), (array)$owners[$person->get_id()]);
     }
@@ -89,6 +94,7 @@ class tf extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $owners[] = $row["tfID"];
         }
+
         return $owners;
     }
 
@@ -105,7 +111,7 @@ class tf extends DatabaseEntity
 
         if (have_entity_perm("tf", PERM_UPDATE, $current_user, $this->is_owner())) {
             $statement_url = $TPL["url_alloc_tf"] . "tfID=" . $this->get_id();
-            $statement_link = "<a href=\"$statement_url\">Edit TF</a>";
+            $statement_link = sprintf('<a href="%s">Edit TF</a>', $statement_url);
             $nav_links[] = $statement_link;
         }
 
@@ -117,8 +123,9 @@ class tf extends DatabaseEntity
         $current_user = &singleton("current_user");
         global $TPL;
         if (have_entity_perm("transaction", PERM_READ, $current_user, $this->is_owner())) {
-            return "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $this->get_id() . "\">" . $this->get_value("tfName", DST_HTML_DISPLAY) . "</a>";
+            return '<a href="' . $TPL["url_alloc_transactionList"] . "tfID=" . $this->get_id() . '">' . $this->get_value("tfName", DST_HTML_DISPLAY) . "</a>";
         }
+
         return $this->get_value("tfName", DST_HTML_DISPLAY);
     }
 
@@ -143,6 +150,7 @@ class tf extends DatabaseEntity
                 $rtn[] = $row["tfID"];
             }
         }
+
         return (array)$rtn;
     }
 
@@ -168,6 +176,7 @@ class tf extends DatabaseEntity
         foreach ((array)$rtn as $tf) {
             $r[] = db_esc($tf);
         }
+
         return (array)array_unique((array)$r);
     }
 
@@ -180,6 +189,7 @@ class tf extends DatabaseEntity
         if (!$_FORM["tfIDs"] && !$current_user->have_role('admin')) {
             $_FORM["owner"] = true;
         }
+
         $_FORM["owner"] and $filter1[] = sprintf_implode("tfPerson.personID = %d", $current_user->get_id());
 
         $tfIDs = tf::get_permitted_tfs($_FORM["tfIDs"]);
@@ -207,6 +217,7 @@ class tf extends DatabaseEntity
         if (is_array($filter1) && count($filter1)) {
             $f = " AND " . implode(" AND ", $filter1);
         }
+
         if (is_array($filter2) && count($filter2)) {
             $f2 = " AND " . implode(" AND ", $filter2);
         }
@@ -278,6 +289,7 @@ class tf extends DatabaseEntity
             $tf->get_value("tfActive") and $row["tfActive_label"] = "Y";
             $rows[$tf->get_id()] = $row;
         }
+
         return (array)$rows;
     }
 }

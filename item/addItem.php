@@ -22,10 +22,10 @@ if ($_POST["save"]) {
 if ($_POST["import_from_file"]) {
     if (is_uploaded_file($_FILES["import_file"]["tmp_name"])) {
         $new_items = file($_FILES["import_file"]["tmp_name"]);
-        for ($i = 1; $i < (is_countable($new_items) ? count($new_items) : 0); $i++) {
+        for ($i = 1; $i < (is_countable($new_items) ? count($new_items) : 0); ++$i) {
             $item = new item();
             $item->read_globals();
-            $line = str_replace("\"", "", $new_items[$i]);
+            $line = str_replace('"', "", $new_items[$i]);
             $entry = explode("\t", $line);
             $item->set_value('itemName', $entry[0]);
             $item->set_value('itemAuthor', $entry[1]);
@@ -50,7 +50,7 @@ if ($_POST["update_item"]) {
 }
 
 if ($_POST["remove_items"]) {
-    for ($i = 0; $i < (is_countable($_POST["itemID"]) ? count($_POST["itemID"]) : 0); $i++) {
+    for ($i = 0; $i < (is_countable($_POST["itemID"]) ? count($_POST["itemID"]) : 0); ++$i) {
         $item = new item();
         $item->set_id($_POST["itemID"][$i]);
         $item->select();
@@ -88,20 +88,21 @@ if ($_POST["edit_items"]) {
         if ((is_countable($_POST["itemID"]) ? count($_POST["itemID"]) : 0) > 1) {
             alloc_error("Can Only Edit 1 Item At A Time");
         }
+
         $TPL["edit_options"] =
             "<table><tr>\n"
             . "  <td>Name: </td>\n"
-            . "  <td colspan=\"2\"><input size=\"40\" type=\"text\" name=\"update_itemName\" value=\"" . $item->get_value("itemName") . "\"></td>\n"
+            . '  <td colspan="2"><input size="40" type="text" name="update_itemName" value="' . $item->get_value("itemName") . "\"></td>\n"
             . "</tr><tr>\n"
             . "  <td>Notes: </td>\n"
-            . "  <td colspan=\"2\"><input size=\"40\" type=\"text\" name=\"update_itemNotes\" value=\"" . $item->get_value("itemNotes") . "\"></td>\n"
+            . '  <td colspan="2"><input size="40" type="text" name="update_itemNotes" value="' . $item->get_value("itemNotes") . "\"></td>\n"
             . "</tr><tr>\n"
             . "  <td>Type: </td>\n"
-            . "  <td><select name=\"update_itemType\" value=\"" . $item->get_value("itemType") . "\">"
+            . '  <td><select name="update_itemType" value="' . $item->get_value("itemType") . '">'
             .        Page::select_options($itemType->get_assoc_array("itemTypeID", "itemTypeID"), $item->get_value("itemType"))
             . "       </select>"
-            . "    <input type=\"hidden\" name=\"update_itemID\" value=\"" . $item->get_id() . "\"></td>"
-            . "  <td align=\"right\">"
+            . '    <input type="hidden" name="update_itemID" value="' . $item->get_id() . '"></td>'
+            . '  <td align="right">'
             . '    <button type="submit" name="update_item" value="1" class="save_button">Save Changes<i class="icon-ok-sign"></i></button>'
             . " </td>\n"
             . "</tr><td colspan=\"3\"><hr></td></tr>\n"

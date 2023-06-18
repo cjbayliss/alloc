@@ -14,7 +14,7 @@ require_once("../alloc.php");
 
 $index = new Index(ATTACHMENTS_DIR . 'search/client');
 Lucene::setResultSetLimit(10);
-$needle = "name:{$_GET['clientName']}";
+$needle = sprintf('name:%s', $_GET['clientName']);
 $query = QueryParser::parse($needle);
 $matches = $index->find($needle);
 

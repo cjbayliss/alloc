@@ -8,23 +8,41 @@
 class email_receive
 {
     public $host;
+
     public $port;
+
     public $username;
+
     public $password;
+
     public $protocol;
+
     public $lockfile;
+
     public $mbox;
+
     public $connection;
+
     private ?string $connect_string = null;
+
     public $mail_headers;
+
     public $mail_structure;
+
     public $mail_text;
+
     public $mail_parts;
+
     public $mail_info;
+
     public $mimebits;
+
     public $msg_text;
+
     public $msg_uid;
+
     public $dir;
+
     public $mime_types = [
         "text",
         "multipart",
@@ -63,13 +81,15 @@ class email_receive
         if ($this->connection !== false) {
             imap_close($this->connection);
         }
+
         $this->connect_string = '{' . $this->host . ':' . $this->port . '/' . $this->protocol . config::get_config_item("allocEmailExtra") . '}';
         $this->connection = imap_open($this->connect_string, $this->username, $this->password, $ops);
         if (!$this->connection && $fatal) {
             alloc_error("Unable to access mail folder(1).");
         }
+
         $list = imap_list($this->connection, $this->connect_string, "*");
-        if (!is_array($list) || !count($list)) { // || !in_array($connect_string.$folder,$list)) {
+        if (!is_array($list) || $list === []) { // || !in_array($connect_string.$folder,$list)) {
             $this->unlock();
             imap_close($this->connection);
             if ($fatal) {
@@ -90,12 +110,15 @@ class email_receive
                 }
             }
         }
+
         if ($rtn) {
             return $rtn;
         }
+
         if (!$fatal) {
             return $rtn;
         }
+
         alloc_error("<pre>IMAP errors: " . print_r(imap_errors(), 1) . print_r(imap_alerts(), 1) . "</pre>");
         return $rtn;
     }
@@ -105,6 +128,7 @@ class email_receive
         if (!$this->mail_info) {
             $this->check_mail();
         }
+
         if (is_object($this->mail_info)) {
             return $this->mail_info->messages;
         }
@@ -115,6 +139,7 @@ class email_receive
         if (!$this->mail_info) {
             $this->check_mail();
         }
+
         if (is_object($this->mail_info)) {
             return $this->mail_info->unseen;
         }
@@ -135,12 +160,14 @@ class email_receive
         if (!imap_status($this->connection, $this->connect_string . $name, SA_ALL)) {
             return imap_createmailbox($this->connection, imap_utf7_encode($this->connect_string . $name));
         }
+
         if (!$rtn) {
             $name = str_replace("/", ".", $name);
             if (!imap_status($this->connection, $this->connect_string . $name, SA_ALL)) {
                 $rtn = imap_createmailbox($this->connection, imap_utf7_encode($this->connect_string . $name));
             }
         }
+
         return null;
     }
 
@@ -198,6 +225,7 @@ class email_receive
             $bits = preg_split("/\r?\n\r?\n/", $this->msg_text);
             $this->mail_headers = $this->parse_headers($bits[0]);
         }
+
         return $this->mail_headers;
     }
 
@@ -219,6 +247,7 @@ class email_receive
                 $rtn[$currentHeader] .= " " . trim($line);
             }
         }
+
         return (array)$rtn;
     }
 
@@ -238,6 +267,7 @@ class email_receive
                 return [$filename, $thing];
             }
         }
+
         return [false, false];
     }
 
@@ -276,11 +306,13 @@ class email_receive
             if ($cache[$msg_uid]) {
                 return $cache[$msg_uid];
             }
+
             $header = imap_fetchheader($this->connection, $msg_uid, FT_UID);
             $body = imap_body($this->connection, $msg_uid, FT_UID);
             $cache[$msg_uid] = [$header, $body];
             return $cache[$msg_uid];
         }
+
         if ($this->msg_text) {
             return Mail_mimeDecode::_splitBodyHeader($this->msg_text);
         }
@@ -299,6 +331,7 @@ class email_receive
             if (!$mail_text && strtolower($this->mime_types[$s->type] . "/" . $s->subtype) == "text/plain") {
                 $mail_text = $thing;
             }
+
             if (strtolower($this->mime_types[$s->type] . "/" . $s->subtype) == "text/html") {
                 $mail_html = $thing;
             }
@@ -307,6 +340,7 @@ class email_receive
         if ($mail_text) {
             return $mail_text;
         }
+
         if ($mail_html) {
             return $mail_html;
         }
@@ -365,7 +399,7 @@ class email_receive
         $i = 0;
         foreach ((array)$structure->parts as $part) {
             if ($part->disposition == 'attachment') {
-                $i++;
+                ++$i;
                 $attachments[$i]['body'] = $part->body;
                 unset($name);
                 $name = $part->ctype_parameters['name'];
@@ -382,6 +416,7 @@ class email_receive
                         if (strpos($sp->headers['content-type'], 'text/plain') !== false) {
                             $plain = $sp->body;
                         }
+
                         if (strpos($sp->headers['content-type'], 'text/html') !== false) {
                             $html = $sp->body;
                         }
@@ -390,15 +425,18 @@ class email_receive
                     if (strpos($part->headers['content-type'], 'text/plain') !== false) {
                         $plain = $part->body;
                     }
+
                     if (strpos($part->headers['content-type'], 'text/html') !== false) {
                         $html = $part->body;
                     }
                 }
             }
         }
+
         if (trim($plain) == '') {
             $plain = $structure->body;
         }
+
         return [$plain, $attachments];
     }
 
@@ -514,6 +552,7 @@ class email_receive
                 $mailbox = "INBOX/" . $m . $mID;
             }
         }
+
         $mailbox or $mailbox = "INBOX";
 
         // Some IMAP servers like dot-separated mail folders, some like slash-separated
@@ -673,6 +712,7 @@ class email_receive
         } else if ($encoding == 5) {
             // ietf-token
         }
+
         return $thing;
     }
 
@@ -683,6 +723,7 @@ class email_receive
                 foreach ($struct->parts as $count => $part) {
                     $this->add_part_to_array($part, ($count + 1));
                 }
+
                 // Email does not have a seperate mime attachment for text
             } else {
                 $this->mail_parts[] = [
@@ -691,6 +732,7 @@ class email_receive
                 ];
             }
         }
+
         return $this->mail_parts;
     }
 
@@ -728,6 +770,7 @@ class email_receive
                     'part_object' => $struct,
                 ];
             }
+
             // If there are more sub-parts, expand them out.
         } else {
             if (sizeof($struct->parts) > 0) {
@@ -747,12 +790,15 @@ class email_receive
         if (property_exists($this->mail_structure, "parameters")) {
             return $this->get_parameter_attribute_value($this->mail_structure->parameters, "charset");
         }
+
         if (!property_exists($this->mail_structure, "ctype_parameters")) {
             return $this->get_parameter_attribute_value($this->mail_structure->parameters, "charset");
         }
+
         if (!is_array($this->mail_structure->ctype_parameters)) {
             return $this->get_parameter_attribute_value($this->mail_structure->parameters, "charset");
         }
+
         return $this->mail_structure->ctype_parameters["charset"];
     }
 
@@ -764,6 +810,7 @@ class email_receive
                 $rtn = $v->value;
             }
         }
+
         return $rtn;
     }
 
@@ -779,6 +826,7 @@ class email_receive
             $allocDatabase->connect();
             $body = mb_convert_encoding($body, $allocDatabase->get_encoding(), $enc);
         }
+
         return $body;
     }
 
@@ -793,6 +841,7 @@ class email_receive
         } else if ($from_address) {
             $f = $from_address;
         }
+
         return $f;
     }
 }

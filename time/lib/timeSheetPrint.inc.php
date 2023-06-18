@@ -217,7 +217,7 @@ class timeSheetPrint
             $timeSheetItem = new timeSheetItem();
             $timeSheetItem->read_db_record($db);
 
-            $row_num++;
+            ++$row_num;
             $taskID = sprintf("%d", $timeSheetItem->get_value("taskID"));
             $num = sprintf("%0.2f", $timeSheetItem->get_value("timeSheetItemDuration"));
 
@@ -336,6 +336,7 @@ class timeSheetPrint
                 $default_header = "Tax Invoice";
                 $default_id_label = "Invoice Number";
             }
+
             if ($timeSheetPrintMode == "estimate") {
                 $default_header = "Estimate";
                 $default_id_label = "Estimate Number";
@@ -435,6 +436,7 @@ class timeSheetPrint
                 } else {
                     $y = $cezpdf->ezText($TPL["companyName"], 27, ["justification" => "right"]);
                 }
+
                 $nos_y = $line_y + 22;
                 $TPL["companyNos2"] and $nos_y = $line_y + 34;
                 $cezpdf->ezSetY($nos_y);
@@ -471,6 +473,7 @@ class timeSheetPrint
                     if ($taxPercent === '') {
                         unset($cols2["gst"]);
                     }
+
                     $rows[] = [
                         "desc"  => "<b>TOTAL</b>",
                         "units" => $info["total_units"],
@@ -485,6 +488,7 @@ class timeSheetPrint
                             "two" => $info["total_gst"],
                         ];
                     }
+
                     $totals[] = ["one" => "TOTAL CHARGES", "two" => $info["total"]];
                     $totals[] = [
                         "one" => "<b>" . $default_total_label . "</b>",
@@ -528,6 +532,7 @@ class timeSheetPrint
                 if (file_exists(ALLOC_LOGO)) {
                     $TPL["companyName"] = '<img alt="Company logo" src="' . $TPL["url_alloc_logo"] . '" />';
                 }
+
                 $TPL["this_tsp"] = $this;
                 $TPL["main_alloc_title"] = "Time Sheet - " . APPLICATION_NAME;
                 include_template(__DIR__ . "/../templates/timeSheetPrintM.tpl");

@@ -127,6 +127,7 @@ function show_new_commission($template_name)
     if (!$projectID) {
         return;
     }
+
     $TPL["commission_new"] = true;
     $commission_item = new projectCommissionPerson();
     $commission_item->set_values("commission_");
@@ -202,6 +203,7 @@ function show_new_person($template)
     if (!$projectID) {
         return;
     }
+
     $project_person = new projectPerson();
     $project_person->set_values("person_");
     $TPL["person_emailType_options"] = Page::select_options($email_type_array, $TPL["person_emailType"]);
@@ -266,7 +268,7 @@ function show_comments()
 
     $commentTemplate = new commentTemplate();
     $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "project"]);
-    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
+    $TPL["commentTemplateOptions"] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
 
     $ops = [
         ""          => "Format as...",
@@ -341,6 +343,7 @@ if ($_POST["save"]) {
     if (!$definitely_new_project) {
         $query .= unsafe_prepare(" AND projectID != %d", $project->get_id());
     }
+
     $db->query($query);
     $db->next_record();
     if ($db->f('count') > 0) {
@@ -369,6 +372,7 @@ if ($_POST["save"]) {
             $projectPerson->set_value("personID", $current_user->get_id());
             $projectPerson->save();
         }
+
         alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $project->get_id());
     }
 } else if ($_POST["delete"]) {
@@ -473,7 +477,7 @@ if ($projectID) {
 
     // Displaying a record
     $project->set_id($projectID);
-    $project->select() || alloc_error("Could not load project $projectID");
+    $project->select() || alloc_error(sprintf('Could not load project %s', $projectID));
 } else {
     // Creating a new record
     $project->read_globals();
@@ -482,7 +486,7 @@ if ($projectID) {
 }
 
 // Comments
-$TPL["comment_buttons"] = "<input type=\"submit\" name=\"comment_save\" value=\"Save Comment\">";
+$TPL["comment_buttons"] = '<input type="submit" name="comment_save" value="Save Comment">';
 
 // if someone uploads an attachment
 if ($_POST["save_attachment"]) {
@@ -531,19 +535,19 @@ if ($clientID) {
         $temp and $thr = $fiv;
     }
 
-    $TPL["clientDetails"] = "<table width=\"100%\">";
+    $TPL["clientDetails"] = '<table width="100%">';
     $TPL["clientDetails"] .= "<tr>";
-    $TPL["clientDetails"] .= "<td colspan=\"3\"><h2 style=\"margin-bottom:0px; display:inline;\"><a href=" . $url . ">" . $TPL["client_clientName"] . "</a></h2></td>    ";
+    $TPL["clientDetails"] .= '<td colspan="3"><h2 style="margin-bottom:0px; display:inline;"><a href=' . $url . ">" . $TPL["client_clientName"] . "</a></h2></td>    ";
     $TPL["clientDetails"] .= "</tr>";
     $TPL["clientDetails"] .= "<tr>";
-    $one and $TPL["clientDetails"] .= "<td class=\"nobr\"><u>Postal Address</u></td>";
-    $two and $TPL["clientDetails"] .= "<td class=\"nobr\"><u>Street Address</u></td>";
+    $one and $TPL["clientDetails"] .= '<td class="nobr"><u>Postal Address</u></td>';
+    $two and $TPL["clientDetails"] .= '<td class="nobr"><u>Street Address</u></td>';
     $thr and $TPL["clientDetails"] .= "<td><u>Contact</u></td>";
     $TPL["clientDetails"] .= "</tr>";
     $TPL["clientDetails"] .= "<tr>";
-    $one and $TPL["clientDetails"] .= "<td valign=\"top\">" . $one . "</td>";
-    $two and $TPL["clientDetails"] .= "<td valign=\"top\">" . $two . "</td>";
-    $thr and $TPL["clientDetails"] .= "<td valign=\"top\">" . $thr . "</td>";
+    $one and $TPL["clientDetails"] .= '<td valign="top">' . $one . "</td>";
+    $two and $TPL["clientDetails"] .= '<td valign="top">' . $two . "</td>";
+    $thr and $TPL["clientDetails"] .= '<td valign="top">' . $thr . "</td>";
     $TPL["clientDetails"] .= "</tr>";
     $TPL["clientDetails"] .= "</table>";
 }
@@ -563,9 +567,9 @@ while ($db->next_record()) {
 
 $TPL["interestedPartyOptions"] = $project->get_cc_list_select();
 
-$TPL["clientContactDropdown"] = "<input type=\"hidden\" name=\"clientContactID\" value=\"" . $project->get_value("clientContactID") . "\">";
-$TPL["clientHidden"] = "<input type=\"hidden\" id=\"clientID\" name=\"clientID\" value=\"" . $clientID . "\">";
-$TPL["clientHidden"] .= "<input type=\"hidden\" id=\"clientContactID\" name=\"clientContactID\" value=\"" . $project->get_value("clientContactID") . "\">";
+$TPL["clientContactDropdown"] = '<input type="hidden" name="clientContactID" value="' . $project->get_value("clientContactID") . '">';
+$TPL["clientHidden"] = '<input type="hidden" id="clientID" name="clientID" value="' . $clientID . '">';
+$TPL["clientHidden"] .= '<input type="hidden" id="clientContactID" name="clientContactID" value="' . $project->get_value("clientContactID") . '">';
 
 // Gets $ per hour, even if user uses metric like $200 Daily
 function get_projectPerson_hourly_rate($personID, $projectID)
@@ -575,6 +579,7 @@ function get_projectPerson_hourly_rate($personID, $projectID)
     $q = unsafe_prepare("SELECT rate,rateUnitID FROM projectPerson WHERE personID = %d AND projectID = %d", $personID, $projectID);
     $db->query($q);
     $db->next_record();
+
     $rate = $db->f("rate");
     $unitID = $db->f("rateUnitID");
     $t = new timeUnit();
@@ -597,6 +602,7 @@ if (is_object($project) && $project->get_id()) {
                 $TPL["cost_remaining"] += $cost_remaining;
                 $TPL["time_remaining"] += $time_remaining;
             }
+
             $t["timeLimit"] and $count_quoted_tasks++;
         }
 
@@ -607,7 +613,7 @@ if (is_object($project) && $project->get_id()) {
         $not_quoted and $TPL["count_not_quoted_tasks"] = "(" . sprintf("%d", $not_quoted) . " tasks not included in estimate)";
     }
 
-    $TPL["invoice_links"] .= "<a href=\"" . $TPL["url_alloc_invoice"] . "clientID=" . $clientID . "&projectID=" . $project->get_id() . "\">New Invoice</a>";
+    $TPL["invoice_links"] .= '<a href="' . $TPL["url_alloc_invoice"] . "clientID=" . $clientID . "&projectID=" . $project->get_id() . '">New Invoice</a>';
 }
 
 $TPL["navigation_links"] = $project->get_navigation_links();
@@ -661,8 +667,9 @@ $tp = [];
 foreach ($projectPriorities as $key => $arr) {
     $tp[$key] = $arr["label"];
 }
+
 $TPL["projectPriority_options"] = Page::select_options($tp, $TPL["project_projectPriority"]);
-$TPL["project_projectPriority"] and $TPL["priorityLabel"] = " <div style=\"display:inline; color:" . $projectPriorities[$TPL["project_projectPriority"]]["colour"] . "\">[" . $tp[$TPL["project_projectPriority"]] . "]</div>";
+$TPL["project_projectPriority"] and $TPL["priorityLabel"] = ' <div style="display:inline; color:' . $projectPriorities[$TPL["project_projectPriority"]]["colour"] . '">[' . $tp[$TPL["project_projectPriority"]] . "]</div>";
 
 $TPL["defaultTimeSheetRate"] = $project->get_value("defaultTimeSheetRate");
 $TPL["defaultTimeSheetUnit_options"] = Page::select_options($rate_type_array, $project->get_value("defaultTimeSheetRateUnitID"));
@@ -680,7 +687,7 @@ if ($new_project && !(is_object($project) && $project->get_id())) {
     $p = new project();
     $TPL["message_help_no_esc"][] = "Create a new Project by inputting the Project Name and any other details, and clicking the Save button.";
     $TPL["message_help_no_esc"][] = "";
-    $TPL["message_help_no_esc"][] = "<a href=\"#x\" class=\"magic\" id=\"copy_project_link\">Or copy an existing project</a>";
+    $TPL["message_help_no_esc"][] = '<a href="#x" class="magic" id="copy_project_link">Or copy an existing project</a>';
     $str = <<<DONE
             <div id="copy_project" style="display:none; margin-top:10px;">
               <form action="{$TPL["url_alloc_project"]}" method="post">
@@ -714,7 +721,7 @@ if ($new_project && !(is_object($project) && $project->get_id())) {
     $TPL["message_help_no_esc"][] = $str;
 } else {
     $TPL["main_alloc_title"] = "Project " . $project->get_id() . ": " . $project->get_name() . " - " . APPLICATION_NAME;
-    $TPL["projectSelfLink"] = "<a href=\"" . $project->get_url() . "\">";
+    $TPL["projectSelfLink"] = '<a href="' . $project->get_url() . '">';
     $TPL["projectSelfLink"] .= sprintf("%d %s", $project->get_id(), $project->get_name(["return" => "html"]));
     $TPL["projectSelfLink"] .= "</a>";
 }
@@ -741,6 +748,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
+
 $TPL["total_timeSheet_transactions_pending"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM(customerBilledDollars * timeSheetItemDuration * multiplier * pow(10,-currencyType.numberToBasic))
@@ -756,6 +764,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
+
 $TPL["total_timeSheet_customerBilledDollars"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
@@ -772,6 +781,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
+
 $TPL["total_timeSheet_transactions_approved"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
@@ -789,6 +799,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
+
 $TPL["total_invoice_transactions_pending"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
@@ -806,6 +817,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
+
 $TPL["total_invoice_transactions_approved"] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
@@ -821,6 +833,7 @@ unset($rows);
 while ($row = $db->row()) {
     $rows[] = $row;
 }
+
 $TPL["total_expenses_transactions_approved"] = Page::money_print($rows);
 
 if ($project->get_id()) {
@@ -829,6 +842,7 @@ if ($project->get_id()) {
     if (!$project->have_perm(PERM_READ_WRITE)) {
         $defaults["personID"] = $current_user->get_id();
     }
+
     $rtn = timeSheet::get_list($defaults);
     $TPL["timeSheetListRows"] = $rtn["rows"];
     $TPL["timeSheetListExtra"] = $rtn["extra"];

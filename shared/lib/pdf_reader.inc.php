@@ -29,7 +29,8 @@ class pdf_reader
                 if (is_array($a_data) && isset($a_data[0])) {
                     $a_chunks[$j]["data"] = trim(substr($a_data[0], strlen("stream"), strlen($a_data[0]) - strlen("stream") - strlen("endstream")));
                 }
-                $j++;
+
+                ++$j;
             }
         }
 
@@ -41,10 +42,12 @@ class pdf_reader
             if (!isset($a_chunk["data"])) {
                 continue;
             }
+
             // look at the filter to find out which encoding has been used
             if (strpos($a_chunk["filter"], "FlateDecode") === false) {
                 continue;
             }
+
             // Use gzuncompress but supress error messages.
             $data = @gzuncompress($a_chunk["data"]);
             if (trim($data) != "") {
@@ -52,6 +55,7 @@ class pdf_reader
                 $result_data .= ' ' . $this->ps2txt($data);
             }
         }
+
         /**
          * Make sure we don't have large blocks of white space before and after
          * our string. Also extract alphanumerical information to reduce
@@ -63,6 +67,7 @@ class pdf_reader
         if ($result_data == "") {
             return null;
         }
+
         return $result_data;
     }
 
@@ -78,6 +83,7 @@ class pdf_reader
         if (ord($ps_data[0]) < 10) {
             return $ps_data;
         }
+
         if (substr($ps_data, 0, 8) == '/CIDInit') {
             return '';
         }

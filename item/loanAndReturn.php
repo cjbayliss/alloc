@@ -29,7 +29,7 @@ function show_items($template_name)
     $db->query("select * from item order by itemName");
 
     while ($db->next_record()) {
-        $i++;
+        ++$i;
 
         $item = new item();
         $item->read_db_record($db);
@@ -50,9 +50,9 @@ function show_items($template_name)
                     $ret = "Return";
                 }
 
-                $TPL["itemAction"] = "<td><a href=\"" . $TPL["url_alloc_item"]
+                $TPL["itemAction"] = '<td><a href="' . $TPL["url_alloc_item"]
                     . "itemID=" . $TPL["itemID"]
-                    . "&return=true\">$ret</a></td>";
+                    . sprintf('&return=true">%s</a></td>', $ret);
             } else {                  // if you don't have permission to borrow or return item.
                 $TPL["itemAction"] = "<td>&nbsp;</td>";
             }
@@ -64,7 +64,7 @@ function show_items($template_name)
         } else {                    // if the item is available
             $TPL["status"] = "Available";
             $TPL["person"] = "";
-            $TPL["itemAction"] = "<td><a href=\"" . $TPL["url_alloc_item"] . "itemID=" . $TPL["itemID"] . "&borrow=true\">Borrow</a></td>";
+            $TPL["itemAction"] = '<td><a href="' . $TPL["url_alloc_item"] . "itemID=" . $TPL["itemID"] . '&borrow=true">Borrow</a></td>';
             $TPL["dueBack"] = "";
         }
 

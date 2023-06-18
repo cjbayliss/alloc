@@ -41,6 +41,7 @@ foreach ($modules as $module_name => $module) {
         $home_items = array_merge((array)$home_items, $module->home_items);
     }
 }
+
 $TPL["home_items"] = $home_items;
 
 if (isset($_POST["tsiHint_item"])) {

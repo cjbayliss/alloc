@@ -78,5 +78,6 @@ if ($num_new_emails > 0) {
         }
     }
 }
+
 $email_receive->expunge();
 $email_receive->close();

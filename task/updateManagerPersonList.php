@@ -16,4 +16,4 @@ if ($_GET["taskID"]) {
     $task->select();
 }
 
-echo "<select name=\"managerID\"><option value=\"\">" . $task->get_personList_dropdown($_GET["projectID"], "managerID", $_GET["selected"]) . "</select>";
+echo '<select name="managerID"><option value="">' . $task->get_personList_dropdown($_GET["projectID"], "managerID", $_GET["selected"]) . "</select>";

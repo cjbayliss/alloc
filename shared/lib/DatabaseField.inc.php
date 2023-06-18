@@ -8,16 +8,24 @@
 class DatabaseField
 {
     public $classname = "DatabaseField";
+
     public $name;
+
     public $value;
+
     public $label;
+
     public $empty_to_null = true;
+
     public $currency = null;
+
     public $type = null;
 
     public $audit = false;
 
-    public $write_perm_name = 0;     // Name of a permission a user must have to write to this field, if any.  E.g. "admin"
+    public $write_perm_name = 0;
+
+    // Name of a permission a user must have to write to this field, if any.  E.g. "admin"
     public $read_perm_name = 0;      // Name of the permission a user must have to read this field, if any.  E.g. "read details"
 
     public function __construct($name = "", $options = [])
@@ -29,6 +37,7 @@ class DatabaseField
             $options = [];
             // echo "<br>".$this->name;
         }
+
         reset($options);
         foreach ($options as $option_name => $option_value) {
             $this->$option_name = $option_value;
@@ -63,8 +72,10 @@ class DatabaseField
             if ((isset($this->value) && (bool)strlen($this->value)) || $this->empty_to_null == false) {
                 return "'" . db_esc($this->value) . "'";
             }
+
             return "NULL";
         }
+
         if ($dest == DST_HTML_DISPLAY) {
             if ($this->type == "money" && (isset($this->value) && (bool)strlen($this->value))) {
                 $c = $parent->currency;
@@ -78,8 +89,10 @@ class DatabaseField
                     return Page::money($c, $this->value, "%mo");
                 }
             }
+
             return Page::htmlentities($this->value);
         }
+
         return $this->value;
     }
 
@@ -96,9 +109,11 @@ class DatabaseField
             if ($this->currency && isset($parent->data_fields[$this->currency])) {
                 $c = $parent->get_value($this->currency);
             }
+
             if (!$c) {
                 return "db_field::validate(): No currency specified for " . $parent->classname . "." . $this->name . " (currency:" . $c . ")";
             }
+
             if ($this->value != $parent->all_row_fields[$this->name]) {
                 $this->set_value(Page::money($c, $this->value, "%mi"));
             }

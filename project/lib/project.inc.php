@@ -14,9 +14,13 @@ define("PERM_PROJECT_ADD_TASKS", 512);
 class project extends DatabaseEntity
 {
     public $classname = "project";
+
     public $data_table = "project";
+
     public $display_field_name = "projectName";
+
     public $key_field = "projectID";
+
     public $data_fields = [
         "projectName",
         "projectShortName",
@@ -126,6 +130,7 @@ class project extends DatabaseEntity
         if (!isset($TPL["message"])) {
             $TPL["message_good"][] = "Project saved.";
         }
+
         return parent::save();
     }
 
@@ -159,6 +164,7 @@ class project extends DatabaseEntity
             $prefix or $prefix = config::get_config_item("allocURL");
             $url = $prefix . $url;
         }
+
         return $url;
     }
 
@@ -173,6 +179,7 @@ class project extends DatabaseEntity
         if ($_FORM["return"] == "html") {
             return $this->get_value($field, DST_HTML_DISPLAY);
         }
+
         return $this->get_value($field);
     }
 
@@ -220,7 +227,7 @@ class project extends DatabaseEntity
 
         if (!empty($permissions) && is_array($permissions)) {
             $permissionFilter = implode("', '", $permissions);
-            $projectPermissionsQuery .= " AND ppr.roleHandle IN ('$permissionFilter')";
+            $projectPermissionsQuery .= sprintf(" AND ppr.roleHandle IN ('%s')", $permissionFilter);
         }
 
         $projectPermissionsForPerson = $allocDatabase->pdo->prepare($projectPermissionsQuery);
@@ -305,44 +312,44 @@ class project extends DatabaseEntity
         // Client
         if ($this->get_value("clientID")) {
             $url = $TPL["url_alloc_client"] . "clientID=" . $this->get_value("clientID");
-            $links[] = "<a href=\"$url\" class=\"nobr noprint\">Client</a>";
+            $links[] = sprintf('<a href="%s" class="nobr noprint">Client</a>', $url);
         }
 
         // Project
         if ($ops["showProject"]) {
             $url = $TPL["url_alloc_project"] . "projectID=" . $this->get_id();
-            $links[] = "<a href=\"$url\" class=\"nobr noprint\">Project</a>";
+            $links[] = sprintf('<a href="%s" class="nobr noprint">Project</a>', $url);
         }
 
         // Tasks
         if ($this->have_perm()) {
             $url = $TPL["url_alloc_taskList"] . "applyFilter=1&amp;taskStatus=open&amp;taskView=byProject&amp;projectID=" . $this->get_id();
-            $links[] = "<a href=\"$url\" class=\"nobr noprint\">Tasks</a>";
+            $links[] = sprintf('<a href="%s" class="nobr noprint">Tasks</a>', $url);
         }
 
         // Graph
         if ($this->have_perm()) {
             $url = $TPL["url_alloc_projectGraph"] . "applyFilter=1&projectID=" . $this->get_id() . "&taskStatus=open&showTaskID=true";
-            $links[] = "<a href=\"$url\" class=\"nobr noprint\">Graph</a>";
+            $links[] = sprintf('<a href="%s" class="nobr noprint">Graph</a>', $url);
         }
 
         // Allocation
         if ($this->have_perm(PERM_PROJECT_VIEW_TASK_ALLOCS)) {
             $url = $TPL["url_alloc_personGraph"] . "projectID=" . $this->get_id();
-            $links[] = "<a href=\"$url\" class=\"nobr noprint\">Allocation</a>";
+            $links[] = sprintf('<a href="%s" class="nobr noprint">Allocation</a>', $url);
         }
 
         // To Time Sheet
         if ($this->have_perm(PERM_PROJECT_ADD_TASKS)) {
             $extra = $ops["taskID"] ? "&taskID=" . $ops["taskID"] : "";
             $url = $TPL["url_alloc_timeSheet"] . "newTimeSheet_projectID=" . $this->get_id() . $extra;
-            $links[] = "<a href=\"$url\" class=\"nobr noprint\">Time Sheet</a>";
+            $links[] = sprintf('<a href="%s" class="nobr noprint">Time Sheet</a>', $url);
         }
 
         // New Task
         if ($this->have_perm(PERM_PROJECT_ADD_TASKS)) {
             $url = $TPL["url_alloc_task"] . "projectID=" . $this->get_id();
-            $links[] = "<a href=\"$url\" class=\"nobr noprint\">New Task</a>";
+            $links[] = sprintf('<a href="%s" class="nobr noprint">New Task</a>', $url);
         }
 
         // Join links up with space
@@ -436,6 +443,7 @@ class project extends DatabaseEntity
         if ($onlymine) {
             $options["personID"] = $current_user->get_id();
         }
+
         $ops = self::getFilteredProjectList($options);
         return array_kv($ops, "projectID", "label");
     }
@@ -443,7 +451,7 @@ class project extends DatabaseEntity
     public static function get_list_dropdown($type = "mine", $projectIDs = [])
     {
         $options = self::get_list_dropdown_options($type, $projectIDs);
-        return "<select name=\"projectID[]\" size=\"9\" style=\"width:275px;\" multiple=\"true\">" . $options . "</select>";
+        return '<select name="projectID[]" size="9" style="width:275px;" multiple="true">' . $options . "</select>";
     }
 
     public static function get_list_dropdown_options(
@@ -453,6 +461,7 @@ class project extends DatabaseEntity
     ) {
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
+
         $projectIDsAndNames = self::get_project_type_query($allocDatabase, $queryType);
         $projectIDsAndNames->execute();
 
@@ -466,7 +475,7 @@ class project extends DatabaseEntity
 
     public function get_dropdown_by_client($clientID = null, $onlymine = false)
     {
-        $dropdownHtml = "<select id=\"projectID\" name=\"projectID\"><option></option>";
+        $dropdownHtml = '<select id="projectID" name="projectID"><option></option>';
         $clientList = project::get_list_by_client($clientID, $onlymine);
 
         if (is_object($this) && $this->get_id()) {
@@ -518,7 +527,7 @@ class project extends DatabaseEntity
 
         $sql = [];
         if ($filter["projectID"]) {
-            $parts = array_map(fn ($projectID) => "IFNULL(project.projectID, 0) = $projectID", (array)$filter["projectID"]);
+            $parts = array_map(static fn ($projectID) => sprintf('IFNULL(project.projectID, 0) = %s', $projectID), (array)$filter["projectID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
@@ -529,43 +538,43 @@ class project extends DatabaseEntity
 
         // FIXME: is '!== "undefined"' needed by the other filters?
         if ($filter["clientID"] && $filter["clientID"] !== "undefined") {
-            $parts = array_map(fn ($clientID) => "IFNULL(project.clientID, 0) = $clientID", (array)$filter["clientID"]);
+            $parts = array_map(static fn ($clientID) => sprintf('IFNULL(project.clientID, 0) = %s', $clientID), (array)$filter["clientID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["personID"]) {
-            $parts = array_map(fn ($personID) => "IFNULL(projectPerson.personID, 0) = $personID", (array)$filter["personID"]);
+            $parts = array_map(static fn ($personID) => sprintf('IFNULL(projectPerson.personID, 0) = %s', $personID), (array)$filter["personID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectStatus"]) {
-            $parts = array_map(fn ($projectStatus) => "IFNULL(project.projectStatus, '') = '$projectStatus'", (array)$filter["projectStatus"]);
+            $parts = array_map(static fn ($projectStatus) => sprintf("IFNULL(project.projectStatus, '') = '%s'", $projectStatus), (array)$filter["projectStatus"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectType"]) {
-            $parts = array_map(fn ($projectType) => "IFNULL(project.projectType, 0) = $projectType", (array)$filter["projectType"]);
+            $parts = array_map(static fn ($projectType) => sprintf('IFNULL(project.projectType, 0) = %s', $projectType), (array)$filter["projectType"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectName"]) {
-            $parts = array_map(fn ($projectName) => "IFNULL(project.projectName, '') LIKE '%%" . $projectName . "%%'", (array)$filter["projectName"]);
+            $parts = array_map(static fn ($projectName) => "IFNULL(project.projectName, '') LIKE '%%" . $projectName . "%%'", (array)$filter["projectName"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectShortName"]) {
-            $parts = array_map(fn ($projectShortName) => "IFNULL(project.projectShortName, '') LIKE '%%" . $projectShortName . "%%'", (array)$filter["projectShortName"]);
+            $parts = array_map(static fn ($projectShortName) => "IFNULL(project.projectShortName, '') LIKE '%%" . $projectShortName . "%%'", (array)$filter["projectShortName"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if ($filter["projectNameMatches"]) {
-            $parts = array_map(fn ($projectNameMatches) => "project.projectName LIKE '%%" . $projectNameMatches . "%%' OR project.projectShortName LIKE '%%" . $projectNameMatches . "%%' OR project.projectID = " . $projectNameMatches, (array)$filter["projectNameMatches"]);
+            $parts = array_map(static fn ($projectNameMatches) => "project.projectName LIKE '%%" . $projectNameMatches . "%%' OR project.projectShortName LIKE '%%" . $projectNameMatches . "%%' OR project.projectID = " . $projectNameMatches, (array)$filter["projectNameMatches"]);
 
             $sql[] = implode(" OR ", $parts);
         }
@@ -606,6 +615,7 @@ class project extends DatabaseEntity
 
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
+
         $projectsAndClientsQuery =
             "SELECT project.*, client.*
                FROM project {$from}
@@ -623,6 +633,7 @@ class project extends DatabaseEntity
         } else {
             $getProjectsAndClients = $allocDatabase->pdo->prepare($projectsAndClientsQuery);
         }
+
         $getProjectsAndClients->execute();
 
         $rows = [];
@@ -635,8 +646,9 @@ class project extends DatabaseEntity
             $row["navLinks"] = $projectInstance->get_navigation_links();
             $label = $row["projectName"];
             if ($_FORM["showProjectType"]) {
-                $label .= " [{$projectInstance->get_project_type()}]";
+                $label .= sprintf(' [%s]', $projectInstance->get_project_type());
             }
+
             $row["label"] = $label;
 
             $rows[$row["projectID"]] = $row;
@@ -654,7 +666,7 @@ class project extends DatabaseEntity
      * @param array ...$args
      * @return array
      */
-    public static function get_list(...$args)
+    public static function get_list(array $args = [])
     {
         return self::getFilteredProjectList(...$args);
     }
@@ -708,7 +720,7 @@ class project extends DatabaseEntity
         global $TPL;
         $current_user = &singleton("current_user");
 
-        $personSelect = "<select name=\"personID[]\" multiple=\"true\">";
+        $personSelect = '<select name="personID[]" multiple="true">';
         $personSelect .= Page::select_options(person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
         $personSelect .= "</select>";
 
@@ -733,6 +745,7 @@ class project extends DatabaseEntity
             $meta = new Meta("projectType");
             $rows = $meta->get_assoc_array("projectTypeID", "projectTypeID");
         }
+
         return $rows;
     }
 
@@ -821,6 +834,7 @@ class project extends DatabaseEntity
         $zendSearchLuceneDocument->addField(Field::Text('priority', $this->get_value("projectPriority"), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('tf', $this->get_value("cost_centre_tfID"), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('billed', $this->get_value("customerBilledDollars"), "utf-8"));
+
         $index->addDocument($zendSearchLuceneDocument);
     }
 
@@ -860,7 +874,7 @@ class project extends DatabaseEntity
         }
 
         if (!empty($projectIDs)) {
-            $statement = array_map(fn ($projectID) => "($table.projectID = $projectID)", (array)$projectIDs);
+            $statement = array_map(static fn ($projectID) => sprintf('(%s.projectID = %s)', $table, $projectID), (array)$projectIDs);
             return implode(" OR ", $statement);
         }
 
@@ -896,7 +910,8 @@ class project extends DatabaseEntity
                 }
             }
         }
-        $str = "<select name=\"interestedParty[]\" multiple=\"true\">" . Page::select_options($options, $interestedParty, 100, false) . "</select>";
+
+        $str = '<select name="interestedParty[]" multiple="true">' . Page::select_options($options, $interestedParty, 100, false) . "</select>";
         return $str;
     }
 
@@ -915,6 +930,7 @@ class project extends DatabaseEntity
             foreach ((array)$interestedParties as $name => $email) {
                 $interestedPartyOptions[$email]["name"] = $name;
             }
+
             $allocDatabase = new AllocDatabase();
             $allocDatabase->connect();
 
@@ -966,6 +982,7 @@ class project extends DatabaseEntity
                 } else {
                     $name = $contact["username"];
                 }
+
                 $interestedPartyOptions[$contact["emailAddress"]]["name"] = $name;
                 $interestedPartyOptions[$contact["emailAddress"]]["personID"] = $contact["personID"];
                 $interestedPartyOptions[$contact["emailAddress"]]["internal"] = true;
@@ -995,6 +1012,7 @@ class project extends DatabaseEntity
         foreach ($projectPriorities as $key => $arr) {
             $pp[$key] = $arr["label"];
         }
+
         return $pp[$p];
     }
 
@@ -1026,10 +1044,10 @@ class project extends DatabaseEntity
                     $changeDescription = "Default parties set to " . InterestedParty::abbreviate($newValue);
                     break;
                 case 'projectShortName':
-                    $changeDescription = "Project nickname set to '$newValue'.";
+                    $changeDescription = sprintf("Project nickname set to '%s'.", $newValue);
                     break;
                 case 'projectComments':
-                    $changeDescription = "Project description set to <a class=\"magic\" href=\"#x\" onclick=\"$('#audit" . $audit["auditID"] . "').slideToggle('fast');\">Show</a> <div class=\"hidden\" id=\"audit" . $audit["auditID"] . "\"><div>" . $newValue . "</div></div>";
+                    $changeDescription = "Project description set to <a class=\"magic\" href=\"#x\" onclick=\"$('#audit" . $audit["auditID"] . "').slideToggle('fast');\">Show</a> <div class=\"hidden\" id=\"audit" . $audit["auditID"] . '"><div>' . $newValue . "</div></div>";
                     break;
                 case 'clientID':
                     $newClient = new client($newValue);
@@ -1056,7 +1074,7 @@ class project extends DatabaseEntity
                     $changeDescription = "Project status set to " . $newValue . ".";
                     break;
                 case 'projectName':
-                    $changeDescription = "Project name set to '$newValue'.";
+                    $changeDescription = sprintf("Project name set to '%s'.", $newValue);
                     break;
                 case 'cost_centre_tfID':
                     $newCostCentre = new tf($newValue);
@@ -1103,14 +1121,17 @@ class project extends DatabaseEntity
                             $fieldDesc = "estimate/target completion date";
                             break;
                     }
+
                     if (!$newValue) {
-                        $changeDescription = "The $fieldDesc was removed.";
+                        $changeDescription = sprintf('The %s was removed.', $fieldDesc);
                     } else {
-                        $changeDescription = "The $fieldDesc set to $newValue.";
+                        $changeDescription = sprintf('The %s set to %s.', $fieldDesc, $newValue);
                     }
+
                     break;
             }
-            $rows[] = "<tr><td class=\"nobr\">" . $audit["dateChanged"] . "</td><td>$changeDescription</td><td>" . Page::htmlentities($people_cache[$audit["personID"]]["name"]) . "</td></tr>";
+
+            $rows[] = '<tr><td class="nobr">' . $audit["dateChanged"] . sprintf('</td><td>%s</td><td>', $changeDescription) . Page::htmlentities($people_cache[$audit["personID"]]["name"]) . "</td></tr>";
         }
 
         return implode("\n", $rows);

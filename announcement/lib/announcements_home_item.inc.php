@@ -36,6 +36,7 @@ class announcements_home_item extends home_item
 
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
+
         $getAnnoucements = $allocDatabase->pdo->query(
             "SELECT *
                FROM announcement

@@ -67,8 +67,10 @@ function format_date($format = "Y/m/d", $date = "")
         if ($date) {
             return "Date unrecognized: " . $date;
         }
+
         return;
     }
+
     [$y, $m, $d] = explode("-", $d);
     [$h, $i, $s] = explode(":", $t);
     [$y, $m, $d, $h, $i, $s] = [sprintf("%d", $y), sprintf("%d", $m), sprintf("%d", $d), sprintf("%d", $h), sprintf("%d", $i), sprintf("%d", $s)];
@@ -96,11 +98,13 @@ function seconds_to_display_format($seconds)
     if ($seconds != "") {
         return sprintf("%0.2f hrs", $hours);
     }
+
     return;
 
     if ($seconds < $day_in_seconds) {
         return sprintf("%0.2f hrs", $hours);
     }
+
     $days = $seconds / $day_in_seconds;
     // return sprintf("%0.1f days", $days);
     return sprintf("%0.2f hrs (%0.1f days)", $hours, $days);
@@ -113,6 +117,7 @@ function get_all_form_data($array = [], $defaults = [])
     foreach ($array as $name) {
         $_FORM[$name] = $_POST[$name] or $_FORM[$name] = $_GET[$name] or $_FORM[$name] = $defaults[$name];
     }
+
     return $_FORM;
 }
 
@@ -129,8 +134,10 @@ function timetook($start, $friendly_output = true)
             $unit = " mins.";
             $dur = $dur / 60;
         }
+
         return sprintf("%0.5f", $dur) . $unit;
     }
+
     return sprintf("%0.5f", $dur);
 }
 
@@ -165,6 +172,7 @@ function rebuild_cache($table)
                 $people[$id]["name"] = $people[$id]["username"];
             }
         }
+
         uasort($people, "sort_by_name");
         $cache["person"] = $people;
     } else if ($table == "config") {
@@ -173,8 +181,10 @@ function rebuild_cache($table)
         foreach ($config as $id => $row) {
             $rows_config[$row["name"]] = $row;
         }
+
         $cache["config"] = $rows_config;
     }
+
     singleton("cache", $cache);
 }
 
@@ -184,6 +194,7 @@ function &get_cached_table($table, $anew = false)
     if ($anew || !isset($cache[$table])) {
         rebuild_cache($table);
     }
+
     return $cache[$table];
 }
 
@@ -205,11 +216,13 @@ function util_show_attachments($entity, $id, $options = [])
     if (!$rows && $options["hide_buttons"]) {
         return; // no rows, and no buttons, leave the whole thing out.
     }
+
     $rows or $rows = [];
     foreach ($rows as $row) {
-        $TPL["attachments"] .= "<tr><td>" . $row["file"] . "</td><td class=\"nobr\">" . $row["mtime"] . "</td><td>" . $row["size"] . "</td>";
-        $TPL["attachments"] .= "<td align=\"right\" width=\"1%\" style=\"padding:5px;\">" . $row["delete"] . "</td></tr>";
+        $TPL["attachments"] .= "<tr><td>" . $row["file"] . '</td><td class="nobr">' . $row["mtime"] . "</td><td>" . $row["size"] . "</td>";
+        $TPL["attachments"] .= '<td align="right" width="1%" style="padding:5px;">' . $row["delete"] . "</td></tr>";
     }
+
     include_template("../shared/templates/attachmentM.tpl");
 }
 
@@ -253,7 +266,8 @@ function get_file_type_image($file)
     } else {
         $t = "unknown.gif";
     }
-    return "<img border=\"0\" alt=\"icon\" src=\"" . $TPL["url_alloc_images"] . "/fileicons/" . $t . "\">";
+
+    return '<img border="0" alt="icon" src="' . $TPL["url_alloc_images"] . "/fileicons/" . $t . '">';
 }
 
 function get_attachments($entity, $id, $ops = [])
@@ -282,10 +296,10 @@ function get_attachments($entity, $id, $ops = [])
 
                     $row["size"] = get_filesize_label($dir . DIRECTORY_SEPARATOR . $file);
                     $row["path"] = $dir . DIRECTORY_SEPARATOR . $file;
-                    $row["file"] = "<a href=\"" . $TPL["url_alloc_getDoc"] . "id=" . $id . "&entity=" . $entity . "&file=" . urlencode($file) . "\">" . $image . $ops["sep"] . Page::htmlentities($file) . "</a>";
+                    $row["file"] = '<a href="' . $TPL["url_alloc_getDoc"] . "id=" . $id . "&entity=" . $entity . "&file=" . urlencode($file) . '">' . $image . $ops["sep"] . Page::htmlentities($file) . "</a>";
                     $row["text"] = Page::htmlentities($file);
                     // $row["delete"] = "<a href=\"".$TPL["url_alloc_delDoc"]."id=".$id."&entity=".$entity."&file=".urlencode($file)."\">Delete</a>";
-                    $row["delete"] = "<form action=\"" . $TPL["url_alloc_delDoc"] . "\" method=\"post\">
+                    $row["delete"] = '<form action="' . $TPL["url_alloc_delDoc"] . "\" method=\"post\">
                             <input type=\"hidden\" name=\"id\" value=\"" . $id . "\">
                             <input type=\"hidden\" name=\"file\" value=\"" . $file . "\">
                             <input type=\"hidden\" name=\"entity\" value=\"" . $entity . "\">
@@ -299,10 +313,13 @@ function get_attachments($entity, $id, $ops = [])
                     $rows[] = $row;
                 }
             }
+
             closedir($handle);
         }
+
         is_array($rows) && usort($rows, "sort_by_mtime");
     }
+
     return $rows;
 }
 
@@ -335,6 +352,7 @@ function rejig_files_array($f)
             }
         }
     }
+
     return (array)$files;
 }
 
@@ -347,15 +365,18 @@ function move_attachment($entity, $id = false)
     if (!is_array($files)) {
         return;
     }
-    if (!count($files)) {
+
+    if ($files === []) {
         return;
     }
+
     foreach ($files as $file) {
         if (is_uploaded_file($file["tmp_name"])) {
             $dir = ATTACHMENTS_DIR . $entity . DIRECTORY_SEPARATOR . $id;
             if (!is_dir($dir)) {
                 mkdir($dir, 0777);
             }
+
             $newname = basename($file["name"]);
 
             if (!move_uploaded_file($file["tmp_name"], $dir . DIRECTORY_SEPARATOR . $newname)) {
@@ -409,8 +430,10 @@ function parse_email_address($email = "")
         if ($structure[0]->mailbox && $structure[0]->host) {
             $addr = (string)$structure[0]->mailbox . "@" . (string)$structure[0]->host;
         }
+
         return [$addr, $name];
     }
+
     return [];
 }
 
@@ -444,6 +467,7 @@ function alloc_redirect($target_url)
             if (is_array($TPL[$type])) {
                 $TPL[$type] = implode("<br>", $TPL[$type]);
             }
+
             if (is_string($TPL[$type]) && strlen($TPL[$type])) {
                 $params[] = $type . "=" . urlencode($TPL[$type]);
             }
@@ -479,9 +503,10 @@ function image_create_from_file($path)
 {
     $info = getimagesize($path);
     if (!$info) {
-        echo "unable to determine getimagesize($path)";
+        echo sprintf('unable to determine getimagesize(%s)', $path);
         return false;
     }
+
     $functions = [
         IMAGETYPE_GIF  => 'imagecreatefromgif',
         IMAGETYPE_JPEG => 'imagecreatefromjpeg',
@@ -491,13 +516,15 @@ function image_create_from_file($path)
     ];
 
     if (!$functions[$info[2]]) {
-        echo "no function to handle $info[2]";
+        echo sprintf('no function to handle %d', $info[2]);
         return false;
     }
+
     if (!function_exists($functions[$info[2]])) {
         echo "no function exists to handle " . $functions[$info[2]];
         return false;
     }
+
     $f = $functions[$info[2]];
     return $f($path);
 }
@@ -550,6 +577,7 @@ function array_kv($arr, $k, $v)
             $rtn[$key] = $value[$v];
         }
     }
+
     return $rtn;
 }
 
@@ -576,10 +604,11 @@ function dir_is_empty($dir)
         clearstatcache();
         while (false !== ($file = readdir($handle))) {
             if ($file != "." && $file != "..") {
-                $num_files++;
+                ++$num_files;
                 clearstatcache();
             }
         }
+
         return !$num_files;
     }
 }
@@ -656,9 +685,8 @@ function alloc_error($str = "", $force = null)
  *
  * @return void
  */
-function sprintf_implode()
+function sprintf_implode(...$args)
 {
-    $args = func_get_args();
     $glue = " OR ";
     if (!in_str("%", $args[0])) {
         $glue = array_shift($args);
@@ -671,14 +699,16 @@ function sprintf_implode()
         if (!is_array($arg)) {
             continue;
         }
+
         if (count($arg) == $length) {
             continue;
         }
+
         alloc_error("One of the values passed to sprintf_implode was the wrong length: " . $str . " " . print_r($args, 1));
     }
 
     $result = [];
-    for ($x = 0; $x < $length; $x++) {
+    for ($x = 0; $x < $length; ++$x) {
         $formatted = sprintf(
             $str,
             db_esc($args[0][$x] ?? ""),
@@ -725,6 +755,7 @@ function unsafe_prepare(...$args)
                 $str .= $comma . "'" . db_esc($v) . "'";
                 $comma = ",";
             }
+
             $clean_args[] = $str;
         } else {
             $clean_args[] = db_esc($arg);
@@ -732,7 +763,7 @@ function unsafe_prepare(...$args)
     }
 
     // Have to use this coz we don't know how many args we're gonna pass to sprintf..
-    $query = @call_user_func_array("sprintf", $clean_args);
+    $query = @sprintf(...$clean_args);
 
     // Trackdown poorly formulated queries
     $err = error_get_last();

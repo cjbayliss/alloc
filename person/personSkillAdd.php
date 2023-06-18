@@ -18,6 +18,7 @@ if ($_POST["add_skill"]) {
     } else {
         $failed = true;
     }
+
     if ($_POST["other_new_skill_name"] != "") {
         $skill->set_value('skillName', $_POST["other_new_skill_name"]);
         // description for now can be the same as the name
@@ -25,10 +26,12 @@ if ($_POST["add_skill"]) {
     } else {
         $failed = true;
     }
+
     if ($failed == false && $skill->skill_exists() == false) {
         $skill->save();
     }
 }
+
 if ($_POST["delete_skill"]) {
     $skill = new skill();
     if ($_POST["new_skill_name"] != "") {
@@ -46,6 +49,7 @@ $skills = skill::get_skills();
 if ($skill_class && !in_array($skills[$_POST["skill"]], $skills)) {
     $_POST["skill"] = "";
 }
+
 $skills[""] = ">> NEW >>";
 $TPL["new_skills"] = Page::select_options($skills, $_POST["skill"]);
 

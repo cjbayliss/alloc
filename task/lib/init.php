@@ -8,6 +8,8 @@
 class task_module extends Module
 {
     public $module = "task";
+
     public $databaseEntities = ["task"];
+
     public $home_items = ["task_list_home_item", "task_message_list_home_item"];
 }

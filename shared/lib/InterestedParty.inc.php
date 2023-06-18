@@ -8,7 +8,9 @@
 class InterestedParty extends DatabaseEntity
 {
     public $data_table = "interestedParty";
+
     public $key_field = "interestedPartyID";
+
     public $data_fields = [
         "entityID",
         "entity",
@@ -105,6 +107,7 @@ class InterestedParty extends DatabaseEntity
                 $rtn[] = Page::htmlentities(trim($name)) . "<span class='hidden'> " . Page::htmlentities("<" . $address) . "</span>";
             }
         }
+
         if ($rtn) {
             return "<span>" . implode(", ", $rtn) . "&nbsp;&nbsp;<a href='' onClick='$(this).parent().find(\"span\").slideToggle(\"fast\"); return false;'>Show</a></span>";
         }
@@ -157,6 +160,7 @@ class InterestedParty extends DatabaseEntity
 
             uasort($rtn, ["InterestedParty", "sort_interested_parties"]);
         }
+
         return $rtn;
     }
 
@@ -183,7 +187,7 @@ class InterestedParty extends DatabaseEntity
             $info["name"] or $info["name"] = $email;
             if ($info["name"]) {
                 unset($sel, $c);
-                $counter++;
+                ++$counter;
 
                 if ($current_user_email && same_email_address($current_user_email, $email)) {
                     $sel = " checked";
@@ -192,11 +196,12 @@ class InterestedParty extends DatabaseEntity
                 $c = "";
                 $info["selected"] and $sel = " checked";
                 !$info["internal"] && $info["external"] and $c .= " warn";
-                $str .= "<span width=\"150px\" class=\"nobr " . $c . "\" id=\"td_ect_" . $counter . "\" style=\"float:left; width:150px; margin-bottom:5px;\">";
-                $str .= "<input id=\"ect_" . $counter . "\" type=\"checkbox\" name=\"commentEmailRecipients[]\" value=\"" . $info["identifier"] . "\"" . $sel . "> ";
-                $str .= "<label for=\"ect_" . $counter . "\" title=\"" . $info["name"] . " &lt;" . $info["email"] . "&gt;\">" . Page::htmlentities($info["name"]) . "</label></span>";
+                $str .= '<span width="150px" class="nobr ' . $c . '" id="td_ect_' . $counter . '" style="float:left; width:150px; margin-bottom:5px;">';
+                $str .= '<input id="ect_' . $counter . '" type="checkbox" name="commentEmailRecipients[]" value="' . $info["identifier"] . '"' . $sel . "> ";
+                $str .= '<label for="ect_' . $counter . '" title="' . $info["name"] . " &lt;" . $info["email"] . '&gt;">' . Page::htmlentities($info["name"]) . "</label></span>";
             }
         }
+
         return $str;
     }
 
@@ -224,6 +229,7 @@ class InterestedParty extends DatabaseEntity
             $interestedParty->set_id($existing["interestedPartyID"]);
             $interestedParty->select();
         }
+
         $interestedParty->set_value("entity", $data["entity"]);
         $interestedParty->set_value("entityID", $data["entityID"]);
         $interestedParty->set_value("fullName", $data["name"]);
@@ -241,6 +247,7 @@ class InterestedParty extends DatabaseEntity
                 }
             }
         }
+
         $extra_interested_parties = config::get_config_item("defaultInterestedParties");
         if (!$interestedParty->get_value("personID") && !in_array($data["emailAddress"], (array)$extra_interested_parties)) {
             $interestedParty->set_value("external", 1);
@@ -252,6 +259,7 @@ class InterestedParty extends DatabaseEntity
                 $interestedParty->set_value("fullName", $row["clientContactName"]);
             }
         }
+
         $interestedParty->save();
         return $interestedParty->get_id();
     }
@@ -354,10 +362,12 @@ class InterestedParty extends DatabaseEntity
                     } else if ($command2 && preg_match("/tasks/i", $command)) {
                         $object->add_pending_tasks($command2);
                     }
+
                     $object->save();
                 }
             }
         }
+
         return $quiet;
     }
 
@@ -404,6 +414,7 @@ class InterestedParty extends DatabaseEntity
             $interestedParty->read_db_record($allocDatabase);
             $rows[$interestedParty->get_id()] = $row;
         }
+
         return (array)$rows;
     }
 
@@ -414,9 +425,11 @@ class InterestedParty extends DatabaseEntity
             if (!$info["external"]) {
                 continue;
             }
+
             if (!$info["selected"]) {
                 continue;
             }
+
             return true;
         }
     }
@@ -460,6 +473,7 @@ class InterestedParty extends DatabaseEntity
                 $email = $clientContact->get_value("clientContactEmail");
             }
         }
+
         return [null, $name, $email];
     }
 

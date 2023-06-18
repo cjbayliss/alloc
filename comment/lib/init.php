@@ -8,5 +8,6 @@
 class comment_module extends Module
 {
     public $module = "comment";
+
     public $databaseEntities = ["comment", "commentTemplate"];
 }

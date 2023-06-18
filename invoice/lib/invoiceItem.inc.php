@@ -8,8 +8,11 @@
 class invoiceItem extends DatabaseEntity
 {
     public $data_table = "invoiceItem";
+
     public $display_field_name = "iiMemo";
+
     public $key_field = "invoiceItemID";
+
     public $data_fields = [
         "invoiceID",
         "timeSheetID",
@@ -243,6 +246,7 @@ class invoiceItem extends DatabaseEntity
         } else if ($filter["invoiceID"]) {
             $sql[] = unsafe_prepare("(invoice.invoiceID = %d)", $filter["invoiceID"]);
         }
+
         return $sql;
     }
 
@@ -254,6 +258,7 @@ class invoiceItem extends DatabaseEntity
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);
         }
+
         $q = unsafe_prepare("SELECT * FROM invoiceItem
                    LEFT JOIN invoice ON invoice.invoiceID = invoiceItem.invoiceID
                    LEFT JOIN client ON client.clientID = invoice.clientID
@@ -265,6 +270,7 @@ class invoiceItem extends DatabaseEntity
             $row["iiUnitPrice"] = Page::money($row["currencyTypeID"], $row["iiUnitPrice"], "%mo");
             $rows[$row["invoiceItemID"]] = $row;
         }
+
         return (array)$rows;
     }
 }

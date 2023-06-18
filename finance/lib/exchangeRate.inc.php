@@ -8,8 +8,11 @@
 class exchangeRate extends DatabaseEntity
 {
     public $data_table = "exchangeRate";
+
     public $display_field_name = "exchangeRate";
+
     public $key_field = "exchangeRateID";
+
     public $data_fields = [
         "exchangeRateCreatedDate",
         "exchangeRateCreatedTime",
@@ -25,6 +28,7 @@ class exchangeRate extends DatabaseEntity
         if (isset($cache[$from][$to][$date]) && (bool)strlen($cache[$from][$to][$date])) {
             return $cache[$from][$to][$date];
         }
+
         $allocDatabase = new AllocDatabase();
         if ($date) {
             $q = unsafe_prepare(
@@ -57,6 +61,7 @@ class exchangeRate extends DatabaseEntity
             $allocDatabase->query($q);
             $row = $allocDatabase->row();
         }
+
         $cache[$from][$to][$date] = $row["exchangeRate"];
         return $row["exchangeRate"];
     }
@@ -81,6 +86,7 @@ class exchangeRate extends DatabaseEntity
             $exchangeRate->save();
             return $from . " -> " . $to . ":" . $rate . " ";
         }
+
         echo date("Y-m-d H:i:s") . "Unable to obtain exchange rate information for " . $from . " to " . $to . "!";
     }
 
@@ -98,13 +104,16 @@ class exchangeRate extends DatabaseEntity
             if ($code == $default_currency) {
                 continue;
             }
+
             if ($ret = exchangeRate::update_rate($code, $default_currency)) {
                 $rtn[] = $ret;
             }
+
             if ($ret = exchangeRate::update_rate($default_currency, $code)) {
                 $rtn[] = $ret;
             }
         }
+
         return $rtn;
     }
 }

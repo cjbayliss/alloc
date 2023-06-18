@@ -26,9 +26,11 @@ class pendingAdminExpenseForm extends home_item
         if (!isset($current_user)) {
             return;
         }
+
         if (!$current_user->have_role("admin")) {
             return;
         }
+
         return true;
     }
 

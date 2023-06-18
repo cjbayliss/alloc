@@ -57,7 +57,7 @@ while ($row = $db->next_record()) {
     }
 
     // 'value' contains the true task status, whereas 'taskStatus' does not.
-    if ($row['field'] != "taskStatus" || array_search($row['value'], $status_types) !== false) {
+    if ($row['field'] != "taskStatus" || array_search($row['value'], $status_types, true) !== false) {
         $taskName = escape_xml($row['taskName']);
         $project = null;
         if ($show_project) {
@@ -66,6 +66,7 @@ while ($row = $db->next_record()) {
             $project->select();
             $projectName = $project->get_value('projectShortName');
         }
+
         if ($summary) {
             $el['desc'] = sprintf('%s: %d %s "%s" %s', $name, $row['taskID'], $projectName, $taskName, $row['value']);
         } else {
@@ -75,6 +76,7 @@ while ($row = $db->next_record()) {
                 $el['desc'] = sprintf('Task #%d "%s" (%s) assigned to %s', $row['taskID'], $taskName, $projectName, $name);
             }
         }
+
         $events[$key] = $el;
     }
 }
@@ -94,7 +96,7 @@ rsort($keys);
 // There are 20 events in the list, but older task creation events could show
 // the wrong status. This would result in a change in the RSS feed, so readers
 // may show it as a new event. Therefore, trim the list.
-for ($i = 0; $i < $max_events; $i++) {
+for ($i = 0; $i < $max_events; ++$i) {
     $event = $events[$keys[$i]];
     $item = $channel->addChild("item");
     $item->addChild("title", $event['desc']);

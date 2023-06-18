@@ -61,6 +61,7 @@ function tf_list($selected = "", $remove_these = [])
     foreach ($remove_these as $dud) {
         unset($temp[$dud]);
     }
+
     echo Page::select_options($temp, $selected);
     return;
 }
@@ -108,6 +109,7 @@ if ($_POST["save"]) {
             alloc_redirect($TPL["url_alloc_product"] . "productID=" . $productID);
         }
     }
+
     $product->set_values();
 } else if ($_POST["delete"]) {
     $product->read_globals();
@@ -150,6 +152,7 @@ if ($_POST["save_costs"] || $_POST["save_commissions"]) {
             }
         }
     }
+
     alloc_redirect($TPL["url_alloc_product"] . "productID=" . $product->get_id());
 }
 

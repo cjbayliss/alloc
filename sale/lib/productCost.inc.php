@@ -8,8 +8,11 @@
 class productCost extends DatabaseEntity
 {
     public $classname = "productCost";
+
     public $data_table = "productCost";
+
     public $key_field = "productCostID";
+
     public $data_fields = [
         "tfID",
         "productID",

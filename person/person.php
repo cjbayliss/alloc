@@ -17,7 +17,7 @@ function show_perm_select()
         foreach ($ops as $p => $l) {
             unset($sel);
             in_array($p, $selected) and $sel = " checked";
-            echo $br . "<input type=\"checkbox\" name=\"perm_select[]\" value=\"" . $p . "\"" . $sel . "> " . $l;
+            echo $br . '<input type="checkbox" name="perm_select[]" value="' . $p . '"' . $sel . "> " . $l;
             $br = "<br>";
         }
     } else {
@@ -52,6 +52,7 @@ function show_action_buttons()
     if ($person->have_perm(PERM_DELETE)) {
         echo '<button type="submit" name="delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button> ';
     }
+
     echo '<button type="submit" name="save" value="1" class="save_button default">Save<i class="icon-ok-sign"></i></button> ';
 }
 
@@ -113,6 +114,7 @@ function show_person_areasOfExpertise($template)
         } else {
             $skill_header = false;
         }
+
         $skill_prof = $skillProficiencys->get_value('skillProficiency');
         $TPL["skill_proficiencys"] = Page::select_options($proficiencys, $skill_prof);
 
@@ -136,6 +138,7 @@ function show_skills_list()
         $skill->read_db_record($db);
         array_push($skills_got, $skill->get_id());
     }
+
     $query = "SELECT * FROM skill ORDER BY skillClass";
     $db->query($query);
     while ($db->next_record()) {
@@ -147,6 +150,7 @@ function show_skills_list()
             $skills[$skill->get_id()] = sprintf("%s - %s", $skill->get_value('skillClass'), $skill->get_value('skillName'));
         }
     }
+
     if (count($skills) > 0) {
         $TPL["skills"] = Page::select_options($skills, "");
     }
@@ -188,7 +192,7 @@ if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $
         } else if ($_POST["personExpertiseItem_add"]) {
             // skillID is an array if when adding but not when saving or deleting
             $skillProficiency = $proficiency->get_value('skillProficiency');
-            for ($i = 0; $i < (is_countable($_POST["skillID"]) ? count($_POST["skillID"]) : 0); $i++) {
+            for ($i = 0; $i < (is_countable($_POST["skillID"]) ? count($_POST["skillID"]) : 0); ++$i) {
                 $proficiency = new proficiency();
 
                 $proficiency->set_value('skillID', $_POST["skillID"][$i]);
@@ -283,6 +287,7 @@ if (has("time")) {
     $timeUnit = new timeUnit();
     $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
 }
+
 $TPL["timeSheetRateUnit_select"] = Page::select_options($rate_type_array, $person->get_value("defaultTimeSheetRateUnitID"));
 $TPL["timeSheetRateUnit_label"] = $rate_type_array[$person->get_value("defaultTimeSheetRateUnitID")];
 

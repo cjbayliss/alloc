@@ -11,8 +11,11 @@ use ZendSearch\Lucene\Document\Field;
 class comment extends DatabaseEntity
 {
     public $classname = "comment";
+
     public $data_table = "comment";
+
     public $key_field = "commentID";
+
     public $data_fields = [
         "commentMaster",
         "commentMasterID",
@@ -43,6 +46,7 @@ class comment extends DatabaseEntity
             $this->set_value("commentMaster", $this->get_value("commentType"));
             $this->set_value("commentMasterID", $this->get_value("commentLinkID"));
         }
+
         $this->set_value("comment", str_replace("\r\n", "\n", $this->get_value("comment")));
         return parent::save();
     }
@@ -61,9 +65,11 @@ class comment extends DatabaseEntity
                         clearstatcache();
                     }
                 }
+
                 is_dir($dir) && rmdir($dir);
             }
         }
+
         parent::delete();
     }
 
@@ -128,6 +134,7 @@ class comment extends DatabaseEntity
                 }
             }
         }
+
         // commentID    commmentMaster   commmentMasterID  commentType   commentLinkID
         // 1            task             10                task          10
         // 2            task             10                comment       1
@@ -151,7 +158,7 @@ class comment extends DatabaseEntity
             if ($token->get_value("tokenHash")) {
                 $new["hash"] = $token->get_value("tokenHash");
                 $new["hashKey"] = "{Key:" . $new["hash"] . "}";
-                $new["hashHTML"] = " <em class=\"faint\">" . $new["hashKey"] . "</em>";
+                $new["hashHTML"] = ' <em class="faint">' . $new["hashKey"] . "</em>";
             }
 
             $ip = InterestedParty::get_interested_parties("comment", $new["commentID"]);
@@ -161,6 +168,7 @@ class comment extends DatabaseEntity
                     $sel[] = $email;
                 }
             }
+
             foreach ($all_parties as $email => $i) {
                 in_array($email, (array)$sel) and $recipient_selected[] = $i["identifier"];
             }
@@ -222,7 +230,7 @@ class comment extends DatabaseEntity
             if (is_array($files)) {
                 foreach ($files as $file) {
                     $new["files"] .= '<div align="center" style="float:left; display:inline; margin-right:14px;">';
-                    $new["files"] .= "<a href=\"" . $TPL["url_alloc_getMimePart"] . "part=" . $file["part"] . "&entity=comment&id=" . $v["commentID"] . "\">";
+                    $new["files"] .= '<a href="' . $TPL["url_alloc_getMimePart"] . "part=" . $file["part"] . "&entity=comment&id=" . $v["commentID"] . '">';
                     $new["files"] .= get_file_type_image($file["name"]) . "<br>" . Page::htmlentities($file["name"]);
                     $new["files"] .= " (" . get_size_label($file["size"]) . ")</a>";
                     $new["files"] .= '</div>';
@@ -231,6 +239,7 @@ class comment extends DatabaseEntity
 
             $v["commentEmailRecipients"] and $new["emailed"] = 'Emailed to ' . Page::htmlentities($v["commentEmailRecipients"]);
         }
+
         return (array)$new;
     }
 
@@ -258,6 +267,7 @@ class comment extends DatabaseEntity
         $e = new $entity;
         $e->set_id($id);
         $e->select();
+
         $all_parties = $e->get_all_parties();
 
         foreach ((array)$rows as $v) {
@@ -265,9 +275,11 @@ class comment extends DatabaseEntity
             foreach ((array)$v["children"] as $c) {
                 $children[] = comment::get_one_comment_array($c, $all_parties);
             }
+
             $children and $v["children"] = $children;
             $new_rows[] = comment::get_one_comment_array($v, $all_parties);
         }
+
         return (array)$new_rows;
     }
 
@@ -280,6 +292,7 @@ class comment extends DatabaseEntity
         foreach ((array)$rows as $row) {
             $rtn .= comment::get_comment_html_table($row);
         }
+
         return $rtn;
     }
 
@@ -298,6 +311,7 @@ class comment extends DatabaseEntity
         } else if ($row["timeSheetItemID"]) {
             $rtn[] = '  <td align="right" width="1%">' . Page::star("timeSheetItem", $row["timeSheetItemID"]) . '</td>';
         }
+
         $rtn[] = '</tr>';
         $rtn[] = '<tr>';
         $rtn[] = '  <td colspan="3" style="padding-top:0px; white-space:normal;">' . preg_replace("/<[^>]>/", "", $row["emailed"]) . "</td>";
@@ -314,6 +328,7 @@ class comment extends DatabaseEntity
             $row["reply"] and $rtn[] = '  <td valign="bottom" align="right" colspan="' . $cs . '">' . $row["reply"] . '</td>';
             $rtn[] = '</tr>';
         }
+
         $rtn[] = '</table>';
         $rtn[] = '</div>';
         return implode("\n", $rtn);
@@ -327,6 +342,7 @@ class comment extends DatabaseEntity
         if ($comment["commentModifiedTime"] || $comment["commentModifiedUser"]) {
             $str .= ", last modified by <b>" . person::get_fullname($comment["commentModifiedUser"]) . "</b> " . format_date("Y-m-d g:ia", $comment["commentModifiedTime"]);
         }
+
         $str .= $comment["ts_label"];
         return $str;
     }
@@ -338,6 +354,7 @@ class comment extends DatabaseEntity
         if ($_GET["media"] == "print") {
             return $html;
         }
+
         $class = "comment_" . $commentID;
         $lines = explode("\n", "\n" . $html . "\n");
         $started = false;
@@ -353,12 +370,12 @@ class comment extends DatabaseEntity
 
                 if ($num_lines_hidden > 3) {
                     $onClick = "return set_grow_shrink('comment_" . $commentID . "','button_comment_" . $commentID . "','true');";
-                    $new_lines[$start_position - 1] .= "<div class=\"hidden_text button_" . $class . " on_click\" onclick=\"" . $onClick . "\"> --- " . $num_lines_hidden . " lines hidden, click to show --- </div>";
-                    $new_lines[$start_position - 1] .= "<div style=\"display:none;\" class=\"hidden_text " . $class . " on_click\" onclick=\"" . $onClick . "\"> --- " . $num_lines_hidden . " lines shown, click to hide --- </div>";
-                    $new_lines[$start_position - 1] .= "<div style=\"display:none;\" class=\"hidden_text " . $class . "\">";
+                    $new_lines[$start_position - 1] .= '<div class="hidden_text button_' . $class . ' on_click" onclick="' . $onClick . '"> --- ' . $num_lines_hidden . " lines hidden, click to show --- </div>";
+                    $new_lines[$start_position - 1] .= '<div style="display:none;" class="hidden_text ' . $class . ' on_click" onclick="' . $onClick . '"> --- ' . $num_lines_hidden . " lines shown, click to hide --- </div>";
+                    $new_lines[$start_position - 1] .= '<div style="display:none;" class="hidden_text ' . $class . '">';
                     $new_lines[$k] = "</div>" . $line;
                 } else {
-                    $new_lines[$start_position - 1] .= "<div style=\"display:inline;\" class=\"hidden_text\">";
+                    $new_lines[$start_position - 1] .= '<div style="display:inline;" class="hidden_text">';
                     $new_lines[$k] = "</div>" . $line;
                 }
 
@@ -374,16 +391,17 @@ class comment extends DatabaseEntity
                 $sig_started = true;
                 $sig_start_position = $k;
             }
+
             $new_lines2[$k] = $line;
         }
 
         $sig_num_lines_hidden = count($new_lines2) - 1 - $sig_start_position;
 
         if ($sig_started && $sig_num_lines_hidden > 1) {
-            $new_lines2[$sig_start_position - 1] .= "<div style=\"display:inline;\" class=\"hidden_text button_" . $class . "\"> --- " . $sig_num_lines_hidden . " lines hidden (signature) --- <br></div>";
-            $new_lines2[$sig_start_position - 1] .= "<div style=\"display:none;\" class=\"hidden_text " . $class . "\">";
+            $new_lines2[$sig_start_position - 1] .= '<div style="display:inline;" class="hidden_text button_' . $class . '"> --- ' . $sig_num_lines_hidden . " lines hidden (signature) --- <br></div>";
+            $new_lines2[$sig_start_position - 1] .= '<div style="display:none;" class="hidden_text ' . $class . '">';
             $new_lines2[count($new_lines2)] .= "</div>";
-        } else if ($sig_started) {
+        } else if ($sig_started !== null) {
         }
 
         return ltrim(rtrim(implode("\n", $new_lines2)));
@@ -394,13 +412,14 @@ class comment extends DatabaseEntity
         $rtn = [];
         foreach ($children as $child) {
             // style=\"padding:0px; padding-left:".($padding*15+5)."px; padding-right:6px;\"
-            $rtn[] = "<tr><td colspan=\"3\" style=\"padding:0px; padding-left:6px; padding-right:6px;\">" . comment::get_comment_html_table($child) . "</td></tr>";
+            $rtn[] = '<tr><td colspan="3" style="padding:0px; padding-left:6px; padding-right:6px;">' . comment::get_comment_html_table($child) . "</td></tr>";
             if (is_array($child["children"]) && count($child["children"])) {
-                $padding += 1;
+                ++$padding;
                 $rtn[] = (new comment())->get_comment_children($child["children"], $padding);
-                $padding -= 1;
+                --$padding;
             }
         }
+
         return implode("\n", $rtn);
     }
 
@@ -418,6 +437,7 @@ class comment extends DatabaseEntity
         } else if ($comment["personID"]) {
             $author = person::get_fullname($comment["personID"]);
         }
+
         return $author;
     }
 
@@ -440,6 +460,7 @@ class comment extends DatabaseEntity
             $p->select();
             $email = $p->get_from();
         }
+
         return $email;
     }
 
@@ -454,6 +475,7 @@ class comment extends DatabaseEntity
         if (!is_object($current_user) || !$current_user->get_id()) {
             alloc_error("Cannot make token, current_user is not set.", true);
         }
+
         $token = new token();
         $token->set_value("tokenEntity", "comment");
         $token->set_value("tokenEntityID", $this->get_id());
@@ -461,6 +483,7 @@ class comment extends DatabaseEntity
         $token->set_value("tokenActive", 1);
         $token->set_value("tokenCreatedBy", $current_user->get_id());
         $token->set_value("tokenCreatedDate", date("Y-m-d H:i:s"));
+
         $hash = $token->generate_hash();
         $token->set_value("tokenHash", $hash);
         $token->save();
@@ -490,6 +513,7 @@ class comment extends DatabaseEntity
 
         $comment->set_value("commentCreatedUserText", $email_receive->mail_headers["from"]);
         $comment->set_value("commentEmailMessageID", $email_receive->mail_headers["message-id"]);
+
         $comment->updateSearchIndexLater = true;
         $comment->skip_modified_fields = true;
         $comment->save();
@@ -528,6 +552,7 @@ class comment extends DatabaseEntity
                 if ($entity && $entityID) {
                     $q = unsafe_prepare("SELECT * FROM interestedParty WHERE entity = '%s' AND entityID = %d AND interestedPartyActive = 1", $entity, $entityID);
                 }
+
                 $db->query($q);
                 while ($row = $db->next_record()) {
                     $row["isCC"] = true;
@@ -541,6 +566,7 @@ class comment extends DatabaseEntity
                 $email and $recipients[] = ["name" => $name, "emailAddress" => $email];
             }
         }
+
         return $recipients;
     }
 
@@ -571,6 +597,7 @@ class comment extends DatabaseEntity
                 if (is_object($current_user) && $current_user->get_id() && !$current_user->prefs["receiveOwnTaskComments"] && same_email_address($recipient["emailAddress"], $from_address)) {
                     continue;
                 }
+
                 if ((!is_object($current_user) || !$current_user->get_id()) && same_email_address($recipient["emailAddress"], $from_address)) {
                     continue;
                 }
@@ -598,10 +625,12 @@ class comment extends DatabaseEntity
                         $to_address[] = '"' . $name . '": ;';
                         $successful_recipients[] = $name_and_email;
                     }
+
                     $bcc[] = $email_without_name;
                 }
             }
         }
+
         return [implode(", ", (array)$to_address), implode(", ", (array)$bcc), implode(", ", (array)$successful_recipients)];
     }
 
@@ -711,6 +740,7 @@ class comment extends DatabaseEntity
                 } else {
                     $f = config::get_config_item("allocEmailAdmin");
                 }
+
                 $emailsend->set_reply_to($f);
                 $emailsend->set_from($f);
             }
@@ -731,6 +761,7 @@ class comment extends DatabaseEntity
             foreach ((array)$current_user->prefs["stars"]["comment"] as $k => $v) {
                 $filter["commentID"][] = $k;
             }
+
             is_array($filter["commentID"]) or $filter["commentID"][] = -1;
         }
 
@@ -782,6 +813,7 @@ class comment extends DatabaseEntity
                 $row["clientContactName"] and $row["person"] = $row["clientContactName"];
                 $rows[] = $row;
             }
+
             has("timeSheetItem") and $tsi_rows = timeSheetItem::get_timeSheetItemComments(null, true);
             foreach ((array)$tsi_rows as $row) {
                 $t = new Task();
@@ -843,9 +875,11 @@ class comment extends DatabaseEntity
         if (!class_exists($entity)) {
             return false;
         }
+
         $e = new $entity;
         $e->set_id($entity_id);
         $e->select();
+
         $entity_name = $e->get_name();
         // If the parent is a comment, then go up one more level
         if ($entity == "comment") {
@@ -866,6 +900,7 @@ class comment extends DatabaseEntity
         $zendSearchLuceneDocument->addField(Field::Text('desc', $this->get_value("comment"), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('creator', $author, "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('dateCreated', str_replace("-", "", $this->get_value("commentCreatedTime")), "utf-8"));
+
         $index->addDocument($zendSearchLuceneDocument);
     }
 
@@ -963,6 +998,7 @@ class comment extends DatabaseEntity
                 $t->set_value("taskName", $row["taskName"]);
                 $tasks[$row["taskID"]] = $t->get_task_link(["prefixTaskID" => true]);
             }
+
             $rows[$row["taskID"]][$row["sortDate"]][] = $row;
         }
 
@@ -994,6 +1030,7 @@ class comment extends DatabaseEntity
             if (!$timeSheetItem->read_row_record($row)) {
                 continue;
             }
+
             $row["icon"] = 'icon-time';
             $row["id"] = "timeitem_" . $row["id"];
             $row["person"] = $people[$row["personID"]]["name"];
@@ -1003,6 +1040,7 @@ class comment extends DatabaseEntity
                 $t->set_value("taskName", $row["taskName"]);
                 $tasks[$row["taskID"]] = $t->get_task_link(["prefixTaskID" => true]);
             }
+
             $totals[$row["taskID"]] += $row["duration"];
             $rows[$row["taskID"]][$row["sortDate"]][] = $row;
         }
@@ -1043,6 +1081,7 @@ class comment extends DatabaseEntity
                 $t->set_value("taskName", $row["taskName"]);
                 $tasks[$row["taskID"]] = $t->get_task_link(["prefixTaskID" => true]);
             }
+
             $totals_tsiHint[$row["taskID"]] += $row["duration"];
             $rows[$row["taskID"]][$row["sortDate"]][] = $row;
         }
@@ -1062,8 +1101,10 @@ class comment extends DatabaseEntity
                     $rtn .= (new comment())->get_list_summary_body($more_row);
                 }
             }
+
             $rtn .= (new comment())->get_list_summary_footer($rows, $tasks);
         }
+
         return $rtn;
     }
 
@@ -1079,6 +1120,7 @@ class comment extends DatabaseEntity
             $rtn[] = "</tr>";
             $rtn[] = "</table>";
         }
+
         $rtn[] = "<table class=\"list sortable\" style='margin-bottom:10px'>";
         $rtn[] = "<tr>";
         $rtn[] = "<th>&nbsp;</th>";
@@ -1121,6 +1163,7 @@ class comment extends DatabaseEntity
             $t->select();
             $projectID = $t->get_value("projectID");
         }
+
         return $projectID;
     }
 
@@ -1151,6 +1194,7 @@ class comment extends DatabaseEntity
                 $from_name = $from_address;
             }
         }
+
         return [$personID, $clientContactID, $from_name];
     }
 
@@ -1197,6 +1241,7 @@ class comment extends DatabaseEntity
 
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
+
         $getClientContact = $allocDatabase->pdo->prepare(
             "SELECT * FROM clientContact 
               WHERE clientID = :clientID AND clientContactEmail = :email"
@@ -1238,10 +1283,12 @@ class comment extends DatabaseEntity
                     if (is_object($cc) && $cc->get_id()) {
                         $interestedParty->set_value("clientContactID", $cc->get_id());
                     }
+
                     $interestedParty->save();
                 }
             }
         }
+
         return $emailRecipients;
     }
 
@@ -1342,6 +1389,7 @@ class comment extends DatabaseEntity
         $invoice = new invoice();
         $invoice->set_id($entityID);
         $invoice->select();
+
         $str = $invoice->generate_invoice_file($verbose, true);
         $rtn["name"] = "invoice_" . $entityID . ".pdf";
         $rtn["blob"] = $str;
@@ -1402,6 +1450,7 @@ class comment extends DatabaseEntity
         $emailreceive = new email_receive($info);
         $emailreceive->open_mailbox(config::get_config_item("allocEmailFolder") . "/" . $mailbox, OP_HALFOPEN + OP_READONLY);
         $emailreceive->check_mail();
+
         $msg_nums = $emailreceive->get_all_email_msg_uids();
         $debug and print "<hr><br><b>find_email(): " . date("Y-m-d H:i:s") . " found " . (is_countable($msg_nums) ? count($msg_nums) : 0) . " emails for mailbox: " . $mailbox . "</b>";
 
@@ -1422,12 +1471,14 @@ class comment extends DatabaseEntity
                 $p->select();
                 $from2 = $p->get_value("emailAddress");
             }
+
             if (!$from2 && $this->get_value("commentCreatedUserClientContactID")) {
                 $p = new clientContact();
                 $p->set_id($this->get_value("commentCreatedUserClientContactID"));
                 $p->select();
                 $from2 = $p->get_value("clientContactEmail");
             }
+
             $text1 = str_replace(["\s", "\n", "\r"], "", trim($text));
             $text2 = str_replace(["\s", "\n", "\r"], "", trim($this->get_value("comment")));
             $date = format_date("U", $this->get_value("commentCreatedTime"));
@@ -1453,9 +1504,11 @@ class comment extends DatabaseEntity
                     $get_blobs and $bits["blob"] = $thing;
                     $filename and $mimebits[] = $bits;
                 }
+
                 $emailreceive->close();
                 return [$emailreceive, $text, $mimebits];
             }
+
             similar_text($text1, $text2, $percent);
             $debug and print "<br>TEXT: " . sprintf("%d", $text1 == $text2) . " (" . sprintf("%d", $percent) . "%)";
             // $debug and print "<br>Text1:<br>".$text1."<br>* * *<br>";
@@ -1466,6 +1519,7 @@ class comment extends DatabaseEntity
             $debug and print "<br>DATE: " . sprintf("%d", $date > $date1 && $date < $date3) . " (" . date("Y-m-d H:i:s", $date) . " | " . date("Y-m-d H:i:s", $date1) . " | " . date("Y-m-d H:i:s", $date3) . ")";
             $debug and print "<br>";
         }
+
         $emailreceive->close();
         return [false, false, false];
     }

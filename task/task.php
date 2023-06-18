@@ -59,6 +59,7 @@ function get_parent_taskIDs($taskID)
             $rtn = array_merge($rtn, $arr);
         }
     }
+
     return $rtn;
 }
 
@@ -84,6 +85,7 @@ function show_comments()
         $TPL["extra_page_links"] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $TPL["task_taskID"];
         $TPL["extra_page_links"] .= '&sbs_link=comments&commentSummary=true&maxCommentLength=50000000">Summary</a>';
     }
+
     $TPL["commentsR"] and $TPL["class_new_comment"] = "hidden";
     $TPL["allParties"] = $task->get_all_parties($task->get_value("projectID")) or $TPL["allParties"] = [];
     $TPL["entity"] = "task";
@@ -95,7 +97,7 @@ function show_comments()
 
     $commentTemplate = new commentTemplate();
     $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "task"]);
-    $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
+    $TPL["commentTemplateOptions"] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
 
     include_template("../comment/templates/commentM.tpl");
 }
@@ -172,6 +174,7 @@ if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POS
         if ($task->get_value("taskStatus") != "pending_tasks") {
             $_POST['pendingTaskIDs'] = '';
         }
+
         $task->add_pending_tasks($_POST["pendingTasksIDs"]);
         $task->add_tags($_POST["tags"]);
 
@@ -179,6 +182,7 @@ if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POS
         if (strpos($task->get_value("taskStatus"), "pending_") !== 0 || $task->get_value("taskStatus") == "pending_tasks") {
             $_POST['reopen_task'] = '';
         }
+
         $task->add_reopen_reminder($_POST["reopen_task"]);
 
         // Create reminders if necessary
@@ -202,6 +206,7 @@ if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POS
         } else {
             alloc_error("Unexpected save button");
         }
+
         alloc_redirect($url . $msg);
         exit();
     }
@@ -266,7 +271,7 @@ $task->set_option_tpl_values();
 $time_billed = $task->get_time_billed(false);
 $time_billed_label = seconds_to_display_format($time_billed);
 if ($time_billed != "") {
-    $TPL["time_billed_link"] = "<a href=\"" . $TPL["url_alloc_timeSheetList"] . "taskID=" . $task->get_id() . "&dontSave=true&applyFilter=true\">" . $time_billed_label . "</a>";
+    $TPL["time_billed_link"] = '<a href="' . $TPL["url_alloc_timeSheetList"] . "taskID=" . $task->get_id() . '&dontSave=true&applyFilter=true">' . $time_billed_label . "</a>";
 }
 
 $TPL["task_timeLimit"] or $TPL["task_timeLimit"] = "";
@@ -295,7 +300,7 @@ $q = unsafe_prepare("SELECT clientID FROM project LEFT JOIN task ON task.project
 $db->query($q);
 $db->next_record();
 if ($db->f("clientID")) {
-    $TPL["new_client_contact_link"] = "<br><br><a href=\"" . $TPL["url_alloc_client"] . "clientID=" . $db->f("clientID") . "\">";
+    $TPL["new_client_contact_link"] = '<br><br><a href="' . $TPL["url_alloc_client"] . "clientID=" . $db->f("clientID") . '">';
     $TPL["new_client_contact_link"] .= "New Client Contact</a>";
     $TPL["task_clientID"] = $db->f("clientID");
 }
@@ -305,7 +310,7 @@ if (is_array($parentTaskIDs)) {
     $parentTaskIDs = array_reverse($parentTaskIDs, 1);
 
     foreach ($parentTaskIDs as $tName => $tID) {
-        $TPL["hierarchy_links"] .= $br . $spaces . "<a href=\"" . $TPL["url_alloc_task"] . "taskID=" . $tID . "\">" . $tID . " " . Page::htmlentities($tName) . "</a>";
+        $TPL["hierarchy_links"] .= $br . $spaces . '<a href="' . $TPL["url_alloc_task"] . "taskID=" . $tID . '">' . $tID . " " . Page::htmlentities($tName) . "</a>";
         $spaces .= "&nbsp;&nbsp;&nbsp;&nbsp;";
         $br = "<br>";
     }
@@ -338,6 +343,7 @@ while ($row = $db->row()) {
         "return"       => "html",
     ]);
 }
+
 $duds and $TPL["message_help_no_esc"][] = "The following tasks have been marked as a duplicate of this task: " . $duds;
 
 $rows = $task->get_pending_tasks();
@@ -352,11 +358,13 @@ foreach ((array)$rows as $pendingTaskID) {
     } else {
         $wasopen = true;
     }
+
     $pendingTaskLinks[] = $st1 . $realtask->get_task_link([
         "prefixTaskID" => 1,
         "return"       => "html",
     ]) . $st2;
 }
+
 $is = "was";
 $wasopen and $is = "is";
 $pendingTaskLinks and $TPL["message_help_no_esc"][] = "This task " . $is . " pending the completion of:<br>" . implode("<br>", $pendingTaskLinks);
@@ -373,11 +381,13 @@ foreach ((array)$rows as $tID) {
     } else {
         $wasopen = true;
     }
+
     $blockTaskLinks[] = $st1 . $realtask->get_task_link([
         "prefixTaskID" => 1,
         "return"       => "html",
     ]) . $st2;
 }
+
 $is = "was";
 $wasopen and $is = "is";
 $blockTaskLinks and $TPL["message_help_no_esc"][] = "This task " . $is . " blocking the start of:<br>" . implode("<br>", $blockTaskLinks);
@@ -402,7 +412,7 @@ if ($task->get_id()) {
 
 if ($taskID) {
     $TPL["taskTypeImage"] = $task->get_task_image();
-    $TPL["taskSelfLink"] = "<a href=\"" . $task->get_url() . "\">" . $task->get_id() . " " . $task->get_name(["return" => "html"]) . "</a>";
+    $TPL["taskSelfLink"] = '<a href="' . $task->get_url() . '">' . $task->get_id() . " " . $task->get_name(["return" => "html"]) . "</a>";
     $TPL["main_alloc_title"] = "Task " . $task->get_id() . ": " . $task->get_name() . " - " . APPLICATION_NAME;
     $TPL["task_exists"] = true;
 
@@ -433,6 +443,7 @@ if ($_GET["media"] == "print") {
         $client->select();
         $client->set_values("client_");
     }
+
     if (has("project") && has("client")) {
         $project = $task->get_foreign_object("project");
         $clientContact = new clientContact();
@@ -440,6 +451,7 @@ if ($_GET["media"] == "print") {
         $clientContact->select();
         $clientContact->set_values("clientContact_");
     }
+
     include_template("templates/taskPrinterM.tpl");
 } else {
     include_template("templates/taskM.tpl");

@@ -8,11 +8,15 @@
 class Session
 {
 
-    private $key;          // the unique key for the session
-    private \AllocDatabase $db;           // database object
-    private $session_data; // assoc array which holds all session data
-    private $session_life; // number of seconds the session is alive for
-    private $mode;         // whether to use get or cookies
+    private $key;
+
+    private \AllocDatabase $allocDatabase;
+
+    private $session_data;
+
+    private $session_life;
+
+    private $mode;
 
     // Constructor
     public function __construct($key = "")
@@ -29,7 +33,7 @@ class Session
         }
 
         $TPL["sessID"] = $_GET["sess"] ?? false;
-        $this->db = new AllocDatabase();
+        $this->allocDatabase = new AllocDatabase();
         $this->session_life = (config::get_config_item("allocSessionMinutes") * 60);
         $this->session_life < 1 and $this->session_life = 10000; // just in case.
         $this->session_data = $this->UnEncode($this->GetSessionData());
@@ -38,6 +42,7 @@ class Session
         if ($this->Expired()) {
             $this->Destroy();
         }
+
         return $this;
     }
 
@@ -47,9 +52,10 @@ class Session
         $this->key = md5($row["personID"] . "mix it up#@!" . md5(time() . md5(microtime())));
         $this->Put("session_started", time());
         if ($nuke_prev_sessions && config::get_config_item("singleSession")) {
-            $this->db->query("DELETE FROM sess WHERE personID = %d", $row["personID"]);
+            $this->allocDatabase->query("DELETE FROM sess WHERE personID = %d", $row["personID"]);
         }
-        $this->db->query(
+
+        $this->allocDatabase->query(
             "INSERT INTO sess (sessID,sessData,personID) VALUES ('%s','%s',%d)",
             $this->key,
             $this->Encode($this->session_data),
@@ -66,9 +72,11 @@ class Session
         if (!$this->Get("session_started")) {
             return;
         }
+
         if ($this->Expired()) {
             return;
         }
+
         return true;
     }
 
@@ -78,7 +86,7 @@ class Session
             $this->Destroy();
         } else if ($this->Started()) {
             $this->Put("session_started", time());
-            $this->db->query(
+            $this->allocDatabase->query(
                 "UPDATE sess SET sessData = '%s' WHERE sessID = '%s'",
                 $this->Encode($this->session_data),
                 $this->key
@@ -89,8 +97,9 @@ class Session
     public function Destroy()
     {
         if ($this->Started() && $this->key) {
-            $this->db->query("DELETE FROM sess WHERE sessID = '%s'", $this->key);
+            $this->allocDatabase->query("DELETE FROM sess WHERE sessID = '%s'", $this->key);
         }
+
         $this->DestroyCookie();
         $this->key = "";
     }
@@ -180,7 +189,7 @@ class Session
     private function GetSessionData()
     {
         if ($this->key) {
-            $row = $this->db->qr("SELECT sessData FROM sess WHERE sessID = '%s'", $this->key);
+            $row = $this->allocDatabase->qr("SELECT sessData FROM sess WHERE sessID = '%s'", $this->key);
             return $row["sessData"] ?? "";
         }
     }
@@ -191,11 +200,14 @@ class Session
         if (!$this->Get("session_started")) {
             return;
         }
+
         if (time() <= $this->Get("session_started") + $this->session_life) {
             return;
         }
+
         return true;
     }
+
     // add encryption for session_data here
     private function Encode($data)
     {

@@ -11,9 +11,13 @@ use ZendSearch\Lucene\Document\Field;
 class client extends DatabaseEntity
 {
     public $classname = "client";
+
     public $data_table = "client";
+
     public $display_field_name = "clientName";
+
     public $key_field = "clientID";
+
     public $data_fields = [
         "clientName",
         "clientStreetAddressOne",
@@ -104,8 +108,8 @@ class client extends DatabaseEntity
         }
 
         $options .= Page::select_options($clientNamesQuery, $clientID, 100);
-        $str = "<select id=\"clientID\" name=\"clientID\" style=\"width:100%;\">";
-        $str .= "<option value=\"\">";
+        $str = '<select id="clientID" name="clientID" style="width:100%;">';
+        $str .= '<option value="">';
         $str .= $options;
         $str .= "</select>";
         return $str;
@@ -122,7 +126,7 @@ class client extends DatabaseEntity
             $clientID
         );
         $options = Page::select_options($clientContactQuery, $clientContactID, 100);
-        return "<select id=\"clientContactID\" name=\"clientContactID\" style=\"width:100%\"><option value=\"\">"
+        return '<select id="clientContactID" name="clientContactID" style="width:100%"><option value="">'
             . $options
             . "</select>";
     }
@@ -132,17 +136,18 @@ class client extends DatabaseEntity
         if ($_FORM["return"] == "html") {
             return $this->get_value("clientName", DST_HTML_DISPLAY);
         }
+
         return $this->get_value("clientName");
     }
 
     public function get_client_link($_FORM = [])
     {
         global $TPL;
-        return "<a href=\""
+        return '<a href="'
             . $TPL["url_alloc_client"]
             . "clientID="
             . $this->get_id()
-            . "\">"
+            . '">'
             . $this->get_name($_FORM)
             . "</a>";
     }
@@ -157,6 +162,7 @@ class client extends DatabaseEntity
             foreach ((array)$current_user->prefs["stars"]["client"] as $k => $v) {
                 $filter["clientID"][] = $k;
             }
+
             is_array($filter["clientID"]) or $filter["clientID"][] = -1;
         }
 
@@ -262,11 +268,12 @@ class client extends DatabaseEntity
                 $clientContactName = Page::htmlentities($row["clientContactName"]);
                 $clientContactEmail = Page::htmlentities(${$row}["clientContactEmail"]);
                 $row["clientContactEmail"] =
-                    "<a href=\"mailto:{$clientContactName} <{$clientContactEmail}>\">{$clientContactEmail}</a>";
+                    sprintf('<a href="mailto:%s <%s>">%s</a>', $clientContactName, $clientContactEmail, $clientContactEmail);
             }
 
             $rows[$currentClient->get_id()] = $row;
         }
+
         return (array)$rows;
     }
 
@@ -329,10 +336,10 @@ class client extends DatabaseEntity
 
         foreach ($letters as $letter) {
             if ($_FORM["clientLetter"] == $letter) {
-                $rtn["alphabet_filter"] .= "&nbsp;&nbsp;{$letter}";
+                $rtn["alphabet_filter"] .= sprintf('&nbsp;&nbsp;%s', $letter);
             } else {
                 $rtn["alphabet_filter"] .=
-                    "&nbsp;&nbsp;<a href=\"{$TPL["url_alloc_clientList"]}clientLetter={$letter}&clientStatus=Current&applyFilter=1\">{$letter}</a>";
+                    sprintf('&nbsp;&nbsp;<a href="%sclientLetter=%s&clientStatus=Current&applyFilter=1">%s</a>', $TPL["url_alloc_clientList"], $letter, $letter);
             }
         }
 
@@ -342,6 +349,7 @@ class client extends DatabaseEntity
         foreach ($clientDataArray as $client => $category) {
             $clientCategories[$category["value"]] = $category["label"];
         }
+
         $rtn["clientCategoryOptions"] = Page::select_options(
             $clientCategories,
             $clientCategory
@@ -378,6 +386,7 @@ class client extends DatabaseEntity
             similar_text(strtolower($name), strtolower($clientName), $percent);
             $stack[$clientID] = $percent;
         }
+
         asort($stack);
         $probable_clientID = array_key_last($stack);
         $client_percent = current($stack);
@@ -486,6 +495,7 @@ class client extends DatabaseEntity
             $row["clientContactOther"] and $c .= " " . $row["clientContactOther"];
             $nl = "|+|=|";
         }
+
         $c and $contacts = $c;
 
         // ZendSearch
@@ -499,6 +509,7 @@ class client extends DatabaseEntity
         $zendSearchLuceneDocument->addField(Field::Text('dateModified', str_replace("-", "", $this->get_value("clientModifiedTime")), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('category', $this->get_value("clientCategory"), "utf-8"));
         $zendSearchLuceneDocument->addField(Field::Text('dateCreated', str_replace("-", "", $this->get_value("clientCreatedTime")), "utf-8"));
+
         $index->addDocument($zendSearchLuceneDocument);
     }
 
@@ -540,7 +551,7 @@ class client extends DatabaseEntity
                 ])),
                 $map_base
             );
-            $str = "<a href=\"{$address}\">{$postalOrStreetAddress}<br/>{$suburb} {$stateOrRegion} {$postCode}<br/>{$country}</a>";
+            $str = sprintf('<a href="%s">%s<br/>%s %s %s<br/>%s</a>', $address, $postalOrStreetAddress, $suburb, $stateOrRegion, $postCode, $country);
         } else if ($postalOrStreetAddress != "") {
             $str = $postalOrStreetAddress;
             $suburb and $str .= "<br>" . $suburb;
@@ -558,6 +569,7 @@ class client extends DatabaseEntity
         if (!$clientID && is_object($this)) {
             $clientID = $this->get_id();
         }
+
         if ($clientID) {
             // Get all client contacts
             $allocDatabase = new AllocDatabase();

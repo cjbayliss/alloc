@@ -8,8 +8,11 @@
 class skill extends DatabaseEntity
 {
     public $data_table = "skill";
+
     public $display_field_name = "skillName";
+
     public $key_field = "skillID";
+
     public $data_fields = ["skillName", "skillDescription", "skillClass"];
 
     // return true if a skill with same name and class already exists
@@ -28,6 +31,7 @@ class skill extends DatabaseEntity
             $this->set_value('skillDescription', $skill->get_value('skillDescription'));
             return true;
         }
+
         return false;
     }
 
@@ -44,6 +48,7 @@ class skill extends DatabaseEntity
                 $skill_classes[$skill->get_value('skillClass')] = $skill->get_value('skillClass');
             }
         }
+
         return $skill_classes;
     }
 
@@ -56,6 +61,7 @@ class skill extends DatabaseEntity
         if ($skill_class != "") {
             $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
         }
+
         $query .= " ORDER BY skillClass,skillName";
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($query);
@@ -64,6 +70,7 @@ class skill extends DatabaseEntity
             $skill->read_db_record($allocDatabase);
             $skills[$skill->get_id()] = sprintf("%s - %s", $skill->get_value('skillClass'), $skill->get_value('skillName'));
         }
+
         return $skills;
     }
 }

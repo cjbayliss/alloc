@@ -38,7 +38,7 @@ function show_expenseFormList($template_name)
 
     $taggedFund = new tf();
     while ($db->next_record()) {
-        $i++;
+        ++$i;
         $transactionRepeat->read_db_record($db);
         $transactionRepeat->set_values();
         $TPL["tfName"] = $taggedFund->get_name($transactionRepeat->get_value("tfID"));

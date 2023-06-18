@@ -20,6 +20,7 @@ function show_reminder_filter($template)
         while ($db->next_record()) {
             $recipientOptions[$db->f("personID")] = $db->f("username");
         }
+
         $TPL["recipientOptions"] = Page::select_options($recipientOptions, $_REQUEST["filter_recipient"]);
         include_template($template);
     }

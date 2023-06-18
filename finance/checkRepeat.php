@@ -15,15 +15,19 @@ function timeWarp($mostRecent, $basis)
     if ($basis == "weekly") {
         return mktime(0, 0, 0, date("m", $mostRecent), date("d", $mostRecent) + 7, date("Y", $mostRecent));
     }
+
     if ($basis == "fortnightly") {
         return mktime(0, 0, 0, date("m", $mostRecent), date("d", $mostRecent) + 14, date("Y", $mostRecent));
     }
+
     if ($basis == "monthly") {
         return mktime(0, 0, 0, date("m", $mostRecent) + 1, date("d", $mostRecent), date("Y", $mostRecent));
     }
+
     if ($basis == "quarterly") {
         return mktime(0, 0, 0, date("m", $mostRecent) + 3, date("d", $mostRecent), date("Y", $mostRecent));
     }
+
     if ($basis == "yearly") {
         return mktime(0, 0, 0, date("m", $mostRecent), date("d", $mostRecent), date("Y", $mostRecent) + 1);
     }

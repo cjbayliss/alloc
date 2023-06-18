@@ -27,6 +27,7 @@ foreach ($t as $k => $v) {
         } else if ($k == "username") {
             $name = $people[$v]["name"] or $name = $people[$v]["username"];
         }
+
         $rtn[$k] = $v;
     }
 }

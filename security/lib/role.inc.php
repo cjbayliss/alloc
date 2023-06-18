@@ -8,7 +8,9 @@
 class role extends DatabaseEntity
 {
     public $data_table = "role";
+
     public $key_field = "roleID";
+
     public $data_fields = ["roleHandle", "roleName", "roleLevel", "roleSequence"];
 
     public static function get_roles_array($level = "person")
@@ -20,6 +22,7 @@ class role extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $rows[$row["roleHandle"]] = $row["roleName"];
         }
+
         return $rows;
     }
 }

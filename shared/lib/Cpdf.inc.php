@@ -27,169 +27,208 @@ class Cpdf
     * the current number of pdf objects in the document
     */
     public $numObj = 0;
+
     /**
     * this array contains all of the pdf objects, ready for final assembly
     */
     public $objects = [];
+
     /**
     * the objectId (number within the objects array) of the document catalog
     */
     public $catalogId;
+
     /**
     * array carrying information about the fonts that the system currently knows about
     * used to ensure that a font is not loaded twice, among other things
     */
     public $fonts = [];
+
     /**
     * a record of the current font
     */
     public $currentFont = '';
+
     /**
     * the current base font
     */
     public $currentBaseFont = '';
+
     /**
     * the number of the current font within the font array
     */
     public $currentFontNum = 0;
+
     /**
     *
     */
     public $currentNode;
+
     /**
     * object number of the current page
     */
     public $currentPage;
+
     /**
     * object number of the currently active contents block
     */
     public $currentContents;
+
     /**
     * number of fonts within the system
     */
     public $numFonts = 0;
+
     /**
     * current colour for fill operations, defaults to inactive value, all three components should be between 0 and 1 inclusive when active
     */
     public $currentColour = ['r' => -1, 'g' => -1, 'b' => -1];
+
     /**
     * current colour for stroke operations (lines etc.)
     */
     public $currentStrokeColour = ['r' => -1, 'g' => -1, 'b' => -1];
+
     /**
     * current style that lines are drawn in
     */
     public $currentLineStyle = '';
+
     /**
     * an array which is used to save the state of the document, mainly the colours and styles
     * it is used to temporarily change to another state, the change back to what it was before
     */
     public $stateStack = [];
+
     /**
     * number of elements within the state stack
     */
     public $nStateStack = 0;
+
     /**
     * number of page objects within the document
     */
     public $numPages = 0;
+
     /**
     * object Id storage stack
     */
     public $stack = [];
+
     /**
     * number of elements within the object Id storage stack
     */
     public $nStack = 0;
+
     /**
     * an array which contains information about the objects which are not firmly attached to pages
     * these have been added with the addObject function
     */
     public $looseObjects = [];
+
     /**
     * array contains infomation about how the loose objects are to be added to the document
     */
     public $addLooseObjects = [];
+
     /**
     * the objectId of the information object for the document
     * this contains authorship, title etc.
     */
     public $infoObject = 0;
+
     /**
     * number of images being tracked within the document
     */
     public $numImages = 0;
+
     /**
     * an array containing options about the document
     * it defaults to turning on the compression of the objects
     */
     public $options = ['compression' => 1];
+
     /**
     * the objectId of the first page of the document
     */
     public $firstPageId;
+
     /**
     * used to track the last used value of the inter-word spacing, this is so that it is known
     * when the spacing is changed.
     */
     public $wordSpaceAdjust = 0;
+
     /**
     * the object Id of the procset object
     */
     public $procsetObjectId;
+
     /**
     * store the information about the relationship between font families
     * this used so that the code knows which font is the bold version of another font, etc.
     * the value of this array is initialised in the constuctor function.
     */
     public $fontFamilies = [];
+
     /**
     * track if the current font is bolded or italicised
     */
     public $currentTextState = '';
+
     /**
     * messages are stored here during processing, these can be selected afterwards to give some useful debug information
     */
     public $messages = '';
+
     /**
     * the ancryption array for the document encryption is stored here
     */
     public $arc4 = '';
+
     /**
     * the object Id of the encryption information
     */
     public $arc4_objnum = 0;
+
     /**
     * the file identifier, used to uniquely identify a pdf document
     */
     public $fileIdentifier = '';
+
     /**
     * a flag to say if a document is to be encrypted or not
     */
     public $encrypted = 0;
+
     /**
     * the ancryption key for the encryption of all the document content (structure is not encrypted)
     */
     public $encryptionKey = '';
+
     /**
     * array which forms a stack to keep track of nested callback functions
     */
     public $callback = [];
+
     /**
     * the number of callback functions in the callback array
     */
     public $nCallback = 0;
+
     /**
     * store label->id pairs for named destinations, these will be used to replace internal links
     * done this way so that destinations can be defined after the location that links to them
     */
     public $destinations = [];
+
     /**
     * store the stack for the transaction commands, each item in here is a record of the values of all the
     * variables within the class, so that the user can rollback at will (from each 'start' command)
     * note that this includes the objects array, so these can be large.
     */
     public $checkpoint = '';
+
     /**
     * class constructor
     * this will start a new document
@@ -228,33 +267,31 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
-        switch($action) {
-            case 'new':
-                $this->objects[$id] = ['t' => 'destination', 'info' => []];
-                $tmp = '';
-                switch ($options['type']) {
-                    case 'XYZ':
-                    case 'FitR':
-                        $tmp = ' '.$options['p3'].$tmp;
-                        // no break
-                    case 'FitH':
-                    case 'FitV':
-                    case 'FitBH':
-                    case 'FitBV':
-                        $tmp = ' '.$options['p1'].' '.$options['p2'].$tmp;
-                        // no break
-                    case 'Fit':
-                    case 'FitB':
-                        $tmp = $options['type'].$tmp;
-                        $this->objects[$id]['info']['string'] = $tmp;
-                        $this->objects[$id]['info']['page'] = $options['page'];
-                }
-                break;
-            case 'out':
-                $tmp = $o['info'];
-                $res = "\n".$id." 0 obj\n".'['.$tmp['page'].' 0 R /'.$tmp['string']."]\nendobj\n";
-                return $res;
-                break;
+
+        if ($action == 'new') {
+            $this->objects[$id] = ['t' => 'destination', 'info' => []];
+            $tmp = '';
+            switch ($options['type']) {
+                case 'XYZ':
+                case 'FitR':
+                    $tmp = ' '.$options['p3'].$tmp;
+                    // no break
+                case 'FitH':
+                case 'FitV':
+                case 'FitBH':
+                case 'FitBV':
+                    $tmp = ' '.$options['p1'].' '.$options['p2'].$tmp;
+                    // no break
+                case 'Fit':
+                case 'FitB':
+                    $tmp = $options['type'].$tmp;
+                    $this->objects[$id]['info']['string'] = $tmp;
+                    $this->objects[$id]['info']['page'] = $options['page'];
+            }
+        } elseif ($action == 'out') {
+            $tmp = $o['info'];
+            $res = "\n".$id." 0 obj\n".'['.$tmp['page'].' 0 R /'.$tmp['string']."]\nendobj\n";
+            return $res;
         }
     }
 
@@ -266,6 +303,7 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
                 $this->objects[$id] = ['t' => 'viewerPreferences', 'info' => []];
@@ -284,6 +322,7 @@ class Cpdf
                             break;
                     }
                 }
+
                 break;
             case 'out':
 
@@ -291,6 +330,7 @@ class Cpdf
                 foreach($o['info'] as $k => $v) {
                     $res .= "\n/".$k.' '.$v;
                 }
+
                 $res .= "\n>>\n";
                 return $res;
                 break;
@@ -306,6 +346,7 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
                 $this->objects[$id] = ['t' => 'catalog', 'info' => []];
@@ -318,10 +359,11 @@ class Cpdf
                 break;
             case 'viewerPreferences':
                 if (!isset($o['info']['viewerPreferences'])) {
-                    $this->numObj++;
+                    ++$this->numObj;
                     $this->o_viewerPreferences($this->numObj, 'new');
                     $o['info']['viewerPreferences'] = $this->numObj;
                 }
+
                 $vp = $o['info']['viewerPreferences'];
                 $this->o_viewerPreferences($vp, 'add', $options);
                 break;
@@ -343,6 +385,7 @@ class Cpdf
                             break;
                     }
                 }
+
                 $res .= " >>\nendobj";
                 return $res;
                 break;
@@ -358,6 +401,7 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
                 $this->objects[$id] = ['t' => 'pages', 'info' => []];
@@ -371,7 +415,7 @@ class Cpdf
                     // then it should be an array having 'id','rid','pos', where rid=the page to which this one will be placed relative
                     // and pos is either 'before' or 'after', saying where this page will fit.
                     if (isset($options['id']) && isset($options['rid']) && isset($options['pos'])) {
-                        $i = array_search($options['rid'], $o['info']['pages']);
+                        $i = array_search($options['rid'], $o['info']['pages'], true);
                         if (isset($o['info']['pages'][$i]) && $o['info']['pages'][$i] == $options['rid']) {
                             // then there is a match
                             // make a space
@@ -386,15 +430,18 @@ class Cpdf
                                     $k = -1;
                                     break;
                             }
+
                             if ($k >= 0) {
-                                for ($j = (is_countable($o['info']['pages']) ? count($o['info']['pages']) : 0) - 1;$j >= $k;$j--) {
+                                for ($j = (is_countable($o['info']['pages']) ? count($o['info']['pages']) : 0) - 1;$j >= $k;--$j) {
                                     $o['info']['pages'][$j + 1] = $o['info']['pages'][$j];
                                 }
+
                                 $o['info']['pages'][$k] = $options['id'];
                             }
                         }
                     }
                 }
+
                 break;
             case 'procset':
                 $o['info']['procset'] = $options;
@@ -414,36 +461,44 @@ class Cpdf
                     foreach($o['info']['pages'] as $k => $v) {
                         $res .= $v." 0 R\n";
                     }
+
                     $res .= "]\n/Count ".(is_countable($this->objects[$id]['info']['pages']) ? count($this->objects[$id]['info']['pages']) : 0);
                     if ((isset($o['info']['fonts']) && (is_countable($o['info']['fonts']) ? count($o['info']['fonts']) : 0)) || isset($o['info']['procset'])) {
                         $res .= "\n/Resources <<";
                         if (isset($o['info']['procset'])) {
                             $res .= "\n/ProcSet ".$o['info']['procset']." 0 R";
                         }
+
                         if (isset($o['info']['fonts']) && (is_countable($o['info']['fonts']) ? count($o['info']['fonts']) : 0)) {
                             $res .= "\n/Font << ";
                             foreach($o['info']['fonts'] as $finfo) {
                                 $res .= "\n/F".$finfo['fontNum']." ".$finfo['objNum']." 0 R";
                             }
+
                             $res .= " >>";
                         }
+
                         if (isset($o['info']['xObjects']) && (is_countable($o['info']['xObjects']) ? count($o['info']['xObjects']) : 0)) {
                             $res .= "\n/XObject << ";
                             foreach($o['info']['xObjects'] as $finfo) {
                                 $res .= "\n/".$finfo['label']." ".$finfo['objNum']." 0 R";
                             }
+
                             $res .= " >>";
                         }
+
                         $res .= "\n>>";
                         if (isset($o['info']['mediaBox'])) {
                             $tmp = $o['info']['mediaBox'];
                             $res .= "\n/MediaBox [".sprintf('%.3f', $tmp[0]).' '.sprintf('%.3f', $tmp[1]).' '.sprintf('%.3f', $tmp[2]).' '.sprintf('%.3f', $tmp[3]).']';
                         }
                     }
+
                     $res .= "\n >>\nendobj";
                 } else {
                     $res = "\n".$id." 0 obj\n<< /Type /Pages\n/Count 0\n>>\nendobj";
                 }
+
                 return $res;
                 break;
         }
@@ -458,6 +513,7 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
                 $this->objects[$id] = ['t' => 'outlines', 'info' => ['outlines' => []]];
@@ -472,10 +528,12 @@ class Cpdf
                     foreach($o['info']['outlines'] as $k => $v) {
                         $res .= $v." 0 R ";
                     }
+
                     $res .= "] /Count ".(is_countable($o['info']['outlines']) ? count($o['info']['outlines']) : 0)." >>\nendobj";
                 } else {
                     $res = "\n".$id." 0 obj\n<< /Type /Outlines /Count 0 >>\nendobj";
                 }
+
                 return $res;
                 break;
         }
@@ -490,6 +548,7 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
                 $this->objects[$id] = ['t' => 'font', 'info' => ['name' => $options['name'], 'SubType' => 'Type1']];
@@ -498,7 +557,7 @@ class Cpdf
                 // deal with the encoding and the differences
                 if (isset($options['differences'])) {
                     // then we'll need an encoding dictionary
-                    $this->numObj++;
+                    ++$this->numObj;
                     $this->o_fontEncoding($this->numObj, 'new', $options);
                     $this->objects[$id]['info']['encodingDictionary'] = $this->numObj;
                 } else if (isset($options['encoding'])) {
@@ -518,6 +577,7 @@ class Cpdf
                 } else {
                     $this->objects[$id]['info']['encoding'] = 'WinAnsiEncoding';
                 }
+
                 // also tell the pages node about the new font
                 $this->o_pages($this->currentNode, 'font', ['fontNum' => $fontNum, 'objNum' => $id]);
                 break;
@@ -537,6 +597,7 @@ class Cpdf
                             break;
                     }
                 }
+
                 break;
             case 'out':
                 $res = "\n".$id." 0 obj\n<< /Type /Font\n/Subtype /".$o['info']['SubType']."\n";
@@ -549,18 +610,23 @@ class Cpdf
                     // use the specified encoding
                     $res .= "/Encoding /".$o['info']['encoding']."\n";
                 }
+
                 if (isset($o['info']['FirstChar'])) {
                     $res .= "/FirstChar ".$o['info']['FirstChar']."\n";
                 }
+
                 if (isset($o['info']['LastChar'])) {
                     $res .= "/LastChar ".$o['info']['LastChar']."\n";
                 }
+
                 if (isset($o['info']['Widths'])) {
                     $res .= "/Widths ".$o['info']['Widths']." 0 R\n";
                 }
+
                 if (isset($o['info']['FontDescriptor'])) {
                     $res .= "/FontDescriptor ".$o['info']['FontDescriptor']." 0 R\n";
                 }
+
                 $res .= ">>\nendobj";
                 return $res;
                 break;
@@ -575,47 +641,47 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
-        switch ($action) {
-            case 'new':
-                $this->objects[$id] = ['t' => 'fontDescriptor', 'info' => $options];
-                break;
-            case 'out':
-                $res = "\n".$id." 0 obj\n<< /Type /FontDescriptor\n";
-                foreach ($o['info'] as $label => $value) {
-                    switch ($label) {
-                        case 'Ascent':
-                        case 'CapHeight':
-                        case 'Descent':
-                        case 'Flags':
-                        case 'ItalicAngle':
-                        case 'StemV':
-                        case 'AvgWidth':
-                        case 'Leading':
-                        case 'MaxWidth':
-                        case 'MissingWidth':
-                        case 'StemH':
-                        case 'XHeight':
-                        case 'CharSet':
-                            if (strlen($value)) {
-                                $res .= '/'.$label.' '.$value."\n";
-                            }
-                            break;
-                        case 'FontFile':
-                        case 'FontFile2':
-                        case 'FontFile3':
-                            $res .= '/'.$label.' '.$value." 0 R\n";
-                            break;
-                        case 'FontBBox':
-                            $res .= '/'.$label.' ['.$value[0].' '.$value[1].' '.$value[2].' '.$value[3]."]\n";
-                            break;
-                        case 'FontName':
-                            $res .= '/'.$label.' /'.$value."\n";
-                            break;
-                    }
+
+        if ($action == 'new') {
+            $this->objects[$id] = ['t' => 'fontDescriptor', 'info' => $options];
+        } elseif ($action == 'out') {
+            $res = "\n".$id." 0 obj\n<< /Type /FontDescriptor\n";
+            foreach ($o['info'] as $label => $value) {
+                switch ($label) {
+                    case 'Ascent':
+                    case 'CapHeight':
+                    case 'Descent':
+                    case 'Flags':
+                    case 'ItalicAngle':
+                    case 'StemV':
+                    case 'AvgWidth':
+                    case 'Leading':
+                    case 'MaxWidth':
+                    case 'MissingWidth':
+                    case 'StemH':
+                    case 'XHeight':
+                    case 'CharSet':
+                        if (strlen($value)) {
+                            $res .= '/'.$label.' '.$value."\n";
+                        }
+
+                        break;
+                    case 'FontFile':
+                    case 'FontFile2':
+                    case 'FontFile3':
+                        $res .= '/'.$label.' '.$value." 0 R\n";
+                        break;
+                    case 'FontBBox':
+                        $res .= '/'.$label.' ['.$value[0].' '.$value[1].' '.$value[2].' '.$value[3]."]\n";
+                        break;
+                    case 'FontName':
+                        $res .= '/'.$label.' /'.$value."\n";
+                        break;
                 }
-                $res .= ">>\nendobj";
-                return $res;
-                break;
+            }
+
+            $res .= ">>\nendobj";
+            return $res;
         }
     }
 
@@ -628,33 +694,35 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
-        switch ($action) {
-            case 'new':
-                // the options array should contain 'differences' and maybe 'encoding'
-                $this->objects[$id] = ['t' => 'fontEncoding', 'info' => $options];
-                break;
-            case 'out':
-                $res = "\n".$id." 0 obj\n<< /Type /Encoding\n";
-                if (!isset($o['info']['encoding'])) {
-                    $o['info']['encoding'] = 'WinAnsiEncoding';
+
+        if ($action == 'new') {
+            // the options array should contain 'differences' and maybe 'encoding'
+            $this->objects[$id] = ['t' => 'fontEncoding', 'info' => $options];
+        } elseif ($action == 'out') {
+            $res = "\n".$id." 0 obj\n<< /Type /Encoding\n";
+            if (!isset($o['info']['encoding'])) {
+                $o['info']['encoding'] = 'WinAnsiEncoding';
+            }
+
+            if ($o['info']['encoding'] != 'none') {
+                $res .= "/BaseEncoding /".$o['info']['encoding']."\n";
+            }
+
+            $res .= "/Differences \n[";
+            $onum = -100;
+            foreach($o['info']['differences'] as $num => $label) {
+                if ($num != $onum + 1) {
+                    // we cannot make use of consecutive numbering
+                    $res .= "\n".$num." /".$label;
+                } else {
+                    $res .= " /".$label;
                 }
-                if ($o['info']['encoding'] != 'none') {
-                    $res .= "/BaseEncoding /".$o['info']['encoding']."\n";
-                }
-                $res .= "/Differences \n[";
-                $onum = -100;
-                foreach($o['info']['differences'] as $num => $label) {
-                    if ($num != $onum + 1) {
-                        // we cannot make use of consecutive numbering
-                        $res .= "\n".$num." /".$label;
-                    } else {
-                        $res .= " /".$label;
-                    }
-                    $onum = $num;
-                }
-                $res .= "\n]\n>>\nendobj";
-                return $res;
-                break;
+
+                $onum = $num;
+            }
+
+            $res .= "\n]\n>>\nendobj";
+            return $res;
         }
     }
 
@@ -667,6 +735,7 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
                 $this->objects[$id] = ['t' => 'procset', 'info' => ['PDF' => 1, 'Text' => 1]];
@@ -683,12 +752,14 @@ class Cpdf
                         $o['info'][$options] = 1;
                         break;
                 }
+
                 break;
             case 'out':
                 $res = "\n".$id." 0 obj\n[";
                 foreach ($o['info'] as $label => $val) {
                     $res .= '/'.$label.' ';
                 }
+
                 $res .= "]\nendobj";
                 return $res;
                 break;
@@ -704,6 +775,7 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
                 $this->infoObject = $id;
@@ -725,6 +797,7 @@ class Cpdf
                 if ($this->encrypted) {
                     $this->encryptInit($id);
                 }
+
                 $res = "\n".$id." 0 obj\n<<\n";
                 foreach ($o['info']  as $k => $v) {
                     $res .= '/'.$k.' (';
@@ -733,8 +806,10 @@ class Cpdf
                     } else {
                         $res .= $this->filterText($v);
                     }
+
                     $res .= ")\n";
                 }
+
                 $res .= ">>\nendobj";
                 return $res;
                 break;
@@ -750,38 +825,36 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
-        switch ($action) {
-            case 'new':
-                if (is_array($options)) {
-                    $this->objects[$id] = ['t' => 'action', 'info' => $options, 'type' => $options['type']];
-                } else {
-                    // then assume a URI action
-                    $this->objects[$id] = ['t' => 'action', 'info' => $options, 'type' => 'URI'];
-                }
-                break;
-            case 'out':
+
+        if ($action == 'new') {
+            if (is_array($options)) {
+                $this->objects[$id] = ['t' => 'action', 'info' => $options, 'type' => $options['type']];
+            } else {
+                // then assume a URI action
+                $this->objects[$id] = ['t' => 'action', 'info' => $options, 'type' => 'URI'];
+            }
+        } elseif ($action == 'out') {
+            if ($this->encrypted) {
+                $this->encryptInit($id);
+            }
+
+            $res = "\n".$id." 0 obj\n<< /Type /Action";
+            if ($o['type'] == 'ilink') {
+                // there will be an 'label' setting, this is the name of the destination
+                $res .= "\n/S /GoTo\n/D ".$this->destinations[(string)$o['info']['label']]." 0 R";
+            } elseif ($o['type'] == 'URI') {
+                $res .= "\n/S /URI\n/URI (";
                 if ($this->encrypted) {
-                    $this->encryptInit($id);
+                    $res .= $this->filterText($this->ARC4($o['info']));
+                } else {
+                    $res .= $this->filterText($o['info']);
                 }
-                $res = "\n".$id." 0 obj\n<< /Type /Action";
-                switch($o['type']) {
-                    case 'ilink':
-                        // there will be an 'label' setting, this is the name of the destination
-                        $res .= "\n/S /GoTo\n/D ".$this->destinations[(string)$o['info']['label']]." 0 R";
-                        break;
-                    case 'URI':
-                        $res .= "\n/S /URI\n/URI (";
-                        if ($this->encrypted) {
-                            $res .= $this->filterText($this->ARC4($o['info']));
-                        } else {
-                            $res .= $this->filterText($o['info']);
-                        }
-                        $res .= ")";
-                        break;
-                }
-                $res .= "\n>>\nendobj";
-                return $res;
-                break;
+
+                $res .= ")";
+            }
+
+            $res .= "\n>>\nendobj";
+            return $res;
         }
     }
 
@@ -794,48 +867,41 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
-        switch ($action) {
-            case 'new':
-                // add the annotation to the current page
-                $pageId = $this->currentPage;
-                $this->o_page($pageId, 'annot', $id);
-                // and add the action object which is going to be required
-                switch($options['type']) {
-                    case 'link':
-                        $this->objects[$id] = ['t' => 'annotation', 'info' => $options];
-                        $this->numObj++;
-                        $this->o_action($this->numObj, 'new', $options['url']);
-                        $this->objects[$id]['info']['actionId'] = $this->numObj;
-                        break;
-                    case 'ilink':
-                        // this is to a named internal link
-                        $label = $options['label'];
-                        $this->objects[$id] = ['t' => 'annotation', 'info' => $options];
-                        $this->numObj++;
-                        $this->o_action($this->numObj, 'new', ['type' => 'ilink', 'label' => $label]);
-                        $this->objects[$id]['info']['actionId'] = $this->numObj;
-                        break;
-                }
-                break;
-            case 'out':
-                $res = "\n".$id." 0 obj\n<< /Type /Annot";
-                switch($o['info']['type']) {
-                    case 'link':
-                    case 'ilink':
-                        $res .= "\n/Subtype /Link";
-                        break;
-                }
-                $res .= "\n/A ".$o['info']['actionId']." 0 R";
-                $res .= "\n/Border [0 0 0]";
-                $res .= "\n/H /I";
-                $res .= "\n/Rect [ ";
-                foreach($o['info']['rect'] as $v) {
-                    $res .= sprintf("%.4f ", $v);
-                }
-                $res .= "]";
-                $res .= "\n>>\nendobj";
-                return $res;
-                break;
+
+        if ($action == 'new') {
+            // add the annotation to the current page
+            $pageId = $this->currentPage;
+            $this->o_page($pageId, 'annot', $id);
+            if ($options['type'] == 'link') {
+                $this->objects[$id] = ['t' => 'annotation', 'info' => $options];
+                ++$this->numObj;
+                $this->o_action($this->numObj, 'new', $options['url']);
+                $this->objects[$id]['info']['actionId'] = $this->numObj;
+            } elseif ($options['type'] == 'ilink') {
+                // this is to a named internal link
+                $label = $options['label'];
+                $this->objects[$id] = ['t' => 'annotation', 'info' => $options];
+                ++$this->numObj;
+                $this->o_action($this->numObj, 'new', ['type' => 'ilink', 'label' => $label]);
+                $this->objects[$id]['info']['actionId'] = $this->numObj;
+            }
+        } elseif ($action == 'out') {
+            $res = "\n".$id." 0 obj\n<< /Type /Annot";
+            if ($o['info']['type'] == 'link' || $o['info']['type'] == 'ilink') {
+                $res .= "\n/Subtype /Link";
+            }
+
+            $res .= "\n/A ".$o['info']['actionId']." 0 R";
+            $res .= "\n/Border [0 0 0]";
+            $res .= "\n/H /I";
+            $res .= "\n/Rect [ ";
+            foreach($o['info']['rect'] as $v) {
+                $res .= sprintf("%.4f ", $v);
+            }
+
+            $res .= "]";
+            $res .= "\n>>\nendobj";
+            return $res;
         }
     }
 
@@ -848,9 +914,10 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
-                $this->numPages++;
+                ++$this->numPages;
                 $this->objects[$id] = ['t' => 'page', 'info' => ['parent' => $this->currentNode, 'pageNum' => $this->numPages]];
                 if (is_array($options)) {
                     // then this must be a page insertion, array shoudl contain 'rid','pos'=[before|after]
@@ -859,9 +926,10 @@ class Cpdf
                 } else {
                     $this->o_pages($this->currentNode, 'page', $id);
                 }
+
                 $this->currentPage = $id;
                 // make a contents object to go with this page
-                $this->numObj++;
+                ++$this->numObj;
                 $this->o_contents($this->numObj, 'new', $id);
                 $this->currentContents = $this->numObj;
                 $this->objects[$id]['info']['contents'] = [];
@@ -872,6 +940,7 @@ class Cpdf
                         $this->objects[$id]['info']['contents'][] = $oId;
                     }
                 }
+
                 break;
             case 'content':
                 $o['info']['contents'][] = $options;
@@ -881,6 +950,7 @@ class Cpdf
                 if (!isset($o['info']['annot'])) {
                     $o['info']['annot'] = [];
                 }
+
                 // $options should contain the id of the annotation dictionary
                 $o['info']['annot'][] = $options;
                 break;
@@ -892,8 +962,10 @@ class Cpdf
                     foreach($o['info']['annot'] as $aId) {
                         $res .= " ".$aId." 0 R";
                     }
+
                     $res .= " ]";
                 }
+
                 $count = is_countable($o['info']['contents']) ? count($o['info']['contents']) : 0;
                 if ($count == 1) {
                     $res .= "\n/Contents ".$o['info']['contents'][0]." 0 R";
@@ -902,8 +974,10 @@ class Cpdf
                     foreach ($o['info']['contents'] as $cId) {
                         $res .= $cId." 0 R\n";
                     }
+
                     $res .= "]";
                 }
+
                 $res .= "\n>>\nendobj";
                 return $res;
                 break;
@@ -919,6 +993,7 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
+
         switch ($action) {
             case 'new':
                 $this->objects[$id] = ['t' => 'contents', 'c' => '', 'info' => []];
@@ -929,6 +1004,7 @@ class Cpdf
                     // then this page contains some other type of system object
                     $this->objects[$id]['raw'] = 1;
                 }
+
                 break;
             case 'add':
                 // add more options to the decleration
@@ -948,15 +1024,19 @@ class Cpdf
                         $res .= " /Filter /FlateDecode";
                         $tmp = gzcompress($tmp);
                     }
+
                     if ($this->encrypted) {
                         $this->encryptInit($id);
                         $tmp = $this->ARC4($tmp);
                     }
+
                     foreach($o['info'] as $k => $v) {
                         $res .= "\n/".$k.' '.$v;
                     }
+
                     $res .= "\n/Length ".strlen($tmp)." >>\nstream\n".$tmp."\nendstream";
                 }
+
                 $res .= "\nendobj\n";
                 return $res;
                 break;
@@ -972,71 +1052,70 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
-        switch($action) {
-            case 'new':
-                // make the new object
-                $this->objects[$id] = ['t' => 'image', 'data' => $options['data'], 'info' => []];
-                $this->objects[$id]['info']['Type'] = '/XObject';
-                $this->objects[$id]['info']['Subtype'] = '/Image';
-                $this->objects[$id]['info']['Width'] = $options['iw'];
-                $this->objects[$id]['info']['Height'] = $options['ih'];
-                if (!isset($options['type']) || $options['type'] == 'jpg') {
-                    if (!isset($options['channels'])) {
-                        $options['channels'] = 3;
-                    }
-                    switch($options['channels']) {
-                        case 1:
-                            $this->objects[$id]['info']['ColorSpace'] = '/DeviceGray';
-                            break;
-                        default:
-                            $this->objects[$id]['info']['ColorSpace'] = '/DeviceRGB';
-                            break;
-                    }
-                    $this->objects[$id]['info']['Filter'] = '/DCTDecode';
-                    $this->objects[$id]['info']['BitsPerComponent'] = 8;
-                } else if ($options['type'] == 'png') {
-                    $this->objects[$id]['info']['Filter'] = '/FlateDecode';
-                    $this->objects[$id]['info']['DecodeParms'] = '<< /Predictor 15 /Colors '.$options['ncolor'].' /Columns '.$options['iw'].' /BitsPerComponent '.$options['bitsPerComponent'].'>>';
-                    if (strlen($options['pdata'])) {
-                        $tmp = ' [ /Indexed /DeviceRGB '.(strlen($options['pdata']) / 3 - 1).' ';
-                        $this->numObj++;
-                        $this->o_contents($this->numObj, 'new');
-                        $this->objects[$this->numObj]['c'] = $options['pdata'];
-                        $tmp .= $this->numObj.' 0 R';
-                        $tmp .= ' ]';
-                        $this->objects[$id]['info']['ColorSpace'] = $tmp;
-                        if (isset($options['transparency'])) {
-                            switch($options['transparency']['type']) {
-                                case 'indexed':
-                                    $tmp = ' [ '.$options['transparency']['data'].' '.$options['transparency']['data'].'] ';
-                                    $this->objects[$id]['info']['Mask'] = $tmp;
-                                    break;
-                            }
+
+        if ($action == 'new') {
+            // make the new object
+            $this->objects[$id] = ['t' => 'image', 'data' => $options['data'], 'info' => []];
+            $this->objects[$id]['info']['Type'] = '/XObject';
+            $this->objects[$id]['info']['Subtype'] = '/Image';
+            $this->objects[$id]['info']['Width'] = $options['iw'];
+            $this->objects[$id]['info']['Height'] = $options['ih'];
+            if (!isset($options['type']) || $options['type'] == 'jpg') {
+                if (!isset($options['channels'])) {
+                    $options['channels'] = 3;
+                }
+
+                if ($options['channels'] == 1) {
+                    $this->objects[$id]['info']['ColorSpace'] = '/DeviceGray';
+                } else {
+                    $this->objects[$id]['info']['ColorSpace'] = '/DeviceRGB';
+                }
+
+                $this->objects[$id]['info']['Filter'] = '/DCTDecode';
+                $this->objects[$id]['info']['BitsPerComponent'] = 8;
+            } else if ($options['type'] == 'png') {
+                $this->objects[$id]['info']['Filter'] = '/FlateDecode';
+                $this->objects[$id]['info']['DecodeParms'] = '<< /Predictor 15 /Colors '.$options['ncolor'].' /Columns '.$options['iw'].' /BitsPerComponent '.$options['bitsPerComponent'].'>>';
+                if (strlen($options['pdata'])) {
+                    $tmp = ' [ /Indexed /DeviceRGB '.(strlen($options['pdata']) / 3 - 1).' ';
+                    ++$this->numObj;
+                    $this->o_contents($this->numObj, 'new');
+                    $this->objects[$this->numObj]['c'] = $options['pdata'];
+                    $tmp .= $this->numObj.' 0 R';
+                    $tmp .= ' ]';
+                    $this->objects[$id]['info']['ColorSpace'] = $tmp;
+                    if (isset($options['transparency'])) {
+                        if ($options['transparency']['type'] == 'indexed') {
+                            $tmp = ' [ '.$options['transparency']['data'].' '.$options['transparency']['data'].'] ';
+                            $this->objects[$id]['info']['Mask'] = $tmp;
                         }
-                    } else {
-                        $this->objects[$id]['info']['ColorSpace'] = '/'.$options['color'];
                     }
-                    $this->objects[$id]['info']['BitsPerComponent'] = $options['bitsPerComponent'];
+                } else {
+                    $this->objects[$id]['info']['ColorSpace'] = '/'.$options['color'];
                 }
-                // assign it a place in the named resource dictionary as an external object, according to
-                // the label passed in with it.
-                $this->o_pages($this->currentNode, 'xObject', ['label' => $options['label'], 'objNum' => $id]);
-                // also make sure that we have the right procset object for it.
-                $this->o_procset($this->procsetObjectId, 'add', 'ImageC');
-                break;
-            case 'out':
-                $tmp = $o['data'];
-                $res = "\n".$id." 0 obj\n<<";
-                foreach($o['info'] as $k => $v) {
-                    $res .= "\n/".$k.' '.$v;
-                }
-                if ($this->encrypted) {
-                    $this->encryptInit($id);
-                    $tmp = $this->ARC4($tmp);
-                }
-                $res .= "\n/Length ".strlen($tmp)." >>\nstream\n".$tmp."\nendstream\nendobj\n";
-                return $res;
-                break;
+
+                $this->objects[$id]['info']['BitsPerComponent'] = $options['bitsPerComponent'];
+            }
+
+            // assign it a place in the named resource dictionary as an external object, according to
+            // the label passed in with it.
+            $this->o_pages($this->currentNode, 'xObject', ['label' => $options['label'], 'objNum' => $id]);
+            // also make sure that we have the right procset object for it.
+            $this->o_procset($this->procsetObjectId, 'add', 'ImageC');
+        } elseif ($action == 'out') {
+            $tmp = $o['data'];
+            $res = "\n".$id." 0 obj\n<<";
+            foreach($o['info'] as $k => $v) {
+                $res .= "\n/".$k.' '.$v;
+            }
+
+            if ($this->encrypted) {
+                $this->encryptInit($id);
+                $tmp = $this->ARC4($tmp);
+            }
+
+            $res .= "\n/Length ".strlen($tmp)." >>\nstream\n".$tmp."\nendstream\nendobj\n";
+            return $res;
         }
     }
 
@@ -1049,62 +1128,57 @@ class Cpdf
         if ($action != 'new') {
             $o = & $this->objects[$id];
         }
-        switch($action) {
-            case 'new':
-                // make the new object
-                $this->objects[$id] = ['t' => 'encryption', 'info' => $options];
-                $this->arc4_objnum = $id;
-                // figure out the additional paramaters required
-                $pad = chr(0x28).chr(0xBF).chr(0x4E).chr(0x5E).chr(0x4E).chr(0x75).chr(0x8A).chr(0x41).chr(0x64).chr(0x00).chr(0x4E).chr(0x56).chr(0xFF).chr(0xFA).chr(0x01).chr(0x08).chr(0x2E).chr(0x2E).chr(0x00).chr(0xB6).chr(0xD0).chr(0x68).chr(0x3E).chr(0x80).chr(0x2F).chr(0x0C).chr(0xA9).chr(0xFE).chr(0x64).chr(0x53).chr(0x69).chr(0x7A);
-                $len = strlen($options['owner']);
-                if ($len > 32) {
-                    $owner = substr($options['owner'], 0, 32);
-                } else if ($len < 32) {
-                    $owner = $options['owner'].substr($pad, 0, 32 - $len);
-                } else {
-                    $owner = $options['owner'];
-                }
-                $len = strlen($options['user']);
-                if ($len > 32) {
-                    $user = substr($options['user'], 0, 32);
-                } else if ($len < 32) {
-                    $user = $options['user'].substr($pad, 0, 32 - $len);
-                } else {
-                    $user = $options['user'];
-                }
-                $tmp = $this->md5_16($owner);
-                $okey = substr($tmp, 0, 5);
-                $this->ARC4_init($okey);
-                $ovalue = $this->ARC4($user);
-                $this->objects[$id]['info']['O'] = $ovalue;
-                // now make the u value, phew.
-                $tmp = $this->md5_16($user.$ovalue.chr($options['p']).chr(255).chr(255).chr(255).$this->fileIdentifier);
-                $ukey = substr($tmp, 0, 5);
 
-                $this->ARC4_init($ukey);
-                $this->encryptionKey = $ukey;
-                $this->encrypted = 1;
-                $uvalue = $this->ARC4($pad);
+        if ($action == 'new') {
+            // make the new object
+            $this->objects[$id] = ['t' => 'encryption', 'info' => $options];
+            $this->arc4_objnum = $id;
+            // figure out the additional paramaters required
+            $pad = chr(0x28).chr(0xBF).chr(0x4E).chr(0x5E).chr(0x4E).chr(0x75).chr(0x8A).chr(0x41).chr(0x64).chr(0x00).chr(0x4E).chr(0x56).chr(0xFF).chr(0xFA).chr(0x01).chr(0x08).chr(0x2E).chr(0x2E).chr(0x00).chr(0xB6).chr(0xD0).chr(0x68).chr(0x3E).chr(0x80).chr(0x2F).chr(0x0C).chr(0xA9).chr(0xFE).chr(0x64).chr(0x53).chr(0x69).chr(0x7A);
+            $len = strlen($options['owner']);
+            if ($len > 32) {
+                $owner = substr($options['owner'], 0, 32);
+            } else if ($len < 32) {
+                $owner = $options['owner'].substr($pad, 0, 32 - $len);
+            } else {
+                $owner = $options['owner'];
+            }
 
-                $this->objects[$id]['info']['U'] = $uvalue;
-                $this->encryptionKey = $ukey;
+            $len = strlen($options['user']);
+            if ($len > 32) {
+                $user = substr($options['user'], 0, 32);
+            } else if ($len < 32) {
+                $user = $options['user'].substr($pad, 0, 32 - $len);
+            } else {
+                $user = $options['user'];
+            }
 
-                // initialize the arc4 array
-                break;
-            case 'out':
-                $res = "\n".$id." 0 obj\n<<";
-                $res .= "\n/Filter /Standard";
-                $res .= "\n/V 1";
-                $res .= "\n/R 2";
-                $res .= "\n/O (".$this->filterText($o['info']['O']).')';
-                $res .= "\n/U (".$this->filterText($o['info']['U']).')';
-                // and the p-value needs to be converted to account for the twos-complement approach
-                $o['info']['p'] = (($o['info']['p'] ^ 255) + 1) * -1;
-                $res .= "\n/P ".($o['info']['p']);
-                $res .= "\n>>\nendobj\n";
-
-                return $res;
-                break;
+            $tmp = $this->md5_16($owner);
+            $okey = substr($tmp, 0, 5);
+            $this->ARC4_init($okey);
+            $ovalue = $this->ARC4($user);
+            $this->objects[$id]['info']['O'] = $ovalue;
+            // now make the u value, phew.
+            $tmp = $this->md5_16($user.$ovalue.chr($options['p']).chr(255).chr(255).chr(255).$this->fileIdentifier);
+            $ukey = substr($tmp, 0, 5);
+            $this->ARC4_init($ukey);
+            $this->encryptionKey = $ukey;
+            $this->encrypted = 1;
+            $uvalue = $this->ARC4($pad);
+            $this->objects[$id]['info']['U'] = $uvalue;
+            $this->encryptionKey = $ukey;
+        } elseif ($action == 'out') {
+            $res = "\n".$id." 0 obj\n<<";
+            $res .= "\n/Filter /Standard";
+            $res .= "\n/V 1";
+            $res .= "\n/R 2";
+            $res .= "\n/O (".$this->filterText($o['info']['O']).')';
+            $res .= "\n/U (".$this->filterText($o['info']['U']).')';
+            // and the p-value needs to be converted to account for the twos-complement approach
+            $o['info']['p'] = (($o['info']['p'] ^ 255) + 1) * -1;
+            $res .= "\n/P ".($o['info']['p']);
+            $res .= "\n>>\nendobj\n";
+            return $res;
         }
     }
 
@@ -1123,6 +1197,7 @@ class Cpdf
         for ($i = 0;$i <= 30;$i = $i + 2) {
             $out .= chr(hexdec(substr($tmp, $i, 2)));
         }
+
         return $out;
     }
 
@@ -1136,6 +1211,7 @@ class Cpdf
         if (strlen($hex) < 6) {
             $hex = substr('000000', 0, 6 - strlen($hex)).$hex;
         }
+
         $tmp .= chr(hexdec(substr($hex, 4, 2))).chr(hexdec(substr($hex, 2, 2))).chr(hexdec(substr($hex, 0, 2))).chr(0).chr(0);
         $key = $this->md5_16($tmp);
         $this->ARC4_init(substr($key, 0, 10));
@@ -1151,16 +1227,19 @@ class Cpdf
         if (strlen($key) == 0) {
             return;
         }
+
         $k = '';
         while(strlen($k) < 256) {
             $k .= $key;
         }
+
         $k = substr($k, 0, 256);
-        for ($i = 0;$i < 256;$i++) {
+        for ($i = 0;$i < 256;++$i) {
             $this->arc4 .= chr($i);
         }
+
         $j = 0;
-        for ($i = 0;$i < 256;$i++) {
+        for ($i = 0;$i < 256;++$i) {
             $t = $this->arc4[$i];
             $j = ($j + ord($t) + ord($k[$i])) % 256;
             $this->arc4[$i] = $this->arc4[$j];
@@ -1178,7 +1257,7 @@ class Cpdf
         $b = 0;
         $c = $this->arc4;
         $out = '';
-        for ($i = 0;$i < $len;$i++) {
+        for ($i = 0;$i < $len;++$i) {
             $a = ($a + 1) % 256;
             $t = $c[$a];
             $b = ($b + ord($t)) % 256;
@@ -1200,7 +1279,7 @@ class Cpdf
     */
     public function addLink($url, $x0, $y0, $x1, $y1)
     {
-        $this->numObj++;
+        ++$this->numObj;
         $info = ['type' => 'link', 'url' => $url, 'rect' => [$x0, $y0, $x1, $y1]];
         $this->o_annotation($this->numObj, 'new', $info);
     }
@@ -1210,7 +1289,7 @@ class Cpdf
     */
     public function addInternalLink($label, $x0, $y0, $x1, $y1)
     {
-        $this->numObj++;
+        ++$this->numObj;
         $info = ['type' => 'ilink', 'label' => $label, 'rect' => [$x0, $y0, $x1, $y1]];
         $this->o_annotation($this->numObj, 'new', $info);
     }
@@ -1232,13 +1311,15 @@ class Cpdf
                 $p += $options[$v];
             }
         }
+
         // implement encryption on the document
         if ($this->arc4_objnum == 0) {
             // then the block does not exist already, add it.
-            $this->numObj++;
+            ++$this->numObj;
             if (strlen($ownerPass) == 0) {
                 $ownerPass = $userPass;
             }
+
             $this->o_encryption($this->numObj, 'new', ['user' => $userPass, 'owner' => $ownerPass, 'p' => $p]);
         }
     }
@@ -1277,18 +1358,22 @@ class Cpdf
             $xref[] = $pos;
             $pos += strlen($cont);
         }
+
         $content .= "\nxref\n0 ".(count($xref) + 1)."\n0000000000 65535 f \n";
         foreach($xref as $p) {
             $content .= substr('0000000000', 0, 10 - strlen($p)).$p." 00000 n \n";
         }
+
         $content .= "\ntrailer\n  << /Size ".(count($xref) + 1)."\n     /Root 1 0 R\n     /Info ".$this->infoObject." 0 R\n";
         // if encryption has been applied to this document then add the marker for this dictionary
         if ($this->arc4_objnum > 0) {
             $content .= "/Encrypt ".$this->arc4_objnum." 0 R\n";
         }
+
         if (strlen($this->fileIdentifier)) {
             $content .= "/ID[<".$this->fileIdentifier."><".$this->fileIdentifier.">]\n";
         }
+
         $content .= "  >>\nstartxref\n".$pos."\n%%EOF\n";
         return $content;
     }
@@ -1305,25 +1390,25 @@ class Cpdf
         $this->numObj = 0;
         $this->objects = [];
 
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_catalog($this->numObj, 'new');
 
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_outlines($this->numObj, 'new');
 
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_pages($this->numObj, 'new');
 
         $this->o_pages($this->numObj, 'mediaBox', $pageSize);
         $this->currentNode = 3;
 
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_procset($this->numObj, 'new');
 
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_info($this->numObj, 'new');
 
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_page($this->numObj, 'new');
 
         // need to store the first page id as there is no way to get it to the user during
@@ -1355,6 +1440,7 @@ class Cpdf
         if (substr($name, -4) == '.afm') {
             $name = substr($name, 0, strlen($name) - 4);
         }
+
         $this->addMessage('openFont: '.$font.' - '.$name);
         if (file_exists($dir.'php_'.$name.'.afm')) {
             $this->addMessage('openFont: php file exists '.$dir.'php_'.$name.'.afm');
@@ -1366,6 +1452,7 @@ class Cpdf
                 unset($this->fonts[$font]);
             }
         }
+
         if (!isset($this->fonts[$font]) && file_exists($dir.$name.'.afm')) {
             // then rebuild the php_<font>.afm file from the <font>.afm file
             $this->addMessage('openFont: build php file from '.$dir.$name.'.afm');
@@ -1410,7 +1497,7 @@ class Cpdf
                                 if (strlen($bits2[0])) {
                                     if (count($bits2) > 2) {
                                         $dtmp[$bits2[0]] = [];
-                                        for ($i = 1;$i < count($bits2);$i++) {
+                                        for ($i = 1;$i < count($bits2);++$i) {
                                             $dtmp[$bits2[0]][] = $bits2[$i];
                                         }
                                     } else if (count($bits2) == 2) {
@@ -1418,12 +1505,14 @@ class Cpdf
                                     }
                                 }
                             }
+
                             if ($dtmp['C'] >= 0) {
                                 $data['C'][$dtmp['C']] = $dtmp;
                                 $data['C'][$dtmp['N']] = $dtmp;
                             } else {
                                 $data['C'][$dtmp['N']] = $dtmp;
                             }
+
                             break;
                         case 'KPX':
                             // KPX Adieresis yacute -40
@@ -1433,6 +1522,7 @@ class Cpdf
                     }
                 }
             }
+
             $data['_version_'] = 1;
             $this->fonts[$font] = $data;
             $fp = fopen($dir.'php_'.$name.'.afm', 'w');
@@ -1458,20 +1548,22 @@ class Cpdf
             // load the file
             $this->openFont($fontName);
             if (isset($this->fonts[$fontName])) {
-                $this->numObj++;
-                $this->numFonts++;
+                ++$this->numObj;
+                ++$this->numFonts;
                 $pos = strrpos($fontName, '/');
                 //      $dir=substr($fontName,0,$pos+1);
                 $name = substr($fontName, $pos + 1);
                 if (substr($name, -4) == '.afm') {
                     $name = substr($name, 0, strlen($name) - 4);
                 }
+
                 $options = ['name' => $name];
                 if (is_array($encoding)) {
                     // then encoding and differences might be set
                     if (isset($encoding['encoding'])) {
                         $options['encoding'] = $encoding['encoding'];
                     }
+
                     if (isset($encoding['differences'])) {
                         $options['differences'] = $encoding['differences'];
                     }
@@ -1479,6 +1571,7 @@ class Cpdf
                     // then perhaps only the encoding has been set
                     $options['encoding'] = $encoding;
                 }
+
                 $fontObj = $this->numObj;
                 $this->o_font($this->numObj, 'new', $options);
                 $this->fonts[$fontName]['fontNum'] = $this->numFonts;
@@ -1493,6 +1586,7 @@ class Cpdf
                 } else {
                     $fbtype = '';
                 }
+
                 $fbfile = $basefile.'.'.$fbtype;
 
                 //      $pfbfile = substr($fontName,0,strlen($fontName)-4).'.pfb';
@@ -1509,39 +1603,46 @@ class Cpdf
                     foreach ($this->fonts[$fontName]['C'] as $num => $d) {
                         if (intval($num) > 0 || $num == '0') {
                             if ($lastChar > 0 && $num > $lastChar + 1) {
-                                for($i = $lastChar + 1;$i < $num;$i++) {
+                                for($i = $lastChar + 1;$i < $num;++$i) {
                                     $widths[] = 0;
                                 }
                             }
+
                             $widths[] = $d['WX'];
                             if ($firstChar == -1) {
                                 $firstChar = $num;
                             }
+
                             $lastChar = $num;
                         }
                     }
+
                     // also need to adjust the widths for the differences array
                     if (isset($options['differences'])) {
                         foreach($options['differences'] as $charNum => $charName) {
                             if ($charNum > $lastChar) {
-                                for($i = $lastChar + 1;$i <= $charNum;$i++) {
+                                for($i = $lastChar + 1;$i <= $charNum;++$i) {
                                     $widths[] = 0;
                                 }
+
                                 $lastChar = $charNum;
                             }
+
                             if (isset($this->fonts[$fontName]['C'][$charName])) {
                                 $widths[$charNum - $firstChar] = $this->fonts[$fontName]['C'][$charName]['WX'];
                             }
                         }
                     }
+
                     $this->addMessage('selectFont: FirstChar='.$firstChar);
                     $this->addMessage('selectFont: LastChar='.$lastChar);
-                    $this->numObj++;
+                    ++$this->numObj;
                     $this->o_contents($this->numObj, 'new', 'raw');
                     $this->objects[$this->numObj]['c'] .= '[';
                     foreach($widths as $width) {
                         $this->objects[$this->numObj]['c'] .= ' '.$width;
                     }
+
                     $this->objects[$this->numObj]['c'] .= ' ]';
                     $widthid = $this->numObj;
 
@@ -1556,18 +1657,20 @@ class Cpdf
                     fclose($fp);
 
                     // create the font descriptor
-                    $this->numObj++;
+                    ++$this->numObj;
                     $fontDescriptorId = $this->numObj;
-                    $this->numObj++;
+                    ++$this->numObj;
                     $pfbid = $this->numObj;
                     // determine flags (more than a little flakey, hopefully will not matter much)
                     $flags = 0;
                     if ($this->fonts[$fontName]['ItalicAngle'] != 0) {
                         $flags += 2 ** 6;
                     }
+
                     if ($this->fonts[$fontName]['IsFixedPitch'] == 'true') {
-                        $flags += 1;
+                        ++$flags;
                     }
+
                     $flags += 2 ** 5; // assume non-sybolic
 
                     $list = ['Ascent' => 'Ascender', 'CapHeight' => 'CapHeight', 'Descent' => 'Descender', 'FontBBox' => 'FontBBox', 'ItalicAngle' => 'ItalicAngle'];
@@ -1583,6 +1686,7 @@ class Cpdf
                     } else if ($fbtype == 'ttf') {
                         $fdopt['FontFile2'] = $pfbid;
                     }
+
                     $this->o_fontDescriptor($fontDescriptorId, 'new', $fdopt);
 
                     // embed the font program
@@ -1604,10 +1708,12 @@ class Cpdf
                     if ($fbtype == 'ttf') {
                         $tmp['SubType'] = 'TrueType';
                     }
+
                     $this->addMessage('adding extra info to font.('.$fontObj.')');
                     foreach($tmp as $fk => $fv) {
                         $this->addMessage($fk." : ".$fv);
                     }
+
                     $this->o_font($fontObj, 'add', $tmp);
 
                 } else {
@@ -1621,6 +1727,7 @@ class Cpdf
                 }
             }
         }
+
         if ($set && isset($this->fonts[$fontName])) {
             // so if for some reason the font was not set in the last one then it will not be selected
             $this->currentBaseFont = $fontName;
@@ -1628,6 +1735,7 @@ class Cpdf
             // applied to it as well.
             $this->setCurrentFont();
         }
+
         return $this->currentFontNum;
     }
 
@@ -1649,6 +1757,7 @@ class Cpdf
             // then assume an initial font
             $this->selectFont('./fonts/Helvetica.afm');
         }
+
         $cf = substr($this->currentBaseFont, strrpos($this->currentBaseFont, '/') + 1);
         if (strlen($this->currentTextState)
           && isset($this->fontFamilies[$cf])
@@ -1759,9 +1868,11 @@ class Cpdf
         if ($r1 == 0) {
             return;
         }
+
         if ($r2 == 0) {
             $r2 = $r1;
         }
+
         if ($nSeg < 2) {
             $nSeg = 2;
         }
@@ -1790,7 +1901,7 @@ class Cpdf
         $d0 = $r2 * cos($t1);
 
         $this->objects[$this->currentContents]['c'] .= "\n".sprintf('%.3f', $a0).' '.sprintf('%.3f', $b0).' m ';
-        for ($i = 1;$i <= $nSeg;$i++) {
+        for ($i = 1;$i <= $nSeg;++$i) {
             // draw this bit of the total curve
             $t1 = $i * $dt + $astart;
             $a1 = $x0 + $r1 * cos($t1);
@@ -1804,6 +1915,7 @@ class Cpdf
             $c0 = $c1;
             $d0 = $d1;
         }
+
         if ($fill) {
             $this->objects[$this->currentContents]['c'] .= ' f';
         } else {
@@ -1813,6 +1925,7 @@ class Cpdf
                 $this->objects[$this->currentContents]['c'] .= ' S';
             }
         }
+
         if ($angle != 0) {
             $this->objects[$this->currentContents]['c'] .= ' Q';
         }
@@ -1839,21 +1952,26 @@ class Cpdf
         if ($width > 0) {
             $string .= $width.' w';
         }
+
         $ca = ['butt' => 0, 'round' => 1, 'square' => 2];
         if (isset($ca[$cap])) {
             $string .= ' '.$ca[$cap].' J';
         }
+
         $ja = ['miter' => 0, 'round' => 1, 'bevel' => 2];
         if (isset($ja[$join])) {
             $string .= ' '.$ja[$join].' j';
         }
+
         if (is_array($dash)) {
             $string .= ' [';
             foreach ($dash as $len) {
                 $string .= ' '.$len;
             }
+
             $string .= ' ] '.$phase.' d';
         }
+
         $this->currentLineStyle = $string;
         $this->objects[$this->currentContents]['c'] .= "\n".$string;
     }
@@ -1868,6 +1986,7 @@ class Cpdf
         for ($i = 2;$i < $np * 2;$i = $i + 2) {
             $this->objects[$this->currentContents]['c'] .= sprintf('%.3f', $p[$i]).' '.sprintf('%.3f', $p[$i + 1]).' l ';
         }
+
         if ($f == 1) {
             $this->objects[$this->currentContents]['c'] .= ' f';
         } else {
@@ -1904,12 +2023,12 @@ class Cpdf
         // then on the new page, re-open them with the right setings
 
         if ($this->nStateStack) {
-            for ($i = $this->nStateStack;$i >= 1;$i--) {
+            for ($i = $this->nStateStack;$i >= 1;--$i) {
                 $this->restoreState($i);
             }
         }
 
-        $this->numObj++;
+        ++$this->numObj;
         if ($insert) {
             // the id from the ezPdf class is the od of the contents of the page, not the page object itself
             // query that object to find the parent
@@ -1919,16 +2038,19 @@ class Cpdf
         } else {
             $this->o_page($this->numObj, 'new');
         }
+
         // if there is a stack saved, then put that onto the page
         if ($this->nStateStack) {
-            for ($i = 1;$i <= $this->nStateStack;$i++) {
+            for ($i = 1;$i <= $this->nStateStack;++$i) {
                 $this->saveState($i);
             }
         }
+
         // and if there has been a stroke or fill colour set, then transfer them
         if ($this->currentColour['r'] >= 0) {
             $this->setColor($this->currentColour['r'], $this->currentColour['g'], $this->currentColour['b'], 1);
         }
+
         if ($this->currentStrokeColour['r'] >= 0) {
             $this->setStrokeColor($this->currentStrokeColour['r'], $this->currentStrokeColour['g'], $this->currentStrokeColour['b'], 1);
         }
@@ -1959,11 +2081,13 @@ class Cpdf
         if (!is_array($options)) {
             $options = [];
         }
+
         if (isset($options['compress']) && $options['compress'] == 0) {
             $tmp = $this->output(1);
         } else {
             $tmp = $this->output();
         }
+
         header("Content-type: application/pdf");
         header("Content-Length: ".strlen(ltrim($tmp)));
         $fileName = ($options['Content-Disposition'] ?? 'file.pdf');
@@ -1971,6 +2095,7 @@ class Cpdf
         if (isset($options['Accept-Ranges']) && $options['Accept-Ranges'] == 1) {
             header("Accept-Ranges: ".strlen(ltrim($tmp)));
         }
+
         echo ltrim($tmp);
     }
 
@@ -1982,6 +2107,7 @@ class Cpdf
         if (!$this->numFonts) {
             $this->selectFont('./fonts/Helvetica');
         }
+
         // for the current font, and the given size, what is the height of the font in user units
         $h = $this->fonts[$this->currentFont]['FontBBox'][3] - $this->fonts[$this->currentFont]['FontBBox'][1];
         return $size * $h / 1000;
@@ -1998,6 +2124,7 @@ class Cpdf
         if (!$this->numFonts) {
             $this->selectFont('./fonts/Helvetica');
         }
+
         $h = $this->fonts[$this->currentFont]['FontBBox'][1];
         return $size * $h / 1000;
     }
@@ -2015,7 +2142,7 @@ class Cpdf
         $text = str_replace(')', '\)', $text);
         $text = str_replace('&lt;', '<', $text);
         $text = str_replace('&gt;', '>', $text);
-        $text = str_replace('&#039;', '\'', $text);
+        $text = str_replace('&#039;', "'", $text);
         $text = str_replace('&quot;', '"', $text);
         $text = str_replace('&amp;', '&', $text);
 
@@ -2066,29 +2193,32 @@ class Cpdf
         $directive = 0;
         $j = $i;
         if ($text[$j] == '<') {
-            $j++;
+            ++$j;
             switch($text[$j]) {
                 case '/':
-                    $j++;
+                    ++$j;
                     if (strlen($text) <= $j) {
                         return $directive;
                     }
+
                     switch($text[$j]) {
                         case 'b':
                         case 'i':
-                            $j++;
+                            ++$j;
                             if ($text[$j] == '>') {
                                 $p = strrpos($this->currentTextState, (string) $text[$j - 1]);
                                 if ($p !== false) {
                                     // then there is one to remove
                                     $this->currentTextState = substr($this->currentTextState, 0, $p).substr($this->currentTextState, $p + 1);
                                 }
+
                                 $directive = $j - $i + 1;
                             }
+
                             break;
                         case 'c':
                             // this this might be a callback function
-                            $j++;
+                            ++$j;
                             $k = strpos($text, '>', $j);
                             if ($k !== false && $text[$j] == ':') {
                                 // then this will be treated as a callback directive
@@ -2104,6 +2234,7 @@ class Cpdf
                                     $func = $tmp;
                                     $parm = '';
                                 }
+
                                 if (!isset($func) || !strlen(trim($func))) {
                                     $directive = 0;
                                 } else {
@@ -2119,40 +2250,41 @@ class Cpdf
                                         if (is_array($ret)) {
                                             // then the return from the callback function could set the position, to start with, later will do font colour, and font
                                             foreach($ret as $rk => $rv) {
-                                                switch($rk) {
-                                                    case 'x':
-                                                    case 'y':
-                                                        ${$rk} = $rv;
-                                                        break;
+                                                if ($rk == 'x' || $rk == 'y') {
+                                                    ${$rk} = $rv;
                                                 }
                                             }
                                         }
+
                                         // also remove from to the stack
                                         // for simplicity, just take from the end, fix this another day
-                                        $this->nCallback--;
+                                        --$this->nCallback;
                                         if ($this->nCallback < 0) {
                                             $this->nCallBack = 0;
                                         }
                                     }
                                 }
                             }
+
                             break;
                     }
+
                     break;
                 case 'b':
                 case 'i':
-                    $j++;
+                    ++$j;
                     if ($text[$j] == '>') {
                         $this->currentTextState .= $text[$j - 1];
                         $directive = $j - $i + 1;
                     }
+
                     break;
                 case 'C':
                     $noClose = 1;
                     // no break
                 case 'c':
                     // this this might be a callback function
-                    $j++;
+                    ++$j;
                     $k = strpos($text, '>', $j);
                     if ($k !== false && $text[$j] == ':') {
                         // then this will be treated as a callback directive
@@ -2169,6 +2301,7 @@ class Cpdf
                             $func = $tmp;
                             $parm = '';
                         }
+
                         if (!isset($func) || !strlen(trim($func))) {
                             $directive = 0;
                         } else {
@@ -2183,28 +2316,28 @@ class Cpdf
                                 $y = $tmp[1];
                                 if (!isset($noClose) || !$noClose) {
                                     // only add to the stack if this is a small 'c', therefore is a start-stop pair
-                                    $this->nCallback++;
+                                    ++$this->nCallback;
                                     $info['nCallback'] = $this->nCallback;
                                     $this->callback[$this->nCallback] = $info;
                                 }
+
                                 $ret = $this->$func($info);
                                 if (is_array($ret)) {
                                     // then the return from the callback function could set the position, to start with, later will do font colour, and font
                                     foreach($ret as $rk => $rv) {
-                                        switch($rk) {
-                                            case 'x':
-                                            case 'y':
-                                                ${$rk} = $rv;
-                                                break;
+                                        if ($rk == 'x' || $rk == 'y') {
+                                            ${$rk} = $rv;
                                         }
                                     }
                                 }
                             }
                         }
                     }
+
                     break;
             }
         }
+
         return $directive;
     }
 
@@ -2219,13 +2352,14 @@ class Cpdf
 
         // if there are any open callbacks, then they should be called, to show the start of the line
         if ($this->nCallback > 0) {
-            for ($i = $this->nCallback;$i > 0;$i--) {
+            for ($i = $this->nCallback;$i > 0;--$i) {
                 // call each function
                 $info = ['x' => $x, 'y' => $y, 'angle' => $angle, 'status' => 'sol', 'p' => $this->callback[$i]['p'], 'nCallback' => $this->callback[$i]['nCallback'], 'height' => $this->callback[$i]['height'], 'decender' => $this->callback[$i]['decender']];
                 $func = $this->callback[$i]['f'];
                 $this->$func($info);
             }
         }
+
         if ($angle == 0) {
             $this->objects[$this->currentContents]['c'] .= "\n".'BT '.sprintf('%.3f', $x).' '.sprintf('%.3f', $y).' Td';
         } else {
@@ -2235,13 +2369,15 @@ class Cpdf
             $tmp .= sprintf('%.3f', $x).' '.sprintf('%.3f', $y).' Tm';
             $this->objects[$this->currentContents]['c'] .= $tmp;
         }
+
         if ($wordSpaceAdjust != 0 || $wordSpaceAdjust != $this->wordSpaceAdjust) {
             $this->wordSpaceAdjust = $wordSpaceAdjust;
             $this->objects[$this->currentContents]['c'] .= ' '.sprintf('%.3f', $wordSpaceAdjust).' Tw';
         }
+
         $len = strlen($text);
         $start = 0;
-        for ($i = 0;$i < $len;$i++) {
+        for ($i = 0;$i < $len;++$i) {
             $f = 1;
             $directive = $this->PRVTcheckTextDirective($text, $i, $f);
             if ($directive) {
@@ -2251,6 +2387,7 @@ class Cpdf
                     $this->objects[$this->currentContents]['c'] .= ' /F'.$this->currentFontNum.' '.sprintf('%.1f', $size).' Tf ';
                     $this->objects[$this->currentContents]['c'] .= ' ('.$this->filterText($part).') Tj';
                 }
+
                 if ($f) {
                     // then there was nothing drastic done here, restore the contents
                     $this->setCurrentFont();
@@ -2271,27 +2408,31 @@ class Cpdf
                         $tmp .= sprintf('%.3f', $xp).' '.sprintf('%.3f', $yp).' Tm';
                         $this->objects[$this->currentContents]['c'] .= $tmp;
                     }
+
                     if ($wordSpaceAdjust != 0 || $wordSpaceAdjust != $this->wordSpaceAdjust) {
                         $this->wordSpaceAdjust = $wordSpaceAdjust;
                         $this->objects[$this->currentContents]['c'] .= ' '.sprintf('%.3f', $wordSpaceAdjust).' Tw';
                     }
                 }
+
                 // and move the writing point to the next piece of text
                 $i = $i + $directive - 1;
                 $start = $i + 1;
             }
 
         }
+
         if ($start < $len) {
             $part = substr($text, $start);
             $this->objects[$this->currentContents]['c'] .= ' /F'.$this->currentFontNum.' '.sprintf('%.1f', $size).' Tf ';
             $this->objects[$this->currentContents]['c'] .= ' ('.$this->filterText($part).') Tj';
         }
+
         $this->objects[$this->currentContents]['c'] .= ' ET';
 
         // if there are any open callbacks, then they should be called, to show the end of the line
         if ($this->nCallback > 0) {
-            for ($i = $this->nCallback;$i > 0;$i--) {
+            for ($i = $this->nCallback;$i > 0;--$i) {
                 // call each function
                 $tmp = $this->PRVTgetTextPosition($x, $y, $angle, $size, $wordSpaceAdjust, $text);
                 $info = ['x' => $tmp[0], 'y' => $tmp[1], 'angle' => $angle, 'status' => 'eol', 'p' => $this->callback[$i]['p'], 'nCallback' => $this->callback[$i]['nCallback'], 'height' => $this->callback[$i]['height'], 'decender' => $this->callback[$i]['decender']];
@@ -2318,14 +2459,14 @@ class Cpdf
         }
 
         // converts a number or a float to a string so it can get the width
-        $text = "$text";
+        $text = $text;
 
         // hmm, this is where it all starts to get tricky - use the font information to
         // calculate the width of each character, add them up and convert to user units
         $w = 0;
         $len = strlen($text);
         $cf = $this->currentFont;
-        for ($i = 0;$i < $len;$i++) {
+        for ($i = 0;$i < $len;++$i) {
             $f = 1;
             $directive = $this->PRVTcheckTextDirective($text, $i, $f);
             if ($directive) {
@@ -2333,6 +2474,7 @@ class Cpdf
                     $this->setCurrentFont();
                     $cf = $this->currentFont;
                 }
+
                 $i = $i + $directive - 1;
             } else {
                 $char = ord($text[$i]);
@@ -2381,6 +2523,7 @@ class Cpdf
                 } else {
                     $adjust = 0;
                 }
+
                 break;
         }
     }
@@ -2409,17 +2552,19 @@ class Cpdf
         if (!$this->numFonts) {
             $this->selectFont('./fonts/Helvetica');
         }
+
         if ($width <= 0) {
             // error, pretend it printed ok, otherwise risking a loop
             return '';
         }
+
         $w = 0;
         $break = 0;
         $breakWidth = 0;
         $len = strlen($text);
         $cf = $this->currentFont;
         $tw = $width / $size * 1000;
-        for ($i = 0;$i < $len;$i++) {
+        for ($i = 0;$i < $len;++$i) {
             $f = 1;
             $directive = $this->PRVTcheckTextDirective($text, $i, $f);
             if ($directive) {
@@ -2427,6 +2572,7 @@ class Cpdf
                     $this->setCurrentFont();
                     $cf = $this->currentFont;
                 }
+
                 $i = $i + $directive - 1;
             } else {
                 $cOrd = ord($text[$i]);
@@ -2440,6 +2586,7 @@ class Cpdf
                 if (isset($this->fonts[$cf]['C'][$cOrd2]['WX'])) {
                     $w += $this->fonts[$cf]['C'][$cOrd2]['WX'];
                 }
+
                 if ($w > $tw) {
                     // then we need to truncate this line
                     if ($break > 0) {
@@ -2449,6 +2596,7 @@ class Cpdf
                         } else {
                             $tmp = substr($text, 0, $break + 1);
                         }
+
                         $adjust = 0;
                         $this->PRVTadjustWrapText($tmp, $breakWidth, $width, $x, $adjust, $justification);
 
@@ -2458,8 +2606,10 @@ class Cpdf
                         if (!$test) {
                             $this->addText($x, $y, $size, $tmp, $angle, $adjust);
                         }
+
                         return substr($text, $break + 1);
                     }
+
                     // just split before the current character
                     $tmp = substr($text, 0, $i);
                     $adjust = 0;
@@ -2467,6 +2617,7 @@ class Cpdf
                     if (isset($this->fonts[$cf]['differences'][$ctmp])) {
                         $ctmp = $this->fonts[$cf]['differences'][$ctmp];
                     }
+
                     $tmpw = ($w - $this->fonts[$cf]['C'][$ctmp]['WX']) * $size / 1000;
                     $this->PRVTadjustWrapText($tmp, $tmpw, $width, $x, $adjust, $justification);
                     // reset the text state
@@ -2475,26 +2626,32 @@ class Cpdf
                     if (!$test) {
                         $this->addText($x, $y, $size, $tmp, $angle, $adjust);
                     }
+
                     return substr($text, $i);
                 }
+
                 if ($text[$i] == '-') {
                     $break = $i;
                     $breakWidth = $w * $size / 1000;
                 }
+
                 if ($text[$i] == ' ') {
                     $break = $i;
                     $ctmp = ord($text[$i]);
                     if (isset($this->fonts[$cf]['differences'][$ctmp])) {
                         $ctmp = $this->fonts[$cf]['differences'][$ctmp];
                     }
+
                     $breakWidth = ($w - $this->fonts[$cf]['C'][$ctmp]['WX']) * $size / 1000;
                 }
             }
         }
+
         // then there was no need to break this line
         if ($justification == 'full') {
             $justification = 'left';
         }
+
         $adjust = 0;
         $tmpw = $w * $size / 1000;
         $this->PRVTadjustWrapText($text, $tmpw, $width, $x, $adjust, $justification);
@@ -2504,6 +2661,7 @@ class Cpdf
         if (!$test) {
             $this->addText($x, $y, $size, $text, $angle, $adjust);
         }
+
         return '';
     }
 
@@ -2525,9 +2683,10 @@ class Cpdf
             $this->objects[$this->currentContents]['c'] .= "\n".$opt['lin'];
             //    $this->currentLineStyle = $opt['lin'];
         } else {
-            $this->nStateStack++;
+            ++$this->nStateStack;
             $this->stateStack[$this->nStateStack] = ['col' => $this->currentColour, 'str' => $this->currentStrokeColour, 'lin' => $this->currentLineStyle];
         }
+
         $this->objects[$this->currentContents]['c'] .= "\nq";
     }
 
@@ -2543,8 +2702,9 @@ class Cpdf
             $this->objects[$this->currentContents]['c'] .= "\n".$this->stateStack[$n]['lin'];
             $this->currentLineStyle = $this->stateStack[$n]['lin'];
             unset($this->stateStack[$n]);
-            $this->nStateStack--;
+            --$this->nStateStack;
         }
+
         $this->objects[$this->currentContents]['c'] .= "\nQ";
     }
 
@@ -2556,10 +2716,10 @@ class Cpdf
     */
     public function openObject()
     {
-        $this->nStack++;
+        ++$this->nStack;
         $this->stack[$this->nStack] = ['c' => $this->currentContents, 'p' => $this->currentPage];
         // add a new object of the content type, to hold the data flow
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_contents($this->numObj, 'new');
         $this->currentContents = $this->numObj;
         $this->looseObjects[$this->numObj] = 1;
@@ -2572,7 +2732,7 @@ class Cpdf
     */
     public function reopenObject($id)
     {
-        $this->nStack++;
+        ++$this->nStack;
         $this->stack[$this->nStack] = ['c' => $this->currentContents, 'p' => $this->currentPage];
         $this->currentContents = $id;
         // also if this object is the primary contents for a page, then set the current page to its parent
@@ -2591,7 +2751,7 @@ class Cpdf
         if ($this->nStack > 0) {
             $this->currentContents = $this->stack[$this->nStack]['c'];
             $this->currentPage = $this->stack[$this->nStack]['p'];
-            $this->nStack--;
+            --$this->nStack;
             // easier to probably not worry about removing the old entries, they will be overwritten
             // if there are new ones.
         }
@@ -2618,9 +2778,11 @@ class Cpdf
         if (!isset($this->looseObjects[$id])) {
             return;
         }
+
         if ($this->currentContents == $id) {
             return;
         }
+
         // then it is a valid object, and it is not being added to itself
         switch($options) {
             case 'all':
@@ -2634,6 +2796,7 @@ class Cpdf
                     // (though this object is actually added to that page)
                     $this->o_page($this->objects[$this->currentContents]['onPage'], 'content', $id);
                 }
+
                 break;
             case 'even':
                 $this->addLooseObjects[$id] = 'even';
@@ -2641,6 +2804,7 @@ class Cpdf
                 if ($this->objects[$pageObjectId]['info']['pageNum'] % 2 == 0) {
                     $this->addObject($id); // hacky huh :)
                 }
+
                 break;
             case 'odd':
                 $this->addLooseObjects[$id] = 'odd';
@@ -2648,6 +2812,7 @@ class Cpdf
                 if ($this->objects[$pageObjectId]['info']['pageNum'] % 2 == 1) {
                     $this->addObject($id); // hacky huh :)
                 }
+
                 break;
             case 'next':
                 $this->addLooseObjects[$id] = 'all';
@@ -2703,10 +2868,11 @@ class Cpdf
     {
         // return the integer represented by $num bytes from $pos within $data
         $ret = 0;
-        for ($i = 0;$i < $num;$i++) {
+        for ($i = 0;$i < $num;++$i) {
             $ret = $ret * 256;
             $ret += ord($data[$pos + $i]);
         }
+
         return $ret;
     }
 
@@ -2729,11 +2895,13 @@ class Cpdf
             while(!feof($fp)) {
                 $data .= fread($fp, 1024);
             }
+
             fclose($fp);
         } else {
             $error = 1;
             $errormsg = 'trouble opening file: '.$file;
         }
+
         set_magic_quotes_runtime($tmp);
 
         if (!$error) {
@@ -2774,10 +2942,12 @@ class Cpdf
                             $error = 1;
                             $errormsg = 'unsupported compression method';
                         }
+
                         if ($info['filterMethod'] != 0) {
                             $error = 1;
                             $errormsg = 'unsupported filter method';
                         }
+
                         break;
                     case 'PLTE':
                         $pdata .= substr($data, $p + 8, $chunkLen);
@@ -2800,11 +2970,12 @@ class Cpdf
                             $transparency['type'] = 'indexed';
                             $numPalette = strlen($pdata) / 3;
                             $trans = 0;
-                            for ($i = $chunkLen;$i >= 0;$i--) {
+                            for ($i = $chunkLen;$i >= 0;--$i) {
                                 if (ord($data[$p + 8 + $i]) == 0) {
                                     $trans = $i;
                                 }
                             }
+
                             $transparency['data'] = $trans;
 
                         } elseif($info['colorType'] == 0) { // grayscale
@@ -2828,6 +2999,7 @@ class Cpdf
                         } else {
                             // unsupported transparency type
                         }
+
                         // KS End new code
                         break;
                     default:
@@ -2841,6 +3013,7 @@ class Cpdf
                 $error = 1;
                 $errormsg = 'information header is missing';
             }
+
             if (isset($info['interlaceMethod']) && $info['interlaceMethod']) {
                 $error = 1;
                 $errormsg = 'There appears to be no support for interlaced images in pdf.';
@@ -2873,27 +3046,32 @@ class Cpdf
                 }
             }
         }
+
         if ($error) {
             $this->addMessage('PNG error - ('.$file.') '.$errormsg);
             return;
         }
+
         if ($w == 0) {
             $w = $h / $info['height'] * $info['width'];
         }
+
         if ($h == 0) {
             $h = $w * $info['height'] / $info['width'];
         }
+
         // print_r($info);
         // so this image is ok... add it in.
-        $this->numImages++;
+        ++$this->numImages;
         $im = $this->numImages;
         $label = 'I'.$im;
-        $this->numObj++;
+        ++$this->numObj;
         //  $this->o_image($this->numObj,'new',array('label'=>$label,'data'=>$idata,'iw'=>$w,'ih'=>$h,'type'=>'png','ic'=>$info['width']));
         $options = ['label' => $label, 'data' => $idata, 'bitsPerComponent' => $info['bitDepth'], 'pdata' => $pdata, 'iw' => $info['width'], 'ih' => $info['height'], 'type' => 'png', 'color' => $color, 'ncolor' => $ncolor];
         if (isset($transparency)) {
             $options['transparency'] = $transparency;
         }
+
         $this->o_image($this->numObj, 'new', $options);
 
         $this->objects[$this->currentContents]['c'] .= "\nq";
@@ -2927,9 +3105,11 @@ class Cpdf
         if ($w <= 0 && $h <= 0) {
             $w = $imageWidth;
         }
+
         if ($w == 0) {
             $w = $h / $imageHeight * $imageWidth;
         }
+
         if ($h == 0) {
             $h = $w * $imageHeight / $imageWidth;
         }
@@ -2979,9 +3159,11 @@ class Cpdf
         if ($w <= 0 && $h <= 0) {
             return;
         }
+
         if ($w == 0) {
             $w = $h / $imageHeight * $imageWidth;
         }
+
         if ($h == 0) {
             $h = $w * $imageHeight / $imageWidth;
         }
@@ -3002,11 +3184,13 @@ class Cpdf
             while(!feof($fp)) {
                 $data .= fread($fp, 1024);
             }
+
             fclose($fp);
         } else {
             $error = 1;
             $errormsg = 'trouble opening file';
         }
+
         //  $data = fread($fp,filesize($tmpName));
         set_magic_quotes_runtime($tmp);
         //  fclose($fp);
@@ -3023,10 +3207,10 @@ class Cpdf
     {
         // note that this function is not to be called externally
         // it is just the common code between the GD and the file options
-        $this->numImages++;
+        ++$this->numImages;
         $im = $this->numImages;
         $label = 'I'.$im;
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_image($this->numObj, 'new', ['label' => $label, 'data' => $data, 'iw' => $imageWidth, 'ih' => $imageHeight, 'channels' => $channels]);
 
         $this->objects[$this->currentContents]['c'] .= "\nq";
@@ -3050,7 +3234,7 @@ class Cpdf
         // 'FitB'
         // 'FitBH' top
         // 'FitBV' left
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_destination($this->numObj, 'new', ['page' => $this->currentPage, 'type' => $style, 'p1' => $a, 'p2' => $b, 'p3' => $c]);
         $id = $this->catalogId;
         $this->o_catalog($id, 'openHere', $this->numObj);
@@ -3064,11 +3248,11 @@ class Cpdf
         // associates the given label with the destination, it is done this way so that a destination can be specified after
         // it has been linked to
         // styles are the same as the 'openHere' function
-        $this->numObj++;
+        ++$this->numObj;
         $this->o_destination($this->numObj, 'new', ['page' => $this->currentPage, 'type' => $style, 'p1' => $a, 'p2' => $b, 'p3' => $c]);
         $id = $this->numObj;
         // store the label->idf relationship, note that this means that labels can be used only once
-        $this->destinations["$label"] = $id;
+        $this->destinations[$label] = $id;
     }
 
     /**
@@ -3124,6 +3308,7 @@ class Cpdf
                 } else {
                     $this->checkpoint = '';
                 }
+
                 break;
             case 'rewind':
                 // do not destroy the current checkpoint, but move us back to the state then, so that we can try again
@@ -3135,8 +3320,10 @@ class Cpdf
                             $this->$k = $v;
                         }
                     }
+
                     unset($tmp);
                 }
+
                 break;
             case 'abort':
                 if (is_array($this->checkpoint)) {
@@ -3145,8 +3332,10 @@ class Cpdf
                     foreach ($tmp as $k => $v) {
                         $this->$k = $v;
                     }
+
                     unset($tmp);
                 }
+
                 break;
         }
 

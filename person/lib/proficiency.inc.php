@@ -8,7 +8,10 @@
 class proficiency extends DatabaseEntity
 {
     public $data_table = "proficiency";
+
     public $display_field_name = "personID";
+
     public $key_field = "proficiencyID";
+
     public $data_fields = ["personID", "skillID", "skillProficiency"];
 }

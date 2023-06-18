@@ -44,10 +44,12 @@ if (!$info["host"]) {
 while (false !== ($line = fgets(STDIN))) {
     $email[] = $line;
 }
+
 // Nuke any mbox header that sendmail/postfix may have prepended.
 if ($email[0] == "") {
     array_shift($email);
 }
+
 if (preg_match("/^From /i", $email[0])) {
     array_shift($email);
 }
@@ -84,7 +86,7 @@ try {
             inbox::process_one_email($email_receive);
         }
     }
-} catch (Exception $e) {
+} catch (Exception $exception) {
     // There may have been a database error, so let the database know it can run this next bit
     AllocDatabase::$stop_doing_queries = false;
 
@@ -93,12 +95,12 @@ try {
         $email_receive->forward(
             config::get_config_item("allocEmailAdmin"),
             "Email command failed",
-            "\n" . $e->getMessage() . "\n\n" . $e->getTraceAsString()
+            "\n" . $exception->getMessage() . "\n\n" . $exception->getTraceAsString()
         );
 
         // If that fails, try last-ditch email send
-    } catch (Exception $e) {
-        mail(config::get_config_item("allocEmailAdmin"), "Email command failed(2)", "\n" . $e->getMessage() . "\n\n" . $e->getTraceAsString());
+    } catch (Exception $exception) {
+        mail(config::get_config_item("allocEmailAdmin"), "Email command failed(2)", "\n" . $exception->getMessage() . "\n\n" . $exception->getTraceAsString());
     }
 }
 

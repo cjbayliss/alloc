@@ -26,9 +26,11 @@ class pendingApprovalTimeSheetListHomeItem extends home_item
         if (!isset($current_user)) {
             return false;
         }
+
         if (!$current_user->is_employee()) {
             return false;
         }
+
         return (bool) has_pending_timesheet();
     }
 
@@ -68,6 +70,7 @@ function show_time_sheets_list_for_classes($template_name, $doAdmin = false)
         } else if ($timeSheet->get_value("status") == "admin") {
             $date = $timeSheet->get_value("dateSubmittedToAdmin");
         }
+
         unset($TPL["warning"]);
 
         // older than $current_user->prefs["timeSheetDaysWarn"] days
@@ -75,7 +78,7 @@ function show_time_sheets_list_for_classes($template_name, $doAdmin = false)
             $TPL["warning"] = Page::help("This time sheet was submitted to you over " . $current_user->prefs["timeSheetDaysWarn"] . " days ago.", Page::warn());
         }
 
-        $TPL["date"] = "<a href=\"" . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . "\">" . $date . "</a>";
+        $TPL["date"] = '<a href="' . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . '">' . $date . "</a>";
         $TPL["user"] = $people[$timeSheet->get_value("personID")]["name"];
         $TPL["projectName"] = $db->f("projectName");
 
@@ -155,6 +158,7 @@ function get_pending_admin_timesheet_db()
                 GROUP BY timeSheet.timeSheetID
                 ORDER BY timeSheet.dateSubmittedToAdmin";
     }
+
     $db->query($query);
     return $db;
 }
@@ -165,6 +169,7 @@ function has_pending_admin_timesheet()
     if ($db->next_record()) {
         return true;
     }
+
     return false;
 }
 
@@ -174,5 +179,6 @@ function has_pending_timesheet()
     if ($db->next_record()) {
         return true;
     }
+
     return false;
 }

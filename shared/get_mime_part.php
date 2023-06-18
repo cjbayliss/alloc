@@ -26,12 +26,14 @@ if (isset($_GET["id"]) && $_GET["part"]) {
                 break;
             }
         }
+
         header('Content-Type: ' . $mimetype);
         header("Content-Length: " . strlen($thing));
         header('Content-Disposition: inline; filename="' . basename($filename) . '"');
         echo $thing;
         exit;
     }
+
     echo "Permission denied.";
     exit;
 }

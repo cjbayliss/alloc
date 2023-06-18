@@ -65,6 +65,7 @@ function add_inactive_tf($tfID, $options)
         $tf->select();
         $options[$tfID] = $tf->get_value("tfName");
     }
+
     return $options;
 }
 
@@ -74,6 +75,7 @@ $transactionGroupID = $_POST["transactionGroupID"] or $transactionGroupID = $_GE
 if (!$transactionGroupID) {
     $transactionGroupID = transaction::get_next_transactionGroupID();
 }
+
 $TPL["transactionGroupID"] = $transactionGroupID;
 
 if ($_POST["save_transactions"]) {
@@ -110,6 +112,7 @@ if ($_POST["save_transactions"]) {
                     $transaction->set_id($_POST["transactionID"][$k]);
                     $transaction->select();
                 }
+
                 $transaction->read_array($a);
                 $v = $transaction->validate();
                 if ($v == "") {
@@ -123,6 +126,7 @@ if ($_POST["save_transactions"]) {
             }
         }
     }
+
     $saved and $TPL["message_good"][] = "Transaction " . $saved . " saved.";
     $deleted and $TPL["message_good"][] = "Transaction " . $deleted . " deleted.";
     alloc_redirect($TPL["url_alloc_transactionGroup"] . "transactionGroupID=" . $transactionGroupID);

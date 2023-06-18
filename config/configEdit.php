@@ -41,10 +41,11 @@ if ($_POST["save"]) {
 } else if ($_POST["delete"]) {
     $arr = config::get_config_item($configName);
     if ($configType == "people") {
-        unset($arr[array_search($_POST["value"], $arr)]);
+        unset($arr[array_search($_POST["value"], $arr, true)]);
     } else {
         unset($arr[$_POST["key"]]);
     }
+
     $config->set_value("value", serialize($arr));
     $config->save();
 }

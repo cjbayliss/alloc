@@ -47,6 +47,7 @@ function show_productSale_list($productSaleID, $template)
     );
     $db = new AllocDatabase();
     $db->query($query);
+
     $productClass = new product();
     while ($db->next_record()) {
         $productSaleItemsDoExist = true;
@@ -63,7 +64,7 @@ function show_productSale_list($productSaleID, $template)
         $TPL["itemTotalUnallocated"] = $productSaleItem->get_amount_unallocated();
 
         $TPL["productList_dropdown"] = Page::select_options($ops, $productSaleItem->get_value("productID"));
-        $TPL["productLink"] = "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $productSaleItem->get_value("productID") . "\">" . Page::htmlentities($ops[$productSaleItem->get_value("productID")]) . "</a>";
+        $TPL["productLink"] = '<a href="' . $TPL["url_alloc_product"] . "productID=" . $productSaleItem->get_value("productID") . '">' . Page::htmlentities($ops[$productSaleItem->get_value("productID")]) . "</a>";
         $TPL["transactions"] = $productSale->get_transactions($productSaleItem->get_id());
 
         if ($taxName) {
@@ -75,6 +76,7 @@ function show_productSale_list($productSaleID, $template)
             );
             $TPL["sellPriceTax_label"] = $productSaleItem->get_value("sellPriceIncTax") ? " inc " . $taxName : " ex " . $taxName;
         }
+
         include_template($template);
     }
 }
@@ -86,7 +88,8 @@ function show_productSale_new($template)
     global $productSaleID;
     $taxName = config::get_config_item("taxName");
     $productSaleItem = new productSaleItem();
-    $productSaleItem->set_values(); // wipe clean
+    $productSaleItem->set_values();
+    // wipe clean
     $product = new product();
     $ops = $product->get_assoc_array("productID", "productName");
     $TPL["productList_dropdown"] = Page::select_options($ops, $productSaleItem->get_value("productID"));
@@ -98,6 +101,7 @@ function show_productSale_new($template)
             $taxName
         );
     }
+
     $TPL["psid"] = $productSaleID; // poorly named template variable to prevent clobbering
     include_template($template);
 }
@@ -149,6 +153,7 @@ function show_transaction_new($template)
         $TPL["status"] = "<select name='status[]' class='txStatus'>";
         $TPL["status"] .= Page::select_options(transaction::get_transactionStatii()) . "</select>";
     }
+
     $TPL["pc_productCostID"] = '';
     $TPL["pc_amount"] = '';
     $TPL["pc_isPercentage"] = '';
@@ -172,7 +177,7 @@ function show_comments()
         $TPL["allParties"] = $productSale->get_all_parties($productSale->get_value("projectID")) or $TPL["allParties"] = [];
         $commentTemplate = new commentTemplate();
         $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "productSale"]);
-        $TPL["commentTemplateOptions"] = "<option value=\"\">Comment Templates</option>" . Page::select_options($ops);
+        $TPL["commentTemplateOptions"] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
         include_template("../comment/templates/commentM.tpl");
     }
 }
@@ -248,6 +253,7 @@ if (!$TPL["message"] && $_POST["save"]) {
                 if (substr($productSaleItemID, 0, 3) == "new") {
                     $productSaleItemID = "";
                 }
+
                 $a["productSaleItemID"] = $productSaleItemID;
 
                 $productSaleItem = new productSaleItem();
@@ -258,6 +264,7 @@ if (!$TPL["message"] && $_POST["save"]) {
             }
         }
     }
+
     alloc_redirect($TPL["url_alloc_productSale"] . "productSaleID=" . $productSaleID);
 } else if ($_POST["save_transactions"]) {
     is_array($_POST["deleteTransaction"]) or $_POST["deleteTransaction"] = [];
@@ -303,6 +310,7 @@ if (!$TPL["message"] && $_POST["save"]) {
             }
         }
     }
+
     alloc_redirect($TPL["url_alloc_productSale"] . "productSaleID=" . $productSaleID);
 } else if ($_POST["create_default_transactions"] && $_POST["productSaleItemID"]) {
     $productSaleItem = new productSaleItem();
@@ -352,6 +360,7 @@ if ($productSale->get_value("tfID")) {
     $TPL["show_tf_options"] = $tf->get_link();
     $tf_sel = $productSale->get_value("tfID");
 }
+
 $tf_sel or $tf_sel = config::get_config_item("mainTfID");
 $tf_select = "<select name='tfID'>" . Page::select_options($tflist, $tf_sel) . "</select>";
 $TPL["show_person_options"] = person::get_fullname($productSale->get_value("personID"));

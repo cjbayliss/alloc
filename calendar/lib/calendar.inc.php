@@ -8,13 +8,21 @@
 class calendar
 {
     public $person;
+
     public $week_start;
+
     public $weeks_to_display;
+
     public $days_of_week = [];
+
     public $rtp;
+
     public $first_date;
+
     public $last_date;
+
     public $db;
+
     public $first_day_of_week;
 
     public function __construct($week_start = 1, $weeks_to_display = 4)
@@ -40,8 +48,9 @@ class calendar
 
         // Wind the date forward till we find the starting day of week
         while (date("D", mktime(0, 0, 0, date("m"), date("d") + $i, date("Y"))) != $this->first_day_of_week) {
-            $i++;
+            ++$i;
         }
+
         $fd = mktime(date("H"), date("i"), date("s"), date("m"), date("d") - ($this->week_start * 7) + ($i - 7), date("Y"));
 
         // Set the first and last date on the page
@@ -117,6 +126,7 @@ class calendar
         while ($row = $this->db->next_record()) {
             $tasks_to_start[$row["dateTargetStart"]][] = $row;
         }
+
         return $tasks_to_start;
     }
 
@@ -141,6 +151,7 @@ class calendar
         while ($row = $this->db->next_record()) {
             $tasks_to_complete[$row["dateTargetCompletion"]][] = $row;
         }
+
         return $tasks_to_complete;
     }
 
@@ -177,6 +188,7 @@ class calendar
                 $start_time += 86400;
             }
         }
+
         return $absences;
     }
 
@@ -196,6 +208,7 @@ class calendar
                 $go = true;
             }
         }
+
         return $days_of_week;
     }
 
@@ -217,8 +230,9 @@ class calendar
         $i = -7;
 
         while (date("D", mktime(0, 0, 0, date("m"), date("d") + $i, date("Y"))) != $this->first_day_of_week) {
-            $i++;
+            ++$i;
         }
+
         $i = $i - ($this->week_start * 7);
         $sunday_day = date("d", mktime(0, 0, 0, date("m"), date("d") + $i, date("Y")));
         $sunday_month = date("m", mktime(0, 0, 0, date("m"), date("d") + $i, date("Y")));
@@ -238,7 +252,7 @@ class calendar
             $a = 0;
             while ($a < 7) {
                 $dates_of_week[$this->days_of_week[$a]] = date("Y-m-d", mktime(0, 0, 0, $sunday_month, $sunday_day + (7 * $i) + $a, $sunday_year));
-                $a++;
+                ++$a;
             }
 
             foreach ($dates_of_week as $day => $date) {
@@ -285,9 +299,11 @@ class calendar
 
                 $d->draw_day_html();
             }
-            $i++;
+
+            ++$i;
             $this->draw_row_end();
         }
+
         $this->draw_body_end();
         $this->draw_canvas_end();
     }
@@ -296,10 +312,12 @@ class calendar
     {
         echo "<table border='0' cellspacing='0' class='alloc_calendar' cellpadding='3'>";
     }
+
     public function draw_canvas_end()
     {
         echo "</table>";
     }
+
     public function draw_body()
     {
         // Unfortunately browser support for this seems to be quite bad.
@@ -308,24 +326,29 @@ class calendar
         // seem to work.
         echo "<tbody>";
     }
+
     public function draw_body_end()
     {
         echo "</tbody>";
     }
+
     public function draw_row()
     {
         echo "\n<tr>";
     }
+
     public function draw_row_end()
     {
         echo "</tr>";
     }
+
     public function draw_row_header()
     {
         echo "\n<thead><tr>";
         foreach ($this->days_of_week as $day_of_week) {
             echo "<th>" . $day_of_week . "</th>";
         }
+
         echo "</tr></thead>";
     }
 
@@ -361,18 +384,18 @@ class calendar
     public function get_img_new_task()
     {
         global $TPL;
-        return "<img border=\"0\" src=\"" . $TPL["url_alloc_images"] . "task.gif\" alt=\"New Task\" title=\"New Task\">";
+        return '<img border="0" src="' . $TPL["url_alloc_images"] . 'task.gif" alt="New Task" title="New Task">';
     }
 
     public function get_img_new_reminder()
     {
         global $TPL;
-        return "<img border=\"0\" src=\"" . $TPL["url_alloc_images"] . "reminder.gif\" alt=\"New Reminder\" title=\"New Reminder\">";
+        return '<img border="0" src="' . $TPL["url_alloc_images"] . 'reminder.gif" alt="New Reminder" title="New Reminder">';
     }
 
     public function get_img_new_absence()
     {
         global $TPL;
-        return "<img border=\"0\" src=\"" . $TPL["url_alloc_images"] . "absence.gif\" alt=\"New Absence\" title=\"New Absence\">";
+        return '<img border="0" src="' . $TPL["url_alloc_images"] . 'absence.gif" alt="New Absence" title="New Absence">';
     }
 }

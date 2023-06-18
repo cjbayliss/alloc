@@ -60,10 +60,12 @@ if ($_POST["mass_update"]) {
                 if ($_POST["parentTaskID"] != $task->get_id()) {
                     $task->set_value("parentTaskID", $_POST["parentTaskID"]);
                 }
+
                 // If task is a parent, change the project of that tasks children
                 if ($_POST["projectID"] != $task->get_value("projectID") && $task->get_value("taskTypeID") == "Parent") {
                     $task->update_children("projectID", $_POST["projectID"]);
                 }
+
                 $task->set_value("projectID", $_POST["projectID"]);
                 $task->updateSearchIndexLater = true;
                 $task->save();
@@ -75,6 +77,7 @@ if ($_POST["mass_update"]) {
                 $task->save();
             }
         }
+
         $TPL["message_good"][] = "Tasks updated.";
         $url = $_POST["returnURL"] or $url = $TPL["url_alloc_taskList"];
         alloc_redirect($url);

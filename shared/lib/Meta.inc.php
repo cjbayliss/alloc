@@ -51,6 +51,7 @@ final class Meta extends DatabaseEntity
             $this->data_fields[] = "currencyTypeName";
             $this->data_fields[] = "numberToBasic";
         }
+
         $this->table = $table; // for internal use
         return parent::__construct();
     }

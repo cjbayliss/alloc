@@ -14,6 +14,7 @@ if ($_REQUEST["entity"] && $_REQUEST["entityID"]) {
     } else {
         $stars[$_REQUEST["entity"]][$_REQUEST["entityID"]] = true;
     }
+
     $current_user->prefs["stars"] = $stars;
     $current_user->store_prefs();
 

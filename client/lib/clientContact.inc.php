@@ -8,9 +8,13 @@
 class clientContact extends DatabaseEntity
 {
     public $classname = "clientContact";
+
     public $data_table = "clientContact";
+
     public $display_field_name = "clientContactName";
+
     public $key_field = "clientContactID";
+
     public $data_fields = [
         "clientID",
         "clientContactName",
@@ -112,12 +116,15 @@ class clientContact extends DatabaseEntity
         if ($percent === 0) {
             return $personWithHighestSimilarity;
         }
+
         if (!$personWithHighestSimilarity) {
             return $personWithHighestSimilarity;
         }
+
         if ($highestSimilarityScore < $percent) {
             return $personWithHighestSimilarity;
         }
+
         return $personWithHighestSimilarity;
     }
 
@@ -142,6 +149,7 @@ class clientContact extends DatabaseEntity
                      ", $name, $clientID);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
+
         $row = $allocDatabase->row();
         return $row["clientContactID"];
     }
@@ -190,6 +198,7 @@ class clientContact extends DatabaseEntity
             );
             $allocDatabase->query($nullifyProjectClientContactIDQuery);
         }
+
         return parent::delete();
     }
 
@@ -215,7 +224,7 @@ class clientContact extends DatabaseEntity
 
         if ($email = $this->get_value("clientContactEmail")) {
             $name = $this->get_value("clientContactName", DST_HTML_DISPLAY);
-            $str .= "<a href='mailto:\"{$name}\" <{$email}>'>{$email}</a><br>";
+            $str .= sprintf('<a href=\'mailto:"%s" <%s>\'>%s</a><br>', $name, $email, $email);
         }
 
         return $str;
@@ -250,7 +259,7 @@ class clientContact extends DatabaseEntity
             $lastname = array_slice($name, -1);
             $lastname = $lastname[0];
 
-            $rest = implode(array_slice($name, 0, -1));
+            $rest = implode('', array_slice($name, 0, -1));
             print "N:" . $lastname . ";" . $rest . "\n";
             print "FN:" . $this->get_value("clientContactName") . "\n";
         }
@@ -260,12 +269,14 @@ class clientContact extends DatabaseEntity
                 print $label . ":" . $this->get_value($db) . "\n";
             }
         }
+
         if ($this->get_value("clientContactStreetAddress")) {
             print "ADR;HOME:;;" . $this->get_value("clientContactStreetAddress") . ";" .
                 $this->get_value("clientContactSuburb") . ";;" . // county or something
                 $this->get_value("clientContactPostcode") . ";" .
                 $this->get_value("clientContactCountry") . "\n";
         }
+
         print("END:VCARD\n");
     }
 
@@ -337,8 +348,9 @@ class clientContact extends DatabaseEntity
             if ($row["clientContactEmail"]) {
                 $email = Page::htmlentities($row["clientContactEmail"]);
                 $name = Page::htmlentities($row["clientContactName"]);
-                $row["clientContactEmail"] = "<a href=\"mailto:{$name} &lt;{$email}&gt;\">{$email}</a>";
+                $row["clientContactEmail"] = sprintf('<a href="mailto:%s &lt;%s&gt;">%s</a>', $name, $email, $email);
             }
+
             $rows[] = $row;
         }
 

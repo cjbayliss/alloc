@@ -30,6 +30,7 @@ function show_skill_classes()
             $skill_classes[$skill->get_value('skillClass')] = $skill->get_value('skillClass');
         }
     }
+
     $TPL["skill_classes"] = Page::select_options($skill_classes, $skill_class);
 }
 
@@ -45,6 +46,7 @@ function show_skills()
     if ($skill_class != "") {
         $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
     }
+
     $query .= " ORDER BY skillClass,skillName";
     $db->query($query);
     while ($db->next_record()) {
@@ -52,9 +54,11 @@ function show_skills()
         $skill->read_db_record($db);
         $skills[$skill->get_id()] = sprintf("%s - %s", $skill->get_value('skillClass'), $skill->get_value('skillName'));
     }
+
     if ($skill_class != "" && !in_array($skills[$talent], $skills)) {
         $talent = "";
     }
+
     $TPL["skills"] = Page::select_options($skills, $talent);
 }
 
@@ -78,6 +82,7 @@ function get_people_header()
     } else if ($skill_class) {
         $query .= unsafe_prepare(" AND skill.skillClass='%s'", $skill_class);
     }
+
     $query .= " GROUP BY username ORDER BY username";
     $db->query($query);
     while ($db->next_record()) {
@@ -108,6 +113,7 @@ function show_skill_expertise()
             $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
         }
     }
+
     $query .= " GROUP BY skillName ORDER BY skillClass,skillName";
     $db->query($query);
     while ($db->next_record()) {
@@ -119,11 +125,13 @@ function show_skill_expertise()
             if (!isset($people_header)) {
                 get_people_header();
             }
+
             $class_header = sprintf("<tr class=\"highlighted\">\n<th width=\"5%%\">%s&nbsp;&nbsp;&nbsp;</th>\n", $skill->get_value('skillClass', DST_HTML_DISPLAY));
             print $class_header . $people_header . "</tr>\n";
         }
+
         print sprintf("<tr>\n<th>%s</th>\n", $skill->get_value('skillName', DST_HTML_DISPLAY));
-        for ($i = 0; $i < count($people_ids); $i++) {
+        for ($i = 0; $i < count($people_ids); ++$i) {
             $db2 = new AllocDatabase();
             $query = "SELECT * FROM proficiency";
             $query .= unsafe_prepare(" WHERE skillID=%d AND personID=%d", $skill->get_id(), $people_ids[$i]);
@@ -141,6 +149,7 @@ function show_skill_expertise()
                 print "<td align=\"center\">-</td>\n";
             }
         }
+
         print "</tr>\n";
     }
 }

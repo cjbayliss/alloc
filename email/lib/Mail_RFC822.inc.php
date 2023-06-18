@@ -156,15 +156,19 @@ class Mail_RFC822
         if (isset($address)) {
             $this->address = $address;
         }
+
         if (isset($default_domain)) {
             $this->default_domain = $default_domain;
         }
+
         if (isset($nest_groups)) {
             $this->nestGroups = $nest_groups;
         }
+
         if (isset($validate)) {
             $this->validate = $validate;
         }
+
         if (isset($limit)) {
             $this->limit = $limit;
         }
@@ -192,15 +196,19 @@ class Mail_RFC822
         if (isset($address)) {
             $this->address = $address;
         }
+
         if (isset($default_domain)) {
             $this->default_domain = $default_domain;
         }
+
         if (isset($nest_groups)) {
             $this->nestGroups = $nest_groups;
         }
+
         if (isset($validate)) {
             $this->validate = $validate;
         }
+
         if (isset($limit)) {
             $this->limit = $limit;
         }
@@ -231,6 +239,7 @@ class Mail_RFC822
                 if ($this->error) {
                     alloc_error(print_r($this->error, 1));
                 }
+
                 // require_once 'PEAR.php';
                 // return PEAR::raiseError($this->error);
             }
@@ -289,7 +298,7 @@ class Mail_RFC822
             }
 
             // We must have a group at this point, so increase the counter:
-            $this->num_groups++;
+            ++$this->num_groups;
         }
 
         // $string now contains the first full address/group.
@@ -313,6 +322,7 @@ class Mail_RFC822
         if (strlen($address) > 0) {
             return $address;
         }
+
         return '';
 
         // If you got here then something's off
@@ -339,6 +349,7 @@ class Mail_RFC822
             $string2 = $this->_splitCheck($parts, ':');
             return ($string2 !== $string);
         }
+
         return false;
     }
 
@@ -354,7 +365,7 @@ class Mail_RFC822
     {
         $string = $parts[0];
 
-        for ($i = 0; $i < count($parts); $i++) {
+        for ($i = 0; $i < count($parts); ++$i) {
             if (
                 $this->_hasUnclosedQuotes($string)
                 || $this->_hasUnclosedBrackets($string, '<>')
@@ -390,7 +401,8 @@ class Mail_RFC822
         $string = trim($string);
         $iMax = strlen($string);
         $in_quote = false;
-        $i = $slashes = 0;
+        $i = 0;
+        $slashes = 0;
 
         for (; $i < $iMax; ++$i) {
             switch ($string[$i]) {
@@ -435,6 +447,7 @@ class Mail_RFC822
             $this->error = 'Invalid address spec. Unmatched quote or bracket (' . $chars . ')';
             return false;
         }
+
         return ($num_angle_start > $num_angle_end);
     }
 
@@ -450,10 +463,11 @@ class Mail_RFC822
     public function _hasUnclosedBracketsSub($string, &$num, $char)
     {
         $parts = explode($char, $string);
-        for ($i = 0; $i < count($parts); $i++) {
+        for ($i = 0; $i < count($parts); ++$i) {
             if (substr($parts[$i], -1) == '\\' || $this->_hasUnclosedQuotes($parts[$i])) {
-                $num--;
+                --$num;
             }
+
             if (isset($parts[$i + 1])) {
                 $parts[$i + 1] = $parts[$i] . $char . $parts[$i + 1];
             }
@@ -487,6 +501,7 @@ class Mail_RFC822
                 $this->error = 'Group name did not validate.';
                 return false;
             }
+
             // Don't include groups if we are not nesting
             // them. This avoids returning invalid addresses.
             if ($this->nestGroups) {
@@ -512,7 +527,7 @@ class Mail_RFC822
         // Check that $addresses is set, if address like this:
         // Groupname:;
         // Then errors were appearing.
-        if (!count($addresses)) {
+        if ($addresses === []) {
             // $this->error = 'Empty group.';
             return false;
         }
@@ -525,11 +540,12 @@ class Mail_RFC822
         //                         geezer@domain.com
         //                         geezer
         // ... or any other format valid by RFC 822.
-        for ($i = 0; $i < count($addresses); $i++) {
+        for ($i = 0; $i < count($addresses); ++$i) {
             if (!$this->validateMailbox($addresses[$i])) {
                 if (empty($this->error)) {
                     $this->error = 'Validation failed for: ' . $addresses[$i];
                 }
+
                 return false;
             }
         }
@@ -569,7 +585,7 @@ class Mail_RFC822
         $phrase_parts = [];
         while ((is_countable($parts) ? count($parts) : 0) > 0) {
             $phrase_parts[] = $this->_splitCheck($parts, ' ');
-            for ($i = 0; $i < $this->index + 1; $i++) {
+            for ($i = 0; $i < $this->index + 1; ++$i) {
                 array_shift($parts);
             }
         }
@@ -580,6 +596,7 @@ class Mail_RFC822
                 if (!$this->_validateQuotedString($phrase_part)) {
                     return false;
                 }
+
                 continue;
             }
 
@@ -684,7 +701,7 @@ class Mail_RFC822
         }
 
         foreach ($comments as $comment) {
-            $mailbox = str_replace("($comment)", '', $mailbox);
+            $mailbox = str_replace(sprintf('(%s)', $comment), '', $mailbox);
         }
 
         $mailbox = trim($mailbox);
@@ -828,9 +845,9 @@ class Mail_RFC822
         // Note the different use of $subdomains and $sub_domains
         $subdomains = explode('.', $domain);
 
-        while (count($subdomains) > 0) {
+        while ($subdomains !== []) {
             $sub_domains[] = $this->_splitCheck($subdomains, '.');
-            for ($i = 0; $i < $this->index + 1; $i++) {
+            for ($i = 0; $i < $this->index + 1; ++$i) {
                 array_shift($subdomains);
             }
         }
@@ -910,6 +927,7 @@ class Mail_RFC822
         if (($local_part = $this->_validateLocalPart($local_part)) === false) {
             return false;
         }
+
         if (($domain = $this->_validateDomain($domain)) === false) {
             return false;
         }
@@ -932,9 +950,9 @@ class Mail_RFC822
         $words = [];
 
         // Split the local_part into words.
-        while (count($parts) > 0) {
+        while ($parts !== []) {
             $words[] = $this->_splitCheck($parts, '.');
-            for ($i = 0; $i < $this->index + 1; $i++) {
+            for ($i = 0; $i < $this->index + 1; ++$i) {
                 array_shift($parts);
             }
         }
@@ -989,6 +1007,7 @@ class Mail_RFC822
         if (preg_match($regex, trim($data), $matches)) {
             return [$matches[1], $matches[2]];
         }
+
         return false;
     }
 }

@@ -38,6 +38,7 @@ function show_filter()
         $summary .= "\n" . $nbsp . $invoice->get_invoice_statii_payment_image($payment_status) . " " . $label;
         $nbsp = "&nbsp;&nbsp;";
     }
+
     $TPL["status_legend"] = $summary;
 
     include_template("templates/invoiceListFilterS.tpl");
@@ -50,6 +51,7 @@ $_FORM = $invoice->load_form_data($defaults);
 if (!$current_user->have_role("admin")) {
     $_FORM["personID"] = $current_user->get_id();
 }
+
 $TPL["invoiceListRows"] = invoice::get_list($_FORM);
 $TPL["_FORM"] = $_FORM;
 

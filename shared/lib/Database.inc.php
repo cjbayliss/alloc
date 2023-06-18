@@ -10,15 +10,25 @@ class Database
 {
 
     public $username;
+
     public $password;
+
     public $hostname;
+
     public $database;
+
     public $pdo;
+
     public $pdo_statement;
+
     public $row = [];
+
     public $pos;
+
     public $error;
+
     public static $started_transaction = false;
+
     public static $stop_doing_queries = false;
 
     public function __construct($username = "", $password = "", $hostname = "", $database = "")
@@ -42,11 +52,11 @@ class Database
     {
         if ($force || !isset($this->pdo)) {
             try {
-                $host = $this->hostname ? "host={$this->hostname};" : "";
-                $dbname = $this->database ? "dbname={$this->database};" : "";
+                $host = $this->hostname ? sprintf('host=%s;', $this->hostname) : "";
+                $dbname = $this->database ? sprintf('dbname=%s;', $this->database) : "";
 
                 $this->pdo = new PDO(
-                    "mysql:{$host}{$dbname}charset=UTF8",
+                    sprintf('mysql:%s%scharset=UTF8', $host, $dbname),
                     $this->username,
                     $this->password,
                     [
@@ -57,10 +67,11 @@ class Database
 
                 return true;
             } catch (PDOException $e) {
-                $this->error("Unable to connect to database: {$e->getMessage()}");
+                $this->error(sprintf('Unable to connect to database: %s', $e->getMessage()));
                 return false;
             }
         }
+
         return false;
     }
 
@@ -110,7 +121,7 @@ class Database
             $m = "Error: " . $msg;
         }
 
-        if ($m) {
+        if ($m !== null) {
             alloc_error($m);
         }
 
@@ -132,9 +143,11 @@ class Database
         if (is_numeric($str)) {
             return $str;
         }
+
         if (!isset($this->pdo)) {
             $this->connect();
         }
+
         $v = $this->pdo->quote($str);
         substr($v, -1) == "'" and $v = substr($v, 0, -1);
         substr($v, 0, 1) == "'" and $v = substr($v, 1);
@@ -169,12 +182,11 @@ class Database
         }
     }
 
-    public function query()
+    public function query(...$args)
     {
         $rtn = null;
         $current_user = &singleton("current_user");
         $this->connect();
-        $args = func_get_args();
         $query = $this->get_escaped_query_str($args);
 
         if ($query && !self::$stop_doing_queries) {
@@ -196,6 +208,7 @@ class Database
                 $this->error();
             }
         }
+
         return $rtn;
     }
 
@@ -236,6 +249,7 @@ class Database
                 } else {
                     $this->row = $pdo_statement->fetch($method, PDO::FETCH_ORI_NEXT);
                 }
+
                 return $this->row;
             }
         }
@@ -275,14 +289,17 @@ class Database
         if ($fields[$table]) {
             return $fields[$table];
         }
+
         $database = $this->database;
         if (strstr($table, ".")) {
             [$database, $table] = explode(".", $table);
         }
+
         $this->query("SHOW COLUMNS FROM " . $table);
         while ($row = $this->row()) {
             $fields[$table][] = $row["Field"];
         }
+
         $fields[$table] or $fields[$table] = [];
         return $fields[$table];
     }
@@ -294,12 +311,13 @@ class Database
             return $keys[$table];
         }
 
-        $this->query("SHOW KEYS FROM %s", $table);
+        $this->query(["SHOW KEYS FROM %s", $table]);
         while ($row = $this->row()) {
             if (!$row["Non_unique"]) {
                 $keys[$table][] = $row["Column_name"];
             }
         }
+
         return $keys[$table];
     }
 
@@ -313,9 +331,10 @@ class Database
             $row[$table_key] and $do_update = true;
             $keys[$table_key] = $row[$table_key];
         }
+
         $row = $this->unset_invalid_field_names($table, $row, $keys);
 
-        if ($do_update) {
+        if ($do_update !== null) {
             $q = sprintf(
                 "UPDATE %s SET %s WHERE %s",
                 $table,
@@ -326,6 +345,7 @@ class Database
             reset($keys);
             return current($keys);
         }
+
         $q = sprintf(
             "INSERT INTO %s (%s) VALUES (%s)",
             $table,
@@ -358,6 +378,7 @@ class Database
             $rtn .= $commar . $fieldname;
             $commar = ", ";
         }
+
         return $rtn;
     }
 
@@ -369,6 +390,7 @@ class Database
             $rtn .= $commar . $this->esc($value);
             $commar = ", ";
         }
+
         return $rtn;
     }
 
@@ -380,6 +402,7 @@ class Database
             $rtn .= $commar . " " . $fieldname . " = " . $this->esc($value);
             $commar = $glue;
         }
+
         return $rtn;
     }
 
@@ -393,13 +416,14 @@ class Database
                 unset($row[$field_name]);
             }
         }
+
         $row or $row = [];
         return $row;
     }
 
     public function get_escaped_query_str($args)
     {
-        return call_user_func_array("unsafe_prepare", $args);
+        return unsafe_prepare(...$args);
     }
 
     public function get_encoding()

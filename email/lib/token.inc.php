@@ -8,8 +8,11 @@
 class token extends DatabaseEntity
 {
     public $classname = "token";
+
     public $data_table = "token";
+
     public $key_field = "tokenID";
+
     public $data_fields = [
         "tokenHash",
         "tokenEntity",
@@ -32,7 +35,7 @@ class token extends DatabaseEntity
 
         $q = unsafe_prepare("SELECT * FROM token
                        WHERE tokenHash = '%s'
-                      $extra
+                      {$extra}
                      ", $hash);
         // echo "<br><br>".$q;
         $allocDatabase = new AllocDatabase();
@@ -53,6 +56,7 @@ class token extends DatabaseEntity
                 $tokenAction->set_id($this->get_value("tokenActionID"));
                 $tokenAction->select();
             }
+
             if ($this->get_value("tokenEntity")) {
                 $class = $this->get_value("tokenEntity");
                 $entity = new $class;
@@ -60,6 +64,7 @@ class token extends DatabaseEntity
                     $entity->set_id($this->get_value("tokenEntityID"));
                     $entity->select();
                 }
+
                 $method = $tokenAction->get_value("tokenActionMethod");
                 $this->increment_tokenUsed();
                 if ($entity->get_id()) {
@@ -67,6 +72,7 @@ class token extends DatabaseEntity
                 }
             }
         }
+
         return [false, false];
     }
 
@@ -103,6 +109,7 @@ class token extends DatabaseEntity
             $randval .= $this->get_hash_str();
             $randval = substr($randval, -8);
         }
+
         return $randval;
     }
 
@@ -148,6 +155,7 @@ class token extends DatabaseEntity
         while ($row = $allocDatabase->next_record()) {
             $rows[$row["tokenID"]] = $row;
         }
+
         return (array)$rows;
     }
 }

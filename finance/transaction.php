@@ -26,6 +26,7 @@ function add_tf($tfID, $options, $warningKey, $warningValue)
         $options[$tfID] = $tf->get_value("tfName");
         $TPL[$warningKey] = sprintf($warningValue, $tf->get_value("tfName"));
     }
+
     return $options;
 }
 
@@ -45,20 +46,21 @@ $invoice = $invoice_item->get_foreign_object("invoice");
 if (!$invoice->get_id()) {
     $invoice = $transaction->get_foreign_object("invoice");
 }
+
 $invoice->set_values();
 if ($invoice->get_id()) {
-    $TPL["invoice_link"] = "<a href=\"" . $TPL["url_alloc_invoice"] . "invoiceID=" . $invoice->get_id() . "\">#" . $invoice->get_value("invoiceNum");
+    $TPL["invoice_link"] = '<a href="' . $TPL["url_alloc_invoice"] . "invoiceID=" . $invoice->get_id() . '">#' . $invoice->get_value("invoiceNum");
     $TPL["invoice_link"] .= " " . $invoice->get_value("invoiceDateFrom") . " to " . $invoice->get_value("invoiceDateTo") . "</a>";
 }
 
 $expenseForm = $transaction->get_foreign_object("expenseForm");
 if ($expenseForm->get_id()) {
-    $TPL["expenseForm_link"] = "<a href=\"" . $TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id() . "\">#" . $expenseForm->get_id() . "</a>";
+    $TPL["expenseForm_link"] = '<a href="' . $TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id() . '">#' . $expenseForm->get_id() . "</a>";
 }
 
 $timeSheet = $transaction->get_foreign_object("timeSheet");
 if ($timeSheet->get_id()) {
-    $TPL["timeSheet_link"] = "<a href=\"" . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . "\">#" . $timeSheet->get_id() . "</a>";
+    $TPL["timeSheet_link"] = '<a href="' . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . '">#' . $timeSheet->get_id() . "</a>";
 }
 
 $transaction->set_values();

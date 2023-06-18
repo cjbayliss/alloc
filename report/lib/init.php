@@ -17,7 +17,9 @@ function has_report_perm()
         if ($current_user->have_role("admin")) {
             return true;
         }
+
         return (bool) $current_user->have_role("manage");
     }
+
     return false;
 }

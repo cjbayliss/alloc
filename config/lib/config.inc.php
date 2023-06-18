@@ -8,7 +8,9 @@
 class config extends DatabaseEntity
 {
     public $data_table = "config";
+
     public $key_field = "configID";
+
     public $data_fields = ["name", "value", "type"];
 
     public static function get_config_item($name = '', $anew = false)
@@ -18,6 +20,7 @@ class config extends DatabaseEntity
             $val = unserialize($table[$name]["value"]) or $val = [];
             return $val;
         }
+
         if ($table[$name]["type"] == "text") {
             $val = $table[$name]["value"];
             return $val;
@@ -40,6 +43,7 @@ class config extends DatabaseEntity
         if (file_exists(ALLOC_LOGO)) {
             return '<img src="' . $TPL["url_alloc_logo"] . 'type=small" alt="' . $table['companyName']['value'] . '" />';
         }
+
         return $table['companyName']['value'];
     }
 

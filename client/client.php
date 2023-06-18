@@ -40,6 +40,7 @@ function show_client_contacts()
 
     $database = new AllocDatabase();
     $database->query($clientContactsQuery);
+
     $buildHTML = [];
     while ($database->next_record()) {
         $clientContact = new clientContact();
@@ -106,10 +107,10 @@ function show_client_contacts()
             if (!empty($value) && $seconContactColumnField === 'clientContactEmail') {
                 $value = str_replace(['<', '>', '&lt;', '&gt;'], '', $value);
                 $contactName = $clientContact->get_value('clientContactName', DST_HTML_DISPLAY);
-                $mailto = rawurlencode($contactName ? "\"{$contactName}\" <{$value}>" : $value);
-                $generatedSecondColumnHTMLArray[] = "{$label}: <a href='mailto:{$mailto}'>{$value}</a>";
+                $mailto = rawurlencode($contactName ? sprintf('"%s" <%s>', $contactName, $value) : $value);
+                $generatedSecondColumnHTMLArray[] = sprintf("%s: <a href='mailto:%s'>%s</a>", $label, $mailto, $value);
             } else if (!empty($value)) {
-                $generatedSecondColumnHTMLArray[] = "{$label}: {$value}";
+                $generatedSecondColumnHTMLArray[] = sprintf('%s: %s', $label, $value);
             }
         }
 
@@ -162,6 +163,7 @@ function show_client_contacts()
         if ($clientContact->get_value("primaryContact")) {
             $TPL["primaryContact_checked"] = " checked";
         }
+
         if ($clientContact->get_value("clientContactActive")) {
             $TPL["clientContactActive_checked"] = " checked";
         }
@@ -208,7 +210,7 @@ function show_comments()
         ["commentTemplateType" => "client"]
     );
     $TPL["commentTemplateOptions"] =
-        "<option value=\"\">Comment Templates</option>{Page::select_options($ops)}";
+        sprintf('<option value="">Comment Templates</option>{Page::select_options(%s)}', $ops);
     include_template("../comment/templates/commentM.tpl");
 }
 
@@ -244,6 +246,7 @@ if ($_POST["save"]) {
     if (!$_POST["clientName"]) {
         alloc_error("Please enter a Client Name.");
     }
+
     $client->read_globals();
     $client->set_value("clientModifiedTime", date("Y-m-d"));
     $clientID = $client->get_id();
@@ -262,7 +265,7 @@ if ($_POST["save"]) {
     }
 } else if ($_POST["save_attachment"]) {
     move_attachment("client", $clientID);
-    alloc_redirect("{$TPL['url_alloc_client']}clientID={$clientID}&sbs_link=attachments");
+    alloc_redirect(sprintf('%sclientID=%s&sbs_link=attachments', $TPL['url_alloc_client'], $clientID));
 } else {
     if ($_GET["get_vcard"]) {
         $clientContact = new clientContact();
@@ -271,6 +274,7 @@ if ($_POST["save"]) {
         $clientContact->output_vcard();
         return;
     }
+
     if ($_POST["delete"]) {
         $client->read_globals();
         $client->delete();
@@ -279,6 +283,7 @@ if ($_POST["save"]) {
         $client->set_id($clientID);
         $client->select();
     }
+
     $client->set_values("client_");
 }
 
@@ -322,13 +327,13 @@ if (!$clientID) {
     $TPL["main_alloc_title"] = "New Client - " . APPLICATION_NAME;
     $TPL["clientSelfLink"] = "New Client";
 } else {
-    $TPL["main_alloc_title"] = "Client {$client->get_id()}: {$client->get_name()} - " . APPLICATION_NAME;
+    $TPL["main_alloc_title"] = sprintf('Client %s: %s - ', $client->get_id(), $client->get_name()) . APPLICATION_NAME;
     $TPL["clientSelfLink"] =
-        "<a href=\"{$client->get_url()}\">{$client->get_id()} {$client->get_name(["return" => "html"])}</a>";
+        sprintf('<a href="%s">%s %s</a>', $client->get_url(), $client->get_id(), $client->get_name(["return" => "html"]));
 }
 
 if ($current_user->have_role("admin")) {
-    $TPL["invoice_links"] .= "<a href=\"{$TPL['url_alloc_invoice']}clientID={$clientID}\">New Invoice</a>";
+    $TPL["invoice_links"] .= sprintf('<a href="%sclientID=%s">New Invoice</a>', $TPL['url_alloc_invoice'], $clientID);
 }
 
 $projectListOps = ["showProjectType" => true, "clientID" => $client->get_id()];

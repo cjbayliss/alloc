@@ -8,8 +8,11 @@
 class productSaleItem extends DatabaseEntity
 {
     public $classname = "productSaleItem";
+
     public $data_table = "productSaleItem";
+
     public $key_field = "productSaleItemID";
+
     public $data_fields = [
         "productID",
         "productSaleID",
@@ -22,6 +25,7 @@ class productSaleItem extends DatabaseEntity
         "quantity",
         "description",
     ];
+
     public function is_owner($ignored = null)
     {
         $productSale = $this->get_foreign_object("productSale");
@@ -60,6 +64,7 @@ class productSaleItem extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
+
         return transaction::get_actual_amount_used($rows);
     }
 
@@ -85,6 +90,7 @@ class productSaleItem extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
+
         return transaction::get_actual_amount_used($rows);
     }
 
@@ -116,6 +122,7 @@ class productSaleItem extends DatabaseEntity
         while ($row = $allocDatabase->row()) {
             $rows[] = $row;
         }
+
         return transaction::get_actual_amount_used($rows);
     }
 
@@ -134,6 +141,7 @@ class productSaleItem extends DatabaseEntity
             $transaction["saleTransactionType"] == "tax" and $tax += exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
             $transaction["saleTransactionType"] == "aCost" and $costs += exchangeRate::convert($transaction["currencyTypeID"], $transaction["amount"]);
         }
+
         $margin = $sellPrice - $costs;
         return $margin;
     }

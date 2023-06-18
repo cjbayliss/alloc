@@ -8,8 +8,11 @@
 class commentTemplate extends DatabaseEntity
 {
     public $data_table = "commentTemplate";
+
     public $display_field_name = "commentTemplateName";
+
     public $key_field = "commentTemplateID";
+
     public $data_fields = [
         "commentTemplateName",
         "commentTemplateText",
@@ -116,6 +119,7 @@ class commentTemplate extends DatabaseEntity
             } else {
                 $project->set_id($entityID);
             }
+
             $project->select();
             $swap["pn"] = $project->get_value("projectName");
             $swap["pi"] = $project->get_id();
@@ -129,6 +133,7 @@ class commentTemplate extends DatabaseEntity
             } else {
                 $client->set_id($entityID);
             }
+
             $client->select();
             $swap["li"] = $client->get_id();
             $swap["cc"] = $client->get_value("clientName");
@@ -155,6 +160,7 @@ class commentTemplate extends DatabaseEntity
         foreach ($swap as $k => $v) {
             $str = str_replace("%" . $k, $v, $str);
         }
+
         return $str;
     }
 }

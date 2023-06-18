@@ -24,7 +24,7 @@ $_GET["personID"] and $TPL["personID"] = $_GET["personID"];
 $step or $step = 1;
 
 if ($parentType == "general" && $step == 2) {
-    $step++;
+    ++$step;
     $parentID = "0";
 }
 
@@ -68,6 +68,7 @@ switch ($step) {
                                      AND projectStatus != 'Archived'
                                 ORDER BY projectName", $personID);
             }
+
             $db->query($query);
             while ($db->next_record()) {
                 $project = new project();
@@ -80,6 +81,7 @@ switch ($step) {
             } else {
                 $query = unsafe_prepare("SELECT * FROM task WHERE personID=%d ORDER BY taskName", $personID);
             }
+
             $db->query($query);
             while ($db->next_record()) {
                 $task = new Task();
@@ -89,6 +91,7 @@ switch ($step) {
                 }
             }
         }
+
         $TPL["parentType"] = $parentType;
         $TPL["parentNameOptions"] = Page::select_options($parent_names);
         include_template("templates/reminderSelectParentM.tpl");
@@ -120,20 +123,22 @@ switch ($step) {
         // link to parent
         if ($parentType == "client") {
             $TPL["return_address"] = $TPL["url_alloc_client"] . "clientID=" . $parentID;
-            $TPL["reminder_goto_parent"] = "<a href=\"" . $TPL["return_address"] . "\">Goto Client</a>";
+            $TPL["reminder_goto_parent"] = '<a href="' . $TPL["return_address"] . '">Goto Client</a>';
         } else if ($parentType == "project") {
             $TPL["return_address"] = $TPL["url_alloc_project"] . "projectID=" . $parentID;
-            $TPL["reminder_goto_parent"] = "<a href=\"" . $TPL["return_address"] . "\">Goto Project</a>";
+            $TPL["reminder_goto_parent"] = '<a href="' . $TPL["return_address"] . '">Goto Project</a>';
         } else if ($parentType == "task") {
             $TPL["return_address"] = $TPL["url_alloc_task"] . "taskID=" . $parentID;
-            $TPL["reminder_goto_parent"] = "<a href=\"" . $TPL["return_address"] . "\">Goto Task</a>";
+            $TPL["reminder_goto_parent"] = '<a href="' . $TPL["return_address"] . '">Goto Task</a>';
         }
+
         // recipients
         [$TPL["reminder_recipients"], $TPL["selected_recipients"]] = $reminder->get_recipient_options();
         $recipients_display = [];
         foreach ($TPL["selected_recipients"] as $recipient) {
             $recipients_display[] = $TPL["reminder_recipients"][$recipient];
         }
+
         $TPL['recipients_display'] = implode(", ", $recipients_display);
         // date/time
         $_GET["reminderTime"] && $reminder->set_value("reminderTime", $_GET["reminderTime"]);
@@ -171,6 +176,7 @@ switch ($step) {
                 $TPL["reminder_default_subject"] = commentTemplate::populate_string(config::get_config_item("emailSubject_reminderOther"), "");
             }
         }
+
         $TPL["reminder_default_content"] .= "\n" . $reminder->get_value('reminderContent');
         $TPL["parentType"] = $parentType;
         $TPL["parentID"] = $parentID;
@@ -181,12 +187,13 @@ switch ($step) {
 
         if ($reminder->get_value("reminderHash")) {
             $db = new AllocDatabase();
-            $r = $db->qr("SELECT tokenAction
+            $r = $db->qr(["SELECT tokenAction
                             FROM token
                        LEFT JOIN tokenAction ON token.tokenActionID = tokenAction.tokenActionID
-                           WHERE token.tokenHash = '%s'", $reminder->get_value("reminderHash"));
+                           WHERE token.tokenHash = '%s'", $reminder->get_value("reminderHash")]);
             $TPL["tokenName"] = $r["tokenAction"];
         }
+
         include_template("templates/reminderM.tpl");
         break;
 
@@ -198,9 +205,11 @@ switch ($step) {
             if ($_POST["reminder_hour"] == 12) {
                 $_POST["reminder_hour"] = 0;
             }
+
             if ($_POST["reminder_meridian"] == "pm") {
                 $_POST["reminder_hour"] += 12;
             }
+
             $reminder = new reminder();
 
             if (isset($_POST["reminder_update"])) {
@@ -230,9 +239,11 @@ switch ($step) {
                 if ($_POST["reminder_recuring_value"] == 0 && $_POST["reminder_recuring_interval"] && $_POST["reminder_recuring_interval"] != 'No') {
                     $_POST["reminder_recuring_value"] = 1;
                 }
+
                 $reminder->set_value('reminderRecuringInterval', $_POST["reminder_recuring_interval"]);
                 $reminder->set_value('reminderRecuringValue', $_POST["reminder_recuring_value"]);
             }
+
             $reminder->set_value('reminderAdvNoticeSent', '0');
             if (!$_POST["reminder_advnotice_value"]) {
                 $reminder->set_value('reminderAdvNoticeInterval', 'No');
@@ -241,6 +252,7 @@ switch ($step) {
                 $reminder->set_value('reminderAdvNoticeInterval', $_POST["reminder_advnotice_interval"]);
                 $reminder->set_value('reminderAdvNoticeValue', $_POST["reminder_advnotice_value"]);
             }
+
             $reminder->set_value('reminderSubject', $_POST["reminder_subject"]);
             $reminder->set_value('reminderContent', rtrim($_POST["reminder_content"]));
             $reminder->set_value('reminderActive', sprintf("%d", $_POST["reminderActive"]));

@@ -8,7 +8,9 @@
 class audit extends DatabaseEntity
 {
     public $data_table = "audit";
+
     public $key_field = "auditID";
+
     public $data_fields = [
         "auditID",
         "taskID",
@@ -52,7 +54,7 @@ class audit extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query("SELECT *
                       FROM audit
-                    $where_clause
+                    {$where_clause}
                   ORDER BY dateChanged");
 
         $items = [];

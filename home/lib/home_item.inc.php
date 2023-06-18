@@ -8,15 +8,23 @@
 class home_item
 {
     public $has_config;
+
     public $help_topic;
+
     public $library;
 
     public $label;
+
     public $module;
+
     public $name;
+
     public $print;
+
     public $seq;
+
     public $template;
+
     public $width = "standard";
 
     public function __construct($name, $label, $module, $template, $width = "standard", $seq = 0, $print = true)
