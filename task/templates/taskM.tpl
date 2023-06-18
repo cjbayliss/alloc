@@ -63,13 +63,14 @@ $(document).ready(function() {
 
 {if $task_taskID}
 {$first_div="hidden"}
-{Page::side_by_side_links(array("task"=>"Main"
+{Page::side_by_side_links($url_alloc_task."taskID=".$task_taskID,
+                          array("task"=>"Main"
                                ,"comments"=>"Comments"
                                ,"reminders"=>"Reminders"
                                ,"attachments"=>"Attachments"
                                ,"history"=>"History"
                                ,"sbsAll"=>"All")
-                          ,$url_alloc_task."taskID=".$task_taskID, false, $taskSelfLink)}
+                          , false, $taskSelfLink)}
 {/}
 
 

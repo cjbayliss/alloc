@@ -4,11 +4,11 @@
   </tr>
   <tr>
     <td colspan="6">
-      {Page::side_by_side_links(array("generic_ii"=>"Generic"
+      {Page::side_by_side_links($url_alloc_invoice."invoiceID=".$invoiceID,
+                                array("generic_ii"=>"Generic"
                                      ,"timeSheet_ii"=>"From Time Sheet"
                                      ,"expenseForm_ii"=>"From Expense Form"
-                                     ,"productSale_ii"=>"From Sale")
-                               ,$url_alloc_invoice."invoiceID=".$invoiceID)}    
+                                     ,"productSale_ii"=>"From Sale"))}    
     </td>
   </tr>
   <tr>

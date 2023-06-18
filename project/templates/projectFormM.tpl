@@ -76,7 +76,8 @@ function clickClientStatus(e) {
 
 {if defined("PROJECT_EXISTS")}
 {$first_div="hidden"}
-{Page::side_by_side_links(array("project"=>"Main"
+{Page::side_by_side_links($url_alloc_project."projectID=".$project_projectID,
+                          array("project"=>"Main"
                                ,"people"=>"People"
                                ,"commissions"=>"Commissions"
                                ,"comments"=>"Comments"
@@ -89,7 +90,7 @@ function clickClientStatus(e) {
                                ,"sales"=>"Sales"
                                ,"history"=>"History"
                                ,"sbsAll"=>"All")
-                          ,$url_alloc_project."projectID=".$project_projectID,null,$projectSelfLink)}
+                          ,null,$projectSelfLink)}
 {/}
 
 <div id="project" class="{$first_div}">

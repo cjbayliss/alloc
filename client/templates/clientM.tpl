@@ -16,7 +16,8 @@ $(document).ready(function() {
 
 {if check_optional_client_exists()}
 {$first_div="hidden"}
-{Page::side_by_side_links(array("client"=>"Main"
+{Page::side_by_side_links($url_alloc_client."clientID=".$client_clientID,
+                          array("client"=>"Main"
                                ,"reminders"=>"Reminders"
                                ,"comments"=>"Comments"
                                ,"attachments"=>"Attachments"
@@ -24,7 +25,7 @@ $(document).ready(function() {
                                ,"invoices"=>"Invoices"
                                ,"sales"=>"Sales"
                                ,"sbsAll"=>"All")
-                          ,$url_alloc_client."clientID=".$client_clientID,null,$clientSelfLink)}
+                          ,null,$clientSelfLink)}
 {/}
 
 {if parse_url($client_clientURL, PHP_URL_SCHEME) === null}

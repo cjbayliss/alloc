@@ -1,7 +1,8 @@
 {Page::header()}
 {Page::toolbar()}
 
-{Page::side_by_side_links(array("basic"=>"Basic Setup"
+{Page::side_by_side_links($url_alloc_config,
+                          array("basic"=>"Basic Setup"
                                ,"company_info"=>"Company Info"
                                ,"finance"=>"Finance"
                                ,"time_sheets"=>"Time Sheets"
@@ -9,7 +10,6 @@
                                ,"email_subject"=>"Email Subject Lines"
                                ,"rss"=>"RSS Feed"
                                ,"misc"=>"Miscellaneous")
-                          ,$url_alloc_config
                           ,true)}
 
 <div id="basic">

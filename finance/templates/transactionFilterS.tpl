@@ -2,9 +2,9 @@
       <table align="center" class="filter corner" style="display:table">
         <tr>
           <td colspan="6" class="center" style="padding-top:0px; padding-bottom:10px;">
-            {Page::side_by_side_links(array("simple_search"=>"Simple"
-                                           ,"advanced_search"=>"Advanced")
-                                     ,$url_alloc_transactionList."tfID=".$tfID)}
+            {Page::side_by_side_links($url_alloc_transactionList."tfID=".$tfID,
+                                      array("simple_search"=>"Simple"
+                                           ,"advanced_search"=>"Advanced"))}
           </td>
         </tr>
         <tr>
