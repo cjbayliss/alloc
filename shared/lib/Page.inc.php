@@ -334,9 +334,11 @@ class Page
         if (isset($ops["width"])) {
             $attrs["style"] .= "; width:" . $ops["width"];
         }
+
         if (isset($ops["class"])) {
             $attrs["class"] = $ops["class"];
         }
+
         if (isset($ops["tabindex"])) {
             $attrs["tabindex"] = $ops["tabindex"];
         }

@@ -487,15 +487,19 @@ class person extends DatabaseEntity
         if (isset($filter["username"])) {
             $sql[] = sprintf_implode("username = '%s'", $filter["username"]);
         }
+
         if (isset($filter["personActive"])) {
             $sql[] = sprintf_implode("personActive = %d", $filter["personActive"]);
         }
+
         if (isset($filter["firstName"])) {
             $sql[] = sprintf_implode("firstName = '%s'", $filter["firstName"]);
         }
+
         if (isset($filter["surname"])) {
             $sql[] = sprintf_implode("surname = '%s'", $filter["surname"]);
         }
+
         if (isset($filter["personID"])) {
             $sql[] = sprintf_implode("personID = %d", $filter["personID"]);
         }
@@ -735,9 +739,11 @@ class person extends DatabaseEntity
         if (isset($_FORM["showSkills"])) {
             $rtn["show_skills_checked"] = " checked";
         }
+
         if (isset($_FORM["showHours"])) {
             $rtn["show_hours_checked"] = " checked";
         }
+
         if (isset($_FORM["personActive"])) {
             $rtn["show_all_users_checked"] = " checked";
         }
