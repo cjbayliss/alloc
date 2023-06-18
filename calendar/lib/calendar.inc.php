@@ -263,15 +263,15 @@ class calendar
                 $d->set_links($this->get_link_new_task($date) . $this->get_link_new_reminder($date) . $this->get_link_new_absence($date));
 
                 // Tasks to be Started
-                $tasks_to_start[$date] || ($tasks_to_start[$date] = []);
+                $tasks_to_start[$date] ??= [];
                 foreach ($tasks_to_start[$date] as $t) {
-                    unset($extra);
+                    $extra = "";
                     $t["timeLimit"] && ($extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")");
                     $d->start_tasks[] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $t["taskID"] . '">' . Page::htmlentities($t["taskName"] . $extra) . "</a>";
                 }
 
                 // Tasks to be Completed
-                $tasks_to_complete[$date] || ($tasks_to_complete[$date] = []);
+                $tasks_to_complete[$date] ??= [];
                 foreach ($tasks_to_complete[$date] as $t) {
                     unset($extra);
                     $t["timeLimit"] && ($extra = " (" . sprintf("Limit %0.1fhrs", $t["timeLimit"]) . ")");
@@ -279,7 +279,7 @@ class calendar
                 }
 
                 // Reminders
-                $reminders[$date] || ($reminders[$date] = []);
+                $reminders[$date] ??= [];
                 foreach ($reminders[$date] as $r) {
 
                     unset($wrap_start, $wrap_end);
@@ -294,7 +294,7 @@ class calendar
                 }
 
                 // Absences
-                $absences[$date] || ($absences[$date] = []);
+                $absences[$date] ??= [];
                 foreach ($absences[$date] as $a) {
                     $d->absences[] = '<a href="' . $TPL["url_alloc_absence"] . 'absenceID=' . $a["absenceID"] . '&returnToParent=' . $this->rtp . '">' . person::get_fullname($a["personID"]) . ': ' . Page::htmlentities($a["absenceType"]) . '</a>';
                 }
