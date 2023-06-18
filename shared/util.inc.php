@@ -48,7 +48,7 @@ function get_timezone_array()
 function format_date($format = "Y/m/d", $date = "")
 {
 
-    $t = null;
+    $t = "::"; // IMPORTANT: explode expects at least this
     // If looks like this: 2003-07-07 21:37:01
     if (preg_match("/^[\d]{4}-[\d]{1,2}-[\d]{1,2} [\d]{2}:[\d]{2}:[\d]{2}$/", $date)) {
         [$d, $t] = explode(" ", $date);
@@ -118,6 +118,9 @@ function get_all_form_data($array = [], $defaults = [])
     // Load up $_FORM with $_GET and $_POST
     $_FORM = [];
     foreach ($array as $name) {
+        if (!isset($_FORM[$name])) {
+            break;
+        }
         if ($_FORM[$name] = $_POST[$name]) {
             continue;
         }
@@ -674,7 +677,7 @@ function alloc_error($str = "", $force = null)
 
     // Output a plain-text error suitable for logfiles and CLI
     if ($errors_format == "text" && ini_get('display_errors')) {
-        echo(strip_tags($str));
+        echo (strip_tags($str));
     }
 
     // Log the error message
@@ -796,7 +799,8 @@ function unsafe_prepare(...$args)
     // Trackdown poorly formulated queries
     $err = error_get_last();
     if (
-        $err["type"] !== 0
+        !empty($err)
+        && $err["type"] !== 0
         && $err["type"] == 2
         && in_str("sprintf", $err["message"])
     ) {
