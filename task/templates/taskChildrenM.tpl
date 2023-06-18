@@ -8,7 +8,7 @@
     </tr>
     <tr>
       <td>
-        {task::get_list_html($taskListRows,$taskListOptions)}
+        {Task::get_list_html($taskListRows,$taskListOptions)}
       </td>
     </tr>
 </table>

@@ -29,7 +29,7 @@
             <td class="top">{Page::calendar("fromDate",$_REQUEST["fromDate"]);}</td>
             <td class="top">{Page::calendar("toDate",$_REQUEST["toDate"]);}</td>
             <td class="top">
-              <select name="taskStatus[]" multiple="true">{Page::select_options(task::get_task_statii_array(), $_REQUEST["taskStatus"])}</select>
+              <select name="taskStatus[]" multiple="true">{Page::select_options(Task::get_task_statii_array(), $_REQUEST["taskStatus"])}</select>
             </td>
             <td class="top">
               Include Client Comments <input type="checkbox" name="clients" value="clients"{if $_REQUEST["clients"]} checked{/}>

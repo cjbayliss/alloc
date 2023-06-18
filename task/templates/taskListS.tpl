@@ -171,17 +171,17 @@
         <span class="hidden" id="timeBest_span"><input name="timeBest" type="text" size="5"></span>
         <span class="hidden" id="timeWorst_span"><input name="timeWorst" type="text" size="5"></span>
         <span class="hidden" id="timeExpected_span"><input name="timeExpected" type="text" size="5"></span>
-        <span class="hidden" id="priority_span"><select name="priority">{echo task::get_task_priority_dropdown(3)}</select></span>
+        <span class="hidden" id="priority_span"><select name="priority">{echo Task::get_task_priority_dropdown(3)}</select></span>
         <span class="hidden" id="taskTypeID_span"><select name="taskTypeID">{Page::select_options($taskType_array)}</select></span>
         <span class="hidden" id="projectIDAndParentTaskID_span">
           <select name="projectID" id="projectID" 
                   onChange="makeAjaxRequest('{$url_alloc_updateParentTasks}projectID='+$(this).val(),'parentTaskDropdown')">
             <option value="">
-            {echo task::get_project_options()}
+            {echo Task::get_project_options()}
           </select>
           <span style="display:inline" id="parentTaskDropdown"></span>
         </span>
-        <span class="hidden" id="taskStatus_span"><select name="taskStatus">{Page::select_options(task::get_task_statii_array(true))}</select></span>
+        <span class="hidden" id="taskStatus_span"><select name="taskStatus">{Page::select_options(Task::get_task_statii_array(true))}</select></span>
         <button type="submit" id="mass_update" name="mass_update" value="1" class="hidden save_button" style="margin-left:5px;text-transform:none !important;">Update Tasks<i class="icon-ok-sign"></i></button>
       </th>
     </tr>

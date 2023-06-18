@@ -28,7 +28,7 @@
   </tr>
   <tr>
     <td>
-      {task::get_list_html($taskListRows,$_FORM)}
+      {Task::get_list_html($taskListRows,$_FORM)}
     </td>
   </tr>
 </table>

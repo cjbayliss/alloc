@@ -52,7 +52,7 @@ $star_entities = [
         "label" => "Projects",
         "form"  => $project_defaults,
     ],
-    "task" => [
+    "Task" => [
         "label" => "Tasks",
         "form"  => $task_defaults,
     ],
