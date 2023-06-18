@@ -6,6 +6,7 @@
         "rector/rector": "^0.17.1"
     },
     "require": {
-        "matthewbdaly/zendsearch": "0.0.3"
+        "matthewbdaly/zendsearch": "0.0.3",
+        "rospdf/pdf-php": "^0.12.67"
     }
 }

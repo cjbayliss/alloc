@@ -1,6 +1,5 @@
 
-Copyright (C) 2006-2011 Alex Lance, Clancy Malcolm, Cyber IT Solutions
-Pty. Ltd.
+Copyright (C) Alex Lance, Clancy Malcolm, Cyber IT Solutions Pty. Ltd.
 
 This file is part of the allocPSA application <info@cyber.com.au>.
 
@@ -20,27 +19,21 @@ along with allocPSA. If not, see <http://www.gnu.org/licenses/>.
 
 allocPSA has been developed by:
 
-Clancy Malcolm
 Alex Lance 
 Andrew Harris
+Andrew MacKinlay
+Christopher Bayliss
+Clancy Malcolm
+Con Zymaris
+Dinis Lage
 Jeremy Chin
 Kate Alisha Lanyon
-Andrew MacKinlay
-Dinis Lage
-Con Zymaris
 Patrick Clearwater
-Christopher Bayliss
 
-and continues to thrive due to the support and development effort
-contributed by Cyber IT Solutions http://www.cyber.com.au
+and continues to thrive due to the support and development effort contributed by
+Cyber IT Solutions http://www.cyber.com.au
 
 And in addition contains code from the following projects:
-
-cpdf (public domain)
-Wayne Munro <pdf@ros.co.nz> http://www.ros.co.nz/pdf
-
-phpass (public domain)
-Solar Designer <solar at openwall.com> http://www.openwall.com/phpass/
 
 stupidtable (MIT)
 Joseph McCullough http://joequery.github.io/Stupid-Table-Plugin/
@@ -62,9 +55,6 @@ John Gruber
 
 jQuery File Tree Plugin (http://abeautifulsite.net/)
 Cory S.N. LaViska
-
-Zend Lucene Search (http://zend.com)
-Copyright (c) 2005-2010 Zend Technologies USA Inc.
 
 Tango Icon Set (http://tango.freedesktop.org/Tango_Icon_Library)
 Public Domain.
