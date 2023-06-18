@@ -16,7 +16,6 @@ function get_alloc_urls($TPL, $sess = false)
         "url_alloc_delDoc"                         => "shared/del_attachment.php",
         "url_alloc_exportDoc"                      => "shared/get_export.php",
         "url_alloc_getMimePart"                    => "shared/get_mime_part.php",
-        "url_alloc_patch"                          => "installation/patch.php",
         "url_alloc_menuSubmit"                     => "shared/menuSubmit.php",
         "url_alloc_logo"                           => "shared/logo.php",
         "url_alloc_star"                           => "shared/star.php",

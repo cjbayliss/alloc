@@ -55,7 +55,7 @@ define("DST_DATABASE", 1);  // For writing to a database
 define("DST_VARIABLE", 2);  // For use within the PHP script itself
 define("DST_HTML_DISPLAY", 4);  // For display to the user as non-editable HTML text
 
-// The list of all the modules that are enabled for this install of alloc
+// enabled modules for this alloc instance
 $moduleNames = [
     "shared",
     "home",
@@ -77,7 +77,6 @@ $moduleNames = [
     "report",
     "login",
     "services",
-    "installation",
     "help",
     "email",
     "sale",
@@ -129,7 +128,6 @@ $mainAllocTitle = explode("/", $_SERVER["SCRIPT_NAME"]);
 $TPL = [
     "url_alloc_index"        => SCRIPT_PATH . "index.php",
     "url_alloc_login"        => SCRIPT_PATH . "login/login.php",
-    "url_alloc_installation" => SCRIPT_PATH . "installation/install.php",
     "url_alloc_styles"       => ALLOC_MOD_DIR . "css/",
     "url_alloc_images"       => SCRIPT_PATH . "images/",
     "url_alloc_help"         => ALLOC_MOD_DIR . "help" . DIRECTORY_SEPARATOR,
