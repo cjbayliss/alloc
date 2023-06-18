@@ -5,13 +5,17 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+use ZendSearch\Lucene\Index;
+use ZendSearch\Lucene\Lucene;
+use ZendSearch\Lucene\Search\QueryParser;
+
 define("NO_REDIRECT", 1);
 require_once("../alloc.php");
 
-$index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/client');
-$index->setResultSetLimit(10);
+$index = new Index(ATTACHMENTS_DIR . 'search/client');
+Lucene::setResultSetLimit(10);
 $needle = "name:{$_GET['clientName']}";
-$query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
+$query = QueryParser::parse($needle);
 $matches = $index->find($needle);
 
 $result = null;

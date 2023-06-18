@@ -37,7 +37,6 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__ . '/time',
         __DIR__ . '/tools',
         __DIR__ . '/util',
-        __DIR__ . '/zend',
     ]);
 
     // register a single rule

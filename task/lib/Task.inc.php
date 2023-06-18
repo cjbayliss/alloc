@@ -5,6 +5,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+use ZendSearch\Lucene\Document;
+use ZendSearch\Lucene\Document\Field;
+
 define("PERM_PROJECT_READ_TASK_DETAIL", 256);
 
 class Task extends DatabaseEntity
@@ -1647,31 +1650,31 @@ class Task extends DatabaseEntity
             $projectShortName && $projectShortName != $projectName and $projectName .= " " . $projectShortName;
         }
 
-        $zendSearchLuceneDocument = new Zend_Search_Lucene_Document();
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('name', $this->get_value("taskName"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('project', $projectName, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('pid', $this->get_value("projectID"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('creator', $creator_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('closer', $closer_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('assignee', $person_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('manager', $manager_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('modifier', $taskModifiedUser_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('desc', $this->get_value("taskDescription"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('priority', $this->get_value("priority"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('limit', $this->get_value("timeLimit"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('best', $this->get_value("timeBest"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('worst', $this->get_value("timeWorst"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('expected', $this->get_value("timeExpected"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('type', $this->get_value("taskTypeID"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('status', $status, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateCreated', str_replace("-", "", $this->get_value("dateCreated")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateAssigned', str_replace("-", "", $this->get_value("dateAssigned")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateClosed', str_replace("-", "", $this->get_value("dateClosed")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTargetStart', str_replace("-", "", $this->get_value("dateTargetStart")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
+        $zendSearchLuceneDocument = new Document();
+        $zendSearchLuceneDocument->addField(Field::Keyword('id', $this->get_id()));
+        $zendSearchLuceneDocument->addField(Field::Text('name', $this->get_value("taskName"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('project', $projectName, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('pid', $this->get_value("projectID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('creator', $creator_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('closer', $closer_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('assignee', $person_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('manager', $manager_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('modifier', $taskModifiedUser_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('desc', $this->get_value("taskDescription"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('priority', $this->get_value("priority"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('limit', $this->get_value("timeLimit"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('best', $this->get_value("timeBest"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('worst', $this->get_value("timeWorst"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('expected', $this->get_value("timeExpected"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('type', $this->get_value("taskTypeID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('status', $status, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateCreated', str_replace("-", "", $this->get_value("dateCreated")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateAssigned', str_replace("-", "", $this->get_value("dateAssigned")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateClosed', str_replace("-", "", $this->get_value("dateClosed")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateTargetStart', str_replace("-", "", $this->get_value("dateTargetStart")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
         $index->addDocument($zendSearchLuceneDocument);
     }
 

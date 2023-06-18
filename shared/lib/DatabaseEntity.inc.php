@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+use ZendSearch\Lucene\Lucene;
+
 define("PERM_READ", 1);
 define("PERM_UPDATE", 2);
 define("PERM_DELETE", 4);
@@ -350,10 +352,10 @@ class DatabaseEntity
 
                 // Update the index right now
             } else {
-                $zendSearchLucene = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
-                $this->delete_search_index_doc($zendSearchLucene);
-                $this->update_search_index_doc($zendSearchLucene);
-                $zendSearchLucene->commit();
+                $searchIndex = Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
+                $this->delete_search_index_doc($searchIndex);
+                $this->update_search_index_doc($searchIndex);
+                $searchIndex->commit();
             }
         }
 

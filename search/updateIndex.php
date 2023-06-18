@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+use ZendSearch\Lucene\Lucene;
+
 define("NO_AUTH", true);
 define("IS_GOD", true);
 require_once("../alloc.php");
@@ -21,7 +23,7 @@ function echoo($str)
 
 foreach (["client", "comment", "item", "project", "task", "timeSheet"] as $i) {
     if (!is_dir(ATTACHMENTS_DIR . 'search/' . $i)) {
-        $index = Zend_Search_Lucene::create(ATTACHMENTS_DIR . 'search/' . $i);
+        $index = Lucene::create(ATTACHMENTS_DIR . 'search/' . $i);
         $index->commit();
     }
 }
@@ -50,7 +52,7 @@ while ($row = $db->row($q1)) {
 
         // start a new index
         echoo("New \$index: " . $row["entity"]);
-        $index = Zend_Search_Lucene::open(ATTACHMENTS_DIR . 'search/' . $row["entity"]);
+        $index = Lucene::open(ATTACHMENTS_DIR . 'search/' . $row["entity"]);
     }
 
     $current_index = $row["entity"];

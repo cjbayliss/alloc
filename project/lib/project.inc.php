@@ -5,6 +5,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+use ZendSearch\Lucene\Document;
+use ZendSearch\Lucene\Document\Field;
+
 define("PERM_PROJECT_VIEW_TASK_ALLOCS", 256);
 define("PERM_PROJECT_ADD_TASKS", 512);
 
@@ -803,22 +806,22 @@ class project extends DatabaseEntity
             $clientName = $client->get_name();
         }
 
-        $zendSearchLuceneDocument = new Zend_Search_Lucene_Document();
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('name', $projectName, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('desc', $this->get_value("projectComments"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('cid', $this->get_value("clientID"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('client', $clientName, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('modifier', $projectModifiedUser_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('type', $this->get_value("projectType"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTargetStart', str_replace("-", "", $this->get_value("dateTargetStart")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('status', $this->get_value("projectStatus"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('priority', $this->get_value("projectPriority"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('tf', $this->get_value("cost_centre_tfID"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('billed', $this->get_value("customerBilledDollars"), "utf-8"));
+        $zendSearchLuceneDocument = new Document();
+        $zendSearchLuceneDocument->addField(Field::Keyword('id', $this->get_id()));
+        $zendSearchLuceneDocument->addField(Field::Text('name', $projectName, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('desc', $this->get_value("projectComments"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('cid', $this->get_value("clientID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('client', $clientName, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('modifier', $projectModifiedUser_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('type', $this->get_value("projectType"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateTargetStart', str_replace("-", "", $this->get_value("dateTargetStart")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateTargetCompletion', str_replace("-", "", $this->get_value("dateTargetCompletion")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateStart', str_replace("-", "", $this->get_value("dateActualStart")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateCompletion', str_replace("-", "", $this->get_value("dateActualCompletion")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('status', $this->get_value("projectStatus"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('priority', $this->get_value("projectPriority"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('tf', $this->get_value("cost_centre_tfID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('billed', $this->get_value("customerBilledDollars"), "utf-8"));
         $index->addDocument($zendSearchLuceneDocument);
     }
 

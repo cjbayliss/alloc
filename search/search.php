@@ -5,6 +5,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+use ZendSearch\Lucene\Index;
+use ZendSearch\Lucene\Search\QueryParser;
+
 require_once("../alloc.php");
 
 function format_display_fields($str = "")
@@ -45,8 +48,8 @@ if ($search && $needle && $category == "search_projects") {
             alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $db->f("projectID"));
         }
     } else {
-        $index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/project');
-        $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
+        $index = new Index(ATTACHMENTS_DIR . 'search/project');
+        $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
         $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
@@ -84,8 +87,8 @@ if ($search && $needle && $category == "search_projects") {
             alloc_redirect($TPL["url_alloc_client"] . "clientID=" . $db->f("clientID"));
         }
     } else {
-        $index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/client');
-        $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
+        $index = new Index(ATTACHMENTS_DIR . 'search/client');
+        $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
         $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
@@ -132,8 +135,8 @@ if ($search && $needle && $category == "search_projects") {
             alloc_redirect($TPL["url_alloc_task"] . "taskID=" . $db->f("taskID"));
         }
     } else {
-        $index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/task');
-        $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
+        $index = new Index(ATTACHMENTS_DIR . 'search/task');
+        $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
         $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
@@ -173,8 +176,8 @@ if ($search && $needle && $category == "search_projects") {
         }
     } else {
         // open the index
-        $index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/item');
-        $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
+        $index = new Index(ATTACHMENTS_DIR . 'search/item');
+        $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
         $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
@@ -250,8 +253,8 @@ if ($search && $needle && $category == "search_projects") {
             alloc_redirect($TPL["url_alloc_timeSheet"] . "timeSheetID=" . $db->f("timeSheetID"));
         }
     } else {
-        $index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/timeSheet');
-        $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
+        $index = new Index(ATTACHMENTS_DIR . 'search/timeSheet');
+        $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
         $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;
@@ -293,8 +296,8 @@ if ($search && $needle && $category == "search_projects") {
             alloc_redirect($TPL["url_alloc_comment"] . "commentID=" . $db->f("commentID"));
         }
     } else {
-        $index = new Zend_Search_Lucene(ATTACHMENTS_DIR . 'search/comment');
-        $query = Zend_Search_Lucene_Search_QueryParser::parse($needle);
+        $index = new Index(ATTACHMENTS_DIR . 'search/comment');
+        $query = QueryParser::parse($needle);
         $hits = $index->find($needle);
         $TPL["index_count"] = $index->count();
         $TPL["hits_count"] = is_countable($hits) ? count($hits) : 0;

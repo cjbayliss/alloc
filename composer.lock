@@ -4,8 +4,58 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "902e56c899621f522963a80d2eb6625e",
-    "packages": [],
+    "content-hash": "d445e6afd15ac7f4f99d101539307157",
+    "packages": [
+        {
+            "name": "matthewbdaly/zendsearch",
+            "version": "0.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/matthewbdaly/ZendSearch.git",
+                "reference": "34d9dd608bd4cc81e20470b69761629741471e77"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/matthewbdaly/ZendSearch/zipball/34d9dd608bd4cc81e20470b69761629741471e77",
+                "reference": "34d9dd608bd4cc81e20470b69761629741471e77",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "replace": {
+                "zendframework/zendsearch": "2.*"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "^2.1",
+                "phpunit/phpunit": "^7.0",
+                "psy/psysh": "^0.9.9",
+                "rector/rector": "^0.4.12",
+                "squizlabs/php_codesniffer": "^3.4",
+                "vimeo/psalm": "^3.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "ZendSearch": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "A fork of zendframework/zendsearch, with some tweaks to make it work in PHP 7",
+            "keywords": [
+                "lucene",
+                "zf2"
+            ],
+            "support": {
+                "issues": "https://github.com/matthewbdaly/ZendSearch/issues",
+                "source": "https://github.com/matthewbdaly/ZendSearch/tree/0.0.3"
+            },
+            "time": "2019-09-28T11:03:49+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "composer/pcre",

@@ -9,6 +9,12 @@
 // requested_script.php -> alloc.php -> alloc_config.php -> more includes
 // -> back to requested_script.php
 
+require_once __DIR__ . '/vendor/autoload.php';
+use ZendSearch\Lucene\Analysis\Analyzer\Analyzer;
+use ZendSearch\Lucene\Analysis\Analyzer\Common\Utf8Num\CaseInsensitive;
+use ZendSearch\Lucene\Lucene;
+use ZendSearch\Lucene\Search\Query\Wildcard;
+
 function &singleton($name, $thing = null)
 {
     static $instances;
@@ -16,10 +22,6 @@ function &singleton($name, $thing = null)
     return $instances[$name];
 }
 
-ini_set(
-    'include_path',
-    ini_get('include_path') . PATH_SEPARATOR . __DIR__ . DIRECTORY_SEPARATOR . "zend"
-);
 singleton("errors_fatal", false);
 singleton("errors_format", "html");
 singleton("errors_logged", false);
@@ -28,11 +30,10 @@ singleton("errors_haltdb", false);
 
 // Set the charset for Zend Lucene search indexer
 // http://framework.zend.com/manual/en/zend.search.lucene.charset.html
-require_once("Zend" . DIRECTORY_SEPARATOR . "Search" . DIRECTORY_SEPARATOR . "Lucene.php");
-Zend_Search_Lucene_Analysis_Analyzer::setDefault(
-    new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive()
+Analyzer::setDefault(
+    new CaseInsensitive()
 );
-Zend_Search_Lucene_Search_Query_Wildcard::setMinPrefixLength(0);
+Wildcard::setMinPrefixLength(0);
 
 // Get the alloc directory
 $currentDirectory = trim(__DIR__);
@@ -224,7 +225,7 @@ if (!file_exists(ATTACHMENTS_DIR . "search/task")) {
         "timeSheet",
     ];
     foreach ($search_item_indexes as $i) {
-        $index = Zend_Search_Lucene::create(ATTACHMENTS_DIR . 'search' . DIRECTORY_SEPARATOR . $i);
+        $index = Lucene::create(ATTACHMENTS_DIR . 'search' . DIRECTORY_SEPARATOR . $i);
         $index->commit();
     }
 }

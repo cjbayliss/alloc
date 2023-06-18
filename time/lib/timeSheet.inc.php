@@ -5,6 +5,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+use ZendSearch\Lucene\Document;
+use ZendSearch\Lucene\Document\Field;
+
 define("PERM_TIME_APPROVE_TIMESHEETS", 256);
 define("PERM_TIME_INVOICE_TIMESHEETS", 512);
 
@@ -1403,20 +1406,21 @@ class timeSheet extends DatabaseEntity
             $br = "\n";
         }
 
-        $zendSearchLuceneDocument = new Zend_Search_Lucene_Document();
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Keyword('id', $this->get_id()));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('project', $projectName, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('pid', $this->get_value("projectID"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('creator', $person_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('desc', $desc, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('status', $this->get_value("status"), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('tf', $tf_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('manager', $manager_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('admin', $admin_field, "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateManager', str_replace("-", "", $this->get_value("dateSubmittedToManager")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateAdmin', str_replace("-", "", $this->get_value("dateSubmittedToAdmin")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateFrom', str_replace("-", "", $this->get_value("dateFrom")), "utf-8"));
-        $zendSearchLuceneDocument->addField(Zend_Search_Lucene_Field::Text('dateTo', str_replace("-", "", $this->get_value("dateTo")), "utf-8"));
+        // ZendSearch
+        $zendSearchLuceneDocument = new Document();
+        $zendSearchLuceneDocument->addField(Field::Keyword('id', $this->get_id()));
+        $zendSearchLuceneDocument->addField(Field::Text('project', $projectName, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('pid', $this->get_value("projectID"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('creator', $person_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('desc', $desc, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('status', $this->get_value("status"), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('tf', $tf_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('manager', $manager_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('admin', $admin_field, "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateManager', str_replace("-", "", $this->get_value("dateSubmittedToManager")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateAdmin', str_replace("-", "", $this->get_value("dateSubmittedToAdmin")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateFrom', str_replace("-", "", $this->get_value("dateFrom")), "utf-8"));
+        $zendSearchLuceneDocument->addField(Field::Text('dateTo', str_replace("-", "", $this->get_value("dateTo")), "utf-8"));
         $index->addDocument($zendSearchLuceneDocument);
     }
 

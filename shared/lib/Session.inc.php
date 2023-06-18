@@ -9,7 +9,7 @@ class Session
 {
 
     private $key;          // the unique key for the session
-    private $db;           // database object
+    private \AllocDatabase $db;           // database object
     private $session_data; // assoc array which holds all session data
     private $session_life; // number of seconds the session is alive for
     private $mode;         // whether to use get or cookies
