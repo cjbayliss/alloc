@@ -446,11 +446,10 @@ class DatabaseEntity
 
     public function read_array(&$array, $source_prefix = "", $source = SRC_VARIABLE)
     {
-
         // Data fields
         foreach ($this->data_fields as $field_index => $field) {
             $source_index = $source_prefix . $field->get_name();
-            $this->set_field_value($this->data_fields[$field_index], $array[$source_index], $source);
+            $this->set_field_value($this->data_fields[$field_index], $array[$source_index] ?? "", $source);
         }
 
         // Key field
@@ -800,9 +799,9 @@ class DatabaseEntity
 
         $q .= $extra;
 
-        if (is_object($this->data_fields[$this->data_table . "Sequence"])) {
+        if (!empty($this->data_fields[$this->data_table . "Sequence"]) && is_object($this->data_fields[$this->data_table . "Sequence"])) {
             $q .= " ORDER BY " . db_esc($this->data_table) . "Sequence";
-        } elseif (is_object($this->data_fields[$this->data_table . "Seq"])) {
+        } elseif (!empty($this->data_fields[$this->data_table . "Seq"]) && is_object($this->data_fields[$this->data_table . "Seq"])) {
             $q .= " ORDER BY " . db_esc($this->data_table) . "Seq";
         } elseif ($value != "*") {
             $q .= " ORDER BY " . db_esc($value);
