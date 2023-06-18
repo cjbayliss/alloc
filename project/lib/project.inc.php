@@ -656,7 +656,7 @@ class project extends DatabaseEntity
      * @param array ...$args
      * @return array
      */
-    public static function get_list(array $args = [])
+    public static function get_list(...$args)
     {
         return self::getFilteredProjectList(...$args);
     }
