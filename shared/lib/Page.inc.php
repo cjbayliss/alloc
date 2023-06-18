@@ -122,7 +122,7 @@ class Page
                 $x += 70;
                 $TPL["url"] = $arr["url"];
                 $TPL["name"] = $name;
-                unset($TPL["active"]);
+                $TPL["active"] = "";
                 if (preg_match("/" . str_replace("/", "\\/", $_SERVER["PHP_SELF"]) . "/", $url) || preg_match("/" . $arr["module"] . "/", $_SERVER["PHP_SELF"]) && !$done) {
                     $TPL["active"] = " active";
                     $done = true;

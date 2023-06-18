@@ -12,6 +12,8 @@ define("PERM_PERSON_WRITE_ROLES", 2048);
 
 class person extends DatabaseEntity
 {
+    public $currency;
+
     public $classname = "person";
 
     public $data_table = "person";
@@ -237,6 +239,8 @@ class person extends DatabaseEntity
         $firstName = $this->get_value("firstName");
         $surname = $this->get_value("surname");
         $username = $this->get_value("username");
+        $_FORM["format"] ??= "";
+        $_FORM["return"] ??= "";
 
         if ($_FORM["format"] == "nick") {
             $rtn = $username;
@@ -745,7 +749,7 @@ class person extends DatabaseEntity
     public function get_link($_FORM = []): string
     {
         global $TPL;
-        $_FORM["return"] || ($_FORM["return"] = "html");
+        $_FORM["return"] ??= "html";
         return '<a href="' . $TPL["url_alloc_person"] . "personID=" . $this->get_id() . '">' . $this->get_name($_FORM) . "</a>";
     }
 
