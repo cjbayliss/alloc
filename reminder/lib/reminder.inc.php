@@ -430,9 +430,8 @@ class reminder extends DatabaseEntity
         $name = $people[$this->get_effective_person_id()]["name"];
         if ($this->get_value("metaPerson") === null) {
             return $name;
-        } else {
-            return sprintf("%s (%s)", (new reminder())->get_metaperson_name($this->get_value("metaPerson")), $name);
         }
+        return sprintf("%s (%s)", (new reminder())->get_metaperson_name($this->get_value("metaPerson")), $name);
     }
 
     // gets the human-friendly name of the meta person (e.g. R_MP_TASK_ASSIGNEE to "Task assignee")

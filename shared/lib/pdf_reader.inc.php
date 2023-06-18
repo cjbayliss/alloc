@@ -38,16 +38,18 @@ class pdf_reader
         // decode the chunks
         foreach ($a_chunks as $a_chunk) {
             // Look at each chunk decide if we can decode it by looking at the contents of the filter
-            if (isset($a_chunk["data"])) {
-                // look at the filter to find out which encoding has been used
-                if (strpos($a_chunk["filter"], "FlateDecode") !== false) {
-                    // Use gzuncompress but supress error messages.
-                    $data = @gzuncompress($a_chunk["data"]);
-                    if (trim($data) != "") {
-                        // If we got data then attempt to extract it.
-                        $result_data .= ' ' . $this->ps2txt($data);
-                    }
-                }
+            if (!isset($a_chunk["data"])) {
+                continue;
+            }
+            // look at the filter to find out which encoding has been used
+            if (strpos($a_chunk["filter"], "FlateDecode") === false) {
+                continue;
+            }
+            // Use gzuncompress but supress error messages.
+            $data = @gzuncompress($a_chunk["data"]);
+            if (trim($data) != "") {
+                // If we got data then attempt to extract it.
+                $result_data .= ' ' . $this->ps2txt($data);
             }
         }
         /**
@@ -60,9 +62,8 @@ class pdf_reader
         // Return the data extracted from the document.
         if ($result_data == "") {
             return null;
-        } else {
-            return $result_data;
         }
+        return $result_data;
     }
 
     /**

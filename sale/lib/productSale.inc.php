@@ -59,9 +59,13 @@ class productSale extends DatabaseEntity
     public function is_owner($ignored = null)
     {
         $current_user = &singleton("current_user");
-        return !$this->get_id()
-            || $this->get_value("productSaleCreatedUser") == $current_user->get_id()
-            || $this->get_value("personID") == $current_user->get_id();
+        if (!$this->get_id()) {
+            return true;
+        }
+        if ($this->get_value("productSaleCreatedUser") == $current_user->get_id()) {
+            return true;
+        }
+        return $this->get_value("personID") == $current_user->get_id();
     }
 
     public function delete()
@@ -550,9 +554,8 @@ class productSale extends DatabaseEntity
         global $TPL;
         if (is_object($this)) {
             return "<a href=\"" . $TPL["url_alloc_productSale"] . "productSaleID=" . $this->get_id() . "\">" . $this->get_id() . "</a>";
-        } else {
-            return "<a href=\"" . $TPL["url_alloc_productSale"] . "productSaleID=" . $row["productSaleID"] . "\">" . $row["productSaleID"] . "</a>";
         }
+        return "<a href=\"" . $TPL["url_alloc_productSale"] . "productSaleID=" . $row["productSaleID"] . "\">" . $row["productSaleID"] . "</a>";
     }
 
     public static function get_statii()

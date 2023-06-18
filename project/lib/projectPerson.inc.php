@@ -26,14 +26,14 @@ class projectPerson extends DatabaseEntity
     public function is_owner($person = "")
     {
 
+        $project = null;
         if (!$this->get_id()) {
             return true;
-        } else {
-            $project = new project();
-            $project->set_id($this->get_value("projectID"));
-            $project->select();
-            return $project->is_owner($person);
         }
+        $project = new project();
+        $project->set_id($this->get_value("projectID"));
+        $project->select();
+        return $project->is_owner($person);
     }
 
     // This is a wrapper to simplify inserts into the projectPerson table using

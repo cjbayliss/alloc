@@ -62,10 +62,10 @@ class DatabaseField
         if ($dest == DST_DATABASE) {
             if ((isset($this->value) && (bool)strlen($this->value)) || $this->empty_to_null == false) {
                 return "'" . db_esc($this->value) . "'";
-            } else {
-                return "NULL";
             }
-        } else if ($dest == DST_HTML_DISPLAY) {
+            return "NULL";
+        }
+        if ($dest == DST_HTML_DISPLAY) {
             if ($this->type == "money" && (isset($this->value) && (bool)strlen($this->value))) {
                 $c = $parent->currency;
                 if ($this->currency && isset($parent->data_fields[$this->currency])) {
@@ -79,9 +79,8 @@ class DatabaseField
                 }
             }
             return Page::htmlentities($this->value);
-        } else {
-            return $this->value;
         }
+        return $this->value;
     }
 
     public function clear_value()
@@ -99,7 +98,8 @@ class DatabaseField
             }
             if (!$c) {
                 return "db_field::validate(): No currency specified for " . $parent->classname . "." . $this->name . " (currency:" . $c . ")";
-            } else if ($this->value != $parent->all_row_fields[$this->name]) {
+            }
+            if ($this->value != $parent->all_row_fields[$this->name]) {
                 $this->set_value(Page::money($c, $this->value, "%mi"));
             }
         }

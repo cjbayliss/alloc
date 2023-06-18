@@ -34,12 +34,10 @@ if (isset($_GET["id"]) && $file && !bad_filename($file)) {
             header('Content-Disposition: inline; filename="' . basename($file) . $forged_suffix . '"');
             fpassthru($fp);
             exit;
-        } else {
-            echo "File not found.";
-            exit;
         }
-    } else {
-        echo "Permission denied.";
+        echo "File not found.";
         exit;
     }
+    echo "Permission denied.";
+    exit;
 }

@@ -103,7 +103,13 @@ function check_optional_has_line_items()
 function check_optional_show_line_item_add()
 {
     global $expenseForm;
-    return (is_object($expenseForm) && $expenseForm->get_id() && $expenseForm->get_value("expenseFormFinalised") != 1);
+    if (!is_object($expenseForm)) {
+        return false;
+    }
+    if (!$expenseForm->get_id()) {
+        return false;
+    }
+    return $expenseForm->get_value("expenseFormFinalised") != 1;
 }
 
 if (!config::get_config_item("mainTfID")) {
@@ -232,62 +238,70 @@ if ($_POST["cancel"]) {
     } else {
         alloc_error("Unable to delete Expense Form");
     }
-} else if ($_POST["changeTransactionStatus"] == "pending") {
-    $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
-    $expenseForm->save();
-    $expenseForm->set_status("pending");
-    alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
-    exit();
-} else if ($_POST["changeTransactionStatus"] == "approved") {
-    $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
-    $expenseForm->save();
-    $expenseForm->set_status("approved");
-    alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
-    exit();
-} else if ($_POST["changeTransactionStatus"] == "rejected") {
-    $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
-    $expenseForm->save();
-    $expenseForm->set_status("rejected");
-    alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
-    exit();
-} else if ($_POST["save"]) {
-    $expenseForm->read_globals();
-    if ($expenseForm->get_value("reimbursementRequired") == 0 || $expenseForm->get_value("reimbursementRequired") == 1) {
-        $expenseForm->set_value("paymentMethod", "");
-    }
-    $expenseForm->set_value("seekClientReimbursement", $_POST["seekClientReimbursement"] ? 1 : 0);
-    $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
-    $expenseForm->save();
-    alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
-    exit();
-} else if ($_POST["finalise"]) {
-    $db = new AllocDatabase();
-    $hasItems = $db->qr("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseForm->get_id());
-    if (!$hasItems) {
-        alloc_error("Unable to submit expense form, no items have been added.");
+} else {
+    if ($_POST["changeTransactionStatus"] == "pending") {
+        $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
+        $expenseForm->save();
+        $expenseForm->set_status("pending");
         alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
         exit();
     }
-
-    $expenseForm->read_globals();
-    if ($expenseForm->get_value("reimbursementRequired") == 0 || $expenseForm->get_value("reimbursementRequired") == 1) {
-        $expenseForm->set_value("paymentMethod", "");
+    if ($_POST["changeTransactionStatus"] == "approved") {
+        $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
+        $expenseForm->save();
+        $expenseForm->set_status("approved");
+        alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
+        exit();
     }
-    $expenseForm->set_value("seekClientReimbursement", $_POST["seekClientReimbursement"] ? 1 : 0);
-    $expenseForm->set_value("expenseFormFinalised", 1);
-    $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
-    $expenseForm->save();
-    alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
-    exit();
-} else if ($_POST["unfinalise"]) {
-    $expenseForm->read_globals();
-    $expenseForm->set_value("expenseFormFinalised", 0);
-    $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
-    $expenseForm->save();
-    alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
-    exit();
-} else if ($_POST["attach_transactions_to_invoice"] && $current_user->have_role("admin")) {
-    $expenseForm->save_to_invoice($_POST["attach_to_invoiceID"]);
+    if ($_POST["changeTransactionStatus"] == "rejected") {
+        $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
+        $expenseForm->save();
+        $expenseForm->set_status("rejected");
+        alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
+        exit();
+    }
+    if ($_POST["save"]) {
+        $expenseForm->read_globals();
+        if ($expenseForm->get_value("reimbursementRequired") == 0 || $expenseForm->get_value("reimbursementRequired") == 1) {
+            $expenseForm->set_value("paymentMethod", "");
+        }
+        $expenseForm->set_value("seekClientReimbursement", $_POST["seekClientReimbursement"] ? 1 : 0);
+        $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
+        $expenseForm->save();
+        alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
+        exit();
+    }
+    if ($_POST["finalise"]) {
+        $db = new AllocDatabase();
+        $hasItems = $db->qr("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseForm->get_id());
+        if (!$hasItems) {
+            alloc_error("Unable to submit expense form, no items have been added.");
+            alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
+            exit();
+        }
+    
+        $expenseForm->read_globals();
+        if ($expenseForm->get_value("reimbursementRequired") == 0 || $expenseForm->get_value("reimbursementRequired") == 1) {
+            $expenseForm->set_value("paymentMethod", "");
+        }
+        $expenseForm->set_value("seekClientReimbursement", $_POST["seekClientReimbursement"] ? 1 : 0);
+        $expenseForm->set_value("expenseFormFinalised", 1);
+        $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
+        $expenseForm->save();
+        alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
+        exit();
+    }
+    if ($_POST["unfinalise"]) {
+        $expenseForm->read_globals();
+        $expenseForm->set_value("expenseFormFinalised", 0);
+        $expenseForm->set_value("expenseFormComment", rtrim($expenseForm->get_value("expenseFormComment")));
+        $expenseForm->save();
+        alloc_redirect($TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id());
+        exit();
+    }
+    if ($_POST["attach_transactions_to_invoice"] && $current_user->have_role("admin")) {
+        $expenseForm->save_to_invoice($_POST["attach_to_invoiceID"]);
+    }
 }
 
 if (is_object($expenseForm) && $expenseForm->get_value("expenseFormFinalised") && $current_user->get_id() == $expenseForm->get_value("expenseFormCreatedUser")) {

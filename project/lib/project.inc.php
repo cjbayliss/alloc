@@ -172,9 +172,8 @@ class project extends DatabaseEntity
 
         if ($_FORM["return"] == "html") {
             return $this->get_value($field, DST_HTML_DISPLAY);
-        } else {
-            return $this->get_value($field);
         }
+        return $this->get_value($field);
     }
 
     public function is_owner($person = "")

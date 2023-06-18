@@ -96,7 +96,8 @@ class DatabaseEntity
 
         if (isset($permission_cache[$table_cache_key])) {
             return $permission_cache[$table_cache_key];
-        } else if (isset($permission_cache[$record_cache_key])) {
+        }
+        if (isset($permission_cache[$record_cache_key])) {
             return $permission_cache[$record_cache_key];
         }
 
@@ -315,7 +316,8 @@ class DatabaseEntity
     {
         if (!$this->has_key_values()) {
             return true;
-        } else if ($this->key_field->has_value() && $this->key_field->get_name() && $this->key_field->get_value()) {
+        }
+        if ($this->key_field->has_value() && $this->key_field->get_name() && $this->key_field->get_value()) {
             $db = $this->get_db();
             $row = $db->qr("SELECT " . db_esc($this->key_field->get_name()) . "
                               FROM " . db_esc($this->data_table) . "
@@ -332,7 +334,8 @@ class DatabaseEntity
         if (is_array($error) && count($error)) {
             alloc_error(implode(" ", $error));
             return false;
-        } else if (strlen($error) && $error) {
+        }
+        if (strlen($error) && $error) {
             alloc_error($error);
             return false;
         }
@@ -342,23 +345,31 @@ class DatabaseEntity
         } else {
             $rtn = $this->update();
         }
-
         // Update the search index for this entity, if any
-        if ($rtn && $this->get_id() && $this->classname && is_dir(ATTACHMENTS_DIR . 'search/' . $this->classname)) {
-            // Update the index asynchronously (later from a job running search/updateIndex.php)
-            if ($this->updateSearchIndexLater) {
-                $db = $this->get_db();
-                $db->query("call update_search_index('%s',%d)", $this->classname, $this->get_id());
-
-                // Update the index right now
-            } else {
-                $searchIndex = Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
-                $this->delete_search_index_doc($searchIndex);
-                $this->update_search_index_doc($searchIndex);
-                $searchIndex->commit();
-            }
+        if (!$rtn) {
+            return $rtn;
         }
+        if (!$this->get_id()) {
+            return $rtn;
+        }
+        if (!$this->classname) {
+            return $rtn;
+        }
+        if (!is_dir(ATTACHMENTS_DIR . 'search/' . $this->classname)) {
+            return $rtn;
+        }
+        // Update the index asynchronously (later from a job running search/updateIndex.php)
+        if ($this->updateSearchIndexLater) {
+            $db = $this->get_db();
+            $db->query("call update_search_index('%s',%d)", $this->classname, $this->get_id());
 
+            // Update the index right now
+        } else {
+            $searchIndex = Lucene::open(ATTACHMENTS_DIR . 'search/' . $this->classname);
+            $this->delete_search_index_doc($searchIndex);
+            $this->update_search_index_doc($searchIndex);
+            $searchIndex->commit();
+        }
         return $rtn;
     }
 
@@ -375,9 +386,13 @@ class DatabaseEntity
         }
 
         $message = implode(" ", $message);
-        if ($message && preg_match("/[a-zA-Z0-9]+/", $message)) {
-            return $message;
+        if (!$message) {
+            return;
         }
+        if (!preg_match("/[a-zA-Z0-9]+/", $message)) {
+            return;
+        }
+        return $message;
     }
 
     public function set_field_value(&$field, $value, $source = SRC_VARIABLE)
@@ -567,19 +582,20 @@ class DatabaseEntity
                 }
             }
             return $this->get_value($this->display_field_name, $dst);
-        } else {
-            return "#" . $this->get_id();
         }
+        return "#" . $this->get_id();
     }
 
     public function can_read_field($field_name)
     {
         $field = $this->data_fields[$field_name];
-        if (is_object($field) && $field->read_perm_name) {
-            return $this->have_perm($field->read_perm_name);
-        } else {
+        if (!is_object($field)) {
             return true;
         }
+        if (!$field->read_perm_name) {
+            return true;
+        }
+        return $this->have_perm($field->read_perm_name);
     }
 
     public function can_write_field($field)
@@ -594,15 +610,19 @@ class DatabaseEntity
     {
         $current_user = &singleton("current_user");
         $person or $person = $current_user;
-        if (is_object($person) && $person->classname == "person") {
-            if (isset($this->data_fields["personID"])) {
-                return $this->get_value("personID") == $person->get_id();
-            } else if ($this->key_field->get_name() == "personID") {
-                return $this->get_id() == $person->get_id();
-            } else {
-                echo "Warning: could not determine owner for " . $this->data_table . "<br>";
-            }
+        if (!is_object($person)) {
+            return;
         }
+        if ($person->classname != "person") {
+            return;
+        }
+        if (isset($this->data_fields["personID"])) {
+            return $this->get_value("personID") == $person->get_id();
+        }
+        if ($this->key_field->get_name() == "personID") {
+            return $this->get_id() == $person->get_id();
+        }
+        echo "Warning: could not determine owner for " . $this->data_table . "<br>";
     }
 
     public function clear()

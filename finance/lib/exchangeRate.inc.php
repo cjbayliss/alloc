@@ -80,9 +80,8 @@ class exchangeRate extends DatabaseEntity
             $exchangeRate->set_value("exchangeRate", $rate);
             $exchangeRate->save();
             return $from . " -> " . $to . ":" . $rate . " ";
-        } else {
-            echo date("Y-m-d H:i:s") . "Unable to obtain exchange rate information for " . $from . " to " . $to . "!";
         }
+        echo date("Y-m-d H:i:s") . "Unable to obtain exchange rate information for " . $from . " to " . $to . "!";
     }
 
     public static function download()

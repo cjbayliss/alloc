@@ -17,7 +17,8 @@ class config extends DatabaseEntity
         if ($table[$name]["type"] == "array") {
             $val = unserialize($table[$name]["value"]) or $val = [];
             return $val;
-        } else if ($table[$name]["type"] == "text") {
+        }
+        if ($table[$name]["type"] == "text") {
             $val = $table[$name]["value"];
             return $val;
         }
@@ -37,11 +38,9 @@ class config extends DatabaseEntity
         $table = &get_cached_table("config", $anew);
         $val = '';
         if (file_exists(ALLOC_LOGO)) {
-            $val = '<img src="' . $TPL["url_alloc_logo"] . 'type=small" alt="' . $table['companyName']['value'] . '" />';
-        } else {
-            $val = $table['companyName']['value'];
+            return '<img src="' . $TPL["url_alloc_logo"] . 'type=small" alt="' . $table['companyName']['value'] . '" />';
         }
-        return $val;
+        return $table['companyName']['value'];
     }
 
     public static function for_cyber()

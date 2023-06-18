@@ -411,9 +411,13 @@ class InterestedParty extends DatabaseEntity
     {
         $ips = InterestedParty::get_interested_parties($entity, $entityID);
         foreach ($ips as $email => $info) {
-            if ($info["external"] && $info["selected"]) {
-                return true;
+            if (!$info["external"]) {
+                continue;
             }
+            if (!$info["selected"]) {
+                continue;
+            }
+            return true;
         }
     }
 

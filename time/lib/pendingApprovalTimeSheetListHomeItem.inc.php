@@ -23,7 +23,13 @@ class pendingApprovalTimeSheetListHomeItem extends home_item
     public function visible()
     {
         $current_user = &singleton("current_user");
-        return (isset($current_user) && $current_user->is_employee() && has_pending_timesheet());
+        if (!isset($current_user)) {
+            return false;
+        }
+        if (!$current_user->is_employee()) {
+            return false;
+        }
+        return (bool) has_pending_timesheet();
     }
 
     public function render()

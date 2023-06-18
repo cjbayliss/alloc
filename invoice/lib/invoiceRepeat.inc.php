@@ -51,7 +51,7 @@ class invoiceRepeat extends DatabaseEntity
         }
 
         if (is_object($this) && $this->get_id()) {
-            $interestedPartyOptions = InterestedParty::get_interested_parties("invoiceRepeat", $this->get_id(), $interestedPartyOptions);
+            return InterestedParty::get_interested_parties("invoiceRepeat", $this->get_id(), $interestedPartyOptions);
         }
         return $interestedPartyOptions;
     }

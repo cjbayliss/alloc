@@ -2393,6 +2393,10 @@ class Cpdf
     */
     public function addTextWrap($x, $y, $width, $size, $text, $justification = 'left', $angle = 0, $test = 0)
     {
+        $ctmp = null;
+        $tmp = null;
+        $tmpw = null;
+        $adjust = null;
         // this will display the text, and if it goes beyond the width $width, will backtrack to the
         // previous space or hyphen, and return the remainder of the text.
 
@@ -2455,24 +2459,23 @@ class Cpdf
                             $this->addText($x, $y, $size, $tmp, $angle, $adjust);
                         }
                         return substr($text, $break + 1);
-                    } else {
-                        // just split before the current character
-                        $tmp = substr($text, 0, $i);
-                        $adjust = 0;
-                        $ctmp = ord($text[$i]);
-                        if (isset($this->fonts[$cf]['differences'][$ctmp])) {
-                            $ctmp = $this->fonts[$cf]['differences'][$ctmp];
-                        }
-                        $tmpw = ($w - $this->fonts[$cf]['C'][$ctmp]['WX']) * $size / 1000;
-                        $this->PRVTadjustWrapText($tmp, $tmpw, $width, $x, $adjust, $justification);
-                        // reset the text state
-                        $this->currentTextState = $store_currentTextState;
-                        $this->setCurrentFont();
-                        if (!$test) {
-                            $this->addText($x, $y, $size, $tmp, $angle, $adjust);
-                        }
-                        return substr($text, $i);
                     }
+                    // just split before the current character
+                    $tmp = substr($text, 0, $i);
+                    $adjust = 0;
+                    $ctmp = ord($text[$i]);
+                    if (isset($this->fonts[$cf]['differences'][$ctmp])) {
+                        $ctmp = $this->fonts[$cf]['differences'][$ctmp];
+                    }
+                    $tmpw = ($w - $this->fonts[$cf]['C'][$ctmp]['WX']) * $size / 1000;
+                    $this->PRVTadjustWrapText($tmp, $tmpw, $width, $x, $adjust, $justification);
+                    // reset the text state
+                    $this->currentTextState = $store_currentTextState;
+                    $this->setCurrentFont();
+                    if (!$test) {
+                        $this->addText($x, $y, $size, $tmp, $angle, $adjust);
+                    }
+                    return substr($text, $i);
                 }
                 if ($text[$i] == '-') {
                     $break = $i;
@@ -2612,45 +2615,49 @@ class Cpdf
     public function addObject($id, $options = 'add')
     {
         // add the specified object to the page
-        if (isset($this->looseObjects[$id]) && $this->currentContents != $id) {
-            // then it is a valid object, and it is not being added to itself
-            switch($options) {
-                case 'all':
-                    // then this object is to be added to this page (done in the next block) and
-                    // all future new pages.
-                    $this->addLooseObjects[$id] = 'all';
-                    // no break
-                case 'add':
-                    if (isset($this->objects[$this->currentContents]['onPage'])) {
-                        // then the destination contents is the primary for the page
-                        // (though this object is actually added to that page)
-                        $this->o_page($this->objects[$this->currentContents]['onPage'], 'content', $id);
-                    }
-                    break;
-                case 'even':
-                    $this->addLooseObjects[$id] = 'even';
-                    $pageObjectId = $this->objects[$this->currentContents]['onPage'];
-                    if ($this->objects[$pageObjectId]['info']['pageNum'] % 2 == 0) {
-                        $this->addObject($id); // hacky huh :)
-                    }
-                    break;
-                case 'odd':
-                    $this->addLooseObjects[$id] = 'odd';
-                    $pageObjectId = $this->objects[$this->currentContents]['onPage'];
-                    if ($this->objects[$pageObjectId]['info']['pageNum'] % 2 == 1) {
-                        $this->addObject($id); // hacky huh :)
-                    }
-                    break;
-                case 'next':
-                    $this->addLooseObjects[$id] = 'all';
-                    break;
-                case 'nexteven':
-                    $this->addLooseObjects[$id] = 'even';
-                    break;
-                case 'nextodd':
-                    $this->addLooseObjects[$id] = 'odd';
-                    break;
-            }
+        if (!isset($this->looseObjects[$id])) {
+            return;
+        }
+        if ($this->currentContents == $id) {
+            return;
+        }
+        // then it is a valid object, and it is not being added to itself
+        switch($options) {
+            case 'all':
+                // then this object is to be added to this page (done in the next block) and
+                // all future new pages.
+                $this->addLooseObjects[$id] = 'all';
+                // no break
+            case 'add':
+                if (isset($this->objects[$this->currentContents]['onPage'])) {
+                    // then the destination contents is the primary for the page
+                    // (though this object is actually added to that page)
+                    $this->o_page($this->objects[$this->currentContents]['onPage'], 'content', $id);
+                }
+                break;
+            case 'even':
+                $this->addLooseObjects[$id] = 'even';
+                $pageObjectId = $this->objects[$this->currentContents]['onPage'];
+                if ($this->objects[$pageObjectId]['info']['pageNum'] % 2 == 0) {
+                    $this->addObject($id); // hacky huh :)
+                }
+                break;
+            case 'odd':
+                $this->addLooseObjects[$id] = 'odd';
+                $pageObjectId = $this->objects[$this->currentContents]['onPage'];
+                if ($this->objects[$pageObjectId]['info']['pageNum'] % 2 == 1) {
+                    $this->addObject($id); // hacky huh :)
+                }
+                break;
+            case 'next':
+                $this->addLooseObjects[$id] = 'all';
+                break;
+            case 'nexteven':
+                $this->addLooseObjects[$id] = 'even';
+                break;
+            case 'nextodd':
+                $this->addLooseObjects[$id] = 'odd';
+                break;
         }
     }
 

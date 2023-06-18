@@ -31,8 +31,7 @@ if (isset($_GET["id"]) && $_GET["part"]) {
         header('Content-Disposition: inline; filename="' . basename($filename) . '"');
         echo $thing;
         exit;
-    } else {
-        echo "Permission denied.";
-        exit;
     }
+    echo "Permission denied.";
+    exit;
 }

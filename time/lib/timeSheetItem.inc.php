@@ -310,10 +310,13 @@ class timeSheetItem extends DatabaseEntity
 
             $rows[$row["timeSheetItemID"]] = $row;
         }
-
-        if ($print && $_FORM["return"] == "array") {
-            return $rows;
+        if (!$print) {
+            return;
         }
+        if ($_FORM["return"] != "array") {
+            return;
+        }
+        return $rows;
     }
 
     public function get_list_vars()

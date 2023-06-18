@@ -14,7 +14,10 @@ function has_report_perm()
 {
     $current_user = &singleton("current_user");
     if (is_object($current_user)) {
-        return $current_user->have_role("admin") || $current_user->have_role("manage");
+        if ($current_user->have_role("admin")) {
+            return true;
+        }
+        return (bool) $current_user->have_role("manage");
     }
     return false;
 }

@@ -75,9 +75,8 @@ class product extends DatabaseEntity
         global $TPL;
         if (is_object($this)) {
             return "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $this->get_id() . "\">" . $this->get_value("productName", DST_HTML_DISPLAY) . "</a>";
-        } else {
-            return "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $row["productID"] . "\">" . Page::htmlentities($row["productName"]) . "</a>";
         }
+        return "<a href=\"" . $TPL["url_alloc_product"] . "productID=" . $row["productID"] . "\">" . Page::htmlentities($row["productName"]) . "</a>";
     }
 
     public function get_list_vars()

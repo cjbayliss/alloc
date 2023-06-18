@@ -1356,9 +1356,8 @@ class Cezpdf extends Cpdf
         if ($test) {
             $this->y = $store_y;
             return $newPage;
-        } else {
-            return $this->y;
         }
+        return $this->y;
     }
 
     // ------------------------------------------------------------------------------

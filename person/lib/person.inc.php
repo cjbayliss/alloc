@@ -152,9 +152,8 @@ class person extends DatabaseEntity
 
         if (in_array("employee", $permissions)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     public function check_employee()
@@ -242,9 +241,8 @@ class person extends DatabaseEntity
 
         if ($_FORM["return"] == "html") {
             return Page::htmlentities($rtn);
-        } else {
-            return $rtn;
         }
+        return $rtn;
     }
 
     public function get_tfIDs()
@@ -373,10 +371,13 @@ class person extends DatabaseEntity
         asort($stack1);
         $probable1_personID = array_key_last($stack1);
         $person_percent1 = current($stack1);
-
-        if ($probable1_personID && $person_percent1 >= $certainty) {
-            return $probable1_personID;
+        if (!$probable1_personID) {
+            return;
         }
+        if ($person_percent1 < $certainty) {
+            return;
+        }
+        return $probable1_personID;
     }
 
     public function find_by_email($email = false)
@@ -384,9 +385,13 @@ class person extends DatabaseEntity
         $email = str_replace(["<", ">"], "", $email);
         $people = &get_cached_table("person");
         foreach ($people as $personID => $row) {
-            if ($row["personActive"] && $email == str_replace(["<", ">"], "", $row["emailAddress"])) {
-                return $personID;
+            if (!$row["personActive"]) {
+                continue;
             }
+            if ($email != str_replace(["<", ">"], "", $row["emailAddress"])) {
+                continue;
+            }
+            return $personID;
         }
     }
 
@@ -532,11 +537,17 @@ class person extends DatabaseEntity
         $rows or $rows = [];
         if ($print && $_FORM["return"] == "array") {
             return $rows;
-        } else if ($print && $_FORM["return"] == "html") {
-            return "<table class=\"list sortable\">" . $summary . "</table>";
-        } else if (!$print && $_FORM["return"] == "html") {
-            return "<table style=\"width:100%\"><tr><td colspan=\"10\" style=\"text-align:center\"><b>No People Found</b></td></tr></table>";
         }
+        if ($print && $_FORM["return"] == "html") {
+            return "<table class=\"list sortable\">" . $summary . "</table>";
+        }
+        if ($print) {
+            return $rows;
+        }
+        if ($_FORM["return"] != "html") {
+            return $rows;
+        }
+        return "<table style=\"width:100%\"><tr><td colspan=\"10\" style=\"text-align:center\"><b>No People Found</b></td></tr></table>";
     }
 
     public static function get_list_tr_header($_FORM)

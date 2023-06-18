@@ -118,9 +118,8 @@ class tf extends DatabaseEntity
         global $TPL;
         if (have_entity_perm("transaction", PERM_READ, $current_user, $this->is_owner())) {
             return "<a href=\"" . $TPL["url_alloc_transactionList"] . "tfID=" . $this->get_id() . "\">" . $this->get_value("tfName", DST_HTML_DISPLAY) . "</a>";
-        } else {
-            return $this->get_value("tfName", DST_HTML_DISPLAY);
         }
+        return $this->get_value("tfName", DST_HTML_DISPLAY);
     }
 
     public function get_name($tfID = false)

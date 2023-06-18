@@ -302,18 +302,18 @@ class Mail_RFC822
         // Remove the now stored address from the initial line, the +1
         // is to account for the explode character.
         $address = trim(substr($address, strlen($string) + 1));
-
         // If the next char is a comma and this was a group, then
         // there are more addresses, otherwise, if there are any more
         // chars, then there is another address.
         if ($is_group && substr($address, 0, 1) == ',') {
             $address = trim(substr($address, 1));
             return $address;
-        } elseif (strlen($address) > 0) {
-            return $address;
-        } else {
-            return '';
         }
+
+        if (strlen($address) > 0) {
+            return $address;
+        }
+        return '';
 
         // If you got here then something's off
         return false;
@@ -338,9 +338,8 @@ class Mail_RFC822
         if (count($parts = explode(':', $string)) > 1) {
             $string2 = $this->_splitCheck($parts, ':');
             return ($string2 !== $string);
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
@@ -435,9 +434,8 @@ class Mail_RFC822
         if ($num_angle_start < $num_angle_end) {
             $this->error = 'Invalid address spec. Unmatched quote or bracket (' . $chars . ')';
             return false;
-        } else {
-            return ($num_angle_start > $num_angle_end);
         }
+        return ($num_angle_start > $num_angle_end);
     }
 
     /**
@@ -488,13 +486,12 @@ class Mail_RFC822
             if (!$this->_validatePhrase($groupname)) {
                 $this->error = 'Group name did not validate.';
                 return false;
-            } else {
-                // Don't include groups if we are not nesting
-                // them. This avoids returning invalid addresses.
-                if ($this->nestGroups) {
-                    $structure = new stdClass();
-                    $structure->groupname = $groupname;
-                }
+            }
+            // Don't include groups if we are not nesting
+            // them. This avoids returning invalid addresses.
+            if ($this->nestGroups) {
+                $structure = new stdClass();
+                $structure->groupname = $groupname;
             }
 
             $address['address'] = ltrim(substr($address['address'], strlen($groupname . ':')));
@@ -991,8 +988,7 @@ class Mail_RFC822
         $regex = $strict ? '/^([.0-9a-z_+-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})$/i' : '/^([*+!.&#$|\'\\%\/0-9a-z^_`{}=?~:-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})$/i';
         if (preg_match($regex, trim($data), $matches)) {
             return [$matches[1], $matches[2]];
-        } else {
-            return false;
         }
+        return false;
     }
 }

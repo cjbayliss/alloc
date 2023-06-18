@@ -111,9 +111,14 @@ class clientContact extends DatabaseEntity
 
         if ($percent === 0) {
             return $personWithHighestSimilarity;
-        } else if ($personWithHighestSimilarity && $highestSimilarityScore >= $percent) {
+        }
+        if (!$personWithHighestSimilarity) {
             return $personWithHighestSimilarity;
         }
+        if ($highestSimilarityScore < $percent) {
+            return $personWithHighestSimilarity;
+        }
+        return $personWithHighestSimilarity;
     }
 
     public static function find_by_name($name = false, $projectID = false, $percent = 90)

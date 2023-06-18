@@ -16,9 +16,13 @@ class tsiHintHomeItem extends home_item
     public function visible()
     {
         $current_user = &singleton("current_user");
-        if ($current_user->have_role("manage") && $current_user->prefs["showTimeSheetItemHintHome"]) {
-            return true;
+        if (!$current_user->have_role("manage")) {
+            return;
         }
+        if (!$current_user->prefs["showTimeSheetItemHintHome"]) {
+            return;
+        }
+        return true;
     }
 
     public function render()

@@ -37,9 +37,8 @@ class services
             $session->UseGet();
             $session->Save();
             return $session->GetKey();
-        } else {
-            die("Authentication Failed(1).");
         }
+        die("Authentication Failed(1).");
     }
 
     private function get_current_user($sessID)
@@ -110,9 +109,13 @@ class services
         }
 
         foreach ((array)$internal_recipients as $email => $info) {
-            if ($info["selected"] && !$info["external"]) {
-                $rtn[$email] = $this->reduce_person_info($info);
+            if (!$info["selected"]) {
+                continue;
             }
+            if ($info["external"]) {
+                continue;
+            }
+            $rtn[$email] = $this->reduce_person_info($info);
         }
 
         foreach ((array)$clean_people as $person) {
@@ -238,9 +241,8 @@ class services
         $rtn = timeSheet::add_timeSheetItem($options);
         if ($rtn["status"] == "yay") {
             return $rtn["message"];
-        } else {
-            die(print_r($rtn, 1));
         }
+        die(print_r($rtn, 1));
     }
 
     /**
@@ -287,19 +289,12 @@ class services
                 $echoed = ob_get_contents();
                 if (!$rtn && $echoed) {
                     return ["error" => $echoed];
-                } else {
-                    if (isset($rtn["rows"])) {
-                        return $rtn["rows"];
-                    } else {
-                        return $rtn;
-                    }
                 }
-            } else {
-                die("Entity method '" . $entity . "::get_list()' does not exist.");
+                return $rtn["rows"] ?? $rtn;
             }
-        } else {
-            die("Entity '" . $entity . "' does not exist.");
+            die("Entity method '" . $entity . "::get_list()' does not exist.");
         }
+        die("Entity '" . $entity . "' does not exist.");
     }
 
     /**
@@ -439,6 +434,7 @@ class services
      */
     public function get_help($topic = "")
     {
+        $m = null;
         $available_topics = null;
         $this_methods = get_class_methods($this);
 
@@ -452,14 +448,12 @@ class services
                 }
             }
             die("Help is available for the following methods: " . $available_topics);
-        } else {
-            $m = $topic . "_help";
-            if (method_exists($this, $m)) {
-                return $this->$m();
-            } else {
-                die("No help exists for this method: " . $topic);
-            }
         }
+        $m = $topic . "_help";
+        if (method_exists($this, $m)) {
+            return $this->$m();
+        }
+        die("No help exists for this method: " . $topic);
     }
 
     /**
@@ -492,11 +486,17 @@ class services
         foreach ($options as $k => $v) {
             strtolower($v) != 'none' and $data[$k] = $v;
         }
-
         // Delete existing entries
-        if ($data["entity"] && $data["entityID"] && $data["emailAddress"]) {
-            InterestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
+        if (!$data["entity"]) {
+            return;
         }
+        if (!$data["entityID"]) {
+            return;
+        }
+        if (!$data["emailAddress"]) {
+            return;
+        }
+        InterestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
     }
 
     /**
@@ -509,21 +509,25 @@ class services
         global $modules;
         // FIXME: YIKES
         foreach ($modules as $name => $object) {
-            if (is_object($object) && is_array($object->databaseEntities)) {
-                foreach ($object->databaseEntities as $entity) {
-                    unset($commar2);
-                    if (class_exists($entity)) {
-                        $e = new $entity;
-                        if (method_exists($e, "get_list")) {
-                            $rtn .= "\n\nEntity: " . $entity . "\nOptions:\n";
-                            if (method_exists($e, "get_list_vars")) {
-                                $options = $entity::get_list_vars();
-                                $commar2 = "";
-                                foreach ($options as $option => $help) {
-                                    $padding = 30 - strlen($option);
-                                    $rtn .= $commar2 . "    " . $option . str_repeat(" ", $padding) . $help;
-                                    $commar2 = "\n";
-                                }
+            if (!is_object($object)) {
+                continue;
+            }
+            if (!is_array($object->databaseEntities)) {
+                continue;
+            }
+            foreach ($object->databaseEntities as $entity) {
+                unset($commar2);
+                if (class_exists($entity)) {
+                    $e = new $entity;
+                    if (method_exists($e, "get_list")) {
+                        $rtn .= "\n\nEntity: " . $entity . "\nOptions:\n";
+                        if (method_exists($e, "get_list_vars")) {
+                            $options = $entity::get_list_vars();
+                            $commar2 = "";
+                            foreach ($options as $option => $help) {
+                                $padding = 30 - strlen($option);
+                                $rtn .= $commar2 . "    " . $option . str_repeat(" ", $padding) . $help;
+                                $commar2 = "\n";
                             }
                         }
                     }
@@ -545,7 +549,8 @@ class services
         $options[$entity] = $id;
         if (strtolower($options[$entity]) == "help") {
             return ["status" => "msg", "message" => command::get_help($entity)];
-        } else if ($options) {
+        }
+        if ($options) {
             $command = new command();
             return $command->run_commands($options);
         }

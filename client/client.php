@@ -263,13 +263,14 @@ if ($_POST["save"]) {
 } else if ($_POST["save_attachment"]) {
     move_attachment("client", $clientID);
     alloc_redirect("{$TPL['url_alloc_client']}clientID={$clientID}&sbs_link=attachments");
-} else if ($_GET["get_vcard"]) {
-    $clientContact = new clientContact();
-    $clientContact->set_id($_GET["clientContactID"]);
-    $clientContact->select();
-    $clientContact->output_vcard();
-    return;
 } else {
+    if ($_GET["get_vcard"]) {
+        $clientContact = new clientContact();
+        $clientContact->set_id($_GET["clientContactID"]);
+        $clientContact->select();
+        $clientContact->output_vcard();
+        return;
+    }
     if ($_POST["delete"]) {
         $client->read_globals();
         $client->delete();
@@ -278,7 +279,6 @@ if ($_POST["save"]) {
         $client->set_id($clientID);
         $client->select();
     }
-
     $client->set_values("client_");
 }
 

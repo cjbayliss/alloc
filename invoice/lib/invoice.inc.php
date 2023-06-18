@@ -438,9 +438,8 @@ class invoice extends DatabaseEntity
 
         if ($getfile) {
             return $cezpdf->ezOutput();
-        } else {
-            $cezpdf->ezStream(["Content-Disposition" => "invoice_" . $this->get_id() . ".pdf"]);
         }
+        $cezpdf->ezStream(["Content-Disposition" => "invoice_" . $this->get_id() . ".pdf"]);
     }
 
     public function has_attachment_permission($person)

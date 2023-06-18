@@ -570,7 +570,8 @@ class comment extends DatabaseEntity
                 // If the person does *not* want to receive their own emails, skip adding them as a recipient
                 if (is_object($current_user) && $current_user->get_id() && !$current_user->prefs["receiveOwnTaskComments"] && same_email_address($recipient["emailAddress"], $from_address)) {
                     continue;
-                } else if ((!is_object($current_user) || !$current_user->get_id()) && same_email_address($recipient["emailAddress"], $from_address)) {
+                }
+                if ((!is_object($current_user) || !$current_user->get_id()) && same_email_address($recipient["emailAddress"], $from_address)) {
                     continue;
                 }
 
@@ -1454,17 +1455,16 @@ class comment extends DatabaseEntity
                 }
                 $emailreceive->close();
                 return [$emailreceive, $text, $mimebits];
-            } else {
-                similar_text($text1, $text2, $percent);
-                $debug and print "<br>TEXT: " . sprintf("%d", $text1 == $text2) . " (" . sprintf("%d", $percent) . "%)";
-                // $debug and print "<br>Text1:<br>".$text1."<br>* * *<br>";
-                // $debug and print "Text2:<br>".$text2."<br>+ + +</br>";
-                $debug and print "<br>FROM: " . sprintf("%d", ($from1 == $from2 || !$from2 || same_email_address($from1, config::get_config_item("AllocFromEmailAddress"))));
-                $debug and print " From1: " . Page::htmlentities($from1);
-                $debug and print " From2: " . Page::htmlentities($from2);
-                $debug and print "<br>DATE: " . sprintf("%d", $date > $date1 && $date < $date3) . " (" . date("Y-m-d H:i:s", $date) . " | " . date("Y-m-d H:i:s", $date1) . " | " . date("Y-m-d H:i:s", $date3) . ")";
-                $debug and print "<br>";
             }
+            similar_text($text1, $text2, $percent);
+            $debug and print "<br>TEXT: " . sprintf("%d", $text1 == $text2) . " (" . sprintf("%d", $percent) . "%)";
+            // $debug and print "<br>Text1:<br>".$text1."<br>* * *<br>";
+            // $debug and print "Text2:<br>".$text2."<br>+ + +</br>";
+            $debug and print "<br>FROM: " . sprintf("%d", ($from1 == $from2 || !$from2 || same_email_address($from1, config::get_config_item("AllocFromEmailAddress"))));
+            $debug and print " From1: " . Page::htmlentities($from1);
+            $debug and print " From2: " . Page::htmlentities($from2);
+            $debug and print "<br>DATE: " . sprintf("%d", $date > $date1 && $date < $date3) . " (" . date("Y-m-d H:i:s", $date) . " | " . date("Y-m-d H:i:s", $date1) . " | " . date("Y-m-d H:i:s", $date3) . ")";
+            $debug and print "<br>";
         }
         $emailreceive->close();
         return [false, false, false];

@@ -10,8 +10,6 @@ singleton("errors_haltdb", true);
 
 function getRequestVariable($variableName)
 {
-    $value = null;
-
     if (isset($_GET[$variableName])) {
         $value = $_GET[$variableName];
     } else if (isset($_POST[$variableName])) {
@@ -19,12 +17,13 @@ function getRequestVariable($variableName)
     } else if (isset($_REQUEST[$variableName])) {
         $value = $_REQUEST[$variableName];
     }
-
-    if ($variableName === "options" && isset($_POST[$variableName])) {
-        $value = json_decode($_POST[$variableName], true, 512, JSON_THROW_ON_ERROR);
+    if ($variableName !== "options") {
+        return null;
     }
-
-    return $value;
+    if (!isset($_POST[$variableName])) {
+        return null;
+    }
+    return json_decode($_POST[$variableName], true, 512, JSON_THROW_ON_ERROR);
 }
 
 $sessID = getRequestVariable("sessID");

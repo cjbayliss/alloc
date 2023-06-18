@@ -131,9 +131,8 @@ class client extends DatabaseEntity
     {
         if ($_FORM["return"] == "html") {
             return $this->get_value("clientName", DST_HTML_DISPLAY);
-        } else {
-            return $this->get_value("clientName");
         }
+        return $this->get_value("clientName");
     }
 
     public function get_client_link($_FORM = [])

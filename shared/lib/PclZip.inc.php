@@ -1261,9 +1261,8 @@ class PclZip
     {
         if (PCLZIP_ERROR_EXTERNAL == 1) {
             return(PclErrorCode());
-        } else {
-            return($this->error_code);
         }
+        return($this->error_code);
     }
     // --------------------------------------------------------------------------------
 
@@ -1284,9 +1283,8 @@ class PclZip
 
         if ($p_with_code) {
             return($v_value.' ('.$this->error_code.')');
-        } else {
-            return($v_value);
         }
+        return($v_value);
     }
     // --------------------------------------------------------------------------------
 
@@ -1299,13 +1297,11 @@ class PclZip
     {
         if (PCLZIP_ERROR_EXTERNAL == 1) {
             return(PclErrorString());
-        } else {
-            if ($p_full) {
-                return($this->errorName(true)." : ".$this->error_string);
-            } else {
-                return($this->error_string." [code ".$this->error_code."]");
-            }
         }
+        if ($p_full) {
+            return($this->errorName(true)." : ".$this->error_string);
+        }
+        return($this->error_string." [code ".$this->error_code."]");
     }
     // --------------------------------------------------------------------------------
 
@@ -1937,11 +1933,12 @@ class PclZip
                 } else if (@is_dir($v_descr['filename'])) {
                     // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, "This is a folder");
                     $v_descr['type'] = 'folder';
-                } else if (@is_link($v_descr['filename'])) {
-                    // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, "Unsupported file type : link");
-                    // skip
-                    continue;
                 } else {
+                    if (@is_link($v_descr['filename'])) {
+                        // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, "Unsupported file type : link");
+                        // skip
+                        continue;
+                    }
                     // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 3, "Unsupported file type : unknown type");
                     // skip
                     continue;
@@ -1979,12 +1976,13 @@ class PclZip
                 if ($v_folder_handler = @opendir($v_descr['filename'])) {
                     while (($v_item_handler = @readdir($v_folder_handler)) !== false) {
                         // --(MAGIC-PclTrace)--//PclTraceFctMessage(__FILE__, __LINE__, 2, "Looking for '".$v_item_handler."' in the directory");
-
                         // ----- Skip '.' and '..'
-                        if (($v_item_handler == '.') || ($v_item_handler == '..')) {
+                        if ($v_item_handler == '.') {
                             continue;
                         }
-
+                        if ($v_item_handler == '..') {
+                            continue;
+                        }
                         // ----- Compose the full filename
                         $v_dirlist_descr[$v_dirlist_nb]['filename'] = $v_descr['filename'].'/'.$v_item_handler;
 

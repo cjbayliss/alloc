@@ -63,9 +63,13 @@ class Session
     // Test whether session has started
     public function Started()
     {
-        if ($this->Get("session_started") && !$this->Expired()) {
-            return true;
+        if (!$this->Get("session_started")) {
+            return;
         }
+        if ($this->Expired()) {
+            return;
+        }
+        return true;
     }
 
     public function Save()
@@ -184,9 +188,13 @@ class Session
     // if $this->session_life seconds have passed then session has expired
     private function Expired()
     {
-        if ($this->Get("session_started") && (time() > ($this->Get("session_started") + $this->session_life))) {
-            return true;
+        if (!$this->Get("session_started")) {
+            return;
         }
+        if (time() <= $this->Get("session_started") + $this->session_life) {
+            return;
+        }
+        return true;
     }
     // add encryption for session_data here
     private function Encode($data)

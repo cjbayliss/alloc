@@ -23,9 +23,13 @@ class pendingAdminExpenseForm extends home_item
     public function visible()
     {
         $current_user = &singleton("current_user");
-        if (isset($current_user) && $current_user->have_role("admin")) {
-            return true;
+        if (!isset($current_user)) {
+            return;
         }
+        if (!$current_user->have_role("admin")) {
+            return;
+        }
+        return true;
     }
 
     public function render()

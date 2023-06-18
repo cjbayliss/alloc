@@ -49,7 +49,8 @@ function echo_var($matches)
 
     if ($var && $starts_with_equals) {
         return '<?php echo Page::htmlentities(' . $var . '); ?>';
-    } else if ($var) {
+    }
+    if ($var) {
         return '<?php echo ' . $var . '; ?>';
     }
 }

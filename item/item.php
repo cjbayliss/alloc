@@ -54,29 +54,26 @@ if ($_POST["borrowItem"]) {
     if ($db->next_record()) {     // if the item is already borrowed
         alloc_redirect($TPL["url_alloc_item"] . "itemID=$itemID&badBorrow=true&error=already_borrowed");
         exit();
-    } else {                      // else lets make a new loan!
-        $loan = new loan();
-        $loan->read_globals();
-        $loan->set_value("dateToBeReturned", $whenToReturn);
-
-        // if admin/manager then check to see if an alternate user was selected
-        if ($_POST["userID"] && ($current_user->have_role("admin") || $current_user->have_role("manage"))) {
-            if ($_POST["userID"] != $current_user->get_id()) {
-                $person = new person();
-                $person->set_id($_POST["userID"]);
-                $person->select();
-            }
-            $loan->set_value("personID", $_POST["userID"]);
-        } else {
-            $loan->set_value("personID", $current_user->get_id());
-        }
-
-        $loan->set_value("dateBorrowed", $today);
-        $loan->set_value("dateReturned", "0000-00-00");
-        $loan->save();
-
-        alloc_redirect($TPL["url_alloc_loanAndReturn"]);
     }
+    // else lets make a new loan!
+    $loan = new loan();
+    $loan->read_globals();
+    $loan->set_value("dateToBeReturned", $whenToReturn);
+    // if admin/manager then check to see if an alternate user was selected
+    if ($_POST["userID"] && ($current_user->have_role("admin") || $current_user->have_role("manage"))) {
+        if ($_POST["userID"] != $current_user->get_id()) {
+            $person = new person();
+            $person->set_id($_POST["userID"]);
+            $person->select();
+        }
+        $loan->set_value("personID", $_POST["userID"]);
+    } else {
+        $loan->set_value("personID", $current_user->get_id());
+    }
+    $loan->set_value("dateBorrowed", $today);
+    $loan->set_value("dateReturned", "0000-00-00");
+    $loan->save();
+    alloc_redirect($TPL["url_alloc_loanAndReturn"]);
 }
 
 if ($_POST["returnItem"]) {

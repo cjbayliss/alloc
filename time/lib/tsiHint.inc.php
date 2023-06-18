@@ -75,9 +75,8 @@ class tsiHint extends DatabaseEntity
                 "status"  => "yay",
                 "message" => $ID,
             ];
-        } else {
-            alloc_error($errstr . "Time hint not added.");
         }
+        alloc_error($errstr . "Time hint not added.");
     }
 
     public static function parse_tsiHint_string($str)

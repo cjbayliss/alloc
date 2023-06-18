@@ -48,16 +48,26 @@ if ($_POST["upload"] && is_uploaded_file($_FILES["wages_file"]["tmp_name"])) {
 
         // If there's a memo field then append it to account
         $memo and $account .= " - " . $memo;
-
         // echo "<br>";
         // echo "<br>date: ".$transactionDate;
         // echo "<br>memo: ".$memo;
         // echo "<br>account: ".$account;
         // echo "<br>amount: ".$amount;
         // echo "<br>employeeNum: ".$employeeNum;
-
         // Ignore heading row, dividing lines and total rows
-        if ($transactionDate == "Date" || !$transactionDate || strpos("_____", $transactionDate) !== false || strpos("���", $transactionDate) !== false || stripos("total", $transactionDate) !== false) {
+        if ($transactionDate == "Date") {
+            continue;
+        }
+        if (!$transactionDate) {
+            continue;
+        }
+        if (strpos("_____", $transactionDate) !== false) {
+            continue;
+        }
+        if (strpos("���", $transactionDate) !== false) {
+            continue;
+        }
+        if (stripos("total", $transactionDate) !== false) {
             continue;
         }
         // If the employeeNum field is blank use the previous employeeNum

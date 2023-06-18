@@ -305,6 +305,7 @@ class Database
 
     public function save($table, $row = [], $_ = 0)
     {
+        $q = null;
         $keys = [];
         $do_update = null;
         $table_keys = $this->get_table_keys($table) or $table_keys = [];
@@ -324,16 +325,15 @@ class Database
             sizeof($row) and $this->query($q);
             reset($keys);
             return current($keys);
-        } else {
-            $q = sprintf(
-                "INSERT INTO %s (%s) VALUES (%s)",
-                $table,
-                $this->get_insert_str_fields($row),
-                $this->get_insert_str_values($row)
-            );
-            sizeof($row) and $this->query($q);
-            return $this->get_insert_id();
         }
+        $q = sprintf(
+            "INSERT INTO %s (%s) VALUES (%s)",
+            $table,
+            $this->get_insert_str_fields($row),
+            $this->get_insert_str_values($row)
+        );
+        sizeof($row) and $this->query($q);
+        return $this->get_insert_id();
     }
 
     public function delete($table, $row = [], $_ = 0)

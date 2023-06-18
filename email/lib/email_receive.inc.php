@@ -90,9 +90,13 @@ class email_receive
                 }
             }
         }
-        if (!$rtn && $fatal) {
-            alloc_error("<pre>IMAP errors: " . print_r(imap_errors(), 1) . print_r(imap_alerts(), 1) . "</pre>");
+        if ($rtn) {
+            return $rtn;
         }
+        if (!$fatal) {
+            return $rtn;
+        }
+        alloc_error("<pre>IMAP errors: " . print_r(imap_errors(), 1) . print_r(imap_alerts(), 1) . "</pre>");
         return $rtn;
     }
 
@@ -129,7 +133,7 @@ class email_receive
     {
         $rtn = null;
         if (!imap_status($this->connection, $this->connect_string . $name, SA_ALL)) {
-            $rtn = imap_createmailbox($this->connection, imap_utf7_encode($this->connect_string . $name));
+            return imap_createmailbox($this->connection, imap_utf7_encode($this->connect_string . $name));
         }
         if (!$rtn) {
             $name = str_replace("/", ".", $name);
@@ -137,7 +141,7 @@ class email_receive
                 $rtn = imap_createmailbox($this->connection, imap_utf7_encode($this->connect_string . $name));
             }
         }
-        return $rtn;
+        return null;
     }
 
     public function move_mail($uid, $mailbox)
@@ -276,7 +280,8 @@ class email_receive
             $body = imap_body($this->connection, $msg_uid, FT_UID);
             $cache[$msg_uid] = [$header, $body];
             return $cache[$msg_uid];
-        } else if ($this->msg_text) {
+        }
+        if ($this->msg_text) {
             return Mail_mimeDecode::_splitBodyHeader($this->msg_text);
         }
     }
@@ -301,7 +306,8 @@ class email_receive
 
         if ($mail_text) {
             return $mail_text;
-        } else if ($mail_html) {
+        }
+        if ($mail_html) {
             return $mail_html;
         }
     }
@@ -740,9 +746,14 @@ class email_receive
 
         if (property_exists($this->mail_structure, "parameters")) {
             return $this->get_parameter_attribute_value($this->mail_structure->parameters, "charset");
-        } else if (property_exists($this->mail_structure, "ctype_parameters") && is_array($this->mail_structure->ctype_parameters)) {
-            return $this->mail_structure->ctype_parameters["charset"];
         }
+        if (!property_exists($this->mail_structure, "ctype_parameters")) {
+            return $this->get_parameter_attribute_value($this->mail_structure->parameters, "charset");
+        }
+        if (!is_array($this->mail_structure->ctype_parameters)) {
+            return $this->get_parameter_attribute_value($this->mail_structure->parameters, "charset");
+        }
+        return $this->mail_structure->ctype_parameters["charset"];
     }
 
     public function get_parameter_attribute_value($parameters, $needle)

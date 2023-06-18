@@ -139,8 +139,10 @@ class transaction extends DatabaseEntity
         $fromTf = new tf();
         $fromTf->set_id($this->get_value('fromTfID'));
         $fromTf->select();
-
-        return ($toTf->is_owner($person) || $fromTf->is_owner($person));
+        if ($toTf->is_owner($person)) {
+            return true;
+        }
+        return (bool) $fromTf->is_owner($person);
     }
 
     public static function get_transactionTypes()
@@ -199,9 +201,8 @@ class transaction extends DatabaseEntity
     {
         if ($_FORM["return"] == "html") {
             return $this->get_value("product", DST_HTML_DISPLAY);
-        } else {
-            return $this->get_value("product");
         }
+        return $this->get_value("product");
     }
 
     public function get_transaction_type_link()

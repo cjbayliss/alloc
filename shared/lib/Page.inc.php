@@ -33,9 +33,16 @@ class Page
         // close page
         $session = new Session();
         $session->Save();
-        if (is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id()) {
-            $current_user->store_prefs();
+        if (!is_object($current_user)) {
+            return;
         }
+        if (!method_exists($current_user, "get_id")) {
+            return;
+        }
+        if (!$current_user->get_id()) {
+            return;
+        }
+        $current_user->store_prefs();
     }
     public static function tabs()
     {
@@ -616,8 +623,7 @@ class Page
         $current_user = &singleton("current_user");
         if ($current_user->prefs["stars"][$entity][$entityID]) {
             return 1;
-        } else {
-            return 2;
         }
+        return 2;
     }
 }

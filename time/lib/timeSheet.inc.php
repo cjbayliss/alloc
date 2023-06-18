@@ -262,11 +262,13 @@ class timeSheet extends DatabaseEntity
         if ($this->get_value("status") != "invoiced") {
             return "ERROR: Status of the timesheet must be 'invoiced' to Create Transactions.
               The status is currently: " . $this->get_value("status");
-        } else if ($this->get_value("recipient_tfID") == "") {
+        }
+        if ($this->get_value("recipient_tfID") == "") {
             return "ERROR: There is no recipient Tagged Fund to credit for this timesheet.
               Go to Tools -> New Tagged Fund, add a new TF and add the owner. Then go
               to People -> Select the user and set their Preferred Payment TF.";
-        } else if (!$cost_centre || $cost_centre == 0) {
+        }
+        if (!$cost_centre || $cost_centre == 0) {
             return "ERROR: There is no cost centre associated with the project.";
         }
 
@@ -374,6 +376,7 @@ class timeSheet extends DatabaseEntity
     public function createTransaction($product, $amount, $tfID, $transactionType, $status = "", $fromTfID = false)
     {
 
+        $transaction = null;
         if ($amount == 0) {
             return 1;
         }
@@ -383,20 +386,19 @@ class timeSheet extends DatabaseEntity
 
         if ($tfID == 0 || !$tfID || !is_numeric($tfID) || !is_numeric($amount)) {
             return "Error -> \$tfID: " . $tfID . "  and  \$amount: " . $amount;
-        } else {
-            $transaction = new transaction();
-            $transaction->set_value("product", $product);
-            $transaction->set_value("amount", $amount);
-            $transaction->set_value("status", $status);
-            $transaction->set_value("fromTfID", $fromTfID);
-            $transaction->set_value("tfID", $tfID);
-            $transaction->set_value("transactionDate", date("Y-m-d"));
-            $transaction->set_value("transactionType", $transactionType);
-            $transaction->set_value("timeSheetID", $this->get_id());
-            $transaction->set_value("currencyTypeID", $this->get_value("currencyTypeID"));
-            $transaction->save();
-            return 1;
         }
+        $transaction = new transaction();
+        $transaction->set_value("product", $product);
+        $transaction->set_value("amount", $amount);
+        $transaction->set_value("status", $status);
+        $transaction->set_value("fromTfID", $fromTfID);
+        $transaction->set_value("tfID", $tfID);
+        $transaction->set_value("transactionDate", date("Y-m-d"));
+        $transaction->set_value("transactionType", $transactionType);
+        $transaction->set_value("timeSheetID", $this->get_id());
+        $transaction->set_value("currencyTypeID", $this->get_value("currencyTypeID"));
+        $transaction->save();
+        return 1;
     }
 
     public function shootEmail($email)
@@ -416,15 +418,17 @@ class timeSheet extends DatabaseEntity
 
         if ($dummy) {
             return "Elected not to send email.";
-        } else if (!$email->is_valid_url()) {
-            return "Almost sent email to: " . $email->to_address;
-        } else if (!$email->to_address) {
-            return "Could not send email, invalid email address: " . $email->to_address;
-        } else if ($email->send()) {
-            return "Sent email to: " . $email->to_address;
-        } else {
-            return "Problem sending email to: " . $email->to_address;
         }
+        if (!$email->is_valid_url()) {
+            return "Almost sent email to: " . $email->to_address;
+        }
+        if (!$email->to_address) {
+            return "Could not send email, invalid email address: " . $email->to_address;
+        }
+        if ($email->send()) {
+            return "Sent email to: " . $email->to_address;
+        }
+        return "Problem sending email to: " . $email->to_address;
     }
 
     public function get_task_list_dropdown($status, $timeSheetID, $taskID = "")
@@ -611,9 +615,8 @@ class timeSheet extends DatabaseEntity
 
         if (!$_FORM["noextra"]) {
             return ["rows" => (array)$rows, "extra" => $extra];
-        } else {
-            return (array)$rows;
         }
+        return (array)$rows;
     }
 
     public static function get_list_html($rows = [], $extra = [])
@@ -1271,9 +1274,8 @@ class timeSheet extends DatabaseEntity
 
         if ($ID) {
             return ["status" => "yay", "message" => $ID];
-        } else {
-            alloc_error($errstr . "Time not added.");
         }
+        alloc_error($errstr . "Time not added.");
     }
 
     public function get_all_parties($projectID = "")

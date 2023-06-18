@@ -786,9 +786,13 @@ class Task extends DatabaseEntity
     {
         [$taskStatus, $taskSubStatus] = explode("_", $status);
         $arr = Task::get_task_statii();
-        if ($thing && $arr[$taskStatus][$taskSubStatus][$thing]) {
-            return $arr[$taskStatus][$taskSubStatus][$thing];
+        if (!$thing) {
+            return;
         }
+        if (!$arr[$taskStatus][$taskSubStatus][$thing]) {
+            return;
+        }
+        return $arr[$taskStatus][$taskSubStatus][$thing];
     }
 
     public static function get_task_status_in_set_sql()
@@ -1190,9 +1194,13 @@ class Task extends DatabaseEntity
     public function get_new_subtask_link()
     {
         global $TPL;
-        if (is_object($this) && $this->get_value("taskTypeID") == "Parent") {
-            return "<a class=\"noprint\" href=\"" . $TPL["url_alloc_task"] . "projectID=" . $this->get_value("projectID") . "&parentTaskID=" . $this->get_id() . "\">New Subtask</a>";
+        if (!is_object($this)) {
+            return;
         }
+        if ($this->get_value("taskTypeID") != "Parent") {
+            return;
+        }
+        return "<a class=\"noprint\" href=\"" . $TPL["url_alloc_task"] . "projectID=" . $this->get_value("projectID") . "&parentTaskID=" . $this->get_id() . "\">New Subtask</a>";
     }
 
     public function get_time_billed($taskID = "")

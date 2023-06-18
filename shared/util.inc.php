@@ -63,9 +63,10 @@ function format_date($format = "Y/m/d", $date = "")
         $t = $date;
 
         // Nasty hobbitses!
-    } else if ($date) {
-        return "Date unrecognized: " . $date;
     } else {
+        if ($date) {
+            return "Date unrecognized: " . $date;
+        }
         return;
     }
     [$y, $m, $d] = explode("-", $d);
@@ -87,6 +88,7 @@ function add_brackets($email = "")
 
 function seconds_to_display_format($seconds)
 {
+    $days = null;
     $day = config::get_config_item("hoursInDay");
 
     $day_in_seconds = $day * 60 * 60;
@@ -98,11 +100,10 @@ function seconds_to_display_format($seconds)
 
     if ($seconds < $day_in_seconds) {
         return sprintf("%0.2f hrs", $hours);
-    } else {
-        $days = $seconds / $day_in_seconds;
-        // return sprintf("%0.1f days", $days);
-        return sprintf("%0.2f hrs (%0.1f days)", $hours, $days);
     }
+    $days = $seconds / $day_in_seconds;
+    // return sprintf("%0.1f days", $days);
+    return sprintf("%0.2f hrs (%0.1f days)", $hours, $days);
 }
 
 function get_all_form_data($array = [], $defaults = [])
@@ -343,42 +344,45 @@ function move_attachment($entity, $id = false)
 
     $id = sprintf("%d", $id);
     $files = rejig_files_array($_FILES);
+    if (!is_array($files)) {
+        return;
+    }
+    if (!count($files)) {
+        return;
+    }
+    foreach ($files as $file) {
+        if (is_uploaded_file($file["tmp_name"])) {
+            $dir = ATTACHMENTS_DIR . $entity . DIRECTORY_SEPARATOR . $id;
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777);
+            }
+            $newname = basename($file["name"]);
 
-    if (is_array($files) && count($files)) {
-        foreach ($files as $file) {
-            if (is_uploaded_file($file["tmp_name"])) {
-                $dir = ATTACHMENTS_DIR . $entity . DIRECTORY_SEPARATOR . $id;
-                if (!is_dir($dir)) {
-                    mkdir($dir, 0777);
-                }
-                $newname = basename($file["name"]);
-
-                if (!move_uploaded_file($file["tmp_name"], $dir . DIRECTORY_SEPARATOR . $newname)) {
-                    alloc_error("Could not move attachment to: " . $dir . DIRECTORY_SEPARATOR . $newname);
-                } else {
-                    chmod($dir . DIRECTORY_SEPARATOR . $newname, 0777);
-                }
+            if (!move_uploaded_file($file["tmp_name"], $dir . DIRECTORY_SEPARATOR . $newname)) {
+                alloc_error("Could not move attachment to: " . $dir . DIRECTORY_SEPARATOR . $newname);
             } else {
-                switch ($file['error']) {
-                    case 0:
-                        alloc_error("There was a problem with your upload.");
-                        break;
-                    case 1: // upload_max_filesize in php.ini
-                        alloc_error("The file you are trying to upload is too big(1).");
-                        break;
-                    case 2: // MAX_FILE_SIZE
-                        alloc_error("The file you are trying to upload is too big(2).");
-                        break;
-                    case 3:
-                        alloc_error("The file you are trying upload was only partially uploaded.");
-                        break;
-                    case 4:
-                        alloc_error("You must select a file for upload.");
-                        break;
-                    default:
-                        alloc_error("There was a problem with your upload.");
-                        break;
-                }
+                chmod($dir . DIRECTORY_SEPARATOR . $newname, 0777);
+            }
+        } else {
+            switch ($file['error']) {
+                case 0:
+                    alloc_error("There was a problem with your upload.");
+                    break;
+                case 1: // upload_max_filesize in php.ini
+                    alloc_error("The file you are trying to upload is too big(1).");
+                    break;
+                case 2: // MAX_FILE_SIZE
+                    alloc_error("The file you are trying to upload is too big(2).");
+                    break;
+                case 3:
+                    alloc_error("The file you are trying upload was only partially uploaded.");
+                    break;
+                case 4:
+                    alloc_error("You must select a file for upload.");
+                    break;
+                default:
+                    alloc_error("There was a problem with your upload.");
+                    break;
             }
         }
     }
@@ -664,9 +668,13 @@ function sprintf_implode()
 
     $length = is_countable($args[0]) ? count($args[0]) : 1;
     foreach ($args as $arg) {
-        if (is_array($arg) && count($arg) != $length) {
-            alloc_error("One of the values passed to sprintf_implode was the wrong length: " . $str . " " . print_r($args, 1));
+        if (!is_array($arg)) {
+            continue;
         }
+        if (count($arg) == $length) {
+            continue;
+        }
+        alloc_error("One of the values passed to sprintf_implode was the wrong length: " . $str . " " . print_r($args, 1));
     }
 
     $result = [];

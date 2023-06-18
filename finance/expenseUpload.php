@@ -43,11 +43,13 @@ if ($_POST["upload"]) {
         $category = trim($fields[$field_map["category"]]);
         $clr = trim($fields[$field_map["clr"]]);
         $amount = trim($fields[$field_map["amount"]]);
-
         // Idenitify lines containing totals as the date field will contain the text TOTAL
         // Identify the column headings as the date field will be "Date"
         // Ignore ignore these lines
-        if (stripos("total", $date) !== false || $date == "Date") {
+        if (stripos("total", $date) !== false) {
+            continue;
+        }
+        if ($date == "Date") {
             continue;
         }
         // Convert the date to yyyy-mm-dd
