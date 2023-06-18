@@ -484,15 +484,27 @@ class person extends DatabaseEntity
     {
         $sql = [];
         $sql2 = [];
-        $filter["username"] && ($sql[] = sprintf_implode("username = '%s'", $filter["username"]));
-        $filter["personActive"] && ($sql[] = sprintf_implode("personActive = %d", $filter["personActive"]));
-        $filter["firstName"] && ($sql[] = sprintf_implode("firstName = '%s'", $filter["firstName"]));
-        $filter["surname"] && ($sql[] = sprintf_implode("surname = '%s'", $filter["surname"]));
-        $filter["personID"] && ($sql[] = sprintf_implode("personID = %d", $filter["personID"]));
+        if (isset($filter["username"])) {
+            $sql[] = sprintf_implode("username = '%s'", $filter["username"]);
+        }
+        if (isset($filter["personActive"])) {
+            $sql[] = sprintf_implode("personActive = %d", $filter["personActive"]);
+        }
+        if (isset($filter["firstName"])) {
+            $sql[] = sprintf_implode("firstName = '%s'", $filter["firstName"]);
+        }
+        if (isset($filter["surname"])) {
+            $sql[] = sprintf_implode("surname = '%s'", $filter["surname"]);
+        }
+        if (isset($filter["personID"])) {
+            $sql[] = sprintf_implode("personID = %d", $filter["personID"]);
+        }
 
-        $filter["skill"] && ($sql["skill"] = sprintf_implode("skillID=%d", $filter["skill"]));
+        if (isset($filter["skill"])) {
+            $sql["skill"] = sprintf_implode("skillID=%d", $filter["skill"]);
+        }
 
-        if ($filter["skill_class"]) {
+        if (isset($filter["skill_class"])) {
             $q = unsafe_prepare("SELECT * FROM skill WHERE skillClass='%s'", $filter["skill_class"]);
             $allocDatabase = new AllocDatabase();
             $allocDatabase->query($q);
@@ -503,7 +515,9 @@ class person extends DatabaseEntity
             }
         }
 
-        $filter["expertise"] && ($sql[] = sprintf_implode("skillProficiency='%s'", $filter["expertise"]));
+        if (isset($filter["expertise"])) {
+            $sql[] = sprintf_implode("skillProficiency='%s'", $filter["expertise"]);
+        }
 
         return [$sql, $sql2];
     }
@@ -519,18 +533,14 @@ class person extends DatabaseEntity
         $current_user = &singleton("current_user");
         [$filter, $filter2] = person::get_list_filter($_FORM);
 
-        $debug = $_FORM["debug"];
-        $debug && (print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
-        $debug && (print "<pre>filter: " . print_r($filter, 1) . "</pre>");
-
-        $_FORM["return"] || ($_FORM["return"] = "html");
+        $_FORM["return"] ??= "html";
 
         // Get averages for hours worked over the past fortnight and year
-        if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT) && $_FORM["showHours"]) {
+        if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT) && isset($_FORM["showHours"])) {
             $timeSheetItem = new timeSheetItem();
             [$ts_hrs_col_1, $ts_dollars_col_1] = $timeSheetItem->get_averages(date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))));
             [$ts_hrs_col_2, $ts_dollars_col_2] = $timeSheetItem->get_fortnightly_average();
-        } else {
+        } elseif (isset($_FORM["showHours"])) {
             unset($_FORM["showHours"]);
         }
 
@@ -558,7 +568,6 @@ class person extends DatabaseEntity
             GROUP BY username
             ORDER BY firstName,surname,username";
 
-        $debug && (print "Query: " . $q);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
 
@@ -630,7 +639,7 @@ class person extends DatabaseEntity
     public static function get_list_tr_header($_FORM)
     {
         $summary = [];
-        if ($_FORM["showHeader"]) {
+        if (isset($_FORM["showHeader"])) {
             $summary[] = "<tr>";
             $_FORM["showName"] && ($summary[] = "<th>Name</th>");
             $_FORM["showActive"] && ($summary[] = "<th>Enabled</th>");
@@ -693,12 +702,19 @@ class person extends DatabaseEntity
         $page_vars = array_keys(person::get_list_vars());
         $_FORM = get_all_form_data($page_vars, $defaults);
 
-        if (!$_FORM["applyFilter"]) {
-            $_FORM = $current_user->prefs[$_FORM["form_name"]];
-            if (!isset($current_user->prefs[$_FORM["form_name"]])) {
+        if (!isset($_FORM["applyFilter"])) {
+            if (isset($_FORM["form_name"])) {
+                $_FORM = $current_user->prefs[$_FORM["form_name"]];
+            }
+
+            if (!isset($current_user->prefs[$_FORM["form_name"] ?? ""])) {
                 $_FORM["personActive"] = true;
             }
-        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif (
+            isset($_FORM["applyFilter"])
+            && is_object($current_user)
+            && !isset($_FORM["dontSave"])
+        ) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -716,9 +732,15 @@ class person extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         $allocDatabase = new AllocDatabase();
-        $_FORM["showSkills"] && ($rtn["show_skills_checked"] = " checked");
-        $_FORM["showHours"] && ($rtn["show_hours_checked"] = " checked");
-        $_FORM["personActive"] && ($rtn["show_all_users_checked"] = " checked");
+        if (isset($_FORM["showSkills"])) {
+            $rtn["show_skills_checked"] = " checked";
+        }
+        if (isset($_FORM["showHours"])) {
+            $rtn["show_hours_checked"] = " checked";
+        }
+        if (isset($_FORM["personActive"])) {
+            $rtn["show_all_users_checked"] = " checked";
+        }
 
         $employee_expertise = [
             ""             => "Any Expertise",
@@ -728,10 +750,10 @@ class person extends DatabaseEntity
             "Advanced"     => "Advanced",
             "Senior"       => "Senior",
         ];
-        $rtn["employee_expertise"] = Page::select_options($employee_expertise, $_FORM["expertise"]);
+        $rtn["employee_expertise"] = Page::select_options($employee_expertise, $_FORM["expertise"] ?? "");
 
         $skill_classes = skill::get_skill_classes();
-        $rtn["skill_classes"] = Page::select_options($skill_classes, $_FORM["skill_class"]);
+        $rtn["skill_classes"] = Page::select_options($skill_classes, $_FORM["skill_class"] ?? "");
 
         $skills = skill::get_skills();
         // if a skill class is selected and a skill that is not in that class is
@@ -741,7 +763,7 @@ class person extends DatabaseEntity
             $_FORM["skill"] = "";
         }
 
-        $rtn["skills"] = Page::select_options($skills, $_FORM["skill"]);
+        $rtn["skills"] = Page::select_options($skills, $_FORM["skill"] ?? "");
 
         return $rtn;
     }

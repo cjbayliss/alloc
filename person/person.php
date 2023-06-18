@@ -153,10 +153,13 @@ function show_skills_list()
             $skills[$skill->get_id()] = sprintf("%s - %s", $skill->get_value('skillClass'), $skill->get_value('skillName'));
         }
     }
-
-    if (is_countable($skills) && count($skills) > 0) {
-        $TPL["skills"] = Page::select_options($skills, "");
+    if (!is_countable($skills)) {
+        return;
     }
+    if (count($skills) <= 0) {
+        return;
+    }
+    $TPL["skills"] = Page::select_options($skills, "");
 }
 
 function check_optional_person_skills_header()

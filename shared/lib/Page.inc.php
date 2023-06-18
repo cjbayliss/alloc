@@ -331,9 +331,15 @@ class Page
         $attrs["wrap"] = "virtual";
         $cols && ($attrs["cols"] = $cols);
         $attrs["style"] = "height:" . $heights[$height] . "px";
-        isset($ops["width"]) && ($attrs["style"] .= "; width:" . $ops["width"]);
-        isset($ops["class"]) && ($attrs["class"] = $ops["class"]);
-        isset($ops["tabindex"]) && ($attrs["tabindex"] = $ops["tabindex"]);
+        if (isset($ops["width"])) {
+            $attrs["style"] .= "; width:" . $ops["width"];
+        }
+        if (isset($ops["class"])) {
+            $attrs["class"] = $ops["class"];
+        }
+        if (isset($ops["tabindex"])) {
+            $attrs["tabindex"] = $ops["tabindex"];
+        }
 
         $str = "";
         foreach ($attrs as $k => $v) {
