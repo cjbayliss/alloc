@@ -102,21 +102,21 @@
       <div class="enclose">
         <h6>Font Size<div>Theme</div></h6>
         <div style="float:left; width:30%;">
-          <select name="font">{Page::select_options(Page::get_customizedFont_array(), $current_user->prefs["customizedFont"])}</select>
+          <select name="font">{Page::select_options(Page::get_customizedFont_array(), $current_user->prefs["customizedFont"] ?? 4)}</select>
         </div>
         <div style="float:right; width:50%;">
-          <select name="theme">{Page::select_options(Page::get_customizedTheme_array(), $current_user->prefs["customizedTheme2"])}</select>
+          <select name="theme">{Page::select_options(Page::get_customizedTheme_array(), $current_user->prefs["customizedTheme2"] ?? 4)}</select>
         </div>
       </div>
 
       <div class="enclose">
         <h6>Daily Email<div>Self Mail</div></h6> 
         <div style="float:left; width:30%;">
-          <select name="dailyTaskEmail">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["dailyTaskEmail"])}</select>
+          <select name="dailyTaskEmail">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["dailyTaskEmail"] ?? 0)}</select>
           {Page::help("<b>Daily Email</b><br><br>Control whether or not you receive a daily task email.")}
         </div>
         <div style="float:right; width:50%;">
-          <select name="receiveOwnTaskComments">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["receiveOwnTaskComments"])}</select>
+          <select name="receiveOwnTaskComments">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["receiveOwnTaskComments"] ?? 0)}</select>
           {Page::help("<b>Self Mail</b><br><br>Control whether or not you receive a copy of your own comments in email discussion threads.")}
         </div>
       </div>
@@ -128,7 +128,7 @@
           {Page::help("<b>Homepage Projects</b><br><br>Display the project list box on the home page.")}
         </div>
         <div style="float:right; width:50%;">
-          <select name="showFilters">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["showFilters"])}</select>
+          <select name="showFilters">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["showFilters"] ?? 0)}</select>
           {Page::help("<b>Show Filters</b><br><br>Control whether or not the filters are displayed by default on the various tabs in alloc.")}
         </div>
       </div>
@@ -160,11 +160,11 @@
       <div class="enclose">
         <h6>Homepage Private Mode<div>Homepage New Time Sheet Item Hint</div></h6> 
         <div style="float:left; width:30%;">
-          <select name="privateMode">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["privateMode"])}</select>
+          <select name="privateMode">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["privateMode"] ?? 0)}</select>
           {Page::help("<b>Homepage Private Mode</b><br><br>Prevent someone who is standing over your shoulder from seeing financial amounts on the homepage.")}
         </div>
         <div style="float:right; width:50%;">
-          <select name="showTimeSheetItemHintHome">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["showTimeSheetItemHintHome"])}</select>
+          <select name="showTimeSheetItemHintHome">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["showTimeSheetItemHintHome"] ?? 0)}</select>
           {Page::help("<b>Homepage Time Sheet Item Hint</b><br><br>Display the add new time sheet item hint box on the home page.")}
           &nbsp;&nbsp;&nbsp;
           <button type="submit" name="customize_save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>

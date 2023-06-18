@@ -154,7 +154,7 @@ function show_skills_list()
         }
     }
 
-    if (count($skills) > 0) {
+    if (is_countable($skills) && count($skills) > 0) {
         $TPL["skills"] = Page::select_options($skills, "");
     }
 }
@@ -176,14 +176,18 @@ function include_management_fields()
 $skill_header = false;
 $person = new person();
 
-($personID = $_POST["personID"]) || ($personID = $_GET["personID"]);
+$personID = $_POST["personID"] ?? $_GET["personID"] ?? null;
 
 if ($personID) {
     $person->set_id($personID);
     $person->select();
 }
 
-if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $_POST["personExpertiseItem_delete"]) {
+if (
+    !empty($_POST["personExpertiseItem_add"])
+    || !empty($_POST["personExpertiseItem_save"])
+    || !empty($_POST["personExpertiseItem_delete"])
+) {
     $proficiency = new proficiency();
     $proficiency->read_globals();
 
@@ -214,7 +218,7 @@ if ($_POST["personExpertiseItem_add"] || $_POST["personExpertiseItem_save"] || $
     }
 }
 
-if ($_POST["save"]) {
+if (!empty($_POST["save"])) {
     $person->read_globals();
     if ($person->can_write_field("perms")) {
         $_POST["perm_select"] || ($_POST["perm_select"] = []);
@@ -254,7 +258,7 @@ if ($_POST["save"]) {
         $person->save();
         alloc_redirect($TPL["url_alloc_personList"]);
     }
-} elseif ($_POST["delete"]) {
+} elseif (!empty($_POST["delete"])) {
     $person->delete();
     alloc_redirect($TPL["url_alloc_personList"]);
 }
@@ -290,9 +294,9 @@ if (has("time")) {
 }
 
 $TPL["timeSheetRateUnit_select"] = Page::select_options($rate_type_array, $person->get_value("defaultTimeSheetRateUnitID"));
-$TPL["timeSheetRateUnit_label"] = $rate_type_array[$person->get_value("defaultTimeSheetRateUnitID")];
+$TPL["timeSheetRateUnit_label"] = $rate_type_array[$person->get_value("defaultTimeSheetRateUnitID")] ?? "";
 
-if ($personID) {
+if (isset($personID)) {
     $TPL["main_alloc_title"] = "Person Details: " . $person->get_value("username") . " - " . APPLICATION_NAME;
 } else {
     $TPL["main_alloc_title"] = "New Person - " . APPLICATION_NAME;

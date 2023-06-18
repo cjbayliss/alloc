@@ -20,7 +20,7 @@
       <tr>
         <td width="70%">
           <input type="hidden" name="personID" value="{$person_personID}">
-          <select name="skillID[]">{$skills}</select>
+          <select name="skillID[]">{$skills ?? ""}</select>
         </td>
         <td class="right">
           <select name="skillProficiency">

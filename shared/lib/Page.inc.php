@@ -319,10 +319,10 @@ class Page
             "large"  => 340,
             "jumbo"  => 440,
         ];
-        ($height = $ops["height"]) || ($height = "small");
+        $height = $ops["height"] ?? "small";
 
-        $cols = $ops["cols"];
-        if (!$ops["width"] && !$ops["cols"]) {
+        $cols = $ops["cols"] ?? 0;
+        if (!isset($ops["width"]) && !isset($ops["cols"])) {
             $cols = 85;
         }
 
@@ -331,9 +331,9 @@ class Page
         $attrs["wrap"] = "virtual";
         $cols && ($attrs["cols"] = $cols);
         $attrs["style"] = "height:" . $heights[$height] . "px";
-        $ops["width"] && ($attrs["style"] .= "; width:" . $ops["width"]);
-        $ops["class"] && ($attrs["class"] = $ops["class"]);
-        $ops["tabindex"] && ($attrs["tabindex"] = $ops["tabindex"]);
+        isset($ops["width"]) && ($attrs["style"] .= "; width:" . $ops["width"]);
+        isset($ops["class"]) && ($attrs["class"] = $ops["class"]);
+        isset($ops["tabindex"]) && ($attrs["tabindex"] = $ops["tabindex"]);
 
         $str = "";
         foreach ($attrs as $k => $v) {
