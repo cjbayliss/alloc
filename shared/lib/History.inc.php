@@ -57,7 +57,8 @@ class History extends DatabaseEntity
             $allocDatabase = new AllocDatabase();
             $allocDatabase->query($query);
             while ($allocDatabase->next_record()) {
-                $ignored_files[] = end(explode("/", $allocDatabase->f("the_place") . $allocDatabase->f("the_args")));
+                $files = explode("/", $allocDatabase->f("the_place") . $allocDatabase->f("the_args"));
+                $ignored_files[] = end($files);
             }
         }
 
@@ -182,11 +183,15 @@ class History extends DatabaseEntity
             $qs = preg_replace("[^\?]", "", $qs);
         }
 
-        $file = end(explode("/", $_SERVER["SCRIPT_NAME"])) . "?" . $qs;
+        $base_url = explode("/", $_SERVER["SCRIPT_NAME"]);
+        $file = end($base_url) . "?" . $qs;
 
         if (
-            is_object($current_user) && !in_array($file, $ignored_files)
-            && !$_GET["historyID"] && !$_POST["historyID"] && $the_label = $this->get_history_label($_SERVER["SCRIPT_NAME"], $qs)
+            is_object($current_user)
+            && !in_array($file, $ignored_files)
+            && !isset($_GET["historyID"])
+            && !isset($_POST["historyID"])
+            && $the_label = $this->get_history_label($_SERVER["SCRIPT_NAME"], $qs)
         ) {
             $the_place = basename($_SERVER["SCRIPT_NAME"]);
 

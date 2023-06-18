@@ -36,6 +36,7 @@ function show_home_items($width, $home_items)
 
 global $modules;
 $current_user = &singleton("current_user");
+$home_items = [];
 foreach ($modules as $module_name => $module) {
     if ($module->home_items) {
         $home_items = array_merge((array)$home_items, $module->home_items);
@@ -57,7 +58,8 @@ if (isset($_POST["tsiHint_item"])) {
 }
 
 $TPL["main_alloc_title"] = "Home Page - " . APPLICATION_NAME;
-if ($_GET["media"] == "print") {
+$media = $_GET["media"] ?? "";
+if ($media == "print") {
     include_template("templates/homePrintableM.tpl");
 } else {
     include_template("templates/homeM.tpl");

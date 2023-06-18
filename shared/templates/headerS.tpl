@@ -20,10 +20,10 @@
                    ,"side_by_side_link" : "{!empty($sbs_link) && $_REQUEST.sbs_link}"
                    ,"tax_percent"       : "{echo config::get_config_item('taxPercent')}"
                    ,"cal_first_day"     : "{echo config::get_config_item('calendarFirstDay')}"
-                   ,"show_filters"      : "{print is_object($current_user) ? $current_user->prefs["showFilters"] : ""}"
+                   ,"show_filters"      : "{print is_object($current_user) ? ($current_user->prefs["showFilters"] ?? "") : ""}"
                    }
       return values[key];
     }
     </script>
   </head>
-  <body id="{$body_id}" class="{!empty($current_user->prefs["privateMode"]) and print "obfus"}">
+  <body id="{if $main_alloc_title === "allocPSA login"}login{/}" class="{!empty($current_user->prefs["privateMode"]) and print "obfus"}">

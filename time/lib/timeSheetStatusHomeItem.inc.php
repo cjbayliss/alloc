@@ -50,17 +50,17 @@ class timeSheetStatusHomeItem extends home_item
         [$hours_sum_fortnight, $dollars_sum_fortnight] = $timeSheetItem->get_averages($fortn, $current_user->get_id());
         [$hours_avg_fortnight, $dollars_avg_fortnight] = $timeSheetItem->get_fortnightly_average($current_user->get_id());
 
-        $TPL["hours_sum_today"] = sprintf("%0.2f", $hours_sum_today[$current_user->get_id()]);
-        $TPL["dollars_sum_today"] = Page::money_print($dollars_sum_today[$current_user->get_id()]);
+        $TPL["hours_sum_today"] = sprintf("%0.2f", $hours_sum_today[$current_user->get_id()] ?? 0);
+        $TPL["dollars_sum_today"] = Page::money_print($dollars_sum_today[$current_user->get_id()] ?? []);
 
-        $TPL["hours_sum_yesterday"] = sprintf("%0.2f", $hours_sum_yesterday[$current_user->get_id()]);
-        $TPL["dollars_sum_yesterday"] = Page::money_print($dollars_sum_yesterday[$current_user->get_id()]);
+        $TPL["hours_sum_yesterday"] = sprintf("%0.2f", $hours_sum_yesterday[$current_user->get_id()] ?? 0);
+        $TPL["dollars_sum_yesterday"] = Page::money_print($dollars_sum_yesterday[$current_user->get_id()] ?? []);
 
-        $TPL["hours_sum_fortnight"] = sprintf("%0.2f", $hours_sum_fortnight[$current_user->get_id()]);
-        $TPL["dollars_sum_fortnight"] = Page::money_print($dollars_sum_fortnight[$current_user->get_id()]);
+        $TPL["hours_sum_fortnight"] = sprintf("%0.2f", $hours_sum_fortnight[$current_user->get_id()] ?? 0);
+        $TPL["dollars_sum_fortnight"] = Page::money_print($dollars_sum_fortnight[$current_user->get_id()] ?? []);
 
-        $TPL["hours_avg_fortnight"] = sprintf("%0.2f", $hours_avg_fortnight[$current_user->get_id()]);
-        $TPL["dollars_avg_fortnight"] = Page::money(config::get_config_item("currency"), $dollars_avg_fortnight[$current_user->get_id()], "%s%m %c");
+        $TPL["hours_avg_fortnight"] = sprintf("%0.2f", $hours_avg_fortnight[$current_user->get_id()] ?? 0);
+        $TPL["dollars_avg_fortnight"] = Page::money(config::get_config_item("currency"), $dollars_avg_fortnight[$current_user->get_id()] ?? 0, "%s%m %c");
 
         $TPL["dateFrom"] = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 28, date("Y")));
         $TPL["dateTo"] = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") + 1, date("Y")));

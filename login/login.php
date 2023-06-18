@@ -127,7 +127,6 @@ if (is_array($files) && count($files)) {
     $str && ($TPL["latest_changes"] = $str);
 }
 
-$TPL["body_id"] = "login";
 $TPL["main_alloc_title"] = "allocPSA login";
 
 include_template("templates/login.tpl");

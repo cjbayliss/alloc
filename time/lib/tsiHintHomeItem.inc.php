@@ -20,7 +20,7 @@ class tsiHintHomeItem extends home_item
             return;
         }
 
-        if (!$current_user->prefs["showTimeSheetItemHintHome"]) {
+        if (!isset($current_user->prefs["showTimeSheetItemHintHome"])) {
             return;
         }
 

@@ -165,10 +165,10 @@ class Page
             $r["history_" . $row["value"]] = $row["the_label"];
         }
 
-        $str[] = Page::select_options($r, $_POST["search_action"]);
+        $str[] = Page::select_options($r, $_POST["search_action"] ?? "");
         $TPL["history_options"] = implode("\n", $str);
-        $TPL["category_options"] = Page::get_category_options($_POST["search_action"]);
-        $TPL["needle"] = $_POST["needle"];
+        $TPL["category_options"] = Page::get_category_options($_POST["search_action"] ?? "");
+        $TPL["needle"] = $_POST["needle"] ?? "";
         include_template(ALLOC_MOD_DIR . "shared/templates/toolbarS.tpl");
     }
 

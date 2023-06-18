@@ -12,6 +12,8 @@ define("PERM_PROJECT_READ_TASK_DETAIL", 256);
 
 class Task extends DatabaseEntity
 {
+    public $all_row_fields;
+
     public $classname = "Task";
 
     public $data_table = "task";
@@ -882,13 +884,16 @@ class Task extends DatabaseEntity
 
     public static function get_list_filter($filter = [])
     {
-        $sql = [];
-        $projectIDs = null;
-        $tags = [];
+
+        $_FORM = [];
         $current_user = &singleton("current_user");
+        $having = "";
+        $projectIDs = null;
+        $sql = [];
+        $tags = [];
 
         // If they want starred, load up the taskID filter element
-        if ($filter["starred"]) {
+        if (isset($filter["starred"])) {
             foreach (array_keys((array)$current_user->prefs["stars"]["task"]) as $k) {
                 $filter["taskID"][] = $k;
             }
@@ -899,85 +904,108 @@ class Task extends DatabaseEntity
         }
 
         // Filter on taskID
-        $filter["taskID"] && ($sql[] = sprintf_implode("task.taskID = %d", $filter["taskID"]));
+        if (isset($filter["taskID"])) {
+            $sql[] = sprintf_implode("task.taskID = %d", $filter["taskID"]);
+        }
 
         // No point continuing if primary key specified, so return
-        if ($filter["taskID"]) {
+        if (isset($filter["taskID"])) {
             return [$sql, ""];
         }
 
         // This takes care of projectID singular and plural
         has("project") && ($projectIDs = project::get_projectID_sql($filter));
-        $projectIDs && ($sql["projectIDs"] = $projectIDs);
+        if (isset($projectIDs)) {
+            $sql["projectIDs"] = $projectIDs;
+        }
 
         // project name or project nick name or project id
-        $filter["projectNameMatches"] && ($sql[] = sprintf_implode(
-            "project.projectName LIKE '%%%s%%'
-                                                               OR project.projectShortName LIKE '%%%s%%'
-                                                               OR project.projectID = %d",
-            $filter["projectNameMatches"],
-            $filter["projectNameMatches"],
-            $filter["projectNameMatches"]
-        ));
+        if (isset($filter["projectNameMatches"])) {
+            $sql[] = sprintf_implode(
+                "project.projectName LIKE '%%%s%%'
+          OR project.projectShortName LIKE '%%%s%%'
+          OR project.projectID = %d",
+                $filter["projectNameMatches"],
+                $filter["projectNameMatches"],
+                $filter["projectNameMatches"]
+            );
+        }
 
         [$ts_open, $ts_pending, $ts_closed] = Task::get_task_status_in_set_sql();
 
         // New Tasks
-        if ($filter["taskDate"] == "new") {
-            $past = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 2, date("Y"))) . " 00:00:00";
-            if (date("D") == "Mon") {
-                $past = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 4, date("Y"))) . " 00:00:00";
-            }
+        if (isset($_FORM["taskDate"])) {
+            if ($filter["taskDate"] == "new") {
+                $past = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 2, date("Y"))) . " 00:00:00";
+                if (date("D") == "Mon") {
+                    $past = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 4, date("Y"))) . " 00:00:00";
+                }
 
-            $sql[] = unsafe_prepare("(task.taskStatus NOT IN (" . $ts_closed . ") AND task.dateCreated >= '" . $past . "')");
-            // Due Today
-        } elseif ($filter["taskDate"] == "due_today") {
-            $sql[] = "(task.taskStatus NOT IN (" . $ts_closed . ") AND task.dateTargetCompletion = '" . date("Y-m-d") . "')";
-            // Overdue
-        } elseif ($filter["taskDate"] == "overdue") {
-            $sql[] = "(task.taskStatus NOT IN (" . $ts_closed . ")
+                $sql[] = unsafe_prepare("(task.taskStatus NOT IN (" . $ts_closed . ") AND task.dateCreated >= '" . $past . "')");
+                // Due Today
+            } elseif ($filter["taskDate"] == "due_today") {
+                $sql[] = "(task.taskStatus NOT IN (" . $ts_closed . ") AND task.dateTargetCompletion = '" . date("Y-m-d") . "')";
+                // Overdue
+            } elseif ($filter["taskDate"] == "overdue") {
+                $sql[] = "(task.taskStatus NOT IN (" . $ts_closed . ")
                 AND
                 (task.dateTargetCompletion IS NOT NULL AND task.dateTargetCompletion != '' AND '" . date("Y-m-d") . "' > task.dateTargetCompletion))";
-            // Date Created
-        } elseif ($filter["taskDate"] == "d_created") {
-            $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateCreated >= '%s')", $filter["dateOne"]));
-            $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateCreated <= '%s 23:59:59')", $filter["dateTwo"]));
-            // Date Assigned
-        } elseif ($filter["taskDate"] == "d_assigned") {
-            $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateAssigned >= '%s')", $filter["dateOne"]));
-            $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateAssigned <= '%s 23:59:59')", $filter["dateTwo"]));
-            // Date Target Start
-        } elseif ($filter["taskDate"] == "d_targetStart") {
-            $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateTargetStart >= '%s')", $filter["dateOne"]));
-            $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateTargetStart <= '%s')", $filter["dateTwo"]));
-            // Date Target Completion
-        } elseif ($filter["taskDate"] == "d_targetCompletion") {
-            $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateTargetCompletion >= '%s')", $filter["dateOne"]));
-            $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateTargetCompletion <= '%s')", $filter["dateTwo"]));
-            // Date Actual Start
-        } elseif ($filter["taskDate"] == "d_actualStart") {
-            $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateActualStart >= '%s')", $filter["dateOne"]));
-            $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateActualStart <= '%s')", $filter["dateTwo"]));
-            // Date Actual Completion
-        } elseif ($filter["taskDate"] == "d_actualCompletion") {
-            $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateActualCompletion >= '%s')", $filter["dateOne"]));
-            $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateActualCompletion <= '%s')", $filter["dateTwo"]));
+                // Date Created
+            } elseif ($filter["taskDate"] == "d_created") {
+                $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateCreated >= '%s')", $filter["dateOne"]));
+                $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateCreated <= '%s 23:59:59')", $filter["dateTwo"]));
+                // Date Assigned
+            } elseif ($filter["taskDate"] == "d_assigned") {
+                $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateAssigned >= '%s')", $filter["dateOne"]));
+                $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateAssigned <= '%s 23:59:59')", $filter["dateTwo"]));
+                // Date Target Start
+            } elseif ($filter["taskDate"] == "d_targetStart") {
+                $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateTargetStart >= '%s')", $filter["dateOne"]));
+                $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateTargetStart <= '%s')", $filter["dateTwo"]));
+                // Date Target Completion
+            } elseif ($filter["taskDate"] == "d_targetCompletion") {
+                $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateTargetCompletion >= '%s')", $filter["dateOne"]));
+                $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateTargetCompletion <= '%s')", $filter["dateTwo"]));
+                // Date Actual Start
+            } elseif ($filter["taskDate"] == "d_actualStart") {
+                $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateActualStart >= '%s')", $filter["dateOne"]));
+                $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateActualStart <= '%s')", $filter["dateTwo"]));
+                // Date Actual Completion
+            } elseif ($filter["taskDate"] == "d_actualCompletion") {
+                $filter["dateOne"] && ($sql[] = unsafe_prepare("(task.dateActualCompletion >= '%s')", $filter["dateOne"]));
+                $filter["dateTwo"] && ($sql[] = unsafe_prepare("(task.dateActualCompletion <= '%s')", $filter["dateTwo"]));
+            }
         }
 
         // Task status filtering
-        $filter["taskStatus"] && ($sql[] = Task::get_taskStatus_sql($filter["taskStatus"]));
-        $filter["taskTypeID"] && ($sql[] = sprintf_implode("task.taskTypeID = '%s'", $filter["taskTypeID"]));
+        if (isset($filter["taskStatus"])) {
+            $sql[] = Task::get_taskStatus_sql($filter["taskStatus"]);
+        }
+
+        if (isset($filter["taskTypeID"])) {
+            $sql[] = sprintf_implode("task.taskTypeID = '%s'", $filter["taskTypeID"]);
+        }
 
         // Filter on %taskName%
-        $filter["taskName"] && ($sql[] = sprintf_implode("task.taskName LIKE '%%%s%%'", $filter["taskName"]));
+        if (isset($filter["taskName"])) {
+            $sql[] = sprintf_implode("task.taskName LIKE '%%%s%%'", $filter["taskName"]);
+        }
 
         // If personID filter
-        $filter["personID"] && ($sql["personID"] = sprintf_implode("IFNULL(task.personID,0) = %d", $filter["personID"]));
-        $filter["creatorID"] && ($sql["creatorID"] = sprintf_implode("IFNULL(task.creatorID,0) = %d", $filter["creatorID"]));
-        $filter["managerID"] && ($sql["managerID"] = sprintf_implode("IFNULL(task.managerID,0) = %d", $filter["managerID"]));
+        if (isset($filter["personID"])) {
+            $sql["personID"] = sprintf_implode("IFNULL(task.personID,0) = %d", $filter["personID"]);
+        }
+
+        if (isset($filter["creatorID"])) {
+            $sql["creatorID"] = sprintf_implode("IFNULL(task.creatorID,0) = %d", $filter["creatorID"]);
+        }
+
+        if (isset($filter["managerID"])) {
+            $sql["managerID"] = sprintf_implode("IFNULL(task.managerID,0) = %d", $filter["managerID"]);
+        }
 
         // If tags filter
-        if ($filter["tags"] && is_array($filter["tags"])) {
+        if (isset($filter["tags"]) && is_array($filter["tags"])) {
             foreach ((array)$filter["tags"] as $k => $tag) {
                 $tag && ($tags[] = $tag);
             }
@@ -986,25 +1014,29 @@ class Task extends DatabaseEntity
             $having = unsafe_prepare("HAVING count(DISTINCT seltag.name) = %d", count($tags));
         }
 
-        // These filters are for the time sheet dropdown list
-        if ($filter["taskTimeSheetStatus"] == "open") {
-            unset($sql["personID"]);
-            $sql[] = unsafe_prepare("(task.taskStatus NOT IN (" . $ts_closed . "))");
-        } elseif ($filter["taskTimeSheetStatus"] == "mine") {
-            $current_user = &singleton("current_user");
-            unset($sql["personID"]);
-            $sql[] = unsafe_prepare("((task.taskStatus NOT IN (" . $ts_closed . ")) AND task.personID = %d)", $current_user->get_id());
-        } elseif ($filter["taskTimeSheetStatus"] == "not_assigned") {
-            unset($sql["personID"]);
-            $sql[] = unsafe_prepare("((task.taskStatus NOT IN (" . $ts_closed . ")) AND task.personID != %d)", $filter["personID"]);
-        } elseif ($filter["taskTimeSheetStatus"] == "recent_closed") {
-            unset($sql["personID"]);
-            $sql[] = unsafe_prepare("(task.dateActualCompletion >= DATE_SUB(CURDATE(),INTERVAL 14 DAY))");
-        } elseif ($filter["taskTimeSheetStatus"] == "all") {
-            
+        if (isset($filter["taskTimeSheetStatus"])) {
+            // These filters are for the time sheet dropdown list
+            if ($filter["taskTimeSheetStatus"] == "open") {
+                unset($sql["personID"]);
+                $sql[] = unsafe_prepare("(task.taskStatus NOT IN (" . $ts_closed . "))");
+            } elseif ($filter["taskTimeSheetStatus"] == "mine") {
+                $current_user = &singleton("current_user");
+                unset($sql["personID"]);
+                $sql[] = unsafe_prepare("((task.taskStatus NOT IN (" . $ts_closed . ")) AND task.personID = %d)", $current_user->get_id());
+            } elseif ($filter["taskTimeSheetStatus"] == "not_assigned") {
+                unset($sql["personID"]);
+                $sql[] = unsafe_prepare("((task.taskStatus NOT IN (" . $ts_closed . ")) AND task.personID != %d)", $filter["personID"]);
+            } elseif ($filter["taskTimeSheetStatus"] == "recent_closed") {
+                unset($sql["personID"]);
+                $sql[] = unsafe_prepare("(task.dateActualCompletion >= DATE_SUB(CURDATE(),INTERVAL 14 DAY))");
+            } elseif ($filter["taskTimeSheetStatus"] == "all") {
+            }
         }
 
-        $filter["parentTaskID"] && ($sql["parentTaskID"] = sprintf_implode("IFNULL(task.parentTaskID,0) = %d", $filter["parentTaskID"]));
+        if (isset($filter["parentTaskID"])) {
+            $sql["parentTaskID"] = sprintf_implode("IFNULL(task.parentTaskID,0) = %d", $filter["parentTaskID"]);
+        }
+
         return [$sql, $having];
     }
 
@@ -1035,8 +1067,8 @@ class Task extends DatabaseEntity
 
     public static function build_recursive_task_list($t = [], $_FORM = [])
     {
-        $tasks = null;
-        $tasks || ($tasks = []);
+        $done = [];
+        $tasks = [];
         foreach ($t as $r) {
             $row = $r["row"];
             $done[$row["taskID"]] = true; // To track orphans
@@ -1082,18 +1114,14 @@ class Task extends DatabaseEntity
 
         [$filter, $having] = Task::get_list_filter($_FORM);
 
-        $debug = $_FORM["debug"];
-        $debug && (print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
-        $debug && (print "\n<pre>filter: " . print_r($filter, 1) . "</pre>");
-
-        $_FORM["taskView"] || ($_FORM["taskView"] = 'prioritised');
+        $_FORM["taskView"] ??= 'prioritised';
 
         // Zero is a valid limit
-        if ($_FORM["limit"] || $_FORM["limit"] === 0 || $_FORM["limit"] === "0") {
+        if (isset($_FORM["limit"]) && (bool)strlen($_FORM["limit"])) {
             $limit = unsafe_prepare("limit %d", $_FORM["limit"]);
         }
 
-        $_FORM["return"] || ($_FORM["return"] = "html");
+        $_FORM["return"] ??= "html";
 
         $_FORM["people_cache"] = &get_cached_table("person");
         $_FORM["timeUnit_cache"] = &get_cached_table("timeUnit");
@@ -1137,8 +1165,6 @@ class Task extends DatabaseEntity
                      " . $having . "
                      " . $order_limit;
 
-        $debug && (print "\n<br>QUERY: " . $q);
-        $_FORM["debug"] && (print "\n<br>QUERY: " . $q);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         while ($row = $allocDatabase->next_record()) {
@@ -1215,7 +1241,7 @@ class Task extends DatabaseEntity
         }
 
         if ($_FORM["taskView"] == "byProject") {
-            ($parentTaskID = $_FORM["parentTaskID"]) || ($parentTaskID = 0);
+            $parentTaskID = $_FORM["parentTaskID"] ?? 0;
             $t = Task::get_recursive_child_tasks($parentTaskID, (array)$rows);
             [$tasks, $done] = Task::build_recursive_task_list($t, $_FORM);
             // This bit appends the orphan tasks onto the end..
@@ -1432,15 +1458,15 @@ class Task extends DatabaseEntity
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 
-        if ($_FORM["projectID"] && !is_array($_FORM["projectID"])) {
+        if (isset($_FORM["projectID"]) && !is_array($_FORM["projectID"])) {
             $p = $_FORM["projectID"];
             unset($_FORM["projectID"]);
             $_FORM["projectID"][] = $p;
-        } elseif (!$_FORM["projectType"]) {
+        } elseif (!isset($_FORM["projectType"])) {
             $_FORM["projectType"] = "mine";
         }
 
-        if ($_FORM["showDates"]) {
+        if (isset($_FORM["showDates"])) {
             $_FORM["showDate1"] = true;
             $_FORM["showDate2"] = true;
             $_FORM["showDate3"] = true;
@@ -1448,7 +1474,7 @@ class Task extends DatabaseEntity
             $_FORM["showDate5"] = true;
         }
 
-        if ($_FORM["applyFilter"] && is_object($current_user)) {
+        if (isset($_FORM["applyFilter"]) && is_object($current_user)) {
             // we have a new filter configuration from the user, and must save it
             if (!$_FORM["dontSave"]) {
                 $url = $_FORM["url_form_action"];
@@ -1456,8 +1482,9 @@ class Task extends DatabaseEntity
                 $current_user->prefs[$_FORM["form_name"]] = $_FORM;
                 $_FORM["url_form_action"] = $url;
             }
-        } else {
+
             // we haven't been given a filter configuration, so load it from user preferences
+        } elseif (isset($_FORM['form_name'])) {
             $_FORM = $current_user->prefs[$_FORM["form_name"]];
             if (!isset($current_user->prefs[$_FORM["form_name"]])) {
                 $_FORM["projectType"] = "mine";
@@ -1467,13 +1494,13 @@ class Task extends DatabaseEntity
         }
 
         // If have check Show Description checkbox then display the Long Description and the Comments
-        if ($_FORM["showDescription"]) {
+        if (isset($_FORM["showDescription"])) {
             $_FORM["showComments"] = true;
         } else {
             unset($_FORM["showComments"]);
         }
 
-        $_FORM["taskView"] || ($_FORM["taskView"] = "byProject");
+        $_FORM["taskView"] ??= "byProject";
         return $_FORM;
     }
 

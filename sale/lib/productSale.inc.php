@@ -494,7 +494,7 @@ class productSale extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the productSaleID filter element
-        if ($filter["starred"]) {
+        if (isset($filter["starred"])) {
             foreach (array_keys((array)$current_user->prefs["stars"]["productSale"]) as $k) {
                 $filter["productSaleID"][] = $k;
             }
@@ -505,10 +505,12 @@ class productSale extends DatabaseEntity
         }
 
         // Filter productSaleID
-        $filter["productSaleID"] && ($sql[] = sprintf_implode("productSale.productSaleID = %d", $filter["productSaleID"]));
+        if (isset($filter["productSaleID"])) {
+            $sql[] = sprintf_implode("productSale.productSaleID = %d", $filter["productSaleID"]);
+        }
 
         // No point continuing if primary key specified, so return
-        if ($filter["productSaleID"] || $filter["starred"]) {
+        if (isset($filter["productSaleID"]) || isset($filter["starred"])) {
             return $sql;
         }
 
@@ -521,10 +523,14 @@ class productSale extends DatabaseEntity
             "productSaleModifiedUser",
         ];
         foreach ($id_fields as $id_field) {
-            $filter[$id_field] && ($sql[] = sprintf_implode("productSale." . $id_field . " = %d", $filter[$id_field]));
+            if (isset($filter[$id_field])) {
+                $sql[] = sprintf_implode("productSale." . $id_field . " = %d", $filter[$id_field]);
+            }
         }
 
-        $filter["status"] && ($sql[] = sprintf_implode("productSale.status = '%s'", $filter["status"]));
+        if (isset($filter["status"])) {
+            $sql[] = sprintf_implode("productSale.status = '%s'", $filter["status"]);
+        }
 
         return $sql;
     }
@@ -534,10 +540,6 @@ class productSale extends DatabaseEntity
 
         $f = null;
         $filter = productSale::get_list_filter($_FORM);
-
-        $debug = $_FORM["debug"];
-        $debug && (print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
-        $debug && (print "\n<pre>filter: " . print_r($filter, 1) . "</pre>");
 
         if (is_array($filter) && count($filter)) {
             $f = " WHERE " . implode(" AND ", $filter);

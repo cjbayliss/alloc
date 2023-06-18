@@ -186,17 +186,22 @@ class tf extends DatabaseEntity
         $filter2 = [];
         $current_user = &singleton("current_user");
 
-        if (!$_FORM["tfIDs"] && !$current_user->have_role('admin')) {
+        if (!isset($_FORM["tfIDs"]) && !$current_user->have_role('admin')) {
             $_FORM["owner"] = true;
         }
 
         $_FORM["owner"] && ($filter1[] = sprintf_implode("tfPerson.personID = %d", $current_user->get_id()));
 
-        $tfIDs = tf::get_permitted_tfs($_FORM["tfIDs"]);
+        $tfIDs = tf::get_permitted_tfs($_FORM["tfIDs"] ?? []);
         $tfIDs && ($filter1[] = sprintf_implode("tf.tfID = %d", $tfIDs));
         $tfIDs && ($filter2[] = sprintf_implode("tf.tfID = %d", $tfIDs));
-        $_FORM["showall"] || ($filter1[] = "(tf.tfActive = 1)");
-        $_FORM["showall"] || ($filter2[] = "(tf.tfActive = 1)");
+        if (empty($_FORM["showall"])) {
+            $filter1[] = "(tf.tfActive = 1)";
+        }
+
+        if (empty($_FORM["showall"])) {
+            $filter2[] = "(tf.tfActive = 1)";
+        }
 
         return [$filter1, $filter2];
     }
@@ -263,13 +268,17 @@ class tf extends DatabaseEntity
                     ORDER BY tf.tfName");
 
         $allocDatabase->query($q);
+        $total = 0;
+        $pending_total = 0;
         while ($row = $allocDatabase->row()) {
             $tf = new tf();
             $tf->read_db_record($allocDatabase);
             $tf->set_values();
 
-            $total = $adds[$allocDatabase->f("tfID")] - $subs[$allocDatabase->f("tfID")];
-            $pending_total = $pending_adds[$allocDatabase->f("tfID")] - $pending_subs[$allocDatabase->f("tfID")];
+            if (!empty($adds[$allocDatabase->f("tfID")])) {
+                $total = ($adds[$allocDatabase->f("tfID")] - $subs[$allocDatabase->f("tfID")]);
+                $pending_total = $pending_adds[$allocDatabase->f("tfID")] - $pending_subs[$allocDatabase->f("tfID")];
+            }
 
             if (have_entity_perm("transaction", PERM_READ, $current_user, $tf->is_owner())) {
                 $row["tfBalance"] = Page::money(config::get_config_item("currency"), $total, "%s%m %c");

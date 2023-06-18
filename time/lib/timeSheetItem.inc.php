@@ -7,6 +7,8 @@
 
 class timeSheetItem extends DatabaseEntity
 {
+    public $currency;
+
     public $data_table = "timeSheetItem";
 
     public $display_field_name = "description";
@@ -151,11 +153,12 @@ class timeSheetItem extends DatabaseEntity
     public function get_fortnightly_average($personID = false)
     {
 
+        $done = [];
         $fortnight = null;
         $fortnights = [];
-        $personID_sql = null;
-        $done = [];
         $how_many_fortnights = [];
+        $personID_sql = null;
+        $rtn_dollars = null;
         // Need an array of the past years fortnights
         $x = 0;
         while ($x < 365) {
@@ -488,7 +491,7 @@ class timeSheetItem extends DatabaseEntity
         $x = 0;
         while (mktime(0, 0, 0, $sm, $sd + $x, $sy) <= mktime(0, 0, 0, $em, $ed, $ey)) {
             $d = date("Y-m-d", mktime(0, 0, 0, $sm, $sd + $x, $sy));
-            $points[] = [$d . " 12:00PM", sprintf("%.2F", $info[$d]["hours"])];
+            $points[] = [$d . " 12:00PM", sprintf("%.2F", $info[$d]["hours"] ?? 0)];
             ++$x;
         }
 

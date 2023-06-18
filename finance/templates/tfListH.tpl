@@ -5,6 +5,8 @@
     <th class="right">Pending</th>
     <th class="right">Balance</th>
   </tr>
+  {$grand_total = 0}
+  {$grand_total_pending = 0}
   {foreach $tfListRows as $r}
   <tr>
     <td><a href="{$url_alloc_transactionList}tfID={$r.tfID}">{=$r.tfName}</a></td>

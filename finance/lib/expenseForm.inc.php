@@ -222,8 +222,14 @@ class expenseForm extends DatabaseEntity
     public static function get_list_filter($filter = [])
     {
         $sql = [];
-        $filter["projectID"] && ($sql[] = unsafe_prepare("transaction.projectID = %d", $filter["projectID"]));
-        $filter["status"] && ($sql[] = unsafe_prepare("transaction.status = '%s'", $filter["status"]));
+        if (isset($filter["projectID"])) {
+            $sql[] = unsafe_prepare("transaction.projectID = %d", $filter["projectID"]);
+        }
+
+        if (isset($filter["status"])) {
+            $sql[] = unsafe_prepare("transaction.status = '%s'", $filter["status"]);
+        }
+
         if (isset($filter["finalised"])) {
             $sql[] = unsafe_prepare("expenseForm.expenseFormFinalised = %d", $filter["finalised"]);
         }

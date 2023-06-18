@@ -121,6 +121,7 @@ function get_all_form_data($array = [], $defaults = [])
         if (!isset($_FORM[$name])) {
             break;
         }
+
         if ($_FORM[$name] = $_POST[$name]) {
             continue;
         }
@@ -487,7 +488,7 @@ function alloc_redirect($target_url)
         "message_help_no_esc",
         "message_good_no_esc",
     ] as $type) {
-        if ($TPL[$type]) {
+        if (isset($TPL[$type])) {
             if (is_array($TPL[$type])) {
                 $TPL[$type] = implode("<br>", $TPL[$type]);
             }
@@ -677,7 +678,7 @@ function alloc_error($str = "", $force = null)
 
     // Output a plain-text error suitable for logfiles and CLI
     if ($errors_format == "text" && ini_get('display_errors')) {
-        echo (strip_tags($str));
+        echo(strip_tags($str));
     }
 
     // Log the error message
@@ -799,7 +800,7 @@ function unsafe_prepare(...$args)
     // Trackdown poorly formulated queries
     $err = error_get_last();
     if (
-        !empty($err)
+        $err !== null && $err !== []
         && $err["type"] !== 0
         && $err["type"] == 2
         && in_str("sprintf", $err["message"])

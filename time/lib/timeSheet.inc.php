@@ -483,7 +483,7 @@ class timeSheet extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the timeSheetID filter element
-        if ($filter["starred"]) {
+        if (isset($filter["starred"])) {
             foreach (array_keys((array)$current_user->prefs["stars"]["timeSheet"]) as $k) {
                 $filter["timeSheetID"][] = $k;
             }
@@ -494,20 +494,36 @@ class timeSheet extends DatabaseEntity
         }
 
         // Filter timeSheetID
-        $filter["timeSheetID"] && ($sql[] = sprintf_implode("timeSheet.timeSheetID = %d", $filter["timeSheetID"]));
+        if (isset($filter["timeSheetID"])) {
+            $sql[] = sprintf_implode("timeSheet.timeSheetID = %d", $filter["timeSheetID"]);
+        }
 
         // No point continuing if primary key specified, so return
-        if ($filter["timeSheetID"] || $filter["starred"]) {
+        if (isset($filter["timeSheetID"]) || isset($filter["starred"])) {
             return $sql;
         }
 
-        $filter["tfID"] && ($sql[] = sprintf_implode("timeSheet.recipient_tfID = %d", $filter["tfID"]));
-        $filter["projectID"] && ($sql[] = sprintf_implode("timeSheet.projectID = %d", $filter["projectID"]));
-        $filter["taskID"] && ($sql[] = sprintf_implode("timeSheetItem.taskID = %d", $filter["taskID"]));
-        $filter["personID"] && ($sql[] = sprintf_implode("timeSheet.personID = %d", $filter["personID"]));
-        $filter["status"] && ($sql[] = sprintf_implode("timeSheet.status = '%s'", $filter["status"]));
+        if (isset($filter["tfID"])) {
+            $sql[] = sprintf_implode("timeSheet.recipient_tfID = %d", $filter["tfID"]);
+        }
 
-        if ($filter["dateFrom"]) {
+        if (isset($filter["projectID"])) {
+            $sql[] = sprintf_implode("timeSheet.projectID = %d", $filter["projectID"]);
+        }
+
+        if (isset($filter["taskID"])) {
+            $sql[] = sprintf_implode("timeSheetItem.taskID = %d", $filter["taskID"]);
+        }
+
+        if (isset($filter["personID"])) {
+            $sql[] = sprintf_implode("timeSheet.personID = %d", $filter["personID"]);
+        }
+
+        if (isset($filter["status"])) {
+            $sql[] = sprintf_implode("timeSheet.status = '%s'", $filter["status"]);
+        }
+
+        if (isset($filter["dateFrom"])) {
             if (!in_array($filter["dateFromComparator"], ["=", "!=", ">", ">=", "<", "<="])) {
                 $filter["dateFromComparator"] = '=';
             }
@@ -515,7 +531,7 @@ class timeSheet extends DatabaseEntity
             $sql[] = unsafe_prepare("(timeSheet.dateFrom " . $filter['dateFromComparator'] . " '%s')", $filter["dateFrom"]);
         }
 
-        if ($filter["dateTo"]) {
+        if (isset($filter["dateTo"])) {
             if (!in_array($filter["dateToComparator"], ["=", "!=", ">", ">=", "<", "<="])) {
                 $filter["dateToComparator"] = '=';
             }
@@ -542,13 +558,8 @@ class timeSheet extends DatabaseEntity
         $filter = timeSheet::get_list_filter($_FORM);
 
         // Used in timeSheetListS.tpl
-        $extra["showFinances"] = $_FORM["showFinances"];
-
-        $debug = $_FORM["debug"];
-        $debug && (print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
-        $debug && (print "<pre>filter: " . print_r($filter, 1) . "</pre>");
-
-        $_FORM["return"] || ($_FORM["return"] = "html");
+        $extra["showFinances"] = $_FORM["showFinances"] ?? "";
+        $_FORM["return"] ??= "html";
 
         $filter = is_array($filter) && count($filter) ? " WHERE " . implode(" AND ", $filter) : "";
 
@@ -561,7 +572,6 @@ class timeSheet extends DatabaseEntity
             GROUP BY timeSheet.timeSheetID
             ORDER BY dateFrom,projectName,timeSheet.status,surname";
 
-        $debug && (print "Query: " . $q);
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
 
@@ -632,7 +642,7 @@ class timeSheet extends DatabaseEntity
         $extra["positive_tallies"] = Page::money_print($pos_tallies);
         $extra["negative_tallies"] = Page::money_print($neg_tallies);
 
-        if (!$_FORM["noextra"]) {
+        if (!isset($_FORM["noextra"])) {
             return ["rows" => (array)$rows, "extra" => $extra];
         }
 

@@ -13,6 +13,8 @@ define("PERM_PROJECT_ADD_TASKS", 512);
 
 class project extends DatabaseEntity
 {
+    public $all_row_fields;
+
     public $classname = "project";
 
     public $data_table = "project";
@@ -69,8 +71,10 @@ class project extends DatabaseEntity
         $taskIDs = [];
         $allocDatabase = new AllocDatabase();
 
-        if ($initialState["projectStatus"] != "Archived" &&
-        $this->get_value("projectStatus") == "Archived") {
+        if (
+            $initialState["projectStatus"] != "Archived" &&
+            $this->get_value("projectStatus") == "Archived"
+        ) {
             $allocDatabase->connect();
             $projectTaskList = $allocDatabase->pdo->prepare(
                 "SELECT taskID FROM task
@@ -94,8 +98,10 @@ class project extends DatabaseEntity
                     "All open and pending tasks ({$taskIDs}) have had their
                     status changed to Closed: Archived.";
             }
-        } elseif ($initialState["projectStatus"] == "Archived" &&
-        $this->get_value("projectStatus") != "Archived") {
+        } elseif (
+            $initialState["projectStatus"] == "Archived" &&
+            $this->get_value("projectStatus") != "Archived"
+        ) {
             $allocDatabase->connect();
             $projectTaskList = $allocDatabase->pdo->prepare(
                 "SELECT taskID FROM task
@@ -503,7 +509,7 @@ class project extends DatabaseEntity
      */
     private static function createSQLFilerConditions($filter = [])
     {
-        if ($filter["starred"]) {
+        if (isset($filter["starred"])) {
             foreach (array_keys((array)singleton("current_user")->prefs["stars"]["project"]) as $projectID) {
                 $filter["projectID"][] = $projectID;
             }
@@ -514,54 +520,54 @@ class project extends DatabaseEntity
         }
 
         $sql = [];
-        if ($filter["projectID"]) {
+        if (isset($filter["projectID"])) {
             $parts = array_map(static fn ($projectID) => sprintf('IFNULL(project.projectID, 0) = %s', $projectID), (array)$filter["projectID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
-        if ($filter["projectID"] || $filter["starred"]) {
+        if (isset($filter["projectID"]) || isset($filter["starred"])) {
             return $sql;
         }
 
         // FIXME: is '!== "undefined"' needed by the other filters?
-        if ($filter["clientID"] && $filter["clientID"] !== "undefined") {
+        if (isset($filter["clientID"]) && $filter["clientID"] !== "undefined") {
             $parts = array_map(static fn ($clientID) => sprintf('IFNULL(project.clientID, 0) = %s', $clientID), (array)$filter["clientID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
-        if ($filter["personID"]) {
+        if (isset($filter["personID"])) {
             $parts = array_map(static fn ($personID) => sprintf('IFNULL(projectPerson.personID, 0) = %s', $personID), (array)$filter["personID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
-        if ($filter["projectStatus"]) {
+        if (isset($filter["projectStatus"])) {
             $parts = array_map(static fn ($projectStatus) => sprintf("IFNULL(project.projectStatus, '') = '%s'", $projectStatus), (array)$filter["projectStatus"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
-        if ($filter["projectType"]) {
+        if (isset($filter["projectType"])) {
             $parts = array_map(static fn ($projectType) => sprintf('IFNULL(project.projectType, 0) = %s', $projectType), (array)$filter["projectType"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
-        if ($filter["projectName"]) {
+        if (isset($filter["projectName"])) {
             $parts = array_map(static fn ($projectName) => "IFNULL(project.projectName, '') LIKE '%%" . $projectName . "%%'", (array)$filter["projectName"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
-        if ($filter["projectShortName"]) {
+        if (isset($filter["projectShortName"])) {
             $parts = array_map(static fn ($projectShortName) => "IFNULL(project.projectShortName, '') LIKE '%%" . $projectShortName . "%%'", (array)$filter["projectShortName"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
-        if ($filter["projectNameMatches"]) {
+        if (isset($filter["projectNameMatches"])) {
             $parts = array_map(static fn ($projectNameMatches) => "project.projectName LIKE '%%" . $projectNameMatches . "%%' OR project.projectShortName LIKE '%%" . $projectNameMatches . "%%' OR project.projectID = " . $projectNameMatches, (array)$filter["projectNameMatches"]);
 
             $sql[] = implode(" OR ", $parts);
@@ -589,7 +595,7 @@ class project extends DatabaseEntity
      */
     public static function getFilteredProjectList($_FORM)
     {
-        $_FORM["return"] = $_FORM["return"] ?: "html";
+        $_FORM["return"] ??= "html";
 
         $filter = self::createSQLFilerConditions($_FORM);
         $filter = is_array($filter) && count($filter) ? " WHERE " . implode(" AND ", $filter) : "";
@@ -839,13 +845,17 @@ class project extends DatabaseEntity
     {
         $projectIDs = [];
 
-        if (!$filter["projectID"] && $filter["projectType"] && $filter["projectType"] != "all") {
+        if (
+            !isset($filter["projectID"])
+            && isset($filter["projectType"])
+            && $filter["projectType"] != "all"
+        ) {
             $allocDatabase = new AllocDatabase();
             $allocDatabase->connect();
             $projectIDsAndNames = self::get_project_type_query(
                 $allocDatabase,
                 $filter["projectType"],
-                $filter["current_user"],
+                $filter["current_user"] ?? "",
                 "current"
             );
             $projectIDsAndNames->execute();
@@ -853,9 +863,9 @@ class project extends DatabaseEntity
             while ($row = $projectIDsAndNames->fetch(PDO::FETCH_ASSOC)) {
                 $projectIDs[] = $row["projectID"];
             }
-        } elseif ($filter["projectID"] && is_array($filter["projectID"])) {
+        } elseif (isset($filter["projectID"]) && is_array($filter["projectID"])) {
             $projectIDs = $filter["projectID"];
-        } elseif ($filter["projectID"] && is_numeric($filter["projectID"])) {
+        } elseif (isset($filter["projectID"]) && is_numeric($filter["projectID"])) {
             $projectIDs[] = $filter["projectID"];
         }
 
