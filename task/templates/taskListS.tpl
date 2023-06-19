@@ -1,60 +1,65 @@
 {if $taskListRows}
 
 <!-- Header -->
-{if $_FORM["showEdit"]}<form action="{$url_alloc_taskList}" method="post">{/}
+{if isset($_FORM["showEdit"])}<form action="{$url_alloc_taskList}" method="post">{/}
 <table class="list sortable">
   <tr>
-  {if $_FORM["showEdit"]}
+  {if isset($_FORM["showEdit"])}
     <th width="1%" data-sort="none" class="noprint"> <!-- checkbox toggler -->
       <input type="checkbox" class="toggler">
     </th>
   {/}
     <th width="1%" data-sort="num">&nbsp;</th> <!-- taskTypeImage -->
-  {if $_FORM["showTaskID"]}<th data-sort="num" width="1%">ID</th>{/}
-  {if $_FORM["showParentID"]}<th data-sort="num" width="1%">PID</th>{/}
+  {if isset($_FORM["showTaskID"])}<th data-sort="num" width="1%">ID</th>{/}
+  {if isset($_FORM["showParentID"])}<th data-sort="num" width="1%">PID</th>{/}
     <th>Task</th>
-  {if $_FORM["showProject"]}<th>Project</th>{/}
-  {if $_FORM["showPriority"] || $_FORM["showPriorityFactor"]}<th data-sort="num">Priority</th>{/}
-  {if $_FORM["showPriority"]}<th data-sort="num">Task Pri</th>{/}
-  {if $_FORM["showPriority"]}<th data-sort="num">Proj Pri</th>{/}
-  {if $_FORM["showCreator"]}<th>Task Creator</th>{/}
-  {if $_FORM["showManager"]}<th>Task Manager</th>{/}
-  {if $_FORM["showAssigned"]}<th>Assigned To</th>{/}
-  {if $_FORM["showDate1"]}<th>Targ Start</th>{/}
-  {if $_FORM["showDate2"]}<th>Targ Compl</th>{/}
-  {if $_FORM["showDate3"]}<th>Act Start</th>{/}
-  {if $_FORM["showDate4"]}<th>Act Compl</th>{/}
-  {if $_FORM["showDate5"]}<th>Task Created</th>{/}
-  {if $_FORM["showTimes"]}<th>Best</th>{/}
-  {if $_FORM["showTimes"]}<th>Likely</th>{/}
-  {if $_FORM["showTimes"]}<th>Worst</th>{/}
-  {if $_FORM["showTimes"]}<th>Actual</th>{/}
-  {if $_FORM["showTimes"]}<th>Limit</th>{/}
-  {if $_FORM["showTags"]}<th>Tags</th>{/}
-  {if $_FORM["showPercent"]}<th data-sort="int">%</th>{/}
-  {if $_FORM["showStatus"]}<th>Status</th>{/}
-  {if $_FORM["showEdit"] || $_FORM["showStarred"]}<th data-sort="num" width="1%" style="font-size:120%"><i class="icon-star"></i></th>{/}
+  {if isset($_FORM["showProject"])}<th>Project</th>{/}
+  {if isset($_FORM["showPriority"]) || isset($_FORM["showPriorityFactor"])}<th data-sort="num">Priority</th>{/}
+  {if isset($_FORM["showPriority"])}<th data-sort="num">Task Pri</th>{/}
+  {if isset($_FORM["showPriority"])}<th data-sort="num">Proj Pri</th>{/}
+  {if isset($_FORM["showCreator"])}<th>Task Creator</th>{/}
+  {if isset($_FORM["showManager"])}<th>Task Manager</th>{/}
+  {if isset($_FORM["showAssigned"])}<th>Assigned To</th>{/}
+  {if isset($_FORM["showDate1"])}<th>Targ Start</th>{/}
+  {if isset($_FORM["showDate2"])}<th>Targ Compl</th>{/}
+  {if isset($_FORM["showDate3"])}<th>Act Start</th>{/}
+  {if isset($_FORM["showDate4"])}<th>Act Compl</th>{/}
+  {if isset($_FORM["showDate5"])}<th>Task Created</th>{/}
+  {if isset($_FORM["showTimes"])}<th>Best</th>{/}
+  {if isset($_FORM["showTimes"])}<th>Likely</th>{/}
+  {if isset($_FORM["showTimes"])}<th>Worst</th>{/}
+  {if isset($_FORM["showTimes"])}<th>Actual</th>{/}
+  {if isset($_FORM["showTimes"])}<th>Limit</th>{/}
+  {if isset($_FORM["showTags"])}<th>Tags</th>{/}
+  {if isset($_FORM["showPercent"])}<th data-sort="int">%</th>{/}
+  {if isset($_FORM["showStatus"])}<th>Status</th>{/}
+  {if isset($_FORM["showEdit"]) || isset($_FORM["showStarred"])}<th data-sort="num" width="1%" style="font-size:120%"><i class="icon-star"></i></th>{/}
   </tr>
   
   <!-- Rows -->
   {$n = date("Y-m-d")}
+  {$gt_best = 0}
+  {$gt_expected = 0}
+  {$gt_worst = 0}
+  {$gt_actual = 0}
+  {$gt_limit = 0}
   {foreach $taskListRows as $r}
   <tr class="clickrow" id="clickrow_{$r.taskID}">
-  {if $_FORM["showEdit"]}      <td class="nobr noprint"><input type="checkbox" id="checkbox_{$r.taskID}" name="select[{$r.taskID}]" class="task_checkboxes"></td>{/}
+  {if isset($_FORM["showEdit"])}      <td class="nobr noprint"><input type="checkbox" id="checkbox_{$r.taskID}" name="select[{$r.taskID}]" class="task_checkboxes"></td>{/}
                                <td data-sort-value="{$r.taskTypeSeq}">{$r.taskTypeImage}</td>
-  {if $_FORM["showTaskID"]}    <td>{$r.taskID}</td>{/}
-  {if $_FORM["showParentID"]}  <td>{$r.parentTaskID_link}</td>{/}
+  {if isset($_FORM["showTaskID"])}    <td>{$r.taskID}</td>{/}
+  {if isset($_FORM["showParentID"])}  <td>{$r.parentTaskID_link}</td>{/}
                                <td style="padding-left:{echo $r["padding"]*25+6}px">{$r.taskLink}&nbsp;&nbsp;{$r.newSubTask}
-  {if $_FORM["showDescription"]}<br>{=$r.taskDescription}{/}
-  {if $_FORM["showComments"] && $r["comments"]}<br>{$r.comments}{/}
+  {if isset($_FORM["showDescription"])}<br>{=$r.taskDescription}{/}
+  {if isset($_FORM["showComments"]) && $r["comments"]}<br>{$r.comments}{/}
                                </td>
-  {if $_FORM["showProject"]}   <td><a href="{$url_alloc_project}projectID={$r.projectID}">{=$r.project_name}</a></td>{/}
-  {if $_FORM["showPriority"] || $_FORM["showPriorityFactor"]}  <td>{$r.priorityFactor}</td>{/}
-  {if $_FORM["showPriority"]}  <td data-sort-value='{$r.priority}' style="color:{echo $taskPriorities[$r["priority"]]["colour"]}">{echo $taskPriorities[$r["priority"]]["label"]}</td>{/}
-  {if $_FORM["showPriority"]}  <td data-sort-value='{$r.projectPriority}' style="color:{echo $projectPriorities[$r["projectPriority"]]["colour"]}">{echo $projectPriorities[$r["projectPriority"]]["label"]}</td>{/}
-  {if $_FORM["showCreator"]}   <td>{=$r.creator_name}</td>{/}
-  {if $_FORM["showManager"]}   <td>{=$r.manager_name}</td>{/}
-  {if $_FORM["showAssigned"]}  <td>{=$r.assignee_name}</td>{/}
+  {if isset($_FORM["showProject"])}   <td><a href="{$url_alloc_project}projectID={$r.projectID}">{=$r.project_name}</a></td>{/}
+  {if isset($_FORM["showPriority"]) || isset($_FORM["showPriorityFactor"])}  <td>{$r.priorityFactor}</td>{/}
+  {if isset($_FORM["showPriority"])}  <td data-sort-value='{$r.priority}' style="color:{echo $taskPriorities[$r["priority"]]["colour"]}">{echo $taskPriorities[$r["priority"]]["label"]}</td>{/}
+  {if isset($_FORM["showPriority"])}  <td data-sort-value='{$r.projectPriority}' style="color:{echo $projectPriorities[$r["projectPriority"]]["colour"]}">{echo $projectPriorities[$r["projectPriority"]]["label"]}</td>{/}
+  {if isset($_FORM["showCreator"])}   <td>{=$r.creator_name}</td>{/}
+  {if isset($_FORM["showManager"])}   <td>{=$r.manager_name}</td>{/}
+  {if isset($_FORM["showAssigned"])}  <td>{=$r.assignee_name}</td>{/}
   {$dts = $r["dateTargetStart"]; $dtc = $r["dateTargetCompletion"]; $das = $r["dateActualStart"]; $dac = $r["dateActualCompletion"];}
   {unset($dts_style)}
   {$dts == $n   and $dts_style = 'color:green'}
@@ -62,24 +67,24 @@
   {unset($dtc_style)}
   {$dtc == $n   and $dtc_style = 'color:green'}
   {$dtc && $dac > $dtc and $dtc_style = 'color:red'}
-  {if $_FORM["showDate1"]}     <td class="nobr" style="{$dts_style}">{$dts}</td>{/}
-  {if $_FORM["showDate2"]}     <td class="nobr" style="{$dtc_style}">{$dtc}</td>{/}
-  {if $_FORM["showDate3"]}     <td class="nobr">{$das}</td>{/}
-  {if $_FORM["showDate4"]}     <td class="nobr">{$dac}</td>{/}
-  {if $_FORM["showDate5"]}     <td class="nobr">{$r.dateCreated}</td>{/}
-  {if $_FORM["showTimes"]}     <td class="nobr">{$r.timeBestLabel}</td>{/}
-  {if $_FORM["showTimes"]}     <td class="nobr">{$r.timeExpectedLabel}</td>{/}
-  {if $_FORM["showTimes"]}     <td class="nobr">{$r.timeWorstLabel}</td>{/}
-  {if $_FORM["showTimes"]}     <td class="nobr">{$r.timeActualLabel}</td>{/}
-  {if $_FORM["showTimes"]}     <td class="nobr{$r["timeActual"] > $r["timeLimit"] and print ' bad'}">{$r.timeLimitLabel}</td>{/}
-  {if $_FORM["showTags"]}      <td class="nobr">{$r.tags}</td>{/}
-  {if $_FORM["showPercent"]}   <td class="nobr">{$r.percentComplete}</td>{/}
-  {if $_FORM["showStatus"]}    <td class="nobr" style="width:1%;">
+  {if isset($_FORM["showDate1"])}     <td class="nobr" style="{$dts_style}">{$dts}</td>{/}
+  {if isset($_FORM["showDate2"])}     <td class="nobr" style="{$dtc_style}">{$dtc}</td>{/}
+  {if isset($_FORM["showDate3"])}     <td class="nobr">{$das}</td>{/}
+  {if isset($_FORM["showDate4"])}     <td class="nobr">{$dac}</td>{/}
+  {if isset($_FORM["showDate5"])}     <td class="nobr">{$r.dateCreated}</td>{/}
+  {if isset($_FORM["showTimes"])}     <td class="nobr">{$r.timeBestLabel}</td>{/}
+  {if isset($_FORM["showTimes"])}     <td class="nobr">{$r.timeExpectedLabel}</td>{/}
+  {if isset($_FORM["showTimes"])}     <td class="nobr">{$r.timeWorstLabel}</td>{/}
+  {if isset($_FORM["showTimes"])}     <td class="nobr">{$r.timeActualLabel}</td>{/}
+  {if isset($_FORM["showTimes"])}     <td class="nobr{$r["timeActual"] > $r["timeLimit"] and print ' bad'}">{$r.timeLimitLabel}</td>{/}
+  {if isset($_FORM["showTags"])}      <td class="nobr">{$r.tags}</td>{/}
+  {if isset($_FORM["showPercent"])}   <td class="nobr">{$r.percentComplete}</td>{/}
+  {if isset($_FORM["showStatus"])}    <td class="nobr" style="width:1%;">
                                  <span class="corner" style="display:block;width:10em;padding:5px;text-align:center;background-color:{$r.taskStatusColour};">
                                    {$r.taskStatusLabel}
                                  </span>
                                </td>{/}
-  {if $_FORM["showEdit"] || $_FORM["showStarred"]}
+  {if isset($_FORM["showEdit"]) || isset($_FORM["showStarred"])}
     <td width="1%" data-sort-value="{Page::star_sorter("task",$r["taskID"])}">
       {Page::star("task",$r["taskID"])}
     </td>
@@ -88,7 +93,7 @@
   {$gt_best     += $r["timeBest"]*60*60}
   {$gt_expected += $r["timeExpected"]*60*60}
   {$gt_worst    += $r["timeWorst"]*60*60}
-  {$gt_actual   += $r["timeActual"]*60*60}
+  {$gt_actual   += ($r["timeActual"] ?? 0)*60*60}
   {$gt_limit    += $r["timeLimit"]*60*60}
 
   </tr>
@@ -101,42 +106,42 @@
   {$gt_limit    and $gt_limit    = seconds_to_display_format($gt_limit)}
 
   <!-- Footer -->
-  {if $_FORM["showTotals"] || $_FORM["showEdit"]}
+  {if isset($_FORM["showTotals"]) || isset($_FORM["showEdit"])}
   <tfoot>
   {/}
 
-  {if $_FORM["showTotals"] && $_FORM["showTimes"]}
+  {if isset($_FORM["showTotals"]) && $_FORM["showTimes"]}
     <tr>
-  {if $_FORM["showEdit"]}<td></td>{/}
+  {if isset($_FORM["showEdit"])}<td></td>{/}
     <td></td> <!-- taskTypeImage -->
-  {if $_FORM["showTaskID"]}<td></td>{/}
-  {if $_FORM["showParentID"]}<td></td>{/}
+  {if isset($_FORM["showTaskID"])}<td></td>{/}
+  {if isset($_FORM["showParentID"])}<td></td>{/}
     <td></td> <!-- task name -->
-  {if $_FORM["showProject"]}<td></td>{/}
-  {if $_FORM["showPriority"] || $_FORM["showPriorityFactor"]}<td></td>{/}
-  {if $_FORM["showPriority"]}<td></td>{/}
-  {if $_FORM["showPriority"]}<td></td>{/}
-  {if $_FORM["showCreator"]}<td></td>{/}
-  {if $_FORM["showManager"]}<td></td>{/}
-  {if $_FORM["showAssigned"]}<td></td>{/}
-  {if $_FORM["showDate1"]}<td></td>{/}
-  {if $_FORM["showDate2"]}<td></td>{/}
-  {if $_FORM["showDate3"]}<td></td>{/}
-  {if $_FORM["showDate4"]}<td></td>{/}
-  {if $_FORM["showDate5"]}<td></td>{/}
-  {if $_FORM["showTimes"]}<td class="grand_total">{$gt_best}</td>{/}
-  {if $_FORM["showTimes"]}<td class="grand_total">{$gt_expected}</td>{/}
-  {if $_FORM["showTimes"]}<td class="grand_total">{$gt_worst}</td>{/}
-  {if $_FORM["showTimes"]}<td class="grand_total">{$gt_actual}</td>{/}
-  {if $_FORM["showTimes"]}<td class="grand_total{$gt_status}">{$gt_limit}</td>{/}
-  {if $_FORM["showTags"]}<td></td>{/}
-  {if $_FORM["showPercent"]}<td></td>{/}
-  {if $_FORM["showStatus"]}<td></td>{/}
-  {if $_FORM["showEdit"] || $_FORM["showStarred"]}<td></td>{/}
+  {if isset($_FORM["showProject"])}<td></td>{/}
+  {if isset($_FORM["showPriority"]) || isset($_FORM["showPriorityFactor"])}<td></td>{/}
+  {if isset($_FORM["showPriority"])}<td></td>{/}
+  {if isset($_FORM["showPriority"])}<td></td>{/}
+  {if isset($_FORM["showCreator"])}<td></td>{/}
+  {if isset($_FORM["showManager"])}<td></td>{/}
+  {if isset($_FORM["showAssigned"])}<td></td>{/}
+  {if isset($_FORM["showDate1"])}<td></td>{/}
+  {if isset($_FORM["showDate2"])}<td></td>{/}
+  {if isset($_FORM["showDate3"])}<td></td>{/}
+  {if isset($_FORM["showDate4"])}<td></td>{/}
+  {if isset($_FORM["showDate5"])}<td></td>{/}
+  {if isset($_FORM["showTimes"])}<td class="grand_total">{$gt_best}</td>{/}
+  {if isset($_FORM["showTimes"])}<td class="grand_total">{$gt_expected}</td>{/}
+  {if isset($_FORM["showTimes"])}<td class="grand_total">{$gt_worst}</td>{/}
+  {if isset($_FORM["showTimes"])}<td class="grand_total">{$gt_actual}</td>{/}
+  {if isset($_FORM["showTimes"])}<td class="grand_total{$gt_status}">{$gt_limit}</td>{/}
+  {if isset($_FORM["showTags"])}<td></td>{/}
+  {if isset($_FORM["showPercent"])}<td></td>{/}
+  {if isset($_FORM["showStatus"])}<td></td>{/}
+  {if isset($_FORM["showEdit"]) || isset($_FORM["showStarred"])}<td></td>{/}
     </tr>
   {/}
 
-  {if $_FORM["showEdit"]}
+  {if isset($_FORM["showEdit"])}
   {$person_options = Page::select_options(person::get_username_list())}
   {$taskType = new meta("taskType")}
   {$taskType_array = $taskType->get_assoc_array("taskTypeID","taskTypeID")}
@@ -190,7 +195,7 @@
   </form>
   {/}
 
-  {if $_FORM["showTotals"] || $_FORM["showEdit"]}
+  {if isset($_FORM["showTotals"]) || isset($_FORM["showEdit"])}
   </tfoot>
   {/}
 </table>

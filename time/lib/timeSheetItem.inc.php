@@ -422,7 +422,10 @@ class timeSheetItem extends DatabaseEntity
         } elseif ($starred) {
             $current_user = &singleton("current_user");
             $timeSheetItemIDs = [];
-            $timeSheetItemIDs = array_keys((array)$current_user->prefs["stars"]["timeSheetItem"]);
+            $timeSheetItemIDs = isset($current_user->prefs["stars"]) ?
+                (isset($current_user->prefs["stars"]["timeSheetItem"]) ??
+                    array_keys((array)$current_user->prefs["stars"]["timeSheetItem"])) :
+                [];
             $where = unsafe_prepare("(timeSheetItem.timeSheetItemID in (%s))", $timeSheetItemIDs);
         }
 

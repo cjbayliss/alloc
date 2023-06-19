@@ -230,30 +230,37 @@ class Database
     }
 
     /**
-     * Fetches a row from the result set using the specified fetch style.
-     *
-     * @deprecated This function is deprecated. Use PDOStatement::fetch()
-     *
-     * @param PDOStatement|null $pdo_statement Optional. The PDOStatement object
-     *                                         to fetch the row from. If not
-     *                                         provided, the method uses the
-     *                                         current instance's pdo_statement.
-     * @param int $method Optional. The fetch style to use. Default is
-     *                    PDO::FETCH_ASSOC.
-     * @return array|object|false|null The fetched row, or false if there are no
-     *                                 more rows, or null if an error occurs.
-     */
-    public function row($pdo_statement = "", $method = PDO::FETCH_ASSOC)
+    * Fetches a row from the result set using the specified fetch style.
+    *
+    * @deprecated This function is deprecated. Use PDOStatement::fetch()
+    *
+     * @param PDOStatement|null $pdoStatement Optional. The PDOStatement object
+                                       to fetch the row from. If not
+                                       provided, the method uses the
+                                       current instance's pdo_statement.
+    * @param int $method Optional. The fetch style to use. Default is
+    *                    PDO::FETCH_ASSOC.
+    * @return array|object|false|null The fetched row, or false if there are no
+    *                                 more rows, or null if an error occurs.
+    */
+    public function row(PDOStatement $pdoStatement = null, int $method = PDO::FETCH_ASSOC)
     {
+        if (!$pdoStatement instanceof \PDOStatement && empty($this->pdo_statement)) {
+            return [];
+        }
+
         if (!self::$stop_doing_queries) {
-            $pdo_statement || ($pdo_statement = $this->pdo_statement);
-            if ($pdo_statement) {
+            if (!$pdoStatement instanceof \PDOStatement) {
+                $pdoStatement = $this->pdo_statement;
+            }
+
+            if ($pdoStatement) {
                 unset($this->row);
                 if ($this->pos !== null) {
-                    $this->row = $pdo_statement->fetch($method, PDO::FETCH_ORI_ABS, $this->pos);
+                    $this->row = $pdoStatement->fetch($method, PDO::FETCH_ORI_ABS, $this->pos);
                     unset($this->pos);
                 } else {
-                    $this->row = $pdo_statement->fetch($method, PDO::FETCH_ORI_NEXT);
+                    $this->row = $pdoStatement->fetch($method, PDO::FETCH_ORI_NEXT);
                 }
 
                 return $this->row;

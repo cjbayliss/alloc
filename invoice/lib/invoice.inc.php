@@ -513,11 +513,15 @@ class invoice extends DatabaseEntity
 
         // If they want starred, load up the invoiceID filter element
         if ($filter["starred"]) {
-            foreach (array_keys((array)$current_user->prefs["stars"]["invoice"]) as $k) {
-                $filter["invoiceID"][] = $k;
+            $starredInvoices = isset($current_user->prefs["stars"]) ?
+                ($current_user->prefs["stars"]["invoice"] ?? "") : "";
+            if (!empty($starredInvoices) && is_array($starredInvoices)) {
+                foreach (array_keys($starredInvoices) as $k) {
+                    $filter["invoiceID"][] = $k;
+                }
             }
 
-            if (!is_array($filter["invoiceID"])) {
+            if (!is_array($filter["invoiceID"] ?? "")) {
                 $filter["invoiceID"][] = -1;
             }
         }
@@ -569,10 +573,12 @@ class invoice extends DatabaseEntity
     {
         // Filter for the HAVING clause
         $sql = [];
+        if (!isset($filter["invoiceStatusPayment"])) {
+            return [];
+        }
+
         if ($filter["invoiceStatusPayment"] == "pending") {
             $sql[] = "(COALESCE(amountPaidApproved,0) < iiAmountSum)";
-            // if ($filter["invoiceStatusPayment"] == "partly_paid") {
-            // $sql[] = "(amountPaidApproved < iiAmountSum)";
         } elseif ($filter["invoiceStatusPayment"] == "rejected") {
             $sql[] = "(COALESCE(amountPaidRejected,0) > 0)";
         } elseif ($filter["invoiceStatusPayment"] == "fully_paid") {
@@ -595,12 +601,7 @@ class invoice extends DatabaseEntity
         $filter1_where = invoice::get_list_filter($_FORM);
         $filter2_having = invoice::get_list_filter2($_FORM);
 
-        $debug = $_FORM["debug"];
-        $debug && (print "<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
-        $debug && (print "<pre>filter1_where: " . print_r($filter1_where, 1) . "</pre>");
-        $debug && (print "<pre>filter2_having: " . print_r($filter2_having, 1) . "</pre>");
-
-        $_FORM["return"] || ($_FORM["return"] = "html");
+        $_FORM["return"] ??= "html";
 
         if (is_array($filter1_where) && count($filter1_where)) {
             $f1_where = " WHERE " . implode(" AND ", $filter1_where);
@@ -641,8 +642,6 @@ class invoice extends DatabaseEntity
         // Don't do this! It doubles the totals!
         // LEFT JOIN tfPerson ON tfPerson.tfID = transaction_approved.tfID OR tfPerson.tfID = transaction_pending.tfID OR tfPerson.tfID = transaction_rejected.tfID
 
-        $debug && (print "<pre>Query1: " . $q1 . "</pre>");
-        $debug && (print "<pre>Query2: " . $q2 . "</pre>");
         $allocDatabase->query($q2);
 
         while ($row = $allocDatabase->next_record()) {

@@ -293,33 +293,33 @@ class clientContact extends DatabaseEntity
         // If they want starred, load up the clientContactID filter element
         if ($filter["starred"]) {
             $current_user = &singleton("current_user");
-            $starredContacts = array_keys((array)$current_user->prefs["stars"]["clientContact"]);
-            foreach ($starredContacts as $starredContact) {
-                $filter["clientContactID"][] = $starredContact;
+            $starredContacts = isset($current_user->prefs["stars"]) ?
+                ($current_user->prefs["stars"]["clientContact"] ?? "") : "";
+            if (!empty($starredContacts) && is_array($starredContacts)) {
+                foreach (array_keys($starredContacts) as $starredContact) {
+                    $filter["clientContactID"][] = $starredContact;
+                }
             }
 
-            if (!is_array($filter["clientContactID"])) {
+            if (!is_array($filter["clientContactID"] ?? "")) {
                 $filter["clientContactID"][] = -1;
             }
         }
 
         // Filter on clientContactID
-        if ($filter["clientContactID"] && is_array($filter["clientContactID"])) {
+        if (isset($filter["clientContactID"]) && is_array($filter["clientContactID"])) {
             $sql[] = unsafe_prepare(
                 "(clientContact.clientContactID in (%s))",
                 $filter["clientContactID"]
             );
-        } elseif ($filter["clientContactID"]) {
+        } elseif (isset($filter["clientContactID"])) {
             $sql[] = unsafe_prepare(
                 "(clientContact.clientContactID = %d)",
                 $filter["clientContactID"]
             );
         }
 
-        // No point continuing if primary key specified, so return
-        if ($filter["clientContactID"] || $filter["starred"]) {
-            return $sql;
-        }
+        return $sql;
     }
 
     public static function get_list($_FORM)

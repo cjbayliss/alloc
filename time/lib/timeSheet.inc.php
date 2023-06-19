@@ -484,11 +484,15 @@ class timeSheet extends DatabaseEntity
 
         // If they want starred, load up the timeSheetID filter element
         if (isset($filter["starred"])) {
-            foreach (array_keys((array)$current_user->prefs["stars"]["timeSheet"]) as $k) {
-                $filter["timeSheetID"][] = $k;
+            $starredTimeSheets = isset($current_user->prefs["stars"]) ?
+                ($current_user->prefs["stars"]["timeSheet"] ?? "") : "";
+            if (!empty($starredTimeSheets) && is_array($starredTimeSheets)) {
+                foreach (array_keys($starredTimeSheets) as $k) {
+                    $filter["timeSheetID"][] = $k;
+                }
             }
 
-            if (!is_array($filter["timeSheetID"])) {
+            if (!is_array($filter["timeSheetID"] ?? "")) {
                 $filter["timeSheetID"][] = -1;
             }
         }
@@ -554,7 +558,10 @@ class timeSheet extends DatabaseEntity
 
         global $TPL;
         $current_user = &singleton("current_user");
-        $_FORM["showShortProjectLink"] && ($_FORM["showProjectLink"] = true);
+        if (isset($_FORM["showShortProjectLink"])) {
+            $_FORM["showProjectLink"] = true;
+        }
+
         $filter = timeSheet::get_list_filter($_FORM);
 
         // Used in timeSheetListS.tpl

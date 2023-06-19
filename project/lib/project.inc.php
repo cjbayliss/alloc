@@ -510,11 +510,16 @@ class project extends DatabaseEntity
     private static function createSQLFilerConditions($filter = [])
     {
         if (isset($filter["starred"])) {
-            foreach (array_keys((array)singleton("current_user")->prefs["stars"]["project"]) as $projectID) {
-                $filter["projectID"][] = $projectID;
+            $current_user = &singleton("current_user");
+            $starredProjects = isset($current_user->prefs["stars"]) ?
+                ($current_user->prefs["stars"]["project"] ?? "") : "";
+            if (!empty($starredProjects) && is_array($starredProjects)) {
+                foreach (array_keys($starredProjects) as $projectID) {
+                    $filter["projectID"][] = $projectID;
+                }
             }
 
-            if (!is_array($filter["projectID"])) {
+            if (!is_array($filter["projectID"] ?? "")) {
                 $filter["projectID"][] = -1;
             }
         }
@@ -600,7 +605,7 @@ class project extends DatabaseEntity
         $filter = self::createSQLFilerConditions($_FORM);
         $filter = is_array($filter) && count($filter) ? " WHERE " . implode(" AND ", $filter) : "";
 
-        $from = $_FORM["personID"] ?
+        $from = isset($_FORM["personID"]) ?
             " LEFT JOIN projectPerson on projectPerson.projectID = project.projectID " : "";
 
         $allocDatabase = new AllocDatabase();
@@ -1008,7 +1013,7 @@ class project extends DatabaseEntity
             $pp[$key] = $arr["label"];
         }
 
-        return $pp[$p];
+        return $pp[$p] ?? [];
     }
 
     public static function get_list_html($rows = [], $ops = [])

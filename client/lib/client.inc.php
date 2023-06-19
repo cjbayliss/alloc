@@ -158,22 +158,27 @@ class client extends DatabaseEntity
 
         // If they want starred, load up the clientID filter element
         if ($filter["starred"]) {
-            foreach (array_keys((array)$current_user->prefs["stars"]["client"]) as $k) {
-                $filter["clientID"][] = $k;
+            // if a new user, "stars" pref is still unset
+            $starredClients = isset($current_user->prefs["stars"]) ?
+                ($current_user->prefs["stars"]["client"] ?? "") : "";
+            if (!empty($starredClients) && is_array($starredClients)) {
+                foreach (array_keys($starredClients) as $client) {
+                    $filter["clientID"][] = $client;
+                }
             }
 
-            if (!is_array($filter["clientID"])) {
+            if (!is_array($filter["clientID"] ?? "")) {
                 $filter["clientID"][] = -1;
             }
         }
 
         // Filter on clientID
-        if (!empty($filter["clientID"])) {
+        if (isset($filter["clientID"])) {
             $sql[] = sprintf_implode("client.clientID = %d", $filter["clientID"]);
         }
 
         // No point continuing if primary key specified, so return
-        if ($filter["clientID"] || $filter["starred"]) {
+        if (isset($filter["clientID"]) || !empty($filter["starred"])) {
             return $sql;
         }
 
@@ -202,9 +207,9 @@ class client extends DatabaseEntity
             );
         }
 
-        if ($filter["clientLetter"] && $filter["clientLetter"] == "A") {
+        if (!empty($filter["clientLetter"]) && $filter["clientLetter"] == "A") {
             $sql[] = "(clientName like 'A%' or clientName REGEXP '^[^[:alpha:]]')";
-        } elseif ($filter["clientLetter"] && $filter["clientLetter"] != "ALL") {
+        } elseif (!empty($filter["clientLetter"]) && $filter["clientLetter"] != "ALL") {
             $sql[] = sprintf_implode("clientName LIKE '%s%%'", $filter["clientLetter"]);
         }
 
@@ -221,11 +226,9 @@ class client extends DatabaseEntity
 
         $filter = client::get_list_filter($_FORM);
 
-        if (!isset($_FORM["return"])) {
-            $_FORM["return"] = "html";
-        }
+        $_FORM["return"] ??= "html";
 
-        if (is_array($filter) && count($filter)) {
+        if (isset($filter) && is_array($filter) && count($filter)) {
             $filter = " WHERE " . implode(" AND ", $filter);
         }
 

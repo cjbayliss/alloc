@@ -407,7 +407,6 @@ class comment extends DatabaseEntity
             $new_lines2[$sig_start_position - 1] .= '<div style="display:none;" class="hidden_text ' . $class . '">';
             $new_lines2[count($new_lines2)] .= "</div>";
         } elseif ($sig_started !== null) {
-            
         }
 
         return ltrim(rtrim(implode("\n", $new_lines2)));
@@ -763,15 +762,18 @@ class comment extends DatabaseEntity
     public function get_list_filter($filter = [])
     {
         $sql = [];
-        $current_user = &singleton("current_user");
 
         // If they want starred, load up the commentID filter element
         if ($filter["starred"]) {
-            foreach (array_keys((array)$current_user->prefs["stars"]["comment"]) as $k) {
-                $filter["commentID"][] = $k;
+            $current_user = &singleton("current_user");
+            $starredComments = isset($current_user->prefs["stars"]) ? ($current_user->prefs["stars"]["comment"] ?? "") : "";
+            if (isset($starredComments) && is_array($starredComments)) {
+                foreach (array_keys($starredComments) as $k) {
+                    $filter["commentID"][] = $k;
+                }
             }
 
-            if (!is_array($filter["commentID"])) {
+            if (!is_array($filter["commentID"] ?? "")) {
                 $filter["commentID"][] = -1;
             }
         }
@@ -793,7 +795,16 @@ class comment extends DatabaseEntity
     {
         $rows = [];
         // Two modes, 1: get all comments for an entity, eg a task
-        if ($_FORM["entity"] && in_array($_FORM["entity"], ["project", "client", "task", "timeSheet"]) && $_FORM["entityID"]) {
+        if (
+            isset($_FORM["entity"])
+            && in_array($_FORM["entity"], [
+                "project",
+                "client",
+                "task",
+                "timeSheet",
+            ])
+            && $_FORM["entityID"]
+        ) {
             $e = new $_FORM["entity"];
             $e->set_id($_FORM["entityID"]);
             if ($e->select()) { // this ensures that the user can read the entity

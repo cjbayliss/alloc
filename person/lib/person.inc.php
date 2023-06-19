@@ -380,7 +380,7 @@ class person extends DatabaseEntity
         $person->select();
         $person->load_prefs();
 
-        ($old_prefs = $person->prefs) || ($old_prefs = []);
+        $old_prefs = $person->prefs ?? [];
         foreach ($old_prefs as $k => $v) {
             if ($this->prefs[$k] != $v) {
                 $save = true;
@@ -388,7 +388,7 @@ class person extends DatabaseEntity
         }
 
         foreach ($this->prefs as $k => $v) {
-            if ($old_prefs[$k] != $v) {
+            if (!isset($old_prefs[$k]) || $old_prefs[$k] != $v) {
                 $save = true;
             }
         }

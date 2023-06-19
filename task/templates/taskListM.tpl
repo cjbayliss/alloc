@@ -1,6 +1,6 @@
 {Page::header()}
 {Page::toolbar()}
-
+{$get_str = ""}
 {foreach (array)$_FORM as $k=>$v}
   {if is_array($v)}
     {foreach $v as $y}

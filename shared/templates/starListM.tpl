@@ -22,7 +22,7 @@
 {/}
 {/}
 
-{if !$printed_something}
+{if !isset($printed_something)}
   <br><br>
   No items have been starred yet.
   <br><br>

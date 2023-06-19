@@ -495,11 +495,15 @@ class productSale extends DatabaseEntity
 
         // If they want starred, load up the productSaleID filter element
         if (isset($filter["starred"])) {
-            foreach (array_keys((array)$current_user->prefs["stars"]["productSale"]) as $k) {
-                $filter["productSaleID"][] = $k;
+            $starredSales = isset($current_user->prefs["stars"]) ?
+                ($current_user->prefs["stars"]["productSale"] ?? "") : "";
+            if (!empty($starredSales) && is_array($starredSales)) {
+                foreach (array_keys($starredSales) as $k) {
+                    $filter["productSaleID"][] = $k;
+                }
             }
 
-            if (!is_array($filter["productSaleID"])) {
+            if (!is_array($filter["productSaleID"] ?? "")) {
                 $filter["productSaleID"][] = -1;
             }
         }

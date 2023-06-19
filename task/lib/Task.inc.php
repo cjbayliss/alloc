@@ -741,7 +741,9 @@ class Task extends DatabaseEntity
     {
 
         $id = null;
-        $_FORM["prefixTaskID"] && ($id = $this->get_id() . " ");
+        if (isset($_FORM["prefixTaskID"])) {
+            $id = $this->get_id() . " ";
+        }
 
         if ($this->get_value("taskTypeID") == "Parent" && $_FORM["return"] == "html") {
             $rtn = "<strong>" . $id . $this->get_value("taskName", DST_HTML_DISPLAY) . "</strong>";
@@ -884,9 +886,7 @@ class Task extends DatabaseEntity
 
     public static function get_list_filter($filter = [])
     {
-
         $_FORM = [];
-        $current_user = &singleton("current_user");
         $having = "";
         $projectIDs = null;
         $sql = [];
@@ -894,11 +894,15 @@ class Task extends DatabaseEntity
 
         // If they want starred, load up the taskID filter element
         if (isset($filter["starred"])) {
-            foreach (array_keys((array)$current_user->prefs["stars"]["task"]) as $k) {
-                $filter["taskID"][] = $k;
+            $current_user = &singleton("current_user");
+            $starredTasks = isset($current_user->prefs["stars"]) ? ($current_user->prefs["stars"]["task"] ?? "") : "";
+            if (!empty($starredTasks) && is_array($starredTasks)) {
+                foreach (array_keys($starredTasks) as $k) {
+                    $filter["taskID"][] = $k;
+                }
             }
 
-            if (!is_array($filter["taskID"])) {
+            if (!is_array($filter["taskID"] ?? "")) {
                 $filter["taskID"][] = -1;
             }
         }
@@ -1084,14 +1088,17 @@ class Task extends DatabaseEntity
         return [$tasks, $done];
     }
 
-    public function get_overall_priority($dateTargetCompletion, $projectPriority = 0, $taskPriority = 0)
-    {
+    public function get_overall_priority(
+        int $dateTargetCompletion,
+        int $projectPriority = 0,
+        int $taskPriority = 0
+    ): array {
         $daysUntilDue = null;
         $spread = sprintf("%d", config::get_config_item("taskPrioritySpread"));
         $scale = sprintf("%d", config::get_config_item("taskPriorityScale"));
         $scale_halved = sprintf("%d", config::get_config_item("taskPriorityScale") / 2);
 
-        if ($dateTargetCompletion) {
+        if ($dateTargetCompletion !== 0) {
             $daysUntilDue = (format_date("U", $dateTargetCompletion) - time()) / 60 / 60 / 24;
             $mult = atan($daysUntilDue / $spread) / 3.14 * $scale + $scale_halved;
         } else {
@@ -1173,69 +1180,77 @@ class Task extends DatabaseEntity
             $row["taskURL"] = $task->get_url();
             $row["taskName"] = $task->get_name($_FORM);
             $row["taskLink"] = $task->get_task_link($_FORM);
-            ($row["project_name"] = $row["projectShortName"]) || ($row["project_name"] = $row["projectName"]);
-            $row["projectPriority"] = $allocDatabase->f("projectPriority");
+            $row["project_name"] = $row["projectShortName"] ?? $row["projectName"] ?? "";
+            $row["projectPriority"] = $allocDatabase->f("projectPriority") ?? "";
             has("project") && ($row["projectPriorityLabel"] = project::get_priority_label($allocDatabase->f("projectPriority")));
-            has("project") && ([$row["priorityFactor"], $row["daysUntilDue"]] = $task->get_overall_priority($row["dateTargetCompletion"], $row["projectPriority"], $row["priority"]));
+            has("project") && ([$row["priorityFactor"], $row["daysUntilDue"]] = $task->get_overall_priority((int)$row["dateTargetCompletion"], (int)$row["projectPriority"], (int)$row["priority"]));
             $row["taskTypeImage"] = $task->get_task_image();
-            $row["taskTypeSeq"] = $_FORM["taskType_cache"][$row["taskTypeID"]]["taskTypeSeq"];
+            $row["taskTypeSeq"] = $_FORM["taskType_cache"][$row["taskTypeID"]]["taskTypeSeq"] ?? "";
             $row["taskStatusLabel"] = $task->get_task_status("label");
             $row["taskStatusColour"] = $task->get_task_status("colour");
-            $row["creator_name"] = $_FORM["people_cache"][$row["creatorID"]]["name"];
-            $row["manager_name"] = $_FORM["people_cache"][$row["managerID"]]["name"];
-            $row["assignee_name"] = $_FORM["people_cache"][$row["personID"]]["name"];
-            $row["closer_name"] = $_FORM["people_cache"][$row["closerID"]]["name"];
-            $row["estimator_name"] = $_FORM["people_cache"][$row["estimatorID"]]["name"];
-            $row["creator_username"] = $_FORM["people_cache"][$row["creatorID"]]["username"];
-            $row["manager_username"] = $_FORM["people_cache"][$row["managerID"]]["username"];
-            $row["assignee_username"] = $_FORM["people_cache"][$row["personID"]]["username"];
-            $row["closer_username"] = $_FORM["people_cache"][$row["closerID"]]["username"];
-            $row["estimator_username"] = $_FORM["people_cache"][$row["estimatorID"]]["username"];
+            $row["creator_name"] = $_FORM["people_cache"][$row["creatorID"]]["name"] ?? "";
+            $row["manager_name"] = $_FORM["people_cache"][$row["managerID"]]["name"] ?? "";
+            $row["assignee_name"] = $_FORM["people_cache"][$row["personID"]]["name"] ?? "";
+            $row["closer_name"] = $_FORM["people_cache"][$row["closerID"]]["name"] ?? "";
+            $row["estimator_name"] = $_FORM["people_cache"][$row["estimatorID"]]["name"] ?? "";
+            $row["creator_username"] = $_FORM["people_cache"][$row["creatorID"]]["username"] ?? "";
+            $row["manager_username"] = $_FORM["people_cache"][$row["managerID"]]["username"] ?? "";
+            $row["assignee_username"] = $_FORM["people_cache"][$row["personID"]]["username"] ?? "";
+            $row["closer_username"] = $_FORM["people_cache"][$row["closerID"]]["username"] ?? "";
+            $row["estimator_username"] = $_FORM["people_cache"][$row["estimatorID"]]["username"] ?? "";
             $row["newSubTask"] = $task->get_new_subtask_link();
-            $_FORM["showPercent"] && ($row["percentComplete"] = $task->get_percentComplete());
-            $_FORM["showTimes"] && ($row["timeActual"] = $task->get_time_billed() / 60 / 60);
+            if (isset($_FORM["showPercent"])) {
+                $row["percentComplete"] = $task->get_percentComplete();
+            }
+
+            if (isset($_FORM["showTimes"])) {
+                $row["timeActual"] = $task->get_time_billed() / 60 / 60;
+            }
+
             $row["rate"] = Page::money($row["currency"], $row["rate"], "%mo");
-            $row["rateUnit"] = $_FORM["timeUnit_cache"][$row["rateUnitID"]]["timeUnitName"];
+            $row["rateUnit"] = $_FORM["timeUnit_cache"][$row["rateUnitID"]]["timeUnitName"] ?? "";
             $row["priorityLabel"] = $task->get_priority_label();
-            if (!$_FORM["skipObject"] && $_FORM["return"] == "array") {
+            if (!isset($_FORM["skipObject"]) && $_FORM["return"] == "array") {
                 $row["object"] = $task;
             }
 
-            $row["padding"] = $_FORM["padding"];
+            $row["padding"] = $_FORM["padding"] ?? "";
             $row["taskID"] = $task->get_id();
             $row["parentTaskID"] = $task->get_value("parentTaskID");
             $row["parentTaskID_link"] = "<a href='" . $task->get_url(false, $task->get_value("parentTaskID")) . "'>" . $task->get_value("parentTaskID") . "</a>";
             $row["timeLimitLabel"] = $row["timeBestLabel"] = $row["timeWorstLabel"] = $row["timeExpectedLabel"] = $row["timeActualLabel"] = "";
-            if ($row["timeLimit"] !== null) {
+            if (isset($row["timeLimit"])) {
                 $row["timeLimitLabel"] = seconds_to_display_format($row["timeLimit"] * 60 * 60);
             }
 
-            if ($row["timeBest"] !== null) {
+            if (isset($row["timeBest"])) {
                 $row["timeBestLabel"] = seconds_to_display_format($row["timeBest"] * 60 * 60);
             }
 
-            if ($row["timeWorst"] !== null) {
+            if (isset($row["timeWorst"])) {
                 $row["timeWorstLabel"] = seconds_to_display_format($row["timeWorst"] * 60 * 60);
             }
 
-            if ($row["timeExpected"] !== null) {
+            if (isset($row["timeExpected"])) {
                 $row["timeExpectedLabel"] = seconds_to_display_format($row["timeExpected"] * 60 * 60);
             }
 
-            if ($row["timeActual"] !== null) {
+            if (isset($row["timeActual"])) {
                 $row["timeActualLabel"] = seconds_to_display_format($row["timeActual"] * 60 * 60);
             }
 
-            if ($_FORM["showComments"] && $comments = comment::util_get_comments("task", $row["taskID"])) {
+            if (isset($_FORM["showComments"]) && $comments = comment::util_get_comments("task", $row["taskID"])) {
                 $row["comments"] = $comments;
             }
 
-            if ($_FORM["taskView"] == "byProject") {
-                $rows[$task->get_id()] = ["parentTaskID" => $row["parentTaskID"], "row" => $row];
-            } elseif ($_FORM["taskView"] == "prioritised") {
-                $rows[$row["taskID"]] = $row;
-                if (is_array($rows) && count($rows)) {
-                    uasort($rows, ["Task", "priority_compare"]);
+            if (isset($_FORM["taskView"])) {
+                if ($_FORM["taskView"] == "byProject") {
+                    $rows[$task->get_id()] = ["parentTaskID" => $row["parentTaskID"], "row" => $row];
+                } elseif ($_FORM["taskView"] == "prioritised") {
+                    $rows[$row["taskID"]] = $row;
+                    if (is_array($rows) && count($rows)) {
+                        uasort($rows, ["Task", "priority_compare"]);
+                    }
                 }
             }
         }
