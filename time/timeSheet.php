@@ -197,9 +197,15 @@ function show_main_list()
     $q = unsafe_prepare("SELECT COUNT(*) AS tally FROM timeSheetItem WHERE timeSheetID = %d AND timeSheetItemID != %d", $timeSheet->get_id(), $_POST["timeSheetItem_timeSheetItemID"]);
     $db->query($q);
     $db->next_record();
-    if ($db->f("tally")) {
-        include_template("templates/timeSheetItemM.tpl");
+    if ($db->f("tally") === '') {
+        return;
     }
+
+    if ($db->f("tally") === '0') {
+        return;
+    }
+
+    include_template("templates/timeSheetItemM.tpl");
 }
 
 function show_timeSheet_list($template)
@@ -891,7 +897,7 @@ if ($timeSheet->get_value("status") == "edit") {
     $tf_db->query(["select preferred_tfID from person where personID = %d", $timeSheet->get_value("personID")]);
     $tf_db->next_record();
 
-    if ($preferred_tfID = $tf_db->f("preferred_tfID")) {
+    if (($preferred_tfID = $tf_db->f("preferred_tfID")) !== '' && ($preferred_tfID = $tf_db->f("preferred_tfID")) !== '0') {
         $tf_db->query(["SELECT *
                FROM tfPerson
               WHERE personID = %d

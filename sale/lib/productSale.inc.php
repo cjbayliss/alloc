@@ -663,7 +663,7 @@ class productSale extends DatabaseEntity
         ];
     }
 
-    public static function load_form_data($defaults = [])
+    public static function load_form_data(array $defaults = []): array
     {
         $current_user = &singleton("current_user");
 
@@ -671,13 +671,16 @@ class productSale extends DatabaseEntity
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 
-        if (!$_FORM["applyFilter"]) {
-            $_FORM = $current_user->prefs[$_FORM["form_name"]];
-            if (!isset($current_user->prefs[$_FORM["form_name"]])) {
+        if (!isset($_FORM["applyFilter"])) {
+            if (isset($_FORM["form_name"]) && isset($current_user->prefs[$_FORM["form_name"]])) {
+                $_FORM = $current_user->prefs[$_FORM["form_name"]];
+            }
+
+            if (!isset($current_user->prefs[$_FORM["form_name"] ?? ""])) {
                 $_FORM["status"] = "edit";
                 $_FORM["personID"] = $current_user->get_id();
             }
-        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif (isset($_FORM["applyFilter"]) && is_object($current_user) && !$_FORM["dontSave"]) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -687,7 +690,7 @@ class productSale extends DatabaseEntity
         return $_FORM;
     }
 
-    public static function load_productSale_filter($_FORM)
+    public static function load_productSale_filter(array $_FORM): array
     {
         $filter = null;
         $rtn = [];
@@ -695,13 +698,12 @@ class productSale extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         // display the list of project name.
-        $allocDatabase = new AllocDatabase();
-        if (!$_FORM['showAllProjects']) {
+        if (!isset($_FORM['showAllProjects'])) {
             $filter = "WHERE projectStatus = 'Current' ";
         }
 
         $query = unsafe_prepare(sprintf('SELECT projectID AS value, projectName AS label FROM project %s ORDER by projectName', $filter));
-        $rtn["show_project_options"] = Page::select_options($query, $_FORM["projectID"], 70);
+        $rtn["show_project_options"] = Page::select_options($query, $_FORM["projectID"] ?? [], 70);
 
         // display the list of user name.
         if (have_entity_perm("productSale", PERM_READ, $current_user, false)) {
@@ -721,13 +723,13 @@ class productSale extends DatabaseEntity
         $rtn["show_status_options"] = Page::select_options($status_array, $_FORM["status"]);
 
         // display the date from filter value
-        $rtn["showAllProjects"] = $_FORM["showAllProjects"];
+        $rtn["showAllProjects"] = $_FORM["showAllProjects"] ?? "";
 
         $options["clientStatus"] = ["Current"];
         $options["return"] = "dropdown_options";
         $ops = client::get_list($options);
         $ops = array_kv($ops, "clientID", "clientName");
-        $rtn["clientOptions"] = Page::select_options($ops, $_FORM["clientID"]);
+        $rtn["clientOptions"] = Page::select_options($ops, $_FORM["clientID"] ?? []);
 
         // Get
         $rtn["FORM"] = "FORM=" . urlencode(serialize($_FORM));

@@ -29,7 +29,7 @@ $defaults = [
 $_FORM = productSale::load_form_data($defaults);
 $TPL["productSaleListRows"] = productSale::get_list($_FORM);
 
-if (!$current_user->prefs["productSaleList_filter"]) {
+if (!isset($current_user->prefs["productSaleList_filter"])) {
     $TPL["message_help"][] = "
 
 allocPSA allows you to create Sales and Products and allocate the funds from

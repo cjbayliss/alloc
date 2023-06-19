@@ -54,7 +54,7 @@ while ($db->next_record()) {
     $dbMaxDate->query($query);
     $dbMaxDate->next_record();
 
-    if (!$dbMaxDate->f("latestDate")) {
+    if ($dbMaxDate->f("latestDate") === '' || $dbMaxDate->f("latestDate") === '0') {
         $nextScheduled = timeWarp($startDate, $timeBasisString);
     } else {
         $mostRecentTransactionDate = format_date("U", $dbMaxDate->f("latestDate"));

@@ -581,7 +581,7 @@ function get_projectPerson_hourly_rate($personID, $projectID)
     $unitID = $db->f("rateUnitID");
     $t = new timeUnit();
     $timeUnits = $t->get_assoc_array("timeUnitID", "timeUnitSeconds", $unitID);
-    if (!$rate) {
+    if ($rate === '' || $rate === '0') {
         return $hourly_rate;
     }
 

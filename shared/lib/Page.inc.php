@@ -361,7 +361,7 @@ class Page
             EOD;
     }
 
-    public static function select_options($options, $selected_value = null, $max_length = 45, $escape = true)
+    public static function select_options($options, $selected_value = null, $max_length = 45, $escape = true): string
     {
         $rows = [];
         $selected_values = [];

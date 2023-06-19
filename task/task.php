@@ -302,7 +302,7 @@ $TPL["taskType_taskTypeID"] = $task->get_value("taskTypeID");
 $q = unsafe_prepare("SELECT clientID FROM project LEFT JOIN task ON task.projectID = project.projectID WHERE taskID = %d", $task->get_id());
 $db->query($q);
 $db->next_record();
-if ($db->f("clientID")) {
+if ($db->f("clientID") !== '' && $db->f("clientID") !== '0') {
     $TPL["new_client_contact_link"] = '<br><br><a href="' . $TPL["url_alloc_client"] . "clientID=" . $db->f("clientID") . '">';
     $TPL["new_client_contact_link"] .= "New Client Contact</a>";
     $TPL["task_clientID"] = $db->f("clientID");

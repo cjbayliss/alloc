@@ -730,7 +730,7 @@ class person extends DatabaseEntity
         $_FORM = get_all_form_data($page_vars, $defaults);
 
         if (!isset($_FORM["applyFilter"])) {
-            if (isset($_FORM["form_name"])) {
+            if (isset($_FORM["form_name"]) && isset($current_user->prefs[$_FORM["form_name"]])) {
                 $_FORM = $current_user->prefs[$_FORM["form_name"]];
             }
 

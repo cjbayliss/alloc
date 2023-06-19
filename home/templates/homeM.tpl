@@ -59,11 +59,11 @@
     <div>
       <h6>Time Sheet Hours<div>Time Sheet Days</div></h6> 
       <div style="float:left; width:30%;">
-        <input type="text" size="5" name="timeSheetHoursWarn" value="{echo $current_user->prefs["timeSheetHoursWarn"]}">
+        <input type="text" size="5" name="timeSheetHoursWarn" value="{echo $current_user->prefs["timeSheetHoursWarn"] ?? ""}">
         {Page::help("<b>Time Sheet Hours</b><br><br>Time sheets that go over this number of hours and are still in edit status will be flagged for you.")}
       </div>
       <div style="float:right; width:50%;">
-        <input type="text" size="5" name="timeSheetDaysWarn" value="{echo $current_user->prefs["timeSheetDaysWarn"]}">
+        <input type="text" size="5" name="timeSheetDaysWarn" value="{echo $current_user->prefs["timeSheetDaysWarn"] ?? ""}">
         {Page::help("<b>Time Sheet Days</b><br><br>Time sheets that are older than this many days and are still in edit status will be flagged for you.")}
       </div>
     </div>

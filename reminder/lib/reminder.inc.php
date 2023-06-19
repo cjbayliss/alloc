@@ -66,7 +66,7 @@ class reminder extends DatabaseEntity
             $recipients = ["-3" => "Task Manager", "-2" => "Task Assignee"];
             $allocDatabase->query(["SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID')]);
             $allocDatabase->next_record();
-            if ($allocDatabase->f('projectID')) {
+            if ($allocDatabase->f('projectID') !== '' && $allocDatabase->f('projectID') !== '0') {
                 $query = unsafe_prepare("SELECT *
                                     FROM projectPerson
                                LEFT JOIN person ON projectPerson.personID=person.personID

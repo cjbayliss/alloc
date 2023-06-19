@@ -688,7 +688,7 @@ function alloc_error($str = "", $force = null)
 
     // Output a plain-text error suitable for logfiles and CLI
     if ($errors_format == "text" && ini_get('display_errors')) {
-        echo (strip_tags($str));
+        echo(strip_tags($str));
     }
 
     // Log the error message

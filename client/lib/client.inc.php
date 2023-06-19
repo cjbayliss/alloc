@@ -157,7 +157,7 @@ class client extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         // If they want starred, load up the clientID filter element
-        if ($filter["starred"]) {
+        if (isset($filter["starred"])) {
             // if a new user, "stars" pref is still unset
             $starredClients = isset($current_user->prefs["stars"]) ?
                 ($current_user->prefs["stars"]["client"] ?? "") : "";
@@ -305,8 +305,11 @@ class client extends DatabaseEntity
         $_FORM = get_all_form_data($page_vars, $defaults);
 
         if (!$_FORM["applyFilter"]) {
-            $_FORM = $current_user->prefs[$_FORM["form_name"]];
-            if (!isset($current_user->prefs[$_FORM["form_name"]])) {
+            if (isset($_FORM["form_name"]) && isset($current_user->prefs[$_FORM["form_name"]])) {
+                $_FORM = $current_user->prefs[$_FORM["form_name"]];
+            }
+
+            if (!isset($current_user->prefs[$_FORM["form_name"] ?? ""])) {
                 $_FORM["clientLetter"] = "A";
                 $_FORM["clientStatus"] = "Current";
             }
