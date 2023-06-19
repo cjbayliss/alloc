@@ -15,7 +15,7 @@
   </tr>
   <tr>
     <td>
-      {client::get_list_html($clientListRows,$_FORM)}
+      {client::get_list_html($clientListRows, $_FORM ?? "")}
     </td>
   </tr>
 </table>

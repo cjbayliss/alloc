@@ -687,7 +687,11 @@ class Page
     {
         $current_user = &singleton("current_user");
         global $TPL;
-        if ($current_user->prefs["stars"][$entity][$entityID]) {
+        if (
+            isset($current_user->prefs["stars"]) &&
+            isset($current_user->prefs["stars"][$entity]) &&
+            isset($current_user->prefs["stars"][$entity][$entityID])
+        ) {
             $star_hot = " hot";
             $star_icon = "icon-star";
             $star_text = "<b style='display:none'>*</b>";

@@ -535,8 +535,7 @@ class project extends DatabaseEntity
             return $sql;
         }
 
-        // FIXME: is '!== "undefined"' needed by the other filters?
-        if (isset($filter["clientID"]) && $filter["clientID"] !== "undefined") {
+        if (isset($filter["clientID"]) && $filter["clientID"] !== "") {
             $parts = array_map(static fn ($clientID) => sprintf('IFNULL(project.clientID, 0) = %s', $clientID), (array)$filter["clientID"]);
 
             $sql[] = implode(" OR ", $parts);
@@ -603,7 +602,7 @@ class project extends DatabaseEntity
         $_FORM["return"] ??= "html";
 
         $filter = self::createSQLFilerConditions($_FORM);
-        $filter = is_array($filter) && count($filter) ? " WHERE " . implode(" AND ", $filter) : "";
+        $filter = $filter !== [] && is_array($filter) ? " WHERE " . implode(" AND ", $filter) : "";
 
         $from = isset($_FORM["personID"]) ?
             " LEFT JOIN projectPerson on projectPerson.projectID = project.projectID " : "";

@@ -132,7 +132,7 @@ class client extends DatabaseEntity
 
     public function get_name($_FORM = [])
     {
-        if ($_FORM["return"] == "html") {
+        if (isset($_FORM["return"]) && $_FORM["return"] == "html") {
             return $this->get_value("clientName", DST_HTML_DISPLAY);
         }
 
@@ -296,7 +296,7 @@ class client extends DatabaseEntity
         ];
     }
 
-    public static function load_form_data($defaults = [])
+    public static function load_form_data(array $defaults = []): array
     {
         $current_user = &singleton("current_user");
 
@@ -304,7 +304,7 @@ class client extends DatabaseEntity
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 
-        if (!$_FORM["applyFilter"]) {
+        if (!isset($_FORM["applyFilter"])) {
             if (isset($_FORM["form_name"]) && isset($current_user->prefs[$_FORM["form_name"]])) {
                 $_FORM = $current_user->prefs[$_FORM["form_name"]];
             }
@@ -313,7 +313,7 @@ class client extends DatabaseEntity
                 $_FORM["clientLetter"] = "A";
                 $_FORM["clientStatus"] = "Current";
             }
-        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif (isset($_FORM["applyFilter"]) && is_object($current_user) && !$_FORM["dontSave"]) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -331,18 +331,19 @@ class client extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
 
         // Load up the forms action url
-        $rtn["url_form_action"] = $_FORM["url_form_action"];
+        $rtn["url_form_action"] = $_FORM["url_form_action"] ?? "";
 
         $meta = new Meta("clientStatus");
         $clientStatus_array = $meta->get_assoc_array("clientStatusID", "clientStatusID");
         $rtn["clientStatusOptions"] = Page::select_options($clientStatus_array, $_FORM["clientStatus"]);
-        $rtn["clientName"] = $_FORM["clientName"];
-        $rtn["contactName"] = $_FORM["contactName"];
+        $rtn["clientName"] = $_FORM["clientName"] ?? "";
+        $rtn["contactName"] = $_FORM["contactName"] ?? "";
         $letters = range('A', 'Z');
         $letters[] = 'ALL'; // append 'ALL' for filtering by all
 
+        $rtn["alphabet_filter"] ??= "";
         foreach ($letters as $letter) {
-            if ($_FORM["clientLetter"] == $letter) {
+            if (isset($_FORM["clientLetter"]) && $_FORM["clientLetter"] == $letter) {
                 $rtn["alphabet_filter"] .= sprintf('&nbsp;&nbsp;%s', $letter);
             } else {
                 $rtn["alphabet_filter"] .=
@@ -351,7 +352,7 @@ class client extends DatabaseEntity
         }
 
         $clientCategories = [];
-        $clientCategory = $_FORM["clientCategory"];
+        $clientCategory = $_FORM["clientCategory"] ?? "";
         ($clientDataArray = config::get_config_item("clientCategories")) || ($clientDataArray = []);
         foreach ($clientDataArray as $client => $category) {
             $clientCategories[$category["value"]] = $category["label"];

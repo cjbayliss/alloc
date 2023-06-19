@@ -20,7 +20,7 @@ function show_client_contacts()
 
     $TPL["clientContact_clientID"] = $clientID;
 
-    if ($_POST["clientContact_delete"] && $_POST["clientContactID"]) {
+    if (isset($_POST["clientContact_delete"]) && isset($_POST["clientContactID"])) {
         $clientContact = new clientContact();
         $clientContact->set_id($_POST["clientContactID"]);
         $clientContact->delete();
@@ -47,7 +47,7 @@ function show_client_contacts()
         $clientContact->read_db_record($database);
 
         if (
-            $_POST["clientContact_edit"] &&
+            isset($_POST["clientContact_edit"]) &&
             $_POST["clientContactID"] == $clientContact->get_id()
         ) {
             continue;
@@ -150,7 +150,7 @@ function show_client_contacts()
         $TPL["clientContacts"] = implode("\n", $buildHTML);
     }
 
-    if ($_POST["clientContact_edit"] && $_POST["clientContactID"]) {
+    if (isset($_POST["clientContact_edit"]) && isset($_POST["clientContactID"])) {
         $clientContact = new clientContact();
         $clientContact->set_id($_POST["clientContactID"]);
         $clientContact->select();
@@ -166,7 +166,7 @@ function show_client_contacts()
         $TPL["class_new_client_contact"] = "hidden";
     }
 
-    if (!$_POST["clientContactID"] || $_POST["clientContact_save"]) {
+    if (!isset($_POST["clientContactID"]) || isset($_POST["clientContact_save"])) {
         $TPL["clientContactActive_checked"] = " checked";
     }
 
@@ -235,10 +235,10 @@ function show_invoices()
 }
 
 $client = new client();
-($clientID = $_POST["clientID"]) || ($clientID = $_GET["clientID"]);
+$clientID = $_POST["clientID"] ?? $_GET["clientID"] ?? "";
 
-if ($_POST["save"]) {
-    if (!$_POST["clientName"]) {
+if (isset($_POST["save"])) {
+    if (!isset($_POST["clientName"])) {
         alloc_error("Please enter a Client Name.");
     }
 
@@ -252,16 +252,16 @@ if ($_POST["save"]) {
         $new_client = true;
     }
 
-    if (!$TPL["message"]) {
+    if (!isset($TPL["message"])) {
         $client->save();
         $clientID = $client->get_id();
         $client->set_values("client_");
     }
-} elseif ($_POST["save_attachment"]) {
+} elseif (isset($_POST["save_attachment"])) {
     move_attachment("client", $clientID);
     alloc_redirect(sprintf('%sclientID=%s&sbs_link=attachments', $TPL['url_alloc_client'], $clientID));
 } else {
-    if ($_GET["get_vcard"]) {
+    if (isset($_GET["get_vcard"])) {
         $clientContact = new clientContact();
         $clientContact->set_id($_GET["clientContactID"]);
         $clientContact->select();
@@ -269,7 +269,7 @@ if ($_POST["save"]) {
         return;
     }
 
-    if ($_POST["delete"]) {
+    if (isset($_POST["delete"])) {
         $client->read_globals();
         $client->delete();
         alloc_redirect($TPL["url_alloc_clientList"]);
@@ -302,20 +302,20 @@ if ($selectedCategory) {
 }
 
 // client contacts
-if ($_POST["clientContact_save"] || $_POST["clientContact_delete"]) {
+if (isset($_POST["clientContact_save"]) || isset($_POST["clientContact_delete"])) {
     $clientContact = new clientContact();
     $clientContact->read_globals();
 
-    if ($_POST["clientContact_save"]) {
+    if (isset($_POST["clientContact_save"])) {
         $clientContact->save();
     }
 
-    if ($_POST["clientContact_delete"]) {
+    if (isset($_POST["clientContact_delete"])) {
         $clientContact->delete();
     }
 }
 
-if (!$clientID) {
+if (!isset($clientID)) {
     $TPL["message_help"][] =
         "Create a new Client by inputting the Client Name and other details and clicking the Create New Client button.";
     $TPL["main_alloc_title"] = "New Client - " . APPLICATION_NAME;
@@ -326,6 +326,7 @@ if (!$clientID) {
         sprintf('<a href="%s">%s %s</a>', $client->get_url(), $client->get_id(), $client->get_name(["return" => "html"]));
 }
 
+$TPL["invoice_links"] ??= "";
 if ($current_user->have_role("admin")) {
     $TPL["invoice_links"] .= sprintf('<a href="%sclientID=%s">New Invoice</a>', $TPL['url_alloc_invoice'], $clientID);
 }

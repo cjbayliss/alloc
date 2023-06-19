@@ -28,7 +28,7 @@ function show_filter()
 $_FORM = client::load_form_data($defaults);
 $TPL["clientListRows"] = client::get_list($_FORM);
 
-if (!$current_user->prefs["clientList_filter"]) {
+if (!isset($current_user->prefs["clientList_filter"])) {
     $TPL["message_help"][] = "
 
 allocPSA allows you to store pertinent information about your Clients and
