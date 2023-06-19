@@ -113,24 +113,34 @@ function seconds_to_display_format($seconds)
     return sprintf("%0.2f hrs (%0.1f days)", $hours, $days);
 }
 
-function get_all_form_data($array = [], $defaults = [])
+/**
+ * Get defaults from POST, GET, or defaults supplied by $fallback
+ *
+ * @param array $array contains a list of defaults to set
+ * @param array $fallback fallback if POST or GET aren't set
+ * @return array and array of defaults
+ */
+function get_all_form_data(array $array = [], array $fallback = []): array
 {
-    // Load up $_FORM with $_GET and $_POST
     $_FORM = [];
     foreach ($array as $name) {
-        if (!isset($_FORM[$name])) {
-            break;
-        }
-
-        if ($_FORM[$name] = $_POST[$name]) {
+        if (
+            $_SERVER['REQUEST_METHOD'] === 'POST' &&
+            (!empty($_POST[$name]) && $_FORM[$name] = $_POST[$name])
+        ) {
             continue;
         }
 
-        if ($_FORM[$name] = $_GET[$name]) {
+        if (
+            $_SERVER['REQUEST_METHOD'] === 'GET' &&
+            (!empty($_GET[$name]) && $_FORM[$name] = $_GET[$name])
+        ) {
             continue;
         }
 
-        $_FORM[$name] = $defaults[$name];
+        if (!empty($fallback[$name])) {
+            $_FORM[$name] = $fallback[$name];
+        }
     }
 
     return $_FORM;
@@ -678,7 +688,7 @@ function alloc_error($str = "", $force = null)
 
     // Output a plain-text error suitable for logfiles and CLI
     if ($errors_format == "text" && ini_get('display_errors')) {
-        echo(strip_tags($str));
+        echo (strip_tags($str));
     }
 
     // Log the error message
