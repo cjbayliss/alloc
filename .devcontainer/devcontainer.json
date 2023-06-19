@@ -1,0 +1,10 @@
+// README: https://github.com/devcontainers/templates/tree/main/src/php
+{
+	"name": "PHP",
+	"image": "mcr.microsoft.com/devcontainers/php",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	// activate intelephense license if secrets env $INTELEPHENSE_LICENCE is set
+	"postCreateCommand": "if [ -n $INTELEPHENSE_LICENCE ] ; then mkdir -p $HOME/intelephense && echo $INTELEPHENSE_LICENCE > $HOME/intelephense/licence.txt; fi"
+}
