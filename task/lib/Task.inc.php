@@ -1491,7 +1491,7 @@ class Task extends DatabaseEntity
 
         if (isset($_FORM["applyFilter"]) && is_object($current_user)) {
             // we have a new filter configuration from the user, and must save it
-            if (!$_FORM["dontSave"]) {
+            if (!isset($_FORM["dontSave"])) {
                 $url = $_FORM["url_form_action"];
                 unset($_FORM["url_form_action"]);
                 $current_user->prefs[$_FORM["form_name"]] = $_FORM;

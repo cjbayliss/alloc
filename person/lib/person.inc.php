@@ -583,14 +583,19 @@ class person extends DatabaseEntity
 
             $row = $p->perm_cleanup($row); // this is not the right way to do this - alla
             $print = true;
-            $_FORM["showHours"] && ($row["hoursSum"] = $ts_hrs_col_1[$row["personID"]]);
-            $_FORM["showHours"] && ($row["hoursAvg"] = $ts_hrs_col_2[$row["personID"]]);
+            if (isset($_FORM["showHours"])) {
+                $row["hoursSum"] = $ts_hrs_col_1[$row["personID"]];
+            }
+
+            if (isset($_FORM["showHours"])) {
+                $row["hoursAvg"] = $ts_hrs_col_2[$row["personID"]];
+            }
 
             $row["name"] = $p->get_name();
             $row["name_link"] = $p->get_link($_FORM);
             $row["personActive_label"] = $p->get_value("personActive") == 1 ? "Y" : "";
 
-            if ($_FORM["showSkills"]) {
+            if (isset($_FORM["showSkills"])) {
                 $senior_skills = $p->get_skills('Senior');
                 $advanced_skills = $p->get_skills('Advanced');
                 $intermediate_skills = $p->get_skills('Intermediate');
@@ -606,7 +611,7 @@ class person extends DatabaseEntity
                 $row["skills_list"] = implode("<br>", $skills);
             }
 
-            if ($_FORM["showLinks"]) {
+            if (isset($_FORM["showLinks"])) {
                 $row["navLinks"] = '<a href="' . $TPL["url_alloc_taskList"] . 'personID=' . $row["personID"] . '&taskView=byProject&applyFilter=1';
                 $row["navLinks"] .= '&dontSave=1&taskStatus=open&projectType=Current">Tasks</a>&nbsp;&nbsp;';
                 has("project") && ($row["navLinks"] .= '<a href="' . $TPL["url_alloc_personGraph"] . 'personID=' . $row["personID"] . '">Graph</a>&nbsp;&nbsp;');
@@ -645,10 +650,19 @@ class person extends DatabaseEntity
         $summary = [];
         if (isset($_FORM["showHeader"])) {
             $summary[] = "<tr>";
-            $_FORM["showName"] && ($summary[] = "<th>Name</th>");
-            $_FORM["showActive"] && ($summary[] = "<th>Enabled</th>");
-            $_FORM["showNos"] && ($summary[] = "<th>Contact</th>");
-            if ($_FORM["showSkills"]) {
+            if (isset($_FORM["showName"])) {
+                $summary[] = "<th>Name</th>";
+            }
+
+            if (isset($_FORM["showActive"])) {
+                $summary[] = "<th>Enabled</th>";
+            }
+
+            if (isset($_FORM["showNos"])) {
+                $summary[] = "<th>Contact</th>";
+            }
+
+            if (isset($_FORM["showSkills"])) {
                 $summary[] = "<th>";
                 $summary[] = "Senior";
                 $summary[] = '<img src="../images/skill_senior.png" alt="Senior" align="absmiddle">';
@@ -659,9 +673,18 @@ class person extends DatabaseEntity
                 $summary[] = "</th>";
             }
 
-            $_FORM["showHours"] && ($summary[] = "<th>Sum Prev Fort</th>");
-            $_FORM["showHours"] && ($summary[] = "<th>Avg Per Fort</th>");
-            $_FORM["showLinks"] && ($summary[] = "<th></th>");
+            if (isset($_FORM["showHours"])) {
+                $summary[] = "<th>Sum Prev Fort</th>";
+            }
+
+            if (isset($_FORM["showHours"])) {
+                $summary[] = "<th>Avg Per Fort</th>";
+            }
+
+            if (isset($_FORM["showLinks"])) {
+                $summary[] = "<th></th>";
+            }
+
             $summary[] = "</tr>";
             return "\n" . implode("\n", $summary);
         }

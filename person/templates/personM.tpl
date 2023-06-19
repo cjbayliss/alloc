@@ -56,7 +56,7 @@
         </tr>
         <tr>
           <td class="nobr" width="20%">Preferred Payment TF</td>
-          <td><select name="preferred_tfID"><option value="">&nbsp;</option>{$preferred_tfID_options}</select></td>
+          <td><select name="preferred_tfID"><option value="">&nbsp;</option>{$preferred_tfID_options ?? ""}</select></td>
         </tr>
         <tr>
           <td class="top">Default Rate</td>

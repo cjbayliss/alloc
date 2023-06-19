@@ -15,7 +15,7 @@ function show_perm_select()
         $selected = explode(",", $person->get_value("perms"));
         $ops = role::get_roles_array("person");
         foreach ($ops as $p => $l) {
-            unset($sel);
+            $sel = "";
             if (in_array($p, $selected)) {
                 $sel = " checked";
             }

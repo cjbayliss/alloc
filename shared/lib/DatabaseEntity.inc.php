@@ -444,7 +444,7 @@ class DatabaseEntity
         $field->clear_value();
     }
 
-    public function read_array(&$array, $source_prefix = "", $source = SRC_VARIABLE)
+    public function read_array(array &$array, string $source_prefix = "", int $source = SRC_VARIABLE)
     {
         // Data fields
         foreach ($this->data_fields as $field_index => $field) {
@@ -454,8 +454,10 @@ class DatabaseEntity
 
         // Key field
         $source_index = $source_prefix . $this->key_field->get_name();
-        $this->key_field->set_value($array[$source_index], $source);
-        $this->debug && (print "db_entity->read_array key_field->set_value(" . $array[$source_index] . ", {$source})<br>\n");
+        if (isset($array[$source_index])) {
+            $this->key_field->set_value($array[$source_index], $source);
+        }
+
         $this->fields_loaded = true;
     }
 
@@ -634,9 +636,9 @@ class DatabaseEntity
         return "#" . $this->get_id();
     }
 
-    public function can_read_field($field_name)
+    public function can_read_field(string $field_name): bool
     {
-        $field = $this->data_fields[$field_name];
+        $field = $this->data_fields[$field_name] ?? "";
         if (!is_object($field)) {
             return true;
         }

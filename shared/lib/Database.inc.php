@@ -287,12 +287,11 @@ class Database
      * @deprecated This function is deprecated. Use PDOStatement::fetch()
      *
      * @param string $name The name of the column to retrieve the value from.
-     * @return mixed|null The value of the specified column, or null if the
-     *                    column doesn't exist.
+     * @return string The value of the specified column
      */
-    public function f($name)
+    public function f(string $name): string
     {
-        return $this->row[$name];
+        return $this->row[$name] ?? "";
     }
 
     public function get_table_fields($table)
