@@ -1,0 +1,4 @@
+tasks:
+  - name: setup composer and intelephense
+    init: composer install
+    command: if [ -n $INTELEPHENSE_LICENCE ] ; then mkdir -p $HOME/intelephense && echo $INTELEPHENSE_LICENCE > $HOME/intelephense/licence.txt; fi
