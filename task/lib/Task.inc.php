@@ -1500,8 +1500,11 @@ class Task extends DatabaseEntity
 
             // we haven't been given a filter configuration, so load it from user preferences
         } elseif (isset($_FORM['form_name'])) {
-            $_FORM = $current_user->prefs[$_FORM["form_name"]];
-            if (!isset($current_user->prefs[$_FORM["form_name"]])) {
+            if (isset($_FORM["form_name"]) && isset($current_user->prefs[$_FORM["form_name"]])) {
+                $_FORM = $current_user->prefs[$_FORM["form_name"]];
+            }
+
+            if (!isset($current_user->prefs[$_FORM["form_name"] ?? ""])) {
                 $_FORM["projectType"] = "mine";
                 $_FORM["taskStatus"] = "open";
                 $_FORM["personID"] = $current_user->get_id();
@@ -1519,47 +1522,71 @@ class Task extends DatabaseEntity
         return $_FORM;
     }
 
-    public static function load_task_filter($_FORM)
+    public static function load_task_filter(array $_FORM): array
     {
         $rtn = [];
         $task = new Task();
 
         // Load up the forms action url
         $rtn["url_form_action"] = $_FORM["url_form_action"];
-        $rtn["hide_field_options"] = $_FORM["hide_field_options"];
+        $rtn["hide_field_options"] = $_FORM["hide_field_options"] ?? "";
 
         // time Load up the filter bits
-        has("project") && ($rtn["projectOptions"] = project::get_list_dropdown($_FORM["projectType"], $_FORM["projectID"]));
+        has("project") && ($rtn["projectOptions"] = project::get_list_dropdown($_FORM["projectType"], $_FORM["projectID"] ?? ""));
 
         $_FORM["projectType"] && ($rtn["projectType_checked"][$_FORM["projectType"]] = " checked");
         $ops = ["0" => "Nobody"];
         $rtn["personOptions"] = Page::select_options($ops + person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
-        $rtn["managerPersonOptions"] = Page::select_options($ops + person::get_username_list($_FORM["managerID"]), $_FORM["managerID"]);
-        $rtn["creatorPersonOptions"] = Page::select_options(person::get_username_list($_FORM["creatorID"]), $_FORM["creatorID"]);
+        $rtn["managerPersonOptions"] = Page::select_options($ops + person::get_username_list($_FORM["managerID"] ?? ""), $_FORM["managerID"] ?? "");
+        $rtn["creatorPersonOptions"] = Page::select_options(person::get_username_list($_FORM["creatorID"] ?? ""), $_FORM["creatorID"] ?? "");
         $rtn["all_tags"] = $task->get_tags(true);
-        $rtn["tags"] = $_FORM["tags"];
+        $rtn["tags"] = $_FORM["tags"] ?? "";
 
         $meta = new Meta("taskType");
         $taskType_array = $meta->get_assoc_array("taskTypeID", "taskTypeID");
-        $rtn["taskTypeOptions"] = Page::select_options($taskType_array, $_FORM["taskTypeID"]);
+        $rtn["taskTypeOptions"] = Page::select_options($taskType_array, $_FORM["taskTypeID"] ?? "");
 
         $_FORM["taskView"] && ($rtn["taskView_checked_" . $_FORM["taskView"]] = " checked");
 
         $taskStatii = Task::get_task_statii_array();
         $rtn["taskStatusOptions"] = Page::select_options($taskStatii, $_FORM["taskStatus"]);
 
-        $_FORM["showDescription"] && ($rtn["showDescription_checked"] = " checked");
-        $_FORM["showDates"] && ($rtn["showDates_checked"] = " checked");
-        $_FORM["showCreator"] && ($rtn["showCreator_checked"] = " checked");
-        $_FORM["showAssigned"] && ($rtn["showAssigned_checked"] = " checked");
-        $_FORM["showTimes"] && ($rtn["showTimes_checked"] = " checked");
-        $_FORM["showPercent"] && ($rtn["showPercent_checked"] = " checked");
-        $_FORM["showPriority"] && ($rtn["showPriority_checked"] = " checked");
-        $_FORM["showTaskID"] && ($rtn["showTaskID_checked"] = " checked");
-        $_FORM["showManager"] && ($rtn["showManager_checked"] = " checked");
-        $_FORM["showProject"] && ($rtn["showProject_checked"] = " checked");
-        $_FORM["showTags"] && ($rtn["showTags_checked"] = " checked");
-        $_FORM["showParentID"] && ($rtn["showParentID_checked"] = " checked");
+        if (isset($_FORM["showDescription"])) {
+            $rtn["showDescription_checked"] = " checked";
+        }
+        if (isset($_FORM["showDates"])) {
+            $rtn["showDates_checked"] = " checked";
+        }
+        if (isset($_FORM["showCreator"])) {
+            $rtn["showCreator_checked"] = " checked";
+        }
+        if (isset($_FORM["showAssigned"])) {
+            $rtn["showAssigned_checked"] = " checked";
+        }
+        if (isset($_FORM["showTimes"])) {
+            $rtn["showTimes_checked"] = " checked";
+        }
+        if (isset($_FORM["showPercent"])) {
+            $rtn["showPercent_checked"] = " checked";
+        }
+        if (isset($_FORM["showPriority"])) {
+            $rtn["showPriority_checked"] = " checked";
+        }
+        if (isset($_FORM["showTaskID"])) {
+            $rtn["showTaskID_checked"] = " checked";
+        }
+        if (isset($_FORM["showManager"])) {
+            $rtn["showManager_checked"] = " checked";
+        }
+        if (isset($_FORM["showProject"])) {
+            $rtn["showProject_checked"] = " checked";
+        }
+        if (isset($_FORM["showTags"])) {
+            $rtn["showTags_checked"] = " checked";
+        }
+        if (isset($_FORM["showParentID"])) {
+            $rtn["showParentID_checked"] = " checked";
+        }
 
         $arrow = " --&gt;";
         $taskDateOps = [
@@ -1574,9 +1601,9 @@ class Task extends DatabaseEntity
             "d_actualStart"      => "Date Started" . $arrow,
             "d_actualCompletion" => "Date Completed" . $arrow,
         ];
-        $rtn["taskDateOptions"] = Page::select_options($taskDateOps, $_FORM["taskDate"], 45, false);
+        $rtn["taskDateOptions"] = Page::select_options($taskDateOps, $_FORM["taskDate"] ?? "", 45, false);
 
-        if (!in_array($_FORM["taskDate"], ["new", "due_today", "overdue"])) {
+        if (isset($_FORM["taskDate"]) && !in_array($_FORM["taskDate"], ["new", "due_today", "overdue"])) {
             $rtn["dateOne"] = $_FORM["dateOne"];
             $rtn["dateTwo"] = $_FORM["dateTwo"];
         }
@@ -1608,7 +1635,7 @@ class Task extends DatabaseEntity
             10000 => "10000 results",
         ];
 
-        $rtn["limitOptions"] = Page::select_options($task_num_ops, $_FORM["limit"]);
+        $rtn["limitOptions"] = Page::select_options($task_num_ops, $_FORM["limit"] ?? "");
 
         // unset vars that aren't necessary
         foreach ((array)$_FORM as $k => $v) {

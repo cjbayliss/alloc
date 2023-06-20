@@ -193,7 +193,7 @@ class person extends DatabaseEntity
         return $rtn;
     }
 
-    public static function get_username_list($push_personID = "")
+    public static function get_username_list(string $push_personID = ""): array
     {
         $rtn = [];
         static $rows;

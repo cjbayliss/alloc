@@ -33,7 +33,7 @@ if (is_array($arr)) {
 }
 
 // Check for updates
-if ($_POST["mass_update"] && $_POST["select"]) {
+if (isset($_POST["mass_update"]) && isset($_POST["select"])) {
     $allowed_auto_fields = [
         "dateTargetStart",
         "dateTargetCompletion",
@@ -82,7 +82,7 @@ if ($_POST["mass_update"] && $_POST["select"]) {
     alloc_redirect($url);
 }
 
-if (!$current_user->prefs["taskList_filter"]) {
+if (!isset($current_user->prefs["taskList_filter"])) {
     $TPL["message_help"][] = "
 
 allocPSA allows you to assign, schedule and plan out Tasks. This page

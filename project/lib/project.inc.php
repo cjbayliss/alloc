@@ -639,7 +639,7 @@ class project extends DatabaseEntity
             $row["projectLink"] = $projectInstance->get_link();
             $row["navLinks"] = $projectInstance->get_navigation_links();
             $label = $row["projectName"];
-            if ($_FORM["showProjectType"]) {
+            if (isset($_FORM["showProjectType"])) {
                 $label .= sprintf(' [%s]', $projectInstance->get_project_type());
             }
 

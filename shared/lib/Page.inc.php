@@ -361,7 +361,8 @@ class Page
             EOD;
     }
 
-    public static function select_options($options, $selected_value = null, $max_length = 45, $escape = true): string
+    // FIXME: once on php 8.2, use stricter types like: array|string
+    public static function select_options($options, $selected_value = null, int $max_length = 45, bool $escape = true): string
     {
         $rows = [];
         $selected_values = [];
@@ -421,7 +422,9 @@ class Page
                     $label = substr($label, 0, $max_length - 3) . "...";
                 }
 
-                $escape && ($label = Page::htmlentities($label));
+                if ($escape) {
+                    $label = Page::htmlentities($label);
+                }
                 $label = str_replace(" ", "&nbsp;", $label);
 
                 $str .= "\n<option value=\"" . $value . '"' . $sel . ">" . $label . "</option>";
