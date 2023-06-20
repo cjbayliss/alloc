@@ -10,5 +10,5 @@ require_once(__DIR__ . "/../alloc.php");
 
 if ($_GET["clientID"]) {
     usleep(400000);
-    echo client::get_client_contact_select($_GET["clientID"], $_GET["clientContactID"]);
+    echo client::get_client_contact_select($_GET["clientID"], $_GET["clientContactID"] ?? "");
 }

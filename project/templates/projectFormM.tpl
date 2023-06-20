@@ -134,7 +134,7 @@ function clickClientStatus(e) {
           {Page::textarea("projectComments",$project_projectComments,array("height"=>"medium","width"=>"100%"))}
         </div>
 
-        {if $clientDetails}
+        {if isset($clientDetails)}
         <div class="view">
           <h6>Client</h6>
           {$clientDetails}
@@ -185,7 +185,7 @@ function clickClientStatus(e) {
           </div>
         </div>
 
-        {if (isset($project_projectBudget) && (bool)strlen($project_projectBudget)) || $cost_centre_tfID_label}
+        {if (isset($project_projectBudget) && (bool)strlen($project_projectBudget)) || isset($cost_centre_tfID_label)}
         <div class="view">
           <h6>Budget<div>Cost Centre TF</div></h6>
           <div style="float:left; width:40%;">
@@ -243,7 +243,7 @@ function clickClientStatus(e) {
           <div id="interestedPartyDropdown" style="display:inline">{$interestedPartyOptions}</div>
           {Page::help("project_interested_parties")}
         </div>
-        {if $interestedParties}
+        {if isset($interestedParties)}
         <div class="view">
           <h6>Default Interested Parties</h6> 
           <table class="nopad" style="width:100%;">
@@ -370,7 +370,7 @@ function clickClientStatus(e) {
   </tr>
   <tr>
     <td class="right nobr">Task Time Estimate</td>
-    <td class="right">{$time_remaining} {Page::money($project_currencyTypeID,$cost_remaining)} {$count_not_quoted_tasks}</td>
+    <td class="right">{$time_remaining ?? ""} {Page::money($project_currencyTypeID, $cost_remaining ?? "")} {$count_not_quoted_tasks ?? ""}</td>
     <td class="right">Sum Customer Billed for Time Sheets</td>
     <td class="right">{$total_timeSheet_customerBilledDollars}</td>
   </tr>            

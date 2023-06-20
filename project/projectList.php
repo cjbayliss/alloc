@@ -31,7 +31,7 @@ $_FORM = project::load_form_data($defaults);
 $TPL["projectListRows"] = project::getFilteredProjectList($_FORM);
 $TPL["_FORM"] = $_FORM;
 
-if (!$current_user->prefs["projectList_filter"]) {
+if (!isset($current_user->prefs["projectList_filter"])) {
     $TPL["message_help"][] = "
 
 allocPSA helps you manage Projects. This page allows you to see a list of

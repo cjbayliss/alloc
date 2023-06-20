@@ -170,9 +170,9 @@ class project extends DatabaseEntity
 
     public function get_name($_FORM = [])
     {
-        $field = $_FORM["showShortProjectLink"] && $this->get_value("projectShortName") ? "projectShortName" : "projectName";
+        $field = isset($_FORM["showShortProjectLink"]) && $this->get_value("projectShortName") ? "projectShortName" : "projectName";
 
-        if ($_FORM["return"] == "html") {
+        if (isset($_FORM["return"]) && $_FORM["return"] == "html") {
             return $this->get_value($field, DST_HTML_DISPLAY);
         }
 
@@ -312,7 +312,7 @@ class project extends DatabaseEntity
         }
 
         // Project
-        if ($ops["showProject"]) {
+        if (isset($ops["showProject"])) {
             $url = $TPL["url_alloc_project"] . "projectID=" . $this->get_id();
             $links[] = sprintf('<a href="%s" class="nobr noprint">Project</a>', $url);
         }
@@ -337,7 +337,7 @@ class project extends DatabaseEntity
 
         // To Time Sheet
         if ($this->have_perm(PERM_PROJECT_ADD_TASKS)) {
-            $extra = $ops["taskID"] ? "&taskID=" . $ops["taskID"] : "";
+            $extra = isset($ops["taskID"]) ? "&taskID=" . $ops["taskID"] : "";
             $url = $TPL["url_alloc_timeSheet"] . "newTimeSheet_projectID=" . $this->get_id() . $extra;
             $links[] = sprintf('<a href="%s" class="nobr noprint">Time Sheet</a>', $url);
         }
@@ -536,13 +536,13 @@ class project extends DatabaseEntity
         }
 
         if (isset($filter["clientID"]) && $filter["clientID"] !== "") {
-            $parts = array_map(static fn ($clientID) => sprintf('IFNULL(project.clientID, 0) = %s', $clientID), (array)$filter["clientID"]);
+            $parts = array_map(static fn ($clientID) => sprintf('IFNULL(project.clientID, 0) = %d', $clientID), (array)$filter["clientID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
 
         if (isset($filter["personID"])) {
-            $parts = array_map(static fn ($personID) => sprintf('IFNULL(projectPerson.personID, 0) = %s', $personID), (array)$filter["personID"]);
+            $parts = array_map(static fn ($personID) => sprintf('IFNULL(projectPerson.personID, 0) = %d', $personID), (array)$filter["personID"]);
 
             $sql[] = implode(" OR ", $parts);
         }
@@ -554,7 +554,7 @@ class project extends DatabaseEntity
         }
 
         if (isset($filter["projectType"])) {
-            $parts = array_map(static fn ($projectType) => sprintf('IFNULL(project.projectType, 0) = %s', $projectType), (array)$filter["projectType"]);
+            $parts = array_map(static fn ($projectType) => sprintf("IFNULL(project.projectType, 0) = '%s'", $projectType), (array)$filter["projectType"]);
 
             $sql[] = implode(" OR ", $parts);
         }
@@ -691,13 +691,16 @@ class project extends DatabaseEntity
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 
-        if (!$_FORM["applyFilter"]) {
-            $_FORM = $current_user->prefs[$_FORM["form_name"]];
-            if (!isset($current_user->prefs[$_FORM["form_name"]])) {
+        if (!isset($_FORM["applyFilter"])) {
+            if (isset($_FORM["form_name"]) && isset($current_user->prefs[$_FORM["form_name"]])) {
+                $_FORM = $current_user->prefs[$_FORM["form_name"]];
+            }
+
+            if (!isset($current_user->prefs[$_FORM["form_name"] ?? ""])) {
                 $_FORM["projectStatus"] = "Current";
                 $_FORM["personID"] = $current_user->get_id();
             }
-        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif (isset($_FORM["applyFilter"]) && is_object($current_user) && !isset($_FORM["dontSave"])) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -715,15 +718,15 @@ class project extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         $personSelect = '<select name="personID[]" multiple="true">';
-        $personSelect .= Page::select_options(person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
+        $personSelect .= Page::select_options(person::get_username_list($_FORM["personID"] ?? ""), $_FORM["personID"] ?? "");
         $personSelect .= "</select>";
 
         $rtn["personSelect"] = $personSelect;
         $meta = new Meta("projectStatus");
         $projectStatus_array = $meta->get_assoc_array("projectStatusID", "projectStatusID");
         $rtn["projectStatusOptions"] = Page::select_options($projectStatus_array, $_FORM["projectStatus"]);
-        $rtn["projectTypeOptions"] = Page::select_options(project::get_project_type_array(), $_FORM["projectType"]);
-        $rtn["projectName"] = $_FORM["projectName"];
+        $rtn["projectTypeOptions"] = Page::select_options(project::get_project_type_array(), $_FORM["projectType"] ?? "");
+        $rtn["projectName"] = $_FORM["projectName"] ?? "";
 
         // Get
         $rtn["FORM"] = "FORM=" . urlencode(serialize($_FORM));
@@ -899,7 +902,7 @@ class project extends DatabaseEntity
                 $name = $info["name"];
                 $identifier = $info["identifier"];
 
-                if ($info["role"] == "interested" && $info["selected"]) {
+                if (isset($info["role"]) && $info["role"] == "interested" && $info["selected"]) {
                     $interestedParty[] = $identifier;
                 }
 
@@ -916,7 +919,6 @@ class project extends DatabaseEntity
 
     public function get_all_parties($projectID = false, $task_exists = false)
     {
-
         $interestedPartyOptions = [];
         if (!$projectID && is_object($this)) {
             $projectID = $this->get_id();

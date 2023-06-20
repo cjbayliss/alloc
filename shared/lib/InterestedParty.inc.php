@@ -194,8 +194,11 @@ class InterestedParty extends DatabaseEntity
                 }
 
                 $c = "";
-                $info["selected"] && ($sel = " checked");
-                if (!$info["internal"] && $info["external"]) {
+                if (isset($info["selected"])) {
+                    $sel = " checked";
+                }
+
+                if (!isset($info["internal"]) && isset($info["external"])) {
                     $c .= " warn";
                 }
 

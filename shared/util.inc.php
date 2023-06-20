@@ -456,10 +456,15 @@ function bad_filename($filename)
     return preg_match("@[/\\\]@", $filename);
 }
 
-function parse_email_address($email = "")
+// Takes Alex Lance <alla@cyber.com.au> and returns array("alla@cyber.com.au",
+// "Alex Lance");
+function parse_email_address(string $email = ""): array
 {
-    // Takes Alex Lance <alla@cyber.com.au> and returns array("alla@cyber.com.au", "Alex Lance");
-    if ($email) {
+    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return [$email, ""];
+    }
+
+    if ($email !== '') {
         $mail = new Mail_RFC822();
         $structure = $mail->parseAddressList($email);
         $name = (string)$structure[0]->personal;
@@ -473,13 +478,11 @@ function parse_email_address($email = "")
     return [];
 }
 
-function same_email_address($addy1, $addy2)
+function same_email_address(string $addy1, string $addy2): bool
 {
-    [$from_address1, $from_name1] = parse_email_address($addy1);
-    [$from_address2, $from_name2] = parse_email_address($addy2);
-    if ($from_address1 == $from_address2) {
-        return true;
-    }
+    [$from_address1, $_] = parse_email_address($addy1);
+    [$from_address2, $_] = parse_email_address($addy2);
+    return $from_address1 == $from_address2;
 }
 
 function alloc_redirect($target_url)

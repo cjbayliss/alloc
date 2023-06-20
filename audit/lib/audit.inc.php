@@ -73,11 +73,17 @@ class audit extends DatabaseEntity
      * @param array $filter
      * @return array $sql an array of project or task id to filter by. e.g.: Array([0] => (taskID = 1))
      */
-    public static function get_list_filter($filter)
+    public static function get_list_filter(array $filter): array
     {
         $sql = [];
-        $filter["taskID"] && ($sql[] = unsafe_prepare("(taskID = %d)", $filter["taskID"]));
-        $filter["projectID"] && ($sql[] = unsafe_prepare("(projectID = %d)", $filter["projectID"]));
+        if (isset($filter["taskID"])) {
+            $sql[] = unsafe_prepare("(taskID = %d)", $filter["taskID"]);
+        }
+
+        if (isset($filter["projectID"])) {
+            $sql[] = unsafe_prepare("(projectID = %d)", $filter["projectID"]);
+        }
+
         return $sql;
     }
 

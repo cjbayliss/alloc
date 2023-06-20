@@ -302,7 +302,6 @@ function show_tasks()
     // $options["showTimes"] = true; // performance hit
     $options["return"] = "html";
     // $TPL["taskListRows"] is used for the budget estimatation outside of this function
-    $options = ace_augment("project_page_task_list_options", $options);
     $TPL["taskListRows"] = Task::get_list($options);
     $TPL["_FORM"] = $options;
     include_template("templates/projectTaskS.tpl");
@@ -312,8 +311,7 @@ function show_tasks()
 
 $current_user = &singleton("current_user");
 
-($projectID = $_POST["projectID"]) || ($projectID = $_GET["projectID"]);
-
+$projectID = $_POST["projectID"] ?? $_GET["projectID"] ?? "";
 $project = new project();
 
 if ($projectID) {
@@ -327,7 +325,7 @@ if ($projectID) {
     $new_project = true;
 }
 
-if ($_POST["save"]) {
+if (isset($_POST["save"])) {
     $project->read_globals();
     if (!$project->get_id()) {    // brand new project
         $definitely_new_project = true;
@@ -374,12 +372,16 @@ if ($_POST["save"]) {
 
         alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $project->get_id());
     }
-} elseif ($_POST["delete"]) {
+} elseif (isset($_POST["delete"])) {
     $project->read_globals();
     $project->delete();
     alloc_redirect($TPL["url_alloc_projectList"]);
     // If they are creating a new project that is based on an existing one
-} elseif ($_POST["copy_project_save"] && $_POST["copy_projectID"] && $_POST["copy_project_name"]) {
+} elseif (
+    isset($_POST["copy_project_save"]) &&
+    isset($_POST["copy_projectID"]) &&
+    isset($_POST["copy_project_name"])
+) {
     $p = new project();
     $p->set_id($_POST["copy_projectID"]);
     if ($p->select()) {
@@ -423,7 +425,7 @@ if ($_POST["save"]) {
 }
 
 if ($projectID) {
-    if ($_POST["person_save"]) {
+    if (isset($_POST["person_save"])) {
         $q = unsafe_prepare("SELECT * FROM projectPerson WHERE projectID = %d", $project->get_id());
         $db = new AllocDatabase();
         $db->query($q);
@@ -434,7 +436,7 @@ if ($projectID) {
             // $pp->delete(); // need to delete them after, cause we'll accidently wipe out the current user
         }
 
-        if (is_array($_POST["person_personID"])) {
+        if (isset($_POST["person_personID"]) && is_array($_POST["person_personID"])) {
             foreach ($_POST["person_personID"] as $k => $personID) {
                 if ($personID) {
                     $pp = new projectPerson();
@@ -450,24 +452,24 @@ if ($projectID) {
             }
         }
 
-        if (is_array($delete)) {
+        if (isset($delete) && is_array($delete)) {
             foreach ($delete as $projectPersonID) {
                 $pp = new projectPerson();
                 $pp->set_id($projectPersonID);
                 $pp->delete();
             }
         }
-    } elseif ($_POST["commission_save"] || $_POST["commission_delete"]) {
+    } elseif (isset($_POST["commission_save"]) || isset($_POST["commission_delete"])) {
         $commission_item = new projectCommissionPerson();
         $commission_item->read_globals();
         $commission_item->read_globals("commission_");
-        if ($_POST["commission_save"]) {
-            if (!$_POST["commission_tfID"]) {
+        if (isset($_POST["commission_save"])) {
+            if (!isset($_POST["commission_tfID"])) {
                 alloc_error("No TF selected.");
             } else {
                 $commission_item->save();
             }
-        } elseif ($_POST["commission_delete"]) {
+        } elseif (isset($_POST["commission_delete"])) {
             $commission_item->delete();
         }
     }
@@ -486,7 +488,7 @@ if ($projectID) {
 $TPL["comment_buttons"] = '<input type="submit" name="comment_save" value="Save Comment">';
 
 // if someone uploads an attachment
-if ($_POST["save_attachment"]) {
+if (isset($_POST["save_attachment"])) {
     move_attachment("project", $projectID);
     alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $projectID . "&sbs_link=attachments");
 }
@@ -495,7 +497,7 @@ $project->set_values("project_");
 
 $db = new AllocDatabase();
 
-($clientID = $project->get_value("clientID")) || ($clientID = $_GET["clientID"]);
+$clientID = $project->get_value("clientID") ?? $_GET["clientID"] ?? "";
 $client = new client();
 $client->set_id($clientID);
 $client->select();
@@ -593,7 +595,8 @@ function get_projectPerson_hourly_rate($personID, $projectID)
 }
 
 if (is_object($project) && $project->get_id()) {
-    if (is_array($TPL["taskListRows"])) { // $tasks is a global defined in show_tasks() for performance reasons
+    // $tasks is a global defined in show_tasks() for performance reasons
+    if (isset($TPL["taskListRows"]) && is_array($TPL["taskListRows"])) {
         $task = new Task();
         foreach ($TPL["taskListRows"] as $tid => $t) {
             $hourly_rate = get_projectPerson_hourly_rate($t["personID"], $t["projectID"]);
@@ -610,13 +613,16 @@ if (is_object($project) && $project->get_id()) {
             $t["timeLimit"] && $count_quoted_tasks++;
         }
 
-        $TPL["time_remaining"] && ($TPL["time_remaining"] = sprintf("%0.1f", $TPL["time_remaining"]) . " Hours.");
+        if (isset($TPL["time_remaining"])) {
+            $TPL["time_remaining"] = sprintf("%0.1f", $TPL["time_remaining"]) . " Hours.";
+        }
 
         $TPL["count_incomplete_tasks"] = is_countable($TPL["taskListRows"]) ? count($TPL["taskListRows"]) : 0;
         $not_quoted = (is_countable($TPL["taskListRows"]) ? count($TPL["taskListRows"]) : 0) - $count_quoted_tasks;
         $not_quoted && ($TPL["count_not_quoted_tasks"] = "(" . sprintf("%d", $not_quoted) . " tasks not included in estimate)");
     }
 
+    $TPL["invoice_links"] ??= "";
     $TPL["invoice_links"] .= '<a href="' . $TPL["url_alloc_invoice"] . "clientID=" . $clientID . "&projectID=" . $project->get_id() . '">New Invoice</a>';
 }
 
@@ -626,7 +632,7 @@ $query = unsafe_prepare("SELECT tfID AS value, tfName AS label
                     FROM tf
                    WHERE tfActive = 1
                 ORDER BY tfName");
-$TPL["commission_tf_options"] = Page::select_options($query, $TPL["commission_tfID"]);
+$TPL["commission_tf_options"] = Page::select_options($query, $TPL["commission_tfID"] ?? "");
 $TPL["cost_centre_tfID_options"] = Page::select_options($query, $TPL["project_cost_centre_tfID"]);
 
 $db->query($query);
@@ -662,7 +668,7 @@ $m = new Meta("projectStatus");
 $projectStatus_array = $m->get_assoc_array("projectStatusID", "projectStatusID");
 $timeUnit = new timeUnit();
 $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
-$TPL["project_projectType"] = $projectType_array[$TPL["project_projectType"]];
+$TPL["project_projectType"] = $projectType_array[$TPL["project_projectType"]] ?? "";
 $TPL["projectType_options"] = Page::select_options($projectType_array, $TPL["project_projectType"]);
 $TPL["projectStatus_options"] = Page::select_options($projectStatus_array, $TPL["project_projectStatus"]);
 $TPL["project_projectPriority"] || ($TPL["project_projectPriority"] = 3);
@@ -677,11 +683,15 @@ $TPL["project_projectPriority"] && ($TPL["priorityLabel"] = ' <div style="displa
 
 $TPL["defaultTimeSheetRate"] = $project->get_value("defaultTimeSheetRate");
 $TPL["defaultTimeSheetUnit_options"] = Page::select_options($rate_type_array, $project->get_value("defaultTimeSheetRateUnitID"));
-$TPL["defaultTimeSheetRateUnits"] = $rate_type_array[$project->get_value("defaultTimeSheetRateUnitID")];
+$TPL["defaultTimeSheetRateUnits"] = $rate_type_array[$project->get_value("defaultTimeSheetRateUnitID")] ?? "";
 
 $TPL["currencyType_options"] = Page::select_options($currency_array, $TPL["project_currencyTypeID"]);
 
-if ($_GET["projectID"] || $_POST["projectID"] || $TPL["project_projectID"]) {
+if (
+    isset($_GET["projectID"]) ||
+    isset($_POST["projectID"]) ||
+    isset($TPL["project_projectID"])
+) {
     define("PROJECT_EXISTS", 1);
 }
 
@@ -748,7 +758,7 @@ $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
             GROUP BY transaction.currencyTypeID
              ", $project->get_id());
 $db->query($q);
-unset($rows);
+$rows = [];
 while ($row = $db->row()) {
     $rows[] = $row;
 }
@@ -764,7 +774,7 @@ $q = unsafe_prepare("SELECT SUM(customerBilledDollars * timeSheetItemDuration * 
             GROUP BY timeSheetItemID
              ", $project->get_id());
 $db->query($q);
-unset($rows);
+$rows = [];
 while ($row = $db->row()) {
     $rows[] = $row;
 }
@@ -781,7 +791,7 @@ $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
             GROUP BY transaction.currencyTypeID
              ", $project->get_id());
 $db->query($q);
-unset($rows);
+$rows = [];
 while ($row = $db->row()) {
     $rows[] = $row;
 }
@@ -799,7 +809,7 @@ $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
             GROUP BY transaction.currencyTypeID
              ", $project->get_id());
 $db->query($q);
-unset($rows);
+$rows = [];
 while ($row = $db->row()) {
     $rows[] = $row;
 }
@@ -817,7 +827,7 @@ $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
             GROUP BY transaction.currencyTypeID
              ", $project->get_id());
 $db->query($q);
-unset($rows);
+$rows = [];
 while ($row = $db->row()) {
     $rows[] = $row;
 }
@@ -833,7 +843,7 @@ $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
             GROUP BY transaction.currencyTypeID
              ", $project->get_id());
 $db->query($q);
-unset($rows);
+$rows = [];
 while ($row = $db->row()) {
     $rows[] = $row;
 }
