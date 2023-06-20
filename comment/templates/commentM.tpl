@@ -5,7 +5,7 @@
       <span>
         <a href="{$url_alloc_downloadComments}entity={$entity}&entityID={$entityID}" class="noprint">Download</a>
         {if $commentsR}
-        {$extra_page_links}
+        {$extra_page_links ?? ""}
         {/}
         <a class="growshrink nobr noprint commentnew" href="#x">New Comment</a>
         {Page::help("comment")}
@@ -24,13 +24,13 @@
             <input type="hidden" name="entity" value="{$entity}">
             <input type="hidden" name="entityID" value="{$entityID}">
             <div id="comment_textarea">
-              {Page::textarea("comment",$comment,array("height"=>"medium","width"=>"100%"))}
+              {Page::textarea("comment",($comment ?? ""),array("height"=>"medium","width"=>"100%"))}
             </div>
             <div id="file_attachment_dialog" style="display:inline; float:left">
             </div>
             <div style="display:inline; float:left; clear:left;">
               <a href="#x" class="magic" onClick="$('#file_attachment_dialog').append('<input type=\'file\' name=\'attachment[]\'><br>');">Attach File</a>
-              {$attach_extra_files}
+              {$attach_extra_files ?? ""}
             </div>
             {if have_entity_perm("commentTemplate",PERM_CREATE)}
             <a title="Add new comment template" href="{$url_alloc_commentTemplate}" class="icon-cogs"></a>

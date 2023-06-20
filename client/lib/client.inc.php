@@ -313,7 +313,7 @@ class client extends DatabaseEntity
                 $_FORM["clientLetter"] = "A";
                 $_FORM["clientStatus"] = "Current";
             }
-        } elseif (isset($_FORM["applyFilter"]) && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif (isset($_FORM["applyFilter"]) && is_object($current_user) && !isset($_FORM["dontSave"])) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -335,7 +335,7 @@ class client extends DatabaseEntity
 
         $meta = new Meta("clientStatus");
         $clientStatus_array = $meta->get_assoc_array("clientStatusID", "clientStatusID");
-        $rtn["clientStatusOptions"] = Page::select_options($clientStatus_array, $_FORM["clientStatus"]);
+        $rtn["clientStatusOptions"] = Page::select_options($clientStatus_array, $_FORM["clientStatus"] ?? "");
         $rtn["clientName"] = $_FORM["clientName"] ?? "";
         $rtn["contactName"] = $_FORM["contactName"] ?? "";
         $letters = range('A', 'Z');

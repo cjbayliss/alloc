@@ -234,15 +234,16 @@ function util_show_attachments($entity, $id, $options = [])
     $TPL["entity_url"] = $TPL["url_alloc_" . $entity];
     $TPL["entity_key_name"] = $entity . "ID";
     $TPL["entity_key_value"] = $id;
-    $TPL["bottom_button"] = $options["bottom_button"];
-    $TPL["show_buttons"] = !$options["hide_buttons"];
+    $TPL["bottom_button"] = $options["bottom_button"] ?? "";
+    $TPL["show_buttons"] = isset($options["hide_buttons"]) ? !$options["hide_buttons"] : true;
 
     $rows = get_attachments($entity, $id);
-    if (!$rows && $options["hide_buttons"]) {
+    if (!$rows && isset($options["hide_buttons"])) {
         return; // no rows, and no buttons, leave the whole thing out.
     }
 
     $rows || ($rows = []);
+    $TPL["attachments"] ??= "";
     foreach ($rows as $row) {
         $TPL["attachments"] .= "<tr><td>" . $row["file"] . '</td><td class="nobr">' . $row["mtime"] . "</td><td>" . $row["size"] . "</td>";
         $TPL["attachments"] .= '<td align="right" width="1%" style="padding:5px;">' . $row["delete"] . "</td></tr>";
@@ -290,7 +291,7 @@ function get_file_type_image($file): string
 
     $type = strtolower(substr($file, -3));
     $icon_dir = ALLOC_MOD_DIR . "images" . DIRECTORY_SEPARATOR . "fileicons" . DIRECTORY_SEPARATOR;
-    if ($types[$type] !== '' && $types[$type] !== '0') {
+    if (isset($types[$type]) && $types[$type] !== '' && $types[$type] !== '0') {
         $t = $types[$type];
     } elseif (file_exists($icon_dir . $type . ".gif")) {
         $t = $type . ".gif";
@@ -329,7 +330,7 @@ function get_attachments($entity, $id, $ops = [])
 
                     $row["size"] = get_filesize_label($dir . DIRECTORY_SEPARATOR . $file);
                     $row["path"] = $dir . DIRECTORY_SEPARATOR . $file;
-                    $row["file"] = '<a href="' . $TPL["url_alloc_getDoc"] . "id=" . $id . "&entity=" . $entity . "&file=" . urlencode($file) . '">' . $image . $ops["sep"] . Page::htmlentities($file) . "</a>";
+                    $row["file"] = '<a href="' . $TPL["url_alloc_getDoc"] . "id=" . $id . "&entity=" . $entity . "&file=" . urlencode($file) . '">' . $image . ($ops["sep"] ?? "/") . Page::htmlentities($file) . "</a>";
                     $row["text"] = Page::htmlentities($file);
                     // $row["delete"] = "<a href=\"".$TPL["url_alloc_delDoc"]."id=".$id."&entity=".$entity."&file=".urlencode($file)."\">Delete</a>";
                     $row["delete"] = '<form action="' . $TPL["url_alloc_delDoc"] . "\" method=\"post\">

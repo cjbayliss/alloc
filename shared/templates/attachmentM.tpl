@@ -12,7 +12,7 @@
           <th>Size</th>
           <th align="right"></th>
         </tr>
-      {$attachments}
+      {$attachments ??= ""}
       {if $show_buttons}
         <tr>
           <td colspan="1" class="left" style="padding:5px;">

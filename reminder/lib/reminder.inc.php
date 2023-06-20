@@ -1173,10 +1173,22 @@ class reminder extends DatabaseEntity
     public static function get_list_filter($filter = [])
     {
         $sql = [];
-        $filter["type"] && ($sql[] = unsafe_prepare("reminderType='%s'", $filter["type"]));
-        $filter["id"] && ($sql[] = unsafe_prepare("reminderLinkID=%d", $filter["id"]));
-        $filter["reminderID"] && ($sql[] = unsafe_prepare("reminder.reminderID=%d", $filter["reminderID"]));
-        $filter["filter_recipient"] && ($sql[] = unsafe_prepare("personID = %d", $filter["filter_recipient"]));
+        if (isset($filter["type"])) {
+            $sql[] = unsafe_prepare("reminderType='%s'", $filter["type"]);
+        }
+
+        if (isset($filter["id"])) {
+            $sql[] = unsafe_prepare("reminderLinkID=%d", $filter["id"]);
+        }
+
+        if (isset($filter["reminderID"])) {
+            $sql[] = unsafe_prepare("reminder.reminderID=%d", $filter["reminderID"]);
+        }
+
+        if (isset($filter["filter_recipient"])) {
+            $sql[] = unsafe_prepare("personID = %d", $filter["filter_recipient"]);
+        }
+
         if (isset($filter["filter_reminderActive"]) && (bool)strlen($filter["filter_reminderActive"])) {
             $sql[] = unsafe_prepare("reminderActive = %d", $filter["filter_reminderActive"]);
         }

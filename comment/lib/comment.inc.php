@@ -10,6 +10,16 @@ use ZendSearch\Lucene\Document\Field;
 
 class comment extends DatabaseEntity
 {
+    /**
+     * @var bool
+     */
+    public $updateSearchIndexLater;
+
+    /**
+     * @var bool
+     */
+    public $skip_modified_fields;
+
     public $classname = "comment";
 
     public $data_table = "comment";
@@ -207,7 +217,7 @@ class comment extends DatabaseEntity
             $new["reply"] = '<a href="" class="noprint commentreply">reply</a>';
         }
 
-        if ($v["timeSheetID"]) {
+        if (isset($v["timeSheetID"])) {
             $timeSheet = new timeSheet();
             $timeSheet->set_id($v["timeSheetID"]);
             $v["ts_label"] = " (Time Sheet #" . $timeSheet->get_id() . ")";
@@ -216,10 +226,10 @@ class comment extends DatabaseEntity
         $new["attribution"] = comment::get_comment_attribution($v);
         $new["commentCreatedUserEmail"] = comment::get_comment_author_email($v);
         $s = commentTemplate::populate_string(config::get_config_item("emailSubject_taskComment"), $entity, $id);
-        $new["commentEmailSubject"] = $s . " " . $new["hashKey"];
+        $new["commentEmailSubject"] = isset($new["hashKey"]) ? $s . " " . $new["hashKey"] : $s;
 
-        if (!$_GET["commentID"] || $_GET["commentID"] != $v["commentID"]) {
-            if ($options["showEditButtons"] && $new["comment_buttons"]) {
+        if (!isset($_GET["commentID"]) || $_GET["commentID"] != $v["commentID"]) {
+            if (isset($options["showEditButtons"]) && isset($new["comment_buttons"])) {
                 $new["form"] = '<form action="' . $TPL["url_alloc_comment"] . '" method="post">';
                 $new["form"] .= '<input type="hidden" name="entity" value="' . $v["commentType"] . '">';
                 $new["form"] .= '<input type="hidden" name="entityID" value="' . $v["commentLinkID"] . '">';
@@ -276,11 +286,16 @@ class comment extends DatabaseEntity
 
         foreach ((array)$rows as $v) {
             unset($children);
-            foreach ((array)$v["children"] as $c) {
-                $children[] = comment::get_one_comment_array($c, $all_parties);
+            if (isset($v["children"])) {
+                foreach ((array)$v["children"] as $c) {
+                    $children[] = comment::get_one_comment_array($c, $all_parties);
+                }
             }
 
-            $children && ($v["children"] = $children);
+            if (isset($children)) {
+                $v["children"] = $children;
+            }
+
             $new_rows[] = comment::get_one_comment_array($v, $all_parties);
         }
 
@@ -305,11 +320,11 @@ class comment extends DatabaseEntity
         $rtn = [];
         global $TPL;
         $comment = comment::add_shrinky_divs($row["commentID"], Page::htmlentities($row["comment"]));
-        $rtn[] = '<div class="panel' . $row["external"] . ' corner pcomment" data-comment-id="' . $row["commentID"] . '">';
+        $rtn[] = '<div class="panel' . ($row["external"] ?? "") . ' corner pcomment" data-comment-id="' . $row["commentID"] . '">';
         $rtn[] = '<table width="100%" cellspacing="0" border="0">';
         $rtn[] = '<tr>';
-        $rtn[] = '  <td style="padding-bottom:0px; white-space:normal">' . $row["attribution"] . $row["hashHTML"] . '</td>';
-        $rtn[] = '  <td align="right" style="padding-bottom:0px;" class="nobr">' . $row["form"] . $row["recipient_editor"] . '</td>';
+        $rtn[] = '  <td style="padding-bottom:0px; white-space:normal">' . $row["attribution"] . ($row["hashHTML"] ?? "") . '</td>';
+        $rtn[] = '  <td align="right" style="padding-bottom:0px;" class="nobr">' . ($row["form"] ?? "") . ($row["recipient_editor"] ?? "") . '</td>';
         if ($row["commentID"]) {
             $rtn[] = '  <td align="right" width="1%">' . Page::star("comment", $row["commentID"]) . '</td>';
         } elseif ($row["timeSheetItemID"]) {
@@ -318,18 +333,30 @@ class comment extends DatabaseEntity
 
         $rtn[] = '</tr>';
         $rtn[] = '<tr>';
-        $rtn[] = '  <td colspan="3" style="padding-top:0px; white-space:normal;">' . preg_replace("/<[^>]>/", "", $row["emailed"]) . "</td>";
+        $rtn[] = '  <td colspan="3" style="padding-top:0px; white-space:normal;">' . preg_replace("/<[^>]>/", "", ($row["emailed"] ?? "")) . "</td>";
         $rtn[] = '</tr>';
         $rtn[] = '<tr>';
         $rtn[] = '  <td colspan="3"><div><pre class="comment">' . $comment . '</pre></div></td>';
         $rtn[] = '</tr>';
-        $row["children"] && ($rtn[] = (new comment())->get_comment_children($row["children"]));
-        if ($row["files"] || $row["reply"]) {
+        if (isset($row["children"])) {
+            $rtn[] = (new comment())->get_comment_children($row["children"]);
+        }
+
+        if (isset($row["files"]) || isset($row["reply"])) {
             $rtn[] = '<tr>';
-            $row["files"] && ($rtn[] = '  <td valign="bottom" align="left">' . $row["files"] . '</td>');
+            if (isset($row["files"])) {
+                $rtn[] = '  <td valign="bottom" align="left">' . $row["files"] . '</td>';
+            }
+
             $cs = 2;
-            $row["files"] || ($cs = 3);
-            $row["reply"] && ($rtn[] = '  <td valign="bottom" align="right" colspan="' . $cs . '">' . $row["reply"] . '</td>');
+            if (!isset($row["files"])) {
+                $cs = 3;
+            }
+
+            if (isset($row["reply"])) {
+                $rtn[] = '  <td valign="bottom" align="right" colspan="' . $cs . '">' . $row["reply"] . '</td>';
+            }
+
             $rtn[] = '</tr>';
         }
 
@@ -346,18 +373,18 @@ class comment extends DatabaseEntity
         }
 
         $str = '<b>' . comment::get_comment_author($comment) . '</b> <span class="comment_date">' . $d . "</span>";
-        if ($comment["commentModifiedTime"] || $comment["commentModifiedUser"]) {
+        if (isset($comment["commentModifiedTime"]) || isset($comment["commentModifiedUser"])) {
             $str .= ", last modified by <b>" . person::get_fullname($comment["commentModifiedUser"]) . "</b> " . format_date("Y-m-d g:ia", $comment["commentModifiedTime"]);
         }
 
-        return $str . $comment["ts_label"];
+        return $str . ($comment["ts_label"] ?? "");
     }
 
     public static function add_shrinky_divs($commentID, $html = "")
     {
         $sig_start_position = null;
         $sig_started = null;
-        if ($_GET["media"] == "print") {
+        if (isset($_GET["media"]) && $_GET["media"] == "print") {
             return $html;
         }
 
@@ -418,7 +445,11 @@ class comment extends DatabaseEntity
         foreach ($children as $child) {
             // style=\"padding:0px; padding-left:".($padding*15+5)."px; padding-right:6px;\"
             $rtn[] = '<tr><td colspan="3" style="padding:0px; padding-left:6px; padding-right:6px;">' . comment::get_comment_html_table($child) . "</td></tr>";
-            if (is_array($child["children"]) && count($child["children"])) {
+            if (
+                isset($child["children"]) &&
+                is_array($child["children"]) &&
+                count($child["children"])
+            ) {
                 ++$padding;
                 $rtn[] = (new comment())->get_comment_children($child["children"], $padding);
                 --$padding;
@@ -431,15 +462,15 @@ class comment extends DatabaseEntity
     public static function get_comment_author($comment = [])
     {
         $author = null;
-        if ($comment["commentCreatedUserText"]) {
+        if (isset($comment["commentCreatedUserText"])) {
             $author = Page::htmlentities($comment["commentCreatedUserText"]);
-        } elseif ($comment["clientContactID"]) {
+        } elseif (isset($comment["clientContactID"])) {
             $clientContact = new clientContact();
             $clientContact->set_id($comment["clientContactID"]);
             $clientContact->select();
             // $author = " <a href=\"".$TPL["url_alloc_client"]."clientID=".$cc->get_value("clientID")."\">".$cc->get_value("clientContactName")."</a>";
             $author = $clientContact->get_value("clientContactName");
-        } elseif ($comment["personID"]) {
+        } elseif (isset($comment["personID"])) {
             $author = person::get_fullname($comment["personID"]);
         }
 
@@ -448,13 +479,13 @@ class comment extends DatabaseEntity
 
     public static function get_comment_author_email($comment = [])
     {
-        if ($comment["commentCreatedUser"]) {
+        if (isset($comment["commentCreatedUser"])) {
             $personID = $comment["commentCreatedUser"];
             $p = new person();
             $p->set_id($personID);
             $p->select();
             $email = $p->get_from();
-        } elseif ($comment["clientContactID"]) {
+        } elseif (isset($comment["clientContactID"])) {
             $clientContact = new clientContact();
             $clientContact->set_id($comment["clientContactID"]);
             $clientContact->select();

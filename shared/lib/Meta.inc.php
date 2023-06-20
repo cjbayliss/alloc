@@ -8,6 +8,25 @@
 final class Meta extends DatabaseEntity
 {
 
+    public $classname;
+
+    public $data_table;
+
+    /**
+     * @var string
+     */
+    public $display_field_name;
+
+    /**
+     * @var string
+     */
+    public $key_field;
+
+    /**
+     * @var string[]
+     */
+    public $data_fields = [];
+
     private $table;
 
     // This variable contains the definitive list of all the referential

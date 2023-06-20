@@ -106,10 +106,15 @@ class History extends DatabaseEntity
 
                     $key_and_value = explode("=", $q_array);
                     // Break key/value up into $KEY_FIELD and $ID
-                    $ID = $key_and_value[1];
-                    $KEY_FIELD = $key_and_value[0];
+                    if (isset($key_and_value[1])) {
+                        $ID = $key_and_value[1];
+                    }
 
-                    if (class_exists($CLASS_NAME) && $ID) {
+                    if (isset($key_and_value[0])) {
+                        $KEY_FIELD = $key_and_value[0];
+                    }
+
+                    if (class_exists($CLASS_NAME) && isset($ID)) {
                         $newClass = new $CLASS_NAME;
                         $display_field = $newClass->display_field_name;
 

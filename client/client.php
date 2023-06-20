@@ -205,7 +205,7 @@ function show_comments()
         ["commentTemplateType" => "client"]
     );
     $TPL["commentTemplateOptions"] =
-        sprintf('<option value="">Comment Templates</option>{Page::select_options(%s)}', $ops);
+        sprintf('<option value="">Comment Templates</option>{Page::select_options(%s)}', implode(',', $ops));
     include_template("../comment/templates/commentM.tpl");
 }
 
