@@ -193,7 +193,7 @@ class person extends DatabaseEntity
         return $rtn;
     }
 
-    public static function get_username_list(string $push_personID = ""): array
+    public static function get_username_list($push_personID = ""): array
     {
         $rtn = [];
         static $rows;
@@ -261,7 +261,7 @@ class person extends DatabaseEntity
     {
         $tfIDs = [];
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query(["SELECT tfID FROM tfPerson WHERE personID = %d", $this->get_id()]);
+        $allocDatabase->query("SELECT tfID FROM tfPerson WHERE personID = %d", $this->get_id());
         while ($row = $allocDatabase->row()) {
             $tfIDs[] = $row["tfID"];
         }

@@ -282,7 +282,7 @@ class productSale extends DatabaseEntity
                 $psi = new productSaleItem();
                 $psi->set_id($item["productSaleItemID"]);
                 $psi->select();
-                if (!$db->qr(["SELECT transactionID FROM transaction WHERE productSaleItemID = %d", $psi->get_id()])) {
+                if (!$db->qr("SELECT transactionID FROM transaction WHERE productSaleItemID = %d", $psi->get_id())) {
                     $psi->create_transactions();
                 }
             }

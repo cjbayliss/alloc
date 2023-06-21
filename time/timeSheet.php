@@ -23,8 +23,8 @@ function show_transaction_list($template_name)
     $amount_so_far = $timeSheet->get_amount_so_far(true);
     $total_incoming = $timeSheet->pay_info["total_customerBilledDollars"];
 
-    $db->query(["SELECT * FROM transaction WHERE timeSheetID = %d AND fromTfID != %d
-               ", $timeSheet->get_id(), config::get_config_item("inTfID")]);
+    $db->query("SELECT * FROM transaction WHERE timeSheetID = %d AND fromTfID != %d
+               ", $timeSheet->get_id(), config::get_config_item("inTfID"));
 
     while ($row = $db->row()) {
         $has_transactions = true;
@@ -74,15 +74,15 @@ function show_transaction_listR($template_name)
     $current_user = &singleton("current_user");
     global $percent_array;
     $db = new AllocDatabase();
-    $db->query(["SELECT * FROM transaction WHERE timeSheetID = %d", $timeSheet->get_id()]);
+    $db->query("SELECT * FROM transaction WHERE timeSheetID = %d", $timeSheet->get_id());
 
     if ($db->next_record() || $timeSheet->get_value("status") == "invoiced" || $timeSheet->get_value("status") == "finished") {
-        $db->query(["SELECT *
+        $db->query("SELECT *
                FROM tf
               WHERE tfActive = 1
                  OR tfID = %d
                  OR tfID = %d
-           ORDER BY tfName", $db->f("tfID"), $db->f("fromTfID")]);
+           ORDER BY tfName", $db->f("tfID"), $db->f("fromTfID"));
 
         while ($db->row()) {
             $tf_array[$db->f("tfID")] = $db->f("tfName");
@@ -96,7 +96,7 @@ function show_transaction_listR($template_name)
         $transactionType_options = transaction::get_transactionTypes();
 
         if ($timeSheet->have_perm(PERM_TIME_INVOICE_TIMESHEETS) && $timeSheet->get_value("status") == "invoiced") {
-            $db->query(["SELECT * FROM transaction WHERE timeSheetID = %d ORDER BY transactionID", $timeSheet->get_id()]);
+            $db->query("SELECT * FROM transaction WHERE timeSheetID = %d ORDER BY transactionID", $timeSheet->get_id());
 
             while ($db->next_record()) {
                 $transaction = new transaction();
@@ -660,7 +660,7 @@ if ($_GET["newTimeSheet_projectID"] && !$projectID) {
     }
 }
 
-if ($_GET["newTimeSheet_projectID"] && !$db->qr(["SELECT * FROM projectPerson WHERE personID = %d AND projectID = %d", $current_user->get_id(), $_GET["newTimeSheet_projectID"]])) {
+if ($_GET["newTimeSheet_projectID"] && !$db->qr("SELECT * FROM projectPerson WHERE personID = %d AND projectID = %d", $current_user->get_id(), $_GET["newTimeSheet_projectID"])) {
     alloc_error("You are not a member of the project (id:" . Page::htmlentities($_GET["newTimeSheet_projectID"]) . "), please get a manager to add you to the project.");
 }
 
@@ -894,14 +894,14 @@ switch ($timeSheet->get_value("status")) {
 $taggedFund = new tf();
 if ($timeSheet->get_value("status") == "edit") {
     $tf_db = new AllocDatabase();
-    $tf_db->query(["select preferred_tfID from person where personID = %d", $timeSheet->get_value("personID")]);
+    $tf_db->query("select preferred_tfID from person where personID = %d", $timeSheet->get_value("personID"));
     $tf_db->next_record();
 
     if (($preferred_tfID = $tf_db->f("preferred_tfID")) !== '' && ($preferred_tfID = $tf_db->f("preferred_tfID")) !== '0') {
-        $tf_db->query(["SELECT *
+        $tf_db->query("SELECT *
                FROM tfPerson
               WHERE personID = %d
-                AND tfID = %d", $timeSheet->get_value("personID"), $preferred_tfID]);
+                AND tfID = %d", $timeSheet->get_value("personID"), $preferred_tfID);
 
         if ($tf_db->next_record()) {        // The person has a preferred TF, and is a tfPerson for it too
             $TPL["recipient_tfID_name"] = $taggedFund->get_name($tf_db->f("tfID"));

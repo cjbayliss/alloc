@@ -118,7 +118,7 @@ class expenseForm extends DatabaseEntity
         global $TPL;
         $allocDatabase = new AllocDatabase();
         if ($this->get_id()) {
-            $allocDatabase->query(["SELECT invoice.* FROM invoiceItem LEFT JOIN invoice on invoice.invoiceID = invoiceItem.invoiceID WHERE expenseFormID = %d", $this->get_id()]);
+            $allocDatabase->query("SELECT invoice.* FROM invoiceItem LEFT JOIN invoice on invoice.invoiceID = invoiceItem.invoiceID WHERE expenseFormID = %d", $this->get_id());
             while ($row = $allocDatabase->next_record()) {
                 $str .= $sp . '<a href="' . $TPL["url_alloc_invoice"] . "invoiceID=" . $row["invoiceID"] . '">' . $row["invoiceNum"] . "</a>";
                 $sp = "&nbsp;&nbsp;";

@@ -327,7 +327,7 @@ class Database
             return $keys[$table];
         }
 
-        $this->query(["SHOW KEYS FROM %s", $table]);
+        $this->query("SHOW KEYS FROM %s", $table);
         while ($row = $this->row()) {
             if (!$row["Non_unique"]) {
                 $keys[$table][] = $row["Column_name"];

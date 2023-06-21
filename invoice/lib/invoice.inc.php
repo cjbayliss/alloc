@@ -108,7 +108,7 @@ class invoice extends DatabaseEntity
         }
 
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query(["SELECT * FROM invoiceItem WHERE invoiceID=%d", $this->get_id()]);
+        $allocDatabase->query("SELECT * FROM invoiceItem WHERE invoiceID=%d", $this->get_id());
         while ($allocDatabase->next_record()) {
             $invoice_item = new invoiceItem();
             if ($invoice_item->read_db_record($allocDatabase) && $invoice_item->is_owner($person)) {
@@ -878,7 +878,7 @@ class invoice extends DatabaseEntity
 
         if ($direction == "forwards" && $newstatus == "reconcile") {
             $allocDatabase = new AllocDatabase();
-            $hasItems = $allocDatabase->qr(["SELECT * FROM invoiceItem WHERE invoiceID = %d", $this->get_id()]);
+            $hasItems = $allocDatabase->qr("SELECT * FROM invoiceItem WHERE invoiceID = %d", $this->get_id());
             if (!$hasItems) {
                 alloc_error("Unable to submit invoice, no items have been added.");
                 return false;

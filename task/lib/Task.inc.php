@@ -66,14 +66,14 @@ class Task extends DatabaseEntity
             $existing = $this->all_row_fields;
             if ($existing["taskStatus"] != $this->get_value("taskStatus")) {
                 $allocDatabase = new AllocDatabase();
-                $allocDatabase->query(["call change_task_status(%d,'%s')", $this->get_id(), $this->get_value("taskStatus")]);
-                $row = $allocDatabase->qr(["SELECT taskStatus
+                $allocDatabase->query("call change_task_status(%d,'%s')", $this->get_id(), $this->get_value("taskStatus"));
+                $row = $allocDatabase->qr("SELECT taskStatus
                                       ,dateActualCompletion
                                       ,dateActualStart
                                       ,dateClosed
                                       ,closerID
                                   FROM task
-                                 WHERE taskID = %d", $this->get_id()]);
+                                 WHERE taskID = %d", $this->get_id());
                 // Changing a task's status changes these fields.
                 // Unfortunately the call to save() below erroneously nukes these fields.
                 // So we manually set them to whatever change_task_status() has dictated.
@@ -153,7 +153,7 @@ class Task extends DatabaseEntity
     public function add_pending_tasks($str)
     {
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query(["SELECT * FROM pendingTask WHERE taskID = %d", $this->get_id()]);
+        $allocDatabase->query("SELECT * FROM pendingTask WHERE taskID = %d", $this->get_id());
 
         $rows = [];
         while ($row = $allocDatabase->row()) {
@@ -170,10 +170,10 @@ class Task extends DatabaseEntity
         $str2 = implode(",", (array)$bits);
 
         if ($str1 !== $str2) {
-            $allocDatabase->query(["DELETE FROM pendingTask WHERE taskID = %d", $this->get_id()]);
+            $allocDatabase->query("DELETE FROM pendingTask WHERE taskID = %d", $this->get_id());
             foreach ((array)$bits as $id) {
                 if (is_numeric($id)) {
-                    $allocDatabase->query(["INSERT INTO pendingTask (taskID,pendingTaskID) VALUES (%d,%d)", $this->get_id(), $id]);
+                    $allocDatabase->query("INSERT INTO pendingTask (taskID,pendingTaskID) VALUES (%d,%d)", $this->get_id(), $id);
                 }
             }
         }
@@ -186,7 +186,7 @@ class Task extends DatabaseEntity
         }
 
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query(["DELETE FROM tag WHERE taskID = %d", $this->get_id()]);
+        $allocDatabase->query("DELETE FROM tag WHERE taskID = %d", $this->get_id());
         foreach ((array)$tags as $tag) {
             if (trim($tag) === '') {
                 continue;
@@ -196,7 +196,7 @@ class Task extends DatabaseEntity
                 continue;
             }
 
-            $allocDatabase->query(["INSERT INTO tag (taskID,name) VALUES (%d,'%s')", $this->get_id(), trim($tag)]);
+            $allocDatabase->query("INSERT INTO tag (taskID,name) VALUES (%d,'%s')", $this->get_id(), trim($tag));
         }
     }
 
@@ -1339,11 +1339,11 @@ class Task extends DatabaseEntity
         if ($taskID) {
             $allocDatabase = new AllocDatabase();
             // Get tally from timeSheetItem table
-            $allocDatabase->query(["SELECT sum(timeSheetItemDuration*timeUnitSeconds) as sum_of_time
+            $allocDatabase->query("SELECT sum(timeSheetItemDuration*timeUnitSeconds) as sum_of_time
                           FROM timeSheetItem
                      LEFT JOIN timeUnit ON timeSheetItemDurationUnitID = timeUnitID
                          WHERE taskID = %d
-                      GROUP BY taskID", $taskID]);
+                      GROUP BY taskID", $taskID);
             while ($allocDatabase->next_record()) {
                 $results[$taskID] = $allocDatabase->f("sum_of_time");
                 return $allocDatabase->f("sum_of_time");
@@ -1914,7 +1914,7 @@ class Task extends DatabaseEntity
             $this->select();
             if (substr($this->get_value("taskStatus"), 0, 4) == 'pend') {
                 $allocDatabase = new AllocDatabase();
-                $allocDatabase->query(["call change_task_status(%d,'%s')", $this->get_id(), "open_inprogress"]);
+                $allocDatabase->query("call change_task_status(%d,'%s')", $this->get_id(), "open_inprogress");
                 return true;
             }
         }

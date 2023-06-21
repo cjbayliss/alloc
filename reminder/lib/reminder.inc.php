@@ -64,7 +64,7 @@ class reminder extends DatabaseEntity
         } elseif ($type == "task") {
             // Modified query option: to send to all people on the project that this task is from.
             $recipients = ["-3" => "Task Manager", "-2" => "Task Assignee"];
-            $allocDatabase->query(["SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID')]);
+            $allocDatabase->query("SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID'));
             $allocDatabase->next_record();
             if ($allocDatabase->f('projectID') !== '' && $allocDatabase->f('projectID') !== '0') {
                 $query = unsafe_prepare("SELECT *
@@ -99,7 +99,7 @@ class reminder extends DatabaseEntity
         $selected = [];
         $allocDatabase = new AllocDatabase();
         $query = "SELECT * from reminderRecipient WHERE reminderID = %d";
-        $allocDatabase->query([$query, $this->get_id()]);
+        $allocDatabase->query($query, $this->get_id());
         while ($allocDatabase->next_record()) {
             $selected[] = $allocDatabase->f('metaPersonID') ?: $allocDatabase->f('personID');
         }
@@ -1135,7 +1135,7 @@ class reminder extends DatabaseEntity
     {
         $allocDatabase = new AllocDatabase();
         $query = "SELECT * FROM reminderRecipient WHERE reminderID = %d";
-        $allocDatabase->query([$query, $this->get_id()]);
+        $allocDatabase->query($query, $this->get_id());
         $people = &get_cached_table("person");
         $recipients = [];
         $reminderRecipient = new reminderRecipient();
@@ -1153,7 +1153,7 @@ class reminder extends DatabaseEntity
     {
         $allocDatabase = new AllocDatabase();
         $query = "DELETE FROM reminderRecipient WHERE reminderID = %d";
-        $allocDatabase->query([$query, $this->get_id()]);
+        $allocDatabase->query($query, $this->get_id());
         foreach ((array)$recipients as $r) {
             $recipient = new reminderRecipient();
             $recipient->set_value('reminderID', $this->get_id());

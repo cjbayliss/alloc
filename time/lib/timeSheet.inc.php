@@ -165,11 +165,11 @@ class timeSheet extends DatabaseEntity
             [$this->pay_info["project_rate"], $this->pay_info["project_rateUnitID"]] = $rates[$this->get_value("projectID")][$this->get_value("personID")];
         } else {
             // Get rate for person for this particular project
-            $allocDatabase->query(["SELECT rate, rateUnitID, project.currencyTypeID
+            $allocDatabase->query("SELECT rate, rateUnitID, project.currencyTypeID
                    FROM projectPerson
               LEFT JOIN project on projectPerson.projectID = project.projectID
                   WHERE projectPerson.projectID = %d
-                    AND projectPerson.personID = %d", $this->get_value("projectID"), $this->get_value("personID")]);
+                    AND projectPerson.personID = %d", $this->get_value("projectID"), $this->get_value("personID"));
 
             $allocDatabase->next_record();
             $this->pay_info["project_rate"] = Page::money($allocDatabase->f("currencyTypeID"), $allocDatabase->f("rate"), "%mo");
@@ -317,7 +317,7 @@ class timeSheet extends DatabaseEntity
             $product = "Timesheet #" . $this->get_id() . " for " . $projectName . " (" . $this->pay_info["summary_unit_totals"] . ")";
             $rtn[$product] = $this->createTransaction($product, $this->pay_info["total_dollars"], $recipient_tfID, "timesheet", $status);
             // 4. Credit Project Commissions
-            $allocDatabase->query(["SELECT * FROM projectCommissionPerson where projectID = %d ORDER BY commissionPercent DESC", $this->get_value("projectID")]);
+            $allocDatabase->query("SELECT * FROM projectCommissionPerson where projectID = %d ORDER BY commissionPercent DESC", $this->get_value("projectID"));
             while ($allocDatabase->next_record()) {
                 if ($allocDatabase->f("commissionPercent") > 0) {
                     $product = "Commission " . $allocDatabase->f("commissionPercent") . "% of " . $this->pay_info["currency"] . $this->pay_info["total_customerBilledDollars_minus_gst"];
@@ -1046,7 +1046,7 @@ class timeSheet extends DatabaseEntity
             }
 
             $allocDatabase = new AllocDatabase();
-            $hasItems = $allocDatabase->qr(["SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $this->get_id()]);
+            $hasItems = $allocDatabase->qr("SELECT * FROM timeSheetItem WHERE timeSheetID = %d", $this->get_id());
             if (!$hasItems) {
                 return alloc_error('Unable to submit time sheet, no items have been added.');
             }
@@ -1492,7 +1492,7 @@ class timeSheet extends DatabaseEntity
     {
         $current_user = &singleton("current_user");
         $allocDatabase = new AllocDatabase();
-        $row = $allocDatabase->qr(["SELECT can_edit_rate(%d,%d) as allow", $current_user->get_id(), $this->get_value("projectID")]);
+        $row = $allocDatabase->qr("SELECT can_edit_rate(%d,%d) as allow", $current_user->get_id(), $this->get_value("projectID"));
         return $row["allow"];
     }
 

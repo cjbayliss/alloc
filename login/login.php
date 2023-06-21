@@ -50,7 +50,7 @@ if ($sess->Started()) {
     $error = "Invalid username or password.";
 } elseif (!empty($_POST["new_pass"])) {
     $db = new AllocDatabase();
-    $db->query(["SELECT * FROM person WHERE emailAddress = '%s'", $_POST["email"]]);
+    $db->query("SELECT * FROM person WHERE emailAddress = '%s'", $_POST["email"]);
     if ($db->next_record()) {
         // generate new random password
         $password = "";

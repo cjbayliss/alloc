@@ -753,7 +753,7 @@ if (is_object($invoice) && $invoice->get_id()) {
         $invoiceRepeat->set_values("invoiceRepeat_");
         foreach (explode(" ", $TPL["invoiceRepeat_frequency"]) as $id) {
             if ($id !== '' && $id !== '0') {
-                $qid2 = $db->query(["SELECT * FROM invoice WHERE invoiceRepeatID = %d AND invoiceRepeatDate = '%s'", $invoiceRepeat->get_id(), $id]);
+                $qid2 = $db->query("SELECT * FROM invoice WHERE invoiceRepeatID = %d AND invoiceRepeatDate = '%s'", $invoiceRepeat->get_id(), $id);
                 if ($idrow = $db->row($qid2)) {
                     $links[] = "<a href='" . $TPL["url_alloc_invoice"] . "invoiceID=" . $idrow["invoiceID"] . "'>" . $id . "</a>";
                 } else {

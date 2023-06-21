@@ -203,9 +203,9 @@ class invoiceEntity extends DatabaseEntity
         $expenseForm->select();
 
         $db = new AllocDatabase();
-        $db->query(["SELECT max(transactionDate) as maxDate
+        $db->query("SELECT max(transactionDate) as maxDate
                       FROM transaction
-                     WHERE expenseFormID = %d", $expenseFormID]);
+                     WHERE expenseFormID = %d", $expenseFormID);
         $row = $db->row();
         $amount = $expenseForm->get_abs_sum_transactions();
 
@@ -236,7 +236,7 @@ class invoiceEntity extends DatabaseEntity
         $expenseForm->select();
 
         $db = new AllocDatabase();
-        $q1 = $db->query(["SELECT * FROM transaction WHERE expenseFormID = %d", $expenseFormID]);
+        $q1 = $db->query("SELECT * FROM transaction WHERE expenseFormID = %d", $expenseFormID);
         while ($row = $db->row($q1)) {
             $amount = Page::money($row["currencyTypeID"], $row["amount"], "%mo");
 
@@ -270,9 +270,9 @@ class invoiceEntity extends DatabaseEntity
         $productSale->select();
 
         $db = new AllocDatabase();
-        $db->query(["SELECT max(transactionDate) as maxDate
+        $db->query("SELECT max(transactionDate) as maxDate
                       FROM transaction
-                     WHERE productSaleID = %d", $productSaleID]);
+                     WHERE productSaleID = %d", $productSaleID);
         $row = $db->row();
         $amounts = $productSale->get_amounts();
 

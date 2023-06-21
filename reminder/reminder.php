@@ -185,10 +185,10 @@ switch ($step) {
 
         if ($reminder->get_value("reminderHash")) {
             $db = new AllocDatabase();
-            $r = $db->qr(["SELECT tokenAction
+            $r = $db->qr("SELECT tokenAction
                             FROM token
                        LEFT JOIN tokenAction ON token.tokenActionID = tokenAction.tokenActionID
-                           WHERE token.tokenHash = '%s'", $reminder->get_value("reminderHash")]);
+                           WHERE token.tokenHash = '%s'", $reminder->get_value("reminderHash"));
             $TPL["tokenName"] = $r["tokenAction"];
         }
 

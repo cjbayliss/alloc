@@ -66,7 +66,7 @@ while ($row = $db->row($q1)) {
     $e->update_search_index_doc($index);
 
     // Nuke item from queue
-    $db->query(["DELETE FROM indexQueue WHERE indexQueueID = %d", $row["indexQueueID"]]);
+    $db->query("DELETE FROM indexQueue WHERE indexQueueID = %d", $row["indexQueueID"]);
 }
 
 // commit index
