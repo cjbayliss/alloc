@@ -687,9 +687,11 @@ class Task extends DatabaseEntity
             if (isset($taskPriorities[$this->get_value("priority")])) {
                 $str .= "Task priority: " . $taskPriorities[$this->get_value("priority")]["label"] . "<br>";
             }
+
             if (isset($projectPriorities[$p->get_value("projectPriority")])) {
                 $str .= "Project priority: " . $projectPriorities[$p->get_value("projectPriority")]["label"] . "<br>";
             }
+
             $str .= "Days until due: " . $daysUntilDue . "<br>";
             $str .= "Calculated priority: " . $priorityFactor;
             $TPL["priorityLabel"] .= Page::help($str, $this->get_priority_label());

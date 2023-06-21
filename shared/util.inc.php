@@ -778,13 +778,13 @@ function sprintf_implode(...$args): string
  * @deprecated
  *
  * @param mixed $args
- * @return void
+ * @return string
  */
-function unsafe_prepare(...$args)
+function unsafe_prepare(...$args): string
 {
     $clean_args = [];
 
-    if (count($args) == 1) {
+    if (count($args) == 1 && gettype($args[0]) === "string") {
         return $args[0];
     }
 

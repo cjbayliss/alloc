@@ -381,6 +381,7 @@ $is = "was";
 if (isset($wasopen) && $wasopen) {
     $is = "is";
 }
+
 if (isset($pendingTaskLinks)) {
     $TPL["message_help_no_esc"][] = "This task " . $is . " pending the completion of:<br>" . implode("<br>", $pendingTaskLinks);
 }
@@ -408,6 +409,7 @@ $is = "was";
 if (isset($wasopen) && $wasopen) {
     $is = "is";
 }
+
 if (isset($blockTaskLinks)) {
     $TPL["message_help_no_esc"][] = "This task " . $is . " blocking the start of:<br>" . implode("<br>", $blockTaskLinks);
 }

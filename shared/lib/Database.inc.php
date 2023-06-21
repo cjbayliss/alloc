@@ -177,11 +177,15 @@ class Database
         return $this->row($id);
     }
 
-    private function _query($query)
+    private function _query(string $query)
     {
         if (!self::$stop_doing_queries || $query == "ROLLBACK") {
             try {
-                return $this->pdo->query($query);
+                if (gettype($query) === "string") {
+                    return $this->pdo->query($query);
+                }
+
+                alloc_error("Alloc's internal code is fucked.");
             } catch (PDOException $e) {
                 $this->error("Error executing query: " . $e->getMessage());
             }
@@ -195,7 +199,7 @@ class Database
         $this->connect();
         $query = $this->get_escaped_query_str($args);
 
-        if ($query && !self::$stop_doing_queries) {
+        if ($query && gettype($query) === "string" && !self::$stop_doing_queries) {
             if (is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id()) {
                 $this->_query(unsafe_prepare("SET @personID = %d", $current_user->get_id()));
             } else {
@@ -230,19 +234,19 @@ class Database
     }
 
     /**
-    * Fetches a row from the result set using the specified fetch style.
-    *
-    * @deprecated This function is deprecated. Use PDOStatement::fetch()
-    *
+     * Fetches a row from the result set using the specified fetch style.
+     *
+     * @deprecated This function is deprecated. Use PDOStatement::fetch()
+     *
      * @param PDOStatement|null $pdoStatement Optional. The PDOStatement object
                                        to fetch the row from. If not
                                        provided, the method uses the
                                        current instance's pdo_statement.
-    * @param int $method Optional. The fetch style to use. Default is
-    *                    PDO::FETCH_ASSOC.
-    * @return array|object|false|null The fetched row, or false if there are no
-    *                                 more rows, or null if an error occurs.
-    */
+     * @param int $method Optional. The fetch style to use. Default is
+     *                    PDO::FETCH_ASSOC.
+     * @return array|object|false|null The fetched row, or false if there are no
+     *                                 more rows, or null if an error occurs.
+     */
     public function row(PDOStatement $pdoStatement = null, int $method = PDO::FETCH_ASSOC)
     {
         if (!$pdoStatement instanceof \PDOStatement && empty($this->pdo_statement)) {
