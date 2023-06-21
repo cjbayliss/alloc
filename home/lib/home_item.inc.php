@@ -38,7 +38,7 @@ class home_item
         $this->width = $width;
     }
 
-    public function get_template_dir()
+    public function get_template_dir(): string
     {
         return ALLOC_MOD_DIR . $this->module . "/templates/";
     }

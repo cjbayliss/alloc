@@ -74,7 +74,7 @@ $(document).ready(function() {
 {/}
 
 
-<div id="task" class="{$first_div}">
+<div id="task" class="{$first_div ?? ""}">
 
 <form action="{$url_alloc_task}" method="post">
 <input type="hidden" name="taskID" value="{$task_taskID}">
@@ -83,7 +83,7 @@ $(document).ready(function() {
   <tr>
     <th class="header">View Details
       <span>
-        {$navigation_links}
+        {$navigation_links ?? ""}
         {Page::star("task",$task_taskID)}
       </span>
     </th>
@@ -92,20 +92,20 @@ $(document).ready(function() {
     <td valign="top">
       <div class="task_pane">
         <h6>{$task_taskType}{Page::mandatory($task_taskName)}</h6>
-        <h2 style="margin-bottom:0px; display:inline;">{$taskTypeImage} {$task_taskID} {=$task_taskName}</h2>&nbsp;{$priorityLabel}
-        {if $project_projectName} 
+        <h2 style="margin-bottom:0px; display:inline;">{$taskTypeImage ?? ""} {$task_taskID} {=$task_taskName}</h2>&nbsp;{$priorityLabel}
+        {if isset($project_projectName)} 
           <h6>Project</h6>
           <a href="{$url_alloc_project}projectID={$project_projectID}">{=$project_projectName}</a>
         {/}
-        {if $hierarchy_links} 
+        {if isset($hierarchy_links)} 
           <h6>Parent Task</h6>
           {$hierarchy_links}
         {/}
-        {if $task_taskDescription}
+        {if isset($task_taskDescription)}
           <h6>Description</h6>
           <pre class="comment">{=$task_taskDescription}</pre>
         {/}
-        {if $task_tags}
+        {if isset($task_tags)}
           <h6>Tags</h6>
           {=$task_tags}
         {/}
@@ -124,7 +124,7 @@ $(document).ready(function() {
             {/}
           </div>
         </div>
-        {if $manager_username || $person_username}
+        {if isset($manager_username) || isset($person_username)}
         <div class="enclose">
           <h6>Managed By<div>Assigned To</div></h6>
           <div style="float:left; width:47%;">
@@ -135,6 +135,7 @@ $(document).ready(function() {
           </div>
         </div>
         {/}
+        {$interestedParties ??= []}
         {if $interestedParties}
           <h6>Default Interested Parties</h6> 
           <table class="nopad" style="width:100%;">
@@ -152,10 +153,11 @@ $(document).ready(function() {
           {/}
           </table>
         {/}
-        {if $task_timeBest || $task_timeWorst || $task_timeExpected || $estimator_username}
+        {if isset($task_timeBest) || isset($task_timeWorst) || isset($task_timeExpected) || isset($estimator_username)}
           <div class="enclose">
             <h6>Best / Likely / Worst<div>Estimator</div></h6>
             <div style="float:left; width:40%;">
+              {$div = ""}
               {foreach array($task_timeBest,$task_timeExpected,$task_timeWorst) as $i}
                 {$div}
                 {print (isset($i) && (bool)strlen($i)) ? $i : " --- "}
@@ -167,18 +169,18 @@ $(document).ready(function() {
             </div>
           </div>
         {/}
-        {if $task_timeLimit || $time_billed_link || ($percentComplete && $percentComplete != "0%")}
+        {if isset($task_timeLimit) || isset($time_billed_link) || ($percentComplete && $percentComplete != "0%")}
           <div class="enclose">
             <h6>Actual Hours<div>Effort Limited To</div></h6>
             <div style="float:left;width:50%;">
-              {$time_billed_link} {if $percentComplete && $percentComplete != "0%"}({$percentComplete}){/}
+              {$time_billed_link ?? ""} {if $percentComplete && $percentComplete != "0%"}({$percentComplete}){/}
             </div>
             <div style="float:right;width:50%;">
               {$task_timeLimit} {if $task_timeLimit} hrs{/}
             </div>
           </div>
         {/}
-        {if $task_dateTargetStart || $task_dateTargetCompletion}
+        {if isset($task_dateTargetStart) || isset($task_dateTargetCompletion)}
           <div class="enclose">
             <h6>Target Start<div>Target Completion</div></h6>
             <div style="float:left; width:30%">
@@ -190,7 +192,7 @@ $(document).ready(function() {
           </div>
         {/}
 
-        {if $task_dateActualStart || $task_dateActualCompletion}
+        {if isset($task_dateActualStart) || isset($task_dateActualCompletion)}
           <div class="enclose">
             <h6>Actual Start<div>Actual Completion</div></h6>
             <div style="float:left; width:30%">
@@ -216,7 +218,7 @@ $(document).ready(function() {
 <table class="box edit">
   <tr>
     <th class="header">Edit Details
-      <span>{$navigation_links}</span>
+      <span>{$navigation_links ?? ""}</span>
     </th>
   </tr>
   <tr>
@@ -282,11 +284,11 @@ $(document).ready(function() {
               {Page::help("task_duplicate")}
             </div>
             <div id="pending_tasks_div" class="hidden_field {print ($task_taskStatus == "pending_tasks") ? "inline" : "hidden"}">
-              <input type="text" name="pendingTasksIDs" id="pendingTasksIDs" value="{$task_pendingTaskIDs}" size="20">
+              <input type="text" name="pendingTasksIDs" id="pendingTasksIDs" value="{$task_pendingTaskIDs ?? ""}" size="20">
               {Page::help("task_pending_tasks")}
             </div>
             <div id="pending_reopen_div" class="hidden_field {print ($task_taskStatus != "pending_tasks" && in_str("pending_",$task_taskStatus)) ? "inline" : "hidden"}">
-              {Page::calendar("reopen_task",$reopen_task)}
+              {Page::calendar("reopen_task", $reopen_task ?? "")}
               {Page::help("task_reopen_task")}
             </div>
           </div>
@@ -323,7 +325,7 @@ $(document).ready(function() {
         <div class="enclose">
           <h6>Actual Hours<div>Effort Limited To</div></h6>
           <div style="float:left;width:50%;">
-            {$time_billed_link} {if $percentComplete && $percentComplete != "0%"}({$percentComplete}){/}
+            {$time_billed_link ?? ""} {if $percentComplete && $percentComplete != "0%"}({$percentComplete}){/}
           </div>
           <div style="float:right;width:50%;">
             <input type="text" name="timeLimit" value="{$task_timeLimit}" size="5"> {Page::help("task_timeLimit")}
@@ -340,7 +342,7 @@ $(document).ready(function() {
           </div>
         </div>
 
-        {if $task_dateActualStart || $task_dateActualCompletion}
+        {if isset($task_dateActualStart) || isset($task_dateActualCompletion)}
         <div class="enclose">
           <h6>Actual Start<div>Actual Completion</div></h6>
           <div style="float:left; width:30%">
@@ -366,7 +368,7 @@ $(document).ready(function() {
         <button type="submit" name="delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
         {/}
 
-        {if $_GET["timeSheetID"]}
+        {if isset($_GET["timeSheetID"])}
         <button type="submit" name="timeSheet_save" value="1" class="save_button">Save &amp; Return to Time Sheet<i class="icon-arrow-left"></i></button>
         <input type="hidden" name="timeSheetID" value="{$_GET.timeSheetID}">
         {/}

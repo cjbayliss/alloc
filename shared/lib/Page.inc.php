@@ -351,11 +351,10 @@ class Page
         return "<textarea" . $str . ">" . Page::htmlentities($default_value) . "</textarea>\n";
     }
 
-    public static function calendar($name, $default_value = "")
+    public static function calendar(string $name, string $default_value = ""): string
     {
         global $TPL;
         $images = $TPL["url_alloc_images"];
-        $year = date("Y");
         return <<<EOD
                   <span class="calendar_container nobr"><input name="{$name}" type="text" value="{$default_value}" id="" class="datefield"><img src="{$images}cal.png" title="Date Selector" alt="Date Selector" id=""></span>
             EOD;
@@ -425,6 +424,7 @@ class Page
                 if ($escape) {
                     $label = Page::htmlentities($label);
                 }
+
                 $label = str_replace(" ", "&nbsp;", $label);
 
                 $str .= "\n<option value=\"" . $value . '"' . $sel . ">" . $label . "</option>";

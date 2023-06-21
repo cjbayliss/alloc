@@ -427,8 +427,8 @@ class Task extends DatabaseEntity
             $parentTaskID = $this->get_value("parentTaskID");
         }
 
-        $projectID || ($projectID = $_GET["projectID"]);
-        $parentTaskID || ($parentTaskID = $_GET["parentTaskID"]);
+        $projectID ??= $_GET["projectID"];
+        $parentTaskID ??= $_GET["parentTaskID"];
 
         $allocDatabase = new AllocDatabase();
         if ($projectID) {
@@ -492,9 +492,9 @@ class Task extends DatabaseEntity
     {
         $allocDatabase = new AllocDatabase();
         $interestedPartyOptions = [];
-        if ($_GET["projectID"]) {
+        if (isset($_GET["projectID"])) {
             $projectID = $_GET["projectID"];
-        } elseif (!$projectID) {
+        } elseif (!isset($projectID)) {
             $projectID = $this->get_value("projectID");
         }
 
@@ -605,7 +605,7 @@ class Task extends DatabaseEntity
 
     public function get_project_options($projectID = "")
     {
-        $projectID || ($projectID = $_GET["projectID"]);
+        $projectID ??= $_GET["projectID"];
         // Project Options - Select all projects
         $allocDatabase = new AllocDatabase();
         $query = unsafe_prepare("SELECT projectID AS value, projectName AS label
@@ -623,7 +623,7 @@ class Task extends DatabaseEntity
         $current_user = &singleton("current_user");
         global $isMessage;
         $allocDatabase = new AllocDatabase();
-        ($projectID = $_GET["projectID"]) || ($projectID = $this->get_value("projectID"));
+        $projectID = $_GET["projectID"] ?? $projectID = $this->get_value("projectID");
         $TPL["personOptions"] = '<select name="personID"><option value="">' . $this->get_personList_dropdown($projectID, "personID") . "</select>";
         $TPL["managerPersonOptions"] = '<select name="managerID"><option value="">' . $this->get_personList_dropdown($projectID, "managerID") . "</select>";
         $TPL["estimatorPersonOptions"] = '<select name="estimatorID"><option value="">' . $this->get_personList_dropdown($projectID, "estimatorID") . "</select>";
@@ -682,9 +682,14 @@ class Task extends DatabaseEntity
         $TPL["priorityLabel"] = ' <div style="display:inline; color:' . $taskPriorities[$priority]["colour"] . '">[';
 
         if (is_object($p)) {
-            [$priorityFactor, $daysUntilDue] = $this->get_overall_priority($this->get_value("dateTargetCompletion"), $p->get_value("projectPriority"), $this->get_value("priority"));
-            $str = "Task priority: " . $taskPriorities[$this->get_value("priority")]["label"] . "<br>";
-            $str .= "Project priority: " . $projectPriorities[$p->get_value("projectPriority")]["label"] . "<br>";
+            $str = "";
+            [$priorityFactor, $daysUntilDue] = $this->get_overall_priority($this->get_value("dateTargetCompletion"), $p->get_value("projectPriority") ?? 0, (int)$this->get_value("priority"));
+            if (isset($taskPriorities[$this->get_value("priority")])) {
+                $str .= "Task priority: " . $taskPriorities[$this->get_value("priority")]["label"] . "<br>";
+            }
+            if (isset($projectPriorities[$p->get_value("projectPriority")])) {
+                $str .= "Project priority: " . $projectPriorities[$p->get_value("projectPriority")]["label"] . "<br>";
+            }
             $str .= "Days until due: " . $daysUntilDue . "<br>";
             $str .= "Calculated priority: " . $priorityFactor;
             $TPL["priorityLabel"] .= Page::help($str, $this->get_priority_label());
@@ -695,7 +700,7 @@ class Task extends DatabaseEntity
         $TPL["priorityLabel"] .= "]</div>";
 
         // If we're viewing the printer friendly view
-        if ($_GET["media"] == "print") {
+        if (isset($_GET["media"]) && $_GET["media"] == "print") {
             // Parent Task label
             $task = new Task();
             $task->set_id($this->get_value("parentTaskID"));
@@ -830,13 +835,17 @@ class Task extends DatabaseEntity
 
     public static function get_task_status_thing($thing = "", $status = "")
     {
-        [$taskStatus, $taskSubStatus] = explode("_", $status);
-        $arr = Task::get_task_statii();
-        if (!$thing) {
+        [$taskStatus, $taskSubStatus] = ["", ""];
+        if ($status !== "") {
+            [$taskStatus, $taskSubStatus] = explode("_", $status);
+        }
+
+        if (!isset($thing)) {
             return;
         }
 
-        if (!$arr[$taskStatus][$taskSubStatus][$thing]) {
+        $arr = Task::get_task_statii();
+        if (!isset($arr[$taskStatus][$taskSubStatus][$thing])) {
             return;
         }
 
@@ -1089,7 +1098,7 @@ class Task extends DatabaseEntity
     }
 
     public function get_overall_priority(
-        int $dateTargetCompletion,
+        string $dateTargetCompletion,
         int $projectPriority = 0,
         int $taskPriority = 0
     ): array {
@@ -1321,7 +1330,7 @@ class Task extends DatabaseEntity
             $taskID = $this->get_id();
         }
 
-        if ($results[$taskID]) {
+        if (isset($results[$taskID])) {
             return $results[$taskID];
         }
 
@@ -1344,11 +1353,16 @@ class Task extends DatabaseEntity
 
     public function get_percentComplete($get_num = false)
     {
-
         $closed_text = null;
         $closed_text_end = null;
         $timeActual = sprintf("%0.2f", $this->get_time_billed());
-        $timeExpected = sprintf("%0.2f", $this->get_value("timeLimit") * 60 * 60);
+        // FIXME: stop relying on bad functions that return 'mixed'
+        $timeLimit = $this->get_value("timeLimit");
+        if (!is_numeric($timeLimit)) {
+            $timeLimit = (int) $timeLimit;
+        }
+
+        $timeExpected = sprintf("%0.2f", $timeLimit * 60 * 60);
 
         if ($timeExpected > 0 && is_object($this)) {
             $percent = $timeActual / $timeExpected * 100;
@@ -1377,13 +1391,13 @@ class Task extends DatabaseEntity
     {
         static $taskPriorities;
         $taskPriorities || ($taskPriorities = config::get_config_item("taskPriorities"));
-        return $taskPriorities[$this->get_value("priority")]["label"];
+        return $taskPriorities[$this->get_value("priority")]["label"] ?? "";
     }
 
     public function get_forecast_completion()
     {
-        // Get the date the task is forecast to be completed given an actual start
-        // date and percent complete
+        // Get the date the task is forecast to be completed given an actual
+        // start date and percent complete
         $date_actual_start = $this->get_value("dateActualStart");
         $percent_complete = $this->get_percentComplete(true);
 
@@ -1554,36 +1568,47 @@ class Task extends DatabaseEntity
         if (isset($_FORM["showDescription"])) {
             $rtn["showDescription_checked"] = " checked";
         }
+
         if (isset($_FORM["showDates"])) {
             $rtn["showDates_checked"] = " checked";
         }
+
         if (isset($_FORM["showCreator"])) {
             $rtn["showCreator_checked"] = " checked";
         }
+
         if (isset($_FORM["showAssigned"])) {
             $rtn["showAssigned_checked"] = " checked";
         }
+
         if (isset($_FORM["showTimes"])) {
             $rtn["showTimes_checked"] = " checked";
         }
+
         if (isset($_FORM["showPercent"])) {
             $rtn["showPercent_checked"] = " checked";
         }
+
         if (isset($_FORM["showPriority"])) {
             $rtn["showPriority_checked"] = " checked";
         }
+
         if (isset($_FORM["showTaskID"])) {
             $rtn["showTaskID_checked"] = " checked";
         }
+
         if (isset($_FORM["showManager"])) {
             $rtn["showManager_checked"] = " checked";
         }
+
         if (isset($_FORM["showProject"])) {
             $rtn["showProject_checked"] = " checked";
         }
+
         if (isset($_FORM["showTags"])) {
             $rtn["showTags_checked"] = " checked";
         }
+
         if (isset($_FORM["showParentID"])) {
             $rtn["showParentID_checked"] = " checked";
         }

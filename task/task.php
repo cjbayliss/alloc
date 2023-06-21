@@ -132,9 +132,9 @@ $task = new Task();
 
 // If taskID
 
-($taskID = $_POST["taskID"]) || ($taskID = $_GET["taskID"]);
+$taskID = $_POST["taskID"] ?? $_GET["taskID"] ?? "";
 
-if (isset($taskID)) {
+if (!empty($taskID)) {
     // Displaying a record
     $task->set_id($taskID);
     $task->select();
@@ -150,20 +150,27 @@ if (isset($taskID)) {
 }
 
 // if someone uploads an attachment
-if ($_POST["save_attachment"]) {
+if (isset($_POST["save_attachment"])) {
     move_attachment("task", $taskID);
     alloc_redirect($TPL["url_alloc_task"] . "taskID=" . $taskID . "&sbs_link=attachments");
 }
 
 // If saving a record
-if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POST["save_and_summary"] || $_POST["timeSheet_save"] || $_POST["close_task"]) {
+if (
+    isset($_POST["save"]) ||
+    isset($_POST["save_and_back"]) ||
+    isset($_POST["save_and_new"]) ||
+    isset($_POST["save_and_summary"]) ||
+    isset($_POST["timeSheet_save"]) ||
+    isset($_POST["close_task"])
+) {
     $task->read_globals();
-    if ($_POST["close_task"]) {
+    if (isset($_POST["close_task"])) {
         $task->set_value("taskStatus", "closed_complete");
     }
 
     // If we're auto-nuking the pending tasks, we need to do that before the call to task->save()
-    if ($task->get_id() && !$_POST["pendingTasksIDs"]) {
+    if ($task->get_id() && !isset($_POST["pendingTasksIDs"])) {
         $task->add_pending_tasks($_POST["pendingTasksIDs"]);
     }
 
@@ -193,18 +200,18 @@ if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POS
             $task->create_task_reminder();
         }
 
-        if ($_POST["save"] && $_POST["view"] == "brief") {
+        if (isset($_POST["save"]) && $_POST["view"] == "brief") {
             // $url = $TPL["url_alloc_taskList"];
             $url = $TPL["url_alloc_task"] . "taskID=" . $task->get_id();
-        } elseif ($_POST["save"] || $_POST["close_task"]) {
+        } elseif (isset($_POST["save"]) || isset($_POST["close_task"])) {
             $url = $TPL["url_alloc_task"] . "taskID=" . $task->get_id();
-        } elseif ($_POST["save_and_back"]) {
+        } elseif (isset($_POST["save_and_back"])) {
             $url = $TPL["url_alloc_project"] . "projectID=" . $task->get_value("projectID");
-        } elseif ($_POST["save_and_summary"]) {
+        } elseif (isset($_POST["save_and_summary"])) {
             $url = $TPL["url_alloc_taskList"];
-        } elseif ($_POST["save_and_new"]) {
+        } elseif (isset($_POST["save_and_new"])) {
             $url = $TPL["url_alloc_task"] . "projectID=" . $task->get_value("projectID") . "&parentTaskID=" . $task->get_value("parentTaskID");
-        } elseif ($_POST["timeSheet_save"]) {
+        } elseif (isset($_POST["timeSheet_save"])) {
             $url = $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $_POST["timeSheetID"] . "&taskID=" . $task->get_id();
         } else {
             alloc_error("Unexpected save button");
@@ -215,7 +222,7 @@ if ($_POST["save"] || $_POST["save_and_back"] || $_POST["save_and_new"] || $_POS
     }
 
     // If deleting a record
-} elseif ($_POST["delete"]) {
+} elseif (isset($_POST["delete"])) {
     if ($task->can_be_deleted()) {
         $task->read_globals();
         $task->delete();
@@ -258,12 +265,12 @@ $TPL["estimator_username"] = $estimator->get_name();
 $TPL["estimator_username_personID"] = $estimator->get_id();
 
 // If we've been sent here by a "New Message" or "New Fault" option in the Quick List dropdown
-if (!$taskID && $_GET["tasktype"]) {
+if (!isset($taskID) && isset($_GET["tasktype"])) {
     $task->set_value("taskTypeID", $_GET["tasktype"]);
 }
 
 // If we've been sent here by a "New Task" link from the calendar
-if (!$taskID && $_GET["dateTargetStart"]) {
+if (!isset($taskID) && isset($_GET["dateTargetStart"])) {
     $TPL["task_dateTargetStart"] = $_GET["dateTargetStart"];
     $task->set_value("personID", $_GET["personID"]);
 }
@@ -347,7 +354,9 @@ while ($row = $db->row()) {
     ]);
 }
 
-$duds && ($TPL["message_help_no_esc"][] = "The following tasks have been marked as a duplicate of this task: " . $duds);
+if (isset($duds)) {
+    $TPL["message_help_no_esc"][] = "The following tasks have been marked as a duplicate of this task: " . $duds;
+}
 
 $rows = $task->get_pending_tasks();
 foreach ((array)$rows as $pendingTaskID) {
@@ -369,8 +378,12 @@ foreach ((array)$rows as $pendingTaskID) {
 }
 
 $is = "was";
-$wasopen && ($is = "is");
-$pendingTaskLinks && ($TPL["message_help_no_esc"][] = "This task " . $is . " pending the completion of:<br>" . implode("<br>", $pendingTaskLinks));
+if (isset($wasopen) && $wasopen) {
+    $is = "is";
+}
+if (isset($pendingTaskLinks)) {
+    $TPL["message_help_no_esc"][] = "This task " . $is . " pending the completion of:<br>" . implode("<br>", $pendingTaskLinks);
+}
 
 $rows = $task->get_pending_tasks(true);
 foreach ((array)$rows as $tID) {
@@ -392,8 +405,12 @@ foreach ((array)$rows as $tID) {
 }
 
 $is = "was";
-$wasopen && ($is = "is");
-$blockTaskLinks && ($TPL["message_help_no_esc"][] = "This task " . $is . " blocking the start of:<br>" . implode("<br>", $blockTaskLinks));
+if (isset($wasopen) && $wasopen) {
+    $is = "is";
+}
+if (isset($blockTaskLinks)) {
+    $TPL["message_help_no_esc"][] = "This task " . $is . " blocking the start of:<br>" . implode("<br>", $blockTaskLinks);
+}
 
 if (in_str("pending_", $task->get_value("taskStatus"))) {
     $rows = $task->get_reopen_reminders();
@@ -439,7 +456,7 @@ if (!$task->get_id()) {
 $TPL["task"] = $task;
 
 // Printer friendly view
-if ($_GET["media"] == "print") {
+if (isset($_GET["media"]) && $_GET["media"] == "print") {
     if (has("client")) {
         $client = new client();
         $client->set_id($project->get_value("clientID"));
