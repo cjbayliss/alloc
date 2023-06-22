@@ -91,18 +91,19 @@ function add_brackets($email = "")
     }
 }
 
-function seconds_to_display_format($seconds)
+function seconds_to_display_format(int $seconds): string
 {
     $days = null;
     $day = config::get_config_item("hoursInDay");
 
     $day_in_seconds = $day * 60 * 60;
     $hours = $seconds / 60 / 60;
-    if ($seconds != "") {
+    if ($seconds != 0) {
         return sprintf("%0.2f hrs", $hours);
     }
 
-    return;
+    // FIXME:: why?
+    return "";
 
     if ($seconds < $day_in_seconds) {
         return sprintf("%0.2f hrs", $hours);
@@ -475,7 +476,7 @@ function parse_email_address(string $email = ""): array
         return [$addr, $name];
     }
 
-    return [];
+    return ["", ""];
 }
 
 function same_email_address(string $addy1, string $addy2): bool

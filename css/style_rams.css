@@ -4,10 +4,6 @@
  * Good web browsers obey the first declaration "90%", IE5/6 will obey the latter. 
  */
 
-html {
-  height: 100%;
-}
-
 body {
   background: repeat-x #eeeeee;
   font-family: arial, helvetica, sans-serif;

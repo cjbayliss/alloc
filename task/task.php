@@ -81,7 +81,7 @@ function show_comments()
     global $TPL;
     global $task;
 
-    if ($_REQUEST["commentSummary"]) {
+    if (isset($_REQUEST["commentSummary"])) {
         $_REQUEST["showTaskHeader"] = true;
         $_REQUEST["clients"] = true;
         $TPL["commentsR"] = comment::get_list_summary($_REQUEST);
@@ -176,9 +176,9 @@ if (
 
     // Moved all validation over into task.inc.php save()
     $success = $task->save();
-    (is_countable($msg) ? count($msg) : 0) && ($msg = "&message_good=" . urlencode(implode("<br>", $msg)));
+    ((isset($msg) && is_countable($msg)) ? count($msg) : 0) && ($msg = "&message_good=" . urlencode(implode("<br>", $msg)));
     if ($success) {
-        InterestedParty::make_interested_parties("task", $task->get_id(), $_POST["interestedParty"]);
+        InterestedParty::make_interested_parties("task", $task->get_id(), $_POST["interestedParty"] ?? []);
 
         // A task can only have a pending task or pending reopen date - pending task is fixed up in JS, but check here too
         if ($task->get_value("taskStatus") != "pending_tasks") {
@@ -186,7 +186,7 @@ if (
         }
 
         $task->add_pending_tasks($_POST["pendingTasksIDs"]);
-        $task->add_tags($_POST["tags"]);
+        $task->add_tags($_POST["tags"] ?? []);
 
         // This is only valid on pending_, but not on pending_task (because it has a different field)
         if (strpos($task->get_value("taskStatus"), "pending_") !== 0 || $task->get_value("taskStatus") == "pending_tasks") {
@@ -196,11 +196,15 @@ if (
         $task->add_reopen_reminder($_POST["reopen_task"]);
 
         // Create reminders if necessary
-        if ($_POST["createTaskReminder"] == true) {
+        if (isset($_POST["createTaskReminder"]) && $_POST["createTaskReminder"] == true) {
             $task->create_task_reminder();
         }
 
-        if (isset($_POST["save"]) && $_POST["view"] == "brief") {
+        if (
+            isset($_POST["save"]) &&
+            isset($_POST["view"]) &&
+            $_POST["view"] == "brief"
+        ) {
             // $url = $TPL["url_alloc_taskList"];
             $url = $TPL["url_alloc_task"] . "taskID=" . $task->get_id();
         } elseif (isset($_POST["save"]) || isset($_POST["close_task"])) {
@@ -217,7 +221,7 @@ if (
             alloc_error("Unexpected save button");
         }
 
-        alloc_redirect($url . $msg);
+        alloc_redirect($url . ($msg ?? ""));
         exit();
     }
 
@@ -278,9 +282,9 @@ if (!isset($taskID) && isset($_GET["dateTargetStart"])) {
 // Set options for the dropdown boxen
 $task->set_option_tpl_values();
 
-$time_billed = $task->get_time_billed(false);
+$time_billed = $task->get_time_billed();
 $time_billed_label = seconds_to_display_format($time_billed);
-if ($time_billed != "") {
+if ($time_billed != 0) {
     $TPL["time_billed_link"] = '<a href="' . $TPL["url_alloc_timeSheetList"] . "taskID=" . $task->get_id() . '&dontSave=true&applyFilter=true">' . $time_billed_label . "</a>";
 }
 

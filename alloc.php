@@ -169,6 +169,10 @@ if (config::get_config_item("AllocFromEmailAddress")) {
         "ALLOC_DEFAULT_FROM_ADDRESS",
         add_brackets(config::get_config_item("AllocFromEmailAddress"))
     );
+    // no email setup on this instance, still define ALLOC_DEFAULT_FROM_ADDRESS
+    // so that no errors are thrown.
+} else {
+    define("ALLOC_DEFAULT_FROM_ADDRESS", "");
 }
 
 // The default email bounce address

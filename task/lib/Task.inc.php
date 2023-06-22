@@ -754,7 +754,7 @@ class Task extends DatabaseEntity
 
         if ($this->get_value("taskTypeID") == "Parent" && $_FORM["return"] == "html") {
             $rtn = "<strong>" . $id . $this->get_value("taskName", DST_HTML_DISPLAY) . "</strong>";
-        } elseif ($_FORM["return"] == "html") {
+        } elseif (isset($_FORM["return"]) && $_FORM["return"] == "html") {
             $rtn = $id . $this->get_value("taskName", DST_HTML_DISPLAY);
         } else {
             $rtn = $id . $this->get_value("taskName");
@@ -1325,7 +1325,7 @@ class Task extends DatabaseEntity
         return '<a class="noprint" href="' . $TPL["url_alloc_task"] . "projectID=" . $this->get_value("projectID") . "&parentTaskID=" . $this->get_id() . '">New Subtask</a>';
     }
 
-    public function get_time_billed($taskID = "")
+    public function get_time_billed(int $taskID = null): int
     {
         static $results;
         if (is_object($this) && !$taskID) {
@@ -1333,7 +1333,7 @@ class Task extends DatabaseEntity
         }
 
         if (isset($results[$taskID])) {
-            return $results[$taskID];
+            return (int)$results[$taskID];
         }
 
         if ($taskID) {
@@ -1346,11 +1346,13 @@ class Task extends DatabaseEntity
                       GROUP BY taskID", $taskID);
             while ($allocDatabase->next_record()) {
                 $results[$taskID] = $allocDatabase->f("sum_of_time");
-                return $allocDatabase->f("sum_of_time");
+                return (int)$allocDatabase->f("sum_of_time");
             }
 
-            return "";
+            return 0;
         }
+
+        return 0;
     }
 
     public function get_percentComplete($get_num = false)
@@ -1544,7 +1546,7 @@ class Task extends DatabaseEntity
         $task = new Task();
 
         // Load up the forms action url
-        $rtn["url_form_action"] = $_FORM["url_form_action"];
+        $rtn["url_form_action"] = $_FORM["url_form_action"] ?? "";
         $rtn["hide_field_options"] = $_FORM["hide_field_options"] ?? "";
 
         // time Load up the filter bits
@@ -1552,7 +1554,7 @@ class Task extends DatabaseEntity
 
         $_FORM["projectType"] && ($rtn["projectType_checked"][$_FORM["projectType"]] = " checked");
         $ops = ["0" => "Nobody"];
-        $rtn["personOptions"] = Page::select_options($ops + person::get_username_list($_FORM["personID"]), $_FORM["personID"]);
+        $rtn["personOptions"] = Page::select_options($ops + person::get_username_list($_FORM["personID"] ?? ""), $_FORM["personID"] ?? "");
         $rtn["managerPersonOptions"] = Page::select_options($ops + person::get_username_list($_FORM["managerID"] ?? ""), $_FORM["managerID"] ?? "");
         $rtn["creatorPersonOptions"] = Page::select_options(person::get_username_list($_FORM["creatorID"] ?? ""), $_FORM["creatorID"] ?? "");
         $rtn["all_tags"] = $task->get_tags(true);
@@ -1565,7 +1567,7 @@ class Task extends DatabaseEntity
         $_FORM["taskView"] && ($rtn["taskView_checked_" . $_FORM["taskView"]] = " checked");
 
         $taskStatii = Task::get_task_statii_array();
-        $rtn["taskStatusOptions"] = Page::select_options($taskStatii, $_FORM["taskStatus"]);
+        $rtn["taskStatusOptions"] = Page::select_options($taskStatii, $_FORM["taskStatus"] ?? "");
 
         if (isset($_FORM["showDescription"])) {
             $rtn["showDescription_checked"] = " checked";

@@ -118,7 +118,7 @@ class email_send
         $rand = base_convert($rand, 16, 36);
 
         $bits = explode("@", ALLOC_DEFAULT_FROM_ADDRESS);
-        $host = str_replace(">", "", $bits[1]);
+        $host = str_replace(">", "", $bits[1] ?? "");
         $h = "<" . $time . "." . $rand . $hash . "@" . $host . ">";
         $this->add_header("Message-ID", $h);
         return $h;

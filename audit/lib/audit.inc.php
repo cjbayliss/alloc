@@ -41,11 +41,11 @@ class audit extends DatabaseEntity
             $where_clause = " WHERE " . implode(" AND ", $filter);
         }
 
-        if ($_FORM["projectID"]) {
+        if (isset($_FORM["projectID"])) {
             $entity = new project();
             $entity->set_id($_FORM["projectID"]);
             $entity->select();
-        } elseif ($_FORM["taskID"]) {
+        } elseif (isset($_FORM["taskID"])) {
             $entity = new Task();
             $entity->set_id($_FORM["taskID"]);
             $entity->select();

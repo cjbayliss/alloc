@@ -34,7 +34,7 @@ if ($_REQUEST["eo_email"]) {
 }
 
 // add all interested parties
-$emailRecipients = comment::add_interested_parties($commentID, $_REQUEST["commentEmailRecipients"], $other_parties);
+$emailRecipients = comment::add_interested_parties($commentID, $_REQUEST["commentEmailRecipients"], $other_parties ?? []);
 
 // We're going to store all the attachments and generated pdf files in this array
 $files = [];
@@ -45,12 +45,12 @@ if ($_FILES !== []) {
 }
 
 // Attach any alloc generated timesheet pdf
-if ($_REQUEST["attach_timeSheet"]) {
+if (isset($_REQUEST["attach_timeSheet"])) {
     $files[] = comment::attach_timeSheet($commentID, $_REQUEST["commentMasterID"], $_REQUEST["attach_timeSheet"]);
 }
 
 // Attach any alloc generated invoice pdf
-if ($_REQUEST["attach_invoice"]) {
+if (isset($_REQUEST["attach_invoice"])) {
     if ($_REQUEST["attach_invoice"] == $_REQUEST["generate_pdf_verbose"]) {
         $verbose = true;
     }
@@ -61,7 +61,7 @@ if ($_REQUEST["attach_invoice"]) {
 }
 
 // Attach any alloc generated tasks pdf
-if ($_REQUEST["attach_tasks"]) {
+if (isset($_REQUEST["attach_tasks"])) {
     $files[] = comment::attach_tasks($commentID, $_REQUEST["commentMasterID"], $_REQUEST["attach_tasks"]);
 }
 
@@ -101,6 +101,7 @@ foreach ((array)$files as $k => $f) {
 rmdir_if_empty($dir);
 
 // Re-direct browser back home
-$TPL["message_good"][] = $message_good;
+$TPL["message_good"][] = $message_good ?? "";
+$extra ??= "";
 $extra .= "&sbs_link=comments";
 alloc_redirect($TPL["url_alloc_" . $_REQUEST["commentMaster"]] . $_REQUEST["commentMaster"] . "ID=" . $_REQUEST["commentMasterID"] . $extra);

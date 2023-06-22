@@ -609,7 +609,7 @@ class comment extends DatabaseEntity
         return $recipients;
     }
 
-    public function get_email_recipient_headers($recipients, $from_address)
+    public function get_email_recipient_headers(array $recipients, string $from_address): array
     {
         $to_address = [];
         $bcc = [];
@@ -623,17 +623,17 @@ class comment extends DatabaseEntity
         foreach ($recipients as $recipient) {
             unset($recipient_full_name);
 
-            if ($recipient["firstName"] && $recipient["surname"]) {
+            if (isset($recipient["firstName"]) && isset($recipient["surname"])) {
                 $recipient_full_name = $recipient["firstName"] . " " . $recipient["surname"];
-            } elseif ($recipient["fullName"]) {
+            } elseif (isset($recipient["fullName"])) {
                 $recipient_full_name = $recipient["fullName"];
-            } elseif ($recipient["name"]) {
+            } elseif (isset($recipient["name"])) {
                 $recipient_full_name = $recipient["name"];
             }
 
-            if ($recipient["emailAddress"] && !$done[$recipient["emailAddress"]]) {
+            if (isset($recipient["emailAddress"]) && !isset($done[$recipient["emailAddress"]])) {
                 // If the person does *not* want to receive their own emails, skip adding them as a recipient
-                if (is_object($current_user) && $current_user->get_id() && !$current_user->prefs["receiveOwnTaskComments"] && same_email_address($recipient["emailAddress"], $from_address)) {
+                if (is_object($current_user) && $current_user->get_id() && !isset($current_user->prefs["receiveOwnTaskComments"]) && same_email_address($recipient["emailAddress"], $from_address)) {
                     continue;
                 }
 
@@ -669,19 +669,28 @@ class comment extends DatabaseEntity
             }
         }
 
-        return [implode(", ", (array)$to_address), implode(", ", (array)$bcc), implode(", ", (array)$successful_recipients)];
+        return [
+            implode(", ", (array)$to_address),
+            implode(", ", (array)$bcc),
+            implode(", ", (array)$successful_recipients),
+        ];
     }
 
-    public function send_emails($selected_option, $email_receive = false, $hash = "", $is_a_reply_comment = false, $files = [])
-    {
-        $from_address = null;
+    public function send_emails(
+        array $selected_option,
+        bool $email_receive = false,
+        string $hash = "",
+        int $is_a_reply_comment = null,
+        array $files = []
+    ): array {
+        $from_address = "";
         $subject = null;
         $prefix = null;
         $from_name = null;
         $current_user = &singleton("current_user");
 
         $e = $this->get_parent_object();
-        $type = $e->classname . "_comments";
+        $type = isset($e->classname) ? $e->classname . "_comments" : "";
         $body = $this->get_value("comment");
 
         if (is_object($email_receive)) {
@@ -708,7 +717,7 @@ class comment extends DatabaseEntity
                 $subject = trim(preg_replace("/{Key:[^}]*}.*$/i", "", $subject));
             } else {
                 $emailsend->set_body($body);
-                if ($files) {
+                if ($files !== []) {
                     // (if we're bouncing a complete email body the attachments
                     // are already included, else do this...)
                     foreach ((array)$files as $file) {
@@ -734,7 +743,7 @@ class comment extends DatabaseEntity
             }
 
             // Add project header too, if possible
-            if (has("project") && $e->classname != "project" && isset($e->data_fields["projectID"])) {
+            if (has("project") && $e !== null && $e->classname != "project" && isset($e->data_fields["projectID"])) {
                 $p = $e->get_foreign_object("project");
                 $emailsend->add_header("X-Alloc-Project", $p->get_value("projectName"));
                 $emailsend->add_header("X-Alloc-ProjectID", $p->get_id());
@@ -745,7 +754,7 @@ class comment extends DatabaseEntity
             $subject_extra = "{Key:" . $hash . "}";
             $emailsend->set_date();
 
-            if (!$subject) {
+            if (!$subject && $e !== null) {
                 $tpl = config::get_config_item("emailSubject_" . $e->classname . "Comment");
                 $tpl && ($subject = commentTemplate::populate_string($tpl, $e->classname, $e->get_id()));
                 if ($e->classname != "task") {
@@ -788,6 +797,8 @@ class comment extends DatabaseEntity
                 return [$successful_recipients, $messageid];
             }
         }
+
+        return ["", ""];
     }
 
     public function get_list_filter($filter = [])

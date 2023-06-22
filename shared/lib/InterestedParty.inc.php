@@ -82,7 +82,7 @@ class InterestedParty extends DatabaseEntity
                 $info = (new InterestedParty())->get_decoded_interested_party_identifier($encoded_party);
                 $info["entity"] = $entity;
                 $info["entityID"] = $entityID;
-                $info["emailAddress"] || ($info["emailAddress"] = $info["email"]);
+                $info["emailAddress"] ??= $info["email"];
                 $ipIDs[] = InterestedParty::add_interested_party($info);
             }
         }
