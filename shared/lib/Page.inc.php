@@ -711,7 +711,11 @@ class Page
     public static function star_sorter($entity, $entityID): int
     {
         $current_user = &singleton("current_user");
-        if ($current_user->prefs["stars"][$entity][$entityID]) {
+        if (
+            isset($current_user->prefs["stars"]) &&
+            isset($current_user->prefs["stars"][$entity]) &&
+            isset($current_user->prefs["stars"][$entity][$entityID])
+        ) {
             return 1;
         }
 

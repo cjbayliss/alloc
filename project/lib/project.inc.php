@@ -881,7 +881,10 @@ class project extends DatabaseEntity
             return implode(" OR ", $statement);
         }
 
-        return sprintf("(%s.projectID = 0)", $table);
+        // FIXME: this use to return the result of 
+        // 'sprintf("(%s.projectID = 0)", $table)', but that broke the task
+        // list. is that because of newer mariadb? investigate. -- cjb 2023-06
+        return "";
     }
 
     public function get_cc_list_select($projectID = ""): string

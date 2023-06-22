@@ -110,7 +110,7 @@
   <tfoot>
   {/}
 
-  {if isset($_FORM["showTotals"]) && $_FORM["showTimes"]}
+  {if isset($_FORM["showTotals"]) && isset($_FORM["showTimes"])}
     <tr>
   {if isset($_FORM["showEdit"])}<td></td>{/}
     <td></td> <!-- taskTypeImage -->
@@ -191,7 +191,7 @@
       </th>
     </tr>
   <input type="hidden" name="sessID" value="{$sessID}">
-  <input type="hidden" name="returnURL" value="{echo $taskListOptions["returnURL"]}">
+  <input type="hidden" name="returnURL" value="{echo $taskListOptions["returnURL"] ?? ""}">
   </form>
   {/}
 

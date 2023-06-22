@@ -55,9 +55,10 @@
     
         {$m = new meta("projectStatus")}
         {$ops = $m->get_assoc_array("projectStatusID","projectStatusID")}
-        <!-- FIXME: the templating system doesn't deal with this syntax properly -->
         {foreach $ops as $v}
+        {if isset($projectType_checked) && is_array($projectType_checked) && in_array($v, $projectType_checked)}
         <label for="pt_{$v}">{$v}</label><input type="radio" id="pt_{$v}" name="projectType" value="{$v}" onClick="refreshProjectList(this)"{$projectType_checked.$v}><br>
+        {/}
         {/}
 
         <label for="pt_all">Everything</label><input type="radio" id="pt_all" name="projectType" value="all" onClick="refreshProjectList(this)"{$projectType_checked_all ?? ""}><br>

@@ -64,7 +64,7 @@ class Task extends DatabaseEntity
             alloc_error($errors);
         } else {
             $existing = $this->all_row_fields;
-            if ($existing["taskStatus"] != $this->get_value("taskStatus")) {
+            if (($existing["taskStatus"] ?? "") != $this->get_value("taskStatus")) {
                 $allocDatabase = new AllocDatabase();
                 $allocDatabase->query("call change_task_status(%d,'%s')", $this->get_id(), $this->get_value("taskStatus"));
                 $row = $allocDatabase->qr("SELECT taskStatus
@@ -77,11 +77,15 @@ class Task extends DatabaseEntity
                 // Changing a task's status changes these fields.
                 // Unfortunately the call to save() below erroneously nukes these fields.
                 // So we manually set them to whatever change_task_status() has dictated.
-                $this->set_value("taskStatus", $row["taskStatus"]);
-                $this->set_value("dateActualCompletion", $row["dateActualCompletion"]);
-                $this->set_value("dateActualStart", $row["dateActualStart"]);
-                $this->set_value("dateClosed", $row["dateClosed"]);
-                $this->set_value("closerID", $row["closerID"]);
+                array_map(function (string $value) {
+                    isset($row[$value]) && $this->set_value($value, $row[$value]);
+                }, [
+                    "taskStatus",
+                    "dateActualCompletion",
+                    "dateActualStart",
+                    "dateClosed",
+                    "closerID"
+                ]);
             }
 
             return parent::save();
@@ -374,12 +378,11 @@ class Task extends DatabaseEntity
         // OR if we're skipping the perms checking because i.e. we're having our task status updated by a timesheet
         if (
             !$this->get_id()
-            || (
-                is_object($p) && ($p->has_project_permission($person, [
-                    "isManager",
-                    "canEditTasks",
-                    "timeSheetRecipient",
-                ]))
+            || (is_object($p) && ($p->has_project_permission($person, [
+                "isManager",
+                "canEditTasks",
+                "timeSheetRecipient",
+            ]))
                 || $this->get_value("creatorID") == $person->get_id()
                 || $this->get_value("personID") == $person->get_id()
                 || $this->get_value("managerID") == $person->get_id()
@@ -603,7 +606,7 @@ class Task extends DatabaseEntity
         return Page::select_options($ops, $selected);
     }
 
-    public function get_project_options($projectID = "")
+    public static function get_project_options($projectID = "")
     {
         $projectID ??= $_GET["projectID"];
         // Project Options - Select all projects
@@ -930,7 +933,7 @@ class Task extends DatabaseEntity
 
         // This takes care of projectID singular and plural
         has("project") && ($projectIDs = project::get_projectID_sql($filter));
-        if (isset($projectIDs)) {
+        if (!empty($projectIDs)) {
             $sql["projectIDs"] = $projectIDs;
         }
 
@@ -1089,7 +1092,7 @@ class Task extends DatabaseEntity
             $done[$row["taskID"]] = true; // To track orphans
             $tasks += [$row["taskID"] => $row];
 
-            if ($r["children"]) {
+            if (isset($r["children"])) {
                 [$t, $d] = Task::build_recursive_task_list($r["children"], $_FORM);
                 $t && ($tasks += $t);
                 $d && ($done += $d);
@@ -1300,7 +1303,7 @@ class Task extends DatabaseEntity
         include_template(__DIR__ . "/../templates/taskListS.tpl");
     }
 
-    public function get_task_priority_dropdown($priority = false)
+    public static function get_task_priority_dropdown($priority = false)
     {
         $tp = [];
         ($taskPriorities = config::get_config_item("taskPriorities")) || ($taskPriorities = []);
