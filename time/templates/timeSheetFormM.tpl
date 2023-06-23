@@ -24,7 +24,7 @@
 <input type="hidden" name="timeSheet_approvedByManagerPersonID" value="{$timeSheet_approvedByManagerPersonID}">
 <input type="hidden" name="timeSheet_approvedByAdminPersonID" value="{$timeSheet_approvedByAdminPersonID}">
 <input type="hidden" name="timeSheet_recipient_tfID" value="{$recipient_tfID}">
-<input type="hidden" name="timeSheet_invoiceDate" value="{$timeSheet_invoiceDate}">
+<input type="hidden" name="timeSheet_invoiceDate" value="{$timeSheet_invoiceDate ?? ""}">
 <input type="hidden" name="taskID" value="{$taskID}" />
 
 <table class="box">
@@ -56,7 +56,7 @@
 	  <td>{Page::help("engineer_amount")}</td>
     <td align="right" style="vertical-align:top;">Amount:</td>
     <td>
-      <span style="float:left">{$total_dollars}&nbsp;</span>
+      <span style="float:left">{$total_dollars ?? ""}&nbsp;</span>
       {if $timeSheet_status && $timeSheet_status != "finished" && $timeSheet_status != "edit" && $ts_rate_editable && ($is_manager || $is_admin)}
         <button type="submit" name="updateRate" value="1" class="filter_button"
         style="float:left;font-size:80%;padding:1px;"><i class="icon-repeat" style="margin:0px;"></i></button>
@@ -71,36 +71,40 @@
 	  <td>{Page::help("client_billing")}</td>
     <td align="right" style="vertical-align:top;">Client Billing:</td>
     <td>
-      <span style="float:left" class="nobr">{$total_customerBilledDollars}{$ex_gst}&nbsp;</span>
+      <span style="float:left" class="nobr">{$total_customerBilledDollars ?? ""}{$ex_gst ?? ""}&nbsp;</span>
       {if $timeSheet_status && $timeSheet_status != "finished" && $timeSheet_status != "edit" && $ts_rate_editable && ($is_manager || $is_admin)}
         <button type="submit" name="updateCB" value="1" class="filter_button"
         style="float:left; font-size:80%;padding:1px;"><i class="icon-repeat" style="margin:0px;"></i></button>
       {/}
     </td>
-    <td align="right">Time Sheet Manager{$manager_plural}:</td>
+    <td align="right">Time Sheet Manager{$manager_plural ?? ""}:</td>
+    {if isset($managers)}
     <td>{=$managers}</td>
+    {/}
   </tr>
 
   <tr>
 	  <td>&nbsp;</td>
     <td align="right">Units:</td>
     <td>{$total_units}</td>
-    <td align="right"><nobr>Date Submitted to Manager{$manager_plural}:</nobr></td>
+    <td align="right"><nobr>Date Submitted to Manager{$manager_plural ?? ""}:</nobr></td>
     <td>{$timeSheet_dateSubmittedToManager}</td>
   </tr>
 
 	<tr>
 	  <td>{Page::help("which_tf_to_credit")}</td>
  	  <td align="right">Tagged Fund:</td>
- 	  <td align="left" class='{$recipient_tfID_class}'>{=$recipient_tfID_name}</td>
+ 	  <td align="left" class='{$recipient_tfID_class ?? ""}'>{=$recipient_tfID_name}</td>
     <td align="right">Approved by Manager:</td>
+    {if isset($timeSheet_approvedByManagerPersonID_username)}
     <td>{=$timeSheet_approvedByManagerPersonID_username}</td>
+    {/}
   </tr>
 
 	<tr>
 	  <td>&nbsp;</td>
     <td align="right">Period:</td>
-    <td><nobr>{$period}</nobr></td>
+    <td><nobr>{$period ?? ""}</nobr></td>
     <td align="right">Date Submitted to Administrator:</td>
     <td>{$timeSheet_dateSubmittedToAdmin}</td>
 	</tr>
@@ -108,9 +112,9 @@
 	<tr>
     <td>{Page::help("timesheet_add_invoice")}</td>
     <td align="right" valign="top">Attached to Invoice:</td>
-    <td class="nobr">{$attach_to_invoice_button}{$invoice_link} {$amount_allocated_label} <b>{$amount_used}{$amount_allocated}</b></td>
+    <td class="nobr">{$attach_to_invoice_button ?? ""}{$invoice_link} {$amount_allocated_label ?? ""} <b>{$amount_used ?? ""}{$amount_allocated ?? ""}</b></td>
     <td align="right">Approved by Administrator:</td> 
-    <td>{$timeSheet_approvedByAdminPersonID_username}</td>
+    <td>{$timeSheet_approvedByAdminPersonID_username ?? ""}</td>
   </tr>
 
   {if $timeSheet_billingNote}
@@ -130,7 +134,7 @@
     <td colspan="5" style="padding:0;margin:0;">
       <table width="100%" align="center" cellpadding="0" cellspacing="0">
         <tr>
-          <td align="center" colspan="3">{$radio_email}</td>
+          <td align="center" colspan="3">{$radio_email ?? ""}</td>
         </tr>
         <tr>
           <td width="1%">{Page::help("timesheet_buttons")}</td>

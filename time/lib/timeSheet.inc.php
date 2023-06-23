@@ -122,7 +122,6 @@ class timeSheet extends DatabaseEntity
 
     public function load_pay_info()
     {
-
         $extra_sql = [];
         $timeUnitRows = [];
         $sql = null;
