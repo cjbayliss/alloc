@@ -7,7 +7,7 @@
 body {
   background: repeat-x #eeeeee;
   font-family: arial, helvetica, sans-serif;
-  color: #333;
+  color: #000;
   padding: 10px 30px;
   width: auto !important;
   width: 95%;
@@ -34,17 +34,13 @@ div#main {
   margin: 0px;
   padding: 0px 0px 14px 0px !important;
   padding: 0px 16px;
-  background-color: white;
-  border: 1px solid #9c9c9c;
+  background-color: #fff;
+  border: thin solid #bbb;
   clear: both;
   text-align: left;
   margin-bottom: 4px;
-  -webkit-border-radius: 12px;
-  -moz-border-radius: 12px;
-  border-radius: 12px;
-  -webkit-box-shadow: 3px 2px 4px #999;
-  -moz-box-shadow: 3px 2px 4px #999;
-  box-shadow: 3px 2px 4px #999;
+  border-radius: 0.2rem;
+  box-shadow: 0 0.05rem 0.2rem rgba(0, 0, 0, 0.2);
 }
 
 /* Hack to ensure certain div encapsulate all the stuff inside them */
@@ -65,11 +61,11 @@ div#main2 {
 
 a:link,
 a:visited {
-  color: #1b6cb7;
+  color: #0f487e;
 }
 
 a:hover {
-  color: #8aafd2;
+  color: #7d3d1b;
 }
 
 a.growshrink,
@@ -82,20 +78,20 @@ a.sidebyside {
   background-color: #fff;
   border: 1px solid #cccccc;
   text-decoration: none;
-  color: #6e8eb5;
+  color: #37485e;
   font-size: 100%;
 }
 
 a.sidebyside:hover {
   background: #e7eff9;
-  color: #6e8eb5;
-  border: 1px solid #6e8eb5;
+  color: #37485e;
+  border: 1px solid #37485e;
 }
 
 a.sidebyside_active {
   background: #e7eff9;
-  color: #6e8eb5;
-  border: 1px solid #6e8eb5;
+  color: #37485e;
+  border: 1px solid #37485e;
   text-decoration: none;
   padding: 5px;
   font-size: 100%;
@@ -142,8 +138,9 @@ h6 {
   font-size: 90%;
   font-weight: normal;
   text-transform: uppercase;
-  color: #aaa;
-  border-bottom: 1px solid #cccccc;
+  font-weight: bold;
+  color: #505050;
+  border-bottom: thin solid #cccccc;
   padding: 0px;
   margin: 20px 0px 10px 0px;
   clear: both;
@@ -173,13 +170,13 @@ button {
 }
 
 th {
-  color: #444444;
+  color: #000;
   text-align: left;
   font-size: 100%;
 }
 
 td {
-  color: #444444;
+  color: #000;
   font-size: 100%;
 }
 
@@ -242,72 +239,73 @@ input[readonly="true"]:focus {
 }
 
 button {
-  text-shadow: #fff 0px 1px 0px;
   text-transform: none !important;
-  -moz-box-shadow: 2px 2px 3px #ccc;
-  -webkit-box-shadow: 2px 2px 3px #ccc;
-  box-shadow: 2px 2px 3px #ccc;
-  outline: 0;
-  -moz-border-radius: 12px;
-  -webkit-border-radius: 12px;
-  border-radius: 12px;
-  border: 1px solid #999;
-  background-color: #fff;
+  box-shadow: 0 0.05rem 0.2rem rgba(0, 0, 0, 0.2);
+  outline: none;
+  border-radius: 0.2rem;
+  border: thin solid #999;
+  background-color: #fefefe;
   font-weight: bold;
-  color: #333;
+  color: #474747;
+  text-shadow: none !important;
 }
 
 button:hover {
-  color: #666;
+  color: #fefefe;
+  background-color: #474747;
+  border-color: #474747;
 }
 
 button:active {
-  -moz-box-shadow: 0px 0px 0px #bbbbbb;
-  -webkit-box-shadow: 0px 0px 0px #bbbbbb;
-  box-shadow: 0px 0px 0px #bbbbbb;
+  box-shadow: none;
   outline: none;
-  background-color: #ccc;
-}
-
-button::-moz-focus-inner {
-  border: 0;
-  outline: none;
+  color: initial;
+  background-color: #fff;
 }
 
 button.delete_button:hover {
-  color: #dc0606;
+  color: #fff;
+  background-color: #970303;
 }
 
 button.save_button:hover {
-  color: #10ae00;
+  color: #fff;
+  background-color: #0b5e00;
 }
 
 button.filter_button:hover {
-  color: #ef8849;
+  color: #fff;
+  background-color: #7d3d1b;
 }
 
 button.delete_button:active {
-  background-color: #ff9797 !important;
+  color: #970303;
+  background-color: #fff;
 }
 
 button.save_button:active {
-  background-color: #99e791 !important;
+  color: #0b5e00;
+  background-color: #fff;
 }
 
 button.filter_button:active {
-  background-color: #ffd3a0 !important;
+  color: #7d3d1b;
+  background-color: #fff;
 }
 
 button.delete_button {
-  border: 1px solid #dc0606;
+  color: #970303;
+  border-color: #970303;
 }
 
 button.save_button {
-  border: 1px solid #10ae00;
+  color: #0b5e00;
+  border-color: #0b5e00;
 }
 
 button.filter_button {
-  border: 1px solid #ffac4b;
+  color: #7d3d1b;
+  border-color: #7d3d1b;
 }
 
 label.radio {
@@ -383,22 +381,23 @@ hr {
   position: absolute;
   z-index: 1000;
   background-color: #fffdf2;
-  border: 1px solid #cccccc;
-  color: #666666;
+  border: thin solid #e8e6dc;
+  color: black;
   width: 400px;
   font-size: 100%;
   padding: 8px;
+  box-shadow: 0 0.05rem 0.2rem rgba(0, 0, 0, 0.1);
 }
 
 .help_button {
-  border: 1px solid #999999;
+  border: thin solid #e8e6dc;
   vertical-align: sub !important;
   vertical-align: bottom;
 }
 
-.help_button:hover {
+/* .help_button:hover {
   border: 1px solid #cccccc;
-}
+} */
 
 .calendar_container {
   position: relative;
@@ -427,25 +426,35 @@ hr {
 }
 
 .message {
-  padding: 8px 4px;
-  margin: 15px auto 0px auto;
-  border: 1px solid #cccccc;
+  padding: 0.5rem 0.5rem;
+  margin: 1rem auto 0 auto;
+  border: thin solid #cccccc;
   background-color: #fffdf2;
   z-index: 1000;
 }
 
+.message:has(.good) {
+  border-color: #a3cca3;
+  background-color: #f7fef7;
+}
+
+.message:has(.bad) {
+  border-color: #f09896;
+  background-color: #fff7f7;
+}
+
 .bad {
-  color: #e50d0d;
+  color: #910000;
   font-size: 100%;
 }
 
 .good {
-  color: green;
+  color: #005a00;
   font-size: 100%;
 }
 
 .help {
-  color: #666666;
+  color: black;
   font-size: 100%;
 }
 
@@ -480,12 +489,12 @@ table.box th.right table {
 table.box th a:link,
 table.box th a:visited {
   font-weight: normal;
-  color: #c26832;
+  color: #7d3d1b;
 }
 
 table.box th a:hover {
   font-weight: normal;
-  color: #ed742c;
+  color: #0f487e;
 }
 
 table.box td {
@@ -514,24 +523,24 @@ table.box th.header span a.star b {
 /* Calendar */
 table.alloc_calendar {
   width: 100%;
-  border-right: 1px solid #cccccc;
-  border-bottom: 1px solid #cccccc;
+  border-right: 1px solid #88acdd;
+  border-bottom: 1px solid #88acdd;
 }
 
 table.alloc_calendar td {
   background-color: #fff;
-  border-left: 1px solid #cccccc;
-  border-top: 1px solid #cccccc;
+  border-left: 1px solid #88acdd;
+  border-top: 1px solid #88acdd;
   width: 10%;
   vertical-align: top;
 }
 
 table.alloc_calendar td.today {
   background-color: #fffdf2;
-  border-top: 2px solid #cccccc;
-  border-left: 2px solid #cccccc;
-  border-right: 1px solid #cccccc;
-  border-bottom: 1px solid #cccccc;
+  border-top: 2px solid #88acdd;
+  border-left: 2px solid #88acdd;
+  border-right: 1px solid #88acdd;
+  border-bottom: 1px solid #88acdd;
 }
 
 table.alloc_calendar td.today h1 {
@@ -565,7 +574,7 @@ table.alloc_calendar img {
 }
 
 table.alloc_calendar td:hover {
-  background-color: #fffdde;
+  background-color: #e7eff9;
 }
 
 table.alloc_calendar td.selected {
@@ -582,11 +591,11 @@ table.filter {
 }
 
 table.filter td {
-  color: #6e8eb5;
+  color: #37485e;
 }
 
 .filter table td {
-  color: #6e8eb5;
+  color: #37485e;
 }
 
 .filter table th {
@@ -607,7 +616,7 @@ tr.even {
 
 tr.odd:hover,
 tr.even:hover {
-  background-color: #fffdde;
+  background-color: #faf8ed;
 }
 
 .hover:hover {
@@ -628,23 +637,17 @@ img.taskType {
 }
 
 .corner {
-  -webkit-border-radius: 12px;
-  -moz-border-radius: 12px;
-  border-radius: 12px;
+  border-radius: 0.2rem;
   border-collapse: separate;
   /* to prevent border-collapse:collapse being inherited */
 }
 
 .shadow {
-  -moz-box-shadow: 4px 4px 5px #bbbbbb;
-  -webkit-box-shadow: 4px 4px 5px #bbbbbb;
-  box-shadow: 4px 4px 5px #bbbbbb;
+  box-shadow: 0 0.05rem 0.2rem rgba(0, 0, 0, 0.1);
 }
 
 .shadow2 {
-  -moz-box-shadow: 1px 1px 5px #bbbbbb;
-  -webkit-box-shadow: 1px 1px 5px #bbbbbb;
-  box-shadow: 1px 1px 5px #bbbbbb;
+  box-shadow: 0 0.05rem 0.2rem rgba(0, 0, 0, 0.1);
 }
 
 .overdue {
@@ -681,9 +684,9 @@ img.taskType {
 
 table.list {
   width: 100%;
-  border-left: 1px solid #cccccc;
-  border-right: 1px solid #cccccc;
-  border-bottom: 1px solid #cccccc;
+  border-left: 1px solid #88acdd;
+  border-right: 1px solid #88acdd;
+  border-bottom: 1px solid #88acdd;
   border-collapse: collapse;
   border-spacing: 0px;
 }
@@ -699,7 +702,7 @@ table.alloc_calendar th {
   font-weight: normal;
   white-space: nowrap;
   background: #e7eff9;
-  color: #6e8eb5;
+  color: #37485e;
   font-size: 90%;
   text-transform: uppercase;
 }
@@ -711,12 +714,12 @@ table.list tr:last-child th {
 table.list td,
 table.list th,
 table.alloc_calendar th {
-  border-top: 1px solid #cccccc;
+  border-top: 1px solid #88acdd;
   padding: 4px;
 }
 
 table.alloc_calendar th {
-  border-left: 1px solid #cccccc;
+  border-left: 1px solid #88acdd;
 }
 
 .sort_arrows {
@@ -736,7 +739,7 @@ a.star {
 
 a.star:hover,
 a.hot {
-  color: #f1965f !important;
+  color: #d15b00 !important;
   cursor: pointer;
 }
 
@@ -775,9 +778,6 @@ a.hot {
   margin-bottom: 8px;
   margin-left: 0px;
   margin-right: 0px;
-  -webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
-  -opera-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
 }
 
@@ -916,11 +916,12 @@ div.warn {
   top: 0px;
   margin-top: 11px;
   margin-bottom: 10px;
-  color: #1b6cb7;
+  color: #0f487e;
 }
 
 #menu td {
-  color: #666;
+  text-shadow: none !important;
+  color: #454545;
 }
 
 div#tabs {
@@ -941,27 +942,24 @@ div#tabs {
   display: inline;
   width: 68px;
   text-align: center;
-  border-radius: 8px 8px 0px 0px;
-  -moz-border-radius: 8px 8px 0px 0px;
-  -webkit-border-radius: 8px 8px 0px 0px;
+  border-radius: 0.2rem 0.2rem 0 0;
   background: none;
   padding: 6px 0px 6px 0px;
 }
 
 #tabs a.tab:hover {
-  background-color: #f9f9f9;
+  background-color: #0f487e;
+  color: white;
 }
 
 /* Active tabs use this class as well */
 #tabs a.active {
   background-color: white;
-  border-bottom: 0px !important;
-  border: 1px solid #999;
-  padding: 6px 0px 7px 0px;
-}
-
-#tabs a.active:hover {
-  background-color: #fff !important;
+  border: thin solid #bbb;
+  padding: 6px 0px 6px 0px;
+  border-bottom: none;
+  box-shadow: 0 0.2rem 0.2rem rgba(0, 0, 0, 0.2);
+  clip-path: inset(-0.5rem -0.5rem 0 -0.5rem);
 }
 
 #tabs a.tab {
@@ -969,27 +967,28 @@ div#tabs {
 }
 
 #tabs a.tab:link {
-  color: #1b6cb7;
-}
-
-#tabs a.tab:visited {
-  color: #1b6cb7;
+  color: #0f487e;
 }
 
 #tabs a.tab:hover {
-  color: #4587c4;
+  color: white;
+}
+
+#tabs a.active:hover {
+  background-color: #fff;
+  color: #0f487e;
 }
 
 p#extra_links a:link {
-  color: #1b6cb7;
+  color: #0f487e;
 }
 
 p#extra_links a:visited {
-  color: #1b6cb7;
+  color: #0f487e;
 }
 
 p#extra_links a:hover {
-  color: #4587c4;
+  color: #7d3d1b;
 }
 
 p#extra_links a:link,
@@ -998,11 +997,6 @@ p#extra_links a:hover {
   text-decoration: none;
   position: relative;
   padding: 5px 0px;
-}
-
-#tabs a.tab:link,
-#tabs a.active:visited {
-  color: #4587c4;
 }
 
 p#extra_links {
@@ -1065,7 +1059,7 @@ body#login .width {
 }
 
 body#login .whitely {
-  border: 1px solid #cccccc;
+  border: thin solid #cccccc;
   background-color: #ffffff;
 }
 
@@ -1090,9 +1084,8 @@ body#login input[type="password"] {
 }
 
 body#login #footer {
-  color: #999999;
+  color: #505050;
   text-align: center;
-  font-size: 80%;
 }
 
 body.obfus .obfuscate {
@@ -1142,9 +1135,7 @@ body.obfus .obfuscate:hover {
   padding: 2px 8px;
   border: 1px solid #999;
   outline: 0;
-  -webkit-border-radius: 12px;
-  -moz-border-radius: 12px;
-  border-radius: 12px;
+  border-radius: 0.2rem;
   border-collapse: separate;
   /* to prevent border-collapse:collapse being inherited */
 }
@@ -1167,14 +1158,10 @@ body.obfus .obfuscate:hover {
 
 .selectn-button {
   font-size: 75%;
-  -webkit-box-shadow: 0px 0px 0px #fff;
-  -moz-box-shadow: 0px 0px 0px #fff;
   box-shadow: 0px 0px 0px #fff;
   margin: 0px !important;
   padding: 4px 8px !important;
-  -webkit-border-radius: 12px;
-  -moz-border-radius: 12px;
-  border-radius: 12px;
+  border-radius: 0.2rem;
   border-collapse: separate;
   /* to prevent border-collapse:collapse being inherited */
 }
@@ -1204,6 +1191,6 @@ body.obfus .obfuscate:hover {
      however I did it this way because:
      1. it will get overriden by '.panel div.hidden_text' if we don't
      2. we can sort it out when we switch to SASS -- cjb, 2019-01 */
-  color: #1b6cb7 !important;
+  color: #0f487e !important;
   cursor: pointer;
 }
