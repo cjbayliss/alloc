@@ -347,11 +347,11 @@ if (isset($_POST["save"])) {
         alloc_error("A project with that nickname already exists.");
     }
 
-    if (!$TPL["message"]) {
+    if (!isset($TPL["message"])) {
         $project->set_value("projectComments", rtrim($project->get_value("projectComments")));
         $project->save();
         $projectID = $project->get_id();
-        InterestedParty::make_interested_parties("project", $project->get_id(), $_POST["interestedParty"]);
+        InterestedParty::make_interested_parties("project", $project->get_id(), $_POST["interestedParty"] ?? []);
 
         $client = new client();
         $client->set_id($project->get_value("clientID"));

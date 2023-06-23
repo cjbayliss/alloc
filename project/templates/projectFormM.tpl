@@ -93,7 +93,7 @@ function clickClientStatus(e) {
                           ,null,$projectSelfLink)}
 {/}
 
-<div id="project" class="{$first_div}">
+<div id="project" class="{$first_div ?? ""}">
 <form action="{$url_alloc_project}" method="post" id="projectForm">
 <input type="hidden" name="projectID" value="{$project_projectID}">
 <table class="box">
@@ -152,10 +152,10 @@ function clickClientStatus(e) {
           <label for="client_status_archived">Archived Clients</label>
           <input id="client_status_archived" type="radio" name="client_status" value="Archived">
           <div id="clientDropdown">
-            {$clientDropdown}
+            {$clientDropdown ?? ""}
           </div>
           <div id="clientContactDropdown" style="margin-top:10px;">
-            {$clientContactDropdown}
+            {$clientContactDropdown ?? ""}
           </div>
         </div>
           

@@ -23,7 +23,7 @@ function show_filter()
 $defaults = [
     "url_form_action"    => $TPL["url_alloc_timeSheetList"],
     "form_name"          => "timeSheetList_filter",
-    "showFinances"       => $_REQUEST["showFinances"],
+    "showFinances"       => $_REQUEST["showFinances"] ?? "",
     "dateFromComparator" => ">=",
     "dateToComparator"   => "<=",
 ];
@@ -33,7 +33,7 @@ $rtn = timeSheet::get_list($_FORM);
 $TPL["timeSheetListRows"] = $rtn["rows"];
 $TPL["timeSheetListExtra"] = $rtn["extra"];
 
-if (!$current_user->prefs["timeSheetList_filter"]) {
+if (!isset($current_user->prefs["timeSheetList_filter"])) {
     $TPL["message_help"][] = "
 
 allocPSA allows you to record the time that you've worked on various

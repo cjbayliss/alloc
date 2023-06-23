@@ -7,7 +7,7 @@ $(document).ready(function() {
     points = '';
   }
 
-  var plot1 = $.jqplot('chart1', [points], {  
+  var plot1 = $.jqplot('chart1', [points], {
     series:[{ showMarker:false }],
     seriesColors: [ "#539cf6" ],
     seriesDefaults:{

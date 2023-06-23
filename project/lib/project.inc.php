@@ -72,6 +72,7 @@ class project extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
 
         if (
+            isset($initialState["projectStatus"]) &&
             $initialState["projectStatus"] != "Archived" &&
             $this->get_value("projectStatus") == "Archived"
         ) {
@@ -99,6 +100,7 @@ class project extends DatabaseEntity
                     status changed to Closed: Archived.";
             }
         } elseif (
+            isset($initialState["projectStatus"]) &&
             $initialState["projectStatus"] == "Archived" &&
             $this->get_value("projectStatus") != "Archived"
         ) {
@@ -803,7 +805,7 @@ class project extends DatabaseEntity
         $clientName = null;
         $p = &get_cached_table("person");
         $projectModifiedUser = $this->get_value("projectModifiedUser");
-        $projectModifiedUser_field = $projectModifiedUser . " " . $p[$projectModifiedUser]["username"] . " " . $p[$projectModifiedUser]["name"];
+        $projectModifiedUser_field = $projectModifiedUser . " " . ($p[$projectModifiedUser]["username"] ?? "") . " " . ($p[$projectModifiedUser]["name"] ?? "");
         $projectName = $this->get_name();
         $projectShortName = $this->get_name(["showShortProjectLink" => true]);
         if ($projectShortName && $projectShortName != $projectName) {

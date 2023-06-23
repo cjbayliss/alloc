@@ -37,9 +37,10 @@ foreach ($t as $k => $v) {
 // 2010-10-01  1 Days x Double Time
 // Task: 102 This is the task
 // Comment: This is the comment
+$rtn["unit"] ??= "";
 $str[] = "<tr><td>" . $rtn["date"] . " </td><td class='nobr bold'> " . $rtn["duration"] . " " . $rtn["unit"] . "</td><td class='nobr'>&times; " . $rtn["multiplier"] . "</td></tr>";
-$rtn["taskID"] && ($str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>");
-$rtn["comment"] && ($str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>");
+isset($rtn["taskID"]) && ($str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>");
+isset($rtn["comment"]) && ($str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>");
 
 if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
     $t = timeSheetItem::parse_time_string($_REQUEST["time_item"]);
@@ -52,7 +53,7 @@ if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
         $extra = "Time not added. Task not found.";
     }
 
-    if ($status != "bad") {
+    if (isset($status) && $status != "bad") {
         $timeSheet = new timeSheet();
         $tsi_row = $timeSheet->add_timeSheetItem($t);
 
@@ -68,5 +69,5 @@ if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
 }
 
 // $extra and array_unshift($str, "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>");
-$extra && ($str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>");
-print json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"], JSON_THROW_ON_ERROR);
+(isset($extra) && isset($status)) && ($str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>");
+isset($status) && print json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"], JSON_THROW_ON_ERROR);

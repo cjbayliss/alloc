@@ -843,7 +843,7 @@ class DatabaseEntity
                 $label = $this->get_value($field, DST_HTML_DISPLAY);
             }
 
-            return '<a href="' . $TPL["url_alloc_" . $this->classname] . $this->key_field->get_name() . "=" . $this->get_id() . '">' . $label . "</a>";
+            return '<a href="' . $TPL[strtolower("url_alloc_" . $this->classname)] . $this->key_field->get_name() . "=" . $this->get_id() . '">' . $label . "</a>";
         }
     }
 

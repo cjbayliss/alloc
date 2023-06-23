@@ -49,7 +49,7 @@
                                <td data-sort-value="{$r.taskTypeSeq}">{$r.taskTypeImage}</td>
   {if isset($_FORM["showTaskID"])}    <td>{$r.taskID}</td>{/}
   {if isset($_FORM["showParentID"])}  <td>{$r.parentTaskID_link}</td>{/}
-                               <td style="padding-left:{echo $r["padding"]*25+6}px">{$r.taskLink}&nbsp;&nbsp;{$r.newSubTask}
+                               <td style="padding-left:{echo (int)$r["padding"]*25+6}px">{$r.taskLink}&nbsp;&nbsp;{$r.newSubTask}
   {if isset($_FORM["showDescription"])}<br>{=$r.taskDescription}{/}
   {if isset($_FORM["showComments"]) && $r["comments"]}<br>{$r.comments}{/}
                                </td>

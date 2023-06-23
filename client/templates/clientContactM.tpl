@@ -12,7 +12,7 @@
         <input type="hidden" name="clientContactID" value="{$clientContact_clientContactID ?? ""}">
         <input type="hidden" name="clientID" value="{$clientContact_clientID}">
         
-        <div class="{$class_new_client_contact}" id="id_new_client_contact">
+        <div class="{$class_new_client_contact ?? ""}" id="id_new_client_contact">
         <table width="100%">
           <tr>
             <td width="1%">Name</td> 

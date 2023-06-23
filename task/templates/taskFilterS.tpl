@@ -49,7 +49,7 @@
   <tr>
     <td valign="top" align="right" rowspan="9">
       <div id="project_superset" style="display:none">
-        <label for="pt_mine">My Projects</label><input type="radio" id="pt_mine" name="projectType" value="mine" onClick="refreshProjectList(this)"{$projectType_checked.mine}><br>
+        <label for="pt_mine">My Projects</label><input type="radio" id="pt_mine" name="projectType" value="mine" onClick="refreshProjectList(this)"{isset($mine) && $projectType_checked.mine}><br>
         <nobr><label for="pt_pm">My Project Managed</label><input type="radio" id="pt_pm" name="projectType" value="pm" onClick="refreshProjectList(this)"{isset($pm) && $projectType_checked.pm}></nobr><br>
         <label for="pt_tsm">My Time Sheet Recip.</label><input type="radio" id="pt_tsm" name="projectType" value="tsm" onClick="refreshProjectList(this)"{isset($tsm) && $projectType_checked.tsm}><br>
     

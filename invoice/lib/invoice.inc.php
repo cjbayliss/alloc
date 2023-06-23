@@ -512,7 +512,7 @@ class invoice extends DatabaseEntity
         $sql = [];
 
         // If they want starred, load up the invoiceID filter element
-        if ($filter["starred"]) {
+        if (isset($filter["starred"])) {
             $starredInvoices = isset($current_user->prefs["stars"]) ?
                 ($current_user->prefs["stars"]["invoice"] ?? "") : "";
             if (!empty($starredInvoices) && is_array($starredInvoices)) {
@@ -527,14 +527,14 @@ class invoice extends DatabaseEntity
         }
 
         // Filter invoiceID
-        $filter["invoiceID"] && ($sql[] = sprintf_implode("invoice.invoiceID = %d", $filter["invoiceID"]));
+        isset($filter["invoiceID"]) && ($sql[] = sprintf_implode("invoice.invoiceID = %d", $filter["invoiceID"]));
 
         // No point continuing if primary key specified, so return
-        if ($filter["invoiceID"] || $filter["starred"]) {
+        if (isset($filter["invoiceID"]) || isset($filter["starred"])) {
             return $sql;
         }
 
-        if ($filter["personID"]) {
+        if (isset($filter["personID"])) {
             $q = "SELECT DISTINCT project.clientID
                     FROM projectPerson LEFT JOIN project ON projectPerson.projectID = project.projectID
                    WHERE " . sprintf_implode("projectPerson.personID = %d", $filter["personID"]) . "
@@ -545,7 +545,7 @@ class invoice extends DatabaseEntity
                 $valid_clientIDs[] = $row["clientID"];
             }
 
-            if ($filter["clientID"] && !is_array($filter["clientID"])) {
+            if (isset($filter["clientID"]) && !is_array($filter["clientID"])) {
                 $filter["clientID"] = [$filter["clientID"]];
             }
 
@@ -559,13 +559,13 @@ class invoice extends DatabaseEntity
             $filter["clientID"] = $approved_clientIDs ?: [0];
         }
 
-        $filter["invoiceNum"] && ($sql[] = sprintf_implode("invoice.invoiceNum = %d", $filter["invoiceNum"]));
-        $filter["dateOne"] && ($sql[] = sprintf_implode("invoice.invoiceDateFrom>='%s'", $filter["dateOne"]));
-        $filter["dateTwo"] && ($sql[] = sprintf_implode("invoice.invoiceDateTo<='%s'", $filter["dateTwo"]));
-        $filter["invoiceName"] && ($sql[] = sprintf_implode("invoice.invoiceName like '%%%s%%'", $filter["invoiceName"]));
-        $filter["invoiceStatus"] && ($sql[] = sprintf_implode("invoice.invoiceStatus = '%s'", $filter["invoiceStatus"]));
-        $filter["clientID"] && ($sql[] = sprintf_implode("invoice.clientID = %d", $filter["clientID"]));
-        $filter["projectID"] && ($sql[] = sprintf_implode("invoice.projectID = %d", $filter["projectID"]));
+        isset($filter["invoiceNum"]) && ($sql[] = sprintf_implode("invoice.invoiceNum = %d", $filter["invoiceNum"]));
+        isset($filter["dateOne"]) && ($sql[] = sprintf_implode("invoice.invoiceDateFrom>='%s'", $filter["dateOne"]));
+        isset($filter["dateTwo"]) && ($sql[] = sprintf_implode("invoice.invoiceDateTo<='%s'", $filter["dateTwo"]));
+        isset($filter["invoiceName"]) && ($sql[] = sprintf_implode("invoice.invoiceName like '%%%s%%'", $filter["invoiceName"]));
+        isset($filter["invoiceStatus"]) && ($sql[] = sprintf_implode("invoice.invoiceStatus = '%s'", $filter["invoiceStatus"]));
+        isset($filter["clientID"]) && ($sql[] = sprintf_implode("invoice.clientID = %d", $filter["clientID"]));
+        isset($filter["projectID"]) && ($sql[] = sprintf_implode("invoice.projectID = %d", $filter["projectID"]));
         return $sql;
     }
 

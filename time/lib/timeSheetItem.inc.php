@@ -86,7 +86,7 @@ class timeSheetItem extends DatabaseEntity
         return $rtn;
     }
 
-    public static function parse_time_string($str)
+    public static function parse_time_string(string $str = ""): array
     {
         $rtn = [];
         preg_match('/^(\d\d\d\d\-\d\d?\-\d\d?\s+)?([\d\.]+)?\s*'
@@ -111,7 +111,7 @@ class timeSheetItem extends DatabaseEntity
 
         // use the first letter of the unit for the lookup
         $tu = ["h" => 1, "d" => 2, "w" => 3, "m" => 4, "f" => 5];
-        ($rtn["unit"] = $tu[$rtn["unit"][0]]) || ($rtn["unit"] = 1);
+        $rtn["unit"] = (isset($rtn["unit"]) && isset($rtn["unit"][0]) && $tu[$rtn["unit"][0]]) ?? 1;
 
         // change 2010/10/27 to 2010-10-27
         $rtn["date"] = str_replace("/", "-", $rtn["date"]);

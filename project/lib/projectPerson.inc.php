@@ -42,7 +42,7 @@ class projectPerson extends DatabaseEntity
 
     // This is a wrapper to simplify inserts into the projectPerson table using
     // the new role methodology.. role handle is canEditTasks, or isManager atm
-    public function set_value_role($roleHandle)
+    public function set_value_role(string $roleHandle)
     {
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
@@ -56,7 +56,9 @@ class projectPerson extends DatabaseEntity
         $matchRole->bindValue(":roleHandle", $roleHandle, PDO::PARAM_STR);
         $matchRole->execute();
 
-        $this->set_value("roleID", $matchRole->fetch(PDO::FETCH_ASSOC)["roleID"]);
+        // FIXME: is this assumption safe? -- cjb, 2023-06
+        // assume canEditTasks if $roles["roleID"] is unset
+        $this->set_value("roleID", $matchRole->fetch(PDO::FETCH_ASSOC)["roleID"] ?? 2);
     }
 
     /**

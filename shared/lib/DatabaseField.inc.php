@@ -114,7 +114,11 @@ class DatabaseField
                 return "db_field::validate(): No currency specified for " . $parent->classname . "." . $this->name . " (currency:" . $c . ")";
             }
 
-            if ($this->value != $parent->all_row_fields[$this->name]) {
+            if (
+                isset($parent->all_row_fields) &&
+                isset($this->value) &&
+                !in_array($this->value, $parent->all_row_fields)
+            ) {
                 $this->set_value(Page::money($c, $this->value, "%mi"));
             }
         }

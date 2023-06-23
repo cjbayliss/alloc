@@ -749,13 +749,16 @@ class timeSheet extends DatabaseEntity
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 
-        if (!$_FORM["applyFilter"]) {
-            $_FORM = $current_user->prefs[$_FORM["form_name"]];
-            if (!isset($current_user->prefs[$_FORM["form_name"]])) {
+        if (!isset($_FORM["applyFilter"])) {
+            if (isset($_FORM["form_name"]) && isset($current_user->prefs[$_FORM["form_name"]])) {
+                $_FORM = $current_user->prefs[$_FORM["form_name"]];
+            }
+
+            if (!isset($current_user->prefs[$_FORM["form_name"] ?? ""])) {
                 $_FORM["status"] = "edit";
                 $_FORM["personID"] = $current_user->get_id();
             }
-        } elseif ($_FORM["applyFilter"] && is_object($current_user) && !$_FORM["dontSave"]) {
+        } elseif (isset($_FORM["applyFilter"]) && is_object($current_user) && !isset($_FORM["dontSave"])) {
             $url = $_FORM["url_form_action"];
             unset($_FORM["url_form_action"]);
             $current_user->prefs[$_FORM["form_name"]] = $_FORM;
@@ -773,16 +776,16 @@ class timeSheet extends DatabaseEntity
 
         // display the list of project name.
         $allocDatabase = new AllocDatabase();
-        if (!$_FORM['showAllProjects']) {
+        if (!isset($_FORM['showAllProjects'])) {
             $filter = "WHERE projectStatus = 'Current' ";
         }
 
         $query = unsafe_prepare(sprintf('SELECT projectID AS value, projectName AS label FROM project %s ORDER by projectName', $filter));
-        $rtn["show_project_options"] = Page::select_options($query, $_FORM["projectID"], 70);
+        $rtn["show_project_options"] = Page::select_options($query, $_FORM["projectID"] ?? "", 70);
 
         // display the list of user name.
         if (have_entity_perm("timeSheet", PERM_READ, $current_user, false)) {
-            $rtn["show_userID_options"] = Page::select_options(person::get_username_list(), $_FORM["personID"]);
+            $rtn["show_userID_options"] = Page::select_options(person::get_username_list(), $_FORM["personID"] ?? "gp stop");
         } else {
             $person = new person();
             $person->set_id($current_user->get_id());
@@ -802,11 +805,11 @@ class timeSheet extends DatabaseEntity
         $rtn["show_status_options"] = Page::select_options($status_array, $_FORM["status"]);
 
         // display the date from filter value
-        $rtn["dateFrom"] = $_FORM["dateFrom"];
-        $rtn["dateTo"] = $_FORM["dateTo"];
+        $rtn["dateFrom"] = $_FORM["dateFrom"] ?? "";
+        $rtn["dateTo"] = $_FORM["dateTo"] ?? "";
         $rtn["userID"] = $current_user->get_id();
-        $rtn["showFinances"] = $_FORM["showFinances"];
-        $rtn["showAllProjects"] = $_FORM["showAllProjects"];
+        $rtn["showFinances"] = $_FORM["showFinances"] ?? "";
+        $rtn["showAllProjects"] = $_FORM["showAllProjects"] ?? "";
 
         // Get
         $rtn["FORM"] = "FORM=" . urlencode(serialize($_FORM));
@@ -1215,17 +1218,17 @@ class timeSheet extends DatabaseEntity
         $current_user = &singleton("current_user");
 
         $errstr = "Failed to record new time sheet item. ";
-        $taskID = $stuff["taskID"];
-        $projectID = $stuff["projectID"];
-        $duration = $stuff["duration"];
-        $comment = $stuff["comment"];
-        $emailUID = $stuff["msg_uid"];
-        $emailMessageID = $stuff["msg_id"];
-        $date = $stuff["date"];
-        $unit = $stuff["unit"];
-        $multiplier = $stuff["multiplier"];
+        $taskID = $stuff["taskID"] ?? 0;
+        $projectID = $stuff["projectID"] ?? 0;
+        $duration = $stuff["duration"] ?? 0;
+        $comment = $stuff["comment"] ?? "";
+        $emailUID = $stuff["msg_uid"] ?? "";
+        $emailMessageID = $stuff["msg_id"] ?? "";
+        $date = $stuff["date"] ?? "";
+        $unit = $stuff["unit"] ?? "";
+        $multiplier = $stuff["multiplier"] ?? "";
 
-        if ($taskID) {
+        if (!empty($taskID)) {
             $task = new Task();
             $task->set_id($taskID);
             $task->select();
@@ -1233,7 +1236,7 @@ class timeSheet extends DatabaseEntity
             $extra = " for task " . $taskID;
         }
 
-        $projectID || alloc_error(sprintf($errstr . "No project found%s.", $extra));
+        !empty($projectID) || alloc_error(sprintf($errstr . "No project found%s.", $extra));
 
         $row_projectPerson = projectPerson::get_projectPerson_row($projectID, $current_user->get_id());
         $row_projectPerson || alloc_error($errstr . "The person(" . $current_user->get_id() . ") has not been added to the project(" . $projectID . ").");

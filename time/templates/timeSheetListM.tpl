@@ -6,7 +6,7 @@
       <b> - {print count($timeSheetListRows)} records</b>
       <span>
         <a class='magic toggleFilter' href=''>Show Filter</a>
-        <a href="{$url_alloc_timeSheet}userID={$userID}">New Time Sheet</a>
+        <a href="{$url_alloc_timeSheet}userID={$userID ?? ""}">New Time Sheet</a>
       </span>
     </th>
   </tr>
