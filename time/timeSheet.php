@@ -651,7 +651,9 @@ $projectID = $timeSheet->get_value("projectID");
 
 // If we are entering the page from a project link: New time sheet
 if (isset($_GET["newTimeSheet_projectID"]) && !$projectID) {
-    isset($_GET["taskID"]) && ($tid = "&taskID=" . $_GET["taskID"]);
+    if (isset($_GET["taskID"])) {
+        $tid = "&taskID=" . $_GET["taskID"];
+    }
 
     $projectID = $_GET["newTimeSheet_projectID"];
     $db = new AllocDatabase();
@@ -748,9 +750,11 @@ if (is_object($timeSheet) && $timeSheet->get_id() && $timeSheet->have_perm(PERM_
 }
 
 // msg passed in url and print it out pretty..
-$msg = $msg ?? $msg = $_GET["msg"] ?? $msg = $_POST["msg"] ?? "";
+$msg ??= $msg = $_GET["msg"] ?? $msg = $_POST["msg"] ?? "";
 
-!empty($msg) && ($TPL["message_good"][] = $msg);
+if (!empty($msg)) {
+    $TPL["message_good"][] = $msg;
+}
 
 global $percent_array;
 if (isset($_POST["dont_send_email"])) {

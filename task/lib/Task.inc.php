@@ -77,14 +77,18 @@ class Task extends DatabaseEntity
                 // Changing a task's status changes these fields.
                 // Unfortunately the call to save() below erroneously nukes these fields.
                 // So we manually set them to whatever change_task_status() has dictated.
+                // FIXME: does this actually do anything?
                 array_map(function (string $value) {
-                    isset($row[$value]) && $this->set_value($value, $row[$value]);
+                    $row = [];
+                    if (isset($row[$value])) {
+                        $this->set_value($value, $row[$value]);
+                    }
                 }, [
                     "taskStatus",
                     "dateActualCompletion",
                     "dateActualStart",
                     "dateClosed",
-                    "closerID"
+                    "closerID",
                 ]);
             }
 
@@ -378,11 +382,12 @@ class Task extends DatabaseEntity
         // OR if we're skipping the perms checking because i.e. we're having our task status updated by a timesheet
         if (
             !$this->get_id()
-            || (is_object($p) && ($p->has_project_permission($person, [
-                "isManager",
-                "canEditTasks",
-                "timeSheetRecipient",
-            ]))
+            || (
+                is_object($p) && ($p->has_project_permission($person, [
+                    "isManager",
+                    "canEditTasks",
+                    "timeSheetRecipient",
+                ]))
                 || $this->get_value("creatorID") == $person->get_id()
                 || $this->get_value("personID") == $person->get_id()
                 || $this->get_value("managerID") == $person->get_id()
@@ -431,7 +436,7 @@ class Task extends DatabaseEntity
         }
 
         $projectID ??= $_GET["projectID"];
-        $parentTaskID ??= $_GET["parentTaskID"];
+        $parentTaskID ??= $_GET["parentTaskID"] ?? "";
 
         $allocDatabase = new AllocDatabase();
         if ($projectID) {
@@ -933,7 +938,7 @@ class Task extends DatabaseEntity
 
         // This takes care of projectID singular and plural
         has("project") && ($projectIDs = project::get_projectID_sql($filter));
-        if (!empty($projectIDs)) {
+        if ($projectIDs !== null && $projectIDs !== '') {
             $sql["projectIDs"] = $projectIDs;
         }
 

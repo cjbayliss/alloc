@@ -454,7 +454,7 @@ class client extends DatabaseEntity
         $contacts = null;
         $person = &get_cached_table("person");
         $clientModifiedUser = $this->get_value("clientModifiedUser");
-        $clientModifiedUser_field = $clientModifiedUser . " " . $person[$clientModifiedUser]["username"] . " " . $person[$clientModifiedUser]["name"];
+        $clientModifiedUser_field = $clientModifiedUser . " " . ($person[$clientModifiedUser]["username"] ?? "") . " " . ($person[$clientModifiedUser]["name"] ?? "");
 
         $this->get_value("clientStreetAddressOne") && ($postal[] = $this->get_value("clientStreetAddressOne"));
         $this->get_value("clientSuburbOne") && ($postal[] = $this->get_value("clientSuburbOne"));

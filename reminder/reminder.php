@@ -9,17 +9,22 @@ require_once(__DIR__ . "/../alloc.php");
 
 $TPL["main_alloc_title"] = "Add reminder - " . APPLICATION_NAME;
 
-($reminderID = $_POST["reminderID"]) || ($reminderID = $_GET["reminderID"]);
-($step = $_POST["step"]) || ($step = $_GET["step"]);
-($parentType = $_POST["parentType"]) || ($parentType = $_GET["parentType"]);
-($parentID = $_POST["parentID"]) || ($parentID = $_GET["parentID"]);
-($returnToParent = $_POST["returnToParent"]) || ($returnToParent = $_GET["returnToParent"]);
+$reminderID = $_POST["reminderID"] ?? $_GET["reminderID"] ?? "";
+$step = $_POST["step"] ?? $_GET["step"] ?? "";
+$parentType = $_POST["parentType"] ?? $_GET["parentType"] ?? "";
+$parentID = $_POST["parentID"] ?? $_GET["parentID"] ?? "";
+$returnToParent = $_POST["returnToParent"] ?? $_GET["returnToParent"] ?? "";
 $TPL["returnToParent"] = $returnToParent;
 $parentID = sprintf("%d", $parentID);
 
 // Hacks to get reminders to work from the task calendar
-$_GET["reminderTime"] && ($TPL["reminderTime"] = $_GET["reminderTime"]);
-$_GET["personID"] && ($TPL["personID"] = $_GET["personID"]);
+if (isset($_GET["reminderTime"])) {
+    $TPL["reminderTime"] = $_GET["reminderTime"];
+}
+
+if (isset($_GET["personID"])) {
+    $TPL["personID"] = $_GET["personID"];
+}
 
 $step || ($step = 1);
 

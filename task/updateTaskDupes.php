@@ -25,6 +25,6 @@ foreach ($hits as $hit) {
     $str .= "</div>";
 }
 
-if ($str) {
+if (!empty($str)) {
     echo $str;
 }

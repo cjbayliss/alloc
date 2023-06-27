@@ -39,8 +39,13 @@ foreach ($t as $k => $v) {
 // Comment: This is the comment
 $rtn["unit"] ??= "";
 $str[] = "<tr><td>" . $rtn["date"] . " </td><td class='nobr bold'> " . $rtn["duration"] . " " . $rtn["unit"] . "</td><td class='nobr'>&times; " . $rtn["multiplier"] . "</td></tr>";
-isset($rtn["taskID"]) && ($str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>");
-isset($rtn["comment"]) && ($str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>");
+if (isset($rtn["taskID"])) {
+    $str[] = "<tr><td colspan='3'>" . $rtn["taskID"] . "</td></tr>";
+}
+
+if (isset($rtn["comment"])) {
+    $str[] = "<tr><td colspan='3'>" . $rtn["comment"] . "</td></tr>";
+}
 
 if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
     $t = timeSheetItem::parse_time_string($_REQUEST["time_item"]);
@@ -69,5 +74,10 @@ if (isset($_REQUEST["save"]) && isset($_REQUEST["time_item"])) {
 }
 
 // $extra and array_unshift($str, "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>");
-(isset($extra) && isset($status)) && ($str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>");
-isset($status) && print json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"], JSON_THROW_ON_ERROR);
+if (isset($extra) && isset($status)) {
+    $str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . "</td></tr>";
+}
+
+if (isset($status)) {
+    print json_encode(["status" => $status, "table" => "<table class='" . $status . "'>" . implode("\n", $str) . "</table>"], JSON_THROW_ON_ERROR);
+}

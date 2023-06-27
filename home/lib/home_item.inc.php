@@ -59,12 +59,14 @@ class home_item
 
     public function visible()
     {
-        return true;
+        // FIXME: this prevents rector adding return types to this function
+        return true || "";
     }
 
     public function render()
     {
-        return false;
+        // FIXME: this prevents rector adding return types to this function
+        return false || "";
     }
 
     public function get_label()

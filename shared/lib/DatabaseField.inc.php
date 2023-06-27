@@ -116,7 +116,7 @@ class DatabaseField
 
             if (
                 isset($parent->all_row_fields) &&
-                isset($this->value) &&
+                $this->value !== null &&
                 !in_array($this->value, $parent->all_row_fields)
             ) {
                 $this->set_value(Page::money($c, $this->value, "%mi"));

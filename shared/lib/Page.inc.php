@@ -98,6 +98,7 @@ class Page
             "url"    => $TPL["url_alloc_personList"],
             "module" => "person",
         ];
+
         if (have_entity_perm("inbox", PERM_READ, $current_user) && config::get_config_item("allocEmailHost")) {
             $menu_links["inbox"] = [
                 "name"   => "Inbox",
@@ -116,7 +117,7 @@ class Page
         $done = null;
         $url = "";
         foreach ($menu_links as $key => $arr) {
-            if (in_array($key, $tabs) && has($key)) {
+            if (in_array($key, $tabs) && (has($key) || $key === "tools")) {
                 $name = $arr["name"];
                 $TPL["x"] = $x;
                 $x += 70;
@@ -711,14 +712,18 @@ class Page
     public static function star_sorter($entity, $entityID): int
     {
         $current_user = &singleton("current_user");
-        if (
-            isset($current_user->prefs["stars"]) &&
-            isset($current_user->prefs["stars"][$entity]) &&
-            isset($current_user->prefs["stars"][$entity][$entityID])
-        ) {
-            return 1;
+        if (!isset($current_user->prefs["stars"])) {
+            return 2;
         }
 
-        return 2;
+        if (!isset($current_user->prefs["stars"][$entity])) {
+            return 2;
+        }
+
+        if (!isset($current_user->prefs["stars"][$entity][$entityID])) {
+            return 2;
+        }
+
+        return 1;
     }
 }

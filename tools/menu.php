@@ -172,24 +172,24 @@ function show_misc_options($template)
 
     $TPL["br"] = "<br>\n";
     foreach ($misc_options as $misc_option) {
-        if ($misc_option["entity"] != "") {
+        if (!empty($misc_option["entity"])) {
             if (have_entity_perm($misc_option["entity"], $misc_option["action"], $current_user, true)) {
                 $TPL["url"] = $TPL["url_alloc_" . $misc_option["url"]];
-                $TPL["params"] = $misc_option["params"];
+                $TPL["params"] = $misc_option["params"] ?? "";
                 $TPL["text"] = $misc_option["text"];
                 include_template($template);
             }
-        } elseif ($misc_option["function"]) {
+        } elseif (!empty($misc_option["function"])) {
             $f = $misc_option["function"];
             if ($f()) {
                 $TPL["url"] = $TPL["url_alloc_" . $misc_option["url"]];
-                $TPL["params"] = $misc_option["params"];
+                $TPL["params"] = $misc_option["params"] ?? "";
                 $TPL["text"] = $misc_option["text"];
                 include_template($template);
             }
         } else {
             $TPL["url"] = $TPL["url_alloc_" . $misc_option["url"]];
-            $TPL["params"] = $misc_option["params"];
+            $TPL["params"] = $misc_option["params"] ?? "";
             $TPL["text"] = $misc_option["text"];
             include_template($template);
         }
@@ -202,24 +202,29 @@ function show_finance_options($template)
     global $finance_options;
     global $TPL;
     foreach ($finance_options as $finance_option) {
-        if ($finance_option["entity"] != "") {
+        if (!empty($finance_option["entity"])) {
             if (have_entity_perm($finance_option["entity"], $finance_option["action"], $current_user, true)) {
                 $TPL["url"] = $TPL["url_alloc_" . $finance_option["url"]];
-                $TPL["params"] = $finance_option["params"];
+                $TPL["params"] = $finance_option["params"] ?? "";
                 $TPL["text"] = $finance_option["text"];
                 $TPL["br"] = "<br>\n";
-                $finance_option["br"] && ($TPL["br"] = "<br><br>\n");
+                if (!empty($finance_option["br"])) {
+                    $TPL["br"] = "<br><br>\n";
+                }
 
                 include_template($template);
             }
-        } elseif ($finance_option["function"]) {
+        } elseif (!empty($finance_option["function"])) {
             $f = $finance_option["function"];
             if ($f()) {
                 $TPL["url"] = $TPL["url_alloc_" . $finance_option["url"]];
-                $TPL["params"] = $finance_option["params"];
+                $TPL["params"] = $finance_option["params"] ?? "";
                 $TPL["text"] = $finance_option["text"];
                 $TPL["br"] = "<br>\n";
-                $finance_option["br"] && ($TPL["br"] = "<br><br>\n");
+                if (!empty($finance_option["br"])) {
+                    $TPL["br"] = "<br><br>\n";
+                }
+
                 include_template($template);
             }
         }

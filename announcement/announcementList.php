@@ -21,6 +21,7 @@ function show_announcements($template_name)
        ORDER BY displayFromDate DESC"
     );
 
+    $TPL["odd_even"] ??= "even";
     while ($announcementRow = $getAnnouncements->fetch(PDO::FETCH_ASSOC)) {
         $announcement = new announcement();
         $announcement->read_row_record($announcementRow);

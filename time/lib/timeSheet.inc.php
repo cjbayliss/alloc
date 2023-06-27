@@ -1235,7 +1235,9 @@ class timeSheet extends DatabaseEntity
             $extra = " for task " . $taskID;
         }
 
-        !empty($projectID) || alloc_error(sprintf($errstr . "No project found%s.", $extra));
+        if (empty($projectID)) {
+            alloc_error(sprintf($errstr . "No project found%s.", $extra));
+        }
 
         $row_projectPerson = projectPerson::get_projectPerson_row($projectID, $current_user->get_id());
         $row_projectPerson || alloc_error($errstr . "The person(" . $current_user->get_id() . ") has not been added to the project(" . $projectID . ").");
