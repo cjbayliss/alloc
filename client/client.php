@@ -234,6 +234,14 @@ function show_invoices()
     echo invoice::get_list_html($rows, $_FORM);
 }
 
+// FIXME: this is a hack to work around the broken custom template system
+function add_clientID_input_html_maybe($clientID)
+{
+    if ($clientID !== 0) {
+        echo('<input type="hidden" name="clientID" value="' . $clientID . '">');
+    }
+}
+
 $client = new client();
 $clientID = $_POST["clientID"] ?? $_GET["clientID"] ?? "";
 

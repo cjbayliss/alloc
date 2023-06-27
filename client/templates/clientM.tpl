@@ -43,9 +43,9 @@ $(document).ready(function() {
 </style>
 
 
-<div id="client" class="{$first_div}">
+<div id="client" class="{$first_div ?? ""}">
 <form action="{$url_alloc_client}" method=post>
-<input type="hidden" name="clientID" value="{$client_clientID}">
+{add_clientID_input_html_maybe($client_clientID)}
 
 <table class="box view">
   <tr>
