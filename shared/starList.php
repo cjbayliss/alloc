@@ -74,6 +74,44 @@ $star_entities = [
     ],
 ];
 
-$TPL["star_entities"] = $star_entities;
+$page = new Page();
+$page->header();
+$page->toolbar();
 
-include_template("templates/starListM.tpl");
+foreach ($star_entities as $entity => $e) {
+    $rows = [];
+    has($entity) && ($rows = $entity::get_list($e["form"]));
+    if ($rows) {
+        $total = is_countable($rows) ? count($rows) : 0;
+        $printed_something = true;
+        $listHTML = $entity::get_list_html($rows, $e["form"]);
+        echo <<<HTML
+            <table class="box">
+                <tr>
+                    <th class="header">
+                        {$e["label"]}
+                        <b> - {$total} records</b>
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        {$listHTML}
+                    </td>
+                </tr>
+            </table>
+            HTML;
+    }
+}
+
+if (!isset($printed_something)) {
+    echo <<<HTML
+        <br><br>
+        No items have been starred yet.
+        <br><br>
+        Go and click the stars on the task list page (for example), and then use this page to quickly get back to your
+        favourites.
+        <br><br>
+        HTML;
+}
+
+$page->footer();

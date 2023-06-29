@@ -6,6 +6,9 @@
  */
 
 // Format a time offset in seconds to (+|-)HH:MM
+
+use ZendSearch\Lucene\Document\HTML;
+
 function format_offset($secs): string
 {
     // sign will be included in the hours
@@ -232,25 +235,73 @@ function sort_by_mtime($a, $b)
 function util_show_attachments($entity, $id, $options = [])
 {
     global $TPL;
-    $TPL["entity_url"] = $TPL["url_alloc_" . $entity];
-    $TPL["entity_key_name"] = $entity . "ID";
-    $TPL["entity_key_value"] = $id;
-    $TPL["bottom_button"] = $options["bottom_button"] ?? "";
-    $TPL["show_buttons"] = isset($options["hide_buttons"]) ? !$options["hide_buttons"] : true;
+    $buttons = "";
+    $attachments = "";
+    $show_buttons = isset($options["hide_buttons"]) ? !$options["hide_buttons"] : true;
+    $bottom_button = $options["bottom_button"] ?? "";
+    $entity_url = $TPL["url_alloc_" . $entity];
+    $entity_key_name = $entity . "ID";
+    $entity_key_value = $id;
+    $sessID = null;
 
-    $rows = get_attachments($entity, $id);
+    $rows = get_attachments($entity, $id) ?? [];
     if (!$rows && isset($options["hide_buttons"])) {
         return; // no rows, and no buttons, leave the whole thing out.
     }
 
-    $rows || ($rows = []);
-    $TPL["attachments"] ??= "";
     foreach ($rows as $row) {
-        $TPL["attachments"] .= "<tr><td>" . $row["file"] . '</td><td class="nobr">' . $row["mtime"] . "</td><td>" . $row["size"] . "</td>";
-        $TPL["attachments"] .= '<td align="right" width="1%" style="padding:5px;">' . $row["delete"] . "</td></tr>";
+        $attachments .= <<<HTML
+            <tr><td>{$row["file"]}</td><td class="nobr">{$row["mtime"]}</td><td>{$row["size"]}</td>
+            <td align="right" width="1%" style="padding:5px;">{$row["delete"]}</td></tr>
+            HTML;
     }
 
-    include_template("../shared/templates/attachmentM.tpl");
+    // FIXME: 😞
+    if (is_array($TPL)) {
+        extract($TPL, EXTR_OVERWRITE);
+    }
+
+    if ($show_buttons) {
+        $buttons = <<<HTML
+                <tr>
+                    <td colspan="1" class="left" style="padding:5px;">
+                        {$bottom_button}
+                    </td>
+                    <td colspan="3" class="right nobr" style="padding:5px;">
+                        <form enctype="multipart/form-data" action="{$entity_url}" method="post">
+                            <input type="hidden" name="{$entity_key_name}" value="{$entity_key_value}">
+                            <input type="file" name="attachment" />
+                            <button type="submit" name="save_attachment" value="1" class="save_button">Upload Attachment<i class="icon-upload"></i></button>
+                            <input type="hidden" name="sbs_link" value="attachments">
+                            <input type="hidden" name="sessID" value="{$sessID}">
+                        </form>
+                    </td>
+                </tr>
+            HTML;
+    }
+
+    // include_template("../shared/templates/attachmentM.tpl");
+    echo <<<HTML
+                <table class="box">
+                <tr>
+                    <th class="header">Attachments</th>
+                </tr>
+                <tr>
+                    <td>
+                        <table class='sortable list'>
+                            <tr>
+                                <th>File</th>
+                                <th class="nobr">Date Modified</th>
+                                <th>Size</th>
+                                <th align="right"></th>
+                            </tr>
+                            {$attachments}
+                            {$buttons}
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        HTML;
 }
 
 function get_filesize_label($file)

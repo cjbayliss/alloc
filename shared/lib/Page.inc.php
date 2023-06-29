@@ -15,6 +15,8 @@ class Page
 
     public static function header()
     {
+        $main_alloc_title = null;
+        $script_path = null;
         global $TPL;
         $current_user = &singleton("current_user");
 
@@ -24,14 +26,74 @@ class Page
 
         $TPL["onLoad"] ??= [];
 
-        include_template(ALLOC_MOD_DIR . "shared/templates/headerS.tpl");
+        // FIXME: 😞
+        if (is_array($TPL)) {
+            extract($TPL, EXTR_OVERWRITE);
+        }
+
+        $login = "";
+        if ($main_alloc_title === "allocPSA login") {
+            $login = 'login';
+        }
+
+        $title = self::htmlentities($main_alloc_title);
+        $fontSize = self::default_font_size() . 'px';
+        $css = self::stylesheet();
+
+        $showFilters = is_object($current_user) ? ($current_user->prefs['showFilters'] ?? '') : '';
+        $sideBySideLink = null;
+        $taxPercent = config::get_config_item('taxPercent');
+        $firstDayOfWeek = config::get_config_item('calendarFirstDay');
+        if ($_REQUEST !== [] && !empty($_REQUEST["sbs_link"])) {
+            $sideBySideLink = $_REQUEST["sbs_link"];
+        }
+
+        $privateMode = empty($current_user->prefs["privateMode"]) ? "" : "obfus";
+
+        echo <<<HTML
+            <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+            <html>
+              <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <meta http-equiv="Expires" content="Tue, 27 Jul 1997 05:00:00 GMT"> 
+                <meta http-equiv="Pragma" content="no-cache">
+                <title>{$title}</title>
+                <style type="text/css" media="screen">body { font-size: {$fontSize} }</style>
+                <link rel="StyleSheet" href="/css/{$css}" type="text/css" media="screen">
+                <link rel="StyleSheet" href="/css/calendar.css" type="text/css" media="screen">
+                <link rel="StyleSheet" href="/css/jqplot.css" type="text/css" media="screen">
+                <link rel="StyleSheet" href="/css/font.css" type="text/css" media="screen">
+                <link rel="StyleSheet" href="/css/print.css" type="text/css" media="print">
+                <script type="text/javascript" src="/javascript/jumbo.js"></script>
+                <script type="text/javascript">
+                  // return a value to be used in javascript, that is set from PHP
+                  function get_alloc_var(key) {
+                  var values = {
+                                "url"               : "{$script_path}"
+                               ,"side_by_side_link" : "{$sideBySideLink}"
+                               ,"tax_percent"       : "{$taxPercent}"
+                               ,"cal_first_day"     : "{$firstDayOfWeek}"
+                               ,"show_filters"      : "{$showFilters}"
+                               }
+                  return values[key];
+                }
+                </script>
+              </head>
+              <body id="{$login}" class="{$privateMode}">
+            HTML;
     }
 
     public static function footer()
     {
         $current_user = &singleton("current_user");
 
-        include_template(ALLOC_MOD_DIR . "shared/templates/footerS.tpl");
+        echo <<<HTML
+                        </div> <!-- end #main2 -->
+                    </div> <!-- end #main -->
+                </body>
+            </html>
+            HTML;
+
         // close page
         $session = new Session();
         $session->Save();
@@ -99,7 +161,10 @@ class Page
             "module" => "person",
         ];
 
-        if (have_entity_perm("inbox", PERM_READ, $current_user) && config::get_config_item("allocEmailHost")) {
+        if (
+            have_entity_perm("inbox", PERM_READ, $current_user) &&
+            config::get_config_item("allocEmailHost")
+        ) {
             $menu_links["inbox"] = [
                 "name"   => "Inbox",
                 "url"    => $TPL["url_alloc_inbox"],
@@ -119,23 +184,47 @@ class Page
         foreach ($menu_links as $key => $arr) {
             if (in_array($key, $tabs) && (has($key) || $key === "tools")) {
                 $name = $arr["name"];
-                $TPL["x"] = $x;
-                $x += 70;
-                $TPL["url"] = $arr["url"];
-                $TPL["name"] = $name;
-                $TPL["active"] = "";
-                if (preg_match("/" . str_replace("/", "\\/", $_SERVER["PHP_SELF"]) . "/", $url) || preg_match("/" . $arr["module"] . "/", $_SERVER["PHP_SELF"]) && !$done) {
-                    $TPL["active"] = " active";
+                $url = $arr["url"];
+                $activeTab = "";
+                if (
+                    preg_match("/" . str_replace("/", "\\/", $_SERVER["PHP_SELF"]) . "/", $url) ||
+                    preg_match("/" . $arr["module"] . "/", $_SERVER["PHP_SELF"]) &&
+                    !$done
+                ) {
+                    $activeTab = "active";
                     $done = true;
                 }
 
-                include_template(ALLOC_MOD_DIR . "shared/templates/tabR.tpl");
+                $left = $x . 'px';
+                echo <<<HTML
+                    <a href="{$url}" class="tab {$activeTab} noselect" style="left: {$left};" unselectable="on">{$name}</a>
+                    HTML;
+
+                $x += 70;
+                if (
+                    $activeTab && $name == "Home" ||
+                    (!empty($current_user->prefs["customizedTheme2"]) &&
+                        $current_user->prefs["customizedTheme2"] != 4)
+                ) {
+                    echo <<<HTML
+                        <style>
+                        div#main {
+                            border-radius: 0 0.2rem 0.2rem 0.2rem !important;
+                        }
+                        </style>
+                        HTML;
+                }
             }
         }
     }
 
     public static function toolbar()
     {
+        $url_alloc_menuSubmit = null;
+        $category_options = null;
+        $history_options = null;
+        $needle = null;
+        $sessID = null;
         $str = [];
         $r = [];
         global $TPL;
@@ -170,7 +259,50 @@ class Page
         $TPL["history_options"] = implode("\n", $str);
         $TPL["category_options"] = Page::get_category_options($_POST["search_action"] ?? "");
         $TPL["needle"] = $_POST["needle"] ?? "";
-        include_template(ALLOC_MOD_DIR . "shared/templates/toolbarS.tpl");
+
+        // FIXME: 😞
+        if (is_array($TPL)) {
+            extract($TPL, EXTR_OVERWRITE);
+        }
+
+        $logo = config::get_config_logo();
+
+        echo <<<HTML
+            <table id="menu" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:145%; text-shadow:#fff 1px 1px 1px;">
+                  {$logo}
+                </td>
+                <td class="nobr bottom" style="width:1%;">
+                  <form action="{$url_alloc_menuSubmit}" method="get" id="form_search">
+                    <select name="search_action" id="search_action" style="width:9em;">
+                      {$category_options}
+                      <option value="" disabled="disabled">--------------------
+                        {$history_options}
+                    </select>
+                    <input size="40" type="text" name="needle" id="menu_form_needle" value="{$needle}">
+                    <input type="hidden" name="sessID" value="{$sessID}">
+                    <input type="submit" value="search" style="display:none"> <!-- for w3m -->
+                  </form>
+                </td>
+              </tr>
+            </table>
+
+            <div id="tabs">
+            HTML;
+
+        self::tabs();
+
+        $extraLinks = self::extra_links();
+        echo <<<HTML
+              <p id="extra_links">{$extraLinks}</p>
+            </div>
+
+            <div id="main">
+              <div id="main2"><!-- another div nested for padding -->
+            HTML;
+
+        self::messages();
     }
 
     public static function extra_links(): string
