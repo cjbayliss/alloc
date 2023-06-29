@@ -7,6 +7,10 @@
 
 require_once(__DIR__ . "/../alloc.php");
 
+global $TPL;
+$current_user = &singleton("current_user");
+$TPL["current_user"] = $current_user;
+
 function check_optional_client_exists()
 {
     global $clientID;
@@ -15,6 +19,11 @@ function check_optional_client_exists()
 
 function show_client_contacts()
 {
+    $url_alloc_client = null;
+    $clientContact_clientID = null;
+    $clientContactActive_checked = null;
+    $sessID = null;
+    $clientContacts = null;
     global $TPL;
     global $clientID;
 
@@ -170,7 +179,114 @@ function show_client_contacts()
         $TPL["clientContactActive_checked"] = " checked";
     }
 
-    include_template("templates/clientContactM.tpl");
+    if (is_array($TPL)) {
+        extract($TPL, EXTR_OVERWRITE);
+    }
+
+    ?>
+<table class="box">
+    <tr>
+        <th class="header">Client Contacts
+            <span>
+                <?php echo Page::expand_link("id_new_client_contact", "New Client Contact") ?>
+            </span>
+        </th>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <form action="<?php echo $url_alloc_client; ?>"
+                method="post">
+                <input type="hidden" name="clientContactID"
+                    value="<?php $clientContact_clientContactID ?? "" ?>">
+                <input type="hidden" name="clientID"
+                    value="<?php echo $clientContact_clientID; ?>">
+
+                <div class="<?php $class_new_client_contact ?? "" ?>"
+                    id="id_new_client_contact">
+                    <table width="100%">
+                        <tr>
+                            <td width="1%">Name</td>
+                            <td width="1%"><input type="text" name="clientContactName"
+                                    value="<?php $clientContact_clientContactName ?? "" ?>">
+                            </td>
+                            <td width="1%">Email</td>
+                            <td width="1%"><input type="text" name="clientContactEmail"
+                                    value="<?php $clientContact_clientContactEmail ?? "" ?>">
+                            </td>
+                            <td>Info</td>
+                            <td rowspan="5" class="top right">
+                                <?php echo Page::textarea("clientContactOther", $clientContact_clientContactOther ?? "", ["height" => "medium", "width" => "100%"]) ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td><input type="text" name="clientContactStreetAddress"
+                                    value="<?php $clientContact_clientContactStreetAddress ?? "" ?>">
+                            </td>
+                            <td>Phone</td>
+                            <td><input type="text" name="clientContactPhone"
+                                    value="<?php $clientContact_clientContactPhone ?? "" ?>">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Suburb</td>
+                            <td><input type="text" name="clientContactSuburb"
+                                    value="<?php $clientContact_clientContactSuburb ?? "" ?>">
+                            </td>
+                            <td>Mobile</td>
+                            <td><input type="text" name="clientContactMobile"
+                                    value="<?php $clientContact_clientContactMobile ?? "" ?>">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>State</td>
+                            <td><input type="text" name="clientContactState"
+                                    value="<?php $clientContact_clientContactState ?? "" ?>">
+                            </td>
+                            <td>Fax</td>
+                            <td><input type="text" name="clientContactFax"
+                                    value="<?php $clientContact_clientContactFax ?? "" ?>">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Postcode</td>
+                            <td><input type="text" name="clientContactPostcode"
+                                    value="<?php $clientContact_clientContactPostcode ?? "" ?>">
+                            </td>
+                            <td class="nobr">Country</td>
+                            <td><input type="text" name="clientContactCountry"
+                                    value="<?php $clientContact_clientContactCountry ?? "" ?>">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="right">
+                                <label for="cca">Enabled</label> <input id="cca" type="checkbox"
+                                    name="clientContactActive" value="1"
+                                    <?php echo $clientContactActive_checked; ?>>&nbsp;&nbsp;
+                                <label for="pcc">Primary Contact</label> <input id="pcc" type="checkbox"
+                                    name="primaryContact" value="1"
+                                    <?php $primaryContact_checked ?? "" ?>>
+                                <button type="submit" name="clientContact_save" value="1" class="save_button">Save
+                                    Client Contact<i class="icon-ok-sign"></i></button>
+
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <input type="hidden" name="sessID"
+                    value="<?php echo $sessID; ?>">
+            </form>
+
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <?php echo $clientContacts; ?>
+        </td>
+    </tr>
+</table>
+<?php
 }
 
 function show_attachments()
@@ -206,7 +322,14 @@ function show_comments()
     );
     $TPL["commentTemplateOptions"] =
         sprintf('<option value="">Comment Templates</option>{Page::select_options(%s)}', implode(',', $ops));
-    include_template("../comment/templates/commentM.tpl");
+
+    // FIXME: 😔
+    if (is_array($TPL)) {
+        extract($TPL, EXTR_OVERWRITE);
+    }
+
+    $comment = new comment();
+    $comment->commentSectionHTML();
 }
 
 function show_invoices()
@@ -232,14 +355,6 @@ function show_invoices()
 
     $rows = invoice::get_list($_FORM);
     echo invoice::get_list_html($rows, $_FORM);
-}
-
-// FIXME: this is a hack to work around the broken custom template system
-function add_clientID_input_html_maybe($clientID)
-{
-    if ($clientID !== 0) {
-        echo('<input type="hidden" name="clientID" value="' . $clientID . '">');
-    }
 }
 
 $client = new client();
@@ -346,4 +461,401 @@ $TPL["projectListRows"] = project::getFilteredProjectList($projectListOps);
 $TPL["client_clientPostalAddress"] = $client->format_address("postal");
 $TPL["client_clientStreetAddress"] = $client->format_address("street");
 
-include_template("templates/clientM.tpl");
+if (is_array($TPL)) {
+    extract($TPL, EXTR_OVERWRITE);
+}
+
+echo Page::header();
+echo Page::toolbar() ?>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function() {
+        <?php if (!$client_clientID) { ?>
+        toggle_view_edit();
+        $('#clientName').focus();
+        $("#clientName").on('keyup', function() {
+            makeAjaxRequest(
+                '<?php echo $url_alloc_updateClientDupes; ?>',
+                'clientDupes', {
+                    clientName: $("#clientName").val()
+                });
+        });
+        <?php } else { ?>
+        $('#editClient').focus();
+        <?php }
+        ?>
+    });
+</script>
+
+<?php if (check_optional_client_exists()) { ?>
+<?php $first_div = "hidden" ?>
+<?php echo Page::side_by_side_links(
+    $url_alloc_client . "clientID=" . $client_clientID,
+    [
+        "client"      => "Main",
+        "reminders"   => "Reminders",
+        "comments"    => "Comments",
+        "attachments" => "Attachments",
+        "projects"    => "Projects",
+        "invoices"    => "Invoices",
+        "sales"       => "Sales",
+        "sbsAll"      => "All",
+    ],
+    null,
+    $clientSelfLink
+) ?>
+<?php }
+?>
+
+<?php if (parse_url($client_clientURL, PHP_URL_SCHEME) === null) { ?>
+<?php $client_clientURL = "http://" . $client_clientURL ?>
+<?php }
+?>
+<!-- need to merge this style back into the stylesheets -->
+<style>
+    .task_pane {
+        min-width: 400px;
+        width: 47%;
+        float: left;
+        margin: 0px 12px;
+        vertical-align: top;
+    }
+</style>
+
+
+<div id="client"
+    class="<?php $first_div ?? "" ?>">
+    <form action="<?php echo $url_alloc_client; ?>" method=post>
+        <input type="hidden" name="clientID"
+            value="<?php echo $client_clientID ?>">
+
+        <table class="box view">
+            <tr>
+                <th class="header">View Details
+                    <span><?php echo Page::star("client", $client_clientID) ?></span>
+                </th>
+            </tr>
+            <tr>
+                <td valign="top">
+                    <div class="task_pane">
+                        <h6>Client
+                            Name<?php echo Page::mandatory($client_clientName) ?>
+                        </h6>
+                        <h2 style="margin-bottom:0px; display:inline;">
+                            <?php echo $client_clientID; ?>
+                            <?php echo Page::htmlentities($client_clientName); ?>
+                        </h2>
+                        &nbsp;&nbsp;&nbsp;<?php echo $client_clientStatus; ?>
+                        <?php echo Page::htmlentities($client_clientCategoryLabel); ?>
+                        <?php if ($client_clientPostalAddress) { ?>
+                        <h6>Postal Address</h6>
+                        <?php echo $client_clientPostalAddress; ?>
+                        <?php }
+                        ?>
+                    </div>
+                    <div class="task_pane">
+                        <div class="enclose">
+                            <h6>Phone Number<div>Fax Number</div>
+                            </h6>
+                            <div style="float:left; width:47%;">
+                                <?php echo Page::htmlentities($client_clientPhoneOne); ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <?php echo Page::htmlentities($client_clientFaxOne); ?>
+                            </div>
+                        </div>
+                        <?php if ($client_clientStreetAddress) { ?>
+                        <h6>Street Address</h6>
+                        <?php echo $client_clientStreetAddress; ?>
+                        <?php }
+                        ?>
+                        <?php if ($client_clientURL) { ?>
+                        <h6>URL</h6>
+                        <a
+                            href="<?php echo Page::htmlentities($client_clientURL); ?>"><?php echo Page::htmlentities($client_clientURL); ?></a>
+                        <?php }
+                        ?>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" class="padded">
+                    <div style="margin:20px">
+                        <button type="button" id="editClient" value="1" onClick="return toggle_view_edit();">Edit
+                            Client<i class="icon-edit"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="box edit">
+            <tr>
+                <th class="header">Edit Details
+                    <span></span>
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    <div class="task_pane">
+                        <h6>Client
+                            Name<?php echo Page::mandatory($client_clientName) ?>
+                        </h6>
+                        <div style="width:100%" class="">
+                            <input type="text" size="43" id="clientName" name="clientName"
+                                value="<?php echo $client_clientName; ?>"
+                                tabindex="1">
+                            <select name="clientStatus"
+                                tabindex="2"><?php echo $clientStatusOptions; ?></select>
+                            <select name="clientCategory"
+                                tabindex="3"><?php echo $clientCategoryOptions; ?></select>
+                        </div>
+                        <h6>Postal Address</h6>
+                        <table border="0" cellspacing=0 cellpadding=5 width="100%">
+                            <tr>
+                                <td>Address</td>
+                                <td><input type="text" name="clientStreetAddressOne"
+                                        value="<?php echo $client_clientStreetAddressOne; ?>"
+                                        size="25" tabindex="5"></td>
+                            </tr>
+                            <tr>
+                                <td>Suburb</td>
+                                <td><input type="text" name="clientSuburbOne"
+                                        value="<?php echo $client_clientSuburbOne; ?>"
+                                        size="25" tabindex="6"></td>
+                            </tr>
+                            <tr>
+                                <td>State</td>
+                                <td><input type="text" name="clientStateOne"
+                                        value="<?php echo $client_clientStateOne; ?>"
+                                        size="25" tabindex="7"></td>
+                            </tr>
+                            <tr>
+                                <td>Postcode</td>
+                                <td><input type="text" name="clientPostcodeOne"
+                                        value="<?php echo $client_clientPostcodeOne; ?>"
+                                        size="25" tabindex="8"></td>
+                            </tr>
+                            <tr>
+                                <td>Country</td>
+                                <td><input type="text" name="clientCountryOne"
+                                        value="<?php echo $client_clientCountryOne; ?>"
+                                        size="25" tabindex="9"></td>
+                            </tr>
+                        </table>
+
+                        <?php if (!$client_clientID) { ?>
+                        <h6>Possible Duplicates</h6>
+                        <div class="message"
+                            style="padding:4px 2px; width:100%; height:70px; border:1px solid #cccccc; overflow:auto;">
+                            <div id="clientDupes"></div>
+                        </div>
+                        <?php }
+                        ?>
+                    </div>
+                    <div class="task_pane">
+                        <div class="enclose">
+                            <h6>Phone Number<div>Fax Number</div>
+                            </h6>
+                            <div style="float:left; width:47%;">
+                                <input type="text" name="clientPhoneOne"
+                                    value="<?php echo $client_clientPhoneOne; ?>"
+                                    tabindex="3">
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <input type="text" name="clientFaxOne"
+                                    value="<?php echo $client_clientFaxOne; ?>"
+                                    tabindex="4">
+                            </div>
+                        </div>
+                        <h6>Street Address</h6>
+                        <table border="0" cellspacing=0 cellpadding=5 width="100%">
+                            <tr>
+                                <td>Address</td>
+                                <td><input type="text" name="clientStreetAddressTwo"
+                                        value="<?php echo $client_clientStreetAddressTwo; ?>"
+                                        size="25" tabindex="10"></td>
+                            </tr>
+                            <tr>
+                                <td>Suburb</td>
+                                <td><input type="text" name="clientSuburbTwo"
+                                        value="<?php echo $client_clientSuburbTwo; ?>"
+                                        size="25" tabindex="11"></td>
+                            </tr>
+                            <tr>
+                                <td>State</td>
+                                <td><input type="text" name="clientStateTwo"
+                                        value="<?php echo $client_clientStateTwo; ?>"
+                                        size="25" tabindex="12"></td>
+                            </tr>
+                            <tr>
+                                <td>Postcode</td>
+                                <td><input type="text" name="clientPostcodeTwo"
+                                        value="<?php echo $client_clientPostcodeTwo; ?>"
+                                        size="25" tabindex="13"></td>
+                            </tr>
+                            <tr>
+                                <td>Country</td>
+                                <td><input type="text" name="clientCountryTwo"
+                                        value="<?php echo $client_clientCountryTwo; ?>"
+                                        size="25" tabindex="14"></td>
+                            </tr>
+                        </table>
+                        <h6>URL</h6>
+                        <input type="text" name="clientURL"
+                            value="<?php echo $client_clientURL; ?>"
+                            style="width:100%;" tabindex="15">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" class="padded">
+                    <div style="margin:20px">
+                        <!-- IMPORANT: this is to make 'save' the default action -->
+                        <button hidden type="submit" name="save" value="1" class="save_button">Save<i
+                                class="icon-ok-sign"></i></button>
+                        <?php if ($client_clientID) { ?>
+                        <button type="submit" name="delete" value="1" class="delete_button">Delete<i
+                                class="icon-trash"></i></button>
+                        <?php }
+                        ?>
+                        <button type="submit" name="save" value="1" class="save_button">Save<i
+                                class="icon-ok-sign"></i></button>
+                        <?php if ($client_clientID) { ?>
+                        <br><br>
+                        &nbsp;&nbsp;<a href="" onClick="return toggle_view_edit(true);">Cancel edit</a>
+                        <?php }
+                        ?>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" name="sessID"
+            value="<?php echo $sessID; ?>">
+    </form>
+
+    <?php if (check_optional_client_exists()) { ?>
+    <?php show_client_contacts() ?>
+    <?php }
+    ?>
+
+</div>
+
+<?php if (check_optional_client_exists()) { ?>
+<div id="reminders">
+    <table class="box">
+        <tr>
+            <th class="header">Reminders
+                <span>
+                    <a
+                        href="<?php echo $url_alloc_reminder; ?>step=3&parentType=client&parentID=<?php echo $client_clientID; ?>&returnToParent=client">Add
+                        Reminder</a>
+                </span>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <?php reminder::get_list_html("client", $client_clientID) ?>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="comments">
+    <?php show_comments() ?>
+</div>
+
+<div id="attachments">
+    <?php show_attachments() ?>
+</div>
+
+<div id="projects">
+    <table class="box">
+        <tr>
+            <th class="header">Projects
+                <span>
+                    <a
+                        href="<?php echo $url_alloc_project; ?>clientID=<?php echo $client_clientID; ?>">New
+                        Project</a>
+                </span>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <?php if ($projectListRows) { ?>
+                <table class="list sortable">
+                    <tr>
+                        <th>Project</th>
+                        <th>Nick</th>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th class="noprint">&nbsp;</th>
+                    </tr>
+                    <?php foreach ($projectListRows as $projectListRow) { ?>
+                    <tr>
+                        <td><?php echo $projectListRow["projectLink"]; ?>
+                        </td>
+                        <td><?php echo Page::htmlentities($projectListRow["projectShortName"]); ?>
+                        </td>
+                        <td><?php echo Page::htmlentities($projectListRow["clientName"]); ?>
+                        </td>
+                        <td><?php echo Page::htmlentities($projectListRow["projectType"]); ?>
+                        </td>
+                        <td><?php echo Page::htmlentities($projectListRow["projectStatus"]); ?>
+                        </td>
+                        <td class="noprint" align="right">
+                            <?php echo $projectListRow["navLinks"]; ?>
+                        </td>
+                    </tr>
+                    <?php }
+                    ?>
+                </table>
+                <?php } else { ?>
+                <b>No Projects Found.</b>
+                <?php }
+                ?>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="invoices">
+    <table class="box">
+        <tr>
+            <th class="header">Invoices
+                <span>
+                    <?php echo $invoice_links; ?>
+                </span>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <?php show_invoices() ?>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="sales">
+    <table class="box">
+        <tr>
+            <th class="header">Sales
+                <span>
+                    <a
+                        href="<?php echo $url_alloc_productSale; ?>clientID=<?php echo $client_clientID; ?>">New
+                        Sale</a>
+                </span>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <?php $productSaleRows = productSale::get_list(["clientID" => $client_clientID]) ?>
+                <?php echo productSale::get_list_html($productSaleRows) ?>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<?php }
+?>
+
+<?php echo Page::footer() ?>

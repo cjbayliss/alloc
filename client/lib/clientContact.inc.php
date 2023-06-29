@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+use ZendSearch\Lucene\Document\HTML;
+
 class clientContact extends DatabaseEntity
 {
     public $classname = "clientContact";
@@ -357,11 +359,57 @@ class clientContact extends DatabaseEntity
         return $rows;
     }
 
-    public function get_list_html($rows = [], $ops = [])
+    public function get_list_html(array $rows = [], array $ops = [])
+    {
+        return (new clientContact())->contactListHTML($rows, $ops);
+    }
+
+    public function contactListHTML(array $rows = [], array $ops = []): string
     {
         global $TPL;
         $TPL["clientContactListRows"] = $rows;
         $TPL["_FORM"] = $ops;
-        include_template(__DIR__ . "/../templates/clientContactListS.tpl");
+        $html = "";
+        $page = new Page();
+        if (isset($clientContactListRows)) {
+            $html .= <<<HTML
+                    <table class="list sortable">
+                      <tr>
+                        <th>Client</th>
+                        <th>Contact Name</th>
+                        <th>Contact Phone</th>
+                        <th>Contact Email</th>
+                        <th width="1%" style="font-size:120%"><i class="icon-star"></i></th>
+                      </tr>
+                HTML;
+
+            foreach ($clientContactListRows as $clientContactListRow) {
+                $clientContactName = isset($clientContactListRow["clientContactName"]) ? $page->escape($clientContactListRow["clientContactName"]) : "";
+                $clientContactPhone = isset($clientContactListRow["clientContactPhone"]) ? 'Ph: ' . $page->escape($clientContactListRow["clientContactPhone"]) : "";
+                $clientContactMobile = isset($clientContactListRow["clientContactMobile"]) ? 'Mob: ' . $page->escape($clientContactListRow["clientContactMobile"]) : "";
+                $clientContactEmail = isset($clientContactListRow["clientContactEmail"]) ? $page->escape($clientContactListRow["clientContactEmail"]) : "";
+                $starredClientContact = $page->star("clientContact", $clientContactListRow["clientContactID"]);
+
+                $html .= <<<HTML
+                        <tr>
+                            <td>{$clientContactListRow["clientLink"]}</td>
+                            <td>{$clientContactName}</td>
+                            <td>{$clientContactPhone}&nbsp;&nbsp;
+                                {$clientContactMobile}</td>
+                            <td>{$clientContactEmail}</td>
+                            <td width="1%">
+                                {$starredClientContact}
+                            </td>
+                        </tr>
+
+                    HTML;
+            }
+
+            $html .= <<<HTML
+                </table>
+                HTML;
+        }
+
+        return $html;
     }
 }

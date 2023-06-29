@@ -15,10 +15,14 @@ class Page
 
     public static function header()
     {
-        $main_alloc_title = null;
-        $script_path = null;
         global $TPL;
+        $main_alloc_title = "";
+        $script_path = null;
+        $sideBySideLink = null;
+
         $current_user = &singleton("current_user");
+        $page = new Page();
+        $config = new config();
 
         if (!empty($current_user->prefs["showFilters"])) {
             $TPL["onLoad"][] = "show_filter();";
@@ -36,16 +40,15 @@ class Page
             $login = 'login';
         }
 
-        $title = self::htmlentities($main_alloc_title);
-        $fontSize = self::default_font_size() . 'px';
-        $css = self::stylesheet();
+        $title = $page->escape($main_alloc_title);
+        $fontSize = $page->escape((string)$page->default_font_size()) . 'px';
+        $css = $page->stylesheet();
 
         $showFilters = is_object($current_user) ? ($current_user->prefs['showFilters'] ?? '') : '';
-        $sideBySideLink = null;
-        $taxPercent = config::get_config_item('taxPercent');
-        $firstDayOfWeek = config::get_config_item('calendarFirstDay');
+        $taxPercent = $page->escape((string)$config->get_config_item('taxPercent'));
+        $firstDayOfWeek = $page->escape((string)$config->get_config_item('calendarFirstDay'));
         if ($_REQUEST !== [] && !empty($_REQUEST["sbs_link"])) {
-            $sideBySideLink = $_REQUEST["sbs_link"];
+            $sideBySideLink = $page->escape($_REQUEST["sbs_link"]);
         }
 
         $privateMode = empty($current_user->prefs["privateMode"]) ? "" : "obfus";
@@ -229,6 +232,7 @@ class Page
         $r = [];
         global $TPL;
         $current_user = &singleton("current_user");
+        $page = new Page();
         $db = new AllocDatabase();
         has("task") && ($str[] = '<option value="create_' . $TPL["url_alloc_task"] . '">New Task</option>');
         has("time") && ($str[] = '<option value="create_' . $TPL["url_alloc_timeSheet"] . '">New Time Sheet</option>');
@@ -265,7 +269,7 @@ class Page
             extract($TPL, EXTR_OVERWRITE);
         }
 
-        $logo = config::get_config_logo();
+        $logo = $page->escape(config::get_config_logo());
 
         echo <<<HTML
             <table id="menu" cellpadding="0" cellspacing="0">
@@ -699,7 +703,15 @@ class Page
 
     public static function htmlentities($str = ""): string
     {
-        return htmlentities($str, ENT_QUOTES | ENT_IGNORE, "UTF-8");
+        if (!empty($str)) {
+            return (new Page())->escape($str);
+        }
+        return "";
+    }
+
+    public function escape(string $str = ""): string
+    {
+        return htmlentities($str, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 
     public static function money_fmt($c, $amount = null)

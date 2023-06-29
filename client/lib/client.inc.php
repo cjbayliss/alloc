@@ -611,11 +611,81 @@ class client extends DatabaseEntity
         return (array)$interestedPartyOptions;
     }
 
-    public static function get_list_html($rows = [], $ops = [])
+    /**
+     * @deprecated use the non-static listHTML() method instead
+     */
+    public static function get_list_html(array $rows = [], array $ops = []): string
+    {
+        return (new client())->listHTML($rows, $ops);
+    }
+
+    /**
+     * Returns a html list of clients.
+     * @param array clientsList list of clients
+     * @param array optionsList list of options
+     * @return string a list of clients as a HTML string
+     */
+    public function listHTML(array $clientsList = [], array $optionsList = []): string
     {
         global $TPL;
-        $TPL["clientListRows"] = $rows;
-        $TPL["_FORM"] = $ops;
-        include_template(__DIR__ . "/../templates/clientListS.tpl");
+        $TPL["clientListRows"] = $clientsList;
+        $TPL["_FORM"] = $optionsList;
+        $contactName = "";
+        $contactPhone = "";
+        $contactMobile = "" ;
+        $html = "";
+        $page = new Page();
+
+        // FIXME: 😔
+        if (is_array($TPL)) {
+            extract($TPL, EXTR_OVERWRITE);
+        }
+
+        if (isset($clientListRows)) {
+            $html .= <<<HTML
+                    <table class="list sortable">
+                        <tr>
+                            <th>Client</th>
+                            <th>Phone</th>
+                            <th>Contact Name</th>
+                            <th>Contact Phone</th>
+                            <th>Contact Email</th>
+                            <th>Status</th>
+                            <th>Category</th>
+                            <th width="1%" style="font-size:120%"><i class="icon-star"></i></th>
+                        </tr>
+                HTML;
+
+            foreach ($clientListRows as $clientListRow) {
+                $contactName = isset($clientListRow["clientContactName"]) ? $page->escape($clientListRow["clientContactName"]) : "";
+                $contactPhone = isset($clientListRow["clientContactPhone"]) ? 'Ph: ' . $page->escape($clientListRow["clientContactPhone"]) : "";
+                $contactMobile = isset($clientListRow["clientContactMobile"]) ? 'Mob: ' . $page->escape($clientListRow["clientContactMobile"]) : "";
+                $clientContactEmail = isset($clientListRow["clientContactEmail"]) ? $page->escape($clientListRow["clientContactEmail"]) : "";
+                $clientPhoneOne = isset($clientListRow["clientPhoneOne"]) ? $page->escape($clientListRow["clientPhoneOne"]) : "";
+
+                $starred = $page->star("client", $clientListRow["clientID"]);
+                $html .= <<<HTML
+                        <tr>
+                            <td>{$clientListRow["clientLink"]}</td>
+                            <td>{$clientPhoneOne}</td>
+                            <td>{$contactName}</td>
+                            <td>{$contactPhone}&nbsp;&nbsp;
+                                {$contactMobile}</td>
+                            <td>{$clientContactEmail}</td>
+                            <td>{$clientListRow["clientStatus"]}</td>
+                            <td>{$clientListRow["clientCategoryLabel"]}</td>
+                            <td width="1%">
+                                {$starred}
+                            </td>
+                        </tr>
+                    HTML;
+            }
+
+            $html .= <<<HTML
+                        </table>
+                HTML;
+        }
+
+        return $html;
     }
 }
