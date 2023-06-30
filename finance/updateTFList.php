@@ -5,16 +5,16 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("NO_REDIRECT", 1);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_REDIRECT', 1);
+require_once __DIR__ . '/../alloc.php';
 
-if ($_GET["projectID"]) {
+if ($_GET['projectID']) {
     usleep(300000);
     $project = new project();
-    $project->set_id($_GET["projectID"]);
+    $project->set_id($_GET['projectID']);
     $project->select();
-    ($tf_sel = $project->get_value("cost_centre_tfID")) || ($tf_sel = config::get_config_item("mainTfID"));
+    ($tf_sel = $project->get_value('cost_centre_tfID')) || ($tf_sel = config::get_config_item('mainTfID'));
     $tf = new tf();
-    $options = Page::select_options($tf->get_assoc_array("tfID", "tfName"), $tf_sel);
-    echo '<select id="tfID" name="tfID">' . $options . "</select>";
+    $options = Page::select_options($tf->get_assoc_array('tfID', 'tfName'), $tf_sel);
+    echo '<select id="tfID" name="tfID">' . $options . '</select>';
 }

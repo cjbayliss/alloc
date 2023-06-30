@@ -7,42 +7,42 @@
 
 class transaction extends DatabaseEntity
 {
-    public $classname = "transaction";
+    public $classname = 'transaction';
 
-    public $data_table = "transaction";
+    public $data_table = 'transaction';
 
-    public $display_field_name = "product";
+    public $display_field_name = 'product';
 
-    public $key_field = "transactionID";
+    public $key_field = 'transactionID';
 
     public $data_fields = [
-        "companyDetails" => ["empty_to_null" => false],
-        "product"        => ["empty_to_null" => false],
-        "amount"         => ["type" => "money"],
-        "currencyTypeID",
-        "destCurrencyTypeID",
-        "exchangeRate",
-        "status",
-        "dateApproved",
-        "expenseFormID",
-        "invoiceID",
-        "invoiceItemID",
-        "tfID",
-        "fromTfID",
-        "projectID",
-        "transactionModifiedUser",
-        "transactionModifiedTime",
-        "transactionCreatedTime",
-        "transactionCreatedUser",
-        "quantity",
-        "transactionDate",
-        "transactionType",
-        "timeSheetID",
-        "productSaleID",
-        "productSaleItemID",
-        "productCostID",
-        "transactionRepeatID",
-        "transactionGroupID",
+        'companyDetails' => ['empty_to_null' => false],
+        'product'        => ['empty_to_null' => false],
+        'amount'         => ['type' => 'money'],
+        'currencyTypeID',
+        'destCurrencyTypeID',
+        'exchangeRate',
+        'status',
+        'dateApproved',
+        'expenseFormID',
+        'invoiceID',
+        'invoiceItemID',
+        'tfID',
+        'fromTfID',
+        'projectID',
+        'transactionModifiedUser',
+        'transactionModifiedTime',
+        'transactionCreatedTime',
+        'transactionCreatedUser',
+        'quantity',
+        'transactionDate',
+        'transactionType',
+        'timeSheetID',
+        'productSaleID',
+        'productSaleItemID',
+        'productCostID',
+        'transactionRepeatID',
+        'transactionGroupID',
     ];
 
     public function save()
@@ -51,23 +51,23 @@ class transaction extends DatabaseEntity
         $date = null;
         // These need to be in here instead of validate(), because
         // validate is called after save() and we need these values set for save().
-        $this->get_value("currencyTypeID") || $this->set_value("currencyTypeID", config::get_config_item("currency"));
-        $this->get_value("destCurrencyTypeID") || $this->set_value("destCurrencyTypeID", config::get_config_item("currency"));
+        $this->get_value('currencyTypeID') || $this->set_value('currencyTypeID', config::get_config_item('currency'));
+        $this->get_value('destCurrencyTypeID') || $this->set_value('destCurrencyTypeID', config::get_config_item('currency'));
 
         // The data prior to the save
         $old = $this->all_row_fields;
-        if ($old["status"] != $this->get_value("status") && $this->get_value("status") == "approved") {
-            $this->set_value("dateApproved", date("Y-m-d"));
+        if ($old['status'] != $this->get_value('status') && 'approved' == $this->get_value('status')) {
+            $this->set_value('dateApproved', date('Y-m-d'));
             $field_changed = true;
-        } elseif ($this->get_value("status") != "approved") {
-            $this->set_value("dateApproved", "");
+        } elseif ('approved' != $this->get_value('status')) {
+            $this->set_value('dateApproved', '');
         }
 
-        if ($old["currencyTypeID"] != $this->get_value("currencyTypeID")) {
+        if ($old['currencyTypeID'] != $this->get_value('currencyTypeID')) {
             $field_changed = true;
         }
 
-        if ($old["destCurrencyTypeID"] != $this->get_value("destCurrencyTypeID")) {
+        if ($old['destCurrencyTypeID'] != $this->get_value('destCurrencyTypeID')) {
             $field_changed = true;
         }
 
@@ -75,19 +75,19 @@ class transaction extends DatabaseEntity
 
         // If there already is an exchange rate set for an approved
         // transaction, then there's no need to update the exchange rate
-        if ($this->get_value("exchangeRate") && $this->get_value("dateApproved") && !$field_changed) {
+        if ($this->get_value('exchangeRate') && $this->get_value('dateApproved') && !$field_changed) {
             // Else update the transaction's exchange rate
         } else {
-            $this->get_value("transactionCreatedTime") && ($date = format_date("Y-m-d", $this->get_value("transactionCreatedTime")));
-            $this->get_value("transactionModifiedTime") && ($date = format_date("Y-m-d", $this->get_value("transactionModifiedTime")));
-            $this->get_value("transactionDate") && ($date = $this->get_value("transactionDate"));
-            $this->get_value("dateApproved") && ($date = $this->get_value("dateApproved"));
+            $this->get_value('transactionCreatedTime') && ($date = format_date('Y-m-d', $this->get_value('transactionCreatedTime')));
+            $this->get_value('transactionModifiedTime') && ($date = format_date('Y-m-d', $this->get_value('transactionModifiedTime')));
+            $this->get_value('transactionDate') && ($date = $this->get_value('transactionDate'));
+            $this->get_value('dateApproved') && ($date = $this->get_value('dateApproved'));
 
-            $er = exchangeRate::get_er($this->get_value("currencyTypeID"), $this->get_value("destCurrencyTypeID"), $date);
+            $er = exchangeRate::get_er($this->get_value('currencyTypeID'), $this->get_value('destCurrencyTypeID'), $date);
             if (!$er) {
-                alloc_error("Unable to determine exchange rate for " . $this->get_value("currencyTypeID") . " to " . $this->get_value("destCurrencyTypeID") . " for date: " . $date);
+                alloc_error('Unable to determine exchange rate for ' . $this->get_value('currencyTypeID') . ' to ' . $this->get_value('destCurrencyTypeID') . ' for date: ' . $date);
             } else {
-                $this->set_value("exchangeRate", $er);
+                $this->set_value('exchangeRate', $er);
             }
         }
 
@@ -97,49 +97,52 @@ class transaction extends DatabaseEntity
     public function validate($_ = [])
     {
         $err = [];
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
 
-        $this->get_value("fromTfID") || ($err[] = "Unable to save transaction without a Source TF.");
-        if ($this->get_value("fromTfID") && $this->get_value("fromTfID") == $this->get_value("tfID")) {
+        $this->get_value('fromTfID') || ($err[] = 'Unable to save transaction without a Source TF.');
+        if ($this->get_value('fromTfID') && $this->get_value('fromTfID') == $this->get_value('tfID')) {
             $tf = new tf();
-            $err[] = "Unable to save transaction with Source TF (" . $tf->get_name($this->get_value("fromTfID")) . ") being the same as the Destination TF (" . $tf->get_name($this->get_value("tfID")) . ') "' . $this->get_value("product") . '"';
+            $err[] = 'Unable to save transaction with Source TF (' . $tf->get_name($this->get_value('fromTfID')) . ') being the same as the Destination TF (' . $tf->get_name($this->get_value('tfID')) . ') "' . $this->get_value('product') . '"';
         }
 
-        $this->get_value("quantity") || $this->set_value("quantity", 1);
-        $this->get_value("transactionDate") || $this->set_value("transactionDate", date("Y-m-d"));
+        $this->get_value('quantity') || $this->set_value('quantity', 1);
+        $this->get_value('transactionDate') || $this->set_value('transactionDate', date('Y-m-d'));
 
         $old = $this->all_row_fields;
-        ($status = $old["status"]) || ($status = $this->get_value("status"));
-        if ($status != "pending" && !$current_user->have_role("admin")) {
-            $err[] = "Unable to save transaction unless status is pending.";
+        ($status = $old['status']) || ($status = $this->get_value('status'));
+        if ('pending' != $status && !$current_user->have_role('admin')) {
+            $err[] = 'Unable to save transaction unless status is pending.';
         }
 
-        if ($old["status"] == "pending" && $old["status"] != $this->get_value("status") && !$current_user->have_role("admin")) {
-            $err[] = "Unable to change transaction status unless you have admin perm.";
+        if ('pending' == $old['status'] && $old['status'] != $this->get_value('status') && !$current_user->have_role('admin')) {
+            $err[] = 'Unable to change transaction status unless you have admin perm.';
         }
 
         return parent::validate($err);
     }
 
-    public function is_owner($person = "")
+    public function is_owner($person = '')
     {
-        $current_user = &singleton("current_user");
-        if ($person == "") {
+        $current_user = &singleton('current_user');
+        if ('' == $person) {
             $person = $current_user;
         }
 
-        if ($this->get_value("expenseFormID")) {
-            $expenseForm = $this->get_foreign_object("expenseForm");
+        if ($this->get_value('expenseFormID')) {
+            $expenseForm = $this->get_foreign_object('expenseForm');
+
             return $expenseForm->is_owner($person);
         }
 
-        if ($this->get_value("timeSheetID")) {
-            $timeSheet = $this->get_foreign_object("timeSheet");
+        if ($this->get_value('timeSheetID')) {
+            $timeSheet = $this->get_foreign_object('timeSheet');
+
             return $timeSheet->is_owner($person);
         }
 
-        if ($this->get_value("productSaleItemID")) {
-            $productSaleItem = $this->get_foreign_object("productSaleItem");
+        if ($this->get_value('productSaleItemID')) {
+            $productSaleItem = $this->get_foreign_object('productSaleItem');
+
             return $productSaleItem->is_owner();
         }
 
@@ -159,7 +162,8 @@ class transaction extends DatabaseEntity
 
     public static function get_transactionTypes()
     {
-        ($taxName = config::get_config_item("taxName")) || ($taxName = "Tax");
+        ($taxName = config::get_config_item('taxName')) || ($taxName = 'Tax');
+
         return [
             'invoice'    => 'Invoice',
             'expense'    => 'Expense',
@@ -175,9 +179,9 @@ class transaction extends DatabaseEntity
     public static function get_transactionStatii()
     {
         return [
-            "pending"  => "Pending",
-            "approved" => "Approved",
-            "rejected" => "Rejected",
+            'pending'  => 'Pending',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
         ];
     }
 
@@ -186,7 +190,7 @@ class transaction extends DatabaseEntity
         global $sess;
         $sess || ($sess = new Session());
 
-        $url = "finance/transaction.php?transactionID=" . $this->get_id();
+        $url = 'finance/transaction.php?transactionID=' . $this->get_id();
 
         if ($sess->Started()) {
             $url = $sess->url(SCRIPT_PATH . $url);
@@ -194,7 +198,7 @@ class transaction extends DatabaseEntity
             // This for urls that are emailed
         } else {
             static $prefix;
-            $prefix || ($prefix = config::get_config_item("allocURL"));
+            $prefix || ($prefix = config::get_config_item('allocURL'));
             $url = $prefix . $url;
         }
 
@@ -203,60 +207,61 @@ class transaction extends DatabaseEntity
 
     public function get_transaction_link($_FORM = []): string
     {
-        $_FORM["return"] || ($_FORM["return"] = "html");
+        $_FORM['return'] || ($_FORM['return'] = 'html');
         $rtn = '<a href="' . $this->get_url() . '">';
         $rtn .= $this->get_name($_FORM);
-        return $rtn . "</a>";
+
+        return $rtn . '</a>';
     }
 
     public function get_name($_FORM = [])
     {
-        if ($_FORM["return"] == "html") {
-            return $this->get_value("product", DST_HTML_DISPLAY);
+        if ('html' == $_FORM['return']) {
+            return $this->get_value('product', DST_HTML_DISPLAY);
         }
 
-        return $this->get_value("product");
+        return $this->get_value('product');
     }
 
     public function get_transaction_type_link()
     {
         $str = null;
         global $TPL;
-        $type = $this->get_value("transactionType");
+        $type = $this->get_value('transactionType');
         $transactionTypes = transaction::get_transactionTypes();
 
         // Transaction stems from an invoice
-        if ($type == "invoice") {
-            $invoice = $this->get_foreign_object("invoice");
+        if ('invoice' == $type) {
+            $invoice = $this->get_foreign_object('invoice');
             if (!$invoice->get_id()) {
-                $invoiceItem = $this->get_foreign_object("invoiceItem");
-                $invoice = $invoiceItem->get_foreign_object("invoice");
+                $invoiceItem = $this->get_foreign_object('invoiceItem');
+                $invoice = $invoiceItem->get_foreign_object('invoice');
             }
 
-            $invoice->get_id() && ($str = '<a href="' . $invoice->get_url() . '">' . $transactionTypes[$type] . " " . $invoice->get_value("invoiceNum") . "</a>");
+            $invoice->get_id() && ($str = '<a href="' . $invoice->get_url() . '">' . $transactionTypes[$type] . ' ' . $invoice->get_value('invoiceNum') . '</a>');
             // Transaction is from an expenseform
-        } elseif ($type == "expense") {
-            $expenseForm = $this->get_foreign_object("expenseForm");
+        } elseif ('expense' == $type) {
+            $expenseForm = $this->get_foreign_object('expenseForm');
             if ($expenseForm->get_id() && $expenseForm->have_perm(PERM_READ_WRITE)) {
-                $str = '<a href="' . $expenseForm->get_url() . '">' . $transactionTypes[$type] . " " . $this->get_value("expenseFormID") . "</a>";
+                $str = '<a href="' . $expenseForm->get_url() . '">' . $transactionTypes[$type] . ' ' . $this->get_value('expenseFormID') . '</a>';
             }
 
             // Had to rewrite this so that people who had transactions on other peoples timesheets
             // could see their own transactions, but not the other persons timesheet.
-        } elseif ($type == "timesheet" && $this->get_value("timeSheetID")) {
+        } elseif ('timesheet' == $type && $this->get_value('timeSheetID')) {
             $timeSheet = new timeSheet();
-            $timeSheet->set_id($this->get_value("timeSheetID"));
-            $str = '<a href="' . $timeSheet->get_url() . '">' . $transactionTypes[$type] . " " . $this->get_value("timeSheetID") . "</a>";
-        } elseif (($type == "commission" || $type == "tax") && $this->get_value("timeSheetID")) {
+            $timeSheet->set_id($this->get_value('timeSheetID'));
+            $str = '<a href="' . $timeSheet->get_url() . '">' . $transactionTypes[$type] . ' ' . $this->get_value('timeSheetID') . '</a>';
+        } elseif (('commission' == $type || 'tax' == $type) && $this->get_value('timeSheetID')) {
             $timeSheet = new timeSheet();
-            $timeSheet->set_id($this->get_value("timeSheetID"));
-            $str = '<a href="' . $timeSheet->get_url() . '">' . $transactionTypes[$type] . " (Time Sheet " . $this->get_value("timeSheetID") . ")</a>";
+            $timeSheet->set_id($this->get_value('timeSheetID'));
+            $str = '<a href="' . $timeSheet->get_url() . '">' . $transactionTypes[$type] . ' (Time Sheet ' . $this->get_value('timeSheetID') . ')</a>';
         } else {
             $str = $transactionTypes[$type];
         }
 
-        if ($this->get_value("transactionGroupID")) {
-            $str .= ' <a href="' . $TPL["url_alloc_transactionGroup"] . "transactionGroupID=" . $this->get_value("transactionGroupID") . '">Group ' . $this->get_value("transactionGroupID") . "</a>";
+        if ($this->get_value('transactionGroupID')) {
+            $str .= ' <a href="' . $TPL['url_alloc_transactionGroup'] . 'transactionGroupID=' . $this->get_value('transactionGroupID') . '">Group ' . $this->get_value('transactionGroupID') . '</a>';
         }
 
         return $str;
@@ -265,20 +270,20 @@ class transaction extends DatabaseEntity
     public function reduce_tfs($_FORM)
     {
         $tfIDs = [];
-        if ($_FORM["tfName"]) {
-            $q = unsafe_prepare("SELECT * FROM tf WHERE tfName = '%s'", $_FORM["tfName"]);
+        if ($_FORM['tfName']) {
+            $q = unsafe_prepare("SELECT * FROM tf WHERE tfName = '%s'", $_FORM['tfName']);
             $allocDatabase = new AllocDatabase();
             $allocDatabase->query($q);
             $allocDatabase->next_record();
-            $tfIDs[] = $allocDatabase->f("tfID");
+            $tfIDs[] = $allocDatabase->f('tfID');
         }
 
-        if ($_FORM["tfID"]) {
-            $tfIDs[] = $_FORM["tfID"];
+        if ($_FORM['tfID']) {
+            $tfIDs[] = $_FORM['tfID'];
         }
 
-        if ($_FORM["tfIDs"]) {
-            $tfIDs = array_merge((array)$tfIDs, (array)$_FORM["tfIDs"]);
+        if ($_FORM['tfIDs']) {
+            $tfIDs = array_merge((array) $tfIDs, (array) $_FORM['tfIDs']);
         }
 
         return tf::get_permitted_tfs($tfIDs);
@@ -287,35 +292,35 @@ class transaction extends DatabaseEntity
     public function get_list_filter($_FORM)
     {
         $sql = [];
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
 
-        if (is_array($_FORM["tfIDs"]) && count($_FORM["tfIDs"])) {
-            $sql["tfIDs"] = sprintf_implode("transaction.tfID = %d or transaction.fromTfID = %d", $_FORM["tfIDs"], $_FORM["tfIDs"]);
+        if (is_array($_FORM['tfIDs']) && count($_FORM['tfIDs'])) {
+            $sql['tfIDs'] = sprintf_implode('transaction.tfID = %d or transaction.fromTfID = %d', $_FORM['tfIDs'], $_FORM['tfIDs']);
         }
 
-        if ($_FORM["monthDate"]) {
-            $_FORM["startDate"] = format_date("Y-m-", $_FORM["monthDate"]) . "01";
-            $t = format_date("U", $_FORM["monthDate"]);
-            $_FORM["endDate"] = date("Y-m-d", mktime(1, 1, 1, date("m", $t) + 1, 1, date("Y", $t)));
+        if ($_FORM['monthDate']) {
+            $_FORM['startDate'] = format_date('Y-m-', $_FORM['monthDate']) . '01';
+            $t = format_date('U', $_FORM['monthDate']);
+            $_FORM['endDate'] = date('Y-m-d', mktime(1, 1, 1, date('m', $t) + 1, 1, date('Y', $t)));
         }
 
-        $_FORM["sortTransactions"] || ($_FORM["sortTransactions"] = "transactionDate");
+        $_FORM['sortTransactions'] || ($_FORM['sortTransactions'] = 'transactionDate');
 
-        if ($_FORM["sortTransactions"] == "transactionSortDate") {
-            $_FORM["sortTransactions"] = "if(transactionModifiedTime,transactionModifiedTime,transactionCreatedTime)";
+        if ('transactionSortDate' == $_FORM['sortTransactions']) {
+            $_FORM['sortTransactions'] = 'if(transactionModifiedTime,transactionModifiedTime,transactionCreatedTime)';
         }
 
-        $_FORM["startDate"] && ($sql["startDate"] = unsafe_prepare("(%s >= '%s')", $_FORM["sortTransactions"], $_FORM["startDate"]));
-        $_FORM["startDate"] && ($sql["prevBalance"] = unsafe_prepare("(%s < '%s')", $_FORM["sortTransactions"], $_FORM["startDate"]));
-        $_FORM["endDate"] && ($sql["endDate"] = unsafe_prepare("(%s < '%s')", $_FORM["sortTransactions"], $_FORM["endDate"]));
-        $_FORM["status"] && ($sql["status"] = unsafe_prepare("(status = '%s')", $_FORM["status"]));
-        $_FORM["transactionType"] && ($sql["transactionType"] = unsafe_prepare("(transactionType = '%s')", $_FORM["transactionType"]));
+        $_FORM['startDate'] && ($sql['startDate'] = unsafe_prepare("(%s >= '%s')", $_FORM['sortTransactions'], $_FORM['startDate']));
+        $_FORM['startDate'] && ($sql['prevBalance'] = unsafe_prepare("(%s < '%s')", $_FORM['sortTransactions'], $_FORM['startDate']));
+        $_FORM['endDate'] && ($sql['endDate'] = unsafe_prepare("(%s < '%s')", $_FORM['sortTransactions'], $_FORM['endDate']));
+        $_FORM['status'] && ($sql['status'] = unsafe_prepare("(status = '%s')", $_FORM['status']));
+        $_FORM['transactionType'] && ($sql['transactionType'] = unsafe_prepare("(transactionType = '%s')", $_FORM['transactionType']));
 
-        $_FORM["fromTfID"] && ($sql["fromTfID"] = unsafe_prepare("(fromTfID=%d)", $_FORM["fromTfID"]));
-        $_FORM["expenseFormID"] && ($sql["expenseFormID"] = unsafe_prepare("(expenseFormID=%d)", $_FORM["expenseFormID"]));
-        $_FORM["transactionID"] && ($sql["transactionID"] = unsafe_prepare("(transactionID=%d)", $_FORM["transactionID"]));
-        $_FORM["product"] && ($sql["product"] = unsafe_prepare('(product LIKE "%%%s%%")', $_FORM["product"]));
-        $_FORM["amount"] && ($sql["amount"] = unsafe_prepare("(amount = '%s')", $_FORM["amount"]));
+        $_FORM['fromTfID'] && ($sql['fromTfID'] = unsafe_prepare('(fromTfID=%d)', $_FORM['fromTfID']));
+        $_FORM['expenseFormID'] && ($sql['expenseFormID'] = unsafe_prepare('(expenseFormID=%d)', $_FORM['expenseFormID']));
+        $_FORM['transactionID'] && ($sql['transactionID'] = unsafe_prepare('(transactionID=%d)', $_FORM['transactionID']));
+        $_FORM['product'] && ($sql['product'] = unsafe_prepare('(product LIKE "%%%s%%")', $_FORM['product']));
+        $_FORM['amount'] && ($sql['amount'] = unsafe_prepare("(amount = '%s')", $_FORM['amount']));
 
         return $sql;
     }
@@ -328,56 +333,56 @@ class transaction extends DatabaseEntity
         $total_amount_positive = null;
         $total_amount_negative = null;
         $transactions = [];
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         global $TPL;
 
         // This is the definitive method of getting a list of transactions that need a sophisticated level of filtering
 
-        $_FORM["tfIDs"] = (new transaction())->reduce_tfs($_FORM);
+        $_FORM['tfIDs'] = (new transaction())->reduce_tfs($_FORM);
 
         // Non-admin users must specify a valid TF
-        if (!$current_user->have_role("admin") && !$_FORM["tfIDs"]) {
+        if (!$current_user->have_role('admin') && !$_FORM['tfIDs']) {
             return;
         }
 
         $filter = (new transaction())->get_list_filter($_FORM);
-        $debug = $_FORM["debug"];
-        $debug && (print "\n<pre>_FORM: " . print_r($_FORM, 1) . "</pre>");
-        $debug && (print "\n<pre>filter: " . print_r($filter, 1) . "</pre>");
+        $debug = $_FORM['debug'];
+        $debug && (print "\n<pre>_FORM: " . print_r($_FORM, 1) . '</pre>');
+        $debug && (print "\n<pre>filter: " . print_r($filter, 1) . '</pre>');
 
-        $_FORM["return"] || ($_FORM["return"] = "html");
+        $_FORM['return'] || ($_FORM['return'] = 'html');
 
-        $filter["prevBalance"] && ($filter2[] = $filter["prevBalance"]);
-        $filter["tfIDs"] && ($filter2[] = $filter["tfIDs"]);
+        $filter['prevBalance'] && ($filter2[] = $filter['prevBalance']);
+        $filter['tfIDs'] && ($filter2[] = $filter['tfIDs']);
         $filter2 && ($filter2[] = " (status = 'approved') ");
-        unset($filter["prevBalance"]);
+        unset($filter['prevBalance']);
 
         if (is_array($filter2) && count($filter2)) {
-            $filter2 = " WHERE " . implode(" AND ", $filter2);
+            $filter2 = ' WHERE ' . implode(' AND ', $filter2);
         }
 
         if (is_array($filter) && count($filter)) {
-            $filter = " WHERE " . implode(" AND ", $filter);
+            $filter = ' WHERE ' . implode(' AND ', $filter);
         }
 
-        $_FORM["sortTransactions"] || ($_FORM["sortTransactions"] = "transactionDate");
-        $order_by = "ORDER BY " . $_FORM["sortTransactions"];
+        $_FORM['sortTransactions'] || ($_FORM['sortTransactions'] = 'transactionDate');
+        $order_by = 'ORDER BY ' . $_FORM['sortTransactions'];
 
         // Determine opening balance
         if (is_array($_FORM['tfIDs']) && count($_FORM['tfIDs'])) {
-            $q = unsafe_prepare("SELECT SUM( IF(fromTfID IN (%s),-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
+            $q = unsafe_prepare('SELECT SUM( IF(fromTfID IN (%s),-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
                             FROM transaction
                       LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
-                         " . $filter2, $_FORM['tfIDs']);
+                         ' . $filter2, $_FORM['tfIDs']);
             $debug && (print "\n<br>QUERY: " . $q);
             $db = new AllocDatabase();
             $db->query($q);
             $db->row();
-            $_FORM["opening_balance"] = $db->f("balance");
-            $running_balance = $db->f("balance");
+            $_FORM['opening_balance'] = $db->f('balance');
+            $running_balance = $db->f('balance');
         }
 
-        $q = "SELECT *,
+        $q = 'SELECT *,
                      (amount * pow(10,-currencyType.numberToBasic)) as amount1,
                      (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount2,
                      if(transactionModifiedTime,transactionModifiedTime,transactionCreatedTime) AS transactionSortDate,
@@ -387,8 +392,8 @@ class transaction extends DatabaseEntity
            LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
            LEFT JOIN tf tf1 ON transaction.fromTfID = tf1.tfID
            LEFT JOIN tf tf2 ON transaction.tfID = tf2.tfID
-             " . $filter . "
-             " . $order_by;
+             ' . $filter . '
+             ' . $order_by;
 
         $debug && (print "\n<br>QUERY2: " . $q);
         $db = new AllocDatabase();
@@ -406,118 +411,116 @@ class transaction extends DatabaseEntity
             $print = true;
 
             // If the destination of this TF is not the current TfID, then invert the $amount
-            $amount = $row["amount2"];
-            if (!in_array($row["tfID"], (array)$_FORM["tfIDs"])) {
+            $amount = $row['amount2'];
+            if (!in_array($row['tfID'], (array) $_FORM['tfIDs'])) {
                 $amount = -$amount;
-                $row["amount1"] = -$row["amount1"];
+                $row['amount1'] = -$row['amount1'];
             }
 
-            $row["amount"] = $amount;
-            $row["transactionURL"] = $t->get_url();
-            $row["transactionName"] = $t->get_name($_FORM);
-            $row["transactionLink"] = $t->get_transaction_link($_FORM);
-            ($row["transactionTypeLink"] = $t->get_transaction_type_link()) || ($row["transactionTypeLink"] = $row["transactionType"]);
-            $row["transactionSortDate"] = format_date("Y-m-d", $row["transactionSortDate"]);
+            $row['amount'] = $amount;
+            $row['transactionURL'] = $t->get_url();
+            $row['transactionName'] = $t->get_name($_FORM);
+            $row['transactionLink'] = $t->get_transaction_link($_FORM);
+            ($row['transactionTypeLink'] = $t->get_transaction_type_link()) || ($row['transactionTypeLink'] = $row['transactionType']);
+            $row['transactionSortDate'] = format_date('Y-m-d', $row['transactionSortDate']);
 
-            $row["fromTfIDLink"] = '<a href="' . $TPL["url_alloc_transactionList"] . "tfID=" . $row["fromTfID"] . '">' . Page::htmlentities($row["fromTfName"]) . "</a>";
-            $row["tfIDLink"] = '<a href="' . $TPL["url_alloc_transactionList"] . "tfID=" . $row["tfID"] . '">' . Page::htmlentities($row["tfName"]) . "</a>";
+            $row['fromTfIDLink'] = '<a href="' . $TPL['url_alloc_transactionList'] . 'tfID=' . $row['fromTfID'] . '">' . Page::htmlentities($row['fromTfName']) . '</a>';
+            $row['tfIDLink'] = '<a href="' . $TPL['url_alloc_transactionList'] . 'tfID=' . $row['tfID'] . '">' . Page::htmlentities($row['tfName']) . '</a>';
 
-            if ($t->get_value("status") == "approved") {
+            if ('approved' == $t->get_value('status')) {
                 $running_balance += $amount;
-                $row["running_balance"] = Page::money(config::get_config_item("currency"), $running_balance, "%m %c");
+                $row['running_balance'] = Page::money(config::get_config_item('currency'), $running_balance, '%m %c');
             }
 
             if ($amount > 0) {
-                $row["amount_positive"] = Page::money($row["currencyTypeID"], $row["amount1"], "%m %c");
+                $row['amount_positive'] = Page::money($row['currencyTypeID'], $row['amount1'], '%m %c');
                 $total_amount_positive += $amount;
             } else {
-                $row["amount_negative"] = Page::money($row["currencyTypeID"], $row["amount1"], "%m %c");
+                $row['amount_negative'] = Page::money($row['currencyTypeID'], $row['amount1'], '%m %c');
                 $total_amount_negative += $amount;
             }
 
             // Cyber only hackery for ext ref field on product sales
-            if ($for_cyber && $row["productSaleID"]) {
+            if ($for_cyber && $row['productSaleID']) {
                 $ps = new productSale();
-                $ps->set_id($row["productSaleID"]);
+                $ps->set_id($row['productSaleID']);
                 if ($ps->select()) {
-                    $ps->get_value("extRef") && ($row["product"] .= " (Ext ref: " . $ps->get_value("extRef") . ")");
+                    $ps->get_value('extRef') && ($row['product'] .= ' (Ext ref: ' . $ps->get_value('extRef') . ')');
                 }
             }
 
-            $transactions[$row["transactionID"]] = $row;
+            $transactions[$row['transactionID']] = $row;
         }
 
-        $_FORM["total_amount_positive"] = Page::money(config::get_config_item("currency"), $total_amount_positive, "%s%m %c");
-        $_FORM["total_amount_negative"] = Page::money(config::get_config_item("currency"), $total_amount_negative, "%s%m %c");
-        $_FORM["running_balance"] = Page::money(config::get_config_item("currency"), $running_balance, "%s%m %c");
+        $_FORM['total_amount_positive'] = Page::money(config::get_config_item('currency'), $total_amount_positive, '%s%m %c');
+        $_FORM['total_amount_negative'] = Page::money(config::get_config_item('currency'), $total_amount_negative, '%s%m %c');
+        $_FORM['running_balance'] = Page::money(config::get_config_item('currency'), $running_balance, '%s%m %c');
 
-        return ["totals" => $_FORM, "rows" => (array)$transactions];
+        return ['totals' => $_FORM, 'rows' => (array) $transactions];
     }
 
     public static function arr_to_csv($rows = []): string
     {
-
         $csv = null;
         $csvHeaders = [
-            "transactionID",
-            "transactionType",
-            "fromTfID",
-            "tfID",
-            "transactionDate",
-            "transactionSortDate",
-            "product",
-            "status",
-            "currencyTypeID",
-            "exchangeRate",
-            "destCurrencyTypeID",
-            "amount_positive",
-            "amount_negative",
-            "running_balance",
+            'transactionID',
+            'transactionType',
+            'fromTfID',
+            'tfID',
+            'transactionDate',
+            'transactionSortDate',
+            'product',
+            'status',
+            'currencyTypeID',
+            'exchangeRate',
+            'destCurrencyTypeID',
+            'amount_positive',
+            'amount_negative',
+            'running_balance',
         ];
 
-        $nl = "";
-        foreach ((array)$rows as $row) {
+        $nl = '';
+        foreach ((array) $rows as $row) {
             $csv_data = [];
             foreach ($csvHeaders as $csvHeader) {
                 $csv_data[] = $row[$csvHeader];
             }
 
-            $csv .= $nl . implode(",", array_map('export_escape_csv', $csv_data));
+            $csv .= $nl . implode(',', array_map('export_escape_csv', $csv_data));
             $nl = "\n";
         }
 
-        return implode(",", array_map('export_escape_csv', $csvHeaders)) . "\n" . $csv;
+        return implode(',', array_map('export_escape_csv', $csvHeaders)) . "\n" . $csv;
     }
 
     public function get_list_vars()
     {
-
         return [
-            "return"           => "[MANDATORY] eg: html | csv | array",
-            "tfID"             => "Transactions that are for this TF",
-            "tfIDs"            => "Transactions that are for this array of TF's",
-            "tfName"           => "Transactions that are for this TF name",
-            "status"           => "Transaction status eg: pending | rejected | approved",
-            "startDate"        => "Transactions with dates after this start date eg: 2002-07-07",
-            "endDate"          => "Transactions with dates before this end date eg: 2007-07-07",
-            "monthDate"        => "Transactions for a particular month, by date, eg july: 2008-07-07",
-            "sortTransactions" => "Sort transactions eg: transactionSortDate | transactionDate",
-            "transactionType"  => "Eg: invoice | expense | salary | commission | timesheet | adjustment | tax | sale",
-            "applyFilter"      => "Saves this filter as the persons preference",
-            "url_form_action"  => "The submit action for the filter form",
-            "form_name"        => "The name of this form, i.e. a handle for referring to this saved form",
-            "dontSave"         => "Specify that the filter preferences should not be saved this time",
-            "fromTfID"         => "Transactions that have a source of this TF",
-            "expenseFormID"    => "Transactions for a particular Expense Form",
-            "transactionID"    => "A Transaction by ID",
-            "product"          => "Transactions with a description like *something* (fuzzy)",
-            "amount"           => "Get Transactions that are for a certain amount",
+            'return'           => '[MANDATORY] eg: html | csv | array',
+            'tfID'             => 'Transactions that are for this TF',
+            'tfIDs'            => "Transactions that are for this array of TF's",
+            'tfName'           => 'Transactions that are for this TF name',
+            'status'           => 'Transaction status eg: pending | rejected | approved',
+            'startDate'        => 'Transactions with dates after this start date eg: 2002-07-07',
+            'endDate'          => 'Transactions with dates before this end date eg: 2007-07-07',
+            'monthDate'        => 'Transactions for a particular month, by date, eg july: 2008-07-07',
+            'sortTransactions' => 'Sort transactions eg: transactionSortDate | transactionDate',
+            'transactionType'  => 'Eg: invoice | expense | salary | commission | timesheet | adjustment | tax | sale',
+            'applyFilter'      => 'Saves this filter as the persons preference',
+            'url_form_action'  => 'The submit action for the filter form',
+            'form_name'        => 'The name of this form, i.e. a handle for referring to this saved form',
+            'dontSave'         => 'Specify that the filter preferences should not be saved this time',
+            'fromTfID'         => 'Transactions that have a source of this TF',
+            'expenseFormID'    => 'Transactions for a particular Expense Form',
+            'transactionID'    => 'A Transaction by ID',
+            'product'          => 'Transactions with a description like *something* (fuzzy)',
+            'amount'           => 'Get Transactions that are for a certain amount',
         ];
     }
 
     public static function load_form_data($defaults = [])
     {
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
 
         $page_vars = array_keys((new transaction())->get_list_vars());
 
@@ -546,31 +549,31 @@ class transaction extends DatabaseEntity
         $sp = null;
         global $TPL;
 
-        $rtn["statusOptions"] = Page::select_options(["" => "", "pending" => "Pending", "approved" => "Approved", "rejected" => "Rejected"], $_FORM["status"]);
+        $rtn['statusOptions'] = Page::select_options(['' => '', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'], $_FORM['status']);
 
         $transactionTypeOptions = transaction::get_transactionTypes();
-        $rtn["transactionTypeOptions"] = Page::select_options($transactionTypeOptions, $_FORM["transactionType"]);
+        $rtn['transactionTypeOptions'] = Page::select_options($transactionTypeOptions, $_FORM['transactionType']);
 
-        $rtn["startDate"] = $_FORM["startDate"];
-        $rtn["endDate"] = $_FORM["endDate"];
+        $rtn['startDate'] = $_FORM['startDate'];
+        $rtn['endDate'] = $_FORM['endDate'];
 
-        if ($_FORM["monthDate"]) {
-            $rtn["startDate"] = format_date("Y-m-", $_FORM["monthDate"]) . "01";
-            $t = format_date("U", $_FORM["monthDate"]);
-            $rtn["endDate"] = date("Y-m-d", mktime(1, 1, 1, date("m", $t) + 1, 1, date("Y", $t)));
+        if ($_FORM['monthDate']) {
+            $rtn['startDate'] = format_date('Y-m-', $_FORM['monthDate']) . '01';
+            $t = format_date('U', $_FORM['monthDate']);
+            $rtn['endDate'] = date('Y-m-d', mktime(1, 1, 1, date('m', $t) + 1, 1, date('Y', $t)));
         }
 
-        $display_format = "M";
+        $display_format = 'M';
 
         // Fiddle $_FORM["monthDate"]. It may be a real date (2010-11-23) so change the last 2 chars to "01".
-        $_FORM["monthDate"] = substr_replace($_FORM["monthDate"], "01", 8);
+        $_FORM['monthDate'] = substr_replace($_FORM['monthDate'], '01', 8);
 
         // If this month is January, go from last Feb to this Feb
-        $m = date("m") + 1;
-        $y = date("Y");
+        $m = date('m') + 1;
+        $y = date('Y');
 
         // jump back a year iff it's December now
-        if ($m == 13) {
+        if (13 == $m) {
             $m = 1;
         } else {
             --$y;
@@ -580,26 +583,26 @@ class transaction extends DatabaseEntity
 
         for ($j = 0; $j < 13; ++$j) {
             $label = date($display_format, mktime(0, 0, 0, $m, 1, $y));
-            $monthDate = date("Y-m-d", mktime(0, 0, 0, $m, 1, $y));
+            $monthDate = date('Y-m-d', mktime(0, 0, 0, $m, 1, $y));
 
             $bold = false;
-            if ($monthDate == format_date("Y-m-d", $_FORM["monthDate"])) {
+            if ($monthDate == format_date('Y-m-d', $_FORM['monthDate'])) {
                 $bold = true;
             }
 
-            $link = $TPL["url_alloc_transactionList"] . "tfID=" . $_FORM["tfID"] . "&monthDate=" . $monthDate . "&applyFilter=true";
+            $link = $TPL['url_alloc_transactionList'] . 'tfID=' . $_FORM['tfID'] . '&monthDate=' . $monthDate . '&applyFilter=true';
             if ($bold) {
-                $rtn["month_links"] .= "<b>";
+                $rtn['month_links'] .= '<b>';
             }
 
-            $rtn["month_links"] .= $sp . '<a href="' . $link . '">' . $label . "</a>";
+            $rtn['month_links'] .= $sp . '<a href="' . $link . '">' . $label . '</a>';
             if ($bold) {
-                $rtn["month_links"] .= "</b>";
+                $rtn['month_links'] .= '</b>';
             }
 
-            $sp = "&nbsp;&nbsp;";
+            $sp = '&nbsp;&nbsp;';
 
-            if ($m == 12) {
+            if (12 == $m) {
                 $m = 1;
                 ++$y;
             } else {
@@ -607,27 +610,26 @@ class transaction extends DatabaseEntity
             }
         }
 
-        if ($_FORM["sortTransactions"] == "transactionSortDate") {
-            $rtn["checked_transactionSortDate"] = " checked";
+        if ('transactionSortDate' == $_FORM['sortTransactions']) {
+            $rtn['checked_transactionSortDate'] = ' checked';
         } else {
-            $rtn["checked_transactionDate"] = " checked";
+            $rtn['checked_transactionDate'] = ' checked';
         }
 
         $tf = new tf();
-        $options = $tf->get_assoc_array("tfID", "tfName");
-        $rtn["tfOptions"] = Page::select_options($options, $_FORM["tfID"]);
-        $rtn["fromTfOptions"] = Page::select_options($options, $_FORM["fromTfID"]);
-        $rtn["transactionID"] = $_FORM["transactionID"];
-        $rtn["expenseFormID"] = $_FORM["expenseFormID"];
-        $rtn["product"] = $_FORM["product"];
-        $rtn["amount"] = $_FORM["amount"];
+        $options = $tf->get_assoc_array('tfID', 'tfName');
+        $rtn['tfOptions'] = Page::select_options($options, $_FORM['tfID']);
+        $rtn['fromTfOptions'] = Page::select_options($options, $_FORM['fromTfID']);
+        $rtn['transactionID'] = $_FORM['transactionID'];
+        $rtn['expenseFormID'] = $_FORM['expenseFormID'];
+        $rtn['product'] = $_FORM['product'];
+        $rtn['amount'] = $_FORM['amount'];
 
         return $rtn;
     }
 
     public static function get_actual_amount_used($rows = [])
     {
-
         $tallies = [];
         $sum = null;
         /*
@@ -655,8 +657,8 @@ class transaction extends DatabaseEntity
         $rows || ($rows = []);
         $tallies || ($tallies = []);
         foreach ($rows as $k => $row) {
-            $tallies[$row["fromTfID"]] -= $row["amount"];
-            $tallies[$row["tfID"]] += $row["amount"];
+            $tallies[$row['fromTfID']] -= $row['amount'];
+            $tallies[$row['tfID']] += $row['amount'];
         }
 
         foreach ($tallies as $tfID => $amount) {
@@ -678,10 +680,11 @@ class transaction extends DatabaseEntity
 
     public static function get_next_transactionGroupID()
     {
-        $q = "SELECT coalesce(max(transactionGroupID)+1,1) as newNum FROM transaction";
+        $q = 'SELECT coalesce(max(transactionGroupID)+1,1) as newNum FROM transaction';
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         $allocDatabase->row();
-        return $allocDatabase->f("newNum");
+
+        return $allocDatabase->f('newNum');
     }
 }

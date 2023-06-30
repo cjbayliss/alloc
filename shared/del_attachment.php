@@ -7,33 +7,33 @@
 
 // For use like get_attachment.php?entity=project&id=5&file=foo.bar
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
-($id = $_GET["id"]) || ($id = $_POST["id"]);
-($file = $_GET["file"]) || ($file = $_POST["file"]);
-($entity = $_GET["entity"]) || ($entity = $_POST["entity"]);
+($id = $_GET['id']) || ($id = $_POST['id']);
+($file = $_GET['file']) || ($file = $_POST['file']);
+($entity = $_GET['entity']) || ($entity = $_POST['entity']);
 
-$id = sprintf("%d", $id);
+$id = sprintf('%d', $id);
 
 if (
     $id && $file
-    && !preg_match("/\.\./", $file) && !preg_match("/\//", $file)
-    && !preg_match("/\.\./", $entity) && !preg_match("/\//", $entity)
+    && !preg_match('/\\.\\./', $file) && !preg_match('/\\//', $file)
+    && !preg_match('/\\.\\./', $entity) && !preg_match('/\\//', $entity)
 ) {
-    $e = new $entity;
+    $e = new $entity();
     $e->set_id($id);
     $e->select();
 
     $dir = ATTACHMENTS_DIR . $entity . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR;
     $file = $dir . $file;
 
-    if ($e->has_attachment_permission_delete($current_user) && file_exists($file) && dirname($file) === dirname($dir . ".")) {
+    if ($e->has_attachment_permission_delete($current_user) && file_exists($file) && dirname($file) === dirname($dir . '.')) {
         // last check
         unlink($file);
-        alloc_redirect($TPL["url_alloc_" . $entity] . $entity . "ID=" . $id . "&sbs_link=attachments");
-        exit();
+        alloc_redirect($TPL['url_alloc_' . $entity] . $entity . 'ID=' . $id . '&sbs_link=attachments');
+        exit;
     }
 }
 
 // return by default
-alloc_redirect($TPL["url_alloc_" . $entity] . $entity . "ID=" . $id . "&sbs_link=attachments");
+alloc_redirect($TPL['url_alloc_' . $entity] . $entity . 'ID=' . $id . '&sbs_link=attachments');

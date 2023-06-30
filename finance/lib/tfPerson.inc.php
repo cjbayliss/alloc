@@ -7,11 +7,11 @@
 
 class tfPerson extends DatabaseEntity
 {
-    public $data_table = "tfPerson";
+    public $data_table = 'tfPerson';
 
-    public $display_field_name = "personID";
+    public $display_field_name = 'personID';
 
-    public $key_field = "tfPersonID";
+    public $key_field = 'tfPersonID';
 
-    public $data_fields = ["tfID", "personID"];
+    public $data_fields = ['tfID', 'personID'];
 }

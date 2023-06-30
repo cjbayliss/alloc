@@ -6,25 +6,28 @@
  */
 
 /**
- * alloc API
+ * alloc API.
  *
  * A public interface for alloc code
+ *
  * @author Alex Lance
+ *
  * @version 1.0
  */
 class services
 {
-
-    public function __construct($sessID = "")
+    public function __construct($sessID = '')
     {
         $current_user = $this->get_current_user($sessID);
-        singleton("current_user", $current_user);
+        singleton('current_user', $current_user);
     }
 
     /**
-     * Perform an authentication check, start a new session
+     * Perform an authentication check, start a new session.
+     *
      * @param string $username
      * @param string $password
+     *
      * @return string the session key
      */
     public static function authenticate($username, $password)
@@ -36,10 +39,11 @@ class services
             $session->Start($row, false);
             $session->UseGet();
             $session->Save();
+
             return $session->GetKey();
         }
 
-        die("Authentication Failed(1).");
+        exit('Authentication Failed(1).');
     }
 
     private function get_current_user($sessID)
@@ -47,102 +51,107 @@ class services
         $session = new Session($sessID);
         if ($session->Started()) {
             $person = new person();
-            $person->load_current_user($session->Get("personID"));
+            $person->load_current_user($session->Get('personID'));
             // update session_started, which affects session lifetime
             $session->Save();
+
             return $person;
         }
     }
 
     /**
-     * Get all the commments on a task
+     * Get all the commments on a task.
+     *
      * @param string $taskID
+     *
      * @return array an array of comments
      */
     public function get_task_comments($taskID)
     {
-        if ($taskID !== '' && $taskID !== '0') {
+        if ('' !== $taskID && '0' !== $taskID) {
             $task = new Task();
             $task->set_id($taskID);
             $task->select();
+
             return $task->get_task_comments_array();
         }
     }
 
     /**
-     * Convert a comma separated string of names, into an array with email addresses
-     * @param string $people
-     * @param string $entity the related entity that can assist in the look up
-     * @param integer $entityID the id of the related entity
+     * Convert a comma separated string of names, into an array with email addresses.
+     *
+     * @param string $entity   the related entity that can assist in the look up
+     * @param int    $entityID the id of the related entity
+     *
      * @return array an array of people, indexed by their email address
      */
-    public function get_people($options = [], $entity = "", $entityID = "")
+    public function get_people($options = [], $entity = '', $entityID = '')
     {
         $e = null;
         $rtn = [];
-        $person_table = &get_cached_table("person");
+        $person_table = &get_cached_table('person');
         $people = $options;
 
         if ($entity && $entityID) {
-            $e = new $entity;
+            $e = new $entity();
             $e->set_id($entityID);
             $e->select();
-            if (in_array("default", $people)) {
+            if (in_array('default', $people)) {
                 $default_recipients = $e->get_all_parties();
             }
 
-            if (in_array("internal", $people)) {
+            if (in_array('internal', $people)) {
                 $internal_recipients = $e->get_all_parties();
             }
         }
 
         // remove default and internal from the array
-        $clean_people = array_diff($people, ["default", "internal"]);
+        $clean_people = array_diff($people, ['default', 'internal']);
 
         if (is_object($e)) {
             $projectID = $e->get_project_id();
             $project = new project();
             $project->set_id($projectID);
             $project->select();
-            $client = $project->get_foreign_object("client");
+            $client = $project->get_foreign_object('client');
             $clientID = $client->get_id();
         }
 
-        foreach ((array)$default_recipients as $email => $info) {
-            if ($info["selected"]) {
+        foreach ((array) $default_recipients as $email => $info) {
+            if ($info['selected']) {
                 $rtn[$email] = $this->reduce_person_info($info);
             }
         }
 
-        foreach ((array)$internal_recipients as $email => $info) {
-            if (!$info["selected"]) {
+        foreach ((array) $internal_recipients as $email => $info) {
+            if (!$info['selected']) {
                 continue;
             }
 
-            if ($info["external"]) {
+            if ($info['external']) {
                 continue;
             }
 
             $rtn[$email] = $this->reduce_person_info($info);
         }
 
-        foreach ((array)$clean_people as $person) {
+        foreach ((array) $clean_people as $person) {
             $bad_person = true;
             $person = trim($person);
 
             // personID
             if (is_numeric($person)) {
-                if ($person_table[$person]["personActive"]) {
-                    $rtn[$person_table[$person]["emailAddress"]] = $person_table[$person];
+                if ($person_table[$person]['personActive']) {
+                    $rtn[$person_table[$person]['emailAddress']] = $person_table[$person];
                     $bad_person = false;
                     continue;
                 }
 
                 // email addresses
-            } elseif (in_str("@", $person)) {
+            } elseif (in_str('@', $person)) {
                 foreach ($person_table as $pid => $data) {
-                    if (same_email_address($person, $data["emailAddress"]) && $data["personActive"]) {
-                        $rtn[$data["emailAddress"]] = $data;
+                    if (same_email_address($person, $data['emailAddress']) && $data['personActive']) {
+                        $rtn[$data['emailAddress']] = $data;
                         $bad_person = false;
                         continue 2;
                     }
@@ -152,22 +161,22 @@ class services
                     $cc = new clientContact();
                     $cc->set_id($ccID);
                     $cc->select();
-                    $rtn[$cc->get_value("clientContactEmail")] = $cc->row();
+                    $rtn[$cc->get_value('clientContactEmail')] = $cc->row();
                     $bad_person = false;
                     continue;
                 }
 
                 // If we get here, then return the email address entered
                 [$e, $n] = parse_email_address($person);
-                $rtn[$e] = ["emailAddress" => $e, "name" => $n];
+                $rtn[$e] = ['emailAddress' => $e, 'name' => $n];
                 $bad_person = false;
                 continue;
                 // usernames, partial and full names
             } else {
                 foreach ($person_table as $pid => $data) {
                     // If matches username
-                    if (strtolower($person) === strtolower($data["username"]) && $data["personActive"]) {
-                        $rtn[$data["emailAddress"]] = $data;
+                    if (strtolower($person) === strtolower($data['username']) && $data['personActive']) {
+                        $rtn[$data['emailAddress']] = $data;
                         $bad_person = false;
                         continue 2;
                     }
@@ -175,8 +184,8 @@ class services
 
                 foreach ($person_table as $pid => $data) {
                     // If matches name
-                    if (strtolower($person) === strtolower($data["firstName"] . " " . $data["surname"]) && $data["personActive"]) {
-                        $rtn[$data["emailAddress"]] = $data;
+                    if (strtolower($person) === strtolower($data['firstName'] . ' ' . $data['surname']) && $data['personActive']) {
+                        $rtn[$data['emailAddress']] = $data;
                         $bad_person = false;
                         continue 2;
                     }
@@ -184,8 +193,8 @@ class services
 
                 foreach ($person_table as $pid => $data) {
                     // If matches a section of name, eg: a search for "Ale" will match the full name "Alex Lance"
-                    if (strtolower($person) === strtolower(substr(strtolower($data["firstName"] . " " . $data["surname"]), 0, strlen($person))) && $data["personActive"]) {
-                        $rtn[$data["emailAddress"]] = $data;
+                    if (strtolower($person) === strtolower(substr(strtolower($data['firstName'] . ' ' . $data['surname']), 0, strlen($person))) && $data['personActive']) {
+                        $rtn[$data['emailAddress']] = $data;
                         $bad_person = false;
                         continue 2;
                     }
@@ -195,7 +204,7 @@ class services
                     $cc = new clientContact();
                     $cc->set_id($ccID);
                     $cc->select();
-                    $rtn[$cc->get_value("clientContactEmail")] = $cc->row();
+                    $rtn[$cc->get_value('clientContactEmail')] = $cc->row();
                     $bad_person = false;
                     continue;
                 }
@@ -204,7 +213,7 @@ class services
                     $cc = new clientContact();
                     $cc->set_id($ccID);
                     $cc->select();
-                    $rtn[$cc->get_value("clientContactEmail")] = $cc->row();
+                    $rtn[$cc->get_value('clientContactEmail')] = $cc->row();
                     $bad_person = false;
                     continue;
                 }
@@ -213,57 +222,62 @@ class services
                     $cc = new clientContact();
                     $cc->set_id($ccID);
                     $cc->select();
-                    $rtn[$cc->get_value("clientContactEmail")] = $cc->row();
+                    $rtn[$cc->get_value('clientContactEmail')] = $cc->row();
                     $bad_person = false;
                     continue;
                 }
             }
 
             if ($bad_person) {
-                die("Unable to find person: " . $person);
+                exit('Unable to find person: ' . $person);
             }
         }
 
-        foreach ((array)$rtn as $id => $project) {
+        foreach ((array) $rtn as $id => $project) {
             $rtn[$id] = $this->reduce_person_info($project);
         }
 
-        return (array)$rtn;
+        return (array) $rtn;
     }
 
     private function reduce_person_info($person)
     {
         $rtn = [];
-        $rtn["personID"] = $person["personID"];
-        $rtn["username"] = $person["username"];
-        ($rtn["name"] = $person["name"]) || ($rtn["name"] = $person["clientContactName"]);
-        if (!($rtn["emailAddress"] = $person["emailAddress"]) && !($rtn["emailAddress"] = $person["clientContactEmail"])) {
-            $rtn["emailAddress"] = $person["email"];
+        $rtn['personID'] = $person['personID'];
+        $rtn['username'] = $person['username'];
+        ($rtn['name'] = $person['name']) || ($rtn['name'] = $person['clientContactName']);
+        if (!($rtn['emailAddress'] = $person['emailAddress']) && !($rtn['emailAddress'] = $person['clientContactEmail'])) {
+            $rtn['emailAddress'] = $person['email'];
         }
 
-        $rtn["clientContactID"] = $person["clientContactID"];
+        $rtn['clientContactID'] = $person['clientContactID'];
+
         return $rtn;
     }
 
     /**
-     * Add a timesheet item
+     * Add a timesheet item.
+     *
      * @param array $options
+     *
      * @return string a success message
      */
     public function add_timeSheetItem($options)
     {
         $rtn = timeSheet::add_timeSheetItem($options);
-        if ($rtn["status"] == "yay") {
-            return $rtn["message"];
+        if ('yay' == $rtn['status']) {
+            return $rtn['message'];
         }
 
-        die(print_r($rtn, 1));
+        exit(print_r($rtn, 1));
     }
 
     /**
-     * Move a time sheet to a different status
-     * @param integer $timeSheetID the time sheet to change
-     * @param string $direction the direction to move the timesheet eg "forwards" or "backwards"
+     * Move a time sheet to a different status.
+     *
+     * @param int    $timeSheetID the time sheet to change
+     * @param string $direction   the direction to move the timesheet eg "forwards" or "backwards"
+     *
      * @return string a success message
      */
     public function change_timeSheet_status($timeSheetID, $direction)
@@ -274,13 +288,14 @@ class services
 
         $rtn = $timeSheet->change_status($direction);
         $timeSheet->save();
+
         return $rtn;
     }
 
     /**
-     * Convert a tf from its name to its tf ID
-     * @param mixed $name a tf name
-     * @return integer the tf's ID
+     * Convert a tf from its name to its tf ID.
+     *
+     * @return int the tf's ID
      */
     public function get_tfID($options)
     {
@@ -288,45 +303,49 @@ class services
     }
 
     /**
-     * Get a list of entities, eg one of: tasks, comments, timeSheets, projects et al. See also this::get_list_help()
-     * @param string $entity the entity of which to get a list
-     * @param array $options the various filter options to apply see: ${entity}/lib/${entity}.inc.php -> get_list_filter().
+     * Get a list of entities, eg one of: tasks, comments, timeSheets, projects et al. See also this::get_list_help().
+     *
+     * @param string $entity  the entity of which to get a list
+     * @param array  $options the various filter options to apply see: ${entity}/lib/${entity}.inc.php -> get_list_filter().
+     *
      * @return array the list of entities
      */
     public function get_list($entity, $options = [])
     {
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         if (class_exists($entity)) {
             $options = obj2array($options);
-            $e = new $entity;
-            if (method_exists($e, "get_list")) {
+            $e = new $entity();
+            if (method_exists($e, 'get_list')) {
                 ob_start();
                 $rtn = $entity::get_list($options);
                 $echoed = ob_get_contents();
                 if (!$rtn && $echoed) {
-                    return ["error" => $echoed];
+                    return ['error' => $echoed];
                 }
 
-                return $rtn["rows"] ?? $rtn;
+                return $rtn['rows'] ?? $rtn;
             }
 
-            die("Entity method '" . $entity . "::get_list()' does not exist.");
+            exit("Entity method '" . $entity . "::get_list()' does not exist.");
         }
 
-        die("Entity '" . $entity . "' does not exist.");
+        exit("Entity '" . $entity . "' does not exist.");
     }
 
     /**
-     * Run a search across all emails, using PHP's IMAP search syntax http://php.net/imap_search and RFC2060 6.4.4
+     * Run a search across all emails, using PHP's IMAP search syntax http://php.net/imap_search and RFC2060 6.4.4.
+     *
      * @param string $str the search string
+     *
      * @return string of mbox format emails
      */
     public function search_emails($str)
     {
         $emails = null;
-        if ($str !== '' && $str !== '0') {
+        if ('' !== $str && '0' !== $str) {
             $uids = $this->get_comment_email_uids_search($str);
-            foreach ((array)$uids as $uid) {
+            foreach ((array) $uids as $uid) {
                 $emails .= $this->get_email($uid);
             }
         }
@@ -335,23 +354,25 @@ class services
     }
 
     /**
-     * Grab all emails from a task mail box
-     * @param integer $taskID the task (or other entity) id
+     * Grab all emails from a task mail box.
+     *
+     * @param int    $taskID the task (or other entity) id
      * @param string $entity the particular entity: task, client, project, etc
+     *
      * @return string of mbox format emails
      */
-    public function get_task_emails($taskID, $entity = "task")
+    public function get_task_emails($taskID, $entity = 'task')
     {
         $emails = null;
-        $current_user = &singleton("current_user");
-        $entity || ($entity = "task");
-        if ($taskID !== 0) {
-            $folder = config::get_config_item("allocEmailFolder") . "/" . $entity . $taskID;
+        $current_user = &singleton('current_user');
+        $entity || ($entity = 'task');
+        if (0 !== $taskID) {
+            $folder = config::get_config_item('allocEmailFolder') . '/' . $entity . $taskID;
             $info = $this->init_email_info();
             $emailreceive = new email_receive($info);
             $emailreceive->open_mailbox($folder, OP_READONLY);
             $uids = $emailreceive->get_all_email_msg_uids();
-            foreach ((array)$uids as $uid) {
+            foreach ((array) $uids as $uid) {
                 [$header, $body] = $emailreceive->get_raw_email_by_msg_uid($uid);
                 if ($header && $body) {
                     $m = new email_send();
@@ -369,24 +390,26 @@ class services
     }
 
     /**
-     * Get all time sheet item comments in a faked mbox format
-     * @param integer $taskID which task the time sheet item comments relate to
+     * Get all time sheet item comments in a faked mbox format.
+     *
+     * @param int $taskID which task the time sheet item comments relate to
+     *
      * @return string of mbox format emails
      */
     public function get_timeSheetItem_comments($taskID)
     {
-        $str = "";
-        $br = "";
-        $people = &get_cached_table("person");
-        has("time") && ($rows = timeSheetItem::get_timeSheetItemComments($taskID));
-        foreach ((array)$rows as $row) {
-            ($d = $row["timeSheetItemCreatedTime"]) || ($d = $row["date"]);
-            $timestamp = format_date("U", $d);
-            $name = $people[$row["personID"]]["name"];
-            $str .= $br . "From allocPSA " . date('D M  j G:i:s Y', $timestamp);
+        $str = '';
+        $br = '';
+        $people = &get_cached_table('person');
+        has('time') && ($rows = timeSheetItem::get_timeSheetItemComments($taskID));
+        foreach ((array) $rows as $row) {
+            ($d = $row['timeSheetItemCreatedTime']) || ($d = $row['date']);
+            $timestamp = format_date('U', $d);
+            $name = $people[$row['personID']]['name'];
+            $str .= $br . 'From allocPSA ' . date('D M  j G:i:s Y', $timestamp);
             $str .= "\nFrom: " . $name;
-            $str .= "\nDate: " . date("D, d M Y H:i:s O", $timestamp);
-            $str .= "\n\n" . $name . " " . $row["duration"] . " " . $row["comment"];
+            $str .= "\nDate: " . date('D, d M Y H:i:s O', $timestamp);
+            $str .= "\n\n" . $name . ' ' . $row['duration'] . ' ' . $row['comment'];
             $br = "\n\n";
         }
 
@@ -396,139 +419,149 @@ class services
     private function init_email_info()
     {
         $info = [];
-        $current_user = &singleton("current_user");
-        $info["host"] = config::get_config_item("allocEmailHost");
-        $info["port"] = config::get_config_item("allocEmailPort");
-        $info["username"] = config::get_config_item("allocEmailUsername");
-        $info["password"] = config::get_config_item("allocEmailPassword");
-        $info["protocol"] = config::get_config_item("allocEmailProtocol");
-        if (!$info["host"]) {
-            die("Email mailbox host not defined, assuming email fetch function is inactive.");
+        $current_user = &singleton('current_user');
+        $info['host'] = config::get_config_item('allocEmailHost');
+        $info['port'] = config::get_config_item('allocEmailPort');
+        $info['username'] = config::get_config_item('allocEmailUsername');
+        $info['password'] = config::get_config_item('allocEmailPassword');
+        $info['protocol'] = config::get_config_item('allocEmailProtocol');
+        if (!$info['host']) {
+            exit('Email mailbox host not defined, assuming email fetch function is inactive.');
         }
 
         return $info;
     }
 
     /**
-     * Get a single email, add an mbox date header line
-     * @param integer $emailUID the IMAP UID of an email
+     * Get a single email, add an mbox date header line.
+     *
+     * @param int $emailUID the IMAP UID of an email
+     *
      * @return string a single email in mbox format
      */
     public function get_email($emailUID)
     {
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         // $lockfile = ATTACHMENTS_DIR."mail.lock.person_".$current_user->get_id();
-        if ($emailUID !== 0) {
+        if (0 !== $emailUID) {
             $info = $this->init_email_info();
             $emailreceive = new email_receive($info);
-            $emailreceive->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
+            $emailreceive->open_mailbox(config::get_config_item('allocEmailFolder'), OP_READONLY);
             [$header, $body] = $emailreceive->get_raw_email_by_msg_uid($emailUID);
             $emailreceive->close();
             $emailsend = new email_send();
             $emailsend->set_headers($header);
             $timestamp = $emailsend->get_header('Date');
-            $str = "From allocPSA " . date('D M  j G:i:s Y', strtotime($timestamp)) . "\r\n" . $header . $body;
+            $str = 'From allocPSA ' . date('D M  j G:i:s Y', strtotime($timestamp)) . "\r\n" . $header . $body;
+
             return utf8_encode(str_replace("\r\n", "\n", $str));
         }
     }
 
     /**
-     * Get a list of IMAP email UIDs, based on a string search
+     * Get a list of IMAP email UIDs, based on a string search.
+     *
      * @param string $str the search string
+     *
      * @return array an array of email UIDs
      */
     public function get_comment_email_uids_search($str)
     {
         $rtn = null;
-        if ($str !== '' && $str !== '0') {
-            $current_user = &singleton("current_user");
+        if ('' !== $str && '0' !== $str) {
+            $current_user = &singleton('current_user');
             $info = $this->init_email_info();
             $emailreceive = new email_receive($info);
-            $emailreceive->open_mailbox(config::get_config_item("allocEmailFolder"), OP_READONLY);
+            $emailreceive->open_mailbox(config::get_config_item('allocEmailFolder'), OP_READONLY);
             $rtn = $emailreceive->get_emails_UIDs_search($str);
             $emailreceive->close();
         }
 
-        return (array)$rtn;
+        return (array) $rtn;
     }
 
     /**
-     * A now defunct method to obtain help about this class
+     * A now defunct method to obtain help about this class.
+     *
      * @param string $topic the name of the class method, eg "get_list"
+     *
      * @return string the help information
      */
-    public function get_help($topic = "")
+    public function get_help($topic = '')
     {
         $m = null;
         $available_topics = null;
         $this_methods = get_class_methods($this);
 
-        if ($topic === '' || $topic === '0') {
-            $commar = "";
+        if ('' === $topic || '0' === $topic) {
+            $commar = '';
             foreach ($this_methods as $thi_method) {
-                $m = $thi_method . "_help";
+                $m = $thi_method . '_help';
                 if (method_exists($this, $m)) {
                     $available_topics .= $commar . $thi_method;
-                    $commar = ", ";
+                    $commar = ', ';
                 }
             }
 
-            die("Help is available for the following methods: " . $available_topics);
+            exit('Help is available for the following methods: ' . $available_topics);
         }
 
-        $m = $topic . "_help";
+        $m = $topic . '_help';
         if (method_exists($this, $m)) {
-            return $this->$m();
+            return $this->{$m}();
         }
 
-        die("No help exists for this method: " . $topic);
+        exit('No help exists for this method: ' . $topic);
     }
 
     /**
-     * Add an interested party
+     * Add an interested party.
+     *
      * @param array $options see shared/lib/interestedParty.inc.php [add|delete]_interested_party()
      */
     public function save_interestedParty($options)
     {
         $v = null;
         $data = [];
-        $data = array_filter($options, static fn ($v) => strtolower($v) != 'none');
+        $data = array_filter($options, static fn ($v) => 'none' != strtolower($v));
 
         // Check we have the minimum of fields
-        if ($data["entity"] && $data["entityID"] && $data["emailAddress"]) {
-            InterestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
+        if ($data['entity'] && $data['entityID'] && $data['emailAddress']) {
+            InterestedParty::delete_interested_party($data['entity'], $data['entityID'], $data['emailAddress']);
             InterestedParty::add_interested_party($data);
         }
     }
 
     /**
-     * Deactivate (not delete) an interested party
+     * Deactivate (not delete) an interested party.
+     *
      * @param array $options see shared/lib/interestedParty.inc.php [add|delete]_interested_party()
      */
     public function delete_interestedParty($options)
     {
         $v = null;
         $data = [];
-        $data = array_filter($options, static fn ($v) => strtolower($v) != 'none');
+        $data = array_filter($options, static fn ($v) => 'none' != strtolower($v));
 
         // Delete existing entries
-        if (!$data["entity"]) {
+        if (!$data['entity']) {
             return;
         }
 
-        if (!$data["entityID"]) {
+        if (!$data['entityID']) {
             return;
         }
 
-        if (!$data["emailAddress"]) {
+        if (!$data['emailAddress']) {
             return;
         }
 
-        InterestedParty::delete_interested_party($data["entity"], $data["entityID"], $data["emailAddress"]);
+        InterestedParty::delete_interested_party($data['entity'], $data['entityID'], $data['emailAddress']);
     }
 
     /**
-     * An introspective method to display all the various get_list options across all the different entities
+     * An introspective method to display all the various get_list options across all the different entities.
+     *
      * @return string the help text
      */
     private function get_list_help()
@@ -548,15 +581,15 @@ class services
             foreach ($object->databaseEntities as $entity) {
                 unset($commar2);
                 if (class_exists($entity)) {
-                    $e = new $entity;
-                    if (method_exists($e, "get_list")) {
+                    $e = new $entity();
+                    if (method_exists($e, 'get_list')) {
                         $rtn .= "\n\nEntity: " . $entity . "\nOptions:\n";
-                        if (method_exists($e, "get_list_vars")) {
+                        if (method_exists($e, 'get_list_vars')) {
                             $options = $entity::get_list_vars();
-                            $commar2 = "";
+                            $commar2 = '';
                             foreach ($options as $option => $help) {
                                 $padding = 30 - strlen($option);
-                                $rtn .= $commar2 . "    " . $option . str_repeat(" ", $padding) . $help;
+                                $rtn .= $commar2 . '    ' . $option . str_repeat(' ', $padding) . $help;
                                 $commar2 = "\n";
                             }
                         }
@@ -565,25 +598,28 @@ class services
             }
         }
 
-        die("Usage: get_list(entity, options). The following entities are available: " . $rtn);
+        exit('Usage: get_list(entity, options). The following entities are available: ' . $rtn);
     }
 
     /**
-     * A generic method to edit entities
-     * @param string $entity which type of entity to edit
-     * @param integer $id the id of the entity
-     * @param array $options the edit options see email/lib/command.inc.php for the various options
+     * A generic method to edit entities.
+     *
+     * @param string $entity  which type of entity to edit
+     * @param int    $id      the id of the entity
+     * @param array  $options the edit options see email/lib/command.inc.php for the various options
+     *
      * @return array success or failure object
      */
     public function edit_entity($entity, $id, $options = false)
     {
         $options[$entity] = $id;
-        if (strtolower($options[$entity]) == "help") {
-            return ["status" => "msg", "message" => command::get_help($entity)];
+        if ('help' == strtolower($options[$entity])) {
+            return ['status' => 'msg', 'message' => command::get_help($entity)];
         }
 
-        if ($options !== []) {
+        if ([] !== $options) {
             $command = new command();
+
             return $command->run_commands($options);
         }
     }

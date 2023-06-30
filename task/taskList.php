@@ -5,26 +5,26 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
-$TPL["main_alloc_title"] = "Task List - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'Task List - ' . APPLICATION_NAME;
 
 $defaults = [
-    "showHeader"      => true,
-    "showTaskID"      => true,
-    "showEdit"        => true,
-    "taskView"        => "byProject",
-    "showStatus"      => "true",
-    "showTotals"      => "true",
-    "padding"         => 1,
-    "url_form_action" => $TPL["url_alloc_taskList"],
-    "form_name"       => "taskList_filter",
+    'showHeader'      => true,
+    'showTaskID'      => true,
+    'showEdit'        => true,
+    'taskView'        => 'byProject',
+    'showStatus'      => 'true',
+    'showTotals'      => 'true',
+    'padding'         => 1,
+    'url_form_action' => $TPL['url_alloc_taskList'],
+    'form_name'       => 'taskList_filter',
 ];
 
 // Load task list
 $_FORM = Task::load_form_data($defaults);
-$TPL["taskListRows"] = Task::get_list($_FORM);
-$TPL["_FORM"] = $_FORM;
+$TPL['taskListRows'] = Task::get_list($_FORM);
+$TPL['_FORM'] = $_FORM;
 
 // Load filter
 $arr = Task::load_task_filter($_FORM);
@@ -33,57 +33,57 @@ if (is_array($arr)) {
 }
 
 // Check for updates
-if (isset($_POST["mass_update"]) && isset($_POST["select"])) {
+if (isset($_POST['mass_update'], $_POST['select'])) {
     $allowed_auto_fields = [
-        "dateTargetStart",
-        "dateTargetCompletion",
-        "dateActualStart",
-        "dateActualCompletion",
-        "managerID",
-        "timeLimit",
-        "timeBest",
-        "timeWorst",
-        "timeExpected",
-        "priority",
-        "taskTypeID",
-        "taskStatus",
-        "personID",
+        'dateTargetStart',
+        'dateTargetCompletion',
+        'dateActualStart',
+        'dateActualCompletion',
+        'managerID',
+        'timeLimit',
+        'timeBest',
+        'timeWorst',
+        'timeExpected',
+        'priority',
+        'taskTypeID',
+        'taskStatus',
+        'personID',
     ];
-    foreach ($_POST["select"] as $taskID => $selected) {
+    foreach ($_POST['select'] as $taskID => $selected) {
         $task = new Task();
         $task->set_id($taskID);
         $task->select();
 
         // Special case: projectID and parentTaskID have to be done together
-        if ($_POST["update_action"] == "projectIDAndParentTaskID") {
+        if ('projectIDAndParentTaskID' == $_POST['update_action']) {
             // Can't set self to be parent
-            if ($_POST["parentTaskID"] != $task->get_id()) {
-                $task->set_value("parentTaskID", $_POST["parentTaskID"]);
+            if ($_POST['parentTaskID'] != $task->get_id()) {
+                $task->set_value('parentTaskID', $_POST['parentTaskID']);
             }
 
             // If task is a parent, change the project of that tasks children
-            if ($_POST["projectID"] != $task->get_value("projectID") && $task->get_value("taskTypeID") == "Parent") {
-                $task->update_children("projectID", $_POST["projectID"]);
+            if ($_POST['projectID'] != $task->get_value('projectID') && 'Parent' == $task->get_value('taskTypeID')) {
+                $task->update_children('projectID', $_POST['projectID']);
             }
 
-            $task->set_value("projectID", $_POST["projectID"]);
+            $task->set_value('projectID', $_POST['projectID']);
             $task->updateSearchIndexLater = true;
             $task->save();
             // All other cases are generic and can be handled by a single clause
-        } elseif ($_POST["update_action"] && in_array($_POST["update_action"], $allowed_auto_fields)) {
-            $task->set_value($_POST["update_action"], $_POST[$_POST["update_action"]]);
+        } elseif ($_POST['update_action'] && in_array($_POST['update_action'], $allowed_auto_fields)) {
+            $task->set_value($_POST['update_action'], $_POST[$_POST['update_action']]);
             $task->updateSearchIndexLater = true;
             $task->save();
         }
     }
 
-    $TPL["message_good"][] = "Tasks updated.";
-    ($url = $_POST["returnURL"]) || ($url = $TPL["url_alloc_taskList"]);
+    $TPL['message_good'][] = 'Tasks updated.';
+    ($url = $_POST['returnURL']) || ($url = $TPL['url_alloc_taskList']);
     alloc_redirect($url);
 }
 
-if (!isset($current_user->prefs["taskList_filter"])) {
-    $TPL["message_help"][] = "
+if (!isset($current_user->prefs['taskList_filter'])) {
+    $TPL['message_help'][] = '
 
 allocPSA allows you to assign, schedule and plan out Tasks. This page
 allows you to view a list of Tasks.
@@ -93,7 +93,7 @@ allows you to view a list of Tasks.
 Simply adjust the filter settings and click the <b>Filter</b> button to
 display a list of previously created Tasks.
 If you would prefer to create a new Task, click the <b>New Task</b> link
-in the top-right hand corner of the box below.";
+in the top-right hand corner of the box below.';
 }
 
-include_template("templates/taskListM.tpl");
+include_template('templates/taskListM.tpl');

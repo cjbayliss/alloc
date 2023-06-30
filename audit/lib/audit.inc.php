@@ -7,28 +7,29 @@
 
 class audit extends DatabaseEntity
 {
-    public $data_table = "audit";
+    public $data_table = 'audit';
 
-    public $key_field = "auditID";
+    public $key_field = 'auditID';
 
     public $data_fields = [
-        "auditID",
-        "taskID",
-        "projectID",
-        "personID",
-        "dateChanged",
-        "field",
-        "value",
+        'auditID',
+        'taskID',
+        'projectID',
+        'personID',
+        'dateChanged',
+        'field',
+        'value',
     ];
 
     /**
      * Get a list of task history items with sophisticated filtering and
-     * somewhat sophisticated output
+     * somewhat sophisticated output.
      *
      * (n.b., the output from this generally needs to be post-processed to
      * handle the semantic meaning of changes in various fields)
      *
      * @param array $_FORM
+     *
      * @return array $rows an array of audit records
      */
     public static function get_list($_FORM)
@@ -38,16 +39,16 @@ class audit extends DatabaseEntity
         $filter = audit::get_list_filter($_FORM);
 
         if (is_array($filter) && count($filter)) {
-            $where_clause = " WHERE " . implode(" AND ", $filter);
+            $where_clause = ' WHERE ' . implode(' AND ', $filter);
         }
 
-        if (isset($_FORM["projectID"])) {
+        if (isset($_FORM['projectID'])) {
             $entity = new project();
-            $entity->set_id($_FORM["projectID"]);
+            $entity->set_id($_FORM['projectID']);
             $entity->select();
-        } elseif (isset($_FORM["taskID"])) {
+        } elseif (isset($_FORM['taskID'])) {
             $entity = new Task();
-            $entity->set_id($_FORM["taskID"]);
+            $entity->set_id($_FORM['taskID']);
             $entity->select();
         }
 
@@ -68,20 +69,19 @@ class audit extends DatabaseEntity
     }
 
     /**
-     * Get an array to use as a filter
+     * Get an array to use as a filter.
      *
-     * @param array $filter
      * @return array $sql an array of project or task id to filter by. e.g.: Array([0] => (taskID = 1))
      */
     public static function get_list_filter(array $filter): array
     {
         $sql = [];
-        if (isset($filter["taskID"])) {
-            $sql[] = unsafe_prepare("(taskID = %d)", $filter["taskID"]);
+        if (isset($filter['taskID'])) {
+            $sql[] = unsafe_prepare('(taskID = %d)', $filter['taskID']);
         }
 
-        if (isset($filter["projectID"])) {
-            $sql[] = unsafe_prepare("(projectID = %d)", $filter["projectID"]);
+        if (isset($filter['projectID'])) {
+            $sql[] = unsafe_prepare('(projectID = %d)', $filter['projectID']);
         }
 
         return $sql;
@@ -90,8 +90,8 @@ class audit extends DatabaseEntity
     public function get_list_vars()
     {
         return [
-            "taskID"    => "The task id to find audit records for",
-            "projectID" => "The project id to find audit records for",
+            'taskID'    => 'The task id to find audit records for',
+            'projectID' => 'The project id to find audit records for',
         ];
     }
 }

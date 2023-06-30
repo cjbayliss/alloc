@@ -5,13 +5,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
-if ($_GET["topic"]) {
-    $topic = $_GET["topic"];
-    $TPL["str"] = @file_get_contents($TPL["url_alloc_help"] . $topic . ".html");
+if ($_GET['topic']) {
+    $topic = $_GET['topic'];
+    $TPL['str'] = @file_get_contents($TPL['url_alloc_help'] . $topic . '.html');
 } else {
-    $TPL["str"] = "No valid help topic specified.";
+    $TPL['str'] = 'No valid help topic specified.';
 }
 
-include_template("templates/getHelpM.tpl");
+include_template('templates/getHelpM.tpl');

@@ -10,11 +10,11 @@ class announcements_home_item extends home_item
     public function __construct()
     {
         parent::__construct(
-            "announcements",
-            "Announcements",
-            "announcement",
-            "announcementsH.tpl",
-            "standard",
+            'announcements',
+            'Announcements',
+            'announcement',
+            'announcementsH.tpl',
+            'standard',
             10
         );
     }
@@ -22,6 +22,7 @@ class announcements_home_item extends home_item
     public function visible()
     {
         $announcement = new announcement();
+
         return $announcement->has_announcements();
     }
 
@@ -38,19 +39,19 @@ class announcements_home_item extends home_item
         $allocDatabase->connect();
 
         $getAnnoucements = $allocDatabase->pdo->query(
-            "SELECT *
+            'SELECT *
                FROM announcement
               WHERE displayFromDate <= CURRENT_DATE()
                 AND displayToDate >= CURRENT_DATE()
-              ORDER BY displayFromDate desc"
+              ORDER BY displayFromDate desc'
         );
 
         while ($annoucmentRow = $getAnnoucements->fetch(PDO::FETCH_ASSOC)) {
             $announcement = new announcement();
             $announcement->read_row_record($annoucmentRow);
             $announcement->set_tpl_values();
-            $person = $announcement->get_foreign_object("person");
-            $TPL["personName"] = $person->get_name();
+            $person = $announcement->get_foreign_object('person');
+            $TPL['personName'] = $person->get_name();
             include_template($this->get_template_dir() . $template_name);
         }
     }

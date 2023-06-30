@@ -7,16 +7,16 @@
 
 class time_module extends Module
 {
-    public $module = "time";
+    public $module = 'time';
 
-    public $databaseEntities = ["timeSheet", "timeSheetItem", "timeUnit"];
+    public $databaseEntities = ['timeSheet', 'timeSheetItem', 'timeUnit'];
 
     public $home_items = [
-        "timeSheetHomeItem",
-        "tsiHintHomeItem",
-        "timeSheetListHomeItem",
-        "pendingApprovalTimeSheetListHomeItem",
-        "timeSheetStatusHomeItem",
-        "pendingAdminApprovalTimeSheetListHomeItem",
+        'timeSheetHomeItem',
+        'tsiHintHomeItem',
+        'timeSheetListHomeItem',
+        'pendingApprovalTimeSheetListHomeItem',
+        'timeSheetStatusHomeItem',
+        'pendingAdminApprovalTimeSheetListHomeItem',
     ];
 }

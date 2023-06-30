@@ -7,7 +7,7 @@
 
 class person_module extends Module
 {
-    public $module = "person";
+    public $module = 'person';
 
-    public $databaseEntities = ["person", "absence", "skill", "proficiency"];
+    public $databaseEntities = ['person', 'absence', 'skill', 'proficiency'];
 }

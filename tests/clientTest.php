@@ -1,4 +1,5 @@
 <?php
+
 error_reporting(E_ALL);
 
 require_once 'shared/util.inc.php'; // IMPORTANT!!
@@ -7,6 +8,11 @@ require_once 'client/lib/client.inc.php';
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 final class clientTest extends TestCase
 {
     // Your test methods

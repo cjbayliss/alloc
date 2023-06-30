@@ -5,13 +5,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("NO_AUTH", true);
-require_once(__DIR__ . "/../alloc.php");
-singleton("errors_fatal", true);
-singleton("errors_format", "text");
-singleton("errors_logged", true);
-singleton("errors_thrown", true);
-singleton("errors_haltdb", false);
+define('NO_AUTH', true);
+require_once __DIR__ . '/../alloc.php';
+singleton('errors_fatal', true);
+singleton('errors_format', 'text');
+singleton('errors_logged', true);
+singleton('errors_thrown', true);
+singleton('errors_haltdb', false);
 
 // $today = $_REQUEST["today"] or $today = date("Y-m-d");
 
@@ -28,73 +28,73 @@ $q = unsafe_prepare("SELECT invoiceRepeatDate.invoiceRepeatID
                WHERE invoice.invoiceID IS NULL
                  AND invoiceRepeatDate.invoiceDate <= '%s'", $today);
 
-$orig_current_user = &singleton("current_user");
+$orig_current_user = &singleton('current_user');
 $db = new AllocDatabase();
 $id = $db->query($q);
 while ($row = $db->row($id)) {
-    if ($row["currentUser"]) {
+    if ($row['currentUser']) {
         $current_user = new person();
-        $current_user->load_current_user($row["currentUser"]);
-        singleton("current_user", $current_user);
+        $current_user->load_current_user($row['currentUser']);
+        singleton('current_user', $current_user);
     }
 
     // echo "<br>Checking row: ".print_r($row,1);
 
     $invoice = new invoice();
-    $invoice->set_id($row["templateInvoiceID"]);
+    $invoice->set_id($row['templateInvoiceID']);
     $invoice->select();
 
     $i = new invoice();
-    $i->set_value("invoiceRepeatID", $row["invoiceRepeatID"]);
-    $i->set_value("invoiceRepeatDate", $row["invoiceDate"]);
-    $i->set_value("invoiceNum", invoice::get_next_invoiceNum());
-    $i->set_value("clientID", $invoice->get_value("clientID"));
-    $i->set_value("projectID", $invoice->get_value("projectID"));
-    $i->set_value("invoiceName", $invoice->get_value("invoiceName"));
-    $i->set_value("invoiceStatus", "edit");
-    $i->set_value("invoiceDateTo", $row["invoiceDate"]);
-    $i->set_value("currencyTypeID", $invoice->get_value("currencyTypeID"));
-    $i->set_value("maxAmount", $invoice->get_value("maxAmount"));
+    $i->set_value('invoiceRepeatID', $row['invoiceRepeatID']);
+    $i->set_value('invoiceRepeatDate', $row['invoiceDate']);
+    $i->set_value('invoiceNum', invoice::get_next_invoiceNum());
+    $i->set_value('clientID', $invoice->get_value('clientID'));
+    $i->set_value('projectID', $invoice->get_value('projectID'));
+    $i->set_value('invoiceName', $invoice->get_value('invoiceName'));
+    $i->set_value('invoiceStatus', 'edit');
+    $i->set_value('invoiceDateTo', $row['invoiceDate']);
+    $i->set_value('currencyTypeID', $invoice->get_value('currencyTypeID'));
+    $i->set_value('maxAmount', $invoice->get_value('maxAmount'));
     $i->save();
 
     // echo "<br>Created invoice: ".$i->get_id();
 
-    $q = unsafe_prepare("SELECT * FROM invoiceItem WHERE invoiceID = %d", $invoice->get_id());
+    $q = unsafe_prepare('SELECT * FROM invoiceItem WHERE invoiceID = %d', $invoice->get_id());
     $id2 = $db->query($q);
     while ($item = $db->row($id2)) {
         $ii = new invoiceItem();
-        $ii->currency = $i->get_value("currencyTypeID");
-        $ii->set_value("invoiceID", $i->get_id());
-        $ii->set_value("iiMemo", $item["iiMemo"]);
-        $ii->set_value("iiUnitPrice", Page::money($ii->currency, $item["iiUnitPrice"], "%mo"));
-        $ii->set_value("iiAmount", Page::money($ii->currency, $item["iiAmount"], "%mo"));
-        $ii->set_value("iiQuantity", $item["iiQuantity"]);
+        $ii->currency = $i->get_value('currencyTypeID');
+        $ii->set_value('invoiceID', $i->get_id());
+        $ii->set_value('iiMemo', $item['iiMemo']);
+        $ii->set_value('iiUnitPrice', Page::money($ii->currency, $item['iiUnitPrice'], '%mo'));
+        $ii->set_value('iiAmount', Page::money($ii->currency, $item['iiAmount'], '%mo'));
+        $ii->set_value('iiQuantity', $item['iiQuantity']);
         $ii->save();
         // echo "<br>Created invoice item: ".$ii->get_id();
     }
 
-    if ($row["message"]) {
-        $ips = InterestedParty::get_interested_parties("invoiceRepeat", $row["invoiceRepeatID"]);
+    if ($row['message']) {
+        $ips = InterestedParty::get_interested_parties('invoiceRepeat', $row['invoiceRepeatID']);
 
         $recipients = [];
         foreach ($ips as $email => $info) {
             $recipients[$email] = $info;
-            $recipients[$email]["addIP"] = true;
+            $recipients[$email]['addIP'] = true;
         }
 
-        $commentID = comment::add_comment("invoice", $i->get_id(), $row["message"], "invoice", $i->get_id());
-        if ($recipients !== []) {
+        $commentID = comment::add_comment('invoice', $i->get_id(), $row['message'], 'invoice', $i->get_id());
+        if ([] !== $recipients) {
             $emailRecipients = comment::add_interested_parties($commentID, null, $recipients);
             comment::attach_invoice($commentID, $i->get_id(), $verbose = true);
 
             // Re-email the comment out, including any attachments
             if (!comment::send_comment($commentID, $emailRecipients)) {
-                alloc_error("Failed to email invoice: " . $i->get_id());
+                alloc_error('Failed to email invoice: ' . $i->get_id());
             }
         }
     }
 
     // Put current_user back to normal
     $current_user = &$orig_current_user;
-    singleton("current_user", $current_user);
+    singleton('current_user', $current_user);
 }

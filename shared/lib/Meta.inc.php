@@ -7,7 +7,6 @@
 
 final class Meta extends DatabaseEntity
 {
-
     public $classname;
 
     public $data_table;
@@ -32,46 +31,47 @@ final class Meta extends DatabaseEntity
     // This variable contains the definitive list of all the referential
     // integrity tables that the user is allowed to edit.
     public static $tables = [
-        "absenceType"  => "Absence Types",
-        "clientStatus" => "Client Statuses",
+        'absenceType'  => 'Absence Types',
+        'clientStatus' => 'Client Statuses',
         // "configType"                => "Config Types",
         // "invoiceStatus"             => "Invoice Statuses",
-        "itemType"      => "Item Types",
-        "projectType"   => "Project Types",
-        "currencyType"  => "Currency Types",
-        "projectStatus" => "Project Statuses",
-        "taskStatus"    => "Task Statuses",
+        'itemType'      => 'Item Types',
+        'projectType'   => 'Project Types',
+        'currencyType'  => 'Currency Types',
+        'projectStatus' => 'Project Statuses',
+        'taskStatus'    => 'Task Statuses',
         // "roleLevel"                 => "Role Levels",
         // "reminderRecuringInterval"  => "Reminder Intervals",
         // "reminderAdvNoticeInterval" => "Advanced Notice Int",
         // "sentEmailType"             => "Sent Email Types",
-        "skillProficiency" => "Skill Proficiencies",
+        'skillProficiency' => 'Skill Proficiencies',
         // "changeType"                => "Change Types",
         // "timeSheetStatus"           => "Time Sheet Statuses",
         // "transactionStatus"         => "Transaction Statuses",
-        "transactionType"         => "Transaction Types",
-        "timeSheetItemMultiplier" => "Time Sheet Multipliers",
+        'transactionType'         => 'Transaction Types',
+        'timeSheetItemMultiplier' => 'Time Sheet Multipliers',
         // "productSaleStatus"         => "Product Sale Statuses",
-        "taskType" => "Task Types",
+        'taskType' => 'Task Types',
     ];
 
-    public function __construct($table = "")
+    public function __construct($table = '')
     {
         $this->classname = $table;
         $this->data_table = $table;
-        $this->display_field_name = $table . "ID";
-        $this->key_field = $table . "ID";
-        $this->data_fields = [$table . "Seq", $table . "Active"];
-        if ($table == "taskStatus") {
-            $this->data_fields[] = "taskStatusLabel";
-            $this->data_fields[] = "taskStatusColour";
-        } elseif ($table == "currencyType") {
-            $this->data_fields[] = "currencyTypeLabel";
-            $this->data_fields[] = "currencyTypeName";
-            $this->data_fields[] = "numberToBasic";
+        $this->display_field_name = $table . 'ID';
+        $this->key_field = $table . 'ID';
+        $this->data_fields = [$table . 'Seq', $table . 'Active'];
+        if ('taskStatus' == $table) {
+            $this->data_fields[] = 'taskStatusLabel';
+            $this->data_fields[] = 'taskStatusColour';
+        } elseif ('currencyType' == $table) {
+            $this->data_fields[] = 'currencyTypeLabel';
+            $this->data_fields[] = 'currencyTypeName';
+            $this->data_fields[] = 'numberToBasic';
         }
 
         $this->table = $table; // for internal use
+
         return parent::__construct();
     }
 
@@ -84,7 +84,8 @@ final class Meta extends DatabaseEntity
     {
         $where = [];
         if ($this->data_table) {
-            $include_inactive && ($where[$this->data_table . "Active"] = "all"); // active and inactive
+            $include_inactive && ($where[$this->data_table . 'Active'] = 'all'); // active and inactive
+
             return $this->get_assoc_array(false, false, false, $where);
         }
     }
@@ -99,8 +100,9 @@ final class Meta extends DatabaseEntity
     public function validate($_ = null)
     {
         $err = [];
-        $this->get_id() || ($err[] = "Please enter a Value/ID for the " . $this->get_label());
-        $this->get_value($this->table . "Seq") || ($err[] = "Please enter a Sequence Number for the " . $this->get_label());
+        $this->get_id() || ($err[] = 'Please enter a Value/ID for the ' . $this->get_label());
+        $this->get_value($this->table . 'Seq') || ($err[] = 'Please enter a Sequence Number for the ' . $this->get_label());
+
         return parent::validate($err);
     }
 }

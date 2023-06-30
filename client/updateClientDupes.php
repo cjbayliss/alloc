@@ -9,8 +9,8 @@ use ZendSearch\Lucene\Index;
 use ZendSearch\Lucene\Lucene;
 use ZendSearch\Lucene\Search\QueryParser;
 
-define("NO_REDIRECT", 1);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_REDIRECT', 1);
+require_once __DIR__ . '/../alloc.php';
 
 $index = new Index(ATTACHMENTS_DIR . 'search/client');
 Lucene::setResultSetLimit(10);
@@ -30,11 +30,11 @@ foreach ($matches as $match) {
         HTML;
 }
 
-if ($result === null) {
+if (null === $result) {
     return;
 }
 
-if ($result === '') {
+if ('' === $result) {
     return;
 }
 

@@ -5,50 +5,50 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-use ZendSearch\Lucene\Document\HTML;
-
 class clientContact extends DatabaseEntity
 {
-    public $classname = "clientContact";
+    public $classname = 'clientContact';
 
-    public $data_table = "clientContact";
+    public $data_table = 'clientContact';
 
-    public $display_field_name = "clientContactName";
+    public $display_field_name = 'clientContactName';
 
-    public $key_field = "clientContactID";
+    public $key_field = 'clientContactID';
 
     public $data_fields = [
-        "clientID",
-        "clientContactName",
-        "clientContactStreetAddress",
-        "clientContactSuburb",
-        "clientContactState",
-        "clientContactPostcode",
-        "clientContactCountry",
-        "clientContactPhone",
-        "clientContactMobile",
-        "clientContactFax",
-        "clientContactEmail",
-        "clientContactOther",
-        "primaryContact",
-        "clientContactActive",
+        'clientID',
+        'clientContactName',
+        'clientContactStreetAddress',
+        'clientContactSuburb',
+        'clientContactState',
+        'clientContactPostcode',
+        'clientContactCountry',
+        'clientContactPhone',
+        'clientContactMobile',
+        'clientContactFax',
+        'clientContactEmail',
+        'clientContactOther',
+        'primaryContact',
+        'clientContactActive',
     ];
 
     public function save()
     {
         $rtn = parent::save();
         $client = new client();
-        $client->set_id($this->get_value("clientID"));
+        $client->set_id($this->get_value('clientID'));
         $client->select();
         $client->save();
+
         return $rtn;
     }
 
     /**
-     * Get a list of people from the database
+     * Get a list of people from the database.
      *
-     * @param int $projectID The project ID to look in
-     * @param string $extra Extra SQL to be appended to the client contact query
+     * @param int    $projectID The project ID to look in
+     * @param string $extra     Extra SQL to be appended to the client contact query
+     *
      * @return array a list of people
      */
     private function get_people($projectID = false, $extra = '')
@@ -56,27 +56,27 @@ class clientContact extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->connect();
 
-        if ($projectID !== 0) {
+        if (0 !== $projectID) {
             $getProjectClientID = $allocDatabase->pdo->prepare(
-                "SELECT clientID FROM project WHERE projectID = :projectID"
+                'SELECT clientID FROM project WHERE projectID = :projectID'
             );
             $getProjectClientID->bindValue(':projectID', $projectID, PDO::PARAM_INT);
             $getProjectClientID->execute();
             $projectClientID = $getProjectClientID->fetch(PDO::FETCH_ASSOC);
-            if ($projectClientID["clientID"]) {
-                $extra = "AND clientID = :clientID";
+            if ($projectClientID['clientID']) {
+                $extra = 'AND clientID = :clientID';
             }
         }
 
         $clientContactIDsAndNames = $allocDatabase->pdo->prepare(
-            "SELECT clientContactID, clientContactName
-               FROM clientContact WHERE 1=1 " . $extra
+            'SELECT clientContactID, clientContactName
+               FROM clientContact WHERE 1=1 ' . $extra
         );
 
-        if ($projectID && isset($projectClientID["clientID"])) {
+        if ($projectID && isset($projectClientID['clientID'])) {
             $clientContactIDsAndNames->bindValue(
-                ":clientID",
-                $projectClientID["clientID"],
+                ':clientID',
+                $projectClientID['clientID'],
                 PDO::PARAM_INT
             );
         }
@@ -84,18 +84,19 @@ class clientContact extends DatabaseEntity
         $clientContactIDsAndNames->execute();
         $peopleArray = [];
         while ($row = $clientContactIDsAndNames->fetch(PDO::FETCH_ASSOC)) {
-            $peopleArray[$row["clientContactID"]] = $row;
+            $peopleArray[$row['clientContactID']] = $row;
         }
 
-        return (array)$peopleArray;
+        return (array) $peopleArray;
     }
 
     /**
-     * Find the closest matching person
+     * Find the closest matching person.
      *
-     * @param array $people List of people to check
-     * @param string $name Name of person to find
-     * @param int $percent Required similarity (e.g.: 90)
+     * @param array  $people  List of people to check
+     * @param string $name    Name of person to find
+     * @param int    $percent Required similarity (e.g.: 90)
+     *
      * @return string
      */
     private function get_closest_matching_person($people, $name, $percent)
@@ -104,7 +105,7 @@ class clientContact extends DatabaseEntity
 
         foreach ($people as $personID => $row) {
             similar_text(
-                strtolower($row["clientContactName"]),
+                strtolower($row['clientContactName']),
                 strtolower($name),
                 $score
             );
@@ -115,7 +116,7 @@ class clientContact extends DatabaseEntity
         $personWithHighestSimilarity = array_key_last($similarityScores);
         $highestSimilarityScore = current($similarityScores);
 
-        if ($percent === 0) {
+        if (0 === $percent) {
             return $personWithHighestSimilarity;
         }
 
@@ -134,6 +135,7 @@ class clientContact extends DatabaseEntity
     {
         $extra = $name ? unsafe_prepare("AND clientContactName = '%s'", $name) : null;
         $people = self::get_people($projectID, $extra);
+
         return self::get_closest_matching_person($people, $name, $percent);
     }
 
@@ -153,12 +155,13 @@ class clientContact extends DatabaseEntity
         $allocDatabase->query($q);
 
         $row = $allocDatabase->row();
-        return $row["clientContactID"];
+
+        return $row['clientContactID'];
     }
 
     public static function find_by_email($email = false)
     {
-        $email = str_replace(["<", ">"], "", $email);
+        $email = str_replace(['<', '>'], '', $email);
         if ($email) {
             $q = unsafe_prepare("SELECT clientContactID
                             FROM clientContact
@@ -167,7 +170,8 @@ class clientContact extends DatabaseEntity
             $allocDatabase = new AllocDatabase();
             $allocDatabase->query($q);
             $row = $allocDatabase->row();
-            return $row["clientContactID"];
+
+            return $row['clientContactID'];
         }
     }
 
@@ -179,23 +183,23 @@ class clientContact extends DatabaseEntity
         if (!empty($currentClientID)) {
             $allocDatabase = new AllocDatabase();
             $nullifyClientContactIDQuery = unsafe_prepare(
-                "UPDATE interestedParty 
-                    SET clientContactID = NULL where clientContactID = %d",
+                'UPDATE interestedParty 
+                    SET clientContactID = NULL where clientContactID = %d',
                 $currentClientID
             );
             $allocDatabase->query($nullifyClientContactIDQuery);
 
             $nullifyCommentCreatedUserClientContactIDQuery = unsafe_prepare(
-                "UPDATE comment 
+                'UPDATE comment 
                     SET commentCreatedUserClientContactID = NULL 
-                  where commentCreatedUserClientContactID = %d",
+                  where commentCreatedUserClientContactID = %d',
                 $currentClientID
             );
             $allocDatabase->query($nullifyCommentCreatedUserClientContactIDQuery);
 
             $nullifyProjectClientContactIDQuery = unsafe_prepare(
-                "UPDATE project 
-                    SET clientContactID = NULL where clientContactID = %d",
+                'UPDATE project 
+                    SET clientContactID = NULL where clientContactID = %d',
                 $currentClientID
             );
             $allocDatabase->query($nullifyProjectClientContactIDQuery);
@@ -209,23 +213,23 @@ class clientContact extends DatabaseEntity
         $str = null;
 
         $fields = [
-            "clientContactName",
-            "clientContactStreetAddress",
-            "clientContactSuburb",
-            "clientContactPostcode",
-            "clientContactPhone",
-            "clientContactMobile",
-            "clientContactFax",
+            'clientContactName',
+            'clientContactStreetAddress',
+            'clientContactSuburb',
+            'clientContactPostcode',
+            'clientContactPhone',
+            'clientContactMobile',
+            'clientContactFax',
         ];
 
         foreach ($fields as $field) {
             if ($this->get_value($field)) {
-                $str .= $this->get_value($field, DST_HTML_DISPLAY) . "<br>";
+                $str .= $this->get_value($field, DST_HTML_DISPLAY) . '<br>';
             }
         }
 
-        if ($email = $this->get_value("clientContactEmail")) {
-            $name = $this->get_value("clientContactName", DST_HTML_DISPLAY);
+        if ($email = $this->get_value('clientContactEmail')) {
+            $name = $this->get_value('clientContactName', DST_HTML_DISPLAY);
             $str .= sprintf('<a href=\'mailto:"%s" <%s>\'>%s</a><br>', $name, $email, $email);
         }
 
@@ -237,55 +241,55 @@ class clientContact extends DatabaseEntity
         // array of mappings from DB field to vcard field
         $fields = [
             // clientContactName is special
-            "clientContactPhone"  => "TEL;WORK;VOICE",
-            "clientContactMobile" => "TEL;CELL",
-            "clientContactFax"    => "TEL;TYPE=WORK;FAX",
-            "clientContactEmail"  => "EMAIL;WORK",
+            'clientContactPhone'  => 'TEL;WORK;VOICE',
+            'clientContactMobile' => 'TEL;CELL',
+            'clientContactFax'    => 'TEL;TYPE=WORK;FAX',
+            'clientContactEmail'  => 'EMAIL;WORK',
         ]; // address fields are handled specially because they're a composite of DB fields
 
         $vcard = [];
 
         // This could be templated, but there's not much point
         // Based off the vcard output by Android 2.1
-        header("Content-type: text/x-vcard");
-        $filename = strtr($this->get_value("clientContactName"), " ", "_") . ".vcf";
+        header('Content-type: text/x-vcard');
+        $filename = strtr($this->get_value('clientContactName'), ' ', '_') . '.vcf';
         header('Content-Disposition: attachment; filename="' . $filename . '"');
 
-        print("BEGIN:VCARD\nVERSION:2.1\n");
+        echo "BEGIN:VCARD\nVERSION:2.1\n";
 
-        if ($this->get_value("clientContactName")) {
+        if ($this->get_value('clientContactName')) {
             // vcard stuff requires N to be last name; first name
             // Assume whatever comes after the last space is the last name
             // cut the string up to get <last name>;<everything else>
-            $name = explode(" ", $this->get_value("clientContactName"));
+            $name = explode(' ', $this->get_value('clientContactName'));
             $lastname = array_slice($name, -1);
             $lastname = $lastname[0];
 
             $rest = implode('', array_slice($name, 0, -1));
-            print "N:" . $lastname . ";" . $rest . "\n";
-            print "FN:" . $this->get_value("clientContactName") . "\n";
+            echo 'N:' . $lastname . ';' . $rest . "\n";
+            echo 'FN:' . $this->get_value('clientContactName') . "\n";
         }
 
         foreach ($fields as $db => $label) {
             if ($this->get_value($db)) {
-                print $label . ":" . $this->get_value($db) . "\n";
+                echo $label . ':' . $this->get_value($db) . "\n";
             }
         }
 
-        if ($this->get_value("clientContactStreetAddress")) {
-            print "ADR;HOME:;;" . $this->get_value("clientContactStreetAddress") . ";" .
-                $this->get_value("clientContactSuburb") . ";;" . // county or something
-                $this->get_value("clientContactPostcode") . ";" .
-                $this->get_value("clientContactCountry") . "\n";
+        if ($this->get_value('clientContactStreetAddress')) {
+            echo 'ADR;HOME:;;' . $this->get_value('clientContactStreetAddress') . ';' .
+                $this->get_value('clientContactSuburb') . ';;' . // county or something
+                $this->get_value('clientContactPostcode') . ';' .
+                $this->get_value('clientContactCountry') . "\n";
         }
 
-        print("END:VCARD\n");
+        echo "END:VCARD\n";
     }
 
     // FIXME: ??
-    public function have_role($role = ""): bool
+    public function have_role($role = ''): bool
     {
-        return in_array($role, ["", "client"]);
+        return in_array($role, ['', 'client']);
     }
 
     public function get_list_filter($filter = [])
@@ -293,31 +297,31 @@ class clientContact extends DatabaseEntity
         $sql = [];
 
         // If they want starred, load up the clientContactID filter element
-        if ($filter["starred"]) {
-            $current_user = &singleton("current_user");
-            $starredContacts = isset($current_user->prefs["stars"]) ?
-                ($current_user->prefs["stars"]["clientContact"] ?? "") : "";
+        if ($filter['starred']) {
+            $current_user = &singleton('current_user');
+            $starredContacts = isset($current_user->prefs['stars']) ?
+                ($current_user->prefs['stars']['clientContact'] ?? '') : '';
             if (!empty($starredContacts) && is_array($starredContacts)) {
                 foreach (array_keys($starredContacts) as $starredContact) {
-                    $filter["clientContactID"][] = $starredContact;
+                    $filter['clientContactID'][] = $starredContact;
                 }
             }
 
-            if (!is_array($filter["clientContactID"] ?? "")) {
-                $filter["clientContactID"][] = -1;
+            if (!is_array($filter['clientContactID'] ?? '')) {
+                $filter['clientContactID'][] = -1;
             }
         }
 
         // Filter on clientContactID
-        if (isset($filter["clientContactID"]) && is_array($filter["clientContactID"])) {
+        if (isset($filter['clientContactID']) && is_array($filter['clientContactID'])) {
             $sql[] = unsafe_prepare(
-                "(clientContact.clientContactID in (%s))",
-                $filter["clientContactID"]
+                '(clientContact.clientContactID in (%s))',
+                $filter['clientContactID']
             );
-        } elseif (isset($filter["clientContactID"])) {
+        } elseif (isset($filter['clientContactID'])) {
             $sql[] = unsafe_prepare(
-                "(clientContact.clientContactID = %d)",
-                $filter["clientContactID"]
+                '(clientContact.clientContactID = %d)',
+                $filter['clientContactID']
             );
         }
 
@@ -329,16 +333,16 @@ class clientContact extends DatabaseEntity
         global $TPL;
         $filter = (new clientContact())->get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
-            $filter = " WHERE " . implode(" AND ", $filter);
+            $filter = ' WHERE ' . implode(' AND ', $filter);
         }
 
         $clientContactQuery =
-            "SELECT clientContact.*, client.*
+            'SELECT clientContact.*, client.*
                FROM clientContact
           LEFT JOIN client ON client.clientID = clientContact.clientID
-                    " . $filter . "
+                    ' . $filter . '
            GROUP BY clientContact.clientContactID
-           ORDER BY clientContactName,clientContact.primaryContact asc";
+           ORDER BY clientContactName,clientContact.primaryContact asc';
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($clientContactQuery);
 
@@ -346,11 +350,11 @@ class clientContact extends DatabaseEntity
         while ($row = $allocDatabase->next_record()) {
             $client = new client();
             $client->read_db_record($allocDatabase);
-            $row["clientLink"] = $client->get_client_link($_FORM);
-            if ($row["clientContactEmail"]) {
-                $email = Page::htmlentities($row["clientContactEmail"]);
-                $name = Page::htmlentities($row["clientContactName"]);
-                $row["clientContactEmail"] = sprintf('<a href="mailto:%s &lt;%s&gt;">%s</a>', $name, $email, $email);
+            $row['clientLink'] = $client->get_client_link($_FORM);
+            if ($row['clientContactEmail']) {
+                $email = Page::htmlentities($row['clientContactEmail']);
+                $name = Page::htmlentities($row['clientContactName']);
+                $row['clientContactEmail'] = sprintf('<a href="mailto:%s &lt;%s&gt;">%s</a>', $name, $email, $email);
             }
 
             $rows[] = $row;
@@ -367,12 +371,12 @@ class clientContact extends DatabaseEntity
     public function contactListHTML(array $rows = [], array $ops = []): string
     {
         global $TPL;
-        $TPL["clientContactListRows"] = $rows;
-        $TPL["_FORM"] = $ops;
-        $html = "";
+        $TPL['clientContactListRows'] = $rows;
+        $TPL['_FORM'] = $ops;
+        $html = '';
         $page = new Page();
         if (isset($clientContactListRows)) {
-            $html .= <<<HTML
+            $html .= <<<'HTML'
                     <table class="list sortable">
                       <tr>
                         <th>Client</th>
@@ -384,15 +388,15 @@ class clientContact extends DatabaseEntity
                 HTML;
 
             foreach ($clientContactListRows as $clientContactListRow) {
-                $clientContactName = isset($clientContactListRow["clientContactName"]) ? $page->escape($clientContactListRow["clientContactName"]) : "";
-                $clientContactPhone = isset($clientContactListRow["clientContactPhone"]) ? 'Ph: ' . $page->escape($clientContactListRow["clientContactPhone"]) : "";
-                $clientContactMobile = isset($clientContactListRow["clientContactMobile"]) ? 'Mob: ' . $page->escape($clientContactListRow["clientContactMobile"]) : "";
-                $clientContactEmail = isset($clientContactListRow["clientContactEmail"]) ? $page->escape($clientContactListRow["clientContactEmail"]) : "";
-                $starredClientContact = $page->star("clientContact", $clientContactListRow["clientContactID"]);
+                $clientContactName = isset($clientContactListRow['clientContactName']) ? $page->escape($clientContactListRow['clientContactName']) : '';
+                $clientContactPhone = isset($clientContactListRow['clientContactPhone']) ? 'Ph: ' . $page->escape($clientContactListRow['clientContactPhone']) : '';
+                $clientContactMobile = isset($clientContactListRow['clientContactMobile']) ? 'Mob: ' . $page->escape($clientContactListRow['clientContactMobile']) : '';
+                $clientContactEmail = isset($clientContactListRow['clientContactEmail']) ? $page->escape($clientContactListRow['clientContactEmail']) : '';
+                $starredClientContact = $page->star('clientContact', $clientContactListRow['clientContactID']);
 
                 $html .= <<<HTML
                         <tr>
-                            <td>{$clientContactListRow["clientLink"]}</td>
+                            <td>{$clientContactListRow['clientLink']}</td>
                             <td>{$clientContactName}</td>
                             <td>{$clientContactPhone}&nbsp;&nbsp;
                                 {$clientContactMobile}</td>
@@ -405,7 +409,7 @@ class clientContact extends DatabaseEntity
                     HTML;
             }
 
-            $html .= <<<HTML
+            $html .= <<<'HTML'
                 </table>
                 HTML;
         }

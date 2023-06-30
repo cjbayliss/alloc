@@ -7,23 +7,24 @@
 
 class commentTemplate extends DatabaseEntity
 {
-    public $data_table = "commentTemplate";
+    public $data_table = 'commentTemplate';
 
-    public $display_field_name = "commentTemplateName";
+    public $display_field_name = 'commentTemplateName';
 
-    public $key_field = "commentTemplateID";
+    public $key_field = 'commentTemplateID';
 
     public $data_fields = [
-        "commentTemplateName",
-        "commentTemplateText",
-        "commentTemplateType",
-        "commentTemplateModifiedTime",
+        'commentTemplateName',
+        'commentTemplateText',
+        'commentTemplateType',
+        'commentTemplateModifiedTime',
     ];
 
     public function get_populated_template($entity, $entityID = false)
     {
         // Gets a populated template for this->commentTemplateName
-        $str = $this->get_value("commentTemplateText");
+        $str = $this->get_value('commentTemplateText');
+
         return commentTemplate::populate_string($str, $entity, $entityID);
     }
 
@@ -33,12 +34,12 @@ class commentTemplate extends DatabaseEntity
         $projectID = null;
         $clientID = null;
         // Actually do the text substitution
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         if (is_object($current_user)) {
-            $swap["cu"] = person::get_fullname($current_user->get_id());
+            $swap['cu'] = person::get_fullname($current_user->get_id());
         }
 
-        if ($entity == "timeSheet" && $entityID) {
+        if ('timeSheet' == $entity && $entityID) {
             $timeSheet = new timeSheet();
             $timeSheet->set_id($entityID);
             $timeSheet->select();
@@ -48,73 +49,73 @@ class commentTemplate extends DatabaseEntity
                 $swap[$k] = $v;
             }
 
-            if ($timeSheet->get_value("approvedByManagerPersonID")) {
-                $swap["tm"] = person::get_fullname($timeSheet->get_value("approvedByManagerPersonID"));
+            if ($timeSheet->get_value('approvedByManagerPersonID')) {
+                $swap['tm'] = person::get_fullname($timeSheet->get_value('approvedByManagerPersonID'));
             } else {
-                $project = $timeSheet->get_foreign_object("project");
+                $project = $timeSheet->get_foreign_object('project');
                 $projectManagers = $project->get_timeSheetRecipients();
                 if (is_array($projectManagers) && count($projectManagers)) {
-                    $people = &get_cached_table("person");
-                    $commar = "";
+                    $people = &get_cached_table('person');
+                    $commar = '';
                     foreach ($projectManagers as $projectManager) {
-                        $swap["tm"] .= $commar . $people[$projectManager]["name"];
-                        $commar = ", ";
+                        $swap['tm'] .= $commar . $people[$projectManager]['name'];
+                        $commar = ', ';
                     }
                 }
             }
 
-            if ($timeSheet->get_value("approvedByAdminPersonID")) {
-                $swap["tc"] = person::get_fullname($timeSheet->get_value("approvedByAdminPersonID"));
+            if ($timeSheet->get_value('approvedByAdminPersonID')) {
+                $swap['tc'] = person::get_fullname($timeSheet->get_value('approvedByAdminPersonID'));
             } else {
-                $people = &get_cached_table("person");
+                $people = &get_cached_table('person');
                 $timeSheetAdministrators = config::get_config_item('defaultTimeSheetAdminList');
                 if ((is_countable($timeSheetAdministrators) ? count($timeSheetAdministrators) : 0) !== 0) {
-                    $swap["tc"] = "";
-                    $comma = "";
+                    $swap['tc'] = '';
+                    $comma = '';
                     foreach ($timeSheetAdministrators as $timeSheetAdministrator) {
-                        $swap["tc"] .= $comma . $people[$timeSheetAdministrator]["name"];
-                        $comma = ", ";
+                        $swap['tc'] .= $comma . $people[$timeSheetAdministrator]['name'];
+                        $comma = ', ';
                     }
                 } else {
-                    $swap["tc"] = 'no-one';
+                    $swap['tc'] = 'no-one';
                 }
             }
 
-            $swap["ti"] = $timeSheet->get_id();
-            $swap["to"] = person::get_fullname($timeSheet->get_value("personID"));
-            $swap["ta"] = person::get_fullname($timeSheet->get_value("personID"));
-            $swap["tf"] = $timeSheet->get_value("dateFrom");
-            $swap["tt"] = $timeSheet->get_value("dateTo");
-            $swap["ts"] = $timeSheet->get_timeSheet_status();
-            $swap["tu"] = config::get_config_item("allocURL") . "time/timeSheet.php?timeSheetID=" . $timeSheet->get_id();
+            $swap['ti'] = $timeSheet->get_id();
+            $swap['to'] = person::get_fullname($timeSheet->get_value('personID'));
+            $swap['ta'] = person::get_fullname($timeSheet->get_value('personID'));
+            $swap['tf'] = $timeSheet->get_value('dateFrom');
+            $swap['tt'] = $timeSheet->get_value('dateTo');
+            $swap['ts'] = $timeSheet->get_timeSheet_status();
+            $swap['tu'] = config::get_config_item('allocURL') . 'time/timeSheet.php?timeSheetID=' . $timeSheet->get_id();
 
-            $projectID = $timeSheet->get_value("projectID");
+            $projectID = $timeSheet->get_value('projectID');
         }
 
-        if ($entity == "task" && $entityID) {
+        if ('task' == $entity && $entityID) {
             $task = new Task();
             $task->set_id($entityID);
             $task->select();
-            $swap["ti"] = $task->get_id();
-            $swap["to"] = person::get_fullname($task->get_value("creatorID"));
-            $swap["ta"] = person::get_fullname($task->get_value("personID"));
-            $swap["tm"] = person::get_fullname($task->get_value("managerID"));
-            $swap["tc"] = person::get_fullname($task->get_value("closerID"));
-            $swap["tn"] = $task->get_value("taskName");
-            $swap["td"] = $task->get_value("taskDescription");
-            $swap["tu"] = config::get_config_item("allocURL") . "task/task.php?taskID=" . $task->get_id();
-            $swap["tp"] = $task->get_priority_label();
-            $swap["ts"] = $task->get_task_status("label");
+            $swap['ti'] = $task->get_id();
+            $swap['to'] = person::get_fullname($task->get_value('creatorID'));
+            $swap['ta'] = person::get_fullname($task->get_value('personID'));
+            $swap['tm'] = person::get_fullname($task->get_value('managerID'));
+            $swap['tc'] = person::get_fullname($task->get_value('closerID'));
+            $swap['tn'] = $task->get_value('taskName');
+            $swap['td'] = $task->get_value('taskDescription');
+            $swap['tu'] = config::get_config_item('allocURL') . 'task/task.php?taskID=' . $task->get_id();
+            $swap['tp'] = $task->get_priority_label();
+            $swap['ts'] = $task->get_task_status('label');
 
-            $swap["teb"] = $task->get_value("timeBest");
-            $swap["tem"] = $task->get_value("timeExpected");
-            $swap["tew"] = $task->get_value("timeWorst");
-            $swap["tep"] = person::get_fullname($task->get_value("estimatorID")); // time estimate person, when it's implemented
+            $swap['teb'] = $task->get_value('timeBest');
+            $swap['tem'] = $task->get_value('timeExpected');
+            $swap['tew'] = $task->get_value('timeWorst');
+            $swap['tep'] = person::get_fullname($task->get_value('estimatorID')); // time estimate person, when it's implemented
 
-            $projectID = $task->get_value("projectID");
+            $projectID = $task->get_value('projectID');
         }
 
-        if (($entity == "project" && $entityID) || $projectID) {
+        if (('project' == $entity && $entityID) || $projectID) {
             $project = new project();
             if ($projectID) {
                 $project->set_id($projectID);
@@ -123,12 +124,12 @@ class commentTemplate extends DatabaseEntity
             }
 
             $project->select();
-            $swap["pn"] = $project->get_value("projectName");
-            $swap["pi"] = $project->get_id();
-            $clientID = $project->get_value("clientID");
+            $swap['pn'] = $project->get_value('projectName');
+            $swap['pi'] = $project->get_id();
+            $clientID = $project->get_value('clientID');
         }
 
-        if (($entity == "client" && $entityID) || $clientID) {
+        if (('client' == $entity && $entityID) || $clientID) {
             $client = new client();
             if ($clientID) {
                 $client->set_id($clientID);
@@ -137,30 +138,30 @@ class commentTemplate extends DatabaseEntity
             }
 
             $client->select();
-            $swap["li"] = $client->get_id();
-            $swap["cc"] = $client->get_value("clientName");
+            $swap['li'] = $client->get_id();
+            $swap['cc'] = $client->get_value('clientName');
         }
 
-        $swap["cd"] = config::get_config_item("companyContactAddress");
-        $swap["cd"] .= " " . config::get_config_item("companyContactAddress2");
-        $swap["cd"] .= " " . config::get_config_item("companyContactAddress3");
-        $swap["cd"] .= "\nP: " . config::get_config_item("companyContactPhone");
-        $swap["cd"] .= "\nF: " . config::get_config_item("companyContactFax");
-        $swap["cd"] .= "\nE: " . config::get_config_item("companyContactEmail");
-        $swap["cd"] .= "\nW: " . config::get_config_item("companyContactHomePage");
+        $swap['cd'] = config::get_config_item('companyContactAddress');
+        $swap['cd'] .= ' ' . config::get_config_item('companyContactAddress2');
+        $swap['cd'] .= ' ' . config::get_config_item('companyContactAddress3');
+        $swap['cd'] .= "\nP: " . config::get_config_item('companyContactPhone');
+        $swap['cd'] .= "\nF: " . config::get_config_item('companyContactFax');
+        $swap['cd'] .= "\nE: " . config::get_config_item('companyContactEmail');
+        $swap['cd'] .= "\nW: " . config::get_config_item('companyContactHomePage');
 
-        $swap["cn"] = config::get_config_item("companyName");
+        $swap['cn'] = config::get_config_item('companyName');
 
-        $swap["c1"] = config::get_config_item("companyContactAddress");
-        $swap["c2"] = config::get_config_item("companyContactAddress2");
-        $swap["c3"] = config::get_config_item("companyContactAddress3");
-        $swap["ce"] = config::get_config_item("companyContactEmail");
-        $swap["cp"] = config::get_config_item("companyContactPhone");
-        $swap["cf"] = config::get_config_item("companyContactFax");
-        $swap["cw"] = config::get_config_item("companyContactHomePage");
+        $swap['c1'] = config::get_config_item('companyContactAddress');
+        $swap['c2'] = config::get_config_item('companyContactAddress2');
+        $swap['c3'] = config::get_config_item('companyContactAddress3');
+        $swap['ce'] = config::get_config_item('companyContactEmail');
+        $swap['cp'] = config::get_config_item('companyContactPhone');
+        $swap['cf'] = config::get_config_item('companyContactFax');
+        $swap['cw'] = config::get_config_item('companyContactHomePage');
 
         foreach ($swap as $k => $v) {
-            $str = str_replace("%" . $k, $v, $str);
+            $str = str_replace('%' . $k, $v, $str);
         }
 
         return $str;

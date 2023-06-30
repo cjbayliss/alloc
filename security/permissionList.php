@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 function show_permission_list($template_name)
 {
@@ -14,8 +14,8 @@ function show_permission_list($template_name)
 
     $roles = permission::get_roles();
 
-    if ($_REQUEST["submit"] || $_REQUEST["filter"] != "") {
-        $where = " where tableName like '%" . db_esc($_REQUEST["filter"]) . "%' ";   // TODO: Add filtering to permission list
+    if ($_REQUEST['submit'] || '' != $_REQUEST['filter']) {
+        $where = " where tableName like '%" . db_esc($_REQUEST['filter']) . "%' ";   // TODO: Add filtering to permission list
     }
 
     $db = new AllocDatabase();
@@ -24,13 +24,13 @@ function show_permission_list($template_name)
         $permission = new permission();
         $permission->read_db_record($db);
         $permission->set_values();
-        $TPL["actions"] = $permission->describe_actions();
-        $TPL["odd_even"] = $TPL["odd_even"] == "odd" ? "even" : "odd";
-        $TPL["roleName"] = $roles[$TPL["roleName"]];
+        $TPL['actions'] = $permission->describe_actions();
+        $TPL['odd_even'] = 'odd' == $TPL['odd_even'] ? 'even' : 'odd';
+        $TPL['roleName'] = $roles[$TPL['roleName']];
         include_template($template_name);
     }
 }
 
-$TPL["main_alloc_title"] = "Permissions List - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'Permissions List - ' . APPLICATION_NAME;
 
-include_template("templates/permissionListM.tpl");
+include_template('templates/permissionListM.tpl');

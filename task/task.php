@@ -5,41 +5,41 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
-define("PAGE_IS_PRINTABLE", 1);
+require_once __DIR__ . '/../alloc.php';
+define('PAGE_IS_PRINTABLE', 1);
 
 function show_task_children($template)
 {
     $options = [];
     global $TPL;
     global $task;
-    if ($task->get_value("taskTypeID") == "Parent") {
-        $options["parentTaskID"] = $task->get_id();
-        $options["taskView"] = "byProject";
-        $task->get_value("projectID") && ($options["projectIDs"][] = $task->get_value("projectID"));
-        $options["showDates"] = true;
+    if ('Parent' == $task->get_value('taskTypeID')) {
+        $options['parentTaskID'] = $task->get_id();
+        $options['taskView'] = 'byProject';
+        $task->get_value('projectID') && ($options['projectIDs'][] = $task->get_value('projectID'));
+        $options['showDates'] = true;
         // $options["showCreator"] = true;
-        $options["showAssigned"] = true;
-        $options["showPercent"] = true;
-        $options["showHeader"] = true;
-        $options["showTimes"] = true;
-        $options["showTaskID"] = true;
-        $options["showTotals"] = true;
-        $options["showStatus"] = true;
-        $options["showEdit"] = true;
-        $options["showPriorityFactor"] = true;
-        $options["returnURL"] = $TPL["url_alloc_task"] . "taskID=" . $task->get_id();
+        $options['showAssigned'] = true;
+        $options['showPercent'] = true;
+        $options['showHeader'] = true;
+        $options['showTimes'] = true;
+        $options['showTaskID'] = true;
+        $options['showTotals'] = true;
+        $options['showStatus'] = true;
+        $options['showEdit'] = true;
+        $options['showPriorityFactor'] = true;
+        $options['returnURL'] = $TPL['url_alloc_task'] . 'taskID=' . $task->get_id();
 
-        if ($_GET["media"] == "print") {
-            $options["showDescription"] = true;
+        if ('print' == $_GET['media']) {
+            $options['showDescription'] = true;
         }
 
-        if ($_GET["media"] == "print") {
-            $options["showComments"] = true;
+        if ('print' == $_GET['media']) {
+            $options['showComments'] = true;
         }
 
-        $TPL["taskListRows"] = Task::get_list($options);
-        $TPL["taskListOptions"] = $options;
+        $TPL['taskListRows'] = Task::get_list($options);
+        $TPL['taskListOptions'] = $options;
 
         include_template($template);
     }
@@ -49,18 +49,18 @@ function get_parent_taskIDs($taskID)
 {
     $rtn = [];
     $q = unsafe_prepare(
-        "SELECT taskID,taskName,parentTaskID
+        'SELECT taskID,taskName,parentTaskID
            FROM task
           WHERE taskID = %d
-            AND (taskID != parentTaskID OR parentTaskID IS NULL)",
+            AND (taskID != parentTaskID OR parentTaskID IS NULL)',
         $taskID
     );
     $db = new AllocDatabase();
     $db->query($q);
 
     while ($db->next_record()) {
-        $rtn[$db->f("taskName")] = $db->f("taskID");
-        $arr = get_parent_taskIDs($db->f("parentTaskID"));
+        $rtn[$db->f('taskName')] = $db->f('taskID');
+        $arr = get_parent_taskIDs($db->f('parentTaskID'));
         if (is_array($arr)) {
             $rtn = array_merge($rtn, $arr);
         }
@@ -72,7 +72,7 @@ function get_parent_taskIDs($taskID)
 function show_attachments()
 {
     global $taskID;
-    util_show_attachments("task", $taskID);
+    util_show_attachments('task', $taskID);
 }
 
 function show_comments()
@@ -81,31 +81,31 @@ function show_comments()
     global $TPL;
     global $task;
 
-    if (isset($_REQUEST["commentSummary"])) {
-        $_REQUEST["showTaskHeader"] = true;
-        $_REQUEST["clients"] = true;
-        $TPL["commentsR"] = comment::get_list_summary($_REQUEST);
-        $TPL["extra_page_links"] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $TPL["task_taskID"] . '&sbs_link=comments">Full</a>';
+    if (isset($_REQUEST['commentSummary'])) {
+        $_REQUEST['showTaskHeader'] = true;
+        $_REQUEST['clients'] = true;
+        $TPL['commentsR'] = comment::get_list_summary($_REQUEST);
+        $TPL['extra_page_links'] = '<a href="' . $TPL['url_alloc_task'] . 'taskID=' . $TPL['task_taskID'] . '&sbs_link=comments">Full</a>';
     } else {
-        $TPL["commentsR"] = comment::util_get_comments("task", $taskID);
-        $TPL["extra_page_links"] = '<a href="' . $TPL["url_alloc_task"] . 'taskID=' . $TPL["task_taskID"];
-        $TPL["extra_page_links"] .= '&sbs_link=comments&commentSummary=true&maxCommentLength=50000000">Summary</a>';
+        $TPL['commentsR'] = comment::util_get_comments('task', $taskID);
+        $TPL['extra_page_links'] = '<a href="' . $TPL['url_alloc_task'] . 'taskID=' . $TPL['task_taskID'];
+        $TPL['extra_page_links'] .= '&sbs_link=comments&commentSummary=true&maxCommentLength=50000000">Summary</a>';
     }
 
-    $TPL["commentsR"] && ($TPL["class_new_comment"] = "hidden");
-    ($TPL["allParties"] = $task->get_all_parties($task->get_value("projectID"))) || ($TPL["allParties"] = []);
-    $TPL["entity"] = "task";
-    $TPL["entityID"] = $task->get_id();
-    if (has("project")) {
-        $project = $task->get_foreign_object("project");
-        $TPL["clientID"] = $project->get_value("clientID");
+    $TPL['commentsR'] && ($TPL['class_new_comment'] = 'hidden');
+    ($TPL['allParties'] = $task->get_all_parties($task->get_value('projectID'))) || ($TPL['allParties'] = []);
+    $TPL['entity'] = 'task';
+    $TPL['entityID'] = $task->get_id();
+    if (has('project')) {
+        $project = $task->get_foreign_object('project');
+        $TPL['clientID'] = $project->get_value('clientID');
     }
 
     $commentTemplate = new commentTemplate();
-    $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "task"]);
-    $TPL["commentTemplateOptions"] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
+    $ops = $commentTemplate->get_assoc_array('commentTemplateID', 'commentTemplateName', '', ['commentTemplateType' => 'task']);
+    $TPL['commentTemplateOptions'] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
 
-    include_template("../comment/templates/commentM.tpl");
+    include_template('../comment/templates/commentM.tpl');
 }
 
 function show_taskCommentsPrinter()
@@ -113,16 +113,16 @@ function show_taskCommentsPrinter()
     $options = null;
     global $taskID;
     global $TPL;
-    $TPL["commentsR"] = comment::util_get_comments("task", $taskID, $options);
-    include_template("../comment/templates/commentP.tpl");
+    $TPL['commentsR'] = comment::util_get_comments('task', $taskID, $options);
+    include_template('../comment/templates/commentP.tpl');
 }
 
 function show_taskHistory()
 {
     global $task;
     global $TPL;
-    $TPL["changeHistory"] = $task->get_changes_list();
-    include_template("templates/taskHistoryM.tpl");
+    $TPL['changeHistory'] = $task->get_changes_list();
+    include_template('templates/taskHistoryM.tpl');
 }
 
 global $timeSheetID;
@@ -132,7 +132,7 @@ $task = new Task();
 
 // If taskID
 
-$taskID = $_POST["taskID"] ?? $_GET["taskID"] ?? "";
+$taskID = $_POST['taskID'] ?? $_GET['taskID'] ?? '';
 
 if (!empty($taskID)) {
     // Displaying a record
@@ -141,142 +141,141 @@ if (!empty($taskID)) {
 
     // Creating a new record
 } else {
-    $_POST["dateCreated"] = date("Y-m-d H:i:s");
+    $_POST['dateCreated'] = date('Y-m-d H:i:s');
     $task->read_globals();
     $taskID = $task->get_id();
-    if (has("project") && $task->get_value("projectID")) {
-        $project = $task->get_foreign_object("project");
+    if (has('project') && $task->get_value('projectID')) {
+        $project = $task->get_foreign_object('project');
     }
 }
 
 // if someone uploads an attachment
-if (isset($_POST["save_attachment"])) {
-    move_attachment("task", $taskID);
-    alloc_redirect($TPL["url_alloc_task"] . "taskID=" . $taskID . "&sbs_link=attachments");
+if (isset($_POST['save_attachment'])) {
+    move_attachment('task', $taskID);
+    alloc_redirect($TPL['url_alloc_task'] . 'taskID=' . $taskID . '&sbs_link=attachments');
 }
 
 // If saving a record
 if (
-    isset($_POST["save"]) ||
-    isset($_POST["save_and_back"]) ||
-    isset($_POST["save_and_new"]) ||
-    isset($_POST["save_and_summary"]) ||
-    isset($_POST["timeSheet_save"]) ||
-    isset($_POST["close_task"])
+    isset($_POST['save'])
+    || isset($_POST['save_and_back'])
+    || isset($_POST['save_and_new'])
+    || isset($_POST['save_and_summary'])
+    || isset($_POST['timeSheet_save'])
+    || isset($_POST['close_task'])
 ) {
     $task->read_globals();
-    if (isset($_POST["close_task"])) {
-        $task->set_value("taskStatus", "closed_complete");
+    if (isset($_POST['close_task'])) {
+        $task->set_value('taskStatus', 'closed_complete');
     }
 
     // If we're auto-nuking the pending tasks, we need to do that before the call to task->save()
-    if ($task->get_id() && !isset($_POST["pendingTasksIDs"])) {
-        $task->add_pending_tasks($_POST["pendingTasksIDs"]);
+    if ($task->get_id() && !isset($_POST['pendingTasksIDs'])) {
+        $task->add_pending_tasks($_POST['pendingTasksIDs']);
     }
 
     // Moved all validation over into task.inc.php save()
     $success = $task->save();
-    ((isset($msg) && is_countable($msg)) ? count($msg) : 0) && ($msg = "&message_good=" . urlencode(implode("<br>", $msg)));
+    ((isset($msg) && is_countable($msg)) ? count($msg) : 0) && ($msg = '&message_good=' . urlencode(implode('<br>', $msg)));
     if ($success) {
-        InterestedParty::make_interested_parties("task", $task->get_id(), $_POST["interestedParty"] ?? []);
+        InterestedParty::make_interested_parties('task', $task->get_id(), $_POST['interestedParty'] ?? []);
 
         // A task can only have a pending task or pending reopen date - pending task is fixed up in JS, but check here too
-        if ($task->get_value("taskStatus") != "pending_tasks") {
+        if ('pending_tasks' != $task->get_value('taskStatus')) {
             $_POST['pendingTaskIDs'] = '';
         }
 
-        $task->add_pending_tasks($_POST["pendingTasksIDs"]);
-        $task->add_tags($_POST["tags"] ?? []);
+        $task->add_pending_tasks($_POST['pendingTasksIDs']);
+        $task->add_tags($_POST['tags'] ?? []);
 
         // This is only valid on pending_, but not on pending_task (because it has a different field)
-        if (strpos($task->get_value("taskStatus"), "pending_") !== 0 || $task->get_value("taskStatus") == "pending_tasks") {
+        if (0 !== strpos($task->get_value('taskStatus'), 'pending_') || 'pending_tasks' == $task->get_value('taskStatus')) {
             $_POST['reopen_task'] = '';
         }
 
-        $task->add_reopen_reminder($_POST["reopen_task"]);
+        $task->add_reopen_reminder($_POST['reopen_task']);
 
         // Create reminders if necessary
-        if (isset($_POST["createTaskReminder"]) && $_POST["createTaskReminder"] == true) {
+        if (isset($_POST['createTaskReminder']) && true == $_POST['createTaskReminder']) {
             $task->create_task_reminder();
         }
 
         if (
-            isset($_POST["save"]) &&
-            isset($_POST["view"]) &&
-            $_POST["view"] == "brief"
+            isset($_POST['save'], $_POST['view'])
+            && 'brief' == $_POST['view']
         ) {
             // $url = $TPL["url_alloc_taskList"];
-            $url = $TPL["url_alloc_task"] . "taskID=" . $task->get_id();
-        } elseif (isset($_POST["save"]) || isset($_POST["close_task"])) {
-            $url = $TPL["url_alloc_task"] . "taskID=" . $task->get_id();
-        } elseif (isset($_POST["save_and_back"])) {
-            $url = $TPL["url_alloc_project"] . "projectID=" . $task->get_value("projectID");
-        } elseif (isset($_POST["save_and_summary"])) {
-            $url = $TPL["url_alloc_taskList"];
-        } elseif (isset($_POST["save_and_new"])) {
-            $url = $TPL["url_alloc_task"] . "projectID=" . $task->get_value("projectID") . "&parentTaskID=" . $task->get_value("parentTaskID");
-        } elseif (isset($_POST["timeSheet_save"])) {
-            $url = $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $_POST["timeSheetID"] . "&taskID=" . $task->get_id();
+            $url = $TPL['url_alloc_task'] . 'taskID=' . $task->get_id();
+        } elseif (isset($_POST['save']) || isset($_POST['close_task'])) {
+            $url = $TPL['url_alloc_task'] . 'taskID=' . $task->get_id();
+        } elseif (isset($_POST['save_and_back'])) {
+            $url = $TPL['url_alloc_project'] . 'projectID=' . $task->get_value('projectID');
+        } elseif (isset($_POST['save_and_summary'])) {
+            $url = $TPL['url_alloc_taskList'];
+        } elseif (isset($_POST['save_and_new'])) {
+            $url = $TPL['url_alloc_task'] . 'projectID=' . $task->get_value('projectID') . '&parentTaskID=' . $task->get_value('parentTaskID');
+        } elseif (isset($_POST['timeSheet_save'])) {
+            $url = $TPL['url_alloc_timeSheet'] . 'timeSheetID=' . $_POST['timeSheetID'] . '&taskID=' . $task->get_id();
         } else {
-            alloc_error("Unexpected save button");
+            alloc_error('Unexpected save button');
         }
 
-        alloc_redirect($url . ($msg ?? ""));
-        exit();
+        alloc_redirect($url . ($msg ?? ''));
+        exit;
     }
 
     // If deleting a record
-} elseif (isset($_POST["delete"])) {
+} elseif (isset($_POST['delete'])) {
     if ($task->can_be_deleted()) {
         $task->read_globals();
         $task->delete();
-        alloc_redirect($TPL["url_alloc_taskList"]);
+        alloc_redirect($TPL['url_alloc_taskList']);
     } else {
         alloc_error("This task cannot be deleted. You either don't have permission, or this task has history items.");
     }
 }
 
 // Start stuff here
-$task->set_values("task_");
+$task->set_values('task_');
 
 $person = new person();
-$person->set_id($task->get_value("creatorID"));
+$person->set_id($task->get_value('creatorID'));
 $person->select();
-$TPL["task_createdBy"] = $person->get_name();
-$TPL["task_createdBy_personID"] = $person->get_id();
+$TPL['task_createdBy'] = $person->get_name();
+$TPL['task_createdBy_personID'] = $person->get_id();
 
-if ($task->get_value("closerID") && $task->get_value("dateClosed")) {
-    $TPL["task_closed_by"] = person::get_fullname($task->get_value("closerID"));
-    $TPL["task_closed_when"] = $task->get_value("dateClosed");
+if ($task->get_value('closerID') && $task->get_value('dateClosed')) {
+    $TPL['task_closed_by'] = person::get_fullname($task->get_value('closerID'));
+    $TPL['task_closed_when'] = $task->get_value('dateClosed');
 }
 
 $person = new person();
-$person->set_id($task->get_value("personID"));
+$person->set_id($task->get_value('personID'));
 $person->select();
-$TPL["person_username"] = $person->get_name();
-$TPL["person_username_personID"] = $person->get_id();
+$TPL['person_username'] = $person->get_name();
+$TPL['person_username_personID'] = $person->get_id();
 
 $manager = new person();
-$manager->set_id($task->get_value("managerID"));
+$manager->set_id($task->get_value('managerID'));
 $manager->select();
-$TPL["manager_username"] = $manager->get_name();
-$TPL["manager_username_personID"] = $manager->get_id();
+$TPL['manager_username'] = $manager->get_name();
+$TPL['manager_username_personID'] = $manager->get_id();
 
 $estimator = new person();
-$estimator->set_id($task->get_value("estimatorID"));
+$estimator->set_id($task->get_value('estimatorID'));
 $estimator->select();
-$TPL["estimator_username"] = $estimator->get_name();
-$TPL["estimator_username_personID"] = $estimator->get_id();
+$TPL['estimator_username'] = $estimator->get_name();
+$TPL['estimator_username_personID'] = $estimator->get_id();
 
 // If we've been sent here by a "New Message" or "New Fault" option in the Quick List dropdown
-if (!isset($taskID) && isset($_GET["tasktype"])) {
-    $task->set_value("taskTypeID", $_GET["tasktype"]);
+if (!isset($taskID) && isset($_GET['tasktype'])) {
+    $task->set_value('taskTypeID', $_GET['tasktype']);
 }
 
 // If we've been sent here by a "New Task" link from the calendar
-if (!isset($taskID) && isset($_GET["dateTargetStart"])) {
-    $TPL["task_dateTargetStart"] = $_GET["dateTargetStart"];
-    $task->set_value("personID", $_GET["personID"]);
+if (!isset($taskID) && isset($_GET['dateTargetStart'])) {
+    $TPL['task_dateTargetStart'] = $_GET['dateTargetStart'];
+    $task->set_value('personID', $_GET['personID']);
 }
 
 // Set options for the dropdown boxen
@@ -284,201 +283,201 @@ $task->set_option_tpl_values();
 
 $time_billed = $task->get_time_billed();
 $time_billed_label = seconds_to_display_format($time_billed);
-if ($time_billed != 0) {
-    $TPL["time_billed_link"] = '<a href="' . $TPL["url_alloc_timeSheetList"] . "taskID=" . $task->get_id() . '&dontSave=true&applyFilter=true">' . $time_billed_label . "</a>";
+if (0 != $time_billed) {
+    $TPL['time_billed_link'] = '<a href="' . $TPL['url_alloc_timeSheetList'] . 'taskID=' . $task->get_id() . '&dontSave=true&applyFilter=true">' . $time_billed_label . '</a>';
 }
 
-$TPL["task_timeLimit"] || ($TPL["task_timeLimit"] = "");
-$TPL["task_timeBest"] || ($TPL["task_timeBest"] = "");
-$TPL["task_timeWorst"] || ($TPL["task_timeWorst"] = "");
-$TPL["task_timeExpected"] || ($TPL["task_timeExpected"] = "");
-$TPL["percentComplete"] = $task->get_percentComplete();
+$TPL['task_timeLimit'] || ($TPL['task_timeLimit'] = '');
+$TPL['task_timeBest'] || ($TPL['task_timeBest'] = '');
+$TPL['task_timeWorst'] || ($TPL['task_timeWorst'] = '');
+$TPL['task_timeExpected'] || ($TPL['task_timeExpected'] = '');
+$TPL['percentComplete'] = $task->get_percentComplete();
 
 // Generate navigation links
-if (has("project") && $task->get_id()) {
-    $project = $task->get_foreign_object("project");
-    $project->set_values("project_");
+if (has('project') && $task->get_id()) {
+    $project = $task->get_foreign_object('project');
+    $project->set_values('project_');
     if ($project->get_id()) {
-        $ops["taskID"] = $task->get_id();
-        $ops["showProject"] = true;
-        $TPL["navigation_links"] = $project->get_navigation_links($ops);
+        $ops['taskID'] = $task->get_id();
+        $ops['showProject'] = true;
+        $TPL['navigation_links'] = $project->get_navigation_links($ops);
     }
 }
 
-$parent_task = $task->get_foreign_object("task", "parentTaskID");
-$parent_task->set_values("parentTask_");
+$parent_task = $task->get_foreign_object('task', 'parentTaskID');
+$parent_task->set_values('parentTask_');
 
-$TPL["taskType_taskTypeID"] = $task->get_value("taskTypeID");
+$TPL['taskType_taskTypeID'] = $task->get_value('taskTypeID');
 
-$q = unsafe_prepare("SELECT clientID FROM project LEFT JOIN task ON task.projectID = project.projectID WHERE taskID = %d", $task->get_id());
+$q = unsafe_prepare('SELECT clientID FROM project LEFT JOIN task ON task.projectID = project.projectID WHERE taskID = %d', $task->get_id());
 $db->query($q);
 $db->next_record();
-if ($db->f("clientID") !== '' && $db->f("clientID") !== '0') {
-    $TPL["new_client_contact_link"] = '<br><br><a href="' . $TPL["url_alloc_client"] . "clientID=" . $db->f("clientID") . '">';
-    $TPL["new_client_contact_link"] .= "New Client Contact</a>";
-    $TPL["task_clientID"] = $db->f("clientID");
+if ('' !== $db->f('clientID') && '0' !== $db->f('clientID')) {
+    $TPL['new_client_contact_link'] = '<br><br><a href="' . $TPL['url_alloc_client'] . 'clientID=' . $db->f('clientID') . '">';
+    $TPL['new_client_contact_link'] .= 'New Client Contact</a>';
+    $TPL['task_clientID'] = $db->f('clientID');
 }
 
-$parentTaskIDs = get_parent_taskIDs($task->get_value("parentTaskID"));
+$parentTaskIDs = get_parent_taskIDs($task->get_value('parentTaskID'));
 if (is_array($parentTaskIDs)) {
     $parentTaskIDs = array_reverse($parentTaskIDs, 1);
 
     foreach ($parentTaskIDs as $tName => $tID) {
-        $TPL["hierarchy_links"] .= $br . $spaces . '<a href="' . $TPL["url_alloc_task"] . "taskID=" . $tID . '">' . $tID . " " . Page::htmlentities($tName) . "</a>";
-        $spaces .= "&nbsp;&nbsp;&nbsp;&nbsp;";
-        $br = "<br>";
+        $TPL['hierarchy_links'] .= $br . $spaces . '<a href="' . $TPL['url_alloc_task'] . 'taskID=' . $tID . '">' . $tID . ' ' . Page::htmlentities($tName) . '</a>';
+        $spaces .= '&nbsp;&nbsp;&nbsp;&nbsp;';
+        $br = '<br>';
     }
 }
 
 // Link off to the source task, if this task is just a duplicate
-$dupeID = $task->get_value("duplicateTaskID");
+$dupeID = $task->get_value('duplicateTaskID');
 if ($dupeID) {
     $realtask = new Task();
     $realtask->set_id($dupeID);
     $realtask->select();
-    $TPL["taskDuplicateLink"] = $realtask->get_task_link([
-        "prefixTaskID" => 1,
-        "return"       => "html",
+    $TPL['taskDuplicateLink'] = $realtask->get_task_link([
+        'prefixTaskID' => 1,
+        'return'       => 'html',
     ]);
-    $mesg = "This task is a duplicate of " . $TPL["taskDuplicateLink"];
-    $TPL["message_help_no_esc"][] = $mesg;
-    $TPL["editing_disabled"] = true;
+    $mesg = 'This task is a duplicate of ' . $TPL['taskDuplicateLink'];
+    $TPL['message_help_no_esc'][] = $mesg;
+    $TPL['editing_disabled'] = true;
 }
 
 // Link off to the duplicate tasks, if this task is the source task
-$q = unsafe_prepare("SELECT taskID FROM task WHERE duplicateTaskID = %d", $task->get_id());
+$q = unsafe_prepare('SELECT taskID FROM task WHERE duplicateTaskID = %d', $task->get_id());
 $db->query($q);
 while ($row = $db->row()) {
     $realtask = new Task();
-    $realtask->set_id($row["taskID"]);
+    $realtask->set_id($row['taskID']);
     $realtask->select();
-    $duds .= "<br>" . $realtask->get_task_link([
-        "prefixTaskID" => 1,
-        "return"       => "html",
+    $duds .= '<br>' . $realtask->get_task_link([
+        'prefixTaskID' => 1,
+        'return'       => 'html',
     ]);
 }
 
 if (isset($duds)) {
-    $TPL["message_help_no_esc"][] = "The following tasks have been marked as a duplicate of this task: " . $duds;
+    $TPL['message_help_no_esc'][] = 'The following tasks have been marked as a duplicate of this task: ' . $duds;
 }
 
 $rows = $task->get_pending_tasks();
-foreach ((array)$rows as $pendingTaskID) {
+foreach ((array) $rows as $pendingTaskID) {
     $realtask = new Task();
     $realtask->set_id($pendingTaskID);
     $realtask->select();
     unset($st1, $st2);
-    if (substr($realtask->get_value("taskStatus"), 0, 6) == "closed") {
-        $st1 = "<strike>";
-        $st2 = "</strike>";
+    if ('closed' == substr($realtask->get_value('taskStatus'), 0, 6)) {
+        $st1 = '<strike>';
+        $st2 = '</strike>';
     } else {
         $wasopen = true;
     }
 
     $pendingTaskLinks[] = $st1 . $realtask->get_task_link([
-        "prefixTaskID" => 1,
-        "return"       => "html",
+        'prefixTaskID' => 1,
+        'return'       => 'html',
     ]) . $st2;
 }
 
-$is = "was";
+$is = 'was';
 if (isset($wasopen) && $wasopen) {
-    $is = "is";
+    $is = 'is';
 }
 
 if (isset($pendingTaskLinks)) {
-    $TPL["message_help_no_esc"][] = "This task " . $is . " pending the completion of:<br>" . implode("<br>", $pendingTaskLinks);
+    $TPL['message_help_no_esc'][] = 'This task ' . $is . ' pending the completion of:<br>' . implode('<br>', $pendingTaskLinks);
 }
 
 $rows = $task->get_pending_tasks(true);
-foreach ((array)$rows as $tID) {
+foreach ((array) $rows as $tID) {
     $realtask = new Task();
     $realtask->set_id($tID);
     $realtask->select();
     unset($st1, $st2);
-    if (substr($realtask->get_value("taskStatus"), 0, 6) == "closed") {
-        $st1 = "<strike>";
-        $st2 = "</strike>";
+    if ('closed' == substr($realtask->get_value('taskStatus'), 0, 6)) {
+        $st1 = '<strike>';
+        $st2 = '</strike>';
     } else {
         $wasopen = true;
     }
 
     $blockTaskLinks[] = $st1 . $realtask->get_task_link([
-        "prefixTaskID" => 1,
-        "return"       => "html",
+        'prefixTaskID' => 1,
+        'return'       => 'html',
     ]) . $st2;
 }
 
-$is = "was";
+$is = 'was';
 if (isset($wasopen) && $wasopen) {
-    $is = "is";
+    $is = 'is';
 }
 
 if (isset($blockTaskLinks)) {
-    $TPL["message_help_no_esc"][] = "This task " . $is . " blocking the start of:<br>" . implode("<br>", $blockTaskLinks);
+    $TPL['message_help_no_esc'][] = 'This task ' . $is . ' blocking the start of:<br>' . implode('<br>', $blockTaskLinks);
 }
 
-if (in_str("pending_", $task->get_value("taskStatus"))) {
+if (in_str('pending_', $task->get_value('taskStatus'))) {
     $rows = $task->get_reopen_reminders();
     foreach ($rows as $r) {
-        $TPL["message_help_no_esc"][] = 'This task is set to
-                                    <a href="' . $TPL["url_alloc_reminder"] . 'step=3&reminderID=' . $r["rID"] . '&returnToParent=task">
-				    automatically reopen at ' . $r["reminderTime"] . '</a>';
+        $TPL['message_help_no_esc'][] = 'This task is set to
+                                    <a href="' . $TPL['url_alloc_reminder'] . 'step=3&reminderID=' . $r['rID'] . '&returnToParent=task">
+				    automatically reopen at ' . $r['reminderTime'] . '</a>';
         // Which date gets plugged in is arbitrary, but it would be unusual for there to be more than one
-        $TPL['reopen_task'] = strftime("%Y-%m-%d", strtotime($r['reminderTime']));
+        $TPL['reopen_task'] = strftime('%Y-%m-%d', strtotime($r['reminderTime']));
     }
 }
 
 if ($task->get_id()) {
-    $TPL["task_taskType"] = $task->get_value("taskTypeID");
+    $TPL['task_taskType'] = $task->get_value('taskTypeID');
 } else {
-    $TPL["task_children_summary"] = "";
-    $TPL["task_taskType"] = "Task";
+    $TPL['task_children_summary'] = '';
+    $TPL['task_taskType'] = 'Task';
 }
 
 if ($taskID) {
-    $TPL["taskTypeImage"] = $task->get_task_image();
-    $TPL["taskSelfLink"] = '<a href="' . $task->get_url() . '">' . $task->get_id() . " " . $task->get_name(["return" => "html"]) . "</a>";
-    $TPL["main_alloc_title"] = "Task " . $task->get_id() . ": " . $task->get_name() . " - " . APPLICATION_NAME;
-    $TPL["task_exists"] = true;
+    $TPL['taskTypeImage'] = $task->get_task_image();
+    $TPL['taskSelfLink'] = '<a href="' . $task->get_url() . '">' . $task->get_id() . ' ' . $task->get_name(['return' => 'html']) . '</a>';
+    $TPL['main_alloc_title'] = 'Task ' . $task->get_id() . ': ' . $task->get_name() . ' - ' . APPLICATION_NAME;
+    $TPL['task_exists'] = true;
 
-    $q = unsafe_prepare("SELECT GROUP_CONCAT(pendingTaskID) as pendingTaskIDs FROM pendingTask WHERE taskID = %d", $task->get_id());
+    $q = unsafe_prepare('SELECT GROUP_CONCAT(pendingTaskID) as pendingTaskIDs FROM pendingTask WHERE taskID = %d', $task->get_id());
     $db->query($q);
     $row = $db->row();
-    $TPL["task_pendingTaskIDs"] = $row["pendingTaskIDs"];
-    $TPL["task_tags"] = implode(", ", $task->get_tags());
+    $TPL['task_pendingTaskIDs'] = $row['pendingTaskIDs'];
+    $TPL['task_tags'] = implode(', ', $task->get_tags());
 } else {
-    $TPL["taskSelfLink"] = "New Task";
-    $TPL["main_alloc_title"] = "New Task - " . APPLICATION_NAME;
+    $TPL['taskSelfLink'] = 'New Task';
+    $TPL['main_alloc_title'] = 'New Task - ' . APPLICATION_NAME;
 }
 
-$TPL["tagOptions"] = Page::select_options($task->get_tags(true), $task->get_tags(), 300);
+$TPL['tagOptions'] = Page::select_options($task->get_tags(true), $task->get_tags(), 300);
 
 if (!$task->get_id()) {
-    $TPL["message_help"][] = "Enter a Task Name and click the Save button to create a new Task.";
-    $TPL["task_dateTargetStart"] || ($TPL["task_dateTargetStart"] = date("Y-m-d"));
+    $TPL['message_help'][] = 'Enter a Task Name and click the Save button to create a new Task.';
+    $TPL['task_dateTargetStart'] || ($TPL['task_dateTargetStart'] = date('Y-m-d'));
 }
 
-$TPL["task"] = $task;
+$TPL['task'] = $task;
 
 // Printer friendly view
-if (isset($_GET["media"]) && $_GET["media"] == "print") {
-    if (has("client")) {
+if (isset($_GET['media']) && 'print' == $_GET['media']) {
+    if (has('client')) {
         $client = new client();
-        $client->set_id($project->get_value("clientID"));
+        $client->set_id($project->get_value('clientID'));
         $client->select();
-        $client->set_values("client_");
+        $client->set_values('client_');
     }
 
-    if (has("project") && has("client")) {
-        $project = $task->get_foreign_object("project");
+    if (has('project') && has('client')) {
+        $project = $task->get_foreign_object('project');
         $clientContact = new clientContact();
-        $clientContact->set_id($project->get_value("clientContactID"));
+        $clientContact->set_id($project->get_value('clientContactID'));
         $clientContact->select();
-        $clientContact->set_values("clientContact_");
+        $clientContact->set_values('clientContact_');
     }
 
-    include_template("templates/taskPrinterM.tpl");
+    include_template('templates/taskPrinterM.tpl');
 } else {
-    include_template("templates/taskM.tpl");
+    include_template('templates/taskM.tpl');
 }

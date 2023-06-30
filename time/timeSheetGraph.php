@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
-$current_user = &singleton("current_user");
+$current_user = &singleton('current_user');
 
 function show_filter()
 {
@@ -18,26 +18,26 @@ function show_filter()
         $TPL = array_merge($TPL, $arr);
     }
 
-    include_template("templates/timeSheetGraphFilterS.tpl");
+    include_template('templates/timeSheetGraphFilterS.tpl');
 }
 
 $defaults = [
-    "url_form_action" => $TPL["url_alloc_timeSheetGraph"],
-    "form_name"       => "timeSheetGraph_filter",
-    "groupBy"         => "day",
-    "personID"        => $current_user->get_id(),
+    'url_form_action' => $TPL['url_alloc_timeSheetGraph'],
+    'form_name'       => 'timeSheetGraph_filter',
+    'groupBy'         => 'day',
+    'personID'        => $current_user->get_id(),
 ];
 
 $_FORM = timeSheetGraph::load_filter($defaults);
 
-if ($_FORM["groupBy"] == "day") {
-    $TPL["chart1"] = timeSheetItem::get_total_hours_worked_per_day($_FORM["personID"], $_FORM["dateFrom"], $_FORM["dateTo"]);
-} elseif ($_FORM["groupBy"] == "month") {
-    $TPL["chart1"] = timeSheetItem::get_total_hours_worked_per_month($_FORM["personID"], $_FORM["dateFrom"], $_FORM["dateTo"]);
+if ('day' == $_FORM['groupBy']) {
+    $TPL['chart1'] = timeSheetItem::get_total_hours_worked_per_day($_FORM['personID'], $_FORM['dateFrom'], $_FORM['dateTo']);
+} elseif ('month' == $_FORM['groupBy']) {
+    $TPL['chart1'] = timeSheetItem::get_total_hours_worked_per_month($_FORM['personID'], $_FORM['dateFrom'], $_FORM['dateTo']);
 }
 
-$TPL["dateFrom"] = $_FORM["dateFrom"];
-$TPL["dateTo"] = $_FORM["dateTo"];
-$TPL["groupBy"] = $_FORM["groupBy"];
+$TPL['dateFrom'] = $_FORM['dateFrom'];
+$TPL['dateTo'] = $_FORM['dateTo'];
+$TPL['groupBy'] = $_FORM['groupBy'];
 
-include_template("templates/timeSheetGraphM.tpl");
+include_template('templates/timeSheetGraphM.tpl');

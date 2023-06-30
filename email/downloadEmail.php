@@ -5,58 +5,58 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 function dump_email($uid, $mail)
 {
     if ($uid) {
-        exit();
+        exit;
     }
 }
 
 // $lockfile = ATTACHMENTS_DIR."mail.lock.person_".$current_user->get_id();
 
-$info["host"] = config::get_config_item("allocEmailHost");
-$info["port"] = config::get_config_item("allocEmailPort");
-$info["username"] = config::get_config_item("allocEmailUsername");
-$info["password"] = config::get_config_item("allocEmailPassword");
-$info["protocol"] = config::get_config_item("allocEmailProtocol");
+$info['host'] = config::get_config_item('allocEmailHost');
+$info['port'] = config::get_config_item('allocEmailPort');
+$info['username'] = config::get_config_item('allocEmailUsername');
+$info['password'] = config::get_config_item('allocEmailPassword');
+$info['protocol'] = config::get_config_item('allocEmailProtocol');
 
-if (!$info["host"]) {
-    alloc_error("Email mailbox host not defined, assuming email fetch function is inactive.", true);
+if (!$info['host']) {
+    alloc_error('Email mailbox host not defined, assuming email fetch function is inactive.', true);
 }
 
-if ($_REQUEST["commentID"]) {
+if ($_REQUEST['commentID']) {
     $c = new comment();
-    $c->set_id($_REQUEST["commentID"]);
+    $c->set_id($_REQUEST['commentID']);
     $c->select();
 
-    $entity = $c->get_value("commentMaster");
-    $entityID = $c->get_value("commentMasterID");
+    $entity = $c->get_value('commentMaster');
+    $entityID = $c->get_value('commentMasterID');
 
     $mail = new email_receive($info);
-    $mail->open_mailbox(config::get_config_item("allocEmailFolder") . "/" . $entity . $entityID);
+    $mail->open_mailbox(config::get_config_item('allocEmailFolder') . '/' . $entity . $entityID);
 
-    if ($_REQUEST["uid"]) {
+    if ($_REQUEST['uid']) {
         header('Content-Type: text/plain; charset=utf-8');
-        [$h, $b] = $mail->get_raw_email_by_msg_uid($_REQUEST["uid"]);
+        [$h, $b] = $mail->get_raw_email_by_msg_uid($_REQUEST['uid']);
         $mail->close();
         echo $h . $b;
-        exit();
+        exit;
     }
 
     // $uids = $mail->get_all_email_msg_uids();
 
     $t = new token();
-    $t->select_token_by_entity_and_action($c->get_value("commentType"), $c->get_value("commentLinkID"), "add_comment_from_email");
-    $hash = $t->get_value("tokenHash");
+    $t->select_token_by_entity_and_action($c->get_value('commentType'), $c->get_value('commentLinkID'), 'add_comment_from_email');
+    $hash = $t->get_value('tokenHash');
 
     // First try a messageID search
-    if ($c->get_value("commentEmailMessageID")) {
-        $str = sprintf('TEXT "%s"', $c->get_value("commentEmailMessageID"));
+    if ($c->get_value('commentEmailMessageID')) {
+        $str = sprintf('TEXT "%s"', $c->get_value('commentEmailMessageID'));
         $uids = $mail->get_emails_UIDs_search($str);
         if ((is_countable($uids) ? count($uids) : 0) == 1) {
-            alloc_redirect($TPL["url_alloc_downloadEmail"] . "commentID=" . $_REQUEST["commentID"] . "&uid=" . $uids[0]);
+            alloc_redirect($TPL['url_alloc_downloadEmail'] . 'commentID=' . $_REQUEST['commentID'] . '&uid=' . $uids[0]);
         } elseif ((is_countable($uids) ? count($uids) : 0) > 1) {
             $all_uids += $uids;
         }
@@ -69,8 +69,8 @@ if ($_REQUEST["commentID"]) {
         $uids && ($all_uids += $uids);
     }
 
-    $str = sprintf('FROM "%s" ', $c->get_value("commentCreatedUserText"));
-    $str .= sprintf(' ON "%s"', format_date("d-M-Y", $c->get_value("commentCreatedTime")));
+    $str = sprintf('FROM "%s" ', $c->get_value('commentCreatedUserText'));
+    $str .= sprintf(' ON "%s"', format_date('d-M-Y', $c->get_value('commentCreatedTime')));
     $uids = $mail->get_emails_UIDs_search($str);
     $uids && ($all_uids += $uids);
 

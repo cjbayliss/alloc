@@ -7,5 +7,5 @@
 
 class services_module extends Module
 {
-    public $module = "services";
+    public $module = 'services';
 }

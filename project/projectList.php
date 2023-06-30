@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 $defaults = [
-    "showProjectType" => true,
-    "url_form_action" => $TPL["url_alloc_projectList"],
-    "form_name"       => "projectList_filter",
+    'showProjectType' => true,
+    'url_form_action' => $TPL['url_alloc_projectList'],
+    'form_name'       => 'projectList_filter',
 ];
 
 function show_filter()
@@ -24,15 +24,15 @@ function show_filter()
         $TPL = array_merge($TPL, $arr);
     }
 
-    include_template("templates/projectListFilterS.tpl");
+    include_template('templates/projectListFilterS.tpl');
 }
 
 $_FORM = project::load_form_data($defaults);
-$TPL["projectListRows"] = project::getFilteredProjectList($_FORM);
-$TPL["_FORM"] = $_FORM;
+$TPL['projectListRows'] = project::getFilteredProjectList($_FORM);
+$TPL['_FORM'] = $_FORM;
 
-if (!isset($current_user->prefs["projectList_filter"])) {
-    $TPL["message_help"][] = "
+if (!isset($current_user->prefs['projectList_filter'])) {
+    $TPL['message_help'][] = '
 
 allocPSA helps you manage Projects. This page allows you to see a list of
 Projects.
@@ -42,8 +42,8 @@ Projects.
 Simply adjust the filter settings and click the <b>Filter</b> button to
 display a list of previously created Projects.
 If you would prefer to create a new Project, click the <b>New Project</b> link
-in the top-right hand corner of the box below.";
+in the top-right hand corner of the box below.';
 }
 
-$TPL["main_alloc_title"] = "Project List - " . APPLICATION_NAME;
-include_template("templates/projectListM.tpl");
+$TPL['main_alloc_title'] = 'Project List - ' . APPLICATION_NAME;
+include_template('templates/projectListM.tpl');

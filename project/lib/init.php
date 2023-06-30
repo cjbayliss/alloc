@@ -7,13 +7,13 @@
 
 class project_module extends Module
 {
-    public $module = "project";
+    public $module = 'project';
 
     public $databaseEntities = [
-        "project",
-        "projectPerson",
-        "projectCommissionPerson",
+        'project',
+        'projectPerson',
+        'projectCommissionPerson',
     ];
 
-    public $home_items = ["project_list_home_item"];
+    public $home_items = ['project_list_home_item'];
 }

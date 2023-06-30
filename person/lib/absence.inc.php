@@ -7,17 +7,17 @@
 
 class absence extends DatabaseEntity
 {
-    public $data_table = "absence";
+    public $data_table = 'absence';
 
-    public $display_field_name = "personID";
+    public $display_field_name = 'personID';
 
-    public $key_field = "absenceID";
+    public $key_field = 'absenceID';
 
     public $data_fields = [
-        "dateFrom",
-        "dateTo",
-        "personID",
-        "absenceType",
-        "contactDetails",
+        'dateFrom',
+        'dateTo',
+        'personID',
+        'absenceType',
+        'contactDetails',
     ];
 }

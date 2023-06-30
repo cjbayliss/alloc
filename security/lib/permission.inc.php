@@ -7,27 +7,27 @@
 
 class permission extends DatabaseEntity
 {
-    public $data_table = "permission";
+    public $data_table = 'permission';
 
-    public $display_field_name = "tableName";
+    public $display_field_name = 'tableName';
 
-    public $key_field = "permissionID";
+    public $key_field = 'permissionID';
 
     public $data_fields = [
-        "tableName",
-        "entityID",
-        "roleName" => ["empty_to_null" => false],
-        "actions",
-        "sortKey",
-        "comment",
+        'tableName',
+        'entityID',
+        'roleName' => ['empty_to_null' => false],
+        'actions',
+        'sortKey',
+        'comment',
     ];
 
     public function describe_actions()
     {
-        $actions = $this->get_value("actions");
-        $description = "";
+        $actions = $this->get_value('actions');
+        $description = '';
 
-        $entity_class = $this->get_value("tableName");
+        $entity_class = $this->get_value('tableName');
 
         if (Meta::$tables[$entity_class]) {
             $entity = new Meta($entity_class);
@@ -37,10 +37,10 @@ class permission extends DatabaseEntity
             $permissions = $entity->permissions;
         }
 
-        foreach ((array)$permissions as $a => $d) {
-            if ((($actions & $a) == $a) && $d != "") {
-                if ($description !== '' && $description !== '0') {
-                    $description .= ",";
+        foreach ((array) $permissions as $a => $d) {
+            if ((($actions & $a) == $a) && '' != $d) {
+                if ('' !== $description && '0' !== $description) {
+                    $description .= ',';
                 }
 
                 $description .= $d;
@@ -53,11 +53,11 @@ class permission extends DatabaseEntity
     public static function get_roles()
     {
         return [
-            "god"      => "Super User",
-            "admin"    => "Finance Admin",
-            "manage"   => "Project Manager",
-            "employee" => "Employee",
-            "client"   => "Client",
+            'god'      => 'Super User',
+            'admin'    => 'Finance Admin',
+            'manage'   => 'Project Manager',
+            'employee' => 'Employee',
+            'client'   => 'Client',
         ];
     }
 }

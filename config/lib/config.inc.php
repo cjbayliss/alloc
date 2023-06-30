@@ -7,22 +7,23 @@
 
 class config extends DatabaseEntity
 {
-    public $data_table = "config";
+    public $data_table = 'config';
 
-    public $key_field = "configID";
+    public $key_field = 'configID';
 
-    public $data_fields = ["name", "value", "type"];
+    public $data_fields = ['name', 'value', 'type'];
 
     public static function get_config_item($name = '', $anew = false)
     {
-        $table = &get_cached_table("config", $anew);
-        if ($table[$name]["type"] == "array") {
-            ($val = unserialize($table[$name]["value"])) || ($val = []);
+        $table = &get_cached_table('config', $anew);
+        if ('array' == $table[$name]['type']) {
+            ($val = unserialize($table[$name]['value'])) || ($val = []);
+
             return $val;
         }
 
-        if ($table[$name]["type"] == "text") {
-            return $table[$name]["value"];
+        if ('text' == $table[$name]['type']) {
+            return $table[$name]['value'];
         }
     }
 
@@ -31,16 +32,17 @@ class config extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query(unsafe_prepare("SELECT configID FROM config WHERE name = '%s'", $name));
         $allocDatabase->next_record();
+
         return $allocDatabase->f('configID');
     }
 
     public static function get_config_logo($anew = false)
     {
         global $TPL;
-        $table = &get_cached_table("config", $anew);
+        $table = &get_cached_table('config', $anew);
         $val = '';
         if (file_exists(ALLOC_LOGO)) {
-            return '<img src="' . $TPL["url_alloc_logo"] . 'type=small" alt="' . $table['companyName']['value'] . '" />';
+            return '<img src="' . $TPL['url_alloc_logo'] . 'type=small" alt="' . $table['companyName']['value'] . '" />';
         }
 
         return $table['companyName']['value'];
@@ -48,6 +50,6 @@ class config extends DatabaseEntity
 
     public static function for_cyber()
     {
-        return config::get_config_item("companyHandle") == "cybersource";
+        return 'cybersource' == config::get_config_item('companyHandle');
     }
 }

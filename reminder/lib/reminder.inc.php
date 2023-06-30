@@ -6,47 +6,48 @@
  */
 
 // -1 used to be ALL, but was made redundant with the multiselect
-define("REMINDER_METAPERSON_TASK_ASSIGNEE", 2);
-define("REMINDER_METAPERSON_TASK_MANAGER", 3);
+define('REMINDER_METAPERSON_TASK_ASSIGNEE', 2);
+define('REMINDER_METAPERSON_TASK_MANAGER', 3);
 
 class reminder extends DatabaseEntity
 {
-    public $data_table = "reminder";
+    public $data_table = 'reminder';
 
-    public $display_field_name = "reminderSubject";
+    public $display_field_name = 'reminderSubject';
 
-    public $key_field = "reminderID";
+    public $key_field = 'reminderID';
 
     public $data_fields = [
-        "reminderType",
-        "reminderLinkID",
-        "reminderTime",
-        "reminderHash",
-        "reminderRecuringInterval",
-        "reminderRecuringValue",
-        "reminderAdvNoticeSent",
-        "reminderAdvNoticeInterval",
-        "reminderAdvNoticeValue",
-        "reminderSubject",
-        "reminderContent",
-        "reminderCreatedTime",
-        "reminderCreatedUser",
-        "reminderModifiedTime",
-        "reminderModifiedUser",
-        "reminderActive" => ["empty_to_null" => true],
+        'reminderType',
+        'reminderLinkID',
+        'reminderTime',
+        'reminderHash',
+        'reminderRecuringInterval',
+        'reminderRecuringValue',
+        'reminderAdvNoticeSent',
+        'reminderAdvNoticeInterval',
+        'reminderAdvNoticeValue',
+        'reminderSubject',
+        'reminderContent',
+        'reminderCreatedTime',
+        'reminderCreatedUser',
+        'reminderModifiedTime',
+        'reminderModifiedUser',
+        'reminderActive' => ['empty_to_null' => true],
     ];
 
     // set the modified time to now
     public function set_modified_time()
     {
-        $this->set_value("reminderModifiedTime", date("Y-m-d H:i:s"));
+        $this->set_value('reminderModifiedTime', date('Y-m-d H:i:s'));
     }
 
     public function delete()
     {
-        $q = unsafe_prepare("DELETE FROM reminderRecipient WHERE reminderID = %d", $this->get_id());
+        $q = unsafe_prepare('DELETE FROM reminderRecipient WHERE reminderID = %d', $this->get_id());
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
+
         return parent::delete();
     }
 
@@ -55,28 +56,28 @@ class reminder extends DatabaseEntity
         $recipients = [];
         $allocDatabase = new AllocDatabase();
         $type = $this->get_value('reminderType');
-        if ($type == "project") {
-            $query = unsafe_prepare("SELECT *
+        if ('project' == $type) {
+            $query = unsafe_prepare('SELECT *
                                 FROM projectPerson
                            LEFT JOIN person ON projectPerson.personID=person.personID
                                WHERE projectPerson.projectID = %d
-                            ORDER BY person.username", $this->get_value('reminderLinkID'));
-        } elseif ($type == "task") {
+                            ORDER BY person.username', $this->get_value('reminderLinkID'));
+        } elseif ('task' == $type) {
             // Modified query option: to send to all people on the project that this task is from.
-            $recipients = ["-3" => "Task Manager", "-2" => "Task Assignee"];
-            $allocDatabase->query("SELECT projectID FROM task WHERE taskID = %d", $this->get_value('reminderLinkID'));
+            $recipients = ['-3' => 'Task Manager', '-2' => 'Task Assignee'];
+            $allocDatabase->query('SELECT projectID FROM task WHERE taskID = %d', $this->get_value('reminderLinkID'));
             $allocDatabase->next_record();
-            if ($allocDatabase->f('projectID') !== '' && $allocDatabase->f('projectID') !== '0') {
-                $query = unsafe_prepare("SELECT *
+            if ('' !== $allocDatabase->f('projectID') && '0' !== $allocDatabase->f('projectID')) {
+                $query = unsafe_prepare('SELECT *
                                     FROM projectPerson
                                LEFT JOIN person ON projectPerson.personID=person.personID
                                    WHERE projectPerson.projectID = %d
-                                ORDER BY person.username", $allocDatabase->f('projectID'));
+                                ORDER BY person.username', $allocDatabase->f('projectID'));
             } else {
-                $query = "SELECT * FROM person WHERE personActive = 1 ORDER BY username";
+                $query = 'SELECT * FROM person WHERE personActive = 1 ORDER BY username';
             }
         } else {
-            $query = "SELECT * FROM person WHERE personActive = 1 ORDER BY username";
+            $query = 'SELECT * FROM person WHERE personActive = 1 ORDER BY username';
         }
 
         $allocDatabase->query($query);
@@ -91,21 +92,21 @@ class reminder extends DatabaseEntity
 
     public function get_recipient_options()
     {
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
 
         $recipients = $this->get_recipients();
         $type = $this->get_value('reminderType');
 
         $selected = [];
         $allocDatabase = new AllocDatabase();
-        $query = "SELECT * from reminderRecipient WHERE reminderID = %d";
+        $query = 'SELECT * from reminderRecipient WHERE reminderID = %d';
         $allocDatabase->query($query, $this->get_id());
         while ($allocDatabase->next_record()) {
             $selected[] = $allocDatabase->f('metaPersonID') ?: $allocDatabase->f('personID');
         }
 
-        if (!$selected && $_GET["personID"]) {
-            $selected[] = $_GET["personID"];
+        if (!$selected && $_GET['personID']) {
+            $selected[] = $_GET['personID'];
         }
 
         if (!$this->get_id()) {
@@ -118,24 +119,24 @@ class reminder extends DatabaseEntity
     public function get_hour_options()
     {
         $hours = [
-            "1"  => "1",
-            "2"  => "2",
-            "3"  => "3",
-            "4"  => "4",
-            "5"  => "5",
-            "6"  => "6",
-            "7"  => "7",
-            "8"  => "8",
-            "9"  => "9",
-            "10" => "10",
-            "11" => "11",
-            "12" => "12",
+            '1'  => '1',
+            '2'  => '2',
+            '3'  => '3',
+            '4'  => '4',
+            '5'  => '5',
+            '6'  => '6',
+            '7'  => '7',
+            '8'  => '8',
+            '9'  => '9',
+            '10' => '10',
+            '11' => '11',
+            '12' => '12',
         ];
-        if ($this->get_value('reminderTime') != "") {
+        if ('' != $this->get_value('reminderTime')) {
             $date = strtotime($this->get_value('reminderTime'));
-            $hour = date("h", $date);
+            $hour = date('h', $date);
         } else {
-            $hour = date("h", mktime(date("H"), date("i") + 5 - (date("i") % 5), 0, date("m"), date("d"), date("Y")));
+            $hour = date('h', mktime(date('H'), date('i') + 5 - (date('i') % 5), 0, date('m'), date('d'), date('Y')));
         }
 
         return Page::select_options($hours, $hour);
@@ -144,18 +145,18 @@ class reminder extends DatabaseEntity
     public function get_minute_options()
     {
         $minutes = [
-            "0"  => "00",
-            "10" => "10",
-            "20" => "20",
-            "30" => "30",
-            "40" => "40",
-            "50" => "50",
+            '0'  => '00',
+            '10' => '10',
+            '20' => '20',
+            '30' => '30',
+            '40' => '40',
+            '50' => '50',
         ];
-        if ($this->get_value('reminderTime') != "") {
+        if ('' != $this->get_value('reminderTime')) {
             $date = strtotime($this->get_value('reminderTime'));
-            $minute = date("i", $date);
+            $minute = date('i', $date);
         } else {
-            $minute = date("i", mktime(date("H"), date("i") + 5 - (date("i") % 5), 0, date("m"), date("d"), date("Y")));
+            $minute = date('i', mktime(date('H'), date('i') + 5 - (date('i') % 5), 0, date('m'), date('d'), date('Y')));
         }
 
         return Page::select_options($minutes, $minute);
@@ -164,14 +165,14 @@ class reminder extends DatabaseEntity
     public function get_meridian_options()
     {
         $meridians = [
-            "am" => "AM",
-            "pm" => "PM",
+            'am' => 'AM',
+            'pm' => 'PM',
         ];
-        if ($this->get_value('reminderTime') != "") {
+        if ('' != $this->get_value('reminderTime')) {
             $date = strtotime($this->get_value('reminderTime'));
-            $meridian = date("a", $date);
+            $meridian = date('a', $date);
         } else {
-            $meridian = date("a", mktime(date("H"), date("i") + 5 - (date("i") % 5), 0, date("m"), date("d"), date("Y")));
+            $meridian = date('a', mktime(date('H'), date('i') + 5 - (date('i') % 5), 0, date('m'), date('d'), date('Y')));
         }
 
         return Page::select_options($meridians, $meridian);
@@ -180,15 +181,15 @@ class reminder extends DatabaseEntity
     public function get_recuring_interval_options()
     {
         $recuring_interval_options = [
-            "Hour"  => "Hour(s)",
-            "Day"   => "Day(s)",
-            "Week"  => "Week(s)",
-            "Month" => "Month(s)",
-            "Year"  => "Year(s)",
+            'Hour'  => 'Hour(s)',
+            'Day'   => 'Day(s)',
+            'Week'  => 'Week(s)',
+            'Month' => 'Month(s)',
+            'Year'  => 'Year(s)',
         ];
         $recuring_interval = $this->get_value('reminderRecuringInterval');
-        if ($recuring_interval == "") {
-            $recuring_interval = "Week";
+        if ('' == $recuring_interval) {
+            $recuring_interval = 'Week';
         }
 
         return Page::select_options($recuring_interval_options, $recuring_interval);
@@ -197,16 +198,16 @@ class reminder extends DatabaseEntity
     public function get_advnotice_interval_options()
     {
         $advnotice_interval_options = [
-            "Minute" => "Minute(s)",
-            "Hour"   => "Hour(s)",
-            "Day"    => "Day(s)",
-            "Week"   => "Week(s)",
-            "Month"  => "Month(s)",
-            "Year"   => "Year(s)",
+            'Minute' => 'Minute(s)',
+            'Hour'   => 'Hour(s)',
+            'Day'    => 'Day(s)',
+            'Week'   => 'Week(s)',
+            'Month'  => 'Month(s)',
+            'Year'   => 'Year(s)',
         ];
         $advnotice_interval = $this->get_value('reminderAdvNoticeInterval');
-        if ($advnotice_interval == "") {
-            $advnotice_interval = "Hour";
+        if ('' == $advnotice_interval) {
+            $advnotice_interval = 'Hour';
         }
 
         return Page::select_options($advnotice_interval_options, $advnotice_interval);
@@ -215,22 +216,22 @@ class reminder extends DatabaseEntity
     public function is_alive(): bool
     {
         $type = $this->get_value('reminderType');
-        if ($type == "project") {
+        if ('project' == $type) {
             $project = new project();
             $project->set_id($this->get_value('reminderLinkID'));
-            if ($project->select() == false || $project->get_value('projectStatus') == "Archived") {
+            if (false == $project->select() || 'Archived' == $project->get_value('projectStatus')) {
                 return false;
             }
-        } elseif ($type == "task") {
+        } elseif ('task' == $type) {
             $task = new Task();
             $task->set_id($this->get_value('reminderLinkID'));
-            if ($task->select() == false || substr($task->get_value("taskStatus"), 0, 6) == 'closed') {
+            if (false == $task->select() || 'closed' == substr($task->get_value('taskStatus'), 0, 6)) {
                 return false;
             }
-        } elseif ($type == "client") {
+        } elseif ('client' == $type) {
             $client = new client();
             $client->set_id($this->get_value('reminderLinkID'));
-            if ($client->select() == false || $client->get_value('clientStatus') == "Archived") {
+            if (false == $client->select() || 'Archived' == $client->get_value('clientStatus')) {
                 return false;
             }
         }
@@ -240,7 +241,8 @@ class reminder extends DatabaseEntity
 
     public function deactivate()
     {
-        $this->set_value("reminderActive", 0);
+        $this->set_value('reminderActive', 0);
+
         return $this->save();
     }
 
@@ -258,11 +260,11 @@ class reminder extends DatabaseEntity
         // Whereas the task->reopen_pending_task() will have a reminderTime set.
 
         $ok = true;
-        if ($this->get_value("reminderHash")) {
+        if ($this->get_value('reminderHash')) {
             $token = new token();
-            if ($token->set_hash($this->get_value("reminderHash"))) {
+            if ($token->set_hash($this->get_value('reminderHash'))) {
                 [$entity, $method] = $token->execute();
-                if (is_object($entity) && $entity->get_id() && !$entity->$method()) {
+                if (is_object($entity) && $entity->get_id() && !$entity->{$method}()) {
                     $token->decrement_tokenUsed();
                     // next time, gadget
                     $ok = false;
@@ -273,7 +275,7 @@ class reminder extends DatabaseEntity
         if ($ok) {
             $recipients = $this->get_all_recipients();
             // Reminders can be clients, tasks, projects or "general" - comment threads don't exist for general
-            if ($this->get_value('reminderType') != 'general') {
+            if ('general' != $this->get_value('reminderType')) {
                 // Nowhere to put the subject?
                 $commentID = comment::add_comment(
                     $this->get_value('reminderType'),
@@ -284,7 +286,7 @@ class reminder extends DatabaseEntity
                 );
                 // Repackage the recipients to become IPs of the new comment
                 $ips = [];
-                foreach ((array)$recipients as $id => $person) {
+                foreach ((array) $recipients as $id => $person) {
                     $ip = [];
                     $ip['name'] = $person['name'];
                     $ip['addIP'] = true;
@@ -296,27 +298,27 @@ class reminder extends DatabaseEntity
 
                 comment::add_interested_parties($commentID, false, $ips);
                 // email_receive false or true? false for now... maybe true is better?
-                comment::send_comment($commentID, ["interested"]);
+                comment::send_comment($commentID, ['interested']);
             } else {
-                foreach ((array)$recipients as $person) {
+                foreach ((array) $recipients as $person) {
                     if ($person['emailAddress']) {
-                        $email = sprintf("%s %s <%s>", $person['firstName'], $person['surname'], $person['emailAddress']);
+                        $email = sprintf('%s %s <%s>', $person['firstName'], $person['surname'], $person['emailAddress']);
                         $subject = $this->get_value('reminderSubject');
                         $content = $this->get_value('reminderContent');
-                        $e = new email_send($email, $subject, $content, "reminder");
+                        $e = new email_send($email, $subject, $content, 'reminder');
                         $e->send();
                     }
                 }
             }
 
             // Update reminder (reminderTime can be blank for task->moved_from_pending_to_open)
-            if ($this->get_value('reminderRecuringInterval') == "No") {
+            if ('No' == $this->get_value('reminderRecuringInterval')) {
                 $this->deactivate();
-            } elseif ($this->get_value('reminderRecuringValue') != 0) {
+            } elseif (0 != $this->get_value('reminderRecuringValue')) {
                 $interval = $this->get_value('reminderRecuringValue');
                 $intervalUnit = $this->get_value('reminderRecuringInterval');
                 $newtime = $this->get_next_reminder_time(strtotime($this->get_value('reminderTime')), $interval, $intervalUnit);
-                $this->set_value('reminderTime', date("Y-m-d H:i:s", $newtime));
+                $this->set_value('reminderTime', date('Y-m-d H:i:s', $newtime));
                 $this->set_value('reminderAdvNoticeSent', 0);
                 $this->save();
             }
@@ -325,31 +327,31 @@ class reminder extends DatabaseEntity
 
     public function get_next_reminder_time($reminderTime, $interval, $intervalUnit)
     {
-        $date_H = date("H", $reminderTime);
-        $date_i = date("i", $reminderTime);
-        $date_s = date("s", $reminderTime);
-        $date_m = date("m", $reminderTime);
-        $date_d = date("d", $reminderTime);
-        $date_Y = date("Y", $reminderTime);
+        $date_H = date('H', $reminderTime);
+        $date_i = date('i', $reminderTime);
+        $date_s = date('s', $reminderTime);
+        $date_m = date('m', $reminderTime);
+        $date_d = date('d', $reminderTime);
+        $date_Y = date('Y', $reminderTime);
 
         switch ($intervalUnit) {
-            case "Minute":
-                $date_i = date("i", $reminderTime) + $interval;
+            case 'Minute':
+                $date_i = date('i', $reminderTime) + $interval;
                 break;
-            case "Hour":
-                $date_H = date("H", $reminderTime) + $interval;
+            case 'Hour':
+                $date_H = date('H', $reminderTime) + $interval;
                 break;
-            case "Day":
-                $date_d = date("d", $reminderTime) + $interval;
+            case 'Day':
+                $date_d = date('d', $reminderTime) + $interval;
                 break;
-            case "Week":
-                $date_d = date("d", $reminderTime) + (7 * $interval);
+            case 'Week':
+                $date_d = date('d', $reminderTime) + (7 * $interval);
                 break;
-            case "Month":
-                $date_m = date("m", $reminderTime) + $interval;
+            case 'Month':
+                $date_m = date('m', $reminderTime) + $interval;
                 break;
-            case "Year":
-                $date_Y = date("Y", $reminderTime) + $interval;
+            case 'Year':
+                $date_Y = date('Y', $reminderTime) + $interval;
                 break;
         }
 
@@ -362,8 +364,8 @@ class reminder extends DatabaseEntity
         $date = strtotime($this->get_value('reminderTime'));
         // if no advanced notice needs to be sent then dont bother
         if (
-            $this->get_value('reminderAdvNoticeInterval') != "No"
-            && $this->get_value('reminderAdvNoticeSent') == 0 && !$this->get_value("reminderHash")
+            'No' != $this->get_value('reminderAdvNoticeInterval')
+            && 0 == $this->get_value('reminderAdvNoticeSent') && !$this->get_value('reminderHash')
         ) {
             $date = strtotime($this->get_value('reminderTime'));
             $interval = -$this->get_value('reminderAdvNoticeValue');
@@ -371,11 +373,11 @@ class reminder extends DatabaseEntity
             $advnotice_time = $this->get_next_reminder_time($date, $interval, $intervalUnit);
 
             // only sent advanced notice if it is time to send it
-            if (date("YmdHis", $advnotice_time) <= date("YmdHis")) {
+            if (date('YmdHis', $advnotice_time) <= date('YmdHis')) {
                 $recipients = $this->get_all_recipients();
 
                 $subject = sprintf(
-                    "Adv Notice: %s",
+                    'Adv Notice: %s',
                     $this->get_value('reminderSubject')
                 );
                 $content = $this->get_value('reminderContent');
@@ -383,12 +385,12 @@ class reminder extends DatabaseEntity
                 foreach ($recipients as $recipient) {
                     if ($recipient['emailAddress']) {
                         $email = sprintf(
-                            "%s %s <%s>",
+                            '%s %s <%s>',
                             $recipient['firstName'],
                             $recipient['surname'],
                             $recipient['emailAddress']
                         );
-                        $e = new email_send($email, $subject, $content, "reminder_advnotice");
+                        $e = new email_send($email, $subject, $content, 'reminder_advnotice');
                         $e->send();
                     }
                 }
@@ -403,364 +405,364 @@ class reminder extends DatabaseEntity
     // (i.e., convert "Task Assignee" into "Bob")
     public function get_effective_person_id($recipient = null)
     {
-        if ($recipient->get_value('personID') == null) { // nulls don't come through correctly?
+        if (null == $recipient->get_value('personID')) { // nulls don't come through correctly?
             // OK, slightly more complicated, we need to get the relevant link entity
             $metaperson = -$recipient->get_value('metaPersonID');
-            $type = $this->get_value("reminderType");
-            if ($type == "task") {
+            $type = $this->get_value('reminderType');
+            if ('task' == $type) {
                 $task = new Task();
                 $task->set_id($this->get_value('reminderLinkID'));
                 $task->select();
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
+                if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
                     return $task->get_value('personID');
                 }
 
-                if ($metaperson == REMINDER_METAPERSON_TASK_MANAGER) {
+                if (REMINDER_METAPERSON_TASK_MANAGER == $metaperson) {
                     return $task->get_value('managerID');
                 }
             } else {
                 // we should never actually get here...
-                alloc_error("Unknown metaperson.");
+                alloc_error('Unknown metaperson.');
             }
         } else {
             return $recipient->get_value('personID');
@@ -770,373 +772,373 @@ class reminder extends DatabaseEntity
     // gets a human-friendly description of the recipient, either the recipient name or in the form Task Manager (Bob)
     public function get_recipient_description()
     {
-        $people = &get_cached_table("person");
-        $name = $people[$this->get_effective_person_id()]["name"];
-        if ($this->get_value("metaPerson") === null) {
+        $people = &get_cached_table('person');
+        $name = $people[$this->get_effective_person_id()]['name'];
+        if (null === $this->get_value('metaPerson')) {
             return $name;
         }
 
-        return sprintf("%s (%s)", (new reminder())->get_metaperson_name($this->get_value("metaPerson")), $name);
+        return sprintf('%s (%s)', (new reminder())->get_metaperson_name($this->get_value('metaPerson')), $name);
     }
 
     // gets the human-friendly name of the meta person (e.g. R_MP_TASK_ASSIGNEE to "Task assignee")
     public function get_metaperson_name($metaperson)
     {
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_ASSIGNEE) {
-            return "Task Assignee";
+        if (REMINDER_METAPERSON_TASK_ASSIGNEE == $metaperson) {
+            return 'Task Assignee';
         }
 
-        if ($metaperson == REMINDER_METAPERSON_TASK_MANAGER) {
-            return "Task Manager";
+        if (REMINDER_METAPERSON_TASK_MANAGER == $metaperson) {
+            return 'Task Manager';
         }
     }
 
     public function get_all_recipients()
     {
         $allocDatabase = new AllocDatabase();
-        $query = "SELECT * FROM reminderRecipient WHERE reminderID = %d";
+        $query = 'SELECT * FROM reminderRecipient WHERE reminderID = %d';
         $allocDatabase->query($query, $this->get_id());
-        $people = &get_cached_table("person");
+        $people = &get_cached_table('person');
         $recipients = [];
         $reminderRecipient = new reminderRecipient();
         while ($allocDatabase->next_record()) {
@@ -1152,9 +1154,9 @@ class reminder extends DatabaseEntity
     public function update_recipients($recipients)
     {
         $allocDatabase = new AllocDatabase();
-        $query = "DELETE FROM reminderRecipient WHERE reminderID = %d";
+        $query = 'DELETE FROM reminderRecipient WHERE reminderID = %d';
         $allocDatabase->query($query, $this->get_id());
-        foreach ((array)$recipients as $r) {
+        foreach ((array) $recipients as $r) {
             $recipient = new reminderRecipient();
             $recipient->set_value('reminderID', $this->get_id());
             if ($r < 0) {
@@ -1166,31 +1168,29 @@ class reminder extends DatabaseEntity
 
             $recipient->save();
         }
-
-        return;
     }
 
     public static function get_list_filter($filter = [])
     {
         $sql = [];
-        if (isset($filter["type"])) {
-            $sql[] = unsafe_prepare("reminderType='%s'", $filter["type"]);
+        if (isset($filter['type'])) {
+            $sql[] = unsafe_prepare("reminderType='%s'", $filter['type']);
         }
 
-        if (isset($filter["id"])) {
-            $sql[] = unsafe_prepare("reminderLinkID=%d", $filter["id"]);
+        if (isset($filter['id'])) {
+            $sql[] = unsafe_prepare('reminderLinkID=%d', $filter['id']);
         }
 
-        if (isset($filter["reminderID"])) {
-            $sql[] = unsafe_prepare("reminder.reminderID=%d", $filter["reminderID"]);
+        if (isset($filter['reminderID'])) {
+            $sql[] = unsafe_prepare('reminder.reminderID=%d', $filter['reminderID']);
         }
 
-        if (isset($filter["filter_recipient"])) {
-            $sql[] = unsafe_prepare("personID = %d", $filter["filter_recipient"]);
+        if (isset($filter['filter_recipient'])) {
+            $sql[] = unsafe_prepare('personID = %d', $filter['filter_recipient']);
         }
 
-        if (isset($filter["filter_reminderActive"]) && (bool)strlen($filter["filter_reminderActive"])) {
-            $sql[] = unsafe_prepare("reminderActive = %d", $filter["filter_reminderActive"]);
+        if (isset($filter['filter_reminderActive']) && (bool) strlen($filter['filter_reminderActive'])) {
+            $sql[] = unsafe_prepare('reminderActive = %d', $filter['filter_reminderActive']);
         }
 
         return $sql;
@@ -1202,18 +1202,18 @@ class reminder extends DatabaseEntity
         $rows = [];
         $filter = reminder::get_list_filter($_FORM);
         if (is_array($filter) && count($filter)) {
-            $f = " WHERE " . implode(" AND ", $filter);
+            $f = ' WHERE ' . implode(' AND ', $filter);
         }
 
         $allocDatabase = new AllocDatabase();
-        $q = "SELECT reminder.*,reminderRecipient.*,token.*,tokenAction.*, reminder.reminderID as rID
+        $q = 'SELECT reminder.*,reminderRecipient.*,token.*,tokenAction.*, reminder.reminderID as rID
                 FROM reminder
            LEFT JOIN reminderRecipient ON reminder.reminderID = reminderRecipient.reminderID
            LEFT JOIN token ON reminder.reminderHash = token.tokenHash
            LEFT JOIN tokenAction ON token.tokenActionID = tokenAction.tokenActionID
-             " . $f . "
+             ' . $f . '
             GROUP BY reminder.reminderID
-            ORDER BY reminderTime,reminderType";
+            ORDER BY reminderTime,reminderType';
         $allocDatabase->query($q);
         while ($row = $allocDatabase->row()) {
             $reminder = new reminder();
@@ -1227,11 +1227,11 @@ class reminder extends DatabaseEntity
     public static function get_list_html($type = null, $id = null)
     {
         global $TPL;
-        $_REQUEST["type"] = $type;
-        $_REQUEST["id"] = $id;
-        $TPL["reminderRows"] = reminder::get_list($_REQUEST);
-        $type && ($TPL["returnToParent"] = $type);
-        $type || ($TPL["returnToParent"] = "list");
-        include_template(__DIR__ . "/../templates/reminderListS.tpl");
+        $_REQUEST['type'] = $type;
+        $_REQUEST['id'] = $id;
+        $TPL['reminderRows'] = reminder::get_list($_REQUEST);
+        $type && ($TPL['returnToParent'] = $type);
+        $type || ($TPL['returnToParent'] = 'list');
+        include_template(__DIR__ . '/../templates/reminderListS.tpl');
     }
 }

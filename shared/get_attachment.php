@@ -7,39 +7,39 @@
 
 // For use like get_attachment.php?entity=project&id=5&file=foo.bar
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
-$file = $_GET["file"];
+$file = $_GET['file'];
 
-if (isset($_GET["id"]) && $file && !bad_filename($file)) {
-    $entity = new $_GET["entity"];
-    $entity->set_id(sprintf("%d", $_GET["id"]));
+if (isset($_GET['id']) && $file && !bad_filename($file)) {
+    $entity = new $_GET['entity']();
+    $entity->set_id(sprintf('%d', $_GET['id']));
     $entity->select();
 
-    $file = ATTACHMENTS_DIR . $_GET["entity"] . "/" . $_GET["id"] . "/" . $file;
+    $file = ATTACHMENTS_DIR . $_GET['entity'] . '/' . $_GET['id'] . '/' . $file;
 
     if ($entity->has_attachment_permission($current_user)) {
         if (file_exists($file)) {
-            $fp = fopen($file, "rb");
+            $fp = fopen($file, 'rb');
             $mimetype = mime_content_type($file);
 
             // Forge html for the whatsnew files
-            if (basename(dirname($file, 2)) == "whatsnew") {
-                $forged_suffix = ".html";
-                $mimetype = "text/html";
+            if ('whatsnew' == basename(dirname($file, 2))) {
+                $forged_suffix = '.html';
+                $mimetype = 'text/html';
             }
 
             header('Content-Type: ' . $mimetype);
-            header("Content-Length: " . filesize($file));
+            header('Content-Length: ' . filesize($file));
             header('Content-Disposition: inline; filename="' . basename($file) . $forged_suffix . '"');
             fpassthru($fp);
             exit;
         }
 
-        echo "File not found.";
+        echo 'File not found.';
         exit;
     }
 
-    echo "Permission denied.";
+    echo 'Permission denied.';
     exit;
 }

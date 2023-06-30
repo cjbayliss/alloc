@@ -5,12 +5,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 function show_attachments()
 {
     global $projectID;
-    util_show_attachments("project", $projectID);
+    util_show_attachments('project', $projectID);
 }
 
 function list_attachments($template_name)
@@ -19,7 +19,7 @@ function list_attachments($template_name)
     global $projectID;
 
     if ($projectID) {
-        $rows = get_attachments("project", $projectID);
+        $rows = get_attachments('project', $projectID);
         foreach ($rows as $row) {
             $TPL = array_merge($TPL, $row);
             include_template($template_name);
@@ -32,29 +32,29 @@ function show_transaction($template)
     global $db;
     global $TPL;
     global $projectID;
-    $current_user = &singleton("current_user");
+    $current_user = &singleton('current_user');
 
     $transaction = new transaction();
 
     if (isset($projectID) && $projectID) {
-        $query = unsafe_prepare("SELECT transaction.*
+        $query = unsafe_prepare('SELECT transaction.*
                             FROM transaction
                            WHERE transaction.projectID = %d
                         ORDER BY transactionModifiedTime desc
-                         ", $projectID);
+                         ', $projectID);
         $db->query($query);
         while ($db->next_record()) {
             $transaction = new transaction();
             $transaction->read_db_record($db);
-            $transaction->set_values("transaction_");
+            $transaction->set_values('transaction_');
 
-            $tf = $transaction->get_foreign_object("tf");
+            $tf = $transaction->get_foreign_object('tf');
             $tf->set_values();
-            $tf->set_values("tf_");
+            $tf->set_values('tf_');
 
-            $TPL["transaction_username"] = $db->f("username");
-            $TPL["transaction_amount"] = Page::money($TPL["transaction_currenyTypeID"], $TPL["transaction_amount"], "%s%mo");
-            ($TPL["transaction_type_link"] = $transaction->get_transaction_type_link()) || ($TPL["transaction_link"] = $transaction->get_value("transactionType"));
+            $TPL['transaction_username'] = $db->f('username');
+            $TPL['transaction_amount'] = Page::money($TPL['transaction_currenyTypeID'], $TPL['transaction_amount'], '%s%mo');
+            ($TPL['transaction_type_link'] = $transaction->get_transaction_type_link()) || ($TPL['transaction_link'] = $transaction->get_value('transactionType'));
 
             include_template($template);
         }
@@ -64,25 +64,25 @@ function show_transaction($template)
 function show_invoices()
 {
     $_FORM = [];
-    $current_user = &singleton("current_user");
+    $current_user = &singleton('current_user');
     global $project;
-    $clientID = $project->get_value("clientID");
+    $clientID = $project->get_value('clientID');
     $projectID = $project->get_id();
 
-    $_FORM["showHeader"] = true;
-    $_FORM["showInvoiceNumber"] = true;
-    $_FORM["showInvoiceClient"] = true;
-    $_FORM["showInvoiceName"] = true;
-    $_FORM["showInvoiceAmount"] = true;
-    $_FORM["showInvoiceAmountPaid"] = true;
-    $_FORM["showInvoiceDate"] = true;
-    $_FORM["showInvoiceStatus"] = true;
-    $_FORM["clientID"] = $clientID;
-    $_FORM["projectID"] = $projectID;
+    $_FORM['showHeader'] = true;
+    $_FORM['showInvoiceNumber'] = true;
+    $_FORM['showInvoiceClient'] = true;
+    $_FORM['showInvoiceName'] = true;
+    $_FORM['showInvoiceAmount'] = true;
+    $_FORM['showInvoiceAmountPaid'] = true;
+    $_FORM['showInvoiceDate'] = true;
+    $_FORM['showInvoiceStatus'] = true;
+    $_FORM['clientID'] = $clientID;
+    $_FORM['projectID'] = $projectID;
 
     // Restrict non-admin users records
-    if (!$current_user->have_role("admin")) {
-        $_FORM["personID"] = $current_user->get_id();
+    if (!$current_user->have_role('admin')) {
+        $_FORM['personID'] = $current_user->get_id();
     }
 
     $rows = invoice::get_list($_FORM);
@@ -93,8 +93,8 @@ function show_projectHistory()
 {
     global $project;
     global $TPL;
-    $TPL["changeHistory"] = $project->get_changes_list();
-    include_template("templates/projectHistoryM.tpl");
+    $TPL['changeHistory'] = $project->get_changes_list();
+    include_template('templates/projectHistoryM.tpl');
 }
 
 function show_commission_list($template_name)
@@ -104,15 +104,15 @@ function show_commission_list($template_name)
     global $projectID;
 
     if ($projectID) {
-        $query = unsafe_prepare("SELECT * from projectCommissionPerson WHERE projectID= %d", $projectID);
+        $query = unsafe_prepare('SELECT * from projectCommissionPerson WHERE projectID= %d', $projectID);
         $db->query($query);
 
         while ($db->next_record()) {
             $commission_item = new projectCommissionPerson();
             $commission_item->read_db_record($db);
-            $commission_item->set_values("commission_");
-            $tf = $commission_item->get_foreign_object("tf");
-            $TPL["save_label"] = "Save";
+            $commission_item->set_values('commission_');
+            $tf = $commission_item->get_foreign_object('tf');
+            $TPL['save_label'] = 'Save';
             include_template($template_name);
         }
     }
@@ -128,11 +128,11 @@ function show_new_commission($template_name)
         return;
     }
 
-    $TPL["commission_new"] = true;
+    $TPL['commission_new'] = true;
     $commission_item = new projectCommissionPerson();
-    $commission_item->set_values("commission_");
-    $TPL["commission_projectID"] = $projectID;
-    $TPL["save_label"] = "Add Commission";
+    $commission_item->set_values('commission_');
+    $TPL['commission_projectID'] = $projectID;
+    $TPL['save_label'] = 'Add Commission';
     include_template($template_name);
 }
 
@@ -146,21 +146,21 @@ function show_person_list($template)
     global $project_person_role_array;
 
     if ($projectID) {
-        $query = unsafe_prepare("SELECT projectPerson.*, roleSequence
+        $query = unsafe_prepare('SELECT projectPerson.*, roleSequence
                             FROM projectPerson
                        LEFT JOIN role ON role.roleID = projectPerson.roleID
-                           WHERE projectID=%d ORDER BY roleSequence DESC,projectPersonID ASC", $projectID);
+                           WHERE projectID=%d ORDER BY roleSequence DESC,projectPersonID ASC', $projectID);
         $db->query($query);
 
         while ($db->next_record()) {
             $projectPerson = new projectPerson();
             $projectPerson->read_db_record($db);
-            $projectPerson->set_values("person_");
-            $person = $projectPerson->get_foreign_object("person");
-            $TPL["person_username"] = $person->get_value("username");
-            $TPL["person_emailType_options"] = Page::select_options($email_type_array, $TPL["person_emailType"]);
-            $TPL["person_role_options"] = Page::select_options($project_person_role_array, $TPL["person_roleID"]);
-            $TPL["rateType_options"] = Page::select_options($rate_type_array, $TPL["person_rateUnitID"]);
+            $projectPerson->set_values('person_');
+            $person = $projectPerson->get_foreign_object('person');
+            $TPL['person_username'] = $person->get_value('username');
+            $TPL['person_emailType_options'] = Page::select_options($email_type_array, $TPL['person_emailType']);
+            $TPL['person_role_options'] = Page::select_options($project_person_role_array, $TPL['person_roleID']);
+            $TPL['rateType_options'] = Page::select_options($rate_type_array, $TPL['person_rateUnitID']);
             include_template($template);
         }
     }
@@ -171,20 +171,20 @@ function show_projectPerson_list()
     global $db;
     global $TPL;
     global $projectID;
-    $template = "templates/projectPersonSummaryViewR.tpl";
+    $template = 'templates/projectPersonSummaryViewR.tpl';
 
     if ($projectID) {
-        $query = unsafe_prepare("SELECT personID, roleName
+        $query = unsafe_prepare('SELECT personID, roleName
                             FROM projectPerson
                        LEFT JOIN role ON role.roleID = projectPerson.roleID
                            WHERE projectID = %d
                         GROUP BY projectPerson.personID
-                        ORDER BY roleSequence DESC, personID ASC", $projectID);
+                        ORDER BY roleSequence DESC, personID ASC', $projectID);
         $db->query($query);
         while ($db->next_record()) {
             $projectPerson = new projectPerson();
             $projectPerson->read_db_record($db);
-            $TPL['person_roleName'] = $db->f("roleName");
+            $TPL['person_roleName'] = $db->f('roleName');
             $TPL['person_name'] = person::get_fullname($projectPerson->get_value('personID'));
             include_template($template);
         }
@@ -205,16 +205,16 @@ function show_new_person($template)
     }
 
     $project_person = new projectPerson();
-    $project_person->set_values("person_");
-    $TPL["person_emailType_options"] = Page::select_options($email_type_array, $TPL["person_emailType"]);
-    $TPL["person_role_options"] = Page::select_options($project_person_role_array, false);
-    $TPL["rateType_options"] = Page::select_options($rate_type_array);
+    $project_person->set_values('person_');
+    $TPL['person_emailType_options'] = Page::select_options($email_type_array, $TPL['person_emailType']);
+    $TPL['person_role_options'] = Page::select_options($project_person_role_array, false);
+    $TPL['rateType_options'] = Page::select_options($rate_type_array);
     include_template($template);
 }
 
 function show_time_sheets($template_name)
 {
-    $current_user = &singleton("current_user");
+    $current_user = &singleton('current_user');
 
     if ($current_user->is_employee()) {
         include_template($template_name);
@@ -228,7 +228,7 @@ function show_project_managers($template_name)
 
 function show_transactions($template_name)
 {
-    $current_user = &singleton("current_user");
+    $current_user = &singleton('current_user');
 
     if ($current_user->is_employee()) {
         include_template($template_name);
@@ -238,7 +238,7 @@ function show_transactions($template_name)
 function show_person_options()
 {
     global $TPL;
-    echo Page::select_options(person::get_username_list($TPL["person_personID"]), $TPL["person_personID"]);
+    echo Page::select_options(person::get_username_list($TPL['person_personID']), $TPL['person_personID']);
 }
 
 function show_tf_options($commission_tfID)
@@ -253,36 +253,36 @@ function show_comments()
     global $projectID;
     global $TPL;
     global $project;
-    $TPL["commentsR"] = comment::util_get_comments("project", $projectID);
-    $TPL["commentsR"] && ($TPL["class_new_comment"] = "hidden");
+    $TPL['commentsR'] = comment::util_get_comments('project', $projectID);
+    $TPL['commentsR'] && ($TPL['class_new_comment'] = 'hidden');
     $interestedPartyOptions = $project->get_all_parties();
     $interestedPartyOptions = InterestedParty::get_interested_parties(
-        "project",
+        'project',
         $project->get_id(),
         $interestedPartyOptions
     );
-    ($TPL["allParties"] = $interestedPartyOptions) || ($TPL["allParties"] = []);
-    $TPL["entity"] = "project";
-    $TPL["entityID"] = $project->get_id();
-    $TPL["clientID"] = $project->get_value("clientID");
+    ($TPL['allParties'] = $interestedPartyOptions) || ($TPL['allParties'] = []);
+    $TPL['entity'] = 'project';
+    $TPL['entityID'] = $project->get_id();
+    $TPL['clientID'] = $project->get_value('clientID');
 
     $commentTemplate = new commentTemplate();
-    $ops = $commentTemplate->get_assoc_array("commentTemplateID", "commentTemplateName", "", ["commentTemplateType" => "project"]);
-    $TPL["commentTemplateOptions"] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
+    $ops = $commentTemplate->get_assoc_array('commentTemplateID', 'commentTemplateName', '', ['commentTemplateType' => 'project']);
+    $TPL['commentTemplateOptions'] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
 
     $ops = [
-        ""          => "Format as...",
-        "pdf"       => "PDF",
-        "pdf_plus"  => "PDF+",
-        "html"      => "HTML",
-        "html_plus" => "HTML+",
+        ''          => 'Format as...',
+        'pdf'       => 'PDF',
+        'pdf_plus'  => 'PDF+',
+        'html'      => 'HTML',
+        'html_plus' => 'HTML+',
     ];
 
-    $TPL["attach_extra_files"] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-    $TPL["attach_extra_files"] .= "Attach Task Report ";
-    $TPL["attach_extra_files"] .= '<select name="attach_tasks">' . Page::select_options($ops) . '</select><br>';
+    $TPL['attach_extra_files'] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    $TPL['attach_extra_files'] .= 'Attach Task Report ';
+    $TPL['attach_extra_files'] .= '<select name="attach_tasks">' . Page::select_options($ops) . '</select><br>';
 
-    include_template("../comment/templates/commentM.tpl");
+    include_template('../comment/templates/commentM.tpl');
 }
 
 function show_tasks()
@@ -290,28 +290,28 @@ function show_tasks()
     $options = [];
     global $TPL;
     global $project;
-    $options["showHeader"] = true;
-    $options["taskView"] = "byProject";
-    $options["projectIDs"] = [$project->get_id()];
-    $options["taskStatus"] = ["open", "pending"];
-    $options["showTaskID"] = true;
-    $options["showAssigned"] = true;
-    $options["showStatus"] = true;
-    $options["showManager"] = true;
-    $options["showDates"] = true;
+    $options['showHeader'] = true;
+    $options['taskView'] = 'byProject';
+    $options['projectIDs'] = [$project->get_id()];
+    $options['taskStatus'] = ['open', 'pending'];
+    $options['showTaskID'] = true;
+    $options['showAssigned'] = true;
+    $options['showStatus'] = true;
+    $options['showManager'] = true;
+    $options['showDates'] = true;
     // $options["showTimes"] = true; // performance hit
-    $options["return"] = "html";
+    $options['return'] = 'html';
     // $TPL["taskListRows"] is used for the budget estimatation outside of this function
-    $TPL["taskListRows"] = Task::get_list($options);
-    $TPL["_FORM"] = $options;
-    include_template("templates/projectTaskS.tpl");
+    $TPL['taskListRows'] = Task::get_list($options);
+    $TPL['_FORM'] = $options;
+    include_template('templates/projectTaskS.tpl');
 }
 
 // END FUNCTIONS
 
-$current_user = &singleton("current_user");
+$current_user = &singleton('current_user');
 
-$projectID = $_POST["projectID"] ?? $_GET["projectID"] ?? "";
+$projectID = $_POST['projectID'] ?? $_GET['projectID'] ?? '';
 $project = new project();
 
 if ($projectID) {
@@ -319,114 +319,112 @@ if ($projectID) {
     $project->select();
     $new_project = false;
     if (!$project->have_perm(PERM_UPDATE)) {
-        $TPL["message_help"][] = "Project is read-only for you.";
+        $TPL['message_help'][] = 'Project is read-only for you.';
     }
 } else {
     $new_project = true;
 }
 
-if (isset($_POST["save"])) {
+if (isset($_POST['save'])) {
     $project->read_globals();
     if (!$project->get_id()) {    // brand new project
         $definitely_new_project = true;
     }
 
-    if (!$project->get_value("projectName")) {
-        alloc_error("Please enter a name for the Project.");
+    if (!$project->get_value('projectName')) {
+        alloc_error('Please enter a name for the Project.');
     }
 
     // enforced at the database, but show a friendlier error here if possible
-    $query = unsafe_prepare("SELECT COUNT(*) as count FROM project WHERE projectShortName = '%s'", $db->esc($project->get_value("projectShortName")));
+    $query = unsafe_prepare("SELECT COUNT(*) as count FROM project WHERE projectShortName = '%s'", $db->esc($project->get_value('projectShortName')));
     if (!$definitely_new_project) {
-        $query .= unsafe_prepare(" AND projectID != %d", $project->get_id());
+        $query .= unsafe_prepare(' AND projectID != %d', $project->get_id());
     }
 
     $db->query($query);
     $db->next_record();
     if ($db->f('count') > 0) {
-        alloc_error("A project with that nickname already exists.");
+        alloc_error('A project with that nickname already exists.');
     }
 
-    if (!isset($TPL["message"])) {
-        $project->set_value("projectComments", rtrim($project->get_value("projectComments")));
+    if (!isset($TPL['message'])) {
+        $project->set_value('projectComments', rtrim($project->get_value('projectComments')));
         $project->save();
         $projectID = $project->get_id();
-        InterestedParty::make_interested_parties("project", $project->get_id(), $_POST["interestedParty"] ?? []);
+        InterestedParty::make_interested_parties('project', $project->get_id(), $_POST['interestedParty'] ?? []);
 
         $client = new client();
-        $client->set_id($project->get_value("clientID"));
+        $client->set_id($project->get_value('clientID'));
         $client->select();
-        if ($client->get_value("clientStatus") == 'Potential') {
-            $client->set_value("clientStatus", "Current");
+        if ('Potential' == $client->get_value('clientStatus')) {
+            $client->set_value('clientStatus', 'Current');
             $client->save();
         }
 
         if ($definitely_new_project) {
             $projectPerson = new projectPerson();
-            $projectPerson->currency = $project->get_value("currencyTypeID");
-            $projectPerson->set_value("projectID", $projectID);
-            $projectPerson->set_value_role("isManager");
-            $projectPerson->set_value("personID", $current_user->get_id());
+            $projectPerson->currency = $project->get_value('currencyTypeID');
+            $projectPerson->set_value('projectID', $projectID);
+            $projectPerson->set_value_role('isManager');
+            $projectPerson->set_value('personID', $current_user->get_id());
             $projectPerson->save();
         }
 
-        alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $project->get_id());
+        alloc_redirect($TPL['url_alloc_project'] . 'projectID=' . $project->get_id());
     }
-} elseif (isset($_POST["delete"])) {
+} elseif (isset($_POST['delete'])) {
     $project->read_globals();
     $project->delete();
-    alloc_redirect($TPL["url_alloc_projectList"]);
+    alloc_redirect($TPL['url_alloc_projectList']);
     // If they are creating a new project that is based on an existing one
 } elseif (
-    isset($_POST["copy_project_save"]) &&
-    isset($_POST["copy_projectID"]) &&
-    isset($_POST["copy_project_name"])
+    isset($_POST['copy_project_save'], $_POST['copy_projectID'], $_POST['copy_project_name'])
 ) {
     $p = new project();
-    $p->set_id($_POST["copy_projectID"]);
+    $p->set_id($_POST['copy_projectID']);
     if ($p->select()) {
         $p2 = new project();
         $p2->read_row_record($p->row());
-        $p2->set_id("");
-        $p2->set_value("projectName", $_POST["copy_project_name"]);
-        $p2->set_value("projectShortName", "");
+        $p2->set_id('');
+        $p2->set_value('projectName', $_POST['copy_project_name']);
+        $p2->set_value('projectShortName', '');
         $p2->save();
-        $TPL["message_good"][] = "Project details copied successfully.";
+        $TPL['message_good'][] = 'Project details copied successfully.';
 
         // Copy project people
-        $q = unsafe_prepare("SELECT * FROM projectPerson WHERE projectID = %d", $p->get_id());
+        $q = unsafe_prepare('SELECT * FROM projectPerson WHERE projectID = %d', $p->get_id());
         $db = new AllocDatabase();
         $db->query($q);
         while ($row = $db->row()) {
             $projectPerson = new projectPerson();
-            $projectPerson->currency = $p->get_value("currencyTypeID");
+            $projectPerson->currency = $p->get_value('currencyTypeID');
             $projectPerson->read_row_record($row);
-            $projectPerson->set_id("");
-            $projectPerson->set_value("projectID", $p2->get_id());
+            $projectPerson->set_id('');
+            $projectPerson->set_value('projectID', $p2->get_id());
             $projectPerson->save();
-            $TPL["message_good"]["projectPeople"] = "Project people copied successfully.";
+            $TPL['message_good']['projectPeople'] = 'Project people copied successfully.';
         }
 
         // Copy commissions
-        $q = unsafe_prepare("SELECT * FROM projectCommissionPerson WHERE projectID = %d", $p->get_id());
+        $q = unsafe_prepare('SELECT * FROM projectCommissionPerson WHERE projectID = %d', $p->get_id());
         $db = new AllocDatabase();
         $db->query($q);
         while ($row = $db->row()) {
             $projectCommissionPerson = new projectCommissionPerson();
             $projectCommissionPerson->read_row_record($row);
-            $projectCommissionPerson->set_id("");
-            $projectCommissionPerson->set_value("projectID", $p2->get_id());
+            $projectCommissionPerson->set_id('');
+            $projectCommissionPerson->set_value('projectID', $p2->get_id());
             $projectCommissionPerson->save();
-            $TPL["message_good"]["projectCommissions"] = "Project commissions copied successfully.";
+            $TPL['message_good']['projectCommissions'] = 'Project commissions copied successfully.';
         }
 
-        alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $p2->get_id());
+        alloc_redirect($TPL['url_alloc_project'] . 'projectID=' . $p2->get_id());
     }
 }
 
 if ($projectID) {
-    if (isset($_POST["person_save"])) {
-        $q = unsafe_prepare("SELECT * FROM projectPerson WHERE projectID = %d", $project->get_id());
+    if (isset($_POST['person_save'])) {
+        $q = unsafe_prepare('SELECT * FROM projectPerson WHERE projectID = %d', $project->get_id());
         $db = new AllocDatabase();
         $db->query($q);
         while ($db->next_record()) {
@@ -436,17 +434,17 @@ if ($projectID) {
             // $pp->delete(); // need to delete them after, cause we'll accidently wipe out the current user
         }
 
-        if (isset($_POST["person_personID"]) && is_array($_POST["person_personID"])) {
-            foreach ($_POST["person_personID"] as $k => $personID) {
+        if (isset($_POST['person_personID']) && is_array($_POST['person_personID'])) {
+            foreach ($_POST['person_personID'] as $k => $personID) {
                 if ($personID) {
                     $pp = new projectPerson();
-                    $pp->currency = $project->get_value("currencyTypeID");
-                    $pp->set_value("projectID", $project->get_id());
-                    $pp->set_value("personID", $personID);
-                    $pp->set_value("roleID", $_POST["person_roleID"][$k]);
-                    $pp->set_value("rate", $_POST["person_rate"][$k]);
-                    $pp->set_value("rateUnitID", $_POST["person_rateUnitID"][$k]);
-                    $pp->set_value("projectPersonModifiedUser", $current_user->get_id());
+                    $pp->currency = $project->get_value('currencyTypeID');
+                    $pp->set_value('projectID', $project->get_id());
+                    $pp->set_value('personID', $personID);
+                    $pp->set_value('roleID', $_POST['person_roleID'][$k]);
+                    $pp->set_value('rate', $_POST['person_rate'][$k]);
+                    $pp->set_value('rateUnitID', $_POST['person_rateUnitID'][$k]);
+                    $pp->set_value('projectPersonModifiedUser', $current_user->get_id());
                     $pp->save();
                 }
             }
@@ -459,17 +457,17 @@ if ($projectID) {
                 $pp->delete();
             }
         }
-    } elseif (isset($_POST["commission_save"]) || isset($_POST["commission_delete"])) {
+    } elseif (isset($_POST['commission_save']) || isset($_POST['commission_delete'])) {
         $commission_item = new projectCommissionPerson();
         $commission_item->read_globals();
-        $commission_item->read_globals("commission_");
-        if (isset($_POST["commission_save"])) {
-            if (!isset($_POST["commission_tfID"])) {
-                alloc_error("No TF selected.");
+        $commission_item->read_globals('commission_');
+        if (isset($_POST['commission_save'])) {
+            if (!isset($_POST['commission_tfID'])) {
+                alloc_error('No TF selected.');
             } else {
                 $commission_item->save();
             }
-        } elseif (isset($_POST["commission_delete"])) {
+        } elseif (isset($_POST['commission_delete'])) {
             $commission_item->delete();
         }
     }
@@ -485,70 +483,70 @@ if ($projectID) {
 }
 
 // Comments
-$TPL["comment_buttons"] = '<input type="submit" name="comment_save" value="Save Comment">';
+$TPL['comment_buttons'] = '<input type="submit" name="comment_save" value="Save Comment">';
 
 // if someone uploads an attachment
-if (isset($_POST["save_attachment"])) {
-    move_attachment("project", $projectID);
-    alloc_redirect($TPL["url_alloc_project"] . "projectID=" . $projectID . "&sbs_link=attachments");
+if (isset($_POST['save_attachment'])) {
+    move_attachment('project', $projectID);
+    alloc_redirect($TPL['url_alloc_project'] . 'projectID=' . $projectID . '&sbs_link=attachments');
 }
 
-$project->set_values("project_");
+$project->set_values('project_');
 
 $db = new AllocDatabase();
 
-$clientID = $project->get_value("clientID") ?? $_GET["clientID"] ?? "";
+$clientID = $project->get_value('clientID') ?? $_GET['clientID'] ?? '';
 $client = new client();
 $client->set_id($clientID);
 $client->select();
-$client->set_tpl_values("client_");
+$client->set_tpl_values('client_');
 
 // If a client has been chosen
 if ($clientID) {
     $query = unsafe_prepare(
-        "SELECT *
+        'SELECT *
            FROM clientContact
-          WHERE clientContact.clientID = %d AND clientContact.primaryContact = true",
+          WHERE clientContact.clientID = %d AND clientContact.primaryContact = true',
         $clientID
     );
     $db->query($query);
     $cc = new clientContact();
     $cc->read_db_record($db);
 
-    $one = $client->format_address("postal");
-    $two = $client->format_address("street");
+    $one = $client->format_address('postal');
+    $two = $client->format_address('street');
     $thr = $cc->format_contact();
     $fou = $project->format_client_old();
 
-    $temp = str_replace("<br>", "", $fou);
+    $temp = str_replace('<br>', '', $fou);
     $temp && ($thr = $fou);
 
-    $url = $TPL["url_alloc_client"] . "clientID=" . $clientID;
+    $url = $TPL['url_alloc_client'] . 'clientID=' . $clientID;
 
-    if ($project->get_value("clientContactID")) {
+    if ($project->get_value('clientContactID')) {
         $cc = new clientContact();
-        $cc->set_id($project->get_value("clientContactID"));
+        $cc->set_id($project->get_value('clientContactID'));
         $cc->select();
         $fiv = $cc->format_contact();
-        $temp = str_replace("<br>", "", $fiv);
+        $temp = str_replace('<br>', '', $fiv);
         $temp && ($thr = $fiv);
     }
 
-    $TPL["clientDetails"] = '<table width="100%">';
-    $TPL["clientDetails"] .= "<tr>";
-    $TPL["clientDetails"] .= '<td colspan="3"><h2 style="margin-bottom:0px; display:inline;"><a href=' . $url . ">" . $TPL["client_clientName"] . "</a></h2></td>    ";
-    $TPL["clientDetails"] .= "</tr>";
-    $TPL["clientDetails"] .= "<tr>";
-    $one && ($TPL["clientDetails"] .= '<td class="nobr"><u>Postal Address</u></td>');
-    $two && ($TPL["clientDetails"] .= '<td class="nobr"><u>Street Address</u></td>');
-    $thr && ($TPL["clientDetails"] .= "<td><u>Contact</u></td>");
-    $TPL["clientDetails"] .= "</tr>";
-    $TPL["clientDetails"] .= "<tr>";
-    $one && ($TPL["clientDetails"] .= '<td valign="top">' . $one . "</td>");
-    $two && ($TPL["clientDetails"] .= '<td valign="top">' . $two . "</td>");
-    $thr && ($TPL["clientDetails"] .= '<td valign="top">' . $thr . "</td>");
-    $TPL["clientDetails"] .= "</tr>";
-    $TPL["clientDetails"] .= "</table>";
+    $TPL['clientDetails'] = '<table width="100%">';
+    $TPL['clientDetails'] .= '<tr>';
+    $TPL['clientDetails'] .= '<td colspan="3"><h2 style="margin-bottom:0px; display:inline;"><a href=' . $url . '>' . $TPL['client_clientName'] . '</a></h2></td>    ';
+    $TPL['clientDetails'] .= '</tr>';
+    $TPL['clientDetails'] .= '<tr>';
+    $one && ($TPL['clientDetails'] .= '<td class="nobr"><u>Postal Address</u></td>');
+    $two && ($TPL['clientDetails'] .= '<td class="nobr"><u>Street Address</u></td>');
+    $thr && ($TPL['clientDetails'] .= '<td><u>Contact</u></td>');
+    $TPL['clientDetails'] .= '</tr>';
+    $TPL['clientDetails'] .= '<tr>';
+    $one && ($TPL['clientDetails'] .= '<td valign="top">' . $one . '</td>');
+    $two && ($TPL['clientDetails'] .= '<td valign="top">' . $two . '</td>');
+    $thr && ($TPL['clientDetails'] .= '<td valign="top">' . $thr . '</td>');
+    $TPL['clientDetails'] .= '</tr>';
+    $TPL['clientDetails'] .= '</table>';
 }
 
 $db->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, clientContactMobile, interestedPartyActive
@@ -559,31 +557,31 @@ $db->query(unsafe_prepare("SELECT fullName, emailAddress, clientContactPhone, cl
                        AND interestedPartyActive = 1
                   ORDER BY fullName", $project->get_id()));
 while ($db->next_record()) {
-    $value = InterestedParty::get_encoded_interested_party_identifier($db->f("fullName"));
-    $phone = ["p" => $db->f('clientContactPhone'), "m" => $db->f('clientContactMobile')];
-    $TPL["interestedParties"][] = ['key' => $value, 'name' => $db->f("fullName"), 'email' => $db->f("emailAddress"), 'phone' => $phone];
+    $value = InterestedParty::get_encoded_interested_party_identifier($db->f('fullName'));
+    $phone = ['p' => $db->f('clientContactPhone'), 'm' => $db->f('clientContactMobile')];
+    $TPL['interestedParties'][] = ['key' => $value, 'name' => $db->f('fullName'), 'email' => $db->f('emailAddress'), 'phone' => $phone];
 }
 
-$TPL["interestedPartyOptions"] = $project->get_cc_list_select();
+$TPL['interestedPartyOptions'] = $project->get_cc_list_select();
 
-$TPL["clientContactDropdown"] = '<input type="hidden" name="clientContactID" value="' . $project->get_value("clientContactID") . '">';
-$TPL["clientHidden"] = '<input type="hidden" id="clientID" name="clientID" value="' . $clientID . '">';
-$TPL["clientHidden"] .= '<input type="hidden" id="clientContactID" name="clientContactID" value="' . $project->get_value("clientContactID") . '">';
+$TPL['clientContactDropdown'] = '<input type="hidden" name="clientContactID" value="' . $project->get_value('clientContactID') . '">';
+$TPL['clientHidden'] = '<input type="hidden" id="clientID" name="clientID" value="' . $clientID . '">';
+$TPL['clientHidden'] .= '<input type="hidden" id="clientContactID" name="clientContactID" value="' . $project->get_value('clientContactID') . '">';
 
 // Gets $ per hour, even if user uses metric like $200 Daily
 function get_projectPerson_hourly_rate($personID, $projectID)
 {
     $hourly_rate = null;
     $db = new AllocDatabase();
-    $q = unsafe_prepare("SELECT rate,rateUnitID FROM projectPerson WHERE personID = %d AND projectID = %d", $personID, $projectID);
+    $q = unsafe_prepare('SELECT rate,rateUnitID FROM projectPerson WHERE personID = %d AND projectID = %d', $personID, $projectID);
     $db->query($q);
     $db->next_record();
 
-    $rate = $db->f("rate");
-    $unitID = $db->f("rateUnitID");
+    $rate = $db->f('rate');
+    $unitID = $db->f('rateUnitID');
     $t = new timeUnit();
-    $timeUnits = $t->get_assoc_array("timeUnitID", "timeUnitSeconds", $unitID);
-    if ($rate === '' || $rate === '0') {
+    $timeUnits = $t->get_assoc_array('timeUnitID', 'timeUnitSeconds', $unitID);
+    if ('' === $rate || '0' === $rate) {
         return $hourly_rate;
     }
 
@@ -596,115 +594,115 @@ function get_projectPerson_hourly_rate($personID, $projectID)
 
 if (is_object($project) && $project->get_id()) {
     // $tasks is a global defined in show_tasks() for performance reasons
-    if (isset($TPL["taskListRows"]) && is_array($TPL["taskListRows"])) {
+    if (isset($TPL['taskListRows']) && is_array($TPL['taskListRows'])) {
         $task = new Task();
-        foreach ($TPL["taskListRows"] as $tid => $t) {
-            $hourly_rate = get_projectPerson_hourly_rate($t["personID"], $t["projectID"]);
-            $time_remaining = $t["timeLimit"] - ($task->get_time_billed($t["taskID"]) / 60 / 60);
+        foreach ($TPL['taskListRows'] as $tid => $t) {
+            $hourly_rate = get_projectPerson_hourly_rate($t['personID'], $t['projectID']);
+            $time_remaining = $t['timeLimit'] - ($task->get_time_billed($t['taskID']) / 60 / 60);
 
             $cost_remaining = $hourly_rate * $time_remaining;
 
             if ($cost_remaining > 0) {
                 // echo "<br>Tally: ".$TPL["cost_remaining"] += $cost_remaining;
-                $TPL["cost_remaining"] += $cost_remaining;
-                $TPL["time_remaining"] += $time_remaining;
+                $TPL['cost_remaining'] += $cost_remaining;
+                $TPL['time_remaining'] += $time_remaining;
             }
 
-            $t["timeLimit"] && $count_quoted_tasks++;
+            $t['timeLimit'] && $count_quoted_tasks++;
         }
 
-        if (isset($TPL["time_remaining"])) {
-            $TPL["time_remaining"] = sprintf("%0.1f", $TPL["time_remaining"]) . " Hours.";
+        if (isset($TPL['time_remaining'])) {
+            $TPL['time_remaining'] = sprintf('%0.1f', $TPL['time_remaining']) . ' Hours.';
         }
 
-        $TPL["count_incomplete_tasks"] = is_countable($TPL["taskListRows"]) ? count($TPL["taskListRows"]) : 0;
-        $not_quoted = (is_countable($TPL["taskListRows"]) ? count($TPL["taskListRows"]) : 0) - $count_quoted_tasks;
-        $not_quoted && ($TPL["count_not_quoted_tasks"] = "(" . sprintf("%d", $not_quoted) . " tasks not included in estimate)");
+        $TPL['count_incomplete_tasks'] = is_countable($TPL['taskListRows']) ? count($TPL['taskListRows']) : 0;
+        $not_quoted = (is_countable($TPL['taskListRows']) ? count($TPL['taskListRows']) : 0) - $count_quoted_tasks;
+        $not_quoted && ($TPL['count_not_quoted_tasks'] = '(' . sprintf('%d', $not_quoted) . ' tasks not included in estimate)');
     }
 
-    $TPL["invoice_links"] ??= "";
-    $TPL["invoice_links"] .= '<a href="' . $TPL["url_alloc_invoice"] . "clientID=" . $clientID . "&projectID=" . $project->get_id() . '">New Invoice</a>';
+    $TPL['invoice_links'] ??= '';
+    $TPL['invoice_links'] .= '<a href="' . $TPL['url_alloc_invoice'] . 'clientID=' . $clientID . '&projectID=' . $project->get_id() . '">New Invoice</a>';
 }
 
-$TPL["navigation_links"] = $project->get_navigation_links();
+$TPL['navigation_links'] = $project->get_navigation_links();
 
-$query = unsafe_prepare("SELECT tfID AS value, tfName AS label
+$query = unsafe_prepare('SELECT tfID AS value, tfName AS label
                     FROM tf
                    WHERE tfActive = 1
-                ORDER BY tfName");
-$TPL["commission_tf_options"] = Page::select_options($query, $TPL["commission_tfID"] ?? "");
-$TPL["cost_centre_tfID_options"] = Page::select_options($query, $TPL["project_cost_centre_tfID"]);
+                ORDER BY tfName');
+$TPL['commission_tf_options'] = Page::select_options($query, $TPL['commission_tfID'] ?? '');
+$TPL['cost_centre_tfID_options'] = Page::select_options($query, $TPL['project_cost_centre_tfID']);
 
 $db->query($query);
 while ($db->row()) {
-    $tf_array[$db->f("value")] = $db->f("label");
+    $tf_array[$db->f('value')] = $db->f('label');
 }
 
-if ($TPL["project_cost_centre_tfID"]) {
+if ($TPL['project_cost_centre_tfID']) {
     $tf = new tf();
-    $tf->set_id($TPL["project_cost_centre_tfID"]);
+    $tf->set_id($TPL['project_cost_centre_tfID']);
     $tf->select();
-    $TPL["cost_centre_tfID_label"] = $tf->get_link();
+    $TPL['cost_centre_tfID_label'] = $tf->get_link();
 }
 
 $query = unsafe_prepare("SELECT roleName,roleID FROM role WHERE roleLevel = 'project' ORDER BY roleSequence");
 $db->query($query);
 // $project_person_role_array[] = "";
 while ($db->next_record()) {
-    $project_person_role_array[$db->f("roleID")] = $db->f("roleName");
+    $project_person_role_array[$db->f('roleID')] = $db->f('roleName');
 }
 
 $email_type_array = [
-    "None"           => "None",
-    "Assigned Tasks" => "Assigned Tasks",
-    "All Tasks"      => "All Tasks",
+    'None'           => 'None',
+    'Assigned Tasks' => 'Assigned Tasks',
+    'All Tasks'      => 'All Tasks',
 ];
 
-$t = new Meta("currencyType");
-$currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
+$t = new Meta('currencyType');
+$currency_array = $t->get_assoc_array('currencyTypeID', 'currencyTypeID');
 $projectType_array = project::get_project_type_array();
 
-$m = new Meta("projectStatus");
-$projectStatus_array = $m->get_assoc_array("projectStatusID", "projectStatusID");
+$m = new Meta('projectStatus');
+$projectStatus_array = $m->get_assoc_array('projectStatusID', 'projectStatusID');
 $timeUnit = new timeUnit();
-$rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
-$TPL["project_projectType"] = $projectType_array[$TPL["project_projectType"]] ?? "";
-$TPL["projectType_options"] = Page::select_options($projectType_array, $TPL["project_projectType"]);
-$TPL["projectStatus_options"] = Page::select_options($projectStatus_array, $TPL["project_projectStatus"]);
-$TPL["project_projectPriority"] || ($TPL["project_projectPriority"] = 3);
-($projectPriorities = config::get_config_item("projectPriorities")) || ($projectPriorities = []);
+$rate_type_array = $timeUnit->get_assoc_array('timeUnitID', 'timeUnitLabelB');
+$TPL['project_projectType'] = $projectType_array[$TPL['project_projectType']] ?? '';
+$TPL['projectType_options'] = Page::select_options($projectType_array, $TPL['project_projectType']);
+$TPL['projectStatus_options'] = Page::select_options($projectStatus_array, $TPL['project_projectStatus']);
+$TPL['project_projectPriority'] || ($TPL['project_projectPriority'] = 3);
+($projectPriorities = config::get_config_item('projectPriorities')) || ($projectPriorities = []);
 $tp = [];
 foreach ($projectPriorities as $key => $arr) {
-    $tp[$key] = $arr["label"];
+    $tp[$key] = $arr['label'];
 }
 
-$TPL["projectPriority_options"] = Page::select_options($tp, $TPL["project_projectPriority"]);
-$TPL["project_projectPriority"] && ($TPL["priorityLabel"] = ' <div style="display:inline; color:' . $projectPriorities[$TPL["project_projectPriority"]]["colour"] . '">[' . $tp[$TPL["project_projectPriority"]] . "]</div>");
+$TPL['projectPriority_options'] = Page::select_options($tp, $TPL['project_projectPriority']);
+$TPL['project_projectPriority'] && ($TPL['priorityLabel'] = ' <div style="display:inline; color:' . $projectPriorities[$TPL['project_projectPriority']]['colour'] . '">[' . $tp[$TPL['project_projectPriority']] . ']</div>');
 
-$TPL["defaultTimeSheetRate"] = $project->get_value("defaultTimeSheetRate");
-$TPL["defaultTimeSheetUnit_options"] = Page::select_options($rate_type_array, $project->get_value("defaultTimeSheetRateUnitID"));
-$TPL["defaultTimeSheetRateUnits"] = $rate_type_array[$project->get_value("defaultTimeSheetRateUnitID")] ?? "";
+$TPL['defaultTimeSheetRate'] = $project->get_value('defaultTimeSheetRate');
+$TPL['defaultTimeSheetUnit_options'] = Page::select_options($rate_type_array, $project->get_value('defaultTimeSheetRateUnitID'));
+$TPL['defaultTimeSheetRateUnits'] = $rate_type_array[$project->get_value('defaultTimeSheetRateUnitID')] ?? '';
 
-$TPL["currencyType_options"] = Page::select_options($currency_array, $TPL["project_currencyTypeID"]);
+$TPL['currencyType_options'] = Page::select_options($currency_array, $TPL['project_currencyTypeID']);
 
 if (
-    isset($_GET["projectID"]) ||
-    isset($_POST["projectID"]) ||
-    isset($TPL["project_projectID"])
+    isset($_GET['projectID'])
+    || isset($_POST['projectID'])
+    || isset($TPL['project_projectID'])
 ) {
-    define("PROJECT_EXISTS", 1);
+    define('PROJECT_EXISTS', 1);
 }
 
 if ($new_project && !(is_object($project) && $project->get_id())) {
-    $TPL["main_alloc_title"] = "New Project - " . APPLICATION_NAME;
-    $TPL["projectSelfLink"] = "New Project";
+    $TPL['main_alloc_title'] = 'New Project - ' . APPLICATION_NAME;
+    $TPL['projectSelfLink'] = 'New Project';
     $p = new project();
-    $TPL["message_help_no_esc"][] = "Create a new Project by inputting the Project Name and any other details, and clicking the Save button.";
-    $TPL["message_help_no_esc"][] = "";
-    $TPL["message_help_no_esc"][] = '<a href="#x" class="magic" id="copy_project_link">Or copy an existing project</a>';
+    $TPL['message_help_no_esc'][] = 'Create a new Project by inputting the Project Name and any other details, and clicking the Save button.';
+    $TPL['message_help_no_esc'][] = '';
+    $TPL['message_help_no_esc'][] = '<a href="#x" class="magic" id="copy_project_link">Or copy an existing project</a>';
     $str = <<<DONE
             <div id="copy_project" style="display:none; margin-top:10px;">
-              <form action="{$TPL["url_alloc_project"]}" method="post">
+              <form action="{$TPL['url_alloc_project']}" method="post">
                 <table>
                   <tr>
                     <td colspan="2">
@@ -728,23 +726,23 @@ if ($new_project && !(is_object($project) && $project->get_id())) {
                     <td colspan="2" align="center"><input type="submit" name="copy_project_save" value="Copy Project"></td>
                   </tr>
                 </table>
-              <input type="hidden" name="sessID" value="{$TPL["sessID"]}">
+              <input type="hidden" name="sessID" value="{$TPL['sessID']}">
               </form>
             </div>
         DONE;
-    $TPL["message_help_no_esc"][] = $str;
+    $TPL['message_help_no_esc'][] = $str;
 } else {
-    $TPL["main_alloc_title"] = "Project " . $project->get_id() . ": " . $project->get_name() . " - " . APPLICATION_NAME;
-    $TPL["projectSelfLink"] = '<a href="' . $project->get_url() . '">';
-    $TPL["projectSelfLink"] .= sprintf("%d %s", $project->get_id(), $project->get_name(["return" => "html"]));
-    $TPL["projectSelfLink"] .= "</a>";
+    $TPL['main_alloc_title'] = 'Project ' . $project->get_id() . ': ' . $project->get_name() . ' - ' . APPLICATION_NAME;
+    $TPL['projectSelfLink'] = '<a href="' . $project->get_url() . '">';
+    $TPL['projectSelfLink'] .= sprintf('%d %s', $project->get_id(), $project->get_name(['return' => 'html']));
+    $TPL['projectSelfLink'] .= '</a>';
 }
 
-$TPL["taxName"] = config::get_config_item("taxName");
+$TPL['taxName'] = config::get_config_item('taxName');
 
 // Need to html-ise projectName and description
-$TPL["project_projectName_html"] = Page::to_html($project->get_value("projectName"));
-$TPL["project_projectComments_html"] = Page::to_html($project->get_value("projectComments"));
+$TPL['project_projectName_html'] = Page::to_html($project->get_value('projectName'));
+$TPL['project_projectComments_html'] = Page::to_html($project->get_value('projectComments'));
 
 $db = new AllocDatabase();
 
@@ -763,23 +761,23 @@ while ($row = $db->row()) {
     $rows[] = $row;
 }
 
-$TPL["total_timeSheet_transactions_pending"] = Page::money_print($rows);
+$TPL['total_timeSheet_transactions_pending'] = Page::money_print($rows);
 
-$q = unsafe_prepare("SELECT SUM(customerBilledDollars * timeSheetItemDuration * multiplier * pow(10,-currencyType.numberToBasic))
+$q = unsafe_prepare('SELECT SUM(customerBilledDollars * timeSheetItemDuration * multiplier * pow(10,-currencyType.numberToBasic))
                   AS amount, timeSheet.currencyTypeID as currency
                 FROM timeSheetItem
            LEFT JOIN timeSheet ON timeSheetItem.timeSheetID = timeSheet.timeSheetID
            LEFT JOIN currencyType on currencyType.currencyTypeID = timeSheet.currencyTypeID
                WHERE timeSheet.projectID = %d
             GROUP BY timeSheetItemID
-             ", $project->get_id());
+             ', $project->get_id());
 $db->query($q);
 $rows = [];
 while ($row = $db->row()) {
     $rows[] = $row;
 }
 
-$TPL["total_timeSheet_customerBilledDollars"] = Page::money_print($rows);
+$TPL['total_timeSheet_customerBilledDollars'] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
@@ -796,7 +794,7 @@ while ($row = $db->row()) {
     $rows[] = $row;
 }
 
-$TPL["total_timeSheet_transactions_approved"] = Page::money_print($rows);
+$TPL['total_timeSheet_transactions_approved'] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
@@ -814,7 +812,7 @@ while ($row = $db->row()) {
     $rows[] = $row;
 }
 
-$TPL["total_invoice_transactions_pending"] = Page::money_print($rows);
+$TPL['total_invoice_transactions_pending'] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
@@ -832,7 +830,7 @@ while ($row = $db->row()) {
     $rows[] = $row;
 }
 
-$TPL["total_invoice_transactions_approved"] = Page::money_print($rows);
+$TPL['total_invoice_transactions_approved'] = Page::money_print($rows);
 
 $q = unsafe_prepare("SELECT SUM((amount * pow(10,-currencyType.numberToBasic)))
                   AS amount, transaction.currencyTypeID as currency
@@ -848,22 +846,22 @@ while ($row = $db->row()) {
     $rows[] = $row;
 }
 
-$TPL["total_expenses_transactions_approved"] = Page::money_print($rows);
+$TPL['total_expenses_transactions_approved'] = Page::money_print($rows);
 
 if ($project->get_id()) {
-    $defaults["projectID"] = $project->get_id();
-    $defaults["showFinances"] = true;
+    $defaults['projectID'] = $project->get_id();
+    $defaults['showFinances'] = true;
     if (!$project->have_perm(PERM_READ_WRITE)) {
-        $defaults["personID"] = $current_user->get_id();
+        $defaults['personID'] = $current_user->get_id();
     }
 
     $rtn = timeSheet::get_list($defaults);
-    $TPL["timeSheetListRows"] = $rtn["rows"];
-    $TPL["timeSheetListExtra"] = $rtn["extra"];
+    $TPL['timeSheetListRows'] = $rtn['rows'];
+    $TPL['timeSheetListExtra'] = $rtn['extra'];
 }
 
 if ($project->have_perm(PERM_READ_WRITE)) {
-    include_template("templates/projectFormM.tpl");
+    include_template('templates/projectFormM.tpl');
 } else {
-    include_template("templates/projectViewM.tpl");
+    include_template('templates/projectViewM.tpl');
 }

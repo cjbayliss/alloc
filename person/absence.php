@@ -5,25 +5,25 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
-($absenceID = $_POST["absenceID"]) || ($absenceID = $_GET["absenceID"]);
-($returnToParent = $_GET["returnToParent"]) || ($returnToParent = $_POST["returnToParent"]);
-$TPL["returnToParent"] = $returnToParent;
-$urls["home"] = $TPL["url_alloc_home"];
-$urls["calendar"] = $TPL["url_alloc_taskCalendar"] . "personID=" . $personID;
+($absenceID = $_POST['absenceID']) || ($absenceID = $_GET['absenceID']);
+($returnToParent = $_GET['returnToParent']) || ($returnToParent = $_POST['returnToParent']);
+$TPL['returnToParent'] = $returnToParent;
+$urls['home'] = $TPL['url_alloc_home'];
+$urls['calendar'] = $TPL['url_alloc_taskCalendar'] . 'personID=' . $personID;
 
 $absence = new absence();
 if ($absenceID) {
     $absence->set_id($absenceID);
     $absence->select();
     $absence->set_values();
-    $personID = $absence->get_value("personID");
+    $personID = $absence->get_value('personID');
 }
 
 $person = new person();
-if (!($personID = $personID) && !($personID = $_POST["personID"])) {
-    $personID = $_GET["personID"];
+if (!($personID = $personID) && !($personID = $_POST['personID'])) {
+    $personID = $_GET['personID'];
 }
 
 if ($personID) {
@@ -33,31 +33,31 @@ if ($personID) {
 
 $db = new AllocDatabase();
 
-if ($_POST["save"]) {
+if ($_POST['save']) {
     // Saving a record
     $absence->read_globals();
-    $absence->set_value("contactDetails", rtrim($absence->get_value("contactDetails")));
+    $absence->set_value('contactDetails', rtrim($absence->get_value('contactDetails')));
     $success = $absence->save();
-    if ($success && !$TPL["message"]) {
-        $url = $TPL["url_alloc_person"] . "personID=" . $personID;
+    if ($success && !$TPL['message']) {
+        $url = $TPL['url_alloc_person'] . 'personID=' . $personID;
         $urls[$returnToParent] && ($url = $urls[$returnToParent]);
         alloc_redirect($url);
     }
-} elseif ($_POST["delete"]) {
+} elseif ($_POST['delete']) {
     // Deleting a record
     $absence->read_globals();
     $absence->delete();
-    $url = $TPL["url_alloc_person"] . "personID=" . $personID;
+    $url = $TPL['url_alloc_person'] . 'personID=' . $personID;
     $urls[$returnToParent] && ($url = $urls[$returnToParent]);
     alloc_redirect($url);
 }
 
 // create a new record
 $absence->read_globals();
-$absence->set_value("personID", $person->get_id());
-$absence->set_values("absence_");
-$_GET["date"] && ($TPL["absence_dateFrom"] = $_GET["date"]);
-$TPL["personName"] = $person->get_name();
+$absence->set_value('personID', $person->get_id());
+$absence->set_values('absence_');
+$_GET['date'] && ($TPL['absence_dateFrom'] = $_GET['date']);
+$TPL['personName'] = $person->get_name();
 
 // Set up the options for the absence type.
 $absenceType_array = [
@@ -67,6 +67,6 @@ $absenceType_array = [
     'Other'        => 'Other',
 ];
 
-$TPL["absenceType_options"] = Page::select_options($absenceType_array, $absence->get_value("absenceType"));
-$TPL["main_alloc_title"] = "Absence Form - " . APPLICATION_NAME;
-include_template("templates/absenceFormM.tpl");
+$TPL['absenceType_options'] = Page::select_options($absenceType_array, $absence->get_value('absenceType'));
+$TPL['main_alloc_title'] = 'Absence Form - ' . APPLICATION_NAME;
+include_template('templates/absenceFormM.tpl');

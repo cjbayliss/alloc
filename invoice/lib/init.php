@@ -7,7 +7,7 @@
 
 class invoice_module extends Module
 {
-    public $module = "invoice";
+    public $module = 'invoice';
 
-    public $databaseEntities = ["invoice", "invoiceItem", "invoiceEntity"];
+    public $databaseEntities = ['invoice', 'invoiceItem', 'invoiceEntity'];
 }

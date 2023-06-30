@@ -5,32 +5,32 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
-include(__DIR__ . "/lib/task_graph.inc.php");
+require_once __DIR__ . '/../alloc.php';
+include __DIR__ . '/lib/task_graph.inc.php';
 
-if ($_GET["projectID"]) {
-    $options["projectIDs"][] = $_GET["projectID"];
+if ($_GET['projectID']) {
+    $options['projectIDs'][] = $_GET['projectID'];
 }
 
-$options["personID"] = $_GET["personID"];
-$options["taskView"] = "prioritised";
-$options["return"] = "array";
-$options["taskStatus"] = "open";
-$options["showTaskID"] = true;
+$options['personID'] = $_GET['personID'];
+$options['taskView'] = 'prioritised';
+$options['return'] = 'array';
+$options['taskStatus'] = 'open';
+$options['showTaskID'] = true;
 
-if ($_GET["graph_type"] == "phases") {
-    $options["taskTypeID"] = 'Parent';
+if ('phases' == $_GET['graph_type']) {
+    $options['taskTypeID'] = 'Parent';
 }
 
 $task_graph = new task_graph();
-$task_graph->set_title($_GET["graphTitle"]);
-$task_graph->set_width($_GET["graphWidth"]);
+$task_graph->set_title($_GET['graphTitle']);
+$task_graph->set_width($_GET['graphWidth']);
 $task_graph->bottom_margin = 20;
 
 ($tasks = Task::get_list($options)) || ($tasks = []);
 
 foreach ($tasks as $task) {
-    $objects[$task["taskID"]] = $task["object"];
+    $objects[$task['taskID']] = $task['object'];
 }
 
 $task_graph->init($objects);

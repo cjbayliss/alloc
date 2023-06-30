@@ -7,11 +7,11 @@
 
 class reminderRecipient extends DatabaseEntity
 {
-    public $data_table = "reminderRecipient";
+    public $data_table = 'reminderRecipient';
 
-    public $display_field_name = "reminderRecipientID";
+    public $display_field_name = 'reminderRecipientID';
 
-    public $key_field = "reminderRecipientID";
+    public $key_field = 'reminderRecipientID';
 
-    public $data_fields = ["reminderID", "personID", "metaPersonID"];
+    public $data_fields = ['reminderID', 'personID', 'metaPersonID'];
 }

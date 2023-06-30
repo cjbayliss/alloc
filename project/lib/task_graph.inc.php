@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("TICK_SIZE", 7); // Days between tick marks along the axis
-define("LARGE_TICK_SIZE", 60);  // Days between tick marks along the axis
-define("MAX_TICKS", 20);        // Days between tick marks along the axis
-define("ALLOC_FONT", ALLOC_MOD_DIR . "util/fonts/Vera.ttf");
-define("ALLOC_FONT_SIZE", "8");
+define('TICK_SIZE', 7); // Days between tick marks along the axis
+define('LARGE_TICK_SIZE', 60);  // Days between tick marks along the axis
+define('MAX_TICKS', 20);        // Days between tick marks along the axis
+define('ALLOC_FONT', ALLOC_MOD_DIR . 'util/fonts/Vera.ttf');
+define('ALLOC_FONT_SIZE', '8');
 
 // Set the enviroment variable for GD
 putenv('GDFONTPATH=' . realpath('../util'));
@@ -20,31 +20,30 @@ function echo_debug($s)
 }
 
 // Outputs an image with an error message given by $s and then terminates the script
-function image_die($s = "")
+function image_die($s = '')
 {
-
-    $image = imageCreate(700, 40);
+    $image = imagecreate(700, 40);
 
     // allocate all required colors
-    $color_background = imageColorAllocate($image, 255, 255, 255);
-    $color_text = imageColorAllocate($image, 176, 176, 176);
-    $color_grid = imageColorAllocate($image, 224, 224, 224);
+    $color_background = imagecolorallocate($image, 255, 255, 255);
+    $color_text = imagecolorallocate($image, 176, 176, 176);
+    $color_grid = imagecolorallocate($image, 224, 224, 224);
 
     // clear the image space with the background color
-    imageFilledRectangle($image, 0, 0, 700, 40, $color_background);
+    imagefilledrectangle($image, 0, 0, 700, 40, $color_background);
     imagettftext($image, ALLOC_FONT_SIZE, 0, 6, 23, $color_text, ALLOC_FONT, $s);
 
-    imageRectangle($image, 0, 0, 700 - 1, 40 - 1, $color_grid);
+    imagerectangle($image, 0, 0, 700 - 1, 40 - 1, $color_grid);
 
-    if (ALLOC_GD_IMAGE_TYPE == "PNG") {
-        header("Content-type: image/png");
-        imagePNG($image);
+    if (ALLOC_GD_IMAGE_TYPE == 'PNG') {
+        header('Content-type: image/png');
+        imagepng($image);
     } else {
-        header("Content-type: image/gif");
-        imageGIF($image);
+        header('Content-type: image/gif');
+        imagegif($image);
     }
 
-    exit();
+    exit;
 }
 
 class task_graph
@@ -112,7 +111,7 @@ class task_graph
         global $graph_type;
 
         if ((is_countable($tasks) ? count($tasks) : 0) == 0) {
-            image_die("No Tasks Found for " . $this->title);
+            image_die('No Tasks Found for ' . $this->title);
         }
 
         // Set the enviroment variable for GD
@@ -123,31 +122,31 @@ class task_graph
         get_date_range($tasks);
 
         // create image
-        $this->image = imageCreate($this->width, $this->height);
+        $this->image = imagecreate($this->width, $this->height);
 
         // 'Constant' colours for task types
         $this->task_colors = [
             'Task' => [
-                "actual" => imageColorAllocate($this->image, 133, 164, 241),
-                "target" => imageColorAllocate($this->image, 190, 219, 255),
+                'actual' => imagecolorallocate($this->image, 133, 164, 241),
+                'target' => imagecolorallocate($this->image, 190, 219, 255),
             ],
             'Parent' => [
-                "actual" => imageColorAllocate($this->image, 153, 153, 153),
-                "target" => imageColorAllocate($this->image, 204, 204, 204),
+                'actual' => imagecolorallocate($this->image, 153, 153, 153),
+                'target' => imagecolorallocate($this->image, 204, 204, 204),
             ],
         ];
 
         // allocate all required colors
-        $this->color_background = imageColorAllocate($this->image, 255, 255, 255);
-        $this->color_text = imageColorAllocate($this->image, 0, 0, 0);
-        $this->color_grid = imageColorAllocate($this->image, 161, 202, 255);
-        $this->color_milestone = imageColorAllocate($this->image, 255, 128, 255);
-        $this->color_today = imageColorAllocate($this->image, 255, 192, 0);
+        $this->color_background = imagecolorallocate($this->image, 255, 255, 255);
+        $this->color_text = imagecolorallocate($this->image, 0, 0, 0);
+        $this->color_grid = imagecolorallocate($this->image, 161, 202, 255);
+        $this->color_milestone = imagecolorallocate($this->image, 255, 128, 255);
+        $this->color_today = imagecolorallocate($this->image, 255, 192, 0);
 
         // clear the image space with the background color
-        imageFilledRectangle($this->image, 0, 0, $this->width - 1, $this->height - 1, $this->color_background);
+        imagefilledrectangle($this->image, 0, 0, $this->width - 1, $this->height - 1, $this->color_background);
 
-        imageRectangle($this->image, 0, 0, $this->width - 1, $this->height - 1, $this->color_grid);
+        imagerectangle($this->image, 0, 0, $this->width - 1, $this->height - 1, $this->color_grid);
 
         imagettftext($this->image, ALLOC_FONT_SIZE + 3, 0, 6, 28, $this->color_text, ALLOC_FONT, $this->title);
 
@@ -170,51 +169,51 @@ class task_graph
         $y = $this->y;              // Store y in local variable for quick access
         $y += $this->task_padding;
 
-        $indent = $t["padding"];
-        $task = $t["object"];
+        $indent = $t['padding'];
+        $task = $t['object'];
 
         // Text
-        $text = $t["taskName"];
+        $text = $t['taskName'];
         echo_debug(sprintf('task: %s<br>', $text));
         imagettftext($this->image, ALLOC_FONT_SIZE, 0, 6 + ($indent * $this->indent_increment), $y + 13, $this->color_text, ALLOC_FONT, $text);
 
         // Get date values
-        $date_target_start = $t["dateTargetStart"];
-        if ($date_target_start == "0000-00-00") {
-            $date_target_start = "";
+        $date_target_start = $t['dateTargetStart'];
+        if ('0000-00-00' == $date_target_start) {
+            $date_target_start = '';
         }
 
-        $date_target_completion = $t["dateTargetCompletion"];
-        if ($date_target_completion == "0000-00-00") {
-            $date_target_completion = "";
+        $date_target_completion = $t['dateTargetCompletion'];
+        if ('0000-00-00' == $date_target_completion) {
+            $date_target_completion = '';
         }
 
-        $date_actual_start = $t["dateActualStart"];
-        if ($date_actual_start == "0000-00-00") {
-            $date_actual_start = "";
+        $date_actual_start = $t['dateActualStart'];
+        if ('0000-00-00' == $date_actual_start) {
+            $date_actual_start = '';
         }
 
-        $date_actual_completion = $t["dateActualCompletion"];
-        if ($date_actual_completion == "0000-00-00") {
-            $date_actual_completion = "";
+        $date_actual_completion = $t['dateActualCompletion'];
+        if ('0000-00-00' == $date_actual_completion) {
+            $date_actual_completion = '';
         }
 
         // target bar
-        $color = $this->task_colors[$t["taskTypeID"]]["target"];
+        $color = $this->task_colors[$t['taskTypeID']]['target'];
         $this->draw_dates($date_target_start, $date_target_completion, $y, $color, true);
         $y += $this->bar_height;
 
         // actual bar
-        if ($date_actual_completion == "" && $date_actual_start != "") {
+        if ('' == $date_actual_completion && '' != $date_actual_start) {
             // Task isn't complete but we can forecast comlpetion using percent complete and start date - show forecast
             $forecast = $task->get_forecast_completion();
-            $forecast && ($date_forecast_completion = date("Y-m-d", $forecast));
-            $color = $this->task_colors[$t["taskTypeID"]]["actual"];
+            $forecast && ($date_forecast_completion = date('Y-m-d', $forecast));
+            $color = $this->task_colors[$t['taskTypeID']]['actual'];
             $forecast && $this->draw_dates($date_actual_start, $date_forecast_completion, $y, $color, false);      // Forecast bar
-            $this->draw_dates($date_actual_start, date("Y-m-d"), $y, $color, true);   // Solid bar for already completed portion
+            $this->draw_dates($date_actual_start, date('Y-m-d'), $y, $color, true);   // Solid bar for already completed portion
         } else {
             // Just show dates as usual
-            $color = $this->task_colors[$t["taskTypeID"]]["actual"];
+            $color = $this->task_colors[$t['taskTypeID']]['actual'];
             $this->draw_dates($date_actual_start, $date_actual_completion, $y, $color, true);
         }
 
@@ -222,12 +221,12 @@ class task_graph
 
         $y += $this->task_padding;
         // Grid line below current task
-        imageLine($this->image, 0, $y, $this->width, $y, $this->color_grid);
+        imageline($this->image, 0, $y, $this->width, $y, $this->color_grid);
 
         $this->y = $y;              // Store Y back in class variable for another time
 
         // Register milestones
-        if ($t["taskTypeID"] == 'Milestone' && ($date_target_completion || $date_actual_completion)) {
+        if ('Milestone' == $t['taskTypeID'] && ($date_target_completion || $date_actual_completion)) {
             $date_milestone = $date_actual_completion ?: $date_target_completion;
 
             $this->register_milestone($date_milestone);
@@ -243,16 +242,16 @@ class task_graph
     {
         foreach ($this->milestones as $milestone) {
             $x = $this->date_to_x($milestone);
-            imageDashedLine($this->image, $x, $this->top_margin, $x, $this->height - $this->bottom_margin, $this->color_milestone);
-            imageDashedLine($this->image, $x + 1, $this->top_margin, $x + 1, $this->height - $this->bottom_margin, $this->color_milestone);
+            imagedashedline($this->image, $x, $this->top_margin, $x, $this->height - $this->bottom_margin, $this->color_milestone);
+            imagedashedline($this->image, $x + 1, $this->top_margin, $x + 1, $this->height - $this->bottom_margin, $this->color_milestone);
         }
     }
 
     public function draw_today()
     {
-        $x = $this->date_to_x(date("Y-m-d"));
-        imageDashedLine($this->image, $x, $this->top_margin, $x, $this->height - $this->bottom_margin, $this->color_today);
-        imageDashedLine($this->image, $x + 1, $this->top_margin, $x + 1, $this->height - $this->bottom_margin, $this->color_today);
+        $x = $this->date_to_x(date('Y-m-d'));
+        imagedashedline($this->image, $x, $this->top_margin, $x, $this->height - $this->bottom_margin, $this->color_today);
+        imagedashedline($this->image, $x + 1, $this->top_margin, $x + 1, $this->height - $this->bottom_margin, $this->color_today);
     }
 
     public function draw_dates($date_start, $date_completion, $y, $color, $filled)
@@ -261,19 +260,19 @@ class task_graph
         // echo("Drawing '$date_start' to '$date_completion'<br>");
         if ($date_start && $date_completion) {
             // Task is complete - show full bar
-            echo_debug("Drawing date range<br>");
+            echo_debug('Drawing date range<br>');
             $x_start = $this->date_to_x($date_start);
             $x_completion = $this->date_to_x($date_completion);
             $this->draw_rectangle($x_start, $y, $x_completion, $y + $this->bar_height, $color, $filled);
         } elseif ($date_completion) {
             // We can only show the completion date - draw a triangle
-            echo_debug("Drawing completion date<br>");
+            echo_debug('Drawing completion date<br>');
             $x_completion = $this->date_to_x($date_completion);
             echo_debug(sprintf('Completion date x=%s<br>', $x_completion));
             $this->draw_polygon([$x_completion, $y, $x_completion, $y + $this->bar_height, $x_completion - 4, $y + 4], 3, $color, $filled);
         } elseif ($date_start) {
             // We can only show the start date - draw a triangle
-            echo_debug("Drawing start date<br>");
+            echo_debug('Drawing start date<br>');
             $x_start = $this->date_to_x($date_start);
             $this->draw_polygon([$x_start, $y, $x_start, $y + $this->bar_height, $x_start + 4, $y + 4], 3, $color, $filled);
         }
@@ -284,8 +283,8 @@ class task_graph
         global $graph_start_date;
         global $graph_completion_date;
 
-        $start_stamp = format_date("U", $graph_start_date);
-        $completion_stamp = format_date("U", $graph_completion_date);
+        $start_stamp = format_date('U', $graph_start_date);
+        $completion_stamp = format_date('U', $graph_completion_date);
         $graph_time_width = $completion_stamp - $start_stamp;
 
         // 7 Day increment
@@ -298,30 +297,30 @@ class task_graph
 
         while ($current_stamp < $completion_stamp) {
             $x_pos = $this->date_stamp_to_x($current_stamp);
-            imageLine($this->image, $x_pos, $this->top_margin - 5, $x_pos, $this->height - $this->bottom_margin, $this->color_grid);
-            imagettftext($this->image, ALLOC_FONT_SIZE - 2, 45, $x_pos, $this->top_margin - 7, $this->color_text, ALLOC_FONT, date("M-d", $current_stamp));
+            imageline($this->image, $x_pos, $this->top_margin - 5, $x_pos, $this->height - $this->bottom_margin, $this->color_grid);
+            imagettftext($this->image, ALLOC_FONT_SIZE - 2, 45, $x_pos, $this->top_margin - 7, $this->color_text, ALLOC_FONT, date('M-d', $current_stamp));
             $current_stamp += $time_increment;
         }
 
         // Horizontal line above tasks
-        imageLine($this->image, 0, $this->top_margin, $this->width, $this->top_margin, $this->color_grid);
+        imageline($this->image, 0, $this->top_margin, $this->width, $this->top_margin, $this->color_grid);
     }
 
     public function draw_polygon($points, $num_points, $color, $filled)
     {
         if ($filled) {
-            imageFilledPolygon($this->image, $points, $num_points, $color);
+            imagefilledpolygon($this->image, $points, $num_points, $color);
         } else {
-            imagePolygon($this->image, $points, $num_points, $color);
+            imagepolygon($this->image, $points, $num_points, $color);
         }
     }
 
     public function draw_rectangle($x1, $y1, $x2, $y2, $color, $filled)
     {
         if ($filled) {
-            imageFilledRectangle($this->image, $x1, $y1, $x2, $y2, $color);
+            imagefilledrectangle($this->image, $x1, $y1, $x2, $y2, $color);
         } else {
-            imageRectangle($this->image, $x1, $y1, $x2, $y2, $color);
+            imagerectangle($this->image, $x1, $y1, $x2, $y2, $color);
         }
     }
 
@@ -354,25 +353,25 @@ class task_graph
 
         $y = $this->height - $this->bottom_margin + 20;
 
-        imagettftext($this->image, ALLOC_FONT_SIZE, 0, $this->task_padding, $y + 10, $this->color_text, ALLOC_FONT, "Legend:");
+        imagettftext($this->image, ALLOC_FONT_SIZE, 0, $this->task_padding, $y + 10, $this->color_text, ALLOC_FONT, 'Legend:');
         $y += 20;
 
-        $this->draw_legend_bar($left_x, $y, "Target task period", $this->task_colors['Task']["target"], true);
-        $this->draw_legend_bar($center_x, $y, "Target phase period", $this->task_colors['Parent']["target"], true);
+        $this->draw_legend_bar($left_x, $y, 'Target task period', $this->task_colors['Task']['target'], true);
+        $this->draw_legend_bar($center_x, $y, 'Target phase period', $this->task_colors['Parent']['target'], true);
         $y += 12;
 
-        $this->draw_legend_bar($left_x, $y, "Actual task period", $this->task_colors['Task']["actual"], true);
-        $this->draw_legend_bar($center_x, $y, "Actual phase period", $this->task_colors['Parent']["actual"], true);
+        $this->draw_legend_bar($left_x, $y, 'Actual task period', $this->task_colors['Task']['actual'], true);
+        $this->draw_legend_bar($center_x, $y, 'Actual phase period', $this->task_colors['Parent']['actual'], true);
         $y += 12;
 
-        $this->draw_legend_bar($left_x, $y, "Forecast task period", $this->task_colors['Task']["actual"], false);
-        $this->draw_legend_bar($center_x, $y, "Forecast phase period", $this->task_colors['Parent']["actual"], false);
+        $this->draw_legend_bar($left_x, $y, 'Forecast task period', $this->task_colors['Task']['actual'], false);
+        $this->draw_legend_bar($center_x, $y, 'Forecast phase period', $this->task_colors['Parent']['actual'], false);
         $y += 12;
 
-        $this->draw_legend_marker($left_x, $y, "Start date (completion date not known)", $this->task_colors['Task']["actual"], true);
+        $this->draw_legend_marker($left_x, $y, 'Start date (completion date not known)', $this->task_colors['Task']['actual'], true);
         $y += 12;
 
-        $this->draw_legend_marker($left_x, $y, "Completion date (start date not known)", $this->task_colors['Parent']["actual"], false);
+        $this->draw_legend_marker($left_x, $y, 'Completion date (start date not known)', $this->task_colors['Parent']['actual'], false);
         $y += 12;
 
         $this->y = $y;              // Store Y back in class variable for another time
@@ -382,7 +381,8 @@ class task_graph
     public function date_to_x($date)
     {
         echo_debug(sprintf('Converting %s<br>', $date));
-        return $this->date_stamp_to_x(format_date("U", $date));
+
+        return $this->date_stamp_to_x(format_date('U', $date));
     }
 
     // Converts from a unix time stamp to an X coordinate
@@ -392,8 +392,8 @@ class task_graph
         global $graph_start_date;
         global $graph_completion_date;
 
-        $graph_time_width = format_date("U", $graph_completion_date) - format_date("U", $graph_start_date);
-        $time_offset = $date - format_date("U", $graph_start_date);
+        $graph_time_width = format_date('U', $graph_completion_date) - format_date('U', $graph_start_date);
+        $time_offset = $date - format_date('U', $graph_start_date);
         $graph_time_width && ($decimal_pos = $time_offset / $graph_time_width);
         $working_width = $this->width - $this->left_margin - $this->right_margin;
 
@@ -403,12 +403,12 @@ class task_graph
     // Output the image
     public function output()
     {
-        if (ALLOC_GD_IMAGE_TYPE == "PNG") {
-            header("Content-type: image/png");
-            imagePNG($this->image);
+        if (ALLOC_GD_IMAGE_TYPE == 'PNG') {
+            header('Content-type: image/png');
+            imagepng($this->image);
         } else {
-            header("Content-type: image/gif");
-            imageGIF($this->image);
+            header('Content-type: image/gif');
+            imagegif($this->image);
         }
     }
 }
@@ -422,38 +422,38 @@ function get_date_range($tasks = [])
         return;
     }
 
-    $graph_start_date = "9999-00-00";
-    $graph_completion_date = "0000-00-00";
+    $graph_start_date = '9999-00-00';
+    $graph_completion_date = '0000-00-00';
 
     foreach ($tasks as $task) {
-        if ($task->get_value("dateTargetStart") != "" && $task->get_value("dateTargetStart") != "0000-00-00" && $task->get_value("dateTargetStart") < $graph_start_date) {
-            $graph_start_date = $task->get_value("dateTargetStart");
+        if ('' != $task->get_value('dateTargetStart') && '0000-00-00' != $task->get_value('dateTargetStart') && $task->get_value('dateTargetStart') < $graph_start_date) {
+            $graph_start_date = $task->get_value('dateTargetStart');
             // echo "A: $graph_start_date<br>";
         }
 
-        if ($task->get_value("dateTargetCompletion") > $graph_completion_date) {
-            $graph_completion_date = $task->get_value("dateTargetCompletion");
+        if ($task->get_value('dateTargetCompletion') > $graph_completion_date) {
+            $graph_completion_date = $task->get_value('dateTargetCompletion');
         }
 
-        if ($task->get_value("dateActualStart") != "" && $task->get_value("dateActualStart") != "0000-00-00" && $task->get_value("dateActualStart") < $graph_start_date) {
-            $graph_start_date = $task->get_value("dateActualStart");
+        if ('' != $task->get_value('dateActualStart') && '0000-00-00' != $task->get_value('dateActualStart') && $task->get_value('dateActualStart') < $graph_start_date) {
+            $graph_start_date = $task->get_value('dateActualStart');
             // echo "B: $graph_start_date<br>";
         }
 
-        if ($task->get_value("dateActualCompletion") > $graph_completion_date) {
-            $graph_completion_date = $task->get_value("dateActualCompletion");
+        if ($task->get_value('dateActualCompletion') > $graph_completion_date) {
+            $graph_completion_date = $task->get_value('dateActualCompletion');
         }
 
-        if (date("Y-m-d", $task->get_forecast_completion()) > $graph_completion_date) {
-            $graph_completion_date = date("Y-m-d", $task->get_forecast_completion());
+        if (date('Y-m-d', $task->get_forecast_completion()) > $graph_completion_date) {
+            $graph_completion_date = date('Y-m-d', $task->get_forecast_completion());
         }
     }
 
-    if ($graph_start_date == "9999-00-00") {
-        image_die("No Tasks with a Start Date set");
+    if ('9999-00-00' == $graph_start_date) {
+        image_die('No Tasks with a Start Date set');
     }
 
-    if ($graph_completion_date == "0000-00-00") {
-        image_die("No Tasks with a Completion Date set");
+    if ('0000-00-00' == $graph_completion_date) {
+        image_die('No Tasks with a Completion Date set');
     }
 }

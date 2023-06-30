@@ -5,10 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 $current_user->check_employee();
 
-$current_user = &singleton("current_user");
+$current_user = &singleton('current_user');
 global $TPL;
 global $db;
 global $save;
@@ -23,8 +23,8 @@ function add_tf($tfID, $options, $warningKey, $warningValue)
         $tf = new tf();
         $tf->set_id($tfID);
         $tf->select();
-        $options[$tfID] = $tf->get_value("tfName");
-        $TPL[$warningKey] = sprintf($warningValue, $tf->get_value("tfName"));
+        $options[$tfID] = $tf->get_value('tfName');
+        $TPL[$warningKey] = sprintf($warningValue, $tf->get_value('tfName'));
     }
 
     return $options;
@@ -33,39 +33,39 @@ function add_tf($tfID, $options, $warningKey, $warningValue)
 $db = new AllocDatabase();
 $transaction = new transaction();
 $transaction->read_globals();
-($transactionID = $_POST["transactionID"]) || ($transactionID = $_GET["transactionID"]);
+($transactionID = $_POST['transactionID']) || ($transactionID = $_GET['transactionID']);
 
-if ($transactionID && !$_GET["new"]) {
+if ($transactionID && !$_GET['new']) {
     $transaction->set_id($transactionID);
     $transaction->select();
 }
 
-$invoice_item = $transaction->get_foreign_object("invoiceItem");
+$invoice_item = $transaction->get_foreign_object('invoiceItem');
 $invoice_item->set_values();
-$invoice = $invoice_item->get_foreign_object("invoice");
+$invoice = $invoice_item->get_foreign_object('invoice');
 if (!$invoice->get_id()) {
-    $invoice = $transaction->get_foreign_object("invoice");
+    $invoice = $transaction->get_foreign_object('invoice');
 }
 
 $invoice->set_values();
 if ($invoice->get_id()) {
-    $TPL["invoice_link"] = '<a href="' . $TPL["url_alloc_invoice"] . "invoiceID=" . $invoice->get_id() . '">#' . $invoice->get_value("invoiceNum");
-    $TPL["invoice_link"] .= " " . $invoice->get_value("invoiceDateFrom") . " to " . $invoice->get_value("invoiceDateTo") . "</a>";
+    $TPL['invoice_link'] = '<a href="' . $TPL['url_alloc_invoice'] . 'invoiceID=' . $invoice->get_id() . '">#' . $invoice->get_value('invoiceNum');
+    $TPL['invoice_link'] .= ' ' . $invoice->get_value('invoiceDateFrom') . ' to ' . $invoice->get_value('invoiceDateTo') . '</a>';
 }
 
-$expenseForm = $transaction->get_foreign_object("expenseForm");
+$expenseForm = $transaction->get_foreign_object('expenseForm');
 if ($expenseForm->get_id()) {
-    $TPL["expenseForm_link"] = '<a href="' . $TPL["url_alloc_expenseForm"] . "expenseFormID=" . $expenseForm->get_id() . '">#' . $expenseForm->get_id() . "</a>";
+    $TPL['expenseForm_link'] = '<a href="' . $TPL['url_alloc_expenseForm'] . 'expenseFormID=' . $expenseForm->get_id() . '">#' . $expenseForm->get_id() . '</a>';
 }
 
-$timeSheet = $transaction->get_foreign_object("timeSheet");
+$timeSheet = $transaction->get_foreign_object('timeSheet');
 if ($timeSheet->get_id()) {
-    $TPL["timeSheet_link"] = '<a href="' . $TPL["url_alloc_timeSheet"] . "timeSheetID=" . $timeSheet->get_id() . '">#' . $timeSheet->get_id() . "</a>";
+    $TPL['timeSheet_link'] = '<a href="' . $TPL['url_alloc_timeSheet'] . 'timeSheetID=' . $timeSheet->get_id() . '">#' . $timeSheet->get_id() . '</a>';
 }
 
 $transaction->set_values();
 
-if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
+if ($_POST['save'] || $_POST['saveAndNew'] || $_POST['saveGoTf']) {
     /*
       if ($transaction->get_value("status") != "pending") {
         alloc_error("This transaction is no longer editable.");
@@ -73,87 +73,87 @@ if ($_POST["save"] || $_POST["saveAndNew"] || $_POST["saveGoTf"]) {
     */
     $transaction->read_globals();
     // Tweaked validation to allow reporting of multiple errors
-    $transaction->get_value("amount") || alloc_error("You must enter a valid amount");
-    $transaction->get_value("transactionDate") || alloc_error("You must enter a date for the transaction");
-    $transaction->get_value("product") || alloc_error("You must enter a product");
-    $transaction->get_value("status") || alloc_error("You must set the status of the transaction");
-    $transaction->get_value("fromTfID") || alloc_error("You must select a Source Tagged Fund to take this transaction from");
-    $transaction->get_value("tfID") || alloc_error("You must select a Destination Tagged Fund to add this transaction against");
-    $transaction->get_value("transactionType") || alloc_error("You must set a transaction type");
-    $transaction->get_value("currencyTypeID") || alloc_error("You must set a transaction currency");
+    $transaction->get_value('amount') || alloc_error('You must enter a valid amount');
+    $transaction->get_value('transactionDate') || alloc_error('You must enter a date for the transaction');
+    $transaction->get_value('product') || alloc_error('You must enter a product');
+    $transaction->get_value('status') || alloc_error('You must set the status of the transaction');
+    $transaction->get_value('fromTfID') || alloc_error('You must select a Source Tagged Fund to take this transaction from');
+    $transaction->get_value('tfID') || alloc_error('You must select a Destination Tagged Fund to add this transaction against');
+    $transaction->get_value('transactionType') || alloc_error('You must set a transaction type');
+    $transaction->get_value('currencyTypeID') || alloc_error('You must set a transaction currency');
     // $transaction->get_value("projectID")       or alloc_error("You must select a project");
     // $transaction->get_value("companyDetails")  or alloc_error("You must enter the company details");
-    if ((is_countable($TPL["message"]) ? count($TPL["message"]) : 0) === 0) {
-        $transaction->set_value("amount", str_replace(["$", ","], "", $transaction->get_value("amount")));
+    if ((is_countable($TPL['message']) ? count($TPL['message']) : 0) === 0) {
+        $transaction->set_value('amount', str_replace(['$', ','], '', $transaction->get_value('amount')));
         if ($transaction->save()) { // need to check this again as transaction->save might have triggered an error
-            $TPL["message_good"][] = "Transaction Saved";
+            $TPL['message_good'][] = 'Transaction Saved';
 
-            if ($_POST["saveAndNew"]) {
-                alloc_redirect($TPL["url_alloc_transaction"] . "new=true");
+            if ($_POST['saveAndNew']) {
+                alloc_redirect($TPL['url_alloc_transaction'] . 'new=true');
             }
 
-            if ($_POST["saveGoTf"]) {
-                alloc_redirect($TPL["url_alloc_transactionList"] . "tfID=" . $transaction->get_value("tfID"));
+            if ($_POST['saveGoTf']) {
+                alloc_redirect($TPL['url_alloc_transactionList'] . 'tfID=' . $transaction->get_value('tfID'));
             }
 
-            alloc_redirect($TPL["url_alloc_transaction"] . "transactionID=" . $transaction->get_id());
+            alloc_redirect($TPL['url_alloc_transaction'] . 'transactionID=' . $transaction->get_id());
         }
     }
-} elseif ($_POST["delete"]) {
+} elseif ($_POST['delete']) {
     $transaction->delete();
-    alloc_redirect($TPL["url_alloc_transactionList"] . "tfID=" . $transaction->get_value("tfID"));
+    alloc_redirect($TPL['url_alloc_transactionList'] . 'tfID=' . $transaction->get_value('tfID'));
 }
 
 $transaction->set_tpl_values();
 
-$t = new Meta("currencyType");
-$currency_array = $t->get_assoc_array("currencyTypeID", "currencyTypeID");
-$TPL["currencyOptions"] = Page::select_options($currency_array, $transaction->get_value("currencyTypeID"));
-$TPL["product"] = Page::htmlentities($transaction->get_value("product"));
-$TPL["statusOptions"] = Page::select_options(["pending" => "Pending", "rejected" => "Rejected", "approved" => "Approved"], $transaction->get_value("status"));
+$t = new Meta('currencyType');
+$currency_array = $t->get_assoc_array('currencyTypeID', 'currencyTypeID');
+$TPL['currencyOptions'] = Page::select_options($currency_array, $transaction->get_value('currencyTypeID'));
+$TPL['product'] = Page::htmlentities($transaction->get_value('product'));
+$TPL['statusOptions'] = Page::select_options(['pending' => 'Pending', 'rejected' => 'Rejected', 'approved' => 'Approved'], $transaction->get_value('status'));
 $transactionTypes = transaction::get_transactionTypes();
-$TPL["transactionTypeOptions"] = Page::select_options($transactionTypes, $transaction->get_value("transactionType"));
+$TPL['transactionTypeOptions'] = Page::select_options($transactionTypes, $transaction->get_value('transactionType'));
 
 if (is_object($transaction)) {
-    $TPL["transactionTypeLink"] = $transaction->get_transaction_type_link();
+    $TPL['transactionTypeLink'] = $transaction->get_transaction_type_link();
 }
 
 $db = new AllocDatabase();
 
 $tf = new tf();
-$options = $tf->get_assoc_array("tfID", "tfName");
+$options = $tf->get_assoc_array('tfID', 'tfName');
 // Special cases for the current tfID and fromTfID
-$options = add_tf($transaction->get_value("tfID"), $options, "tfIDWarning", " (warning: the TF <b>%s</b> is currently inactive)");
-$options = add_tf($transaction->get_value("fromTfID"), $options, "fromTfIDWarning", " (warning: the TF <b>%s</b> is currently inactive)");
+$options = add_tf($transaction->get_value('tfID'), $options, 'tfIDWarning', ' (warning: the TF <b>%s</b> is currently inactive)');
+$options = add_tf($transaction->get_value('fromTfID'), $options, 'fromTfIDWarning', ' (warning: the TF <b>%s</b> is currently inactive)');
 
-$TPL["tfIDOptions"] = Page::select_options($options, $transaction->get_value("tfID"));
-$TPL["fromTfIDOptions"] = Page::select_options($options, $transaction->get_value("fromTfID"));
+$TPL['tfIDOptions'] = Page::select_options($options, $transaction->get_value('tfID'));
+$TPL['fromTfIDOptions'] = Page::select_options($options, $transaction->get_value('fromTfID'));
 
 $q = "SELECT projectID as value, projectName as label FROM project WHERE projectStatus = 'Current' ORDER BY projectName";
-$TPL["projectIDOptions"] = Page::select_options($q, $transaction->get_value("projectID"));
+$TPL['projectIDOptions'] = Page::select_options($q, $transaction->get_value('projectID'));
 
-$TPL["transactionModifiedUser"] = Page::htmlentities(person::get_fullname($TPL["transactionModifiedUser"]));
-$TPL["transactionCreatedUser"] = Page::htmlentities(person::get_fullname($TPL["transactionCreatedUser"]));
+$TPL['transactionModifiedUser'] = Page::htmlentities(person::get_fullname($TPL['transactionModifiedUser']));
+$TPL['transactionCreatedUser'] = Page::htmlentities(person::get_fullname($TPL['transactionCreatedUser']));
 
 $tf1 = new tf();
-$tf1->set_id($TPL["tfID"]);
+$tf1->set_id($TPL['tfID']);
 $tf1->select();
-$TPL["tf_link"] = $tf1->get_link();
+$TPL['tf_link'] = $tf1->get_link();
 
 $tf2 = new tf();
-$tf2->set_id($TPL["fromTfID"]);
+$tf2->set_id($TPL['fromTfID']);
 $tf2->select();
-$TPL["from_tf_link"] = $tf2->get_link();
+$TPL['from_tf_link'] = $tf2->get_link();
 
-$p = $transaction->get_foreign_object("project");
-$TPL["project_link"] = $p->get_link();
+$p = $transaction->get_foreign_object('project');
+$TPL['project_link'] = $p->get_link();
 
-$TPL["taxName"] = config::get_config_item("taxName");
+$TPL['taxName'] = config::get_config_item('taxName');
 
-if (is_object($current_user) && !$current_user->have_role("admin") && is_object($transaction) && in_array($transaction->get_value("status"), ["approved", "rejected"])) {
-    $TPL["main_alloc_title"] = "View Transaction - " . APPLICATION_NAME;
-    include_template("templates/viewTransactionM.tpl");
+if (is_object($current_user) && !$current_user->have_role('admin') && is_object($transaction) && in_array($transaction->get_value('status'), ['approved', 'rejected'])) {
+    $TPL['main_alloc_title'] = 'View Transaction - ' . APPLICATION_NAME;
+    include_template('templates/viewTransactionM.tpl');
 } else {
-    $TPL["main_alloc_title"] = "Create Transaction - " . APPLICATION_NAME;
-    include_template("templates/editTransactionM.tpl");
+    $TPL['main_alloc_title'] = 'Create Transaction - ' . APPLICATION_NAME;
+    include_template('templates/editTransactionM.tpl');
 }

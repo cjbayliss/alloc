@@ -7,18 +7,18 @@
 
 class announcement extends DatabaseEntity
 {
-    public $data_table = "announcement";
+    public $data_table = 'announcement';
 
-    public $display_field_name = "heading";
+    public $display_field_name = 'heading';
 
-    public $key_field = "announcementID";
+    public $key_field = 'announcementID';
 
     public $data_fields = [
-        "heading",
-        "body",
-        "personID",
-        "displayFromDate",
-        "displayToDate",
+        'heading',
+        'body',
+        'personID',
+        'displayFromDate',
+        'displayToDate',
     ];
 
     public function has_announcements(): bool
@@ -27,10 +27,11 @@ class announcement extends DatabaseEntity
         $allocDatabase->connect();
 
         $getAnnouncements = $allocDatabase->pdo->query(
-            "SELECT * from announcement 
+            'SELECT * from announcement 
               where displayFromDate <= CURRENT_DATE()
-                and displayToDate >= CURRENT_DATE()"
+                and displayToDate >= CURRENT_DATE()'
         );
+
         return (bool) $getAnnouncements->fetch(PDO::FETCH_ASSOC);
     }
 }

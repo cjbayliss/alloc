@@ -7,19 +7,19 @@
 
 class loan extends DatabaseEntity
 {
-    public $data_table = "loan";
+    public $data_table = 'loan';
 
-    public $display_field_name = "itemID";
+    public $display_field_name = 'itemID';
 
-    public $key_field = "loanID";
+    public $key_field = 'loanID';
 
     public $data_fields = [
-        "itemID",
-        "personID",
-        "loanModifiedUser",
-        "loanModifiedTime",
-        "dateBorrowed",
-        "dateToBeReturned",
-        "dateReturned",
+        'itemID',
+        'personID',
+        'loanModifiedUser',
+        'loanModifiedTime',
+        'dateBorrowed',
+        'dateToBeReturned',
+        'dateReturned',
     ];
 }

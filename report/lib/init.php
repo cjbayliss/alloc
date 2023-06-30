@@ -7,18 +7,18 @@
 
 class report_module extends Module
 {
-    public $module = "report";
+    public $module = 'report';
 }
 
 function has_report_perm(): bool
 {
-    $current_user = &singleton("current_user");
+    $current_user = &singleton('current_user');
     if (is_object($current_user)) {
-        if ($current_user->have_role("admin")) {
+        if ($current_user->have_role('admin')) {
             return true;
         }
 
-        return (bool) $current_user->have_role("manage");
+        return (bool) $current_user->have_role('manage');
     }
 
     return false;

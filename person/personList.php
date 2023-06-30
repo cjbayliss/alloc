@@ -5,16 +5,16 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 $defaults = [
-    "return"     => "html",
-    "showHeader" => true,
-    "showName"   => true,
-    "showActive" => true,
-    "showNos"    => true,
-    "showLinks"  => true,
-    "form_name"  => "personList_filter",
+    'return'     => 'html',
+    'showHeader' => true,
+    'showName'   => true,
+    'showActive' => true,
+    'showNos'    => true,
+    'showLinks'  => true,
+    'form_name'  => 'personList_filter',
 ];
 
 function show_filter()
@@ -27,7 +27,7 @@ function show_filter()
         $TPL = array_merge($TPL, $arr);
     }
 
-    include_template("templates/personListFilterS.tpl");
+    include_template('templates/personListFilterS.tpl');
 }
 
 function show_people()
@@ -38,6 +38,6 @@ function show_people()
     echo person::get_list($_FORM);
 }
 
-$TPL["main_alloc_title"] = "People - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'People - ' . APPLICATION_NAME;
 
-include_template("templates/personListM.tpl");
+include_template('templates/personListM.tpl');

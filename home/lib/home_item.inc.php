@@ -25,9 +25,9 @@ class home_item
 
     public $template;
 
-    public $width = "standard";
+    public $width = 'standard';
 
-    public function __construct($name, $label, $module, $template, $width = "standard", $seq = 0, $print = true)
+    public function __construct($name, $label, $module, $template, $width = 'standard', $seq = 0, $print = true)
     {
         $this->label = $label;
         $this->module = $module;
@@ -40,7 +40,7 @@ class home_item
 
     public function get_template_dir(): string
     {
-        return ALLOC_MOD_DIR . $this->module . "/templates/";
+        return ALLOC_MOD_DIR . $this->module . '/templates/';
     }
 
     public function get_seq()
@@ -60,13 +60,13 @@ class home_item
     public function visible()
     {
         // FIXME: this prevents rector adding return types to this function
-        return true || "";
+        return true || '';
     }
 
     public function render()
     {
         // FIXME: this prevents rector adding return types to this function
-        return false || "";
+        return false || '';
     }
 
     public function get_label()

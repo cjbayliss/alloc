@@ -7,32 +7,36 @@
 
 class timeSheetListHomeItem extends home_item
 {
+    /**
+     * @var bool
+     */
+    public $has_config = true;
 
     public function __construct()
     {
-        $this->has_config = true;
-        parent::__construct("time_list", "Current Time Sheets", "time", "timeSheetListH.tpl", "narrow", 30);
+        parent::__construct('time_list', 'Current Time Sheets', 'time', 'timeSheetListH.tpl', 'narrow', 30);
     }
 
     public function visible()
     {
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
+
         return isset($current_user) && $current_user->is_employee();
     }
 
     public function render()
     {
         $ops = [];
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         global $TPL;
-        $ops["showShortProjectLink"] = "true";
-        $ops["personID"] = $current_user->get_id();
-        $ops["status"] = ['edit', 'manager', 'admin', 'invoiced', 'rejected'];
+        $ops['showShortProjectLink'] = 'true';
+        $ops['personID'] = $current_user->get_id();
+        $ops['status'] = ['edit', 'manager', 'admin', 'invoiced', 'rejected'];
 
         $rtn = timeSheet::get_list($ops);
-        $TPL["timeSheetListRows"] = $rtn["rows"];
-        $TPL["timeSheetListExtra"] = $rtn["extra"];
-        if ($TPL["timeSheetListRows"]) {
+        $TPL['timeSheetListRows'] = $rtn['rows'];
+        $TPL['timeSheetListExtra'] = $rtn['extra'];
+        if ($TPL['timeSheetListRows']) {
             return true;
         }
     }

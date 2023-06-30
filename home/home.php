@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 function sort_home_items($a, $b)
 {
@@ -22,45 +22,45 @@ function show_home_items($width, $home_items)
         $items[] = $i;
     }
 
-    uasort($items, "sort_home_items");
+    uasort($items, 'sort_home_items');
 
-    foreach ((array)$items as $item) {
+    foreach ((array) $items as $item) {
         if ($item->width == $width && $item->visible()) {
-            $TPL["item"] = $item;
+            $TPL['item'] = $item;
             if ($item->render()) {
-                include_template("templates/homeItemS.tpl");
+                include_template('templates/homeItemS.tpl');
             }
         }
     }
 }
 
 global $modules;
-$current_user = &singleton("current_user");
+$current_user = &singleton('current_user');
 $home_items = [];
 foreach ($modules as $module_name => $module) {
     if ($module->home_items) {
-        $home_items = array_merge((array)$home_items, $module->home_items);
+        $home_items = array_merge((array) $home_items, $module->home_items);
     }
 }
 
-$TPL["home_items"] = $home_items;
+$TPL['home_items'] = $home_items;
 
-if (isset($_POST["tsiHint_item"])) {
-    $t = tsiHint::parse_tsiHint_string($_POST["tsiHint_item"]);
-    if (is_numeric($t["duration"]) && $current_user->get_id()) {
+if (isset($_POST['tsiHint_item'])) {
+    $t = tsiHint::parse_tsiHint_string($_POST['tsiHint_item']);
+    if (is_numeric($t['duration']) && $current_user->get_id()) {
         $tsiHint = new tsiHint();
         $tsi_row = $tsiHint->add_tsiHint($t);
-        alloc_redirect($TPL["url_alloc_home"]);
+        alloc_redirect($TPL['url_alloc_home']);
     } else {
-        alloc_error("Time hint not added. No duration set.");
+        alloc_error('Time hint not added. No duration set.');
         alloc_error(print_r($t, 1));
     }
 }
 
-$TPL["main_alloc_title"] = "Home Page - " . APPLICATION_NAME;
-$media = $_GET["media"] ?? "";
-if ($media == "print") {
-    include_template("templates/homePrintableM.tpl");
+$TPL['main_alloc_title'] = 'Home Page - ' . APPLICATION_NAME;
+$media = $_GET['media'] ?? '';
+if ('print' == $media) {
+    include_template('templates/homePrintableM.tpl');
 } else {
-    include_template("templates/homeM.tpl");
+    include_template('templates/homeM.tpl');
 }

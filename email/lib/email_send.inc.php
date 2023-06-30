@@ -23,29 +23,29 @@ class email_send
     public $ignore_no_email_urls = false;
 
     // Actual email variables
-    public $body = "";
+    public $body = '';
 
-    public $body_without_attachments = "";
+    public $body_without_attachments = '';
 
-    public $default_headers = "";
+    public $default_headers = '';
 
-    public $from = "";
+    public $from = '';
 
-    public $headers = "";
+    public $headers = '';
 
-    public $message_type = "";
+    public $message_type = '';
 
-    public $subject = "";
+    public $subject = '';
 
-    public $to_address = "";
+    public $to_address = '';
 
     public $done_top_mime_header = false;
 
     public $mime_boundary;
 
-    public function __construct($to_address = "", $subject = "", $body = "", $message_type = "")
+    public function __construct($to_address = '', $subject = '', $body = '', $message_type = '')
     {
-        $this->default_headers = "X-Mailer: " . APPLICATION_NAME . " " . APPLICATION_VERSION;
+        $this->default_headers = 'X-Mailer: ' . APPLICATION_NAME . ' ' . APPLICATION_VERSION;
         $to_address && $this->set_to_address($to_address);
         $subject && $this->set_subject($subject);
         $body && $this->set_body($body);
@@ -57,10 +57,10 @@ class email_send
         $to || ($to = $this->to_address);
         // $to or $to = ALLOC_DEFAULT_TO_ADDRESS; // no
         $this->to_address = $to;
-        $this->del_header("to");
+        $this->del_header('to');
     }
 
-    public function set_body($body = false, $body_without_attachments = "")
+    public function set_body($body = false, $body_without_attachments = '')
     {
         $body || ($body = $this->body);
         $this->body = $body;
@@ -76,57 +76,57 @@ class email_send
     public function set_from($from = false)
     {
         $from || ($from = $this->from);
-        $from || ($from = APPLICATION_NAME . " " . ALLOC_DEFAULT_FROM_ADDRESS);
-        $this->add_header("From", $from);
+        $from || ($from = APPLICATION_NAME . ' ' . ALLOC_DEFAULT_FROM_ADDRESS);
+        $this->add_header('From', $from);
         $this->from = $from;
     }
 
     public function set_content_type($type = false)
     {
-        $type || ($type = "text/plain; charset=utf-8; format=flowed");
-        $this->add_header("Content-Type", $type);
+        $type || ($type = 'text/plain; charset=utf-8; format=flowed');
+        $this->add_header('Content-Type', $type);
     }
 
     public function set_subject($subject = false)
     {
         $subject || ($subject = $this->subject);
         $this->subject = $subject;
-        $this->del_header("subject");
+        $this->del_header('subject');
     }
 
     public function set_reply_to($email = false)
     {
         $email || ($email = ALLOC_DEFAULT_FROM_ADDRESS);
-        $this->add_header("Reply-To", $email);
+        $this->add_header('Reply-To', $email);
     }
 
     public function set_date($date = false)
     {
         // Date: Tue, 07 Jun 2011 15:37:32 +1000
-        $date || ($date = date("D, d M Y H:i:s O"));
-        $this->add_header("Date", $date);
+        $date || ($date = date('D, d M Y H:i:s O'));
+        $this->add_header('Date', $date);
     }
 
     public function set_message_id($hash = false)
     {
-        $hash && ($hash = ".alloc.key." . $hash);
-        [$usec, $sec] = explode(" ", microtime());
+        $hash && ($hash = '.alloc.key.' . $hash);
+        [$usec, $sec] = explode(' ', microtime());
         $time = $sec . $usec;
         $time = base_convert($time, 10, 36);
 
         $rand = md5(microtime() . getmypid() . md5(microtime()));
         $rand = base_convert($rand, 16, 36);
 
-        $bits = explode("@", ALLOC_DEFAULT_FROM_ADDRESS);
-        $host = str_replace(">", "", $bits[1] ?? "");
-        $h = "<" . $time . "." . $rand . $hash . "@" . $host . ">";
-        $this->add_header("Message-ID", $h);
+        $bits = explode('@', ALLOC_DEFAULT_FROM_ADDRESS);
+        $host = str_replace('>', '', $bits[1] ?? '');
+        $h = '<' . $time . '.' . $rand . $hash . '@' . $host . '>';
+        $this->add_header('Message-ID', $h);
+
         return $h;
     }
 
     public function send($use_default_headers = true): bool
     {
-
         $return_path = null;
         if ($use_default_headers) {
             $this->set_to_address();
@@ -156,13 +156,14 @@ class email_send
             // echo "<pre><br>SUBJECT:\n".Page::htmlentities($this->subject)."</pre>";
             // echo "<pre><br>BODY:\n".Page::htmlentities($this->body)."</pre>";
 
-            if (defined("ALLOC_DEFAULT_RETURN_PATH_ADDRESS") && ALLOC_DEFAULT_RETURN_PATH_ADDRESS) {
-                $return_path = "-f" . ALLOC_DEFAULT_RETURN_PATH_ADDRESS;
+            if (defined('ALLOC_DEFAULT_RETURN_PATH_ADDRESS') && ALLOC_DEFAULT_RETURN_PATH_ADDRESS) {
+                $return_path = '-f' . ALLOC_DEFAULT_RETURN_PATH_ADDRESS;
             }
 
-            $result = mail((string)$this->to_address, $this->subject, $this->body, $this->headers, $return_path);
+            $result = mail((string) $this->to_address, $this->subject, $this->body, $this->headers, $return_path);
             if ($result) {
                 $this->log();
+
                 return true;
             }
         }
@@ -170,10 +171,10 @@ class email_send
         return false;
     }
 
-    public function set_headers($headers = "")
+    public function set_headers($headers = '')
     {
         $headers || ($headers = $this->headers);
-        $headers = preg_replace("/\r?\n\s+/", " ", $headers);
+        $headers = preg_replace("/\r?\n\\s+/", ' ', $headers);
         $this->headers = $headers;
     }
 
@@ -182,36 +183,37 @@ class email_send
         return $this->headers;
     }
 
-    public function add_header($header, $value = "", $replace = 1)
+    public function add_header($header, $value = '', $replace = 1)
     {
         if ($replace) {
             $this->del_header($header);
         }
 
-        $this->headers = trim($this->headers) . "\n" . $header . ": " . $value;
+        $this->headers = trim($this->headers) . "\n" . $header . ': ' . $value;
     }
 
     public function del_header($header)
     {
-        $this->headers = preg_replace("/\r?\n" . $header . ":\s*.*/i", "", $this->headers);
+        $this->headers = preg_replace("/\r?\n" . $header . ':\\s*.*/i', '', $this->headers);
     }
 
     public function get_header($header)
     {
-        preg_match("/\r?\n" . $header . ":(.*)/i", $this->headers, $matches);
+        preg_match("/\r?\n" . $header . ':(.*)/i', $this->headers, $matches);
+
         return $matches[1];
     }
 
     public function header_exists($header)
     {
-        return preg_match("/\r?\n" . $header . ":(.*)/i", $this->headers);
+        return preg_match("/\r?\n" . $header . ':(.*)/i', $this->headers);
     }
 
     public function is_valid_url()
     {
         $dont_send = null;
         // Validate against particular hosts
-        if (in_array($_SERVER["SERVER_NAME"], $this->no_email_hosts)) {
+        if (in_array($_SERVER['SERVER_NAME'], $this->no_email_hosts)) {
             $dont_send = true;
         }
 
@@ -219,7 +221,7 @@ class email_send
 
         // Validate against particular bits in the url
         foreach ($this->no_email_urls as $no_email_url) {
-            preg_match("/" . $no_email_url . "/", $_SERVER["SCRIPT_FILENAME"]) && ($dont_send = true);
+            preg_match('/' . $no_email_url . '/', $_SERVER['SCRIPT_FILENAME']) && ($dont_send = true);
         }
 
         $this->ignore_no_email_urls && ($dont_send = false);
@@ -230,17 +232,17 @@ class email_send
 
     public function log()
     {
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         $sentEmailLog = new sentEmailLog();
-        if (!($to = $this->to_address) && !($to = $this->get_header("Cc"))) {
-            $to = $this->get_header("Bcc");
+        if (!($to = $this->to_address) && !($to = $this->get_header('Cc'))) {
+            $to = $this->get_header('Bcc');
         }
 
-        $sentEmailLog->set_value("sentEmailTo", $to);
-        $sentEmailLog->set_value("sentEmailSubject", $this->subject);
-        $sentEmailLog->set_value("sentEmailBody", substr($this->body_without_attachments, 0, 65000)); // length of a TEXT column
-        $sentEmailLog->set_value("sentEmailHeader", $this->headers);
-        $sentEmailLog->set_value("sentEmailType", $this->message_type);
+        $sentEmailLog->set_value('sentEmailTo', $to);
+        $sentEmailLog->set_value('sentEmailSubject', $this->subject);
+        $sentEmailLog->set_value('sentEmailBody', substr($this->body_without_attachments, 0, 65000)); // length of a TEXT column
+        $sentEmailLog->set_value('sentEmailHeader', $this->headers);
+        $sentEmailLog->set_value('sentEmailType', $this->message_type);
         $sentEmailLog->save();
     }
 
@@ -249,7 +251,7 @@ class email_send
         // This function will generate a new mime boundary
         if (!$this->mime_boundary) {
             $rand = md5(time() . microtime());
-            $this->mime_boundary = "alloc" . time() . $rand;
+            $this->mime_boundary = 'alloc' . time() . $rand;
         }
 
         return $this->mime_boundary;
@@ -259,28 +261,29 @@ class email_send
     {
         if (!$this->done_top_mime_header) {
             $mime_boundary = $this->get_mime_boundary();
-            $header = "--" . $mime_boundary;
+            $header = '--' . $mime_boundary;
             $header .= "\nContent-Type: text/plain; charset=utf-8; format=flowed";
             $header .= "\nContent-Disposition: inline";
             $header .= "\n";
             $header .= "\n";
             $this->done_top_mime_header = true;
+
             return $header;
         }
     }
 
     public function get_bottom_mime_header(): string
     {
-        return "\n\n--" . $this->get_mime_boundary() . "--";
+        return "\n\n--" . $this->get_mime_boundary() . '--';
     }
 
     public function add_attachment($file)
     {
         if (file_exists($file) && is_readable($file) && filesize($file)) {
             $mime_boundary = $this->get_mime_boundary();
-            $this->add_header("MIME-Version", "1.0");
-            $this->add_header("Content-Type", 'multipart/mixed; boundary="' . $mime_boundary . '"');
-            $this->add_header("Content-Disposition", "inline");
+            $this->add_header('MIME-Version', '1.0');
+            $this->add_header('Content-Type', 'multipart/mixed; boundary="' . $mime_boundary . '"');
+            $this->add_header('Content-Disposition', 'inline');
 
             // Read the file to be attached ('rb' = read binary)
             $fh = fopen($file, 'rb');
@@ -305,11 +308,12 @@ class email_send
     public function get_header_mime_boundary()
     {
         // This function will parse the header for a mime boundary
-        $content_type = $this->get_header("Content-Type");
+        $content_type = $this->get_header('Content-Type');
         // If the email is a multipart, ie has attachments
-        if (preg_match("/multipart/i", $content_type) && preg_match("/boundary/i", $content_type)) {
+        if (preg_match('/multipart/i', $content_type) && preg_match('/boundary/i', $content_type)) {
             // Suck out the mime boundary
             preg_match('/boundary="?([^"]*)"?/i', $content_type, $matches);
+
             return $matches[1];
         }
     }

@@ -7,7 +7,7 @@
 
 class home_module extends Module
 {
-    public $module = "home";
+    public $module = 'home';
 
-    public $databaseEntities = ["history"];
+    public $databaseEntities = ['history'];
 }

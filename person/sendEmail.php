@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("NO_AUTH", true);
-define("IS_GOD", true);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_AUTH', true);
+define('IS_GOD', true);
+require_once __DIR__ . '/../alloc.php';
 
-if (date("D") == "Sat" || date("D") == "Sun") {
+if ('Sat' == date('D') || 'Sun' == date('D')) {
     alloc_error("IT'S THE WEEKEND - GET OUTTA HERE", true);
 }
 
@@ -22,35 +22,35 @@ $db->query("SELECT personID,emailAddress,firstName,surname FROM person WHERE per
 while ($db->next_record()) {
     $person = new person();
     $person->read_db_record($db);
-    $person->set_id($db->f("personID"));
+    $person->set_id($db->f('personID'));
     $person->load_prefs();
-    if (!$person->prefs["dailyTaskEmail"]) {
+    if (!$person->prefs['dailyTaskEmail']) {
         continue;
     }
 
-    $msg = "";
-    $tasks = "";
-    $to = "";
+    $msg = '';
+    $tasks = '';
+    $to = '';
 
-    if ($announcement["heading"]) {
-        $msg .= $announcement["heading"];
-        $msg .= "\n" . $announcement["body"] . "\n";
+    if ($announcement['heading']) {
+        $msg .= $announcement['heading'];
+        $msg .= "\n" . $announcement['body'] . "\n";
         $msg .= "\n- - - - - - - - - -\n";
     }
 
-    if ($person->get_value("emailAddress")) {
+    if ($person->get_value('emailAddress')) {
         $tasks = $person->get_tasks_for_email();
         $msg .= $tasks;
 
         // FIXME: ???
-        $subject = commentTemplate::populate_string(config::get_config_item("emailSubject_dailyDigest"), "");
-        $to = $person->get_value("emailAddress");
-        if ($person->get_value("firstName") && $person->get_value("surname") && $to) {
-            $to = $person->get_value("firstName") . " " . $person->get_value("surname") . " <" . $to . ">";
+        $subject = commentTemplate::populate_string(config::get_config_item('emailSubject_dailyDigest'), '');
+        $to = $person->get_value('emailAddress');
+        if ($person->get_value('firstName') && $person->get_value('surname') && $to) {
+            $to = $person->get_value('firstName') . ' ' . $person->get_value('surname') . ' <' . $to . '>';
         }
 
         if ($tasks && $to) {
-            $email = new email_send($to, $subject, $msg, "daily_digest");
+            $email = new email_send($to, $subject, $msg, 'daily_digest');
             if ($email->send()) {
                 echo "\n<br>Sent email to: " . $to;
             }

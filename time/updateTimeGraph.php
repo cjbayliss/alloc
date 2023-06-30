@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("NO_REDIRECT", 1);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_REDIRECT', 1);
+require_once __DIR__ . '/../alloc.php';
 
-$current_user = &singleton("current_user");
+$current_user = &singleton('current_user');
 $num_days_back = 28;
-$start = date("Y-m-d", time() - (60 * 60 * 24 * $num_days_back));
+$start = date('Y-m-d', time() - (60 * 60 * 24 * $num_days_back));
 $points = timeSheetItem::get_total_hours_worked_per_day($current_user->get_id(), $start);
-print json_encode(["status" => "good", "points" => $points], JSON_THROW_ON_ERROR);
+echo json_encode(['status' => 'good', 'points' => $points], JSON_THROW_ON_ERROR);

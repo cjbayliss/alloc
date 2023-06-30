@@ -5,14 +5,14 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 $defaults = [
-    "showHeader"      => true,
-    "showProject"     => true,
-    "padding"         => 1,
-    "url_form_action" => $TPL["url_alloc_projectGraph"],
-    "form_name"       => "projectSummary_filter",
+    'showHeader'      => true,
+    'showProject'     => true,
+    'padding'         => 1,
+    'url_form_action' => $TPL['url_alloc_projectGraph'],
+    'form_name'       => 'projectSummary_filter',
 ];
 
 function show_filter()
@@ -26,7 +26,7 @@ function show_filter()
         $TPL = array_merge($TPL, $arr);
     }
 
-    include_template("../task/templates/taskFilterS.tpl");
+    include_template('../task/templates/taskFilterS.tpl');
 }
 
 function show_projects($template_name)
@@ -40,14 +40,14 @@ function show_projects($template_name)
         $TPL = array_merge($TPL, $arr);
     }
 
-    if (is_array($_FORM["projectID"])) {
-        $projectIDs = $_FORM["projectID"];
+    if (is_array($_FORM['projectID'])) {
+        $projectIDs = $_FORM['projectID'];
         foreach ($projectIDs as $projectID) {
             $project = new project();
             $project->set_id($projectID);
             $project->select();
-            $_FORM["projectID"] = [$projectID];
-            $TPL["graphTitle"] = urlencode($project->get_value("projectName"));
+            $_FORM['projectID'] = [$projectID];
+            $TPL['graphTitle'] = urlencode($project->get_value('projectName'));
             $arr = Task::load_task_filter($_FORM);
             if (is_array($arr)) {
                 $TPL = array_merge($TPL, $arr);
@@ -58,6 +58,6 @@ function show_projects($template_name)
     }
 }
 
-$TPL["main_alloc_title"] = "Project Graph - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'Project Graph - ' . APPLICATION_NAME;
 
-include_template("templates/projectGraphM.tpl");
+include_template('templates/projectGraphM.tpl');

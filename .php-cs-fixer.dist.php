@@ -5,22 +5,19 @@ $finder = PhpCsFixer\Finder::create()
 ;
 
 $config = new PhpCsFixer\Config();
+
+// apply the PHP version -> PHP-CS-Fixer's style -> Symfony's style ->
+// PSR standards -> custom styles. this should give us the most consistant
+// result.
 return $config->setRules([
     '@PHP74Migration' => true,
+    '@PhpCsFixer' => true,
+    '@Symfony' => true,
+    '@PSR1' => true,
     '@PSR2' => true,
-    'array_indentation' => true,
+    '@PSR12' => true,
     'binary_operator_spaces' => ['operators' => ['=>' => 'align_single_space_minimal']],
-    'no_extra_blank_lines' => true,
-    'no_multiline_whitespace_around_double_arrow' => true,
-    'no_multiple_statements_per_line' => true,
-    'no_trailing_comma_in_singleline' => true,
-    'no_whitespace_before_comma_in_array' => ['after_heredoc' => true],
-    'normalize_index_brace' => true,
-    'single_line_comment_spacing' => true,
-    'single_line_comment_style' => true,
-    'trailing_comma_in_multiline' => ['after_heredoc' => true],
-    'trim_array_spaces' => true,
-    'whitespace_after_comma_in_array' => ['ensure_single_space' => true],
+    'concat_space' => ['spacing' => 'one'],
 ])
     ->setFinder($finder)
 ;

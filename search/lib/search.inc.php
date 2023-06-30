@@ -5,11 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("PERM_PROJECT_READ_TASK_DETAIL", 256);
+define('PERM_PROJECT_READ_TASK_DETAIL', 256);
 
 class search
 {
-
     public function by_file($file, $needle)
     {
         $rtn = [];
@@ -19,7 +18,7 @@ class search
             if ($fp) {
                 while (!feof($fp)) {
                     $line = stream_get_line($fp, 65535, "\n"); // faster than fgets
-                    if (stripos($line, strtolower($needle)) !== false) {
+                    if (false !== stripos($line, strtolower($needle))) {
                         $rtn[] = $line;
                     }
                 }
@@ -33,15 +32,14 @@ class search
 
     public function get_trimmed_description($haystack, $needle, $category)
     {
-
         $position = stripos($haystack, strtolower($needle));
-        if ($position !== false) {
-            $prefix = "...";
-            $suffix = "...";
+        if (false !== $position) {
+            $prefix = '...';
+            $suffix = '...';
 
             // Nuke trailing ellipses if the string ends in the match
             if (strlen(substr($haystack, $position)) === strlen($needle)) {
-                $suffix = "";
+                $suffix = '';
             }
 
             $buffer = 30;
@@ -51,15 +49,16 @@ class search
             // and nuke ellipses prefix because the string begins with the match
             if ($position < 0) {
                 $position = 0;
-                $prefix = "";
+                $prefix = '';
             }
 
             $str = substr($haystack, $position, strlen($needle) + 100);
-            $str = str_replace($needle, "[[[" . $needle . "]]]", $str);
+            $str = str_replace($needle, '[[[' . $needle . ']]]', $str);
+
             return $prefix . $str . $suffix;
         }
 
-        if ($category == "Clients") {
+        if ('Clients' == $category) {
             return substr($haystack, 0, 100);
         }
     }
@@ -68,14 +67,14 @@ class search
     {
         $rtn = [];
         $dir = realpath($dir) . DIRECTORY_SEPARATOR;
-        $dont_search_these_dirs = [".", "..", "CVS", ".hg", ".bzr", "_darcs", ".git"];
+        $dont_search_these_dirs = ['.', '..', 'CVS', '.hg', '.bzr', '_darcs', '.git'];
         $files = scandir($dir);
         foreach ($files as $file) {
             if (!in_array($file, $dont_search_these_dirs)) {
                 if (is_file($dir . $file) && !is_dir($dir . $file)) {
                     $rtn[] = $dir . $file;
                 } elseif (is_dir($dir . $file)) {
-                    $rtn = array_merge((array)$rtn, (array)(new search())->get_recursive_dir_list($dir . $file));
+                    $rtn = array_merge((array) $rtn, (array) (new search())->get_recursive_dir_list($dir . $file));
                 }
             }
         }

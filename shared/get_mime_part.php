@@ -7,33 +7,33 @@
 
 // For use like get_attachment.php?entity=project&id=5&file=foo.bar
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
-if (isset($_GET["id"]) && $_GET["part"]) {
+if (isset($_GET['id']) && $_GET['part']) {
     $comment = new comment();
-    $comment->set_id($_GET["id"]);
-    $comment->select() || die("Bad _GET[id]");
+    $comment->set_id($_GET['id']);
+    $comment->select() || exit('Bad _GET[id]');
     [$mail, $text, $mimebits] = $comment->find_email(false, true);
     if (!$mail) {
         [$mail, $text, $mimebits] = $comment->find_email(false, true, true);
     }
 
     if ($comment->has_attachment_permission($current_user)) {
-        foreach ((array)$mimebits as $bit) {
-            if ($bit["part"] == $_GET["part"]) {
-                $thing = $bit["blob"];
-                $filename = $bit["name"];
+        foreach ((array) $mimebits as $bit) {
+            if ($bit['part'] == $_GET['part']) {
+                $thing = $bit['blob'];
+                $filename = $bit['name'];
                 break;
             }
         }
 
         header('Content-Type: ' . $mimetype);
-        header("Content-Length: " . strlen($thing));
+        header('Content-Length: ' . strlen($thing));
         header('Content-Disposition: inline; filename="' . basename($filename) . '"');
         echo $thing;
         exit;
     }
 
-    echo "Permission denied.";
+    echo 'Permission denied.';
     exit;
 }

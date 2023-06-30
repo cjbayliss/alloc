@@ -7,29 +7,29 @@
 
 class saleListHomeItem extends home_item
 {
-
     public function __construct()
     {
-        parent::__construct("sale_list", "Sales", "sale", "saleListHomeM.tpl", "narrow", 39);
+        parent::__construct('sale_list', 'Sales', 'sale', 'saleListHomeM.tpl', 'narrow', 39);
     }
 
     public function visible()
     {
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
+
         return isset($current_user) && $current_user->is_employee();
     }
 
     public function render()
     {
         $ops = [];
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         global $TPL;
-        $ops["return"] = "array";
-        $ops["personID"] = $current_user->get_id();
-        $ops["status"] = ["admin", "allocate", "edit"];
+        $ops['return'] = 'array';
+        $ops['personID'] = $current_user->get_id();
+        $ops['status'] = ['admin', 'allocate', 'edit'];
         $rows = productSale::get_list($ops);
-        $TPL["saleListRows"] = $rows;
-        if ($TPL["saleListRows"]) {
+        $TPL['saleListRows'] = $rows;
+        if ($TPL['saleListRows']) {
             return true;
         }
     }

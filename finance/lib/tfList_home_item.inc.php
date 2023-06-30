@@ -9,7 +9,7 @@ class tfList_home_item extends home_item
 {
     public function __construct()
     {
-        parent::__construct("", "Tagged Funds", "finance", "tfListH.tpl", "narrow", 20);
+        parent::__construct('', 'Tagged Funds', 'finance', 'tfListH.tpl', 'narrow', 20);
     }
 
     public function visible(): bool
@@ -21,9 +21,9 @@ class tfList_home_item extends home_item
     {
         $ops = [];
         global $TPL;
-        $ops["owner"] = 1;
-        $TPL["tfListRows"] = tf::get_list($ops);
-        if ($TPL["tfListRows"]) {
+        $ops['owner'] = 1;
+        $TPL['tfListRows'] = tf::get_list($ops);
+        if ($TPL['tfListRows']) {
             return true;
         }
     }

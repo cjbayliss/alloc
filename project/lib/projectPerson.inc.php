@@ -5,38 +5,38 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("PERM_PROJECT_PERSON_READ_DETAILS", 256);
+define('PERM_PROJECT_PERSON_READ_DETAILS', 256);
 
 class projectPerson extends DatabaseEntity
 {
-    public $data_table = "projectPerson";
+    public $data_table = 'projectPerson';
 
-    public $display_field_name = "projectID";
+    public $display_field_name = 'projectID';
 
-    public $key_field = "projectPersonID";
+    public $key_field = 'projectPersonID';
 
     public $data_fields = [
-        "personID",
-        "projectID",
-        "emailType",
-        "emailDateRegex",
-        "rate" => ["type" => "money"],
-        "rateUnitID",
-        "projectPersonModifiedUser",
-        "roleID",
+        'personID',
+        'projectID',
+        'emailType',
+        'emailDateRegex',
+        'rate' => ['type' => 'money'],
+        'rateUnitID',
+        'projectPersonModifiedUser',
+        'roleID',
     ];
 
-    public function is_owner($person = "")
+    public function is_owner($person = '')
     {
-
         $project = null;
         if (!$this->get_id()) {
             return true;
         }
 
         $project = new project();
-        $project->set_id($this->get_value("projectID"));
+        $project->set_id($this->get_value('projectID'));
         $project->select();
+
         return $project->is_owner($person);
     }
 
@@ -53,12 +53,12 @@ class projectPerson extends DatabaseEntity
               WHERE roleHandle = ':roleHandle'
                 AND roleLevel = 'project'"
         );
-        $matchRole->bindValue(":roleHandle", $roleHandle, PDO::PARAM_STR);
+        $matchRole->bindValue(':roleHandle', $roleHandle, PDO::PARAM_STR);
         $matchRole->execute();
 
         // FIXME: is this assumption safe? -- cjb, 2023-06
         // assume canEditTasks if $roles["roleID"] is unset
-        $this->set_value("roleID", $matchRole->fetch(PDO::FETCH_ASSOC)["roleID"] ?? 2);
+        $this->set_value('roleID', $matchRole->fetch(PDO::FETCH_ASSOC)['roleID'] ?? 2);
     }
 
     /**
@@ -66,6 +66,7 @@ class projectPerson extends DatabaseEntity
      *
      * @param int $projectID
      * @param int $personID
+     *
      * @return array
      */
     public static function get_projectPerson_row($projectID, $personID)
@@ -74,23 +75,24 @@ class projectPerson extends DatabaseEntity
         $allocDatabase->connect();
 
         $getProjectPerson = $allocDatabase->pdo->prepare(
-            "SELECT *
+            'SELECT *
                FROM projectPerson
               WHERE projectID = :projectID
-                AND personID = :personID"
+                AND personID = :personID'
         );
-        $getProjectPerson->bindValue(":projectID", $projectID, PDO::PARAM_INT);
-        $getProjectPerson->bindValue(":personID", $personID, PDO::PARAM_INT);
+        $getProjectPerson->bindValue(':projectID', $projectID, PDO::PARAM_INT);
+        $getProjectPerson->bindValue(':personID', $personID, PDO::PARAM_INT);
         $getProjectPerson->execute();
 
         return $getProjectPerson->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
-     * try to get the default rate in order of: project -> person -> global
+     * try to get the default rate in order of: project -> person -> global.
      *
      * @param int $projectID
      * @param int $personID
+     *
      * @return array ['rate' => int, 'unit' => int]
      */
     public static function get_rate($projectID, $personID)
@@ -98,10 +100,10 @@ class projectPerson extends DatabaseEntity
         // check the project's default rate
         $project = new project($projectID);
         $defaultProjectRate = [
-            'rate' => $project->get_value("defaultTimeSheetRate"),
-            'unit' => $project->get_value("defaultTimeSheetRateUnitID"),
+            'rate' => $project->get_value('defaultTimeSheetRate'),
+            'unit' => $project->get_value('defaultTimeSheetRateUnitID'),
         ];
-        if ((isset($defaultProjectRate['rate']) && (bool)strlen($defaultProjectRate['rate'])) && $defaultProjectRate['unit']) {
+        if ((isset($defaultProjectRate['rate']) && (bool) strlen($defaultProjectRate['rate'])) && $defaultProjectRate['unit']) {
             return $defaultProjectRate;
         }
 
@@ -110,21 +112,21 @@ class projectPerson extends DatabaseEntity
         $allocDatabase->connect();
 
         $getDefaultTimeSheetRate = $allocDatabase->pdo->prepare(
-            "SELECT defaultTimeSheetRate as rate, defaultTimeSheetRateUnitID as unit 
+            'SELECT defaultTimeSheetRate as rate, defaultTimeSheetRateUnitID as unit 
                FROM person 
-              WHERE personID = :personID"
+              WHERE personID = :personID'
         );
-        $getDefaultTimeSheetRate->bindValue(":personID", $personID, PDO::PARAM_INT);
+        $getDefaultTimeSheetRate->bindValue(':personID', $personID, PDO::PARAM_INT);
         $getDefaultTimeSheetRate->execute();
 
         $defaultTimeSheetRate = $getDefaultTimeSheetRate->fetch(PDO::FETCH_ASSOC);
 
-        if ((isset($defaultTimeSheetRate['rate']) && (bool)strlen($defaultTimeSheetRate['rate'])) && $defaultTimeSheetRate['unit']) {
-            if ($project->get_value("currencyTypeID") != config::get_config_item("currency")) {
+        if ((isset($defaultTimeSheetRate['rate']) && (bool) strlen($defaultTimeSheetRate['rate'])) && $defaultTimeSheetRate['unit']) {
+            if ($project->get_value('currencyTypeID') != config::get_config_item('currency')) {
                 $defaultTimeSheetRate['rate'] = exchangeRate::convert(
-                    config::get_config_item("currency"),
-                    $defaultTimeSheetRate["rate"],
-                    $project->get_value("currencyTypeID")
+                    config::get_config_item('currency'),
+                    $defaultTimeSheetRate['rate'],
+                    $project->get_value('currencyTypeID')
                 );
             }
 
@@ -132,14 +134,14 @@ class projectPerson extends DatabaseEntity
         }
 
         // last, try the global rate
-        $rate = config::get_config_item("defaultTimeSheetRate");
-        $unit = config::get_config_item("defaultTimeSheetUnit");
-        if ((isset($rate) && (bool)strlen($rate)) && $unit) {
-            if (config::get_config_item("currency") && $project->get_value("currencyTypeID")) {
+        $rate = config::get_config_item('defaultTimeSheetRate');
+        $unit = config::get_config_item('defaultTimeSheetUnit');
+        if ((isset($rate) && (bool) strlen($rate)) && $unit) {
+            if (config::get_config_item('currency') && $project->get_value('currencyTypeID')) {
                 $rate = exchangeRate::convert(
-                    config::get_config_item("currency"),
+                    config::get_config_item('currency'),
                     $rate,
-                    $project->get_value("currencyTypeID")
+                    $project->get_value('currencyTypeID')
                 );
             }
 

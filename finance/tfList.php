@@ -5,18 +5,18 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 $current_user->check_employee();
 
-$TPL["owner_checked"] = $_REQUEST["owner"] ? " checked" : "";
+$TPL['owner_checked'] = $_REQUEST['owner'] ? ' checked' : '';
 
-if ($_REQUEST["showall"]) {
-    $TPL["showall_checked"] = " checked";
+if ($_REQUEST['showall']) {
+    $TPL['showall_checked'] = ' checked';
 }
 
-$TPL["main_alloc_title"] = "TF List - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'TF List - ' . APPLICATION_NAME;
 
-$TPL["tfListRows"] = tf::get_list($_REQUEST);
+$TPL['tfListRows'] = tf::get_list($_REQUEST);
 
-include_template("templates/tfListM.tpl");
+include_template('templates/tfListM.tpl');

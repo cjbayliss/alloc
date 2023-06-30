@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 function show_commentTemplate($template_name)
 {
@@ -13,16 +13,16 @@ function show_commentTemplate($template_name)
 
     // Run query and loop through the records
     $db = new AllocDatabase();
-    $query = "SELECT * FROM commentTemplate ORDER BY commentTemplateType, commentTemplateName";
+    $query = 'SELECT * FROM commentTemplate ORDER BY commentTemplateType, commentTemplateName';
     $db->query($query);
     while ($db->next_record()) {
         $commentTemplate = new commentTemplate();
         $commentTemplate->read_db_record($db);
         $commentTemplate->set_values();
-        $TPL["odd_even"] = $TPL["odd_even"] == "even" ? "odd" : "even";
+        $TPL['odd_even'] = 'even' == $TPL['odd_even'] ? 'odd' : 'even';
         include_template($template_name);
     }
 }
 
-$TPL["main_alloc_title"] = "Comment Template List - " . APPLICATION_NAME;
-include_template("templates/commentTemplateListM.tpl");
+$TPL['main_alloc_title'] = 'Comment Template List - ' . APPLICATION_NAME;
+include_template('templates/commentTemplateListM.tpl');

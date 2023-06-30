@@ -5,17 +5,17 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 $permission = new permission();
-($permissionID = $_POST["permissionID"]) || ($permissionID = $_GET["permissionID"]);
+($permissionID = $_POST['permissionID']) || ($permissionID = $_GET['permissionID']);
 
 if ($permissionID) {
     $permission->set_id($permissionID);
     $permission->select();
 }
 
-$actions_array = $_POST["actions_array"];
+$actions_array = $_POST['actions_array'];
 if (is_array($actions_array)) {
     $actions = 0;
     foreach ($actions_array as $k => $a) {
@@ -26,18 +26,18 @@ if (is_array($actions_array)) {
 $permission->read_globals();
 $permission->set_values();
 
-if (!$permission->get_value("tableName")) {
+if (!$permission->get_value('tableName')) {
     global $modules;
     $entities = [];
 
-    foreach($modules as $module_name => $module) {
+    foreach ($modules as $module_name => $module) {
         $mod_entities = $module->databaseEntities;
         $entities = array_merge($entities, $mod_entities);
     }
 
     $table_names = [];
     foreach ($entities as $entity_name) {
-        $entity = new $entity_name;
+        $entity = new $entity_name();
         $table_names[] = $entity->data_table;
     }
 
@@ -47,37 +47,37 @@ if (!$permission->get_value("tableName")) {
         $table_name_options[$op] = $op;
     }
 
-    $TPL["tableNameOptions"] = Page::select_options($table_name_options, $permission->get_value("tableName"));
-    include_template("templates/permissionTableM.tpl");
-    exit();
+    $TPL['tableNameOptions'] = Page::select_options($table_name_options, $permission->get_value('tableName'));
+    include_template('templates/permissionTableM.tpl');
+    exit;
 }
 
-if ($_POST["save"]) {
-    $permission->set_value("actions", $actions);
-    $permission->set_value("comment", rtrim($permission->get_value("comment")));
+if ($_POST['save']) {
+    $permission->set_value('actions', $actions);
+    $permission->set_value('comment', rtrim($permission->get_value('comment')));
     $permission->save();
-    alloc_redirect($TPL["url_alloc_permissionList"]);
-} elseif ($_POST["delete"]) {
+    alloc_redirect($TPL['url_alloc_permissionList']);
+} elseif ($_POST['delete']) {
     $permission->delete();
-    alloc_redirect($TPL["url_alloc_permissionList"]);
+    alloc_redirect($TPL['url_alloc_permissionList']);
 }
 
 // necessary
 $permission->select();
 
-$TPL["roleNameOptions"] = Page::select_options(permission::get_roles(), $permission->get_value("roleName"));
+$TPL['roleNameOptions'] = Page::select_options(permission::get_roles(), $permission->get_value('roleName'));
 
-($table_name = $_POST["tableName"]) || ($table_name = $permission->get_value("tableName"));
-$entity = new $table_name;
+($table_name = $_POST['tableName']) || ($table_name = $permission->get_value('tableName'));
+$entity = new $table_name();
 
 foreach ($entity->permissions as $value => $label) {
-    if (($permission->get_value("actions") & $value) == $value) {
+    if (($permission->get_value('actions') & $value) == $value) {
         $sel[] = $value;
     }
 }
 
-$TPL["actionOptions"] = Page::select_options($entity->permissions, $sel);
+$TPL['actionOptions'] = Page::select_options($entity->permissions, $sel);
 
-$TPL["main_alloc_title"] = "Edit Permission - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'Edit Permission - ' . APPLICATION_NAME;
 
-include_template("templates/permissionM.tpl");
+include_template('templates/permissionM.tpl');

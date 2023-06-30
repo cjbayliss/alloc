@@ -5,16 +5,16 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("NO_REDIRECT", 1);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_REDIRECT', 1);
+require_once __DIR__ . '/../alloc.php';
 
 usleep(500000);
 
 $task = new Task();
-if ($_GET["taskID"]) {
-    $task->set_id($_GET["taskID"]);
+if ($_GET['taskID']) {
+    $task->set_id($_GET['taskID']);
     $task->select();
-    echo $task->get_task_cc_list_select($_GET["projectID"]);
+    echo $task->get_task_cc_list_select($_GET['projectID']);
 } else {
-    echo $task->get_task_cc_list_select($_GET["projectID"]);
+    echo $task->get_task_cc_list_select($_GET['projectID']);
 }

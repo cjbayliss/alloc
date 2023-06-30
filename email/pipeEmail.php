@@ -23,21 +23,21 @@
  *
 */
 
-define("NO_AUTH", 1);
+define('NO_AUTH', 1);
 // require_once(dirname(__FILE__)."/../alloc.php");
-require_once(dirname($_SERVER["SUDO_COMMAND"]) . "/../alloc.php");
-singleton("errors_fatal", true);
-singleton("errors_format", "text");
-singleton("errors_logged", true);
-singleton("errors_thrown", true);
+require_once dirname($_SERVER['SUDO_COMMAND']) . '/../alloc.php';
+singleton('errors_fatal', true);
+singleton('errors_format', 'text');
+singleton('errors_logged', true);
+singleton('errors_thrown', true);
 unset($current_user);
 
 $db = new AllocDatabase();
 
 $info = inbox::get_mail_info();
 
-if (!$info["host"]) {
-    alloc_error("Email mailbox host not defined, assuming email receive function is inactive.");
+if (!$info['host']) {
+    alloc_error('Email mailbox host not defined, assuming email receive function is inactive.');
 }
 
 // Read an email from stdin
@@ -46,19 +46,19 @@ while (false !== ($line = fgets(STDIN))) {
 }
 
 // Nuke any mbox header that sendmail/postfix may have prepended.
-if ($email[0] == "") {
+if ('' == $email[0]) {
     array_shift($email);
 }
 
-if (preg_match("/^From /i", $email[0])) {
+if (preg_match('/^From /i', $email[0])) {
     array_shift($email);
 }
 
-$email = implode("", (array)$email);
-$email || alloc_error("Empty email message, halting.");
+$email = implode('', (array) $email);
+$email || alloc_error('Empty email message, halting.');
 
 $email_receive = new email_receive($info);
-$email_receive->open_mailbox(config::get_config_item("allocEmailFolder"));
+$email_receive->open_mailbox(config::get_config_item('allocEmailFolder'));
 $email_receive->set_msg_text($email);
 $email_receive->get_msg_header();
 $keys = $email_receive->get_hashes();
@@ -67,7 +67,7 @@ try {
     // If no keys
     if (!$keys) {
         // If email sent from a known staff member
-        $from_staff = inbox::change_current_user($email_receive->mail_headers["from"]);
+        $from_staff = inbox::change_current_user($email_receive->mail_headers['from']);
         if ($from_staff) {
             inbox::convert_email_to_new_task($email_receive, true);
         } else {
@@ -76,7 +76,7 @@ try {
         }
 
         // Else if we have a key, append to comment
-    } elseif (same_email_address($email_receive->mail_headers["from"], ALLOC_DEFAULT_FROM_ADDRESS)) {
+    } elseif (same_email_address($email_receive->mail_headers['from'], ALLOC_DEFAULT_FROM_ADDRESS)) {
         // Skip over emails that are from alloc. These emails are kept only for
         // posterity and should not be parsed and downloaded and re-emailed etc.
         $email_receive->mark_seen();
@@ -91,14 +91,14 @@ try {
     // Try forwarding the errant email
     try {
         $email_receive->forward(
-            config::get_config_item("allocEmailAdmin"),
-            "Email command failed",
+            config::get_config_item('allocEmailAdmin'),
+            'Email command failed',
             "\n" . $exception->getMessage() . "\n\n" . $exception->getTraceAsString()
         );
 
         // If that fails, try last-ditch email send
     } catch (Exception $exception) {
-        mail(config::get_config_item("allocEmailAdmin"), "Email command failed(2)", "\n" . $exception->getMessage() . "\n\n" . $exception->getTraceAsString());
+        mail(config::get_config_item('allocEmailAdmin'), 'Email command failed(2)', "\n" . $exception->getMessage() . "\n\n" . $exception->getTraceAsString());
     }
 }
 

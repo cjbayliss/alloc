@@ -5,15 +5,16 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 global $TPL;
-$current_user = &singleton("current_user");
-$TPL["current_user"] = $current_user;
+$current_user = &singleton('current_user');
+$TPL['current_user'] = $current_user;
 
 function check_optional_client_exists()
 {
     global $clientID;
+
     return $clientID;
 }
 
@@ -27,11 +28,11 @@ function show_client_contacts()
     global $TPL;
     global $clientID;
 
-    $TPL["clientContact_clientID"] = $clientID;
+    $TPL['clientContact_clientID'] = $clientID;
 
-    if (isset($_POST["clientContact_delete"]) && isset($_POST["clientContactID"])) {
+    if (isset($_POST['clientContact_delete'], $_POST['clientContactID'])) {
         $clientContact = new clientContact();
-        $clientContact->set_id($_POST["clientContactID"]);
+        $clientContact->set_id($_POST['clientContactID']);
         $clientContact->delete();
     }
 
@@ -40,10 +41,10 @@ function show_client_contacts()
     $client->select();
 
     $clientContactsQuery = unsafe_prepare(
-        "SELECT *
+        'SELECT *
            FROM clientContact
           WHERE clientID=%d
-       ORDER BY clientContactActive DESC, primaryContact DESC, clientContactName",
+       ORDER BY clientContactActive DESC, primaryContact DESC, clientContactName',
         $clientID
     );
 
@@ -56,15 +57,15 @@ function show_client_contacts()
         $clientContact->read_db_record($database);
 
         if (
-            isset($_POST["clientContact_edit"]) &&
-            $_POST["clientContactID"] == $clientContact->get_id()
+            isset($_POST['clientContact_edit'])
+            && $_POST['clientContactID'] == $clientContact->get_id()
         ) {
             continue;
         }
 
-        $vcardIcon = "icon_vcard.png";
-        if (!$clientContact->get_value("clientContactActive")) {
-            $vcardIcon = "icon_vcard_faded.png";
+        $vcardIcon = 'icon_vcard.png';
+        if (!$clientContact->get_value('clientContactActive')) {
+            $vcardIcon = 'icon_vcard_faded.png';
         }
 
         $vcardHTML = <<<HTML
@@ -84,16 +85,16 @@ function show_client_contacts()
         foreach ($firstColumnContactfields as $firstColumnContactfield) {
             $fieldValue = $clientContact->get_value($firstColumnContactfield, DST_HTML_DISPLAY);
 
-            if (!empty($fieldValue) && $firstColumnContactfield === 'clientContactName') {
+            if (!empty($fieldValue) && 'clientContactName' === $firstColumnContactfield) {
                 $primaryContact = '';
-                if ($clientContact->get_value("primaryContact")) {
-                    $primaryContact = " [Primary]";
+                if ($clientContact->get_value('primaryContact')) {
+                    $primaryContact = ' [Primary]';
                 }
 
                 $generatedFirstColumnHTMLArray[] = <<<HTML
                                     <h2 style='margin:0px; display:inline;'>{$vcardHTML}{$fieldValue}</h2>{$primaryContact}
                     HTML;
-            } elseif ($firstColumnContactfield !== '') {
+            } elseif ('' !== $firstColumnContactfield) {
                 $generatedFirstColumnHTMLArray[] = $fieldValue;
             }
         }
@@ -112,7 +113,7 @@ function show_client_contacts()
             // get first letter of field type, e.g. P for clientContactPhone
             $label = strtoupper(str_replace('clientContact', '', $seconContactColumnField)[0]);
 
-            if (!empty($value) && $seconContactColumnField === 'clientContactEmail') {
+            if (!empty($value) && 'clientContactEmail' === $seconContactColumnField) {
                 $value = str_replace(['<', '>', '&lt;', '&gt;'], '', $value);
                 $contactName = $clientContact->get_value('clientContactName', DST_HTML_DISPLAY);
                 $mailto = rawurlencode($contactName ? sprintf('"%s" <%s>', $contactName, $value) : $value);
@@ -122,13 +123,13 @@ function show_client_contacts()
             }
         }
 
-        $class_extra = $clientContact->get_value("clientContactActive") ? "loud" : "quiet";
+        $class_extra = $clientContact->get_value('clientContactActive') ? 'loud' : 'quiet';
 
         $firstColumnHTML = implode('</span><br><span class="nobr">', $generatedFirstColumnHTMLArray);
         $secondColumnHTML = implode('</span><br><span class="nobr">', $generatedSecondColumnHTMLArray);
         $otherClientContact = nl2br($clientContact->get_value('clientContactOther', DST_HTML_DISPLAY));
-        $starredClientContact = Page::star("clientContact", $clientContact->get_id());
-        $buttons = <<<HTML
+        $starredClientContact = Page::star('clientContact', $clientContact->get_id());
+        $buttons = <<<'HTML'
                     <nobr>
                         <button type="submit" name="clientContact_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
                         <button type="submit" name="clientContact_edit" value="1"">Edit<i class="icon-edit"></i></button>
@@ -156,27 +157,27 @@ function show_client_contacts()
     }
 
     if (is_array($buildHTML)) {
-        $TPL["clientContacts"] = implode("\n", $buildHTML);
+        $TPL['clientContacts'] = implode("\n", $buildHTML);
     }
 
-    if (isset($_POST["clientContact_edit"]) && isset($_POST["clientContactID"])) {
+    if (isset($_POST['clientContact_edit'], $_POST['clientContactID'])) {
         $clientContact = new clientContact();
-        $clientContact->set_id($_POST["clientContactID"]);
+        $clientContact->set_id($_POST['clientContactID']);
         $clientContact->select();
-        $clientContact->set_values("clientContact_");
-        if ($clientContact->get_value("primaryContact")) {
-            $TPL["primaryContact_checked"] = " checked";
+        $clientContact->set_values('clientContact_');
+        if ($clientContact->get_value('primaryContact')) {
+            $TPL['primaryContact_checked'] = ' checked';
         }
 
-        if ($clientContact->get_value("clientContactActive")) {
-            $TPL["clientContactActive_checked"] = " checked";
+        if ($clientContact->get_value('clientContactActive')) {
+            $TPL['clientContactActive_checked'] = ' checked';
         }
-    } elseif ($buildHTML !== []) {
-        $TPL["class_new_client_contact"] = "hidden";
+    } elseif ([] !== $buildHTML) {
+        $TPL['class_new_client_contact'] = 'hidden';
     }
 
-    if (!isset($_POST["clientContactID"]) || isset($_POST["clientContact_save"])) {
-        $TPL["clientContactActive_checked"] = " checked";
+    if (!isset($_POST['clientContactID']) || isset($_POST['clientContact_save'])) {
+        $TPL['clientContactActive_checked'] = ' checked';
     }
 
     if (is_array($TPL)) {
@@ -188,7 +189,7 @@ function show_client_contacts()
     <tr>
         <th class="header">Client Contacts
             <span>
-                <?php echo Page::expand_link("id_new_client_contact", "New Client Contact") ?>
+                <?php echo Page::expand_link('id_new_client_contact', 'New Client Contact'); ?>
             </span>
         </th>
     </tr>
@@ -197,65 +198,65 @@ function show_client_contacts()
             <form action="<?php echo $url_alloc_client; ?>"
                 method="post">
                 <input type="hidden" name="clientContactID"
-                    value="<?php $clientContact_clientContactID ?? "" ?>">
+                    value="<?php $clientContact_clientContactID ?? ''; ?>">
                 <input type="hidden" name="clientID"
                     value="<?php echo $clientContact_clientID; ?>">
 
-                <div class="<?php $class_new_client_contact ?? "" ?>"
+                <div class="<?php $class_new_client_contact ?? ''; ?>"
                     id="id_new_client_contact">
                     <table width="100%">
                         <tr>
                             <td width="1%">Name</td>
                             <td width="1%"><input type="text" name="clientContactName"
-                                    value="<?php $clientContact_clientContactName ?? "" ?>">
+                                    value="<?php $clientContact_clientContactName ?? ''; ?>">
                             </td>
                             <td width="1%">Email</td>
                             <td width="1%"><input type="text" name="clientContactEmail"
-                                    value="<?php $clientContact_clientContactEmail ?? "" ?>">
+                                    value="<?php $clientContact_clientContactEmail ?? ''; ?>">
                             </td>
                             <td>Info</td>
                             <td rowspan="5" class="top right">
-                                <?php echo Page::textarea("clientContactOther", $clientContact_clientContactOther ?? "", ["height" => "medium", "width" => "100%"]) ?>
+                                <?php echo Page::textarea('clientContactOther', $clientContact_clientContactOther ?? '', ['height' => 'medium', 'width' => '100%']); ?>
                             </td>
                         </tr>
                         <tr>
                             <td>Address</td>
                             <td><input type="text" name="clientContactStreetAddress"
-                                    value="<?php $clientContact_clientContactStreetAddress ?? "" ?>">
+                                    value="<?php $clientContact_clientContactStreetAddress ?? ''; ?>">
                             </td>
                             <td>Phone</td>
                             <td><input type="text" name="clientContactPhone"
-                                    value="<?php $clientContact_clientContactPhone ?? "" ?>">
+                                    value="<?php $clientContact_clientContactPhone ?? ''; ?>">
                             </td>
                         </tr>
                         <tr>
                             <td>Suburb</td>
                             <td><input type="text" name="clientContactSuburb"
-                                    value="<?php $clientContact_clientContactSuburb ?? "" ?>">
+                                    value="<?php $clientContact_clientContactSuburb ?? ''; ?>">
                             </td>
                             <td>Mobile</td>
                             <td><input type="text" name="clientContactMobile"
-                                    value="<?php $clientContact_clientContactMobile ?? "" ?>">
+                                    value="<?php $clientContact_clientContactMobile ?? ''; ?>">
                             </td>
                         </tr>
                         <tr>
                             <td>State</td>
                             <td><input type="text" name="clientContactState"
-                                    value="<?php $clientContact_clientContactState ?? "" ?>">
+                                    value="<?php $clientContact_clientContactState ?? ''; ?>">
                             </td>
                             <td>Fax</td>
                             <td><input type="text" name="clientContactFax"
-                                    value="<?php $clientContact_clientContactFax ?? "" ?>">
+                                    value="<?php $clientContact_clientContactFax ?? ''; ?>">
                             </td>
                         </tr>
                         <tr>
                             <td>Postcode</td>
                             <td><input type="text" name="clientContactPostcode"
-                                    value="<?php $clientContact_clientContactPostcode ?? "" ?>">
+                                    value="<?php $clientContact_clientContactPostcode ?? ''; ?>">
                             </td>
                             <td class="nobr">Country</td>
                             <td><input type="text" name="clientContactCountry"
-                                    value="<?php $clientContact_clientContactCountry ?? "" ?>">
+                                    value="<?php $clientContact_clientContactCountry ?? ''; ?>">
                             </td>
                         </tr>
                         <tr>
@@ -265,7 +266,7 @@ function show_client_contacts()
                                     <?php echo $clientContactActive_checked; ?>>&nbsp;&nbsp;
                                 <label for="pcc">Primary Contact</label> <input id="pcc" type="checkbox"
                                     name="primaryContact" value="1"
-                                    <?php $primaryContact_checked ?? "" ?>>
+                                    <?php $primaryContact_checked ?? ''; ?>>
                                 <button type="submit" name="clientContact_save" value="1" class="save_button">Save
                                     Client Contact<i class="icon-ok-sign"></i></button>
 
@@ -292,7 +293,7 @@ function show_client_contacts()
 function show_attachments()
 {
     global $clientID;
-    util_show_attachments("client", $clientID);
+    util_show_attachments('client', $clientID);
 }
 
 function show_comments()
@@ -300,27 +301,27 @@ function show_comments()
     global $clientID;
     global $TPL;
     global $client;
-    $TPL["commentsR"] = comment::util_get_comments("client", $clientID);
-    $TPL["commentsR"] && ($TPL["class_new_comment"] = "hidden");
+    $TPL['commentsR'] = comment::util_get_comments('client', $clientID);
+    $TPL['commentsR'] && ($TPL['class_new_comment'] = 'hidden');
     $interestedPartyOptions = $client->get_all_parties();
     $interestedPartyOptions = InterestedParty::get_interested_parties(
-        "client",
+        'client',
         $client->get_id(),
         $interestedPartyOptions
     );
-    ($TPL["allParties"] = $interestedPartyOptions) || ($TPL["allParties"] = []);
-    $TPL["entity"] = "client";
-    $TPL["entityID"] = $client->get_id();
-    $TPL["clientID"] = $client->get_id();
+    ($TPL['allParties'] = $interestedPartyOptions) || ($TPL['allParties'] = []);
+    $TPL['entity'] = 'client';
+    $TPL['entityID'] = $client->get_id();
+    $TPL['clientID'] = $client->get_id();
 
     $commentTemplate = new commentTemplate();
     $ops = $commentTemplate->get_assoc_array(
-        "commentTemplateID",
-        "commentTemplateName",
-        "",
-        ["commentTemplateType" => "client"]
+        'commentTemplateID',
+        'commentTemplateName',
+        '',
+        ['commentTemplateType' => 'client']
     );
-    $TPL["commentTemplateOptions"] =
+    $TPL['commentTemplateOptions'] =
         sprintf('<option value="">Comment Templates</option>{Page::select_options(%s)}', implode(',', $ops));
 
     // FIXME: 😔
@@ -335,22 +336,22 @@ function show_comments()
 function show_invoices()
 {
     $_FORM = [];
-    $current_user = &singleton("current_user");
+    $current_user = &singleton('current_user');
     global $clientID;
 
-    $_FORM["showHeader"] = true;
-    $_FORM["showInvoiceNumber"] = true;
-    $_FORM["showInvoiceClient"] = true;
-    $_FORM["showInvoiceName"] = true;
-    $_FORM["showInvoiceAmount"] = true;
-    $_FORM["showInvoiceAmountPaid"] = true;
-    $_FORM["showInvoiceDate"] = true;
-    $_FORM["showInvoiceStatus"] = true;
-    $_FORM["clientID"] = $clientID;
+    $_FORM['showHeader'] = true;
+    $_FORM['showInvoiceNumber'] = true;
+    $_FORM['showInvoiceClient'] = true;
+    $_FORM['showInvoiceName'] = true;
+    $_FORM['showInvoiceAmount'] = true;
+    $_FORM['showInvoiceAmountPaid'] = true;
+    $_FORM['showInvoiceDate'] = true;
+    $_FORM['showInvoiceStatus'] = true;
+    $_FORM['clientID'] = $clientID;
 
     // Restrict non-admin users records
-    if (!$current_user->have_role("admin")) {
-        $_FORM["personID"] = $current_user->get_id();
+    if (!$current_user->have_role('admin')) {
+        $_FORM['personID'] = $current_user->get_id();
     }
 
     $rows = invoice::get_list($_FORM);
@@ -358,115 +359,116 @@ function show_invoices()
 }
 
 $client = new client();
-$clientID = $_POST["clientID"] ?? $_GET["clientID"] ?? "";
+$clientID = $_POST['clientID'] ?? $_GET['clientID'] ?? '';
 
-if (isset($_POST["save"])) {
-    if (!isset($_POST["clientName"])) {
-        alloc_error("Please enter a Client Name.");
+if (isset($_POST['save'])) {
+    if (!isset($_POST['clientName'])) {
+        alloc_error('Please enter a Client Name.');
     }
 
     $client->read_globals();
-    $client->set_value("clientModifiedTime", date("Y-m-d"));
+    $client->set_value('clientModifiedTime', date('Y-m-d'));
     $clientID = $client->get_id();
-    $client->set_values("client_");
+    $client->set_values('client_');
     if (!$client->get_id()) {
         // New client.
-        $client->set_value("clientCreatedTime", date("Y-m-d"));
+        $client->set_value('clientCreatedTime', date('Y-m-d'));
         $new_client = true;
     }
 
-    if (!isset($TPL["message"])) {
+    if (!isset($TPL['message'])) {
         $client->save();
         $clientID = $client->get_id();
-        $client->set_values("client_");
+        $client->set_values('client_');
     }
-} elseif (isset($_POST["save_attachment"])) {
-    move_attachment("client", $clientID);
+} elseif (isset($_POST['save_attachment'])) {
+    move_attachment('client', $clientID);
     alloc_redirect(sprintf('%sclientID=%s&sbs_link=attachments', $TPL['url_alloc_client'], $clientID));
 } else {
-    if (isset($_GET["get_vcard"])) {
+    if (isset($_GET['get_vcard'])) {
         $clientContact = new clientContact();
-        $clientContact->set_id($_GET["clientContactID"]);
+        $clientContact->set_id($_GET['clientContactID']);
         $clientContact->select();
         $clientContact->output_vcard();
+
         return;
     }
 
-    if (isset($_POST["delete"])) {
+    if (isset($_POST['delete'])) {
         $client->read_globals();
         $client->delete();
-        alloc_redirect($TPL["url_alloc_clientList"]);
+        alloc_redirect($TPL['url_alloc_clientList']);
     } else {
         $client->set_id($clientID);
         $client->select();
     }
 
-    $client->set_values("client_");
+    $client->set_values('client_');
 }
 
-$m = new Meta("clientStatus");
-$clientStatus_array = $m->get_assoc_array("clientStatusID", "clientStatusID");
-$TPL["clientStatusOptions"] = Page::select_options(
+$m = new Meta('clientStatus');
+$clientStatus_array = $m->get_assoc_array('clientStatusID', 'clientStatusID');
+$TPL['clientStatusOptions'] = Page::select_options(
     $clientStatus_array,
-    $client->get_value("clientStatus")
+    $client->get_value('clientStatus')
 );
 
-$clientCategories = config::get_config_item("clientCategories") ?: [];
+$clientCategories = config::get_config_item('clientCategories') ?: [];
 
 foreach ($clientCategories as $clientCategory) {
-    $categoryOptions[$clientCategory["value"]] = $clientCategory["label"];
+    $categoryOptions[$clientCategory['value']] = $clientCategory['label'];
 }
 
-$selectedCategory = $client->get_value("clientCategory");
-$TPL["clientCategoryOptions"] = Page::select_options($categoryOptions, $selectedCategory);
+$selectedCategory = $client->get_value('clientCategory');
+$TPL['clientCategoryOptions'] = Page::select_options($categoryOptions, $selectedCategory);
 
 if ($selectedCategory) {
-    $TPL["client_clientCategoryLabel"] = $categoryOptions[$selectedCategory];
+    $TPL['client_clientCategoryLabel'] = $categoryOptions[$selectedCategory];
 }
 
 // client contacts
-if (isset($_POST["clientContact_save"]) || isset($_POST["clientContact_delete"])) {
+if (isset($_POST['clientContact_save']) || isset($_POST['clientContact_delete'])) {
     $clientContact = new clientContact();
     $clientContact->read_globals();
 
-    if (isset($_POST["clientContact_save"])) {
+    if (isset($_POST['clientContact_save'])) {
         $clientContact->save();
     }
 
-    if (isset($_POST["clientContact_delete"])) {
+    if (isset($_POST['clientContact_delete'])) {
         $clientContact->delete();
     }
 }
 
 if (!isset($clientID)) {
-    $TPL["message_help"][] =
-        "Create a new Client by inputting the Client Name and other details and clicking the Create New Client button.";
-    $TPL["main_alloc_title"] = "New Client - " . APPLICATION_NAME;
-    $TPL["clientSelfLink"] = "New Client";
+    $TPL['message_help'][] =
+        'Create a new Client by inputting the Client Name and other details and clicking the Create New Client button.';
+    $TPL['main_alloc_title'] = 'New Client - ' . APPLICATION_NAME;
+    $TPL['clientSelfLink'] = 'New Client';
 } else {
-    $TPL["main_alloc_title"] = sprintf('Client %s: %s - ', $client->get_id(), $client->get_name()) . APPLICATION_NAME;
-    $TPL["clientSelfLink"] =
-        sprintf('<a href="%s">%s %s</a>', $client->get_url(), $client->get_id(), $client->get_name(["return" => "html"]));
+    $TPL['main_alloc_title'] = sprintf('Client %s: %s - ', $client->get_id(), $client->get_name()) . APPLICATION_NAME;
+    $TPL['clientSelfLink'] =
+        sprintf('<a href="%s">%s %s</a>', $client->get_url(), $client->get_id(), $client->get_name(['return' => 'html']));
 }
 
-$TPL["invoice_links"] ??= "";
-if ($current_user->have_role("admin")) {
-    $TPL["invoice_links"] .= sprintf('<a href="%sclientID=%s">New Invoice</a>', $TPL['url_alloc_invoice'], $clientID);
+$TPL['invoice_links'] ??= '';
+if ($current_user->have_role('admin')) {
+    $TPL['invoice_links'] .= sprintf('<a href="%sclientID=%s">New Invoice</a>', $TPL['url_alloc_invoice'], $clientID);
 }
 
-$projectListOps = ["showProjectType" => true, "clientID" => $client->get_id()];
+$projectListOps = ['showProjectType' => true, 'clientID' => $client->get_id()];
 
-$TPL["projectListRows"] = project::getFilteredProjectList($projectListOps);
+$TPL['projectListRows'] = project::getFilteredProjectList($projectListOps);
 
-$TPL["client_clientPostalAddress"] = $client->format_address("postal");
-$TPL["client_clientStreetAddress"] = $client->format_address("street");
+$TPL['client_clientPostalAddress'] = $client->format_address('postal');
+$TPL['client_clientStreetAddress'] = $client->format_address('street');
 
 if (is_array($TPL)) {
     extract($TPL, EXTR_OVERWRITE);
 }
 
 echo Page::header();
-echo Page::toolbar() ?>
+echo Page::toolbar(); ?>
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
         <?php if (!$client_clientID) { ?>
@@ -487,27 +489,27 @@ echo Page::toolbar() ?>
 </script>
 
 <?php if (check_optional_client_exists()) { ?>
-<?php $first_div = "hidden" ?>
+<?php $first_div = 'hidden'; ?>
 <?php echo Page::side_by_side_links(
-    $url_alloc_client . "clientID=" . $client_clientID,
+    $url_alloc_client . 'clientID=' . $client_clientID,
     [
-        "client"      => "Main",
-        "reminders"   => "Reminders",
-        "comments"    => "Comments",
-        "attachments" => "Attachments",
-        "projects"    => "Projects",
-        "invoices"    => "Invoices",
-        "sales"       => "Sales",
-        "sbsAll"      => "All",
+        'client'      => 'Main',
+        'reminders'   => 'Reminders',
+        'comments'    => 'Comments',
+        'attachments' => 'Attachments',
+        'projects'    => 'Projects',
+        'invoices'    => 'Invoices',
+        'sales'       => 'Sales',
+        'sbsAll'      => 'All',
     ],
     null,
     $clientSelfLink
-) ?>
+); ?>
 <?php }
 ?>
 
-<?php if (parse_url($client_clientURL, PHP_URL_SCHEME) === null) { ?>
-<?php $client_clientURL = "http://" . $client_clientURL ?>
+<?php if (null === parse_url($client_clientURL, PHP_URL_SCHEME)) { ?>
+<?php $client_clientURL = 'http://' . $client_clientURL; ?>
 <?php }
 ?>
 <!-- need to merge this style back into the stylesheets -->
@@ -523,22 +525,22 @@ echo Page::toolbar() ?>
 
 
 <div id="client"
-    class="<?php $first_div ?? "" ?>">
+    class="<?php $first_div ?? ''; ?>">
     <form action="<?php echo $url_alloc_client; ?>" method=post>
         <input type="hidden" name="clientID"
-            value="<?php echo $client_clientID ?>">
+            value="<?php echo $client_clientID; ?>">
 
         <table class="box view">
             <tr>
                 <th class="header">View Details
-                    <span><?php echo Page::star("client", $client_clientID) ?></span>
+                    <span><?php echo Page::star('client', $client_clientID); ?></span>
                 </th>
             </tr>
             <tr>
                 <td valign="top">
                     <div class="task_pane">
                         <h6>Client
-                            Name<?php echo Page::mandatory($client_clientName) ?>
+                            Name<?php echo Page::mandatory($client_clientName); ?>
                         </h6>
                         <h2 style="margin-bottom:0px; display:inline;">
                             <?php echo $client_clientID; ?>
@@ -597,7 +599,7 @@ echo Page::toolbar() ?>
                 <td>
                     <div class="task_pane">
                         <h6>Client
-                            Name<?php echo Page::mandatory($client_clientName) ?>
+                            Name<?php echo Page::mandatory($client_clientName); ?>
                         </h6>
                         <div style="width:100%" class="">
                             <input type="text" size="43" id="clientName" name="clientName"
@@ -733,7 +735,7 @@ echo Page::toolbar() ?>
     </form>
 
     <?php if (check_optional_client_exists()) { ?>
-    <?php show_client_contacts() ?>
+    <?php show_client_contacts(); ?>
     <?php }
     ?>
 
@@ -753,18 +755,18 @@ echo Page::toolbar() ?>
         </tr>
         <tr>
             <td>
-                <?php reminder::get_list_html("client", $client_clientID) ?>
+                <?php reminder::get_list_html('client', $client_clientID); ?>
             </td>
         </tr>
     </table>
 </div>
 
 <div id="comments">
-    <?php show_comments() ?>
+    <?php show_comments(); ?>
 </div>
 
 <div id="attachments">
-    <?php show_attachments() ?>
+    <?php show_attachments(); ?>
 </div>
 
 <div id="projects">
@@ -792,18 +794,18 @@ echo Page::toolbar() ?>
                     </tr>
                     <?php foreach ($projectListRows as $projectListRow) { ?>
                     <tr>
-                        <td><?php echo $projectListRow["projectLink"]; ?>
+                        <td><?php echo $projectListRow['projectLink']; ?>
                         </td>
-                        <td><?php echo Page::htmlentities($projectListRow["projectShortName"]); ?>
+                        <td><?php echo Page::htmlentities($projectListRow['projectShortName']); ?>
                         </td>
-                        <td><?php echo Page::htmlentities($projectListRow["clientName"]); ?>
+                        <td><?php echo Page::htmlentities($projectListRow['clientName']); ?>
                         </td>
-                        <td><?php echo Page::htmlentities($projectListRow["projectType"]); ?>
+                        <td><?php echo Page::htmlentities($projectListRow['projectType']); ?>
                         </td>
-                        <td><?php echo Page::htmlentities($projectListRow["projectStatus"]); ?>
+                        <td><?php echo Page::htmlentities($projectListRow['projectStatus']); ?>
                         </td>
                         <td class="noprint" align="right">
-                            <?php echo $projectListRow["navLinks"]; ?>
+                            <?php echo $projectListRow['navLinks']; ?>
                         </td>
                     </tr>
                     <?php }
@@ -829,7 +831,7 @@ echo Page::toolbar() ?>
         </tr>
         <tr>
             <td>
-                <?php show_invoices() ?>
+                <?php show_invoices(); ?>
             </td>
         </tr>
     </table>
@@ -848,8 +850,8 @@ echo Page::toolbar() ?>
         </tr>
         <tr>
             <td>
-                <?php $productSaleRows = productSale::get_list(["clientID" => $client_clientID]) ?>
-                <?php echo productSale::get_list_html($productSaleRows) ?>
+                <?php $productSaleRows = productSale::get_list(['clientID' => $client_clientID]); ?>
+                <?php echo productSale::get_list_html($productSaleRows); ?>
             </td>
         </tr>
     </table>
@@ -858,4 +860,4 @@ echo Page::toolbar() ?>
 <?php }
 ?>
 
-<?php echo Page::footer() ?>
+<?php echo Page::footer(); ?>

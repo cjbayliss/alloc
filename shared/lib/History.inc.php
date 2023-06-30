@@ -7,35 +7,35 @@
 
 class History extends DatabaseEntity
 {
-    public $data_table = "history";
+    public $data_table = 'history';
 
     // Display the x most recent, but keep the 2x most recent
     // once we hit 3x, delete back down to 2x
     public $max_to_display = 40;
 
-    public $key_field = "historyID";
+    public $key_field = 'historyID';
 
     public $data_fields = [
-        "the_time",
-        "the_place",
-        "the_args",
-        "the_label",
-        "personID",
+        'the_time',
+        'the_place',
+        'the_args',
+        'the_label',
+        'personID',
     ];
 
-    public function get_history_query($order = "")
+    public function get_history_query($order = '')
     {
         $query = null;
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         if (is_object($current_user)) {
             $allocDatabase = new AllocDatabase();
             $query = unsafe_prepare(
-                "SELECT *, historyID AS value, the_label AS label
+                'SELECT *, historyID AS value, the_label AS label
                    FROM history
                   WHERE personID = %d
                GROUP BY the_label
                ORDER BY the_time %s
-                  LIMIT %d",
+                  LIMIT %d',
                 $current_user->get_id(),
                 $order,
                 $this->max_to_display
@@ -52,50 +52,49 @@ class History extends DatabaseEntity
     public function get_ignored_files()
     {
         $ignored_files = [];
-        $query = $this->get_history_query("ASC");
+        $query = $this->get_history_query('ASC');
         if ($query) {
             $allocDatabase = new AllocDatabase();
             $allocDatabase->query($query);
             while ($allocDatabase->next_record()) {
-                $files = explode("/", $allocDatabase->f("the_place") . $allocDatabase->f("the_args"));
+                $files = explode('/', $allocDatabase->f('the_place') . $allocDatabase->f('the_args'));
                 $ignored_files[] = end($files);
             }
         }
 
-        $ignored_files[] = "index.php";
-        $ignored_files[] = "home.php";
-        $ignored_files[] = "taskList.php";
-        $ignored_files[] = "projectList.php";
-        $ignored_files[] = "timeSheetList.php";
-        $ignored_files[] = "menu.php";
-        $ignored_files[] = "clientList.php";
-        $ignored_files[] = "itemLoan.php";
-        $ignored_files[] = "personList.php";
-        $ignored_files[] = "reminderList.php";
-        $ignored_files[] = "search.php";
-        $ignored_files[] = "person.php";
+        $ignored_files[] = 'index.php';
+        $ignored_files[] = 'home.php';
+        $ignored_files[] = 'taskList.php';
+        $ignored_files[] = 'projectList.php';
+        $ignored_files[] = 'timeSheetList.php';
+        $ignored_files[] = 'menu.php';
+        $ignored_files[] = 'clientList.php';
+        $ignored_files[] = 'itemLoan.php';
+        $ignored_files[] = 'personList.php';
+        $ignored_files[] = 'reminderList.php';
+        $ignored_files[] = 'search.php';
+        $ignored_files[] = 'person.php';
 
         return $ignored_files;
     }
 
     public function get_history_label($SCRIPT_NAME, $qs)
     {
-
         // Save the history record LABEL with the most descriptive label
         // possible, using the class variable->display_field_name
 
         $allocDatabase = new AllocDatabase();
-        $script_name_array = explode("/", $SCRIPT_NAME);
+        $script_name_array = explode('/', $SCRIPT_NAME);
 
         $file = end($script_name_array);
-        $CLASS_NAME = str_replace(".php", "", $file);                         // File name without .php extension
+        $CLASS_NAME = str_replace('.php', '', $file);                         // File name without .php extension
         $dir = $script_name_array[count($script_name_array) - 2];            // Directory that file is in
-        $qs = preg_replace("[^\?]", "", $qs);                                 // Nuke the leading question mark of the query string attached to end of url eg: ?tfID=23&anal=true
+        $qs = preg_replace('[^\\?]', '', $qs);                                 // Nuke the leading question mark of the query string attached to end of url eg: ?tfID=23&anal=true
 
         // We can only get a descriptive history entry if there is a xxxID
         // on the url, that way we can get the specific records label.
         if ($qs) {
-            $qs_array = explode("&", $qs);
+            $qs_array = explode('&', $qs);
 
             foreach ($qs_array as $q_array) {
                 // Break up url query string into key/value pairs.
@@ -104,7 +103,7 @@ class History extends DatabaseEntity
                     // Look for a key like eg: transactionID so in that case it'd
                     // use the class transaction.
 
-                    $key_and_value = explode("=", $q_array);
+                    $key_and_value = explode('=', $q_array);
                     // Break key/value up into $KEY_FIELD and $ID
                     if (isset($key_and_value[1])) {
                         $ID = $key_and_value[1];
@@ -115,13 +114,13 @@ class History extends DatabaseEntity
                     }
 
                     if (class_exists($CLASS_NAME) && isset($ID)) {
-                        $newClass = new $CLASS_NAME;
+                        $newClass = new $CLASS_NAME();
                         $display_field = $newClass->display_field_name;
 
                         if (is_object($newClass->key_field) && $newClass->key_field->get_name() == $KEY_FIELD) {
                             // The primary key for this db table is the same as
                             // our KEY_FIELD var which was extracted from url.
-                            $query = unsafe_prepare("SELECT * FROM %s WHERE %s = %d", $CLASS_NAME, $KEY_FIELD, $ID);
+                            $query = unsafe_prepare('SELECT * FROM %s WHERE %s = %d', $CLASS_NAME, $KEY_FIELD, $ID);
                             $allocDatabase->query($query);
                             $allocDatabase->next_record();
                             // return that particular classes _default_ display field
@@ -134,10 +133,10 @@ class History extends DatabaseEntity
 
                             // Get a new id and key field name and table name
                             // Strip the trailing 'ID' from the , to get new class name
-                            $next_class_name = preg_replace("/ID$/", "", $display_field);
+                            $next_class_name = preg_replace('/ID$/', '', $display_field);
 
                             if (is_numeric($rtn) && class_exists($next_class_name)) {
-                                $next_class = new $next_class_name;
+                                $next_class = new $next_class_name();
                                 if ($display_field == $next_class->key_field->get_name()) {
                                     // If the display field was eg: tfID and that equals the key field of this table
                                     $next_class->set_id($rtn);
@@ -148,7 +147,8 @@ class History extends DatabaseEntity
                                 }
                             }
 
-                            $rtn = ": " . $rtn;
+                            $rtn = ': ' . $rtn;
+
                             return ucwords($CLASS_NAME) . $rtn;
                         }
                     }
@@ -163,7 +163,7 @@ class History extends DatabaseEntity
     {
         $qs = null;
         $arr = [];
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         global $TPL;
 
         // Delete old items if they have too many.
@@ -172,54 +172,54 @@ class History extends DatabaseEntity
         }
 
         $allocDatabase = new AllocDatabase();
-        $query = unsafe_prepare("SELECT count(*) AS total FROM history WHERE personID = %d", $current_user->get_id());
+        $query = unsafe_prepare('SELECT count(*) AS total FROM history WHERE personID = %d', $current_user->get_id());
         $allocDatabase->query($query);
         $row = $allocDatabase->row();
-        if ($row["total"] >= (3 * $this->max_to_display)) {
-            $query = unsafe_prepare("DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d", $current_user->get_id(), $this->max_to_display, (2 * $this->max_to_display));
+        if ($row['total'] >= (3 * $this->max_to_display)) {
+            $query = unsafe_prepare('DELETE FROM history WHERE personID = %d ORDER BY the_time LIMIT %d', $current_user->get_id(), $this->max_to_display, 2 * $this->max_to_display);
             $allocDatabase->query($query);
         }
 
         $ignored_files = $this->get_ignored_files();
-        if ($_SERVER["QUERY_STRING"]) {
-            $qs = $this->strip_get_session($_SERVER["QUERY_STRING"]);
-            $qs = preg_replace("[&$]", "", $qs);
-            $qs = preg_replace("[^&]", "", $qs);
-            $qs = preg_replace("[^\?]", "", $qs);
+        if ($_SERVER['QUERY_STRING']) {
+            $qs = $this->strip_get_session($_SERVER['QUERY_STRING']);
+            $qs = preg_replace('[&$]', '', $qs);
+            $qs = preg_replace('[^&]', '', $qs);
+            $qs = preg_replace('[^\\?]', '', $qs);
         }
 
-        $base_url = explode("/", $_SERVER["SCRIPT_NAME"]);
-        $file = end($base_url) . "?" . $qs;
+        $base_url = explode('/', $_SERVER['SCRIPT_NAME']);
+        $file = end($base_url) . '?' . $qs;
 
         if (
             is_object($current_user)
             && !in_array($file, $ignored_files)
-            && !isset($_GET["historyID"])
-            && !isset($_POST["historyID"])
-            && $the_label = $this->get_history_label($_SERVER["SCRIPT_NAME"], $qs)
+            && !isset($_GET['historyID'])
+            && !isset($_POST['historyID'])
+            && $the_label = $this->get_history_label($_SERVER['SCRIPT_NAME'], $qs)
         ) {
-            $the_place = basename($_SERVER["SCRIPT_NAME"]);
+            $the_place = basename($_SERVER['SCRIPT_NAME']);
 
             foreach ($TPL as $k => $v) {
                 $key = basename($this->strip_get_session($v));
-                $key = preg_replace("[&$]", "", $key);
-                $key = preg_replace("[\?$]", "", $key);
+                $key = preg_replace('[&$]', '', $key);
+                $key = preg_replace('[\\?$]', '', $key);
                 $arr[$key] = $k;
             }
 
             if ($arr[$the_place]) {
-                $this->set_value("personID", $current_user->get_id());
-                $this->set_value("the_place", $arr[$the_place]);
-                $this->set_value("the_args", $qs);
-                $this->set_value("the_label", $the_label);
-                $this->set_value("the_time", date("Y-m-d H:i:s"));
+                $this->set_value('personID', $current_user->get_id());
+                $this->set_value('the_place', $arr[$the_place]);
+                $this->set_value('the_args', $qs);
+                $this->set_value('the_label', $the_label);
+                $this->set_value('the_time', date('Y-m-d H:i:s'));
                 $this->save();
             }
         }
     }
 
-    public function strip_get_session($str = ""): string
+    public function strip_get_session($str = ''): string
     {
-        return (string)preg_replace("/sess=[A-Za-z0-9]{32}/", "", $str);
+        return (string) preg_replace('/sess=[A-Za-z0-9]{32}/', '', $str);
     }
 }

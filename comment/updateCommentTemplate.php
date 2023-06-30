@@ -5,17 +5,17 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("NO_REDIRECT", 1);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_REDIRECT', 1);
+require_once __DIR__ . '/../alloc.php';
 
-if ($_GET["commentTemplateID"] && $_GET["commentTemplateID"] != "undefined" && $_GET["entity"] && $_GET["entityID"]) {
+if ($_GET['commentTemplateID'] && 'undefined' != $_GET['commentTemplateID'] && $_GET['entity'] && $_GET['entityID']) {
     $commentTemplate = new commentTemplate();
-    $commentTemplate->set_id($_GET["commentTemplateID"]);
+    $commentTemplate->set_id($_GET['commentTemplateID']);
     $commentTemplate->select();
-    $val = $commentTemplate->get_populated_template($_GET["entity"], $_GET["entityID"]);
-    echo Page::textarea("comment", $val, ["height" => "medium", "width" => "100%"]);
+    $val = $commentTemplate->get_populated_template($_GET['entity'], $_GET['entityID']);
+    echo Page::textarea('comment', $val, ['height' => 'medium', 'width' => '100%']);
 } else {
-    echo Page::textarea("comment", $val, ["height" => "medium", "width" => "100%"]);
+    echo Page::textarea('comment', $val, ['height' => 'medium', 'width' => '100%']);
 }
 
 echo "<script>$('textarea:not(.processed)').TextAreaResizer();</script>";

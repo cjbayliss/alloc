@@ -5,58 +5,58 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("PERM_PERSON_READ_DETAILS", 256);
-define("PERM_PERSON_READ_MANAGEMENT", 512);
-define("PERM_PERSON_WRITE_MANAGEMENT", 1024);
-define("PERM_PERSON_WRITE_ROLES", 2048);
+define('PERM_PERSON_READ_DETAILS', 256);
+define('PERM_PERSON_READ_MANAGEMENT', 512);
+define('PERM_PERSON_WRITE_MANAGEMENT', 1024);
+define('PERM_PERSON_WRITE_ROLES', 2048);
 
 class person extends DatabaseEntity
 {
     public $currency;
 
-    public $classname = "person";
+    public $classname = 'person';
 
-    public $data_table = "person";
+    public $data_table = 'person';
 
-    public $display_field_name = "username";
+    public $display_field_name = 'username';
 
-    public $key_field = "personID";
+    public $key_field = 'personID';
 
     public $data_fields = [
-        "username",
-        "lastLoginDate",
-        "password" => ["read_perm_name" => PERM_PERSON_READ_DETAILS],
-        "perms"    => ["write_perm_name" => PERM_PERSON_WRITE_ROLES],
-        "emailAddress",
-        "availability",
-        "areasOfInterest",
-        "comments",
-        "managementComments" => [
-            "read_perm_name"  => PERM_PERSON_READ_MANAGEMENT,
-            "write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT,
+        'username',
+        'lastLoginDate',
+        'password' => ['read_perm_name' => PERM_PERSON_READ_DETAILS],
+        'perms'    => ['write_perm_name' => PERM_PERSON_WRITE_ROLES],
+        'emailAddress',
+        'availability',
+        'areasOfInterest',
+        'comments',
+        'managementComments' => [
+            'read_perm_name'  => PERM_PERSON_READ_MANAGEMENT,
+            'write_perm_name' => PERM_PERSON_WRITE_MANAGEMENT,
         ],
-        "firstName",
-        "surname",
-        "preferred_tfID",
-        "personActive",
-        "sessData" => ["read_perm_name" => PERM_PERSON_READ_DETAILS],
-        "phoneNo1",
-        "phoneNo2",
-        "emergencyContact",
-        "defaultTimeSheetRate" => [
-            "type"            => "money",
-            "write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT,
+        'firstName',
+        'surname',
+        'preferred_tfID',
+        'personActive',
+        'sessData' => ['read_perm_name' => PERM_PERSON_READ_DETAILS],
+        'phoneNo1',
+        'phoneNo2',
+        'emergencyContact',
+        'defaultTimeSheetRate' => [
+            'type'            => 'money',
+            'write_perm_name' => PERM_PERSON_WRITE_MANAGEMENT,
         ],
-        "defaultTimeSheetRateUnitID" => ["write_perm_name" => PERM_PERSON_WRITE_MANAGEMENT],
+        'defaultTimeSheetRateUnitID' => ['write_perm_name' => PERM_PERSON_WRITE_MANAGEMENT],
     ];
 
     public $prefs = [];
 
     public $permissions = [
-        PERM_PERSON_READ_DETAILS     => "read details",
-        PERM_PERSON_READ_MANAGEMENT  => "read management fields",
-        PERM_PERSON_WRITE_MANAGEMENT => "write management fields",
-        PERM_PERSON_WRITE_ROLES      => "set roles",
+        PERM_PERSON_READ_DETAILS     => 'read details',
+        PERM_PERSON_READ_MANAGEMENT  => 'read management fields',
+        PERM_PERSON_WRITE_MANAGEMENT => 'write management fields',
+        PERM_PERSON_WRITE_ROLES      => 'set roles',
     ];
 
     public function get_tasks_for_email(): string
@@ -65,68 +65,68 @@ class person extends DatabaseEntity
         $s = [];
         $options = [];
         // $options["projectType"] = "mine";
-        $options["limit"] = 3;
-        $options["current_user"] = $this->get_id();
-        $options["personID"] = $this->get_id();
-        $options["taskView"] = "prioritised";
-        $options["taskStatus"] = "open";
+        $options['limit'] = 3;
+        $options['current_user'] = $this->get_id();
+        $options['personID'] = $this->get_id();
+        $options['taskView'] = 'prioritised';
+        $options['taskStatus'] = 'open';
 
         $tasks = Task::get_list($options);
 
         foreach ($tasks as $task) {
-            $s[] = "";
-            $s[] = "";
-            $s[] = "Project: " . $task["project_name"];
-            $s[] = "Task: " . $task["taskName"];
-            $s[] = $task["taskStatusLabel"];
-            $s[] = $task["taskURL"];
+            $s[] = '';
+            $s[] = '';
+            $s[] = 'Project: ' . $task['project_name'];
+            $s[] = 'Task: ' . $task['taskName'];
+            $s[] = $task['taskStatusLabel'];
+            $s[] = $task['taskURL'];
         }
 
         $summary = implode("\n", $s);
 
-        if ($summary !== '' && $summary !== '0') {
+        if ('' !== $summary && '0' !== $summary) {
             $topThree = "\n\nTop Three Tasks";
             $topThree .= $summary;
         }
 
-        unset($summary, $s);
-        unset($options["limit"]);
-        $options["taskDate"] = "due_today";
+        unset($summary, $s, $options['limit']);
+
+        $options['taskDate'] = 'due_today';
         $tasks = Task::get_list($options);
 
         foreach ($tasks as $task) {
-            $s[] = "";
-            $s[] = "";
-            $s[] = "Project: " . $task["project_name"];
-            $s[] = "Task: " . $task["taskName"];
-            $s[] = $task["taskStatusLabel"];
-            $s[] = $task["taskURL"];
+            $s[] = '';
+            $s[] = '';
+            $s[] = 'Project: ' . $task['project_name'];
+            $s[] = 'Task: ' . $task['taskName'];
+            $s[] = $task['taskStatusLabel'];
+            $s[] = $task['taskURL'];
         }
 
         $summary = implode("\n", $s);
 
-        if ($summary !== '' && $summary !== '0') {
+        if ('' !== $summary && '0' !== $summary) {
             $dueToday = "\n\nTasks Due Today";
             $dueToday .= $summary;
         }
 
-        unset($summary, $s);
-        unset($options["limit"]);
-        $options["taskDate"] = "new";
+        unset($summary, $s, $options['limit']);
+
+        $options['taskDate'] = 'new';
         $tasks = Task::get_list($options);
 
         foreach ($tasks as $task) {
-            $s[] = "";
-            $s[] = "";
-            $s[] = "Project: " . $task["project_name"];
-            $s[] = "Task: " . $task["taskName"];
-            $s[] = $task["taskStatusLabel"];
-            $s[] = $task["taskURL"];
+            $s[] = '';
+            $s[] = '';
+            $s[] = 'Project: ' . $task['project_name'];
+            $s[] = 'Task: ' . $task['taskName'];
+            $s[] = $task['taskStatusLabel'];
+            $s[] = $task['taskURL'];
         }
 
         $summary = implode("\n", $s);
 
-        if ($summary !== '' && $summary !== '0') {
+        if ('' !== $summary && '0' !== $summary) {
             $newTasks = "\n\nNew Tasks";
             $newTasks .= $summary;
         }
@@ -138,11 +138,11 @@ class person extends DatabaseEntity
     {
         $announcement = [];
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query("SELECT * FROM announcement WHERE CURDATE() <= displayToDate AND CURDATE() >= displayFromDate");
+        $allocDatabase->query('SELECT * FROM announcement WHERE CURDATE() <= displayToDate AND CURDATE() >= displayFromDate');
 
         while ($allocDatabase->next_record()) {
-            $announcement["heading"] = "Announcement\n" . $allocDatabase->f("heading");
-            $announcement["body"] = $allocDatabase->f("body");
+            $announcement['heading'] = "Announcement\n" . $allocDatabase->f('heading');
+            $announcement['body'] = $allocDatabase->f('body');
         }
 
         return $announcement;
@@ -150,24 +150,27 @@ class person extends DatabaseEntity
 
     public function have_role($perm_name): bool
     {
-        $perms = explode(",", $this->get_value("perms"));
+        $perms = explode(',', $this->get_value('perms'));
+
         return in_array($perm_name, $perms);
     }
 
     public function is_employee(): bool
     {
         // Function to check if the person is an employee
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
+
         return true;
-        $permissions = explode(",", $current_user->get_value("perms"));
-        return in_array("employee", $permissions);
+        $permissions = explode(',', $current_user->get_value('perms'));
+
+        return in_array('employee', $permissions);
     }
 
     public function check_employee()
     {
         // Ensure the current user is an employee
         if (!$this->is_employee()) {
-            alloc_error("You must be an employee to access this function", true);
+            alloc_error('You must be an employee to access this function', true);
         }
     }
 
@@ -175,7 +178,7 @@ class person extends DatabaseEntity
     {
         $rtn = null;
         // Return a string of skills with a given proficiency
-        $query = "SELECT * FROM proficiency LEFT JOIN skill on proficiency.skillID=skill.skillID";
+        $query = 'SELECT * FROM proficiency LEFT JOIN skill on proficiency.skillID=skill.skillID';
         $query .= unsafe_prepare(" WHERE personID=%d AND skillProficiency='%s' ORDER BY skillName", $this->get_id(), $proficiency);
 
         $allocDatabase = new AllocDatabase();
@@ -184,7 +187,7 @@ class person extends DatabaseEntity
             $skill = new skill();
             $skill->read_db_record($allocDatabase);
             if ($rtn) {
-                $rtn .= ", ";
+                $rtn .= ', ';
             }
 
             $rtn .= $skill->get_value('skillName');
@@ -193,34 +196,34 @@ class person extends DatabaseEntity
         return $rtn;
     }
 
-    public static function get_username_list($push_personID = ""): array
+    public static function get_username_list($push_personID = ''): array
     {
         $rtn = [];
         static $rows;
 
         // Cache rows
         if (!$rows) {
-            $q = unsafe_prepare("SELECT personID, username, firstName, surname, personActive FROM person ORDER BY firstname,surname,username");
+            $q = unsafe_prepare('SELECT personID, username, firstName, surname, personActive FROM person ORDER BY firstname,surname,username');
             $allocDatabase = new AllocDatabase();
             $allocDatabase->query($q);
             while ($allocDatabase->next_record()) {
-                if ($allocDatabase->f("firstName") && $allocDatabase->f("surname")) {
-                    $name = $allocDatabase->f("firstName") . " " . $allocDatabase->f("surname");
+                if ($allocDatabase->f('firstName') && $allocDatabase->f('surname')) {
+                    $name = $allocDatabase->f('firstName') . ' ' . $allocDatabase->f('surname');
                 } else {
-                    $name = $allocDatabase->f("username");
+                    $name = $allocDatabase->f('username');
                 }
 
-                $rows[$allocDatabase->f("personID")] = [
-                    "active" => $allocDatabase->f("personActive"),
-                    "name"   => $name,
+                $rows[$allocDatabase->f('personID')] = [
+                    'active' => $allocDatabase->f('personActive'),
+                    'name'   => $name,
                 ];
             }
         }
 
         // If person is active or the person is the selected person (to enable drpodown list to have people who have since been made inactive)
-        foreach ((array)$rows as $personID => $info) {
-            if ($info["active"] || $personID == $push_personID) {
-                $rtn[$personID] = $info["name"];
+        foreach ((array) $rows as $personID => $info) {
+            if ($info['active'] || $personID == $push_personID) {
+                $rtn[$personID] = $info['name'];
             }
         }
 
@@ -230,27 +233,28 @@ class person extends DatabaseEntity
     public static function get_fullname($personID)
     {
         // Get vars for the emails below
-        $people_cache = &get_cached_table("person");
-        return $people_cache[$personID]["name"];
+        $people_cache = &get_cached_table('person');
+
+        return $people_cache[$personID]['name'];
     }
 
     public function get_name($_FORM = [])
     {
-        $firstName = $this->get_value("firstName");
-        $surname = $this->get_value("surname");
-        $username = $this->get_value("username");
-        $_FORM["format"] ??= "";
-        $_FORM["return"] ??= "";
+        $firstName = $this->get_value('firstName');
+        $surname = $this->get_value('surname');
+        $username = $this->get_value('username');
+        $_FORM['format'] ??= '';
+        $_FORM['return'] ??= '';
 
-        if ($_FORM["format"] == "nick") {
+        if ('nick' == $_FORM['format']) {
             $rtn = $username;
         } elseif ($firstName && $surname) {
-            $rtn = $firstName . " " . $surname;
+            $rtn = $firstName . ' ' . $surname;
         } else {
             $rtn = $username;
         }
 
-        if ($_FORM["return"] == "html") {
+        if ('html' == $_FORM['return']) {
             return Page::htmlentities($rtn);
         }
 
@@ -261,15 +265,15 @@ class person extends DatabaseEntity
     {
         $tfIDs = [];
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query("SELECT tfID FROM tfPerson WHERE personID = %d", $this->get_id());
+        $allocDatabase->query('SELECT tfID FROM tfPerson WHERE personID = %d', $this->get_id());
         while ($row = $allocDatabase->row()) {
-            $tfIDs[] = $row["tfID"];
+            $tfIDs[] = $row['tfID'];
         }
 
         return $tfIDs;
     }
 
-    public function get_valid_login_row($username, $password = "")
+    public function get_valid_login_row($username, $password = '')
     {
         $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare(
@@ -280,7 +284,7 @@ class person extends DatabaseEntity
         $allocDatabase->query($q);
         $row = $allocDatabase->row();
 
-        if (password_verify($password, $row["password"])) {
+        if (password_verify($password, $row['password'])) {
             return $row;
         }
     }
@@ -295,80 +299,80 @@ class person extends DatabaseEntity
 
     public function load_prefs()
     {
-        $this->prefs = unserialize($this->get_value("sessData"));
-        if (!isset($this->prefs["customizedFont"])) {
-            $this->prefs["customizedFont"] = 0;
+        $this->prefs = unserialize($this->get_value('sessData'));
+        if (!isset($this->prefs['customizedFont'])) {
+            $this->prefs['customizedFont'] = 0;
         }
     }
 
     public function update_prefs($p = [])
     {
-        if (isset($p["font"])) {
-            $this->prefs["customizedFont"] = sprintf("%d", $p["font"]);
+        if (isset($p['font'])) {
+            $this->prefs['customizedFont'] = sprintf('%d', $p['font']);
         }
 
-        if (isset($p["theme"])) {
-            $this->prefs["customizedTheme2"] = $p["theme"];
+        if (isset($p['theme'])) {
+            $this->prefs['customizedTheme2'] = $p['theme'];
         }
 
-        if (isset($p["weeks"])) {
-            $this->prefs["tasksGraphPlotHome"] = $p["weeks"];
+        if (isset($p['weeks'])) {
+            $this->prefs['tasksGraphPlotHome'] = $p['weeks'];
         }
 
-        if (isset($p["weeksBack"])) {
-            $this->prefs["tasksGraphPlotHomeStart"] = $p["weeksBack"];
+        if (isset($p['weeksBack'])) {
+            $this->prefs['tasksGraphPlotHomeStart'] = $p['weeksBack'];
         }
 
-        if (isset($p["projectListNum"])) {
-            $this->prefs["projectListNum"] = $p["projectListNum"];
+        if (isset($p['projectListNum'])) {
+            $this->prefs['projectListNum'] = $p['projectListNum'];
         }
 
-        if (isset($p["dailyTaskEmail"])) {
-            $this->prefs["dailyTaskEmail"] = $p["dailyTaskEmail"];
+        if (isset($p['dailyTaskEmail'])) {
+            $this->prefs['dailyTaskEmail'] = $p['dailyTaskEmail'];
         }
 
-        if (isset($p["receiveOwnTaskComments"])) {
-            $this->prefs["receiveOwnTaskComments"] = $p["receiveOwnTaskComments"];
+        if (isset($p['receiveOwnTaskComments'])) {
+            $this->prefs['receiveOwnTaskComments'] = $p['receiveOwnTaskComments'];
         }
 
-        if (isset($p["showFilters"])) {
-            $this->prefs["showFilters"] = $p["showFilters"];
+        if (isset($p['showFilters'])) {
+            $this->prefs['showFilters'] = $p['showFilters'];
         }
 
-        if (isset($p["privateMode"])) {
-            $this->prefs["privateMode"] = $p["privateMode"];
+        if (isset($p['privateMode'])) {
+            $this->prefs['privateMode'] = $p['privateMode'];
         }
 
-        if (isset($p["timeSheetHoursWarn"])) {
-            $this->prefs["timeSheetHoursWarn"] = $p["timeSheetHoursWarn"];
+        if (isset($p['timeSheetHoursWarn'])) {
+            $this->prefs['timeSheetHoursWarn'] = $p['timeSheetHoursWarn'];
         }
 
-        if (isset($p["timeSheetDaysWarn"])) {
-            $this->prefs["timeSheetDaysWarn"] = $p["timeSheetDaysWarn"];
+        if (isset($p['timeSheetDaysWarn'])) {
+            $this->prefs['timeSheetDaysWarn'] = $p['timeSheetDaysWarn'];
         }
 
-        if (isset($p["showTaskListHome"])) {
-            $this->prefs["showTaskListHome"] = $p["showTaskListHome"];
+        if (isset($p['showTaskListHome'])) {
+            $this->prefs['showTaskListHome'] = $p['showTaskListHome'];
         }
 
-        if (isset($p["showCalendarHome"])) {
-            $this->prefs["showCalendarHome"] = $p["showCalendarHome"];
+        if (isset($p['showCalendarHome'])) {
+            $this->prefs['showCalendarHome'] = $p['showCalendarHome'];
         }
 
-        if (isset($p["showProjectHome"])) {
-            $this->prefs["showProjectHome"] = $p["showProjectHome"];
+        if (isset($p['showProjectHome'])) {
+            $this->prefs['showProjectHome'] = $p['showProjectHome'];
         }
 
-        if (isset($p["showTimeSheetStatsHome"])) {
-            $this->prefs["showTimeSheetStatsHome"] = $p["showTimeSheetStatsHome"];
+        if (isset($p['showTimeSheetStatsHome'])) {
+            $this->prefs['showTimeSheetStatsHome'] = $p['showTimeSheetStatsHome'];
         }
 
-        if (isset($p["showTimeSheetItemHome"])) {
-            $this->prefs["showTimeSheetItemHome"] = $p["showTimeSheetItemHome"];
+        if (isset($p['showTimeSheetItemHome'])) {
+            $this->prefs['showTimeSheetItemHome'] = $p['showTimeSheetItemHome'];
         }
 
-        if (isset($p["showTimeSheetItemHintHome"])) {
-            $this->prefs["showTimeSheetItemHintHome"] = $p["showTimeSheetItemHintHome"];
+        if (isset($p['showTimeSheetItemHintHome'])) {
+            $this->prefs['showTimeSheetItemHintHome'] = $p['showTimeSheetItemHintHome'];
         }
     }
 
@@ -393,9 +397,9 @@ class person extends DatabaseEntity
             }
         }
 
-        if ($save || (!is_array($old_prefs) || $old_prefs === [])) {
+        if ($save || (!is_array($old_prefs) || [] === $old_prefs)) {
             $arr = serialize($this->prefs);
-            $person->set_value("sessData", $arr);
+            $person->set_value('sessData', $arr);
             $person->currency = config::get_config_item('currency');
             $person->save();
         }
@@ -411,7 +415,7 @@ class person extends DatabaseEntity
                    FROM task
                   WHERE taskTypeID = 'Message'
                     AND personID = %d
-                    AND taskStatus NOT IN (" . $ts_closed . ")",
+                    AND taskStatus NOT IN (" . $ts_closed . ')',
                 $this->get_id()
             );
             $allocDatabase->query($query);
@@ -425,12 +429,11 @@ class person extends DatabaseEntity
 
     public static function find_by_name($name = false, $certainty = 90)
     {
-
         $stack1 = [];
-        $people = &get_cached_table("person");
+        $people = &get_cached_table('person');
         foreach ($people as $personID => $row) {
-            if ($row["personActive"]) {
-                similar_text(strtolower($row["name"]), strtolower($name), $percent1);
+            if ($row['personActive']) {
+                similar_text(strtolower($row['name']), strtolower($name), $percent1);
                 $stack1[$personID] = $percent1;
             }
         }
@@ -451,14 +454,14 @@ class person extends DatabaseEntity
 
     public function find_by_email($email = false)
     {
-        $email = str_replace(["<", ">"], "", $email);
-        $people = &get_cached_table("person");
+        $email = str_replace(['<', '>'], '', $email);
+        $people = &get_cached_table('person');
         foreach ($people as $personID => $row) {
-            if (!$row["personActive"]) {
+            if (!$row['personActive']) {
                 continue;
             }
 
-            if ($email !== str_replace(["<", ">"], "", $row["emailAddress"])) {
+            if ($email !== str_replace(['<', '>'], '', $row['emailAddress'])) {
                 continue;
             }
 
@@ -471,11 +474,12 @@ class person extends DatabaseEntity
         $end = null;
         $name = $this->get_name();
         $name && ($name = '"' . $name . '"');
-        $email = $this->get_value("emailAddress");
+        $email = $this->get_value('emailAddress');
         if ($email) {
             $str = $name;
-            $str && ($str .= " <");
-            $str && ($end = ">");
+            $str && ($str .= ' <');
+            $str && ($end = '>');
+
             return $str . $email . $end;
         }
     }
@@ -484,43 +488,43 @@ class person extends DatabaseEntity
     {
         $sql = [];
         $sql2 = [];
-        if (isset($filter["username"])) {
-            $sql[] = sprintf_implode("username = '%s'", $filter["username"]);
+        if (isset($filter['username'])) {
+            $sql[] = sprintf_implode("username = '%s'", $filter['username']);
         }
 
-        if (isset($filter["personActive"])) {
-            $sql[] = sprintf_implode("personActive = %d", $filter["personActive"]);
+        if (isset($filter['personActive'])) {
+            $sql[] = sprintf_implode('personActive = %d', $filter['personActive']);
         }
 
-        if (isset($filter["firstName"])) {
-            $sql[] = sprintf_implode("firstName = '%s'", $filter["firstName"]);
+        if (isset($filter['firstName'])) {
+            $sql[] = sprintf_implode("firstName = '%s'", $filter['firstName']);
         }
 
-        if (isset($filter["surname"])) {
-            $sql[] = sprintf_implode("surname = '%s'", $filter["surname"]);
+        if (isset($filter['surname'])) {
+            $sql[] = sprintf_implode("surname = '%s'", $filter['surname']);
         }
 
-        if (isset($filter["personID"])) {
-            $sql[] = sprintf_implode("personID = %d", $filter["personID"]);
+        if (isset($filter['personID'])) {
+            $sql[] = sprintf_implode('personID = %d', $filter['personID']);
         }
 
-        if (isset($filter["skill"])) {
-            $sql["skill"] = sprintf_implode("skillID=%d", $filter["skill"]);
+        if (isset($filter['skill'])) {
+            $sql['skill'] = sprintf_implode('skillID=%d', $filter['skill']);
         }
 
-        if (isset($filter["skill_class"])) {
-            $q = unsafe_prepare("SELECT * FROM skill WHERE skillClass='%s'", $filter["skill_class"]);
+        if (isset($filter['skill_class'])) {
+            $q = unsafe_prepare("SELECT * FROM skill WHERE skillClass='%s'", $filter['skill_class']);
             $allocDatabase = new AllocDatabase();
             $allocDatabase->query($q);
             while ($allocDatabase->next_record()) {
                 $skill = new skill();
                 $skill->read_db_record($allocDatabase);
-                $sql2[] = unsafe_prepare("(skillID=%d)", $skill->get_id());
+                $sql2[] = unsafe_prepare('(skillID=%d)', $skill->get_id());
             }
         }
 
-        if (isset($filter["expertise"])) {
-            $sql[] = sprintf_implode("skillProficiency='%s'", $filter["expertise"]);
+        if (isset($filter['expertise'])) {
+            $sql[] = sprintf_implode("skillProficiency='%s'", $filter['expertise']);
         }
 
         return [$sql, $sql2];
@@ -534,43 +538,43 @@ class person extends DatabaseEntity
         $rows = [];
         $print = null;
         global $TPL;
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         [$filter, $filter2] = person::get_list_filter($_FORM);
 
-        $_FORM["return"] ??= "html";
+        $_FORM['return'] ??= 'html';
 
         // Get averages for hours worked over the past fortnight and year
-        if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT) && isset($_FORM["showHours"])) {
+        if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT) && isset($_FORM['showHours'])) {
             $timeSheetItem = new timeSheetItem();
-            [$ts_hrs_col_1, $ts_dollars_col_1] = $timeSheetItem->get_averages(date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 14, date("Y"))));
+            [$ts_hrs_col_1, $ts_dollars_col_1] = $timeSheetItem->get_averages(date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 14, date('Y'))));
             [$ts_hrs_col_2, $ts_dollars_col_2] = $timeSheetItem->get_fortnightly_average();
-        } elseif (isset($_FORM["showHours"])) {
-            unset($_FORM["showHours"]);
+        } elseif (isset($_FORM['showHours'])) {
+            unset($_FORM['showHours']);
         }
 
         // A header row
         $summary .= person::get_list_tr_header($_FORM);
 
         if (is_array($filter) && count($filter)) {
-            $filter = " WHERE " . implode(" AND ", $filter);
+            $filter = ' WHERE ' . implode(' AND ', $filter);
         }
 
         if (is_array($filter2) && count($filter2)) {
-            unset($filter["skill"]);
-            $filter .= " AND " . implode(" OR ", $filter2);
+            unset($filter['skill']);
+            $filter .= ' AND ' . implode(' OR ', $filter2);
         }
 
         // IMPORTANT: don't pass empty arrays to database
-        if ($filter === []) {
-            $filter = "";
+        if ([] === $filter) {
+            $filter = '';
         }
 
-        $q = "SELECT person.*
+        $q = 'SELECT person.*
                 FROM person
            LEFT JOIN proficiency ON person.personID = proficiency.personID
-             " . $filter . "
+             ' . $filter . '
             GROUP BY username
-            ORDER BY firstName,surname,username";
+            ORDER BY firstName,surname,username';
 
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
@@ -583,19 +587,19 @@ class person extends DatabaseEntity
 
             $row = $p->perm_cleanup($row); // this is not the right way to do this - alla
             $print = true;
-            if (isset($_FORM["showHours"])) {
-                $row["hoursSum"] = $ts_hrs_col_1[$row["personID"]];
+            if (isset($_FORM['showHours'])) {
+                $row['hoursSum'] = $ts_hrs_col_1[$row['personID']];
             }
 
-            if (isset($_FORM["showHours"])) {
-                $row["hoursAvg"] = $ts_hrs_col_2[$row["personID"]];
+            if (isset($_FORM['showHours'])) {
+                $row['hoursAvg'] = $ts_hrs_col_2[$row['personID']];
             }
 
-            $row["name"] = $p->get_name();
-            $row["name_link"] = $p->get_link($_FORM);
-            $row["personActive_label"] = $p->get_value("personActive") == 1 ? "Y" : "";
+            $row['name'] = $p->get_name();
+            $row['name_link'] = $p->get_link($_FORM);
+            $row['personActive_label'] = 1 == $p->get_value('personActive') ? 'Y' : '';
 
-            if (isset($_FORM["showSkills"])) {
+            if (isset($_FORM['showSkills'])) {
                 $senior_skills = $p->get_skills('Senior');
                 $advanced_skills = $p->get_skills('Advanced');
                 $intermediate_skills = $p->get_skills('Intermediate');
@@ -608,37 +612,37 @@ class person extends DatabaseEntity
                 $intermediate_skills && ($skills[] = '<img src="../images/skill_intermediate.png" alt="Intermediate="> ' . Page::htmlentities($intermediate_skills));
                 $junior_skills && ($skills[] = '<img src="../images/skill_junior.png" alt="Junior="> ' . Page::htmlentities($junior_skills));
                 $novice_skills && ($skills[] = '<img src="../images/skill_novice.png" alt="Novice"> ' . Page::htmlentities($novice_skills));
-                $row["skills_list"] = implode("<br>", $skills);
+                $row['skills_list'] = implode('<br>', $skills);
             }
 
-            if (isset($_FORM["showLinks"])) {
-                $row["navLinks"] = '<a href="' . $TPL["url_alloc_taskList"] . 'personID=' . $row["personID"] . '&taskView=byProject&applyFilter=1';
-                $row["navLinks"] .= '&dontSave=1&taskStatus=open&projectType=Current">Tasks</a>&nbsp;&nbsp;';
-                has("project") && ($row["navLinks"] .= '<a href="' . $TPL["url_alloc_personGraph"] . 'personID=' . $row["personID"] . '">Graph</a>&nbsp;&nbsp;');
-                $row["navLinks"] .= '<a href="' . $TPL["url_alloc_taskCalendar"] . 'personID=' . $row["personID"] . '">Calendar</a>&nbsp;&nbsp;';
-                $dateFrom = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") - 28, date("Y")));
-                $dateTo = date("Y-m-d", mktime(0, 0, 0, date("m"), date("d") + 1, date("Y")));
-                $row["navLinks"] .= '<a href="' . $TPL["url_alloc_timeSheetGraph"] . 'personID=' . $row["personID"] . '&dateFrom=' . $dateFrom . '&dateTo=' . $dateTo . '&applyFilter=1&dontSave=1">Hours</a>';
+            if (isset($_FORM['showLinks'])) {
+                $row['navLinks'] = '<a href="' . $TPL['url_alloc_taskList'] . 'personID=' . $row['personID'] . '&taskView=byProject&applyFilter=1';
+                $row['navLinks'] .= '&dontSave=1&taskStatus=open&projectType=Current">Tasks</a>&nbsp;&nbsp;';
+                has('project') && ($row['navLinks'] .= '<a href="' . $TPL['url_alloc_personGraph'] . 'personID=' . $row['personID'] . '">Graph</a>&nbsp;&nbsp;');
+                $row['navLinks'] .= '<a href="' . $TPL['url_alloc_taskCalendar'] . 'personID=' . $row['personID'] . '">Calendar</a>&nbsp;&nbsp;';
+                $dateFrom = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 28, date('Y')));
+                $dateTo = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') + 1, date('Y')));
+                $row['navLinks'] .= '<a href="' . $TPL['url_alloc_timeSheetGraph'] . 'personID=' . $row['personID'] . '&dateFrom=' . $dateFrom . '&dateTo=' . $dateTo . '&applyFilter=1&dontSave=1">Hours</a>';
             }
 
             $summary .= person::get_list_tr($row, $_FORM);
-            $rows[$row["personID"]] = $row;
+            $rows[$row['personID']] = $row;
         }
 
         $rows || ($rows = []);
-        if ($print && $_FORM["return"] == "array") {
+        if ($print && 'array' == $_FORM['return']) {
             return $rows;
         }
 
-        if ($print && $_FORM["return"] == "html") {
-            return '<table class="list sortable">' . $summary . "</table>";
+        if ($print && 'html' == $_FORM['return']) {
+            return '<table class="list sortable">' . $summary . '</table>';
         }
 
-        if ($print !== null) {
+        if (null !== $print) {
             return $rows;
         }
 
-        if ($_FORM["return"] != "html") {
+        if ('html' != $_FORM['return']) {
             return $rows;
         }
 
@@ -648,44 +652,45 @@ class person extends DatabaseEntity
     public static function get_list_tr_header($_FORM)
     {
         $summary = [];
-        if (isset($_FORM["showHeader"])) {
-            $summary[] = "<tr>";
-            if (isset($_FORM["showName"])) {
-                $summary[] = "<th>Name</th>";
+        if (isset($_FORM['showHeader'])) {
+            $summary[] = '<tr>';
+            if (isset($_FORM['showName'])) {
+                $summary[] = '<th>Name</th>';
             }
 
-            if (isset($_FORM["showActive"])) {
-                $summary[] = "<th>Enabled</th>";
+            if (isset($_FORM['showActive'])) {
+                $summary[] = '<th>Enabled</th>';
             }
 
-            if (isset($_FORM["showNos"])) {
-                $summary[] = "<th>Contact</th>";
+            if (isset($_FORM['showNos'])) {
+                $summary[] = '<th>Contact</th>';
             }
 
-            if (isset($_FORM["showSkills"])) {
-                $summary[] = "<th>";
-                $summary[] = "Senior";
+            if (isset($_FORM['showSkills'])) {
+                $summary[] = '<th>';
+                $summary[] = 'Senior';
                 $summary[] = '<img src="../images/skill_senior.png" alt="Senior" align="absmiddle">';
                 $summary[] = '<img src="../images/skill_advanced.png" alt="Advanced" align="absmiddle">';
                 $summary[] = '<img src="../images/skill_intermediate.png" alt="Intermediate" align="absmiddle">';
                 $summary[] = '<img src="../images/skill_junior.png" alt="Junior" align="absmiddle">';
                 $summary[] = '<img src="../images/skill_novice.png" alt="Novice" align="absmiddle"> Novice';
-                $summary[] = "</th>";
+                $summary[] = '</th>';
             }
 
-            if (isset($_FORM["showHours"])) {
-                $summary[] = "<th>Sum Prev Fort</th>";
+            if (isset($_FORM['showHours'])) {
+                $summary[] = '<th>Sum Prev Fort</th>';
             }
 
-            if (isset($_FORM["showHours"])) {
-                $summary[] = "<th>Avg Per Fort</th>";
+            if (isset($_FORM['showHours'])) {
+                $summary[] = '<th>Avg Per Fort</th>';
             }
 
-            if (isset($_FORM["showLinks"])) {
-                $summary[] = "<th></th>";
+            if (isset($_FORM['showLinks'])) {
+                $summary[] = '<th></th>';
             }
 
-            $summary[] = "</tr>";
+            $summary[] = '</tr>';
+
             return "\n" . implode("\n", $summary);
         }
     }
@@ -693,59 +698,60 @@ class person extends DatabaseEntity
     public static function get_list_tr($row, $_FORM)
     {
         global $TPL;
-        $TPL["_FORM"] = $_FORM;
-        $TPL = array_merge($TPL, (array)$row);
-        return include_template(__DIR__ . "/../templates/personListR.tpl", true);
+        $TPL['_FORM'] = $_FORM;
+        $TPL = array_merge($TPL, (array) $row);
+
+        return include_template(__DIR__ . '/../templates/personListR.tpl', true);
     }
 
     public static function get_list_vars()
     {
         return [
-            "return"       => "[MANDATORY] eg: array | html",
-            "username"     => "Search by the person username",
-            "personActive" => "Search by persons active/inactive status eg: 1 | 0",
-            "firstName"    => "Search by persons first name",
-            "surname"      => "Search by persons last name",
-            "personID"     => "Search by persons ID",
-            "skill"        => "Search by a particular skill",
-            "skill_class"  => "Search by a particular class of skill",
-            "expertise"    => "Search by a level of expertise eg: Novice | Junior | Intermediate | Advanced | Senior",
-            "applyFilter"  => "Saves this filter as the persons preference",
-            "dontSave"     => "A flag that allows the user to specify that the filter preferences should not be saved this time",
-            "form_name"    => "The name of this form, i.e. a handle for referring to this saved form",
-            "showHeader"   => "Show the HTML header row of the table",
-            "showName"     => "Show the persons name",
-            "showActive"   => "Show the persons active/inactive status",
-            "showNos"      => "Show the persons contact numbers",
-            "showHours"    => "Show the persons time sheeted hours figures",
-            "showLinks"    => "Show the person action links",
-            "showSkills"   => "Show the persons skills",
+            'return'       => '[MANDATORY] eg: array | html',
+            'username'     => 'Search by the person username',
+            'personActive' => 'Search by persons active/inactive status eg: 1 | 0',
+            'firstName'    => 'Search by persons first name',
+            'surname'      => 'Search by persons last name',
+            'personID'     => 'Search by persons ID',
+            'skill'        => 'Search by a particular skill',
+            'skill_class'  => 'Search by a particular class of skill',
+            'expertise'    => 'Search by a level of expertise eg: Novice | Junior | Intermediate | Advanced | Senior',
+            'applyFilter'  => 'Saves this filter as the persons preference',
+            'dontSave'     => 'A flag that allows the user to specify that the filter preferences should not be saved this time',
+            'form_name'    => 'The name of this form, i.e. a handle for referring to this saved form',
+            'showHeader'   => 'Show the HTML header row of the table',
+            'showName'     => 'Show the persons name',
+            'showActive'   => 'Show the persons active/inactive status',
+            'showNos'      => 'Show the persons contact numbers',
+            'showHours'    => 'Show the persons time sheeted hours figures',
+            'showLinks'    => 'Show the person action links',
+            'showSkills'   => 'Show the persons skills',
         ];
     }
 
     public static function load_form_data($defaults = [])
     {
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         $page_vars = array_keys(person::get_list_vars());
         $_FORM = get_all_form_data($page_vars, $defaults);
 
-        if (!isset($_FORM["applyFilter"])) {
-            if (isset($_FORM["form_name"]) && isset($current_user->prefs[$_FORM["form_name"]])) {
-                $_FORM = $current_user->prefs[$_FORM["form_name"]];
+        if (!isset($_FORM['applyFilter'])) {
+            if (isset($_FORM['form_name'], $current_user->prefs[$_FORM['form_name']])) {
+                $_FORM = $current_user->prefs[$_FORM['form_name']];
             }
 
-            if (!isset($current_user->prefs[$_FORM["form_name"] ?? ""])) {
-                $_FORM["personActive"] = true;
+            if (!isset($current_user->prefs[$_FORM['form_name'] ?? ''])) {
+                $_FORM['personActive'] = true;
             }
         } elseif (
-            isset($_FORM["applyFilter"])
+            isset($_FORM['applyFilter'])
             && is_object($current_user)
-            && !isset($_FORM["dontSave"])
+            && !isset($_FORM['dontSave'])
         ) {
-            $url = $_FORM["url_form_action"];
-            unset($_FORM["url_form_action"]);
-            $current_user->prefs[$_FORM["form_name"]] = $_FORM;
-            $_FORM["url_form_action"] = $url;
+            $url = $_FORM['url_form_action'];
+            unset($_FORM['url_form_action']);
+            $current_user->prefs[$_FORM['form_name']] = $_FORM;
+            $_FORM['url_form_action'] = $url;
         }
 
         return $_FORM;
@@ -756,43 +762,43 @@ class person extends DatabaseEntity
         $rtn = [];
         $skill_class = null;
         global $TPL;
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
 
         $allocDatabase = new AllocDatabase();
-        if (isset($_FORM["showSkills"])) {
-            $rtn["show_skills_checked"] = " checked";
+        if (isset($_FORM['showSkills'])) {
+            $rtn['show_skills_checked'] = ' checked';
         }
 
-        if (isset($_FORM["showHours"])) {
-            $rtn["show_hours_checked"] = " checked";
+        if (isset($_FORM['showHours'])) {
+            $rtn['show_hours_checked'] = ' checked';
         }
 
-        if (isset($_FORM["personActive"])) {
-            $rtn["show_all_users_checked"] = " checked";
+        if (isset($_FORM['personActive'])) {
+            $rtn['show_all_users_checked'] = ' checked';
         }
 
         $employee_expertise = [
-            ""             => "Any Expertise",
-            "Novice"       => "Novice",
-            "Junior"       => "Junior",
-            "Intermediate" => "Intermediate",
-            "Advanced"     => "Advanced",
-            "Senior"       => "Senior",
+            ''             => 'Any Expertise',
+            'Novice'       => 'Novice',
+            'Junior'       => 'Junior',
+            'Intermediate' => 'Intermediate',
+            'Advanced'     => 'Advanced',
+            'Senior'       => 'Senior',
         ];
-        $rtn["employee_expertise"] = Page::select_options($employee_expertise, $_FORM["expertise"] ?? "");
+        $rtn['employee_expertise'] = Page::select_options($employee_expertise, $_FORM['expertise'] ?? '');
 
         $skill_classes = skill::get_skill_classes();
-        $rtn["skill_classes"] = Page::select_options($skill_classes, $_FORM["skill_class"] ?? "");
+        $rtn['skill_classes'] = Page::select_options($skill_classes, $_FORM['skill_class'] ?? '');
 
         $skills = skill::get_skills();
         // if a skill class is selected and a skill that is not in that class is
         // also selected, clear the skill as this is what the filter options
         // will do
-        if ($skill_class && !in_array($skills[$_FORM["skill"]], $skills)) {
-            $_FORM["skill"] = "";
+        if ($skill_class && !in_array($skills[$_FORM['skill']], $skills)) {
+            $_FORM['skill'] = '';
         }
 
-        $rtn["skills"] = Page::select_options($skills, $_FORM["skill"] ?? "");
+        $rtn['skills'] = Page::select_options($skills, $_FORM['skill'] ?? '');
 
         return $rtn;
     }
@@ -800,14 +806,15 @@ class person extends DatabaseEntity
     public function get_link($_FORM = []): string
     {
         global $TPL;
-        $_FORM["return"] ??= "html";
-        return '<a href="' . $TPL["url_alloc_person"] . "personID=" . $this->get_id() . '">' . $this->get_name($_FORM) . "</a>";
+        $_FORM['return'] ??= 'html';
+
+        return '<a href="' . $TPL['url_alloc_person'] . 'personID=' . $this->get_id() . '">' . $this->get_name($_FORM) . '</a>';
     }
 
-    public static function get_people_by_username($field = "username")
+    public static function get_people_by_username($field = 'username')
     {
         $people_by_username = [];
-        $people = &get_cached_table("person");
+        $people = &get_cached_table('person');
         foreach ($people as $personID => $person) {
             $people_by_username[$person[$field]] = $person;
         }

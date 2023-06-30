@@ -5,11 +5,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 $defaults = [
-    "url_form_action" => $TPL["url_alloc_clientList"],
-    "form_name"       => "clientList_filter",
+    'url_form_action' => $TPL['url_alloc_clientList'],
+    'form_name'       => 'clientList_filter',
 ];
 
 function show_filter()
@@ -34,7 +34,7 @@ function show_filter()
         extract($TPL, EXTR_OVERWRITE);
     }
 
-    $clientListFilterHelp = (new Page())->help("clientListFilter");
+    $clientListFilterHelp = (new Page())->help('clientListFilter');
     echo <<<HTML
             <form action="{$url_alloc_clientList}" method="get">
               <table class="filter corner" align="center">
@@ -66,10 +66,10 @@ function show_filter()
 }
 
 $_FORM = client::load_form_data($defaults);
-$TPL["clientListRows"] = client::get_list($_FORM);
+$TPL['clientListRows'] = client::get_list($_FORM);
 
-if (!isset($current_user->prefs["clientList_filter"])) {
-    $TPL["message_help"][] = "
+if (!isset($current_user->prefs['clientList_filter'])) {
+    $TPL['message_help'][] = '
 
 allocPSA allows you to store pertinent information about your Clients and
 the organisations that you interact with. This page allows you to see a list of Clients.
@@ -79,10 +79,10 @@ the organisations that you interact with. This page allows you to see a list of 
 Simply adjust the filter settings and click the <b>Filter</b> button to
 display a list of previously created Clients.
 If you would prefer to create a new Client, click the <b>New Client</b> link
-in the top-right hand corner of the box below.";
+in the top-right hand corner of the box below.';
 }
 
-$TPL["main_alloc_title"] = "Client List - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'Client List - ' . APPLICATION_NAME;
 
 // FIXME: 😔
 if (is_array($TPL)) {

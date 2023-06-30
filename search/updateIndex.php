@@ -7,70 +7,70 @@
 
 use ZendSearch\Lucene\Lucene;
 
-define("NO_AUTH", true);
-define("IS_GOD", true);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_AUTH', true);
+define('IS_GOD', true);
+require_once __DIR__ . '/../alloc.php';
 
 ini_set('max_execution_time', 180000);
-ini_set('memory_limit', "512M");
+ini_set('memory_limit', '512M');
 
 function echoo($str)
 {
-    $nl = "<br>";
+    $nl = '<br>';
     $nl = "\n";
     echo $nl . $str;
 }
 
-foreach (["client", "comment", "item", "project", "task", "timeSheet"] as $i) {
+foreach (['client', 'comment', 'item', 'project', 'task', 'timeSheet'] as $i) {
     if (!is_dir(ATTACHMENTS_DIR . 'search/' . $i)) {
         $index = Lucene::create(ATTACHMENTS_DIR . 'search/' . $i);
         $index->commit();
     }
 }
 
-$q = "SELECT * FROM indexQueue ORDER BY entity";
+$q = 'SELECT * FROM indexQueue ORDER BY entity';
 
 $db = new AllocDatabase();
 $q1 = $db->query($q);
 
-echoo("Beginning ...");
+echoo('Beginning ...');
 
 while ($row = $db->row($q1)) {
     ++$z;
-    if ($z % 1000 == 0 && is_object($index)) {
-        echoo($z . " Committing index: " . $current_index);
+    if (0 == $z % 1000 && is_object($index)) {
+        echoo($z . ' Committing index: ' . $current_index);
         $index->commit();
         flush();
     }
 
-    if (!$current_index || $current_index != $row["entity"]) {
+    if (!$current_index || $current_index != $row['entity']) {
         // commit previous index
         if (is_object($index)) {
-            echoo("Committing index: " . $current_index);
+            echoo('Committing index: ' . $current_index);
             $index->commit();
         }
 
         // start a new index
-        echoo("New \$index: " . $row["entity"]);
-        $index = Lucene::open(ATTACHMENTS_DIR . 'search/' . $row["entity"]);
+        echoo('New $index: ' . $row['entity']);
+        $index = Lucene::open(ATTACHMENTS_DIR . 'search/' . $row['entity']);
     }
 
-    $current_index = $row["entity"];
+    $current_index = $row['entity'];
 
-    echoo("  Updating index " . $row["entity"] . " #" . $row["entityID"]);
+    echoo('  Updating index ' . $row['entity'] . ' #' . $row['entityID']);
 
-    $e = new $row["entity"];
-    $e->set_id($row["entityID"]);
+    $e = new $row['entity']();
+    $e->set_id($row['entityID']);
     $e->select();
     $e->delete_search_index_doc($index);
     $e->update_search_index_doc($index);
 
     // Nuke item from queue
-    $db->query("DELETE FROM indexQueue WHERE indexQueueID = %d", $row["indexQueueID"]);
+    $db->query('DELETE FROM indexQueue WHERE indexQueueID = %d', $row['indexQueueID']);
 }
 
 // commit index
 if (is_object($index)) {
-    echoo("Committing index(2): " . $current_index);
+    echoo('Committing index(2): ' . $current_index);
     $index->commit();
 }

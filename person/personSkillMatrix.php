@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 function show_filter($template)
 {
@@ -20,8 +20,8 @@ function show_skill_classes()
     global $TPL;
     global $skill_class;
     global $db;
-    $skill_classes = ["" => "Any class"];
-    $query = "SELECT skillClass FROM skill ORDER BY skillClass";
+    $skill_classes = ['' => 'Any class'];
+    $query = 'SELECT skillClass FROM skill ORDER BY skillClass';
     $db->query($query);
     while ($db->next_record()) {
         $skill = new skill();
@@ -31,7 +31,7 @@ function show_skill_classes()
         }
     }
 
-    $TPL["skill_classes"] = Page::select_options($skill_classes, $skill_class);
+    $TPL['skill_classes'] = Page::select_options($skill_classes, $skill_class);
 }
 
 function show_skills()
@@ -41,25 +41,25 @@ function show_skills()
     global $skills;
     global $skill_class;
     global $db;
-    $skills = ["" => "Any skill"];
-    $query = "SELECT * FROM skill";
-    if ($skill_class != "") {
+    $skills = ['' => 'Any skill'];
+    $query = 'SELECT * FROM skill';
+    if ('' != $skill_class) {
         $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
     }
 
-    $query .= " ORDER BY skillClass,skillName";
+    $query .= ' ORDER BY skillClass,skillName';
     $db->query($query);
     while ($db->next_record()) {
         $skill = new skill();
         $skill->read_db_record($db);
-        $skills[$skill->get_id()] = sprintf("%s - %s", $skill->get_value('skillClass'), $skill->get_value('skillName'));
+        $skills[$skill->get_id()] = sprintf('%s - %s', $skill->get_value('skillClass'), $skill->get_value('skillName'));
     }
 
-    if ($skill_class != "" && !in_array($skills[$talent], $skills)) {
-        $talent = "";
+    if ('' != $skill_class && !in_array($skills[$talent], $skills)) {
+        $talent = '';
     }
 
-    $TPL["skills"] = Page::select_options($skills, $talent);
+    $TPL['skills'] = Page::select_options($skills, $talent);
 }
 
 function get_people_header()
@@ -74,16 +74,16 @@ function get_people_header()
 
     $where = false;
     $db = new AllocDatabase();
-    $query = "SELECT * FROM person";
-    $query .= " LEFT JOIN proficiency ON person.personID=proficiency.personID";
-    $query .= " LEFT JOIN skill ON proficiency.skillID=skill.skillID WHERE personActive = 1 ";
+    $query = 'SELECT * FROM person';
+    $query .= ' LEFT JOIN proficiency ON person.personID=proficiency.personID';
+    $query .= ' LEFT JOIN skill ON proficiency.skillID=skill.skillID WHERE personActive = 1 ';
     if ($talent) {
-        $query .= unsafe_prepare(" AND skill.skillID=%d", $talent);
+        $query .= unsafe_prepare(' AND skill.skillID=%d', $talent);
     } elseif ($skill_class) {
         $query .= unsafe_prepare(" AND skill.skillClass='%s'", $skill_class);
     }
 
-    $query .= " GROUP BY username ORDER BY username";
+    $query .= ' GROUP BY username ORDER BY username';
     $db->query($query);
     while ($db->next_record()) {
         $person = new person();
@@ -104,17 +104,17 @@ function show_skill_expertise()
     $currSkillClass = null;
 
     $db = new AllocDatabase();
-    $query = "SELECT * FROM proficiency";
-    $query .= " LEFT JOIN skill ON proficiency.skillID=skill.skillID";
-    if ($talent != "" || $skill_class != "") {
-        if ($talent != "") {
-            $query .= unsafe_prepare(" WHERE proficiency.skillID=%d", $talent);
+    $query = 'SELECT * FROM proficiency';
+    $query .= ' LEFT JOIN skill ON proficiency.skillID=skill.skillID';
+    if ('' != $talent || '' != $skill_class) {
+        if ('' != $talent) {
+            $query .= unsafe_prepare(' WHERE proficiency.skillID=%d', $talent);
         } else {
             $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
         }
     }
 
-    $query .= " GROUP BY skillName ORDER BY skillClass,skillName";
+    $query .= ' GROUP BY skillName ORDER BY skillClass,skillName';
     $db->query($query);
     while ($db->next_record()) {
         $skill = new skill();
@@ -127,15 +127,15 @@ function show_skill_expertise()
             }
 
             $class_header = sprintf("<tr class=\"highlighted\">\n<th width=\"5%%\">%s&nbsp;&nbsp;&nbsp;</th>\n", $skill->get_value('skillClass', DST_HTML_DISPLAY));
-            print $class_header . $people_header . "</tr>\n";
+            echo $class_header . $people_header . "</tr>\n";
         }
 
-        print sprintf("<tr>\n<th>%s</th>\n", $skill->get_value('skillName', DST_HTML_DISPLAY));
+        echo sprintf("<tr>\n<th>%s</th>\n", $skill->get_value('skillName', DST_HTML_DISPLAY));
         $people_idsCount = count($people_ids);
         for ($i = 0; $i < $people_idsCount; ++$i) {
             $db2 = new AllocDatabase();
-            $query = "SELECT * FROM proficiency";
-            $query .= unsafe_prepare(" WHERE skillID=%d AND personID=%d", $skill->get_id(), $people_ids[$i]);
+            $query = 'SELECT * FROM proficiency';
+            $query .= unsafe_prepare(' WHERE skillID=%d AND personID=%d', $skill->get_id(), $people_ids[$i]);
             $db2->query($query);
             if ($db2->next_record()) {
                 $proficiency = new proficiency();
@@ -145,18 +145,18 @@ function show_skill_expertise()
                     strtolower($proficiency->get_value('skillProficiency')),
                     substr($proficiency->get_value('skillProficiency'), 0, 1)
                 );
-                print $p;
+                echo $p;
             } else {
-                print "<td align=\"center\">-</td>\n";
+                echo "<td align=\"center\">-</td>\n";
             }
         }
 
-        print "</tr>\n";
+        echo "</tr>\n";
     }
 }
 
-$talent || ($talent = $_POST["talent"]);
-$skill_class || ($skill_class = $_POST["skill_class"]);
+$talent || ($talent = $_POST['talent']);
+$skill_class || ($skill_class = $_POST['skill_class']);
 
-$TPL["main_alloc_title"] = "Skill Matrix - " . APPLICATION_NAME;
-include_template("templates/personSkillMatrix.tpl");
+$TPL['main_alloc_title'] = 'Skill Matrix - ' . APPLICATION_NAME;
+include_template('templates/personSkillMatrix.tpl');

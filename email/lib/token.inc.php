@@ -7,31 +7,31 @@
 
 class token extends DatabaseEntity
 {
-    public $classname = "token";
+    public $classname = 'token';
 
-    public $data_table = "token";
+    public $data_table = 'token';
 
-    public $key_field = "tokenID";
+    public $key_field = 'tokenID';
 
     public $data_fields = [
-        "tokenHash",
-        "tokenEntity",
-        "tokenEntityID",
-        "tokenActionID",
-        "tokenExpirationDate",
-        "tokenUsed",
-        "tokenMaxUsed",
-        "tokenActive",
-        "tokenCreatedBy",
-        "tokenCreatedDate",
+        'tokenHash',
+        'tokenEntity',
+        'tokenEntityID',
+        'tokenActionID',
+        'tokenExpirationDate',
+        'tokenUsed',
+        'tokenMaxUsed',
+        'tokenActive',
+        'tokenCreatedBy',
+        'tokenCreatedDate',
     ];
 
     public function set_hash($hash, $validate = true)
     {
         $extra = null;
-        $validate && ($extra = " AND tokenActive = 1");
-        $validate && ($extra .= " AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)");
-        $validate && ($extra .= unsafe_prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date("Y-m-d H:i:s")));
+        $validate && ($extra = ' AND tokenActive = 1');
+        $validate && ($extra .= ' AND (tokenUsed < tokenMaxUsed OR tokenMaxUsed IS NULL OR tokenMaxUsed = 0)');
+        $validate && ($extra .= unsafe_prepare(" AND (tokenExpirationDate > '%s' OR tokenExpirationDate IS NULL)", date('Y-m-d H:i:s')));
 
         $q = unsafe_prepare("SELECT * FROM token
                        WHERE tokenHash = '%s'
@@ -41,8 +41,9 @@ class token extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         if ($allocDatabase->next_record()) {
-            $this->set_id($allocDatabase->f("tokenID"));
+            $this->set_id($allocDatabase->f('tokenID'));
             $this->select();
+
             return true;
         }
     }
@@ -51,21 +52,21 @@ class token extends DatabaseEntity
     {
         $tokenAction = null;
         if ($this->get_id()) {
-            if ($this->get_value("tokenActionID")) {
+            if ($this->get_value('tokenActionID')) {
                 $tokenAction = new tokenAction();
-                $tokenAction->set_id($this->get_value("tokenActionID"));
+                $tokenAction->set_id($this->get_value('tokenActionID'));
                 $tokenAction->select();
             }
 
-            if ($this->get_value("tokenEntity")) {
-                $class = $this->get_value("tokenEntity");
-                $entity = new $class;
-                if ($this->get_value("tokenEntityID")) {
-                    $entity->set_id($this->get_value("tokenEntityID"));
+            if ($this->get_value('tokenEntity')) {
+                $class = $this->get_value('tokenEntity');
+                $entity = new $class();
+                if ($this->get_value('tokenEntityID')) {
+                    $entity->set_id($this->get_value('tokenEntityID'));
                     $entity->select();
                 }
 
-                $method = $tokenAction->get_value("tokenActionMethod");
+                $method = $tokenAction->get_value('tokenActionMethod');
                 $this->increment_tokenUsed();
                 if ($entity->get_id()) {
                     return [$entity, $method];
@@ -78,14 +79,14 @@ class token extends DatabaseEntity
 
     public function increment_tokenUsed()
     {
-        $q = unsafe_prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) + 1 WHERE tokenID = %d", $this->get_id());
+        $q = unsafe_prepare('UPDATE token SET tokenUsed = coalesce(tokenUsed,0) + 1 WHERE tokenID = %d', $this->get_id());
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
     }
 
     public function decrement_tokenUsed()
     {
-        $q = unsafe_prepare("UPDATE token SET tokenUsed = coalesce(tokenUsed,0) - 1 WHERE tokenID = %d", $this->get_id());
+        $q = unsafe_prepare('UPDATE token SET tokenUsed = coalesce(tokenUsed,0) - 1 WHERE tokenID = %d', $this->get_id());
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
     }
@@ -96,7 +97,8 @@ class token extends DatabaseEntity
         $seed = $sec + ($usec * 100000);
         mt_srand($seed);
         $randval = random_int(1, 99_999_999); // get a random 8 digit number
-        $randval = sprintf("%-08d", $randval);
+        $randval = sprintf('%-08d', $randval);
+
         return base_convert($randval, 10, 36);
     }
 
@@ -124,8 +126,9 @@ class token extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         if ($allocDatabase->next_record()) {
-            $this->set_id($allocDatabase->f("tokenID"));
+            $this->set_id($allocDatabase->f('tokenID'));
             $this->select();
+
             return true;
         }
     }
@@ -133,9 +136,10 @@ class token extends DatabaseEntity
     public function get_list_filter($filter = [])
     {
         $sql = [];
-        $filter["tokenEntity"] && ($sql[] = sprintf_implode("token.tokenEntity = '%s'", $filter["tokenEntity"]));
-        $filter["tokenEntityID"] && ($sql[] = sprintf_implode("token.tokenEntityID = %d", $filter["tokenEntityID"]));
-        $filter["tokenHash"] && ($sql[] = sprintf_implode("token.tokenHash = '%s'", $filter["tokenHash"]));
+        $filter['tokenEntity'] && ($sql[] = sprintf_implode("token.tokenEntity = '%s'", $filter['tokenEntity']));
+        $filter['tokenEntityID'] && ($sql[] = sprintf_implode('token.tokenEntityID = %d', $filter['tokenEntityID']));
+        $filter['tokenHash'] && ($sql[] = sprintf_implode("token.tokenHash = '%s'", $filter['tokenHash']));
+
         return $sql;
     }
 
@@ -145,16 +149,16 @@ class token extends DatabaseEntity
         $filter = (new token())->get_list_filter($_FORM);
 
         if (is_array($filter) && count($filter)) {
-            $filter = " WHERE " . implode(" AND ", $filter);
+            $filter = ' WHERE ' . implode(' AND ', $filter);
         }
 
-        $q = "SELECT * FROM token " . $filter;
+        $q = 'SELECT * FROM token ' . $filter;
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($q);
         while ($row = $allocDatabase->next_record()) {
-            $rows[$row["tokenID"]] = $row;
+            $rows[$row['tokenID']] = $row;
         }
 
-        return (array)$rows;
+        return (array) $rows;
     }
 }

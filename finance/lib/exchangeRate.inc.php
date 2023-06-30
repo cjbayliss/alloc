@@ -7,25 +7,25 @@
 
 class exchangeRate extends DatabaseEntity
 {
-    public $data_table = "exchangeRate";
+    public $data_table = 'exchangeRate';
 
-    public $display_field_name = "exchangeRate";
+    public $display_field_name = 'exchangeRate';
 
-    public $key_field = "exchangeRateID";
+    public $key_field = 'exchangeRateID';
 
     public $data_fields = [
-        "exchangeRateCreatedDate",
-        "exchangeRateCreatedTime",
-        "fromCurrency",
-        "toCurrency",
-        "exchangeRate",
+        'exchangeRateCreatedDate',
+        'exchangeRateCreatedTime',
+        'fromCurrency',
+        'toCurrency',
+        'exchangeRate',
     ];
 
-    public static function get_er($from, $to, $date = "")
+    public static function get_er($from, $to, $date = '')
     {
         $row = [];
         static $cache;
-        if (isset($cache[$from][$to][$date]) && (bool)strlen($cache[$from][$to][$date])) {
+        if (isset($cache[$from][$to][$date]) && (bool) strlen($cache[$from][$to][$date])) {
             return $cache[$from][$to][$date];
         }
 
@@ -62,15 +62,17 @@ class exchangeRate extends DatabaseEntity
             $row = $allocDatabase->row();
         }
 
-        $cache[$from][$to][$date] = $row["exchangeRate"];
-        return $row["exchangeRate"];
+        $cache[$from][$to][$date] = $row['exchangeRate'];
+
+        return $row['exchangeRate'];
     }
 
-    public static function convert($currency, $amount, $destCurrency = false, $date = false, $format = "%m")
+    public static function convert($currency, $amount, $destCurrency = false, $date = false, $format = '%m')
     {
-        $date || ($date = date("Y-m-d"));
-        $destCurrency || ($destCurrency = config::get_config_item("currency"));
+        $date || ($date = date('Y-m-d'));
+        $destCurrency || ($destCurrency = config::get_config_item('currency'));
         $er = exchangeRate::get_er($currency, $destCurrency, $date);
+
         return Page::money($destCurrency, $amount * $er, $format);
     }
 
@@ -79,28 +81,29 @@ class exchangeRate extends DatabaseEntity
         $rate = get_exchange_rate($from, $to);
         if ($rate) {
             $exchangeRate = new exchangeRate();
-            $exchangeRate->set_value("exchangeRateCreatedDate", date("Y-m-d"));
-            $exchangeRate->set_value("fromCurrency", $from);
-            $exchangeRate->set_value("toCurrency", $to);
-            $exchangeRate->set_value("exchangeRate", $rate);
+            $exchangeRate->set_value('exchangeRateCreatedDate', date('Y-m-d'));
+            $exchangeRate->set_value('fromCurrency', $from);
+            $exchangeRate->set_value('toCurrency', $to);
+            $exchangeRate->set_value('exchangeRate', $rate);
             $exchangeRate->save();
-            return $from . " -> " . $to . ":" . $rate . " ";
+
+            return $from . ' -> ' . $to . ':' . $rate . ' ';
         }
 
-        echo date("Y-m-d H:i:s") . "Unable to obtain exchange rate information for " . $from . " to " . $to . "!";
+        echo date('Y-m-d H:i:s') . 'Unable to obtain exchange rate information for ' . $from . ' to ' . $to . '!';
     }
 
     public static function download()
     {
         $rtn = [];
         // Get default currency
-        $default_currency = config::get_config_item("currency");
+        $default_currency = config::get_config_item('currency');
 
         // Get list of active currencies
-        $meta = new Meta("currencyType");
+        $meta = new Meta('currencyType');
         $currencies = $meta->get_list();
 
-        foreach (array_keys((array)$currencies) as $code) {
+        foreach (array_keys((array) $currencies) as $code) {
             if ($code == $default_currency) {
                 continue;
             }

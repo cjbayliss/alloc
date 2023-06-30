@@ -5,15 +5,15 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
-($download = $_GET["download"]) || ($download = $_POST["download"]);
-($applyFilter = $_GET["applyFilter"]) || ($applyFilter = $_POST["applyFilter"]);
+($download = $_GET['download']) || ($download = $_POST['download']);
+($applyFilter = $_GET['applyFilter']) || ($applyFilter = $_POST['applyFilter']);
 
 $defaults = [
-    "url_form_action" => $TPL["url_alloc_searchTransaction"],
-    "form_name"       => "searchTransaction_filter",
-    "applyFilter"     => $applyFilter,
+    'url_form_action' => $TPL['url_alloc_searchTransaction'],
+    'form_name'       => 'searchTransaction_filter',
+    'applyFilter'     => $applyFilter,
 ];
 
 function show_filter()
@@ -26,28 +26,28 @@ function show_filter()
         $TPL = array_merge($TPL, $arr);
     }
 
-    include_template("templates/searchTransactionFilterS.tpl");
+    include_template('templates/searchTransactionFilterS.tpl');
 }
 
 if ($download) {
     $_FORM = transaction::load_form_data($defaults);
     $rtn = transaction::get_list($_FORM);
-    $totals = $rtn["totals"];
-    $rows = $rtn["rows"];
+    $totals = $rtn['totals'];
+    $rows = $rtn['rows'];
     $csv = transaction::arr_to_csv($rows);
     header('Content-Type: application/octet-stream');
-    header("Content-Length: " . strlen($csv));
-    header('Content-Disposition: attachment; filename="' . date("Ymd_His") . '.csv"');
+    header('Content-Length: ' . strlen($csv));
+    header('Content-Disposition: attachment; filename="' . date('Ymd_His') . '.csv"');
     echo $csv;
-    exit();
+    exit;
 }
 
 if ($applyFilter) {
     $_FORM = transaction::load_form_data($defaults);
     $rtn = transaction::get_list($_FORM);
-    $TPL["totals"] = $rtn["totals"];
-    $TPL["transactionListRows"] = $rtn["rows"];
+    $TPL['totals'] = $rtn['totals'];
+    $TPL['transactionListRows'] = $rtn['rows'];
 }
 
-$TPL["main_alloc_title"] = "Search Transactions - " . APPLICATION_NAME;
-include_template("templates/searchTransactionM.tpl");
+$TPL['main_alloc_title'] = 'Search Transactions - ' . APPLICATION_NAME;
+include_template('templates/searchTransactionM.tpl');

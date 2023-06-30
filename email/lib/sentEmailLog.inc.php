@@ -7,19 +7,19 @@
 
 class sentEmailLog extends DatabaseEntity
 {
-    public $classname = "sentEmailLog";
+    public $classname = 'sentEmailLog';
 
-    public $data_table = "sentEmailLog";
+    public $data_table = 'sentEmailLog';
 
-    public $key_field = "sentEmailLogID";
+    public $key_field = 'sentEmailLogID';
 
     public $data_fields = [
-        "sentEmailTo",
-        "sentEmailSubject",
-        "sentEmailBody",
-        "sentEmailHeader",
-        "sentEmailType",
-        "sentEmailLogCreatedTime",
-        "sentEmailLogCreatedUser",
+        'sentEmailTo',
+        'sentEmailSubject',
+        'sentEmailBody',
+        'sentEmailHeader',
+        'sentEmailType',
+        'sentEmailLogCreatedTime',
+        'sentEmailLogCreatedUser',
     ];
 }

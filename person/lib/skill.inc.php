@@ -7,19 +7,19 @@
 
 class skill extends DatabaseEntity
 {
-    public $data_table = "skill";
+    public $data_table = 'skill';
 
-    public $display_field_name = "skillName";
+    public $display_field_name = 'skillName';
 
-    public $key_field = "skillID";
+    public $key_field = 'skillID';
 
-    public $data_fields = ["skillName", "skillDescription", "skillClass"];
+    public $data_fields = ['skillName', 'skillDescription', 'skillClass'];
 
     // return true if a skill with same name and class already exists
     // and update fields of current if it does exist
     public function skill_exists(): bool
     {
-        $query = "SELECT * FROM skill";
+        $query = 'SELECT * FROM skill';
         $query .= unsafe_prepare(" WHERE skillName='%s'", $this->get_value('skillName'));
         $query .= unsafe_prepare(" AND skillClass='%s'", $this->get_value('skillClass'));
         $allocDatabase = new AllocDatabase();
@@ -29,6 +29,7 @@ class skill extends DatabaseEntity
             $skill->read_db_record($allocDatabase);
             $this->set_id($skill->get_id());
             $this->set_value('skillDescription', $skill->get_value('skillDescription'));
+
             return true;
         }
 
@@ -38,8 +39,8 @@ class skill extends DatabaseEntity
     public static function get_skill_classes()
     {
         $allocDatabase = new AllocDatabase();
-        $skill_classes = ["" => "Any Class"];
-        $query = "SELECT skillClass FROM skill ORDER BY skillClass";
+        $skill_classes = ['' => 'Any Class'];
+        $query = 'SELECT skillClass FROM skill ORDER BY skillClass';
         $allocDatabase->query($query);
         while ($allocDatabase->next_record()) {
             $skill = new skill();
@@ -56,19 +57,19 @@ class skill extends DatabaseEntity
     {
         global $TPL;
         global $skill_class;
-        $skills = ["" => "Any Skill"];
-        $query = "SELECT * FROM skill";
-        if ($skill_class != "") {
+        $skills = ['' => 'Any Skill'];
+        $query = 'SELECT * FROM skill';
+        if ('' != $skill_class) {
             $query .= unsafe_prepare(" WHERE skillClass='%s'", $skill_class);
         }
 
-        $query .= " ORDER BY skillClass,skillName";
+        $query .= ' ORDER BY skillClass,skillName';
         $allocDatabase = new AllocDatabase();
         $allocDatabase->query($query);
         while ($allocDatabase->next_record()) {
             $skill = new skill();
             $skill->read_db_record($allocDatabase);
-            $skills[$skill->get_id()] = sprintf("%s - %s", $skill->get_value('skillClass'), $skill->get_value('skillName'));
+            $skills[$skill->get_id()] = sprintf('%s - %s', $skill->get_value('skillClass'), $skill->get_value('skillName'));
         }
 
         return $skills;

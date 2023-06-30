@@ -5,9 +5,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . '/../alloc.php');
+require_once __DIR__ . '/../alloc.php';
 $image = ALLOC_LOGO;
-if ($_GET["type"] == "small") {
+if ('small' == $_GET['type']) {
     $image = ALLOC_LOGO_SMALL;
 }
 

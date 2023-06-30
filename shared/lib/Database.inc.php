@@ -8,7 +8,6 @@
 // DB abstraction
 class Database
 {
-
     public $username;
 
     public $password;
@@ -31,7 +30,7 @@ class Database
 
     public static $stop_doing_queries = false;
 
-    public function __construct($username = "", $password = "", $hostname = "", $database = "")
+    public function __construct($username = '', $password = '', $hostname = '', $database = '')
     {
         // Constructor
         $this->username = $username;
@@ -45,15 +44,16 @@ class Database
      * is set to true.
      *
      * @param bool $force Optional. If true, a new connection will be
-     * established even if one already exists. Default is false.
-     * @return bool True if the connection is successful, false otherwise.
+     *                    established even if one already exists. Default is false.
+     *
+     * @return bool true if the connection is successful, false otherwise
      */
     public function connect($force = false): bool
     {
-        if ($force || $this->pdo === null) {
+        if ($force || null === $this->pdo) {
             try {
-                $host = $this->hostname ? sprintf('host=%s;', $this->hostname) : "";
-                $dbname = $this->database ? sprintf('dbname=%s;', $this->database) : "";
+                $host = $this->hostname ? sprintf('host=%s;', $this->hostname) : '';
+                $dbname = $this->database ? sprintf('dbname=%s;', $this->database) : '';
 
                 $this->pdo = new PDO(
                     sprintf('mysql:%s%scharset=UTF8', $host, $dbname),
@@ -61,13 +61,14 @@ class Database
                     $this->password,
                     [
                         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",
+                        PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
                     ]
                 );
 
                 return true;
             } catch (PDOException $e) {
                 $this->error(sprintf('Unable to connect to database: %s', $e->getMessage()));
+
                 return false;
             }
         }
@@ -107,21 +108,21 @@ class Database
     public function error($msg = false, $errno = false)
     {
         $m = null;
-        if ($errno == 1451 || $errno == 1217) {
-            $m = "Error: " . $errno . " There are other records in the database that depend on the item you just tried to delete.
+        if (1451 == $errno || 1217 == $errno) {
+            $m = 'Error: ' . $errno . ' There are other records in the database that depend on the item you just tried to delete.
             Remove those other records first and then try to delete this item again.
-            <br><br>" . $msg;
-        } elseif ($errno == 1216) {
-            $m = "Error: " . $errno . " The parent record of the item you just tried to create does not exist in the database.
+            <br><br>' . $msg;
+        } elseif (1216 == $errno) {
+            $m = 'Error: ' . $errno . ' The parent record of the item you just tried to create does not exist in the database.
             Create that other record first and then try to create this item again.
-            <br><br>" . $msg;
+            <br><br>' . $msg;
         } elseif (preg_match("/(ALLOC ERROR:([^']*)')/m", $msg, $matches)) {
-            $m = "Error: " . $matches[2];
+            $m = 'Error: ' . $matches[2];
         } elseif ($msg) {
-            $m = "Error: " . $msg;
+            $m = 'Error: ' . $msg;
         }
 
-        if ($m !== null) {
+        if (null !== $m) {
             alloc_error($m);
         }
 
@@ -144,16 +145,16 @@ class Database
             return $str;
         }
 
-        if ($this->pdo === null) {
+        if (null === $this->pdo) {
             $this->connect();
         }
 
         $v = $this->pdo->quote($str);
-        if (substr($v, -1) == "'") {
+        if ("'" == substr($v, -1)) {
             $v = substr($v, 0, -1);
         }
 
-        if (substr($v, 0, 1) == "'") {
+        if ("'" == substr($v, 0, 1)) {
             return substr($v, 1);
         }
 
@@ -161,12 +162,13 @@ class Database
     }
 
     /**
-     * Executes a SQL query and returns a single row of the result set
+     * Executes a SQL query and returns a single row of the result set.
      *
-     * @deprecated Don't use this function, use PDO::prepare() and friends
-     * instead.
+     * @deprecated don't use this function, use PDO::prepare() and friends
+     * instead
      *
      * @param mixed ...$params Query parameters to be escaped before execution
+     *
      * @return mixed|null Returns a single row of the result set or null if the
      *                    query returned no results
      */
@@ -174,20 +176,21 @@ class Database
     {
         $query = $this->get_escaped_query_str($params);
         $id = $this->query($query);
+
         return $this->row($id);
     }
 
     private function _query(string $query)
     {
-        if (!self::$stop_doing_queries || $query == "ROLLBACK") {
+        if (!self::$stop_doing_queries || 'ROLLBACK' == $query) {
             try {
-                if (gettype($query) === "string") {
+                if ('string' === gettype($query)) {
                     return $this->pdo->query($query);
                 }
 
                 alloc_error("Alloc's internal code is fucked.");
             } catch (PDOException $e) {
-                $this->error("Error executing query: " . $e->getMessage());
+                $this->error('Error executing query: ' . $e->getMessage());
             }
         }
     }
@@ -195,22 +198,22 @@ class Database
     public function query(...$args)
     {
         $rtn = null;
-        $current_user = &singleton("current_user");
+        $current_user = &singleton('current_user');
         $this->connect();
         $query = $this->get_escaped_query_str($args);
 
-        if ($query && gettype($query) === "string" && !self::$stop_doing_queries) {
-            if (is_object($current_user) && method_exists($current_user, "get_id") && $current_user->get_id()) {
-                $this->_query(unsafe_prepare("SET @personID = %d", $current_user->get_id()));
+        if ($query && 'string' === gettype($query) && !self::$stop_doing_queries) {
+            if (is_object($current_user) && method_exists($current_user, 'get_id') && $current_user->get_id()) {
+                $this->_query(unsafe_prepare('SET @personID = %d', $current_user->get_id()));
             } else {
-                $this->_query("SET @personID = NULL");
+                $this->_query('SET @personID = NULL');
             }
 
             $rtn = $this->_query($query);
 
             if (!$rtn) {
                 $info = $this->pdo->errorInfo();
-                $this->error("Query failed: " . $info[0] . " " . $info[1] . "\n" . $query, $info[2]);
+                $this->error('Query failed: ' . $info[0] . ' ' . $info[1] . "\n" . $query, $info[2]);
                 $this->rollback();
                 unset($this->pdo_statement);
             } else {
@@ -222,13 +225,14 @@ class Database
         return $rtn;
     }
 
-    public function num($pdo_statement = "")
+    public function num($pdo_statement = '')
     {
         $pdo_statement || ($pdo_statement = $this->pdo_statement);
+
         return $pdo_statement->rowCount();
     }
 
-    public function num_rows($pdo_statement = "")
+    public function num_rows($pdo_statement = '')
     {
         return $this->num($pdo_statement);
     }
@@ -239,13 +243,14 @@ class Database
      * @deprecated This function is deprecated. Use PDOStatement::fetch()
      *
      * @param PDOStatement|null $pdoStatement Optional. The PDOStatement object
-                                       to fetch the row from. If not
-                                       provided, the method uses the
-                                       current instance's pdo_statement.
-     * @param int $method Optional. The fetch style to use. Default is
-     *                    PDO::FETCH_ASSOC.
-     * @return array|object|false|null The fetched row, or false if there are no
-     *                                 more rows, or null if an error occurs.
+     *                                        to fetch the row from. If not
+     *                                        provided, the method uses the
+     *                                        current instance's pdo_statement.
+     * @param int               $method       Optional. The fetch style to use. Default is
+     *                                        PDO::FETCH_ASSOC.
+     *
+     * @return array|object|false|null the fetched row, or false if there are no
+     *                                 more rows, or null if an error occurs
      */
     public function row(PDOStatement $pdoStatement = null, int $method = PDO::FETCH_ASSOC)
     {
@@ -260,7 +265,7 @@ class Database
 
             if ($pdoStatement) {
                 unset($this->row);
-                if ($this->pos !== null) {
+                if (null !== $this->pos) {
                     $this->row = $pdoStatement->fetch($method, PDO::FETCH_ORI_ABS, $this->pos);
                     unset($this->pos);
                 } else {
@@ -277,8 +282,8 @@ class Database
      *
      * @deprecated This function is deprecated. Use PDOStatement::fetch()
      *
-     * @return array|null The next row from the result set, or null if there are
-     *                    no more rows.
+     * @return array|null the next row from the result set, or null if there are
+     *                    no more rows
      */
     public function next_record()
     {
@@ -290,12 +295,13 @@ class Database
      *
      * @deprecated This function is deprecated. Use PDOStatement::fetch()
      *
-     * @param string $name The name of the column to retrieve the value from.
+     * @param string $name the name of the column to retrieve the value from
+     *
      * @return string The value of the specified column
      */
     public function f(string $name): string
     {
-        return $this->row[$name] ?? "";
+        return $this->row[$name] ?? '';
     }
 
     public function get_table_fields($table)
@@ -307,16 +313,17 @@ class Database
         }
 
         $database = $this->database;
-        if (strstr($table, ".")) {
-            [$database, $table] = explode(".", $table);
+        if (strstr($table, '.')) {
+            [$database, $table] = explode('.', $table);
         }
 
-        $this->query("SHOW COLUMNS FROM " . $table);
+        $this->query('SHOW COLUMNS FROM ' . $table);
         while ($row = $this->row()) {
-            $fields[$table][] = $row["Field"];
+            $fields[$table][] = $row['Field'];
         }
 
         $fields[$table] || ($fields[$table] = []);
+
         return $fields[$table];
     }
 
@@ -327,10 +334,10 @@ class Database
             return $keys[$table];
         }
 
-        $this->query("SHOW KEYS FROM %s", $table);
+        $this->query('SHOW KEYS FROM %s', $table);
         while ($row = $this->row()) {
-            if (!$row["Non_unique"]) {
-                $keys[$table][] = $row["Column_name"];
+            if (!$row['Non_unique']) {
+                $keys[$table][] = $row['Column_name'];
             }
         }
 
@@ -350,25 +357,27 @@ class Database
 
         $row = $this->unset_invalid_field_names($table, $row, $keys);
 
-        if ($do_update !== null) {
+        if (null !== $do_update) {
             $q = sprintf(
-                "UPDATE %s SET %s WHERE %s",
+                'UPDATE %s SET %s WHERE %s',
                 $table,
                 $this->get_update_str($row),
-                $this->get_update_str($keys, " AND ")
+                $this->get_update_str($keys, ' AND ')
             );
             (is_countable($row) ? count($row) : 0) && $this->query($q);
             reset($keys);
+
             return current($keys);
         }
 
         $q = sprintf(
-            "INSERT INTO %s (%s) VALUES (%s)",
+            'INSERT INTO %s (%s) VALUES (%s)',
             $table,
             $this->get_insert_str_fields($row),
             $this->get_insert_str_values($row)
         );
         (is_countable($row) ? count($row) : 0) && $this->query($q);
+
         return $this->get_insert_id();
     }
 
@@ -376,23 +385,24 @@ class Database
     {
         $row = $this->unset_invalid_field_names($table, $row);
         $q = sprintf(
-            "DELETE FROM %s WHERE %s",
+            'DELETE FROM %s WHERE %s',
             $table,
-            $this->get_update_str($row, " AND ")
+            $this->get_update_str($row, ' AND ')
         );
         if ((is_countable($row) ? count($row) : 0) !== 0) {
             $pdo_statement = $this->query($q);
+
             return $pdo_statement->rowCount();
         }
     }
 
     public function get_insert_str_fields($row)
     {
-        $rtn = "";
-        $commar = "";
+        $rtn = '';
+        $commar = '';
         foreach ($row as $fieldname => $value) {
             $rtn .= $commar . $fieldname;
-            $commar = ", ";
+            $commar = ', ';
         }
 
         return $rtn;
@@ -400,22 +410,22 @@ class Database
 
     public function get_insert_str_values($row)
     {
-        $rtn = "";
-        $commar = "";
+        $rtn = '';
+        $commar = '';
         foreach ($row as $fieldname => $value) {
             $rtn .= $commar . $this->esc($value);
-            $commar = ", ";
+            $commar = ', ';
         }
 
         return $rtn;
     }
 
-    public function get_update_str($row, $glue = ", ")
+    public function get_update_str($row, $glue = ', ')
     {
-        $rtn = "";
-        $commar = "";
+        $rtn = '';
+        $commar = '';
         foreach ($row as $fieldname => $value) {
-            $rtn .= $commar . " " . $fieldname . " = " . $this->esc($value);
+            $rtn .= $commar . ' ' . $fieldname . ' = ' . $this->esc($value);
             $commar = $glue;
         }
 
@@ -434,6 +444,7 @@ class Database
         }
 
         $row || ($row = []);
+
         return $row;
     }
 
@@ -446,6 +457,7 @@ class Database
     {
         $this->query("SHOW VARIABLES LIKE 'character_set_client'");
         $row = $this->row();
-        return $row["Value"];
+
+        return $row['Value'];
     }
 }

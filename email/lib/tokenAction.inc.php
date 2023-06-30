@@ -7,15 +7,15 @@
 
 class tokenAction extends DatabaseEntity
 {
-    public $classname = "tokenAction";
+    public $classname = 'tokenAction';
 
-    public $data_table = "tokenAction";
+    public $data_table = 'tokenAction';
 
-    public $key_field = "tokenActionID";
+    public $key_field = 'tokenActionID';
 
     public $data_fields = [
-        "tokenAction",
-        "tokenActionType",
-        "tokenActionMethod",
+        'tokenAction',
+        'tokenActionType',
+        'tokenActionMethod',
     ];
 }

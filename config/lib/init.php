@@ -7,7 +7,7 @@
 
 class config_module extends Module
 {
-    public $module = "config";
+    public $module = 'config';
 
-    public $databaseEntities = ["config"];
+    public $databaseEntities = ['config'];
 }

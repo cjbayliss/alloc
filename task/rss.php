@@ -1,6 +1,6 @@
 <?php
 
-include_once(__DIR__ . '/../alloc.php');
+include_once __DIR__ . '/../alloc.php';
 
 $max_events = config::get_config_item('rssEntries');
 $show_project = config::get_config_item('rssShowProject');
@@ -17,7 +17,7 @@ function gen_key($prefix = 0): string
 {
     static $subidx = 0;
     // this falls apart if the feed runs to more than 9999 items
-    return '!' . $prefix . sprintf("%04d", $subidx++);
+    return '!' . $prefix . sprintf('%04d', $subidx++);
 }
 
 // a single '&' can't be inserted into the XML stream because it's used to
@@ -48,12 +48,12 @@ $db->query($query);
 
 while ($row = $db->next_record()) {
     $key = $row['dateChanged'] . gen_key(1);
-    $el = ["date" => $row['dateChanged']];
+    $el = ['date' => $row['dateChanged']];
 
-    $name = $row['personID'] ? $people[$row['personID']]['username'] : "Unassigned";
+    $name = $row['personID'] ? $people[$row['personID']]['username'] : 'Unassigned';
 
     // 'value' contains the true task status, whereas 'taskStatus' does not.
-    if ($row['field'] != "taskStatus" || in_array($row['value'], $status_types, true)) {
+    if ('taskStatus' != $row['field'] || in_array($row['value'], $status_types, true)) {
         $taskName = escape_xml($row['taskName']);
         $project = null;
         if ($show_project) {
@@ -65,9 +65,9 @@ while ($row = $db->next_record()) {
 
         if ($summary) {
             $el['desc'] = sprintf('%s: %d %s "%s" %s', $name, $row['taskID'], $projectName, $taskName, $row['value']);
-        } elseif ($row['field'] == "taskStatus") {
+        } elseif ('taskStatus' == $row['field']) {
             $el['desc'] = sprintf('Task #%d "%s" (%s) status changed to %s', $row['taskID'], $taskName, $projectName, $row['value']);
-        } elseif ($row['field'] == "personID") {
+        } elseif ('personID' == $row['field']) {
             $el['desc'] = sprintf('Task #%d "%s" (%s) assigned to %s', $row['taskID'], $taskName, $projectName, $name);
         }
 
@@ -78,10 +78,10 @@ while ($row = $db->next_record()) {
 // generate the actual feed
 $rss = new SimpleXMLElement('<rss version="2.0" />');
 
-$channel = $rss->addChild("channel");
-$channel->addChild("title", "allocPSA event feed");
-$channel->addChild("link", config::get_config_item("allocURL")); // pull from config
-$channel->addChild("description", "Alloc task event feed.");
+$channel = $rss->addChild('channel');
+$channel->addChild('title', 'allocPSA event feed');
+$channel->addChild('link', config::get_config_item('allocURL')); // pull from config
+$channel->addChild('description', 'Alloc task event feed.');
 
 // the RSS reader in supybot requires items be in reverse chronological order
 $keys = array_keys($events);
@@ -92,10 +92,10 @@ rsort($keys);
 // may show it as a new event. Therefore, trim the list.
 for ($i = 0; $i < $max_events; ++$i) {
     $event = $events[$keys[$i]];
-    $item = $channel->addChild("item");
-    $item->addChild("title", $event['desc']);
+    $item = $channel->addChild('item');
+    $item->addChild('title', $event['desc']);
     $date = strtotime($event['date']);
-    $item->addChild("pubDate", strftime("%a, %d %b %Y %H:%M:%S %z", $date));
+    $item->addChild('pubDate', strftime('%a, %d %b %Y %H:%M:%S %z', $date));
 }
 
 echo $rss->asXML();

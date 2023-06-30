@@ -5,33 +5,33 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 function show_announcements($template_name)
 {
     global $TPL;
-    $people = &get_cached_table("person");
+    $people = &get_cached_table('person');
 
     $database = new AllocDatabase();
     $database->connect();
 
     $getAnnouncements = $database->pdo->query(
-        "SELECT announcement.*
+        'SELECT announcement.*
            FROM announcement
-       ORDER BY displayFromDate DESC"
+       ORDER BY displayFromDate DESC'
     );
 
-    $TPL["odd_even"] ??= "even";
+    $TPL['odd_even'] ??= 'even';
     while ($announcementRow = $getAnnouncements->fetch(PDO::FETCH_ASSOC)) {
         $announcement = new announcement();
         $announcement->read_row_record($announcementRow);
         $announcement->set_values();
-        $TPL["personName"] = $people[$announcement->get_value("personID")]["name"];
-        $TPL["odd_even"] = $TPL["odd_even"] == "odd" ? "even" : "odd";
+        $TPL['personName'] = $people[$announcement->get_value('personID')]['name'];
+        $TPL['odd_even'] = 'odd' == $TPL['odd_even'] ? 'even' : 'odd';
         include_template($template_name);
     }
 }
 
-$TPL["main_alloc_title"] = "Announcement List - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'Announcement List - ' . APPLICATION_NAME;
 
-include_template("templates/announcementListM.tpl");
+include_template('templates/announcementListM.tpl');

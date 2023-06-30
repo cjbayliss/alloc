@@ -5,16 +5,16 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("NO_REDIRECT", 1);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_REDIRECT', 1);
+require_once __DIR__ . '/../alloc.php';
 
 $defaults = [
-    "showHeader"      => true,
-    "showTaskID"      => true,
-    "taskView"        => "prioritised",
-    "showStatus"      => "true",
-    "url_form_action" => $TPL["url_alloc_settings"],
-    "form_name"       => "taskListHome_filter",
+    'showHeader'      => true,
+    'showTaskID'      => true,
+    'taskView'        => 'prioritised',
+    'showStatus'      => 'true',
+    'url_form_action' => $TPL['url_alloc_settings'],
+    'form_name'       => 'taskListHome_filter',
 ];
 
 $_FORM = Task::load_form_data($defaults);
@@ -23,5 +23,5 @@ if (is_array($arr)) {
     $TPL = array_merge($TPL, $arr);
 }
 
-$TPL["showCancel"] = true;
-include_template("../task/templates/taskFilterS.tpl");
+$TPL['showCancel'] = true;
+include_template('../task/templates/taskFilterS.tpl');

@@ -7,7 +7,7 @@
 
 class client_module extends Module
 {
-    public $module = "client";
+    public $module = 'client';
 
-    public $databaseEntities = ["client", "clientContact"];
+    public $databaseEntities = ['client', 'clientContact'];
 }

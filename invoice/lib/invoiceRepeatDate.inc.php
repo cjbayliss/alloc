@@ -7,11 +7,11 @@
 
 class invoiceRepeatDate extends DatabaseEntity
 {
-    public $classname = "invoiceRepeatDate";
+    public $classname = 'invoiceRepeatDate';
 
-    public $data_table = "invoiceRepeatDate";
+    public $data_table = 'invoiceRepeatDate';
 
-    public $key_field = "invoiceRepeatDateID";
+    public $key_field = 'invoiceRepeatDateID';
 
-    public $data_fields = ["invoiceRepeatID", "invoiceDate"];
+    public $data_fields = ['invoiceRepeatID', 'invoiceDate'];
 }

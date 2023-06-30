@@ -23,7 +23,7 @@ class Module
     {
         $path = __DIR__ . '/../../' . $this->module . '/lib/' . $class . '.inc.php';
         if (file_exists($path)) {
-            require_once($path);
+            require_once $path;
         }
     }
 }

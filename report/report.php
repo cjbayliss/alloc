@@ -5,32 +5,32 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 if (!has_report_perm()) {
     alloc_error("you don't have permission to generate reports.", true);
 }
 
-$current_user = &singleton("current_user");
+$current_user = &singleton('current_user');
 
-$TPL["mod"] = $_POST["mod"];
-$TPL["do_step_2"] = $_POST["do_step_2"];
-$TPL["do_step_3"] = $_POST["do_step_3"];
+$TPL['mod'] = $_POST['mod'];
+$TPL['do_step_2'] = $_POST['do_step_2'];
+$TPL['do_step_3'] = $_POST['do_step_3'];
 
 $modules = [];
-$current_user->have_role("admin") && ($modules["transaction"] = "Transactions");
-$modules["invoice"] = "Invoices";
-$modules["project"] = "Projects";
-$modules["task"] = "Tasks";
-$modules["time"] = "Time Sheets";
-$modules["client"] = "Clients";
-$modules["item"] = "Items";
-$modules["person"] = "Users";
-$modules["announcement"] = "Announcements";
+$current_user->have_role('admin') && ($modules['transaction'] = 'Transactions');
+$modules['invoice'] = 'Invoices';
+$modules['project'] = 'Projects';
+$modules['task'] = 'Tasks';
+$modules['time'] = 'Time Sheets';
+$modules['client'] = 'Clients';
+$modules['item'] = 'Items';
+$modules['person'] = 'Users';
+$modules['announcement'] = 'Announcements';
 
-$TPL["module_options"] = Page::select_options($modules, $_POST["mod"]);
+$TPL['module_options'] = Page::select_options($modules, $_POST['mod']);
 
-if ($_POST["do_step_2"]) {
+if ($_POST['do_step_2']) {
     if (!is_array($fields)) {
         $fields = [];
     }
@@ -39,273 +39,273 @@ if ($_POST["do_step_2"]) {
     $table_fields = [];
     $db_tables = [];
 
-    if ($_POST["mod"] == "client") {
-        $db_tables[] = "client";
-        $db_tables[] = "clientContact";
-        $db_tables[] = "comment";
-        $query["join"] = " LEFT JOIN clientContact ON client.clientID = clientContact.clientID";
-        $query["join"] .= " LEFT JOIN comment ON (client.clientID = comment.commentLinkID AND commentType = 'client')";
+    if ('client' == $_POST['mod']) {
+        $db_tables[] = 'client';
+        $db_tables[] = 'clientContact';
+        $db_tables[] = 'comment';
+        $query['join'] = ' LEFT JOIN clientContact ON client.clientID = clientContact.clientID';
+        $query['join'] .= " LEFT JOIN comment ON (client.clientID = comment.commentLinkID AND commentType = 'client')";
     }
 
-    if ($_POST["mod"] == "project") {
-        $db_tables[] = "project";
-        $db_tables[] = "projectCommissionPerson";
-        $db_tables[] = "projectPerson";
-        $query["join"] = " LEFT JOIN projectCommissionPerson ON project.projectID = projectCommissionPerson.projectID";
-        $query["join"] .= " LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID";
+    if ('project' == $_POST['mod']) {
+        $db_tables[] = 'project';
+        $db_tables[] = 'projectCommissionPerson';
+        $db_tables[] = 'projectPerson';
+        $query['join'] = ' LEFT JOIN projectCommissionPerson ON project.projectID = projectCommissionPerson.projectID';
+        $query['join'] .= ' LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID';
     }
 
-    if ($_POST["mod"] == "task") {
-        $db_tables[] = "task";
+    if ('task' == $_POST['mod']) {
+        $db_tables[] = 'task';
     }
 
-    if ($_POST["mod"] == "time") {
-        $db_tables[] = "timeSheet";
-        $db_tables[] = "timeSheetItem";
-        $query["join"] = " LEFT JOIN timeSheetItem ON timeSheet.timeSheetID = timeSheetItem.timeSheetID";
+    if ('time' == $_POST['mod']) {
+        $db_tables[] = 'timeSheet';
+        $db_tables[] = 'timeSheetItem';
+        $query['join'] = ' LEFT JOIN timeSheetItem ON timeSheet.timeSheetID = timeSheetItem.timeSheetID';
     }
 
-    if ($_POST["mod"] == "transaction" && $current_user->have_role("admin")) {
-        $db_tables[] = "tf";
-        $db_tables[] = "transaction";
-        $db_tables[] = "transactionRepeat";
-        $db_tables[] = "expenseForm";
-        $query["join"] .= " LEFT JOIN transaction ON transaction.tfID = tf.tfID";
-        $query["join"] .= " LEFT JOIN transactionRepeat ON transaction.tfID = transactionRepeat.tfID";
-        $query["join"] .= " LEFT JOIN expenseForm ON expenseForm.expenseformID = transaction.expenseformID";
+    if ('transaction' == $_POST['mod'] && $current_user->have_role('admin')) {
+        $db_tables[] = 'tf';
+        $db_tables[] = 'transaction';
+        $db_tables[] = 'transactionRepeat';
+        $db_tables[] = 'expenseForm';
+        $query['join'] .= ' LEFT JOIN transaction ON transaction.tfID = tf.tfID';
+        $query['join'] .= ' LEFT JOIN transactionRepeat ON transaction.tfID = transactionRepeat.tfID';
+        $query['join'] .= ' LEFT JOIN expenseForm ON expenseForm.expenseformID = transaction.expenseformID';
     }
 
-    if ($_POST["mod"] == "invoice") {
-        $db_tables[] = "invoice";
-        $db_tables[] = "invoiceItem";
-        $query["join"] .= " LEFT JOIN invoiceItem on invoice.invoiceID = invoiceItem.invoiceID";
+    if ('invoice' == $_POST['mod']) {
+        $db_tables[] = 'invoice';
+        $db_tables[] = 'invoiceItem';
+        $query['join'] .= ' LEFT JOIN invoiceItem on invoice.invoiceID = invoiceItem.invoiceID';
     }
 
-    if ($_POST["mod"] == "item") {
-        $db_tables[] = "item";
+    if ('item' == $_POST['mod']) {
+        $db_tables[] = 'item';
     }
 
-    if ($_POST["mod"] == "person") {
-        $db_tables[] = "person";
+    if ('person' == $_POST['mod']) {
+        $db_tables[] = 'person';
     }
 
-    if ($_POST["mod"] == "announcement") {
-        $db_tables[] = "announcement";
+    if ('announcement' == $_POST['mod']) {
+        $db_tables[] = 'announcement';
     }
 
     // this is how to not include particular fields $ignored_fields[] = "timeSheetItem.timeSheetItemID";
 
-    $query["start"] = " SELECT ";
-    $query["where"] = " WHERE 1=1 ";
-    $query["from"] = unsafe_prepare(" FROM %s ", $db_tables[0]);
+    $query['start'] = ' SELECT ';
+    $query['where'] = ' WHERE 1=1 ';
+    $query['from'] = unsafe_prepare(' FROM %s ', $db_tables[0]);
 
     foreach ($db_tables as $db_table) {
         if (class_exists($db_table)) {
-            $class = new $db_table;
-            $TPL["table_fields"] .= '<tr><td colspan="6">&nbsp;</td></tr>';
-            $TPL["table_fields"] .= '<tr><td colspan="6"><b>' . strtoupper($db_table) . "</b></td></tr>";
-            if (is_object($class) && $class->key_field->label == ($db_table . "ID")) {
+            $class = new $db_table();
+            $TPL['table_fields'] .= '<tr><td colspan="6">&nbsp;</td></tr>';
+            $TPL['table_fields'] .= '<tr><td colspan="6"><b>' . strtoupper($db_table) . '</b></td></tr>';
+            if (is_object($class) && $class->key_field->label == ($db_table . 'ID')) {
                 if (count($db_tables) > 1) {
-                    $groupby_str = $db_table . "." . $db_table . "ID";
+                    $groupby_str = $db_table . '.' . $db_table . 'ID';
                     $groupby = '<input type="radio" name="table_groupby" value="';
                     $groupby .= $groupby_str . '"';
-                    $groupby .= ($_POST["table_groupby"] == $groupby_str ? " checked" : "") . ">";
-                    $groupby = "<b>Group by this table</b> " . $groupby;
+                    $groupby .= ($_POST['table_groupby'] == $groupby_str ? ' checked' : '') . '>';
+                    $groupby = '<b>Group by this table</b> ' . $groupby;
                 } else {
-                    $groupby = "&nbsp;";
+                    $groupby = '&nbsp;';
                 }
             }
 
-            $TPL["table_fields"] .= '<tr><td colspan="6">' . $groupby . "</td></tr><tr>";
-            $TPL["table_fields"] .= "<td>&nbsp;</td>";
-            $TPL["table_fields"] .= "<td><b>Like (john smit%)</b></td><td><b>Numerical (>=5)</b></td>";
-            $TPL["table_fields"] .= "<td>&nbsp;</td>";
-            $TPL["table_fields"] .= "<td><b>Like (john smit%)</b></td><td><b>Numerical (>=5)</b></td>";
-            $TPL["table_fields"] .= "</tr>";
+            $TPL['table_fields'] .= '<tr><td colspan="6">' . $groupby . '</td></tr><tr>';
+            $TPL['table_fields'] .= '<td>&nbsp;</td>';
+            $TPL['table_fields'] .= '<td><b>Like (john smit%)</b></td><td><b>Numerical (>=5)</b></td>';
+            $TPL['table_fields'] .= '<td>&nbsp;</td>';
+            $TPL['table_fields'] .= '<td><b>Like (john smit%)</b></td><td><b>Numerical (>=5)</b></td>';
+            $TPL['table_fields'] .= '</tr>';
             unset($i);
             $class->data_fields[$class->key_field->get_name()] = true;
             foreach ($class->data_fields as $name => $v) {
-                $str = $db_table . "." . $name;
+                $str = $db_table . '.' . $name;
                 if (!in_array($str, $ignored_fields)) {
                     $table_fields[] = $str;
-                    $TPL["table_fields"] .= '<td valign="middle">';
-                    $TPL["table_fields"] .= "\n<input type=\"checkbox\" name=\"table_name[" . $str . ']" value="';
-                    $TPL["table_fields"] .= $str . '"' . ($_POST["table_name"][$str] == $str ? " checked" : "") . ">";
-                    $TPL["table_fields"] .= $name;
-                    $TPL["table_fields"] .= '</td><td valign="middle">';
-                    $TPL["table_fields"] .= "\n<input type=\"text\" name=\"table_like[" . $str . ']"';
-                    $TPL["table_fields"] .= 'value="' . $_POST["table_like"][$str] . "\"size=\"15\">\n";
-                    $TPL["table_fields"] .= '</td><td valign="middle">';
-                    $TPL["table_fields"] .= '<input type="text" name="table_num_op_1[' . $str . ']" value="';
-                    $TPL["table_fields"] .= $_POST["table_num_op_1"][$str] . '" size="8"> and ';
-                    $TPL["table_fields"] .= '<input type="text" name="table_num_op_2[' . $str . ']" value="';
-                    $TPL["table_fields"] .= $_POST["table_num_op_2"][$str] . '" size="8">';
-                    $TPL["table_fields"] .= "</td>";
+                    $TPL['table_fields'] .= '<td valign="middle">';
+                    $TPL['table_fields'] .= "\n<input type=\"checkbox\" name=\"table_name[" . $str . ']" value="';
+                    $TPL['table_fields'] .= $str . '"' . ($_POST['table_name'][$str] == $str ? ' checked' : '') . '>';
+                    $TPL['table_fields'] .= $name;
+                    $TPL['table_fields'] .= '</td><td valign="middle">';
+                    $TPL['table_fields'] .= "\n<input type=\"text\" name=\"table_like[" . $str . ']"';
+                    $TPL['table_fields'] .= 'value="' . $_POST['table_like'][$str] . "\"size=\"15\">\n";
+                    $TPL['table_fields'] .= '</td><td valign="middle">';
+                    $TPL['table_fields'] .= '<input type="text" name="table_num_op_1[' . $str . ']" value="';
+                    $TPL['table_fields'] .= $_POST['table_num_op_1'][$str] . '" size="8"> and ';
+                    $TPL['table_fields'] .= '<input type="text" name="table_num_op_2[' . $str . ']" value="';
+                    $TPL['table_fields'] .= $_POST['table_num_op_2'][$str] . '" size="8">';
+                    $TPL['table_fields'] .= '</td>';
                     if (isset($i)) {
-                        $TPL["table_fields"] .= "</tr><tr>";
+                        $TPL['table_fields'] .= '</tr><tr>';
                         unset($i);
                     } else {
-                        $i = "set";
+                        $i = 'set';
                     }
                 }
             }
         } else {
-            alloc_error("class " . $db_table . " does not exist.. ");
+            alloc_error('class ' . $db_table . ' does not exist.. ');
         }
     }
 
-    $TPL["table_fields"] .= "</tr>";
+    $TPL['table_fields'] .= '</tr>';
 
-    if ($_POST["field_quotes"] == "single") {
-        $s_q_sel = " selected";
-    } elseif ($_POST["field_quotes"] == "double") {
-        $d_q_sel = " selected";
+    if ('single' == $_POST['field_quotes']) {
+        $s_q_sel = ' selected';
+    } elseif ('double' == $_POST['field_quotes']) {
+        $d_q_sel = ' selected';
     }
 
-    if ($_POST["generate_file"]) {
-        $g_f_sel = " checked";
+    if ($_POST['generate_file']) {
+        $g_f_sel = ' checked';
     }
 
-    $_POST["field_separator"] || ($_POST["field_separator"] = ",");
+    $_POST['field_separator'] || ($_POST['field_separator'] = ',');
 
-    $TPL["dump_options"] .= "Generate File: ";
-    $TPL["dump_options"] .= '<input type="checkbox" name="generate_file"' . $g_f_sel . "> ";
-    $TPL["dump_options"] .= " with field separator ";
-    $TPL["dump_options"] .= '<input type="text" name="field_separator" size="5" value="';
-    $TPL["dump_options"] .= $_POST["field_separator"] . "\"> (type 'tab' for tab).";
-    $TPL["dump_options"] .= "<br>Quotes around fields: ";
-    $TPL["dump_options"] .= '<select name="field_quotes">';
-    $TPL["dump_options"] .= '<option value="">None';
-    $TPL["dump_options"] .= '<option value="single"' . $s_q_sel . ">Single";
-    $TPL["dump_options"] .= '<option value="double"' . $d_q_sel . ">Double";
-    $TPL["dump_options"] .= "</select><br>";
-    $TPL["dump_options"] .= '<br><br>
+    $TPL['dump_options'] .= 'Generate File: ';
+    $TPL['dump_options'] .= '<input type="checkbox" name="generate_file"' . $g_f_sel . '> ';
+    $TPL['dump_options'] .= ' with field separator ';
+    $TPL['dump_options'] .= '<input type="text" name="field_separator" size="5" value="';
+    $TPL['dump_options'] .= $_POST['field_separator'] . "\"> (type 'tab' for tab).";
+    $TPL['dump_options'] .= '<br>Quotes around fields: ';
+    $TPL['dump_options'] .= '<select name="field_quotes">';
+    $TPL['dump_options'] .= '<option value="">None';
+    $TPL['dump_options'] .= '<option value="single"' . $s_q_sel . '>Single';
+    $TPL['dump_options'] .= '<option value="double"' . $d_q_sel . '>Double';
+    $TPL['dump_options'] .= '</select><br>';
+    $TPL['dump_options'] .= '<br><br>
   <button type="submit" name="do_step_3" value="1" class="filter_button">Generate Database Report<i class="icon-cogs"></i></button>
   ';
 }
 
 // END STEP TWO
 
-if ($_POST["do_step_3"]) {
+if ($_POST['do_step_3']) {
     if (!is_array($table_fields)) {
-        alloc_error("Did not get table_fields array.");
+        alloc_error('Did not get table_fields array.');
         $table_fields = [];
     }
 
     foreach ($table_fields as $table_field) {
-        if ($_POST["table_name"][$table_field] != "") {
-            $query["select"] .= $commar . db_esc($_POST["table_name"][$table_field]);
-            $commar = ",";          // no commar the first time
+        if ('' != $_POST['table_name'][$table_field]) {
+            $query['select'] .= $commar . db_esc($_POST['table_name'][$table_field]);
+            $commar = ',';          // no commar the first time
 
-            if ($_POST["table_like"][$table_field] != "") {
-                $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " LIKE '" . db_esc($_POST["table_like"][$table_field]) . "'";
+            if ('' != $_POST['table_like'][$table_field]) {
+                $query['where'] .= ' AND ' . db_esc($_POST['table_name'][$table_field]) . " LIKE '" . db_esc($_POST['table_like'][$table_field]) . "'";
             }
 
-            if ($_POST["table_num_op_1"][$table_field] != "") {
-                if (preg_match("/([^\d]{1,2})(\d\d\d\d\-\d\d?-\d\d?)/", $_POST["table_num_op_1"][$table_field], $m)) {
-                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " " . db_esc($m[1]) . "'" . db_esc($m[2]) . "'";
+            if ('' != $_POST['table_num_op_1'][$table_field]) {
+                if (preg_match('/([^\\d]{1,2})(\\d\\d\\d\\d\\-\\d\\d?-\\d\\d?)/', $_POST['table_num_op_1'][$table_field], $m)) {
+                    $query['where'] .= ' AND ' . db_esc($_POST['table_name'][$table_field]) . ' ' . db_esc($m[1]) . "'" . db_esc($m[2]) . "'";
                 } else {
-                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " " . db_esc($_POST["table_num_op_1"][$table_field]);
+                    $query['where'] .= ' AND ' . db_esc($_POST['table_name'][$table_field]) . ' ' . db_esc($_POST['table_num_op_1'][$table_field]);
                 }
             }
 
-            if ($_POST["table_num_op_2"][$table_field] != "") {
-                if (preg_match("/([^\d]{1,2})(\d\d\d\d\-\d\d?-\d\d?)/", $_POST["table_num_op_2"][$table_field], $m)) {
-                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " " . db_esc($m[1]) . "'" . db_esc($m[2]) . "'";
+            if ('' != $_POST['table_num_op_2'][$table_field]) {
+                if (preg_match('/([^\\d]{1,2})(\\d\\d\\d\\d\\-\\d\\d?-\\d\\d?)/', $_POST['table_num_op_2'][$table_field], $m)) {
+                    $query['where'] .= ' AND ' . db_esc($_POST['table_name'][$table_field]) . ' ' . db_esc($m[1]) . "'" . db_esc($m[2]) . "'";
                 } else {
-                    $query["where"] .= " AND " . db_esc($_POST["table_name"][$table_field]) . " " . db_esc($_POST["table_num_op_2"][$table_field]);
+                    $query['where'] .= ' AND ' . db_esc($_POST['table_name'][$table_field]) . ' ' . db_esc($_POST['table_num_op_2'][$table_field]);
                 }
             }
         }
     }
 
-    if ($_POST["table_groupby"] != "") {
-        if (!isset($query["group"])) {
-            $query["group"] = " GROUP BY " . db_esc($_POST["table_groupby"]);
+    if ('' != $_POST['table_groupby']) {
+        if (!isset($query['group'])) {
+            $query['group'] = ' GROUP BY ' . db_esc($_POST['table_groupby']);
         } else {
-            $query["group"] .= "," . db_esc($_POST["table_groupby"]);
+            $query['group'] .= ',' . db_esc($_POST['table_groupby']);
         }
     }
 
-    $final_query = $query["start"] . $query["select"] . $query["from"] . $query["join"] . $query["where"] . $query["group"];
+    $final_query = $query['start'] . $query['select'] . $query['from'] . $query['join'] . $query['where'] . $query['group'];
 
-    if ($query["select"]) {
+    if ($query['select']) {
         $db = new AllocDatabase();
         $db->query($final_query);
 
-        $fields = explode(",", $query["select"]);
-        $TPL["result_row"] = "<tr>";
+        $fields = explode(',', $query['select']);
+        $TPL['result_row'] = '<tr>';
         foreach ($fields as $field) {
-            $TPL["result_row"] .= "<th>" . $field . "</th>";
+            $TPL['result_row'] .= '<th>' . $field . '</th>';
         }
 
-        $TPL["result_row"] .= "</tr>";
+        $TPL['result_row'] .= '</tr>';
 
-        if (!$_POST["generate_file"]) {
+        if (!$_POST['generate_file']) {
             $start_row_separator = "<tr class='%s'>";
             $end_row_separator = "</tr>\n";
-            $start_field_separator = "<td>&nbsp;";
-            $end_field_separator = "</td>";
+            $start_field_separator = '<td>&nbsp;';
+            $end_field_separator = '</td>';
         } else {
-            unset($TPL["result_row"]);
-            $start_row_separator = "";
+            unset($TPL['result_row']);
+            $start_row_separator = '';
             $end_row_separator = "\n";
-            $start_field_separator = "";
-            $end_field_separator = $_POST["field_separator"] == 'tab' ? chr(9) : $_POST["field_separator"];
+            $start_field_separator = '';
+            $end_field_separator = 'tab' == $_POST['field_separator'] ? chr(9) : $_POST['field_separator'];
         }
 
-        if ($_POST["field_quotes"] == "single") {
+        if ('single' == $_POST['field_quotes']) {
             $quotes = "'";
         }
 
-        if ($_POST["field_quotes"] == "double") {
+        if ('double' == $_POST['field_quotes']) {
             $quotes = '"';
         }
 
         $taggedFund = new tf();
         while ($db->next_record()) {
-            $odd_even = $odd_even == "even" ? "odd" : "even";
-            $TPL["result_row"] .= sprintf($start_row_separator, $odd_even);
+            $odd_even = 'even' == $odd_even ? 'odd' : 'even';
+            $TPL['result_row'] .= sprintf($start_row_separator, $odd_even);
             foreach ($fields as $k => $field) {
-                $field = end(explode(".", $field));
-                if (stripos("ModifiedUser", $field) !== false || stripos("personID", $field) !== false) {
+                $field = end(explode('.', $field));
+                if (false !== stripos('ModifiedUser', $field) || false !== stripos('personID', $field)) {
                     $person = new person();
                     $person->set_id($db->f($field));
                     $person->select();
-                    $result = $person->get_name(["format" => "nick"]);
-                } elseif (stripos("tfID", $field) !== false) {
+                    $result = $person->get_name(['format' => 'nick']);
+                } elseif (false !== stripos('tfID', $field)) {
                     $result = $taggedFund->get_name($db->f($field));
                 } else {
                     $result = $db->f($field);
                 }
 
-                $TPL["result_row"] .= $start_field_separator;
-                $TPL["result_row"] .= $quotes . $result . $quotes;
-                if (isset($fields[$k + 1]) || !$_POST["generate_file"]) {
-                    $TPL["result_row"] .= $end_field_separator;
+                $TPL['result_row'] .= $start_field_separator;
+                $TPL['result_row'] .= $quotes . $result . $quotes;
+                if (isset($fields[$k + 1]) || !$_POST['generate_file']) {
+                    $TPL['result_row'] .= $end_field_separator;
                 }
             }
 
-            $TPL["result_row"] .= $end_row_separator;
+            $TPL['result_row'] .= $end_row_separator;
             ++$counter;
         }
 
-        $TPL["counter"] = "Number of rows(s): " . $counter;
+        $TPL['counter'] = 'Number of rows(s): ' . $counter;
 
-        if ($_POST["generate_file"]) {
+        if ($_POST['generate_file']) {
             // write to file
-            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Content-Type: application/octet-stream');
-            header('Content-Size: ' . strlen($TPL["result_row"]));
+            header('Content-Size: ' . strlen($TPL['result_row']));
             header('Content-Disposition: attachment; filename="csv_' . time() . '.csv"');
-            echo $TPL["result_row"];
+            echo $TPL['result_row'];
             exit;
         }
     } else {
-        alloc_error("Please select some Fields using the checkboxes.");
+        alloc_error('Please select some Fields using the checkboxes.');
     }
 }
 
-$TPL["main_alloc_title"] = "Reports - " . APPLICATION_NAME;
+$TPL['main_alloc_title'] = 'Reports - ' . APPLICATION_NAME;
 
-include_template("templates/reportM.tpl");
+include_template('templates/reportM.tpl');

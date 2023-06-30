@@ -5,16 +5,16 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 if (!$current_user->is_employee()) {
-    alloc_error("You do not have permission to access time sheets", true);
+    alloc_error('You do not have permission to access time sheets', true);
 }
 
-($timeSheetID = $_POST["timeSheetID"]) || ($timeSheetID = $_GET["timeSheetID"]);
-$timeSheetPrintMode = $_GET["timeSheetPrintMode"];
-$printDesc = $_GET["printDesc"];
-$format = $_GET["format"];
+($timeSheetID = $_POST['timeSheetID']) || ($timeSheetID = $_GET['timeSheetID']);
+$timeSheetPrintMode = $_GET['timeSheetPrintMode'];
+$printDesc = $_GET['printDesc'];
+$format = $_GET['format'];
 
 $t = new timeSheetPrint();
 $t->get_printable_timeSheet_file($timeSheetID, $timeSheetPrintMode, $printDesc, $format);

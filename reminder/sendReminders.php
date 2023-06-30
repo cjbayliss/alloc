@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define("NO_AUTH", true);
-require_once(__DIR__ . "/../alloc.php");
+define('NO_AUTH', true);
+require_once __DIR__ . '/../alloc.php';
 
 $db = new AllocDatabase();
 
@@ -32,7 +32,7 @@ while ($db->next_record()) {
     // echo "<br>Adv: ".$reminder->get_id();
     $current_user = new person();
     $current_user->load_current_user($db->f('reminderCreatedUser'));
-    singleton("current_user", $current_user);
+    singleton('current_user', $current_user);
     if (!$reminder->is_alive()) {
         $reminder->deactivate();
     } else {
@@ -41,11 +41,11 @@ while ($db->next_record()) {
 }
 
 // do reminders
-$query = unsafe_prepare("SELECT *
+$query = unsafe_prepare('SELECT *
                     FROM reminder
                    WHERE reminderActive = 1
                      AND (reminderTime IS NULL OR NOW() > reminderTime)
-                 ");
+                 ');
 
 $db->query($query);
 while ($db->next_record()) {
@@ -54,7 +54,7 @@ while ($db->next_record()) {
     // echo "<br>Rem: ".$reminder->get_id();
     $current_user = new person();
     $current_user->load_current_user($db->f('reminderCreatedUser'));
-    singleton("current_user", $current_user);
+    singleton('current_user', $current_user);
     if (!$reminder->is_alive()) {
         $reminder->deactivate();
     } else {

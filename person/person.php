@@ -5,30 +5,30 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-require_once(__DIR__ . "/../alloc.php");
+require_once __DIR__ . '/../alloc.php';
 
 function show_perm_select()
 {
     global $person;
-    $br = "";
+    $br = '';
     if ($person->have_perm(PERM_PERSON_WRITE_ROLES)) {
-        $selected = explode(",", $person->get_value("perms"));
-        $ops = role::get_roles_array("person");
+        $selected = explode(',', $person->get_value('perms'));
+        $ops = role::get_roles_array('person');
         foreach ($ops as $p => $l) {
-            $sel = "";
+            $sel = '';
             if (in_array($p, $selected)) {
-                $sel = " checked";
+                $sel = ' checked';
             }
 
-            echo $br . '<input type="checkbox" name="perm_select[]" value="' . $p . '"' . $sel . "> " . $l;
-            $br = "<br>";
+            echo $br . '<input type="checkbox" name="perm_select[]" value="' . $p . '"' . $sel . '> ' . $l;
+            $br = '<br>';
         }
     } else {
-        $selected = explode(",", $person->get_value("perms"));
-        $ops = role::get_roles_array("person");
+        $selected = explode(',', $person->get_value('perms'));
+        $ops = role::get_roles_array('person');
         foreach ($selected as $sel) {
             echo $br . $ops[$sel];
-            $br = "<br>";
+            $br = '<br>';
         }
     }
 }
@@ -38,12 +38,12 @@ function show_absence_forms($template)
     global $personID;
 
     $db = new AllocDatabase();
-    $query = unsafe_prepare("SELECT * FROM absence WHERE personID=%d", $personID);
+    $query = unsafe_prepare('SELECT * FROM absence WHERE personID=%d', $personID);
     $db->query($query);
     $absence = new absence();
     while ($db->next_record()) {
         $absence->read_db_record($db);
-        $absence->set_values("absence_");
+        $absence->set_values('absence_');
         include_template($template);
     }
 }
@@ -63,13 +63,13 @@ function include_employee_fields()
 {
     global $person;
     show_skills_list();
-    include_template("templates/personEmployeeFieldsS.tpl");
+    include_template('templates/personEmployeeFieldsS.tpl');
 }
 
 function include_employee_skill_fields()
 {
     global $person;
-    include_template("templates/personEmployeeSkillFieldsS.tpl");
+    include_template('templates/personEmployeeSkillFieldsS.tpl');
 }
 
 function show_person_areasOfExpertise($template)
@@ -80,24 +80,24 @@ function show_person_areasOfExpertise($template)
     global $skill_prof;
     global $skills_got;
 
-    $TPL["personExpertiseItem_buttons"] = '
+    $TPL['personExpertiseItem_buttons'] = '
        <button type="submit" name="personExpertiseItem_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
        <button type="submit" name="personExpertiseItem_save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
          ';
     $proficiencys = [
-        "Novice"       => "Novice",
-        "Junior"       => "Junior",
-        "Intermediate" => "Intermediate",
-        "Advanced"     => "Advanced",
-        "Senior"       => "Senior",
+        'Novice'       => 'Novice',
+        'Junior'       => 'Junior',
+        'Intermediate' => 'Intermediate',
+        'Advanced'     => 'Advanced',
+        'Senior'       => 'Senior',
     ];
 
     // step through the list of skills ordered by skillclass
     $db = new AllocDatabase();
     // $query = "SELECT * FROM skill ORDER BY skillClass,skillName";
-    $query = "SELECT * FROM skill LEFT JOIN proficiency ON skill.skillID=proficiency.skillID";
-    $query .= unsafe_prepare(" WHERE proficiency.personID=%d", $personID);
-    $query .= " ORDER BY skillClass,skillName";
+    $query = 'SELECT * FROM skill LEFT JOIN proficiency ON skill.skillID=proficiency.skillID';
+    $query .= unsafe_prepare(' WHERE proficiency.personID=%d', $personID);
+    $query .= ' ORDER BY skillClass,skillName';
     $db->query($query);
     $currSkillClass = null;
     while ($db->next_record()) {
@@ -119,7 +119,7 @@ function show_person_areasOfExpertise($template)
         }
 
         $skill_prof = $skillProficiencys->get_value('skillProficiency');
-        $TPL["skill_proficiencys"] = Page::select_options($proficiencys, $skill_prof);
+        $TPL['skill_proficiencys'] = Page::select_options($proficiencys, $skill_prof);
 
         // display rating if there is one
         include_template($template);
@@ -133,7 +133,7 @@ function show_skills_list()
     global $skills;
 
     $db = new AllocDatabase();
-    $query = unsafe_prepare("SELECT * FROM proficiency WHERE personID=%d", $personID);
+    $query = unsafe_prepare('SELECT * FROM proficiency WHERE personID=%d', $personID);
     $db->query($query);
     $skills_got = [];
     while ($db->next_record()) {
@@ -142,7 +142,7 @@ function show_skills_list()
         $skills_got[] = $skill->get_id();
     }
 
-    $query = "SELECT * FROM skill ORDER BY skillClass";
+    $query = 'SELECT * FROM skill ORDER BY skillClass';
     $db->query($query);
     while ($db->next_record()) {
         $skill = new skill();
@@ -150,7 +150,7 @@ function show_skills_list()
         if (in_array($skill->get_id(), $skills_got)) {
             // dont show this item
         } else {
-            $skills[$skill->get_id()] = sprintf("%s - %s", $skill->get_value('skillClass'), $skill->get_value('skillName'));
+            $skills[$skill->get_id()] = sprintf('%s - %s', $skill->get_value('skillClass'), $skill->get_value('skillName'));
         }
     }
 
@@ -162,12 +162,13 @@ function show_skills_list()
         return;
     }
 
-    $TPL["skills"] = Page::select_options($skills, "");
+    $TPL['skills'] = Page::select_options($skills, '');
 }
 
 function check_optional_person_skills_header()
 {
     global $skill_header;
+
     return $skill_header;
 }
 
@@ -175,14 +176,14 @@ function include_management_fields()
 {
     global $person;
     if ($person->have_perm(PERM_PERSON_READ_MANAGEMENT)) {
-        include_template("templates/personManagementFieldsS.tpl");
+        include_template('templates/personManagementFieldsS.tpl');
     }
 }
 
 $skill_header = false;
 $person = new person();
 
-$personID = $_POST["personID"] ?? $_GET["personID"] ?? null;
+$personID = $_POST['personID'] ?? $_GET['personID'] ?? null;
 
 if ($personID) {
     $person->set_id($personID);
@@ -190,31 +191,31 @@ if ($personID) {
 }
 
 if (
-    !empty($_POST["personExpertiseItem_add"])
-    || !empty($_POST["personExpertiseItem_save"])
-    || !empty($_POST["personExpertiseItem_delete"])
+    !empty($_POST['personExpertiseItem_add'])
+    || !empty($_POST['personExpertiseItem_save'])
+    || !empty($_POST['personExpertiseItem_delete'])
 ) {
     $proficiency = new proficiency();
     $proficiency->read_globals();
 
-    if ($_POST["skillID"] != null) {
-        if ($_POST["personExpertiseItem_delete"]) {
+    if (null != $_POST['skillID']) {
+        if ($_POST['personExpertiseItem_delete']) {
             $proficiency->delete();
-        } elseif ($_POST["personExpertiseItem_save"]) {
+        } elseif ($_POST['personExpertiseItem_save']) {
             $proficiency->save();
-        } elseif ($_POST["personExpertiseItem_add"]) {
+        } elseif ($_POST['personExpertiseItem_add']) {
             // skillID is an array if when adding but not when saving or deleting
             $skillProficiency = $proficiency->get_value('skillProficiency');
-            for ($i = 0; $i < (is_countable($_POST["skillID"]) ? count($_POST["skillID"]) : 0); ++$i) {
+            for ($i = 0; $i < (is_countable($_POST['skillID']) ? count($_POST['skillID']) : 0); ++$i) {
                 $proficiency = new proficiency();
 
-                $proficiency->set_value('skillID', $_POST["skillID"][$i]);
-                $proficiency->set_value('skillProficiency', $_POST["skillProficiency"]);
+                $proficiency->set_value('skillID', $_POST['skillID'][$i]);
+                $proficiency->set_value('skillProficiency', $_POST['skillProficiency']);
                 $proficiency->set_value('personID', $personID);
 
                 $db = new AllocDatabase();
-                $query = unsafe_prepare("SELECT * FROM proficiency WHERE personID = %d", $personID);
-                $query .= unsafe_prepare(" AND skillID = %d", $_POST["skillID"][$i]);
+                $query = unsafe_prepare('SELECT * FROM proficiency WHERE personID = %d', $personID);
+                $query .= unsafe_prepare(' AND skillID = %d', $_POST['skillID'][$i]);
                 $db->query($query);
                 if (!$db->next_record()) {
                     $proficiency->save();
@@ -224,88 +225,88 @@ if (
     }
 }
 
-if (!empty($_POST["save"])) {
+if (!empty($_POST['save'])) {
     $person->read_globals();
-    if ($person->can_write_field("perms")) {
-        $_POST["perm_select"] || ($_POST["perm_select"] = []);
-        $person->set_value("perms", implode(",", $_POST["perm_select"]));
+    if ($person->can_write_field('perms')) {
+        $_POST['perm_select'] || ($_POST['perm_select'] = []);
+        $person->set_value('perms', implode(',', $_POST['perm_select']));
     }
 
-    if ($_POST["password1"] && $_POST["password1"] == $_POST["password2"]) {
-        $person->set_value('password', password_hash($_POST["password1"], PASSWORD_BCRYPT));
-    } elseif (!$_POST["password1"] && $personID) {
+    if ($_POST['password1'] && $_POST['password1'] == $_POST['password2']) {
+        $person->set_value('password', password_hash($_POST['password1'], PASSWORD_BCRYPT));
+    } elseif (!$_POST['password1'] && $personID) {
         // nothing required here, just don't update the password field
     } else {
-        alloc_error("Please re-type the passwords");
+        alloc_error('Please re-type the passwords');
     }
 
-    if ($_POST["username"]) {
-        $q = unsafe_prepare("SELECT personID FROM person WHERE username = '%s'", $_POST["username"]);
+    if ($_POST['username']) {
+        $q = unsafe_prepare("SELECT personID FROM person WHERE username = '%s'", $_POST['username']);
         $db = new AllocDatabase();
         $db->query($q);
         $num_rows = $db->num_rows();
         $row = $db->row();
 
-        if (($num_rows > 0 && !$person->get_id()) || ($num_rows > 0 && $person->get_id() != $row["personID"])) {
-            alloc_error("That username is already taken. Please select another.");
+        if (($num_rows > 0 && !$person->get_id()) || ($num_rows > 0 && $person->get_id() != $row['personID'])) {
+            alloc_error('That username is already taken. Please select another.');
         }
     } else {
-        alloc_error("Please enter a username.");
+        alloc_error('Please enter a username.');
     }
 
-    $person->set_value("personActive", $_POST["personActive"] ? 1 : "0");
-    if (!$TPL["message"]) {
-        $person->set_value("availability", rtrim($person->get_value("availability")));
-        $person->set_value("areasOfInterest", rtrim($person->get_value("areasOfInterest")));
-        $person->set_value("comments", rtrim($person->get_value("comments")));
-        $person->set_value("emergencyContact", rtrim($person->get_value("emergencyContact")));
-        $person->set_value("managementComments", rtrim($person->get_value("managementComments")));
+    $person->set_value('personActive', $_POST['personActive'] ? 1 : '0');
+    if (!$TPL['message']) {
+        $person->set_value('availability', rtrim($person->get_value('availability')));
+        $person->set_value('areasOfInterest', rtrim($person->get_value('areasOfInterest')));
+        $person->set_value('comments', rtrim($person->get_value('comments')));
+        $person->set_value('emergencyContact', rtrim($person->get_value('emergencyContact')));
+        $person->set_value('managementComments', rtrim($person->get_value('managementComments')));
         $person->currency = config::get_config_item('currency');
         $person->save();
-        alloc_redirect($TPL["url_alloc_personList"]);
+        alloc_redirect($TPL['url_alloc_personList']);
     }
-} elseif (!empty($_POST["delete"])) {
+} elseif (!empty($_POST['delete'])) {
     $person->delete();
-    alloc_redirect($TPL["url_alloc_personList"]);
+    alloc_redirect($TPL['url_alloc_personList']);
 }
 
 // $person = new person();
 // $person->set_id($personID);
 // $person->select();
-$person->set_values("person_");
+$person->set_values('person_');
 
 if ($person->get_id()) {
     $q = unsafe_prepare(
-        "SELECT tfPerson.tfID AS value, tf.tfName AS label
+        'SELECT tfPerson.tfID AS value, tf.tfName AS label
            FROM tf, tfPerson
           WHERE tf.tfID = tfPerson.tfID
             AND tfPerson.personID = %d
-            AND (tf.tfActive = 1 OR tf.tfID = %d)",
+            AND (tf.tfActive = 1 OR tf.tfID = %d)',
         $person->get_id(),
-        $person->get_value("preferred_tfID")
+        $person->get_value('preferred_tfID')
     );
-    $TPL["preferred_tfID_options"] = Page::select_options($q, $person->get_value("preferred_tfID"));
+    $TPL['preferred_tfID_options'] = Page::select_options($q, $person->get_value('preferred_tfID'));
 
     $tf = new tf();
-    $tf->set_id($person->get_value("preferred_tfID"));
+    $tf->set_id($person->get_value('preferred_tfID'));
     $tf->select();
 }
 
-$TPL["absence_url"] = $TPL["url_alloc_absence"] . "personID=" . $personID;
-$TPL["personActive"] = (!$person->get_id() || $person->get_value("personActive")) ? " checked" : "";
+$TPL['absence_url'] = $TPL['url_alloc_absence'] . 'personID=' . $personID;
+$TPL['personActive'] = (!$person->get_id() || $person->get_value('personActive')) ? ' checked' : '';
 
-if (has("time")) {
+if (has('time')) {
     $timeUnit = new timeUnit();
-    $rate_type_array = $timeUnit->get_assoc_array("timeUnitID", "timeUnitLabelB");
+    $rate_type_array = $timeUnit->get_assoc_array('timeUnitID', 'timeUnitLabelB');
 }
 
-$TPL["timeSheetRateUnit_select"] = Page::select_options($rate_type_array, $person->get_value("defaultTimeSheetRateUnitID"));
-$TPL["timeSheetRateUnit_label"] = $rate_type_array[$person->get_value("defaultTimeSheetRateUnitID")] ?? "";
+$TPL['timeSheetRateUnit_select'] = Page::select_options($rate_type_array, $person->get_value('defaultTimeSheetRateUnitID'));
+$TPL['timeSheetRateUnit_label'] = $rate_type_array[$person->get_value('defaultTimeSheetRateUnitID')] ?? '';
 
 if (isset($personID)) {
-    $TPL["main_alloc_title"] = "Person Details: " . $person->get_value("username") . " - " . APPLICATION_NAME;
+    $TPL['main_alloc_title'] = 'Person Details: ' . $person->get_value('username') . ' - ' . APPLICATION_NAME;
 } else {
-    $TPL["main_alloc_title"] = "New Person - " . APPLICATION_NAME;
+    $TPL['main_alloc_title'] = 'New Person - ' . APPLICATION_NAME;
 }
 
-include_template("templates/personM.tpl");
+include_template('templates/personM.tpl');

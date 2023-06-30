@@ -7,15 +7,15 @@
 
 class finance_module extends Module
 {
-    public $module = "finance";
+    public $module = 'finance';
 
     public $databaseEntities = [
-        "tf",
-        "transaction",
-        "expenseForm",
-        "tfPerson",
-        "transactionRepeat",
+        'tf',
+        'transaction',
+        'expenseForm',
+        'tfPerson',
+        'transactionRepeat',
     ];
 
-    public $home_items = ["tfList_home_item", "pendingAdminExpenseForm"];
+    public $home_items = ['tfList_home_item', 'pendingAdminExpenseForm'];
 }

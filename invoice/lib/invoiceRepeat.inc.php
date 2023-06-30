@@ -7,42 +7,43 @@
 
 class invoiceRepeat extends DatabaseEntity
 {
-    public $classname = "invoiceRepeat";
+    public $classname = 'invoiceRepeat';
 
-    public $data_table = "invoiceRepeat";
+    public $data_table = 'invoiceRepeat';
 
-    public $display_field_name = "invoiceRepeatID";
+    public $display_field_name = 'invoiceRepeatID';
 
-    public $key_field = "invoiceRepeatID";
+    public $key_field = 'invoiceRepeatID';
 
-    public $data_fields = ["invoiceID", "personID", "message", "active"];
+    public $data_fields = ['invoiceID', 'personID', 'message', 'active'];
 
-    public function save($dates = "")
+    public function save($dates = '')
     {
         $rtn = parent::save();
         if ($rtn) {
-            $dates = str_replace(",", " ", $dates);
-            $dates = preg_replace("/\s+/", " ", trim($dates));
-            $dates = explode(" ", $dates);
+            $dates = str_replace(',', ' ', $dates);
+            $dates = preg_replace('/\\s+/', ' ', trim($dates));
+            $dates = explode(' ', $dates);
             $allocDatabase = new AllocDatabase();
-            $allocDatabase->query("DELETE FROM invoiceRepeatDate WHERE invoiceRepeatID = %d", $this->get_id());
+            $allocDatabase->query('DELETE FROM invoiceRepeatDate WHERE invoiceRepeatID = %d', $this->get_id());
             foreach ($dates as $date) {
                 $allocDatabase->query("INSERT INTO invoiceRepeatDate (invoiceRepeatID,invoiceDate) VALUES (%d,'%s')", $this->get_id(), $date);
             }
         }
     }
 
-    public function set_values($prefix = "")
+    public function set_values($prefix = '')
     {
         $rows = [];
         global $TPL;
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query("SELECT * FROM invoiceRepeatDate WHERE invoiceRepeatID = %d", $this->get_id());
+        $allocDatabase->query('SELECT * FROM invoiceRepeatDate WHERE invoiceRepeatID = %d', $this->get_id());
         while ($row = $allocDatabase->row()) {
-            $rows[] = $row["invoiceDate"];
+            $rows[] = $row['invoiceDate'];
         }
 
-        $TPL[$prefix . "frequency"] = implode(" ", (array)$rows);
+        $TPL[$prefix . 'frequency'] = implode(' ', (array) $rows);
+
         return parent::set_values($prefix);
     }
 
@@ -53,11 +54,11 @@ class invoiceRepeat extends DatabaseEntity
             $invoice = new invoice();
             $invoice->set_id($invoiceID);
             $invoice->select();
-            $interestedPartyOptions = $invoice->get_all_partieS($invoice->get_value("projectID"), $invoice->get_value("clientID"));
+            $interestedPartyOptions = $invoice->get_all_partieS($invoice->get_value('projectID'), $invoice->get_value('clientID'));
         }
 
         if (is_object($this) && $this->get_id()) {
-            return InterestedParty::get_interested_parties("invoiceRepeat", $this->get_id(), $interestedPartyOptions);
+            return InterestedParty::get_interested_parties('invoiceRepeat', $this->get_id(), $interestedPartyOptions);
         }
 
         return $interestedPartyOptions;
