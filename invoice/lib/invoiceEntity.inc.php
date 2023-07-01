@@ -5,7 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define('DEFAULT_SEP', "\n");
+if (!defined('DEFAULT_SEP')) {
+    define('DEFAULT_SEP', "\n");
+}
+
 class invoiceEntity extends DatabaseEntity
 {
     public $classname = 'invoiceEntity';

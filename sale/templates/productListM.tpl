@@ -12,7 +12,7 @@
   </tr>
   <tr>
     <td>
-      {product::get_list_html($productListRows)}
+      {(new product)->get_list_html($productListRows)}
     </td>
   </tr>
 </table>

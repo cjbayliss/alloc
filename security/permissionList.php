@@ -14,19 +14,20 @@ function show_permission_list($template_name)
 
     $roles = permission::get_roles();
 
-    if ($_REQUEST['submit'] || '' != $_REQUEST['filter']) {
+    if (isset($_REQUEST['submit']) || (isset($_REQUEST['filter']) && '' != $_REQUEST['filter'])) {
         $where = " where tableName like '%" . db_esc($_REQUEST['filter']) . "%' ";   // TODO: Add filtering to permission list
     }
 
     $db = new AllocDatabase();
     $db->query(sprintf('SELECT * FROM permission %s ORDER BY tableName, sortKey', $where));
+    $TPL['odd_even'] = 'odd';
     while ($db->next_record()) {
         $permission = new permission();
         $permission->read_db_record($db);
         $permission->set_values();
         $TPL['actions'] = $permission->describe_actions();
         $TPL['odd_even'] = 'odd' == $TPL['odd_even'] ? 'even' : 'odd';
-        $TPL['roleName'] = $roles[$TPL['roleName']];
+        $TPL['roleName'] = $roles[$TPL['roleName']] ?? '';
         include_template($template_name);
     }
 }

@@ -168,7 +168,7 @@ class comment extends DatabaseEntity
         $current_user = &singleton('current_user');
         $new = $v;
         $token = new token();
-        if ($token->select_token_by_entity_and_action('comment', $new['commentID'], 'add_comment_from_email')) {
+        if (isset($new['commentID']) && $token->select_token_by_entity_and_action('comment', $new['commentID'], 'add_comment_from_email')) {
             if ($token->get_value('tokenHash')) {
                 $new['hash'] = $token->get_value('tokenHash');
                 $new['hashKey'] = '{Key:' . $new['hash'] . '}';
@@ -242,8 +242,12 @@ class comment extends DatabaseEntity
                 $new['form'] .= '</form>';
             }
 
-            $v['commentMimeParts'] && ($files = unserialize($v['commentMimeParts']));
-            if (is_array($files)) {
+            if (isset($v['commentMimeParts'])) {
+                $files = unserialize($v['commentMimeParts']);
+            }
+
+            $new['files'] ??= '';
+            if (isset($files) && is_array($files) && is_countable($files)) {
                 foreach ($files as $file) {
                     $new['files'] .= '<div align="center" style="float:left; display:inline; margin-right:14px;">';
                     $new['files'] .= '<a href="' . $TPL['url_alloc_getMimePart'] . 'part=' . $file['part'] . '&entity=comment&id=' . $v['commentID'] . '">';
@@ -253,7 +257,9 @@ class comment extends DatabaseEntity
                 }
             }
 
-            $v['commentEmailRecipients'] && ($new['emailed'] = 'Emailed to ' . Page::htmlentities($v['commentEmailRecipients']));
+            if (isset($v['commentEmailRecipients'])) {
+                $new['emailed'] = 'Emailed to ' . Page::htmlentities($v['commentEmailRecipients']);
+            }
         }
 
         return (array) $new;
@@ -321,15 +327,15 @@ class comment extends DatabaseEntity
     {
         $rtn = [];
         global $TPL;
-        $comment = comment::add_shrinky_divs($row['commentID'], Page::htmlentities($row['comment']));
-        $rtn[] = '<div class="panel' . ($row['external'] ?? '') . ' corner pcomment" data-comment-id="' . $row['commentID'] . '">';
+        $comment = comment::add_shrinky_divs($row['commentID'] ?? '', Page::htmlentities($row['comment']));
+        $rtn[] = '<div class="panel' . ($row['external'] ?? '') . ' corner pcomment" data-comment-id="' . ($row['commentID'] ?? '') . '">';
         $rtn[] = '<table width="100%" cellspacing="0" border="0">';
         $rtn[] = '<tr>';
         $rtn[] = '  <td style="padding-bottom:0px; white-space:normal">' . $row['attribution'] . ($row['hashHTML'] ?? '') . '</td>';
         $rtn[] = '  <td align="right" style="padding-bottom:0px;" class="nobr">' . ($row['form'] ?? '') . ($row['recipient_editor'] ?? '') . '</td>';
-        if ($row['commentID']) {
+        if (isset($row['commentID'])) {
             $rtn[] = '  <td align="right" width="1%">' . Page::star('comment', $row['commentID']) . '</td>';
-        } elseif ($row['timeSheetItemID']) {
+        } elseif (isset($row['timeSheetItemID'])) {
             $rtn[] = '  <td align="right" width="1%">' . Page::star('timeSheetItem', $row['timeSheetItemID']) . '</td>';
         }
 
@@ -901,10 +907,52 @@ class comment extends DatabaseEntity
 
     public function get_list_html($rows = [], $ops = [])
     {
-        global $TPL;
-        $TPL['commentListRows'] = $rows;
-        $TPL['_FORM'] = $ops;
-        include_template(__DIR__ . '/../templates/commentListS.tpl');
+        echo (new comment())->listHTML($rows, $ops);
+    }
+
+    public function listHTML(array $comments = [], array $options = []): string
+    {
+        if ([] === $comments) {
+            return '<b>No comments</b>';
+        }
+
+        $page = new Page();
+        $commentListHTML = '';
+        foreach ($comments as $comment) {
+            $capitalisedCommentMaster = ucwords($comment['commentMaster']);
+            $commentPart = substr(trim($page->escape($comment['comment'])), 0, 100);
+            $commentMessage = nl2br(trim($page->escape($comment['comment'])));
+            $star = $comment['timeSheetItemID'] ? $page->star('timeSheetItem', $comment['timeSheetItemID']) : $page->star('comment', $comment['commentID']);
+            $commentListHTML .= <<<HTML
+                <tr>
+                  <td>
+                  {$capitalisedCommentMaster} {$comment['commentMasterID']} {$comment['entity_link']}
+                  </td>
+                  <td>{$comment['commentCreatedTime']}</td>
+                  <td>{$comment['person']}</td>
+                  <td onClick="return set_grow_shrink('longText_{$comment['commentID']}','shortText_{$comment['commentID']}')">
+                    <div id="shortText_{$comment['commentID']}">{$commentPart}</div>
+                    <div style='display:none' id="longText_{$comment['commentID']}">{$commentMessage}</div>
+                  </td>
+                  <td width="1%">
+                    {$star}
+                  </td>
+                </tr>
+                HTML;
+        }
+
+        return <<<HTML
+            <table class="list sortable">
+                <tr>
+                  <th>Entity</th>
+                  <th>Date</th>
+                  <th>Person</th>
+                  <th>Comment</th>
+                  <th width="1%" style="font-size:120%"><i class="icon-star"></i></th>
+                </tr>
+                {$commentListHTML}
+            </table>
+            HTML;
     }
 
     public function get_list_vars()
@@ -978,32 +1026,45 @@ class comment extends DatabaseEntity
         $projectIDs = null;
         $sql1 = [];
         $sql2 = [];
-        $sql3 = [];
+
         // This takes care of projectID singular and plural
         has('project') && ($projectIDs = project::get_projectID_sql($filter, 'task'));
         $projectIDs && ($sql1['projectIDs'] = $projectIDs);
         $projectIDs && ($sql2['projectIDs'] = $projectIDs);
-        $filter['taskID'] && ($sql1[] = unsafe_prepare('(task.taskID = %d)', $filter['taskID']));
-        $filter['taskID'] && ($sql2[] = unsafe_prepare('(task.taskID = %d)', $filter['taskID']));
-        $filter['taskID'] && ($sql3[] = unsafe_prepare('(tsiHint.taskID = %d)', $filter['taskID']));
-        $filter['fromDate'] && ($sql1[] = unsafe_prepare("(date(commentCreatedTime) >= '%s')", $filter['fromDate']));
-        $filter['fromDate'] && ($sql2[] = unsafe_prepare("(dateTimeSheetItem >= '%s')", $filter['fromDate']));
-        $filter['fromDate'] && ($sql3[] = unsafe_prepare("(tsiHint.date >= '%s')", $filter['fromDate']));
-        $filter['toDate'] && ($sql1[] = unsafe_prepare("(date(commentCreatedTime) < '%s')", $filter['toDate']));
-        $filter['toDate'] && ($sql2[] = unsafe_prepare("(dateTimeSheetItem < '%s')", $filter['toDate']));
-        $filter['toDate'] && ($sql3[] = unsafe_prepare("(tsiHint.date < '%s')", $filter['toDate']));
-        $filter['personID'] && ($sql1['personID'] = unsafe_prepare('(comment.commentCreatedUser IN (%s))', $filter['personID']));
-        $filter['personID'] && ($sql2[] = unsafe_prepare('(timeSheetItem.personID IN (%s))', $filter['personID']));
-        $filter['personID'] && ($sql3[] = unsafe_prepare('(tsiHint.personID IN (%s))', $filter['personID']));
-        $filter['clients'] || ($sql1[] = '(commentCreatedUser IS NOT NULL)');
-        if ($filter['clients'] && $filter['personID']) {
+        if (isset($filter['taskID'])) {
+            $sql1[] = unsafe_prepare('(task.taskID = %d)', $filter['taskID']);
+            $sql2[] = unsafe_prepare('(task.taskID = %d)', $filter['taskID']);
+        }
+
+        if (isset($filter['fromDate'])) {
+            $sql1[] = unsafe_prepare("(date(commentCreatedTime) >= '%s')", $filter['fromDate']);
+            $sql2[] = unsafe_prepare("(dateTimeSheetItem >= '%s')", $filter['fromDate']);
+        }
+
+        if (isset($filter['toDate'])) {
+            $sql1[] = unsafe_prepare("(date(commentCreatedTime) < '%s')", $filter['toDate']);
+            $sql2[] = unsafe_prepare("(dateTimeSheetItem < '%s')", $filter['toDate']);
+        }
+
+        if (isset($filter['personID'])) {
+            $sql1['personID'] = unsafe_prepare('(comment.commentCreatedUser IN (%s))', $filter['personID']);
+            $sql2[] = unsafe_prepare('(timeSheetItem.personID IN (%s))', $filter['personID']);
+        }
+
+        if (!isset($filter['clients'])) {
+            $sql1[] = '(commentCreatedUser IS NOT NULL)';
+        }
+
+        if (isset($filter['clients'], $filter['personID'])) {
             $sql1['personID'] = unsafe_prepare('(comment.commentCreatedUser IN (%s) OR comment.commentCreatedUser IS NULL)', $filter['personID']);
         }
 
-        $filter['taskStatus'] && ($sql1[] = Task::get_taskStatus_sql($filter['taskStatus']));
-        $filter['taskStatus'] && ($sql2[] = Task::get_taskStatus_sql($filter['taskStatus']));
+        if (isset($filter['taskStatus'])) {
+            $sql1[] = Task::get_taskStatus_sql($filter['taskStatus']);
+            $sql2[] = Task::get_taskStatus_sql($filter['taskStatus']);
+        }
 
-        return [$sql1, $sql2, $sql3];
+        return [$sql1, $sql2];
     }
 
     public static function get_list_summary($_FORM = [])
@@ -1013,14 +1074,11 @@ class comment extends DatabaseEntity
         $tasks = [];
         $rows = [];
         $totals = [];
-        $totals_tsiHint = [];
-        $rtn = null;
-        // $_FORM["fromDate"] = "2010-08-20";
-        // $_FORM["projectID"] = "22";
+        $rtn = '';
 
-        $_FORM['maxCommentLength'] || ($_FORM['maxCommentLength'] = 500);
+        $_FORM['maxCommentLength'] ??= 500;
 
-        [$filter1, $filter2, $filter3] = (new comment())->get_list_summary_filter($_FORM);
+        [$filter1, $filter2] = (new comment())->get_list_summary_filter($_FORM);
 
         if (is_array($filter1) && count($filter1)) {
             $filter1 = ' AND ' . implode(' AND ', $filter1);
@@ -1030,11 +1088,15 @@ class comment extends DatabaseEntity
             $filter2 = ' AND ' . implode(' AND ', $filter2);
         }
 
-        if (is_array($filter3) && count($filter3)) {
-            $filter3 = ' AND ' . implode(' AND ', $filter3);
+        if (is_array($filter1)) {
+            $filter2 = '';
         }
 
-        if ($_FORM['clients']) {
+        if (is_array($filter2)) {
+            $filter2 = '';
+        }
+
+        if (isset($_FORM['clients'])) {
             $client_join = ' LEFT JOIN clientContact on comment.commentCreatedUserClientContactID = clientContact.clientContactID';
             $client_fields = ' , clientContact.clientContactName';
         }
@@ -1068,10 +1130,16 @@ class comment extends DatabaseEntity
             $row['icon'] = 'icon-comments-alt';
             $row['id'] = 'comment_' . $row['id'];
             $row['personID'] && ($row['person'] = $people[$row['personID']]['name']);
-            $row['clientContactName'] && ($row['person'] = $row['clientContactName']);
+            if (isset($row['clientContactName'])) {
+                $row['person'] = $row['clientContactName'];
+            }
+
             $row['person'] || ([$e, $row['person']] = parse_email_address($row['commentCreatedUserText']));
             $row['displayDate'] = format_date('Y-m-d g:ia', $row['displayDate']);
-            if ('' === $tasks[$row['taskID']] || '0' === $tasks[$row['taskID']]) {
+            if (
+                array_key_exists($row['taskID'], $tasks)
+                && ('' === $tasks[$row['taskID']] || '0' === $tasks[$row['taskID']])
+            ) {
                 $t = new Task();
                 $t->set_id($row['taskID']);
                 $t->set_value('taskName', $row['taskName']);
@@ -1113,55 +1181,18 @@ class comment extends DatabaseEntity
             $row['icon'] = 'icon-time';
             $row['id'] = 'timeitem_' . $row['id'];
             $row['person'] = $people[$row['personID']]['name'];
-            if ('' === $tasks[$row['taskID']] || '0' === $tasks[$row['taskID']]) {
+            if (array_key_exists($row['taskID'], $tasks) && ('' === $tasks[$row['taskID']] || '0' === $tasks[$row['taskID']])) {
                 $t = new Task();
                 $t->set_id($row['taskID']);
                 $t->set_value('taskName', $row['taskName']);
                 $tasks[$row['taskID']] = $t->get_task_link(['prefixTaskID' => true]);
+            }
+
+            if (!isset($totals[$row['taskID']])) {
+                $totals[$row['taskID']] = 0;
             }
 
             $totals[$row['taskID']] += $row['duration'];
-            $rows[$row['taskID']][$row['sortDate']][] = $row;
-        }
-
-        // get manager's guestimates about time worked from tsiHint table
-        $q3 = unsafe_prepare(
-            "SELECT tsiHintID as id
-                   ,tsiHintID
-                   ,tsiHint.personID
-                   ,tsiHint.date
-                   ,UNIX_TIMESTAMP(CONCAT(tsiHint.date,' 23:59:59')) as sortDate
-                   ,tsiHint.date as displayDate
-                   ,tsiHint.taskID
-                   ,tsiHint.duration
-                   ,tsiHint.tsiHintCreatedUser
-                   ,SUBSTRING(tsiHint.comment,1,%d) AS comment_text
-                   ,task.taskName
-               FROM tsiHint
-          LEFT JOIN task on tsiHint.taskID = task.taskID
-              WHERE 1
-                    " . $filter3 . '
-           ORDER BY tsiHint.date',
-            $_FORM['maxCommentLength']
-        );
-
-        $allocDatabase->query($q3);
-        while ($row = $allocDatabase->row()) {
-            // $tsiHint = new tsiHint();
-            // if (!$tsiHint->read_row_record($row))
-            //  continue;
-            $row['icon'] = 'icon-bookmark-empty';
-            $row['id'] = 'tsihint_' . $row['id'];
-            $row['person'] = $people[$row['personID']]['name'];
-            $row['comment_text'] .= ' [by ' . $people[$row['tsiHintCreatedUser']]['name'] . ']';
-            if ('' === $tasks[$row['taskID']] || '0' === $tasks[$row['taskID']]) {
-                $t = new Task();
-                $t->set_id($row['taskID']);
-                $t->set_value('taskName', $row['taskName']);
-                $tasks[$row['taskID']] = $t->get_task_link(['prefixTaskID' => true]);
-            }
-
-            $totals_tsiHint[$row['taskID']] += $row['duration'];
             $rows[$row['taskID']][$row['sortDate']][] = $row;
         }
 
@@ -1174,7 +1205,7 @@ class comment extends DatabaseEntity
         }
 
         foreach ((array) $rows as $taskID => $dates) {
-            $rtn .= (new comment())->get_list_summary_header($tasks[$taskID], $totals[$taskID], $totals_tsiHint[$taskID], $_FORM);
+            $rtn .= (new comment())->get_list_summary_header($tasks[$taskID] ?? '', $totals[$taskID], $_FORM);
             foreach ($dates as $date => $more_rows) {
                 foreach ($more_rows as $more_row) {
                     $rtn .= (new comment())->get_list_summary_body($more_row);
@@ -1187,14 +1218,14 @@ class comment extends DatabaseEntity
         return $rtn;
     }
 
-    public function get_list_summary_header($task, $totals, $totals_tsiHint, $_FORM = []): string
+    public function get_list_summary_header($task, $totals, $_FORM = []): string
     {
         $rtn = [];
-        if ($_FORM['showTaskHeader']) {
+        if (isset($_FORM['showTaskHeader'])) {
             $rtn[] = "<table class='list' style='border-bottom:0;'>";
             $rtn[] = '<tr>';
             $rtn[] = "<td style='font-size:130%'>" . $task . '</td>';
-            $rtn[] = "<td class='right bold'>" . sprintf('%0.2f', $totals) . " / <span style='color:#888;'>" . sprintf('%0.2f', $totals_tsiHint) . '</span></td>';
+            $rtn[] = "<td class='right bold'>" . sprintf('%0.2f', $totals) . '</td>';
             $rtn[] = '</tr>';
             $rtn[] = '</table>';
         }
@@ -1211,12 +1242,32 @@ class comment extends DatabaseEntity
         return implode("\n", $rtn);
     }
 
-    public function get_list_summary_body($row)
+    public function get_list_summary_body($row): string
     {
-        global $TPL;
-        $TPL['row'] = $row;
+        $page = new Page();
 
-        return include_template(__DIR__ . '/../templates/summaryR.tpl', true);
+        // TODO: remove global variables
+        global $TPL;
+        $class = $TPL['class'] ?? '';
+
+        $style = isset($row['duration']) ? $style = '; font-weight:bold;' : '';
+        $person = $page->escape($row['person']);
+        $commentTextPart = substr(trim($page->escape($row['comment_text'])), 0, 100);
+        $commentText = nl2br(trim($page->escape($row['comment_text'])));
+        $duration = $row['duration'] ?? '';
+
+        return <<<HTML
+            <tr>
+                <td style='width:1%{$style}'><i class="{$row['icon']}"></i></td>
+                <td style='width:1%{$style}' class='nobr{$class}'>{$row['displayDate']}</td>
+                <td style='width:1%{$style}' class='nobr{$class}'>{$person}</td>
+                <td style='{$style}' class='{$class}' onClick="return set_grow_shrink('longText_{$row['id']}','shortText_{$row['id']}')">
+                    <div id="shortText_{$row['id']}">{$commentTextPart}</div>
+                    <div style='display:none' id="longText_{$row['id']}">{$commentText}</div>
+                </td>
+                <td style='width:1%{$style}' class='nobr right{$class}'>{$duration}</td>
+            </tr>
+            HTML;
     }
 
     public function get_list_summary_footer($rows, $tasks): string
@@ -1641,6 +1692,7 @@ class comment extends DatabaseEntity
         $class_new_comment = null;
         $clientContacts = null;
         $comment = null;
+        $commentsR = null;
         $commentTemplateOptions = null;
         $editCommentTemplate = null;
         $entity = null;
@@ -1652,7 +1704,7 @@ class comment extends DatabaseEntity
         $url_alloc_downloadComments = null;
         $url_alloc_updateCommentTemplate = null;
 
-        // FIXME: 😔
+        // TODO: remove global variables
         if (is_array($TPL)) {
             extract($TPL, EXTR_OVERWRITE);
         }

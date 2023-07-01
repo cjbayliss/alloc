@@ -20,9 +20,9 @@ function refreshTaskList(radiobutton) {
           <td valign="bottom">Duration</td>
         </tr>
         <tr>
-          <td>{Page::calendar("timeSheetItem_dateTimeSheetItem",$tsi_dateTimeSheetItem)}</td>
+          <td>{Page::calendar("timeSheetItem_dateTimeSheetItem",$tsi_dateTimeSheetItem ?? '')}</td>
           <td>
-            <input type="text" size="5" name="timeSheetItem_timeSheetItemDuration" value="{$tsi_timeSheetItemDuration}">
+            <input type="text" size="5" name="timeSheetItem_timeSheetItemDuration" value="{$tsi_timeSheetItemDuration ?? ''}">
             {if $tsi_unit_label}
               {$tsi_unit_label}
             {else}
@@ -60,15 +60,15 @@ function refreshTaskList(radiobutton) {
   <tr>
     <td colspan="3" valign="top">
     Comments<br>
-    {Page::textarea("timeSheetItem_comment",$tsi_comment)}
-    Private Comment <input type="checkbox" value="1" name="timeSheetItem_commentPrivate"{$commentPrivateChecked}>
+    {Page::textarea("timeSheetItem_comment",$tsi_comment ?? '')}
+    Private Comment <input type="checkbox" value="1" name="timeSheetItem_commentPrivate"{$commentPrivateChecked ?? ''}>
     </td>
     <td colspan="1" valign="top" align="right"><br>{$tsi_buttons}</td>
   </tr>
 </table>
 
 
-<input type="hidden" name="timeSheetItem_timeSheetItemID" value="{$tsi_timeSheetItemID}">
+<input type="hidden" name="timeSheetItem_timeSheetItemID" value="{$tsi_timeSheetItemID ?? ''}">
 <input type="hidden" name="timeSheetID" value="{$tsi_timeSheetID}">
 <input type="hidden" name="timeSheetItem_personID" value="{$tsi_personID}">
 <input type="hidden" name="sessID" value="{$sessID}">

@@ -193,7 +193,7 @@ function show_main_list()
     }
 
     $db = new AllocDatabase();
-    $q = unsafe_prepare('SELECT COUNT(*) AS tally FROM timeSheetItem WHERE timeSheetID = %d AND timeSheetItemID != %d', $timeSheet->get_id(), $_POST['timeSheetItem_timeSheetItemID']);
+    $q = unsafe_prepare('SELECT COUNT(*) AS tally FROM timeSheetItem WHERE timeSheetID = %d AND timeSheetItemID != %d', $timeSheet->get_id(), $_POST['timeSheetItem_timeSheetItemID'] ?? 0);
     $db->query($q);
     $db->next_record();
     if ('' === $db->f('tally')) {
@@ -247,6 +247,7 @@ function show_timeSheet_list($template)
         }
     }
 
+    $TPL['timeSheet_totalHours'] ??= 0;
     while ($db->next_record()) {
         $timeSheetItem = new timeSheetItem();
         $timeSheetItem->currency = $timeSheet->get_value('currencyTypeID');
@@ -294,8 +295,10 @@ function show_timeSheet_list($template)
         }
 
         // Highlight the rate if the project person has a non-zero rate and it doesn't match the item's rate
-        if ($default_rate && ($timeSheetItem->get_value('rate') != $default_rate['rate']
-            || $timeSheetItem->get_value('timeSheetItemDurationUnitID') != $default_rate['unit'])) {
+        if (
+            $default_rate && ($timeSheetItem->get_value('rate') != $default_rate['rate']
+            || $timeSheetItem->get_value('timeSheetItemDurationUnitID') != $default_rate['unit'])
+        ) {
             $row_messages[] = "<em class='faint warn nobr'>[ Modified rate ]</em>";
         }
 
@@ -331,8 +334,8 @@ function show_new_timeSheet($template)
     ) {
         $TPL['currency'] = Page::money($timeSheet->get_value('currencyTypeID'), '', '%S');
         // If we are editing an existing timeSheetItem
-        ($timeSheetItem_edit = $_POST['timeSheetItem_edit']) || ($timeSheetItem_edit = $_GET['timeSheetItem_edit']);
-        ($timeSheetItemID = $_POST['timeSheetItemID']) || ($timeSheetItemID = $_GET['timeSheetItemID']);
+        $timeSheetItem_edit = $_POST['timeSheetItem_edit'] ?? $_GET['timeSheetItem_edit'] ?? '';
+        $timeSheetItemID = $_POST['timeSheetItemID'] ?? $_GET['timeSheetItemID'] ?? '';
         if ($timeSheetItemID && $timeSheetItem_edit) {
             $timeSheetItem = new timeSheetItem();
             $timeSheetItem->currency = $timeSheet->get_value('currencyTypeID');
@@ -364,7 +367,7 @@ function show_new_timeSheet($template)
             $TPL['ts_rate_editable'] = $timeSheet->can_edit_rate();
         }
 
-        $taskID || ($taskID = $_GET['taskID']);
+        $taskID ??= $_GET['taskID'] ?? 0;
 
         $TPL['taskListDropdown_taskID'] = $taskID;
         $TPL['taskListDropdown'] = $timeSheet->get_task_list_dropdown('mine', $timeSheet->get_id(), $taskID);
@@ -415,7 +418,14 @@ function show_comments()
         $TPL['attach_extra_files'] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
         $TPL['attach_extra_files'] .= 'Attach Time Sheet ';
         $TPL['attach_extra_files'] .= '<select name="attach_timeSheet">' . Page::select_options($ops) . '</select><br>';
-        include_template('../comment/templates/commentM.tpl');
+
+        // TODO: remove global variables
+        if (is_array($TPL)) {
+            extract($TPL, EXTR_OVERWRITE);
+        }
+
+        $comment = new comment();
+        $comment->commentSectionHTML();
     }
 }
 
@@ -694,6 +704,8 @@ if (!empty($projectID)) {
         }
 
         $people = &get_cached_table('person');
+        $TPL['managers'] ??= '';
+        $commar = '';
         foreach ($projectManagers as $projectManager) {
             $TPL['managers'] .= $commar . $people[$projectManager]['name'];
             $commar = ', ';
@@ -705,9 +717,9 @@ if (!empty($projectID)) {
 
     // Get client name
     $client = $project->get_foreign_object('client');
-    $TPL['clientName'] = $client_link;
+    $TPL['clientName'] = $client_link ?? '';
     $TPL['clientID'] = $clientID = $client->get_id();
-    $TPL['show_client_options'] = $client_link;
+    $TPL['show_client_options'] = $client_link ?? '';
 }
 
 $clientID ??= '';
@@ -741,7 +753,7 @@ if (is_object($timeSheet) && $timeSheet->get_id() && $timeSheet->have_perm(PERM_
     $db = new AllocDatabase();
     $db->query($q);
     $row = $db->row();
-    $sel_invoice = $row['invoiceID'];
+    // $sel_invoice = $row['invoiceID'] ?? (int)null;
     // $TPL["attach_to_invoice_button"] = "<select name=\"attach_to_invoiceID\">";
     // $TPL["attach_to_invoice_button"].= "<option value=\"create_new\">Create New Invoice</option>";
     // $TPL["attach_to_invoice_button"].= Page::select_options($invoice_list,$sel_invoice)."</select>";
@@ -821,7 +833,7 @@ foreach ($statii as $s => $label) {
     }
 
     if ($s == $status) {
-        $red && ($red = ' class="warn"');
+        $red = isset($red) ? ' class="warn"' : '';
         $pre = '<b' . $red . '>';
         $suf = '</b>';
     }

@@ -38,7 +38,7 @@ class tf extends DatabaseEntity
         // Get belance
         $allocDatabase = new AllocDatabase();
         $query = unsafe_prepare(
-            'SELECT sum( if(fromTfID=%d,-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
+            'SELECT sum( if(fromTfID=%d,-amount,amount) * pow(10,-currencyType.numberToBasic)) AS balance
                FROM transaction
           LEFT JOIN currencyType ON transaction.currencyTypeID = currencyType.currencyTypeID
               WHERE (tfID = %d or fromTfID = %d) ',
@@ -160,6 +160,7 @@ class tf extends DatabaseEntity
     public static function get_permitted_tfs($requested_tfs = [])
     {
         $r = [];
+        $rtn = [];
         $current_user = &singleton('current_user');
         // If admin, just use the requested tfs
         if ($current_user->have_role('admin')) {
@@ -193,7 +194,9 @@ class tf extends DatabaseEntity
             $_FORM['owner'] = true;
         }
 
-        $_FORM['owner'] && ($filter1[] = sprintf_implode('tfPerson.personID = %d', $current_user->get_id()));
+        if (isset($_FORM['owner'])) {
+            $filter1[] = sprintf_implode('tfPerson.personID = %d', $current_user->get_id());
+        }
 
         $tfIDs = tf::get_permitted_tfs($_FORM['tfIDs'] ?? []);
         $tfIDs && ($filter1[] = sprintf_implode('tf.tfID = %d', $tfIDs));
@@ -232,7 +235,7 @@ class tf extends DatabaseEntity
 
         $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare("SELECT transaction.tfID as id, tf.tfName, transactionID, transaction.status,
-                             sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
+                             sum(amount * pow(10,-currencyType.numberToBasic)) AS balance
                         FROM transaction
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                    LEFT JOIN tf on transaction.tfID = tf.tfID
@@ -248,7 +251,7 @@ class tf extends DatabaseEntity
         }
 
         $q = unsafe_prepare("SELECT transaction.fromTfID as id, tf.tfName, transactionID, transaction.status,
-                             sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
+                             sum(amount * pow(10,-currencyType.numberToBasic)) AS balance
                         FROM transaction
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                    LEFT JOIN tf on transaction.fromTfID = tf.tfID

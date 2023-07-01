@@ -12,11 +12,10 @@ class time_module extends Module
     public $databaseEntities = ['timeSheet', 'timeSheetItem', 'timeUnit'];
 
     public $home_items = [
-        'timeSheetHomeItem',
-        'tsiHintHomeItem',
-        'timeSheetListHomeItem',
-        'pendingApprovalTimeSheetListHomeItem',
-        'timeSheetStatusHomeItem',
-        'pendingAdminApprovalTimeSheetListHomeItem',
+        'TimeSheetHomeItem',
+        'TimeSheetListHomeItem',
+        'TimeSheetsPendingAdminApprovalHomeItem',
+        'TimeSheetsPendingApprovalHomeItem',
+        'TimeSheetStatisticsHomeItem',
     ];
 }

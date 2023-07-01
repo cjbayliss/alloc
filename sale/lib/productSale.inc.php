@@ -155,9 +155,9 @@ class productSale extends DatabaseEntity
         $sellPrice_label = null;
         $sellPriceCurr = [];
         $show = null;
-        $total_margin = null;
-        $total_sellPrice = null;
-        $total_unallocated = null;
+        $total_margin = 0;
+        $total_sellPrice = 0;
+        $total_unallocated = 0;
 
         foreach ($rows as $row) {
             $productSaleItem = new productSaleItem();
@@ -168,7 +168,7 @@ class productSale extends DatabaseEntity
             [$sp, $spcur] = [$productSaleItem->get_value('sellPrice'), $productSaleItem->get_value('sellPriceCurrencyTypeID')];
 
             $sellPriceCurr[$spcur] += Page::money($spcur, $sp, '%m');
-            $total_sellPrice += exchangeRate::convert($spcur, $sp);
+            $total_sellPrice += $sp;
             $total_margin += $productSaleItem->get_amount_margin();
             $total_unallocated += $productSaleItem->get_amount_unallocated();
         }

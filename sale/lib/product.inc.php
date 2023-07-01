@@ -46,10 +46,6 @@ class product extends DatabaseEntity
         $rows = [];
         $filter = (new product())->get_list_filter($_FORM);
 
-        $debug = $_FORM['debug'];
-        $debug && (print "\n<pre>_FORM: " . print_r($_FORM, 1) . '</pre>');
-        $debug && (print "\n<pre>filter: " . print_r($filter, 1) . '</pre>');
-
         if (is_array($filter) && count($filter)) {
             $f = ' WHERE ' . implode(' AND ', $filter);
         }
@@ -90,8 +86,8 @@ class product extends DatabaseEntity
 
     public static function get_buy_cost($id = false)
     {
-        $amount = null;
-        $id || ($id = $this->get_id());
+        $amount = 0;
+        $id || ($id = (new product())->get_id());
         $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare('SELECT amount, currencyTypeID, tax
                         FROM productCost
@@ -102,11 +98,11 @@ class product extends DatabaseEntity
         $allocDatabase->query($q);
         while ($row = $allocDatabase->row()) {
             if ($row['tax']) {
-                [$amount_minus_tax, $amount_of_tax] = tax($row['amount']);
+                [$amount_minus_tax, $_] = tax($row['amount']);
                 $row['amount'] = $amount_minus_tax;
             }
 
-            $amount += exchangeRate::convert($row['currencyTypeID'], $row['amount']);
+            $amount += $row['amount'];
         }
 
         return $amount;

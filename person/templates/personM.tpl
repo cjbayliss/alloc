@@ -158,15 +158,12 @@
       </div>
 
       <div class="enclose">
-        <h6>Homepage Private Mode<div>Homepage New Time Sheet Item Hint</div></h6> 
+        <h6>Homepage Private Mode</h6> 
         <div style="float:left; width:30%;">
           <select name="privateMode">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["privateMode"] ?? 0)}</select>
           {Page::help("<b>Homepage Private Mode</b><br><br>Prevent someone who is standing over your shoulder from seeing financial amounts on the homepage.")}
         </div>
         <div style="float:right; width:50%;">
-          <select name="showTimeSheetItemHintHome">{Page::select_options(array(0=>"No",1=>"Yes"),$current_user->prefs["showTimeSheetItemHintHome"] ?? 0)}</select>
-          {Page::help("<b>Homepage Time Sheet Item Hint</b><br><br>Display the add new time sheet item hint box on the home page.")}
-          &nbsp;&nbsp;&nbsp;
           <button type="submit" name="customize_save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
         </div>
       </div>

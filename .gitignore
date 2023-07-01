@@ -7,9 +7,12 @@
 *.pyc
 *.swp
 alloc_config.php
+composer.lock
 doc/html-images/.*
 documentation.pdf
 help/documentation.css
 help/help.html
 help/html-images
+node_modules/*
 vendor/*
+yarn.lock

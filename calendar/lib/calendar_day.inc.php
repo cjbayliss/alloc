@@ -48,10 +48,10 @@ class calendar_day
         $this->links = $links;
     }
 
-    public function draw_day_html()
+    public function draw_day_html(): string
     {
         $rows = [];
-        global $TPL;
+        $html = '';
 
         if ($this->absences) {
             $rows[] = '<br>Absent:';
@@ -73,13 +73,13 @@ class calendar_day
             $rows[] = implode('<br>', $this->reminders);
         }
 
-        echo "\n<td class=\"calendar_day " . $this->class . '">';
-        echo '<h1>' . $this->links . $this->display_date . '</h1>';
+        $html .= "\n<td class=\"calendar_day " . $this->class . '">';
+        $html .= '<h1>' . $this->links . $this->display_date . '</h1>';
 
         if ([] !== $rows) {
-            echo implode('<br>', $rows);
+            $html .= implode('<br>', $rows);
         }
 
-        echo '</td>';
+        return $html . '</td>';
     }
 }

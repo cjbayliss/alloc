@@ -7,22 +7,50 @@
 
 require_once __DIR__ . '/../alloc.php';
 
-function show_commentTemplate($template_name)
-{
-    global $TPL;
+$page = new Page();
+$url_alloc_commentTemplate = $page->getURL('url_alloc_commentTemplate');
+global $TPL;
 
-    // Run query and loop through the records
-    $db = new AllocDatabase();
-    $query = 'SELECT * FROM commentTemplate ORDER BY commentTemplateType, commentTemplateName';
-    $db->query($query);
-    while ($db->next_record()) {
-        $commentTemplate = new commentTemplate();
-        $commentTemplate->read_db_record($db);
-        $commentTemplate->set_values();
-        $TPL['odd_even'] = 'even' == $TPL['odd_even'] ? 'odd' : 'even';
-        include_template($template_name);
-    }
+$commentTemplates = (new commentTemplate())->getCommentTemplates();
+$commentTemplateHTML = '';
+foreach ($commentTemplates as $commentTemplate) {
+    $commentTemplateID = $commentTemplate['commentTemplateID'];
+    $commentTemplateName = $page->escape($commentTemplate['commentTemplateName']);
+    $commentTemplateHTML = <<<HTML
+            <tr>
+                <td><a href="{$url_alloc_commentTemplate}?commentTemplateID={$commentTemplateID}">{$commentTemplateID}</a></td>
+                <td>{$commentTemplateName}</td>
+                <td>{$commentTemplate['commentTemplateType']}</td>
+            </tr>
+        HTML;
 }
 
-$TPL['main_alloc_title'] = 'Comment Template List - ' . APPLICATION_NAME;
-include_template('templates/commentTemplateListM.tpl');
+$main_alloc_title = 'Comment Template List - ' . APPLICATION_NAME;
+
+$page->header($main_alloc_title);
+$page->toolbar();
+
+echo <<<HTML
+    <table class="box">
+      <tr>
+        <th class="header">Comment Templates
+          <span>
+            <a href="{$url_alloc_commentTemplate}">New Comment Template</a>
+          </span>
+        </th>
+      </tr>
+      <tr>
+        <td>
+          <table class="list sortable">
+            <tr>
+              <th width="1%" data-sort="num">ID</th>
+              <th>Template</th>
+              <th>Type</th>
+            </tr>
+            {$commentTemplateHTML}
+          </table>
+        </td>
+      </tr>
+    </table>
+    HTML;
+$page->footer();

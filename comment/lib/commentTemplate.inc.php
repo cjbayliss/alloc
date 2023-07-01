@@ -166,4 +166,18 @@ class commentTemplate extends DatabaseEntity
 
         return $str;
     }
+
+    public function getCommentTemplates(): array
+    {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
+
+        $commentTemplates = $allocDatabase->pdo->query(
+            'SELECT *
+               FROM commentTemplate
+           ORDER BY commentTemplateType, commentTemplateName'
+        );
+
+        return $commentTemplates->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

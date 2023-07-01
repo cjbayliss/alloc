@@ -34,4 +34,22 @@ class announcement extends DatabaseEntity
 
         return (bool) $getAnnouncements->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getAnnouncements(): array
+    {
+        $allocDatabase = new AllocDatabase();
+        $allocDatabase->connect();
+
+        $getAnnouncements = $allocDatabase->pdo->query(
+            'SELECT announcement.personID,
+                    announcement.heading,
+                    announcement.displayFromDate,
+                    announcement.displayToDate,
+                    announcement.announcementID
+               FROM announcement
+           ORDER BY displayFromDate DESC'
+        );
+
+        return $getAnnouncements->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

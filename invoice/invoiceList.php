@@ -57,7 +57,7 @@ if (!$current_user->have_role('admin')) {
 $TPL['invoiceListRows'] = invoice::get_list($_FORM);
 $TPL['_FORM'] = $_FORM;
 
-if (!$current_user->prefs['invoiceList_filter']) {
+if (!isset($current_user->prefs['invoiceList_filter'])) {
     $TPL['message_help'][] = '
 
 allocPSA allows you to create Invoices for your Clients and record the

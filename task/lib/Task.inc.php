@@ -143,13 +143,15 @@ class Task extends DatabaseEntity
             $err[] = 'Invalid priority.';
         }
 
-        if (!in_array(ucwords($this->get_value('taskTypeID')), [
-            'Task',
-            'Fault',
-            'Message',
-            'Milestone',
-            'Parent',
-        ])) {
+        if (
+            !in_array(ucwords($this->get_value('taskTypeID')), [
+                'Task',
+                'Fault',
+                'Message',
+                'Milestone',
+                'Parent',
+            ])
+        ) {
             $err[] = 'Invalid Task Type.';
         }
 
@@ -273,8 +275,8 @@ class Task extends DatabaseEntity
         // the 8:30 is the same as creation, below.
         if ($date) {
             $check_date = strtotime($date . ' 08:30:00');
-            foreach ($rows as $r) {
-                if (strtotime($r['reminderTime']) == $check_date) {
+            foreach ($rows as $row) {
+                if (strtotime($row['reminderTime']) == $check_date) {
                     return;
                 }
             }
@@ -1121,7 +1123,7 @@ class Task extends DatabaseEntity
         $scale_halved = sprintf('%d', config::get_config_item('taskPriorityScale') / 2);
 
         if (0 !== $dateTargetCompletion) {
-            $daysUntilDue = (format_date('U', $dateTargetCompletion) - time()) / 60 / 60 / 24;
+            $daysUntilDue = ((int) format_date('U', $dateTargetCompletion) - time()) / 60 / 60 / 24;
             $mult = atan($daysUntilDue / $spread) / 3.14 * $scale + $scale_halved;
         } else {
             $mult = 8;
@@ -1132,7 +1134,7 @@ class Task extends DatabaseEntity
         return [sprintf('%0.2f', ($taskPriority * $projectPriority ** 2) * $mult / 10), $daysUntilDue];
     }
 
-    public static function get_list($_FORM)
+    public static function get_list($_FORM): array
     {
         $limit = null;
         $f = null;
@@ -1302,14 +1304,528 @@ class Task extends DatabaseEntity
         return $a['priorityFactor'] > $b['priorityFactor'];
     }
 
+    /**
+     * @deprecated use the non-static listHTML() method instead
+     */
     public static function get_list_html($tasks = [], $ops = [])
     {
+        echo (new Task())->listHTML($tasks, $ops);
+    }
+
+    /**
+     * Returns a html list of tasks.
+     *
+     * FIXME: this is a very ugly function, but it is the best I could do
+     * *quickly* when converting the custom template system to normal PHP
+     *
+     * @param array tasksList list of tasks
+     * @param array $_FORM list of options
+     *
+     * @return string a list of tasks as a HTML string
+     */
+    public function listHTML(array $tasksList = [], array $_FORM = []): string
+    {
         global $TPL;
-        $TPL['taskListRows'] = $tasks;
-        $TPL['_FORM'] = $ops;
-        $TPL['taskPriorities'] = config::get_config_item('taskPriorities');
-        $TPL['projectPriorities'] = config::get_config_item('projectPriorities');
-        include_template(__DIR__ . '/../templates/taskListS.tpl');
+        $page = new Page();
+        $config = new config();
+
+        // FIXME: what does this do? and is it needed?
+        $taskListOptions = [];
+        $taskListOptions['returnURL'] ??= '';
+
+        $allocProjectURL = $page->getURL('url_alloc_project');
+        $allocTaskListURL = $page->getURL('url_alloc_taskList');
+        $allocUpdateParentTasks = $page->getURL('url_alloc_updateParentTasks');
+
+        $taskPriorities = $config->get_config_item('taskPriorities');
+        $projectPriorities = $config->get_config_item('projectPriorities');
+
+        $html = '';
+        $gt_status = null;
+        $sessID = null;
+
+        // TODO: remove global variables
+        // still needed for at least: $sessID
+        if (is_array($TPL)) {
+            extract($TPL, EXTR_OVERWRITE);
+        }
+
+        if ([] !== $tasksList) {
+            if (isset($_FORM['showEdit'])) {
+                $html .= <<<HTML
+                      <form action="{$allocTaskListURL}" method="post">
+                    HTML;
+            }
+
+            $html .= '<table class="list sortable"><tr>';
+
+            if (isset($_FORM['showEdit'])) {
+                // checkbox toggler
+                $html .= <<<'HTML'
+                    <th width="1%" data-sort="none" class="noprint">
+                      <input type="checkbox" class="toggler">
+                    </th>
+                    HTML;
+            }
+
+            $html .= '<th width="1%" data-sort="num">&nbsp;</th>';
+            if (isset($_FORM['showTaskID'])) {
+                $html .= '<th data-sort="num" width="1%">ID</th>';
+            }
+
+            if (isset($_FORM['showParentID'])) {
+                $html .= '<th data-sort="num" width="1%">PID</th>';
+            }
+
+            $html .= '<th>Task</th>';
+            if (isset($_FORM['showProject'])) {
+                $html .= '<th>Project</th>';
+            }
+
+            if (isset($_FORM['showPriority']) || isset($_FORM['showPriorityFactor'])) {
+                $html .= '<th data-sort="num">Priority</th>';
+            }
+
+            if (isset($_FORM['showPriority'])) {
+                $html .= '<th data-sort="num">Task Pri</th>';
+            }
+
+            if (isset($_FORM['showPriority'])) {
+                $html .= '<th data-sort="num">Proj Pri</th>';
+            }
+
+            if (isset($_FORM['showCreator'])) {
+                $html .= '<th>Task Creator</th>';
+            }
+
+            if (isset($_FORM['showManager'])) {
+                $html .= '<th>Task Manager</th>';
+            }
+
+            if (isset($_FORM['showAssigned'])) {
+                $html .= '<th>Assigned To</th>';
+            }
+
+            if (isset($_FORM['showDate1'])) {
+                $html .= '<th>Targ Start</th>';
+            }
+
+            if (isset($_FORM['showDate2'])) {
+                $html .= '<th>Targ Compl</th>';
+            }
+
+            if (isset($_FORM['showDate3'])) {
+                $html .= '<th>Act Start</th>';
+            }
+
+            if (isset($_FORM['showDate4'])) {
+                $html .= '<th>Act Compl</th>';
+            }
+
+            if (isset($_FORM['showDate5'])) {
+                $html .= '<th>Task Created</th>';
+            }
+
+            if (isset($_FORM['showTimes'])) {
+                $html .= '<th>Best</th>';
+            }
+
+            if (isset($_FORM['showTimes'])) {
+                $html .= '<th>Likely</th>';
+            }
+
+            if (isset($_FORM['showTimes'])) {
+                $html .= '<th>Worst</th>';
+            }
+
+            if (isset($_FORM['showTimes'])) {
+                $html .= '<th>Actual</th>';
+            }
+
+            if (isset($_FORM['showTimes'])) {
+                $html .= '<th>Limit</th>';
+            }
+
+            if (isset($_FORM['showTags'])) {
+                $html .= '<th>Tags</th>';
+            }
+
+            if (isset($_FORM['showPercent'])) {
+                $html .= '<th data-sort="int">%</th>';
+            }
+
+            if (isset($_FORM['showStatus'])) {
+                $html .= '<th>Status</th>';
+            }
+
+            if (isset($_FORM['showEdit']) || isset($_FORM['showStarred'])) {
+                $html .= '<th data-sort="num" width="1%" style="font-size:120%"><i class="icon-star"></i></th>';
+            }
+
+            $html .= '</tr>';
+
+            // Rows
+            $n = date('Y-m-d');
+            $gt_best = 0;
+            $gt_expected = 0;
+            $gt_worst = 0;
+            $gt_actual = 0;
+            $gt_limit = 0;
+            foreach ($tasksList as $taskList) {
+                $html .= '<tr class="clickrow" id="clickrow_' . $taskList['taskID'] . '">';
+
+                if (isset($_FORM['showEdit'])) {
+                    $html .= '<td class="nobr noprint"><input type="checkbox" id="checkbox_' . $taskList['taskID'] . '" name="select[' . $taskList['taskID'] . ']" class="task_checkboxes"></td>';
+                }
+
+                $html .= '<td data-sort-value="' . $taskList['taskTypeSeq'] . '">' . $taskList['taskTypeImage'] . '</td>';
+
+                if (isset($_FORM['showTaskID'])) {
+                    $html .= '<td>' . $taskList['taskID'] . '</td>';
+                }
+
+                if (isset($_FORM['showParentID'])) {
+                    $html .= '<td>' . $taskList['parentTaskID_link'] . '</td>';
+                }
+
+                $html .= '<td style="padding-left:' . ((int) $taskList['padding'] * 25 + 6) . 'px">' . $taskList['taskLink'] . '&nbsp;&nbsp;' . $taskList['newSubTask'];
+
+                if (isset($_FORM['showDescription'])) {
+                    $html .= '<br>' . Page::htmlentities($taskList['taskDescription']);
+                }
+
+                if (isset($_FORM['showComments'], $taskList['comments'])) {
+                    $html .= '<br>' . $taskList['comments'];
+                }
+
+                $html .= '</td>';
+
+                if (isset($_FORM['showProject'])) {
+                    $html .= '<td><a href="' . $allocProjectURL . '?projectID=' . $taskList['projectID'] . '">' . Page::htmlentities($taskList['project_name']) . '</a></td>';
+                }
+
+                if (isset($_FORM['showPriority']) || isset($_FORM['showPriorityFactor'])) {
+                    $html .= '<td>' . $taskList['priorityFactor'] . '</td>';
+                }
+
+                if (isset($_FORM['showPriority'])) {
+                    $html .= '<td data-sort-value="' . $taskList['priority'] . '" style="color:' . $taskPriorities[$taskList['priority']]['colour'] . '">' . $taskPriorities[$taskList['priority']]['label'] . '</td>';
+                }
+
+                if (isset($_FORM['showPriority'])) {
+                    $html .= '<td data-sort-value="' . $taskList['projectPriority'] . '" style="color:' . $projectPriorities[$taskList['projectPriority']]['colour'] . '">' . $projectPriorities[$taskList['projectPriority']]['label'] . '</td>';
+                }
+
+                if (isset($_FORM['showCreator'])) {
+                    $html .= '<td>' . Page::htmlentities($taskList['creator_name']) . '</td>';
+                }
+
+                if (isset($_FORM['showManager'])) {
+                    $html .= '<td>' . Page::htmlentities($taskList['manager_name']) . '</td>';
+                }
+
+                if (isset($_FORM['showAssigned'])) {
+                    $html .= '<td>' . Page::htmlentities($taskList['assignee_name']) . '</td>';
+                }
+
+                $dts = $taskList['dateTargetStart'];
+                $dtc = $taskList['dateTargetCompletion'];
+                $das = $taskList['dateActualStart'];
+                $dac = $taskList['dateActualCompletion'];
+                unset($dts_style);
+                if ($dts == $n) {
+                    $dts_style = 'color:green';
+                }
+
+                if ($dts && $das > $dts) {
+                    $dts_style = 'color:red';
+                }
+
+                unset($dtc_style);
+                if ($dtc == $n) {
+                    $dtc_style = 'color:green';
+                }
+
+                if ($dtc && $dac > $dtc) {
+                    $dtc_style = 'color:red';
+                }
+
+                if (isset($_FORM['showDate1'])) {
+                    $html .= 'td class="nobr" style="' . $dts_style . '">' . $dts . '</td>';
+                }
+
+                if (isset($_FORM['showDate2'])) {
+                    $html .= 'td class="nobr" style="' . $dtc_style . '">' . $dtc . '</td>';
+                }
+
+                if (isset($_FORM['showDate3'])) {
+                    $html .= 'td class="nobr">' . $das . '</td>';
+                }
+
+                if (isset($_FORM['showDate4'])) {
+                    $html .= 'td class="nobr">' . $dac . '</td>';
+                }
+
+                if (isset($_FORM['showDate5'])) {
+                    $html .= 'td class="nobr">' . $taskList['dateCreated'] . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= 'td class="nobr">' . $taskList['timeBestLabel'] . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= 'td class="nobr">' . $taskList['timeExpectedLabel'] . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= 'td class="nobr">' . $taskList['timeWorstLabel'] . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= 'td class="nobr">' . $taskList['timeActualLabel'] . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= 'td class="nobr ' . ($taskList['timeActual'] > $taskList['timeLimit'] && (print ' bad')) . '">' . $taskList['timeLimitLabel'] . '</td>';
+                }
+
+                if (isset($_FORM['showTags'])) {
+                    $html .= '<td class="nobr">' . $taskList['tags'] . '</td>';
+                }
+
+                if (isset($_FORM['showPercent'])) {
+                    $html .= '<td class="nobr">' . $taskList['percentComplete'] . '</td>';
+                }
+
+                if (isset($_FORM['showStatus'])) {
+                    $html .= '<td class="nobr" style="width:1%;">
+        <span class="corner" style="display:block;width:10em;padding:5px;text-align:center;background-color:' . $taskList['taskStatusColour'] . ';">
+        ' . $taskList['taskStatusLabel'] . '
+        </span>
+        </td>';
+                }
+
+                if (isset($_FORM['showEdit']) || isset($_FORM['showStarred'])) {
+                    $html .= '<td width="1%" data-sort-value="' . Page::star_sorter('task', $taskList['taskID']) . '">
+              ' . Page::star('task', $taskList['taskID']) . '
+            </td>';
+                }
+
+                $gt_best += $taskList['timeBest'] * 60 * 60;
+                $gt_expected += $taskList['timeExpected'] * 60 * 60;
+                $gt_worst += $taskList['timeWorst'] * 60 * 60;
+                $gt_actual += ($taskList['timeActual'] ?? 0) * 60 * 60;
+                $gt_limit += $taskList['timeLimit'] * 60 * 60;
+
+                $html .= '</tr>';
+            }
+
+            if ($gt_actual > $gt_limit) {
+                $gt_status = ' bad';
+            }
+
+            $gt_best && ($gt_best = seconds_to_display_format($gt_best));
+            $gt_expected && ($gt_expected = seconds_to_display_format($gt_expected));
+            $gt_worst && ($gt_worst = seconds_to_display_format($gt_worst));
+            $gt_actual && ($gt_actual = seconds_to_display_format($gt_actual));
+            $gt_limit && ($gt_limit = seconds_to_display_format($gt_limit));
+
+            // Footer
+            if (isset($_FORM['showTotals']) || isset($_FORM['showEdit'])) {
+                $html .= '<tfoot>';
+            }
+
+            if (isset($_FORM['showTotals'], $_FORM['showTimes'])) {
+                $html .= '<tr>';
+                if (isset($_FORM['showEdit'])) {
+                    $html .= '<td></td>';
+                }
+
+                $html .= '<td></td>'; // <!-- taskTypeImage -->
+                if (isset($_FORM['showTaskID'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showParentID'])) {
+                    $html .= '<td></td>';
+                }
+
+                $html .= '<td></td>'; // <!-- task name -->
+                if (isset($_FORM['showProject'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showPriority']) || isset($_FORM['showPriorityFactor'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showPriority'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showPriority'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showCreator'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showManager'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showAssigned'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showDate1'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showDate2'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showDate3'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showDate4'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showDate5'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= '<td class="grand_total">' . $gt_best . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= '<td class="grand_total">' . $gt_expected . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= '<td class="grand_total">' . $gt_worst . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= '<td class="grand_total">' . $gt_actual . '</td>';
+                }
+
+                if (isset($_FORM['showTimes'])) {
+                    $html .= '<td class="grand_total' . $gt_status . '">'
+                              . $gt_limit .
+                             '</td>';
+                }
+
+                if (isset($_FORM['showTags'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showPercent'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showStatus'])) {
+                    $html .= '<td></td>';
+                }
+
+                if (isset($_FORM['showEdit']) || isset($_FORM['showStarred'])) {
+                    $html .= '<td></td>';
+                }
+
+                $html .= '</tr>';
+            }
+
+            if (isset($_FORM['showEdit'])) {
+                $person_options = Page::select_options(person::get_username_list());
+                $meta = new meta('taskType');
+                $taskType_array = $meta->get_assoc_array('taskTypeID', 'taskTypeID');
+                $dateTargetStart = Page::calendar('dateTargetStart');
+                $dateTargetCompletion = Page::calendar('dateTargetCompletion');
+                $dateActualStart = Page::calendar('dateActualStart');
+                $dateActualCompletion = Page::calendar('dateActualCompletion');
+                $taskPriorityDropdown = Task::get_task_priority_dropdown(3);
+                $taskTypeID = Page::select_options($taskType_array);
+                $taskProjectOptions = Task::get_project_options();
+                $taskStatus = Page::select_options(Task::get_task_statii_array(true));
+                $html .= <<<HTML
+                        <tr id="task_editor">
+                          <th colspan="26" class="nobr noprint" style="padding:2px;" data-sort="none">
+                            <span style="margin-right:5px;">
+                              <select name="update_action"
+                                onChange="$('#task_editor .hidden').hide();$('#'+$(this).val()+'_span').show();$('#mass_update').show();">
+                                <option value="">Modify Checked...
+                                <option value="personID">Assign to --&gt;
+                                <option value="managerID">Manager to --&gt;
+                                <option value="timeLimit">Limit to --&gt;
+                                <option value="timeBest">Best to --&gt;
+                                <option value="timeWorst">Worst to --&gt;
+                                <option value="timeExpected">Expected to --&gt;
+                                <option value="priority">Task Priority to --&gt;
+                                <option value="taskTypeID">Task Type to --&gt;
+                                <option value="dateTargetStart">Target Start Date to --&gt;
+                                <option value="dateTargetCompletion">Target Completion Date to --&gt;
+                                <option value="dateActualStart">Actual Start Date to --&gt;
+                                <option value="dateActualCompletion">Actual Completion Date to --&gt;
+                                <option value="projectIDAndParentTaskID">Project and Parent Task to --&gt;
+                                <option value="taskStatus">Task Status to --&gt;
+                              </select>
+                            </span>
+                            <span class="hidden"
+                              id="dateTargetStart_span">{$dateTargetStart}</span>
+                            <span class="hidden"
+                              id="dateTargetCompletion_span">{$dateTargetCompletion}</span>
+                            <span class="hidden"
+                              id="dateActualStart_span">{$dateActualStart}</span>
+                            <span class="hidden"
+                              id="dateActualCompletion_span">{$dateActualCompletion}</span>
+                            <span class="hidden" id="personID_span"><select name="personID">
+                                <option value="">{$person_options}
+                              </select></span>
+                            <span class="hidden" id="managerID_span"><select name="managerID">
+                                <option value="">{$person_options}
+                              </select></span>
+                            <span class="hidden" id="timeLimit_span"><input name="timeLimit" type="text" size="5"></span>
+                            <span class="hidden" id="timeBest_span"><input name="timeBest" type="text" size="5"></span>
+                            <span class="hidden" id="timeWorst_span"><input name="timeWorst" type="text" size="5"></span>
+                            <span class="hidden" id="timeExpected_span"><input name="timeExpected" type="text" size="5"></span>
+                            <span class="hidden" id="priority_span"><select
+                                name="priority">{$taskPriorityDropdown}</select></span>
+                            <span class="hidden" id="taskTypeID_span"><select
+                                name="taskTypeID">{$taskTypeID}</select></span>
+                            <span class="hidden" id="projectIDAndParentTaskID_span">
+                              <select name="projectID" id="projectID"
+                                onChange="makeAjaxRequest('{$allocUpdateParentTasks}?projectID='+$(this).val(),'parentTaskDropdown')">
+                                <option value="">
+                                  {$taskProjectOptions}
+                              </select>
+                              <span style="display:inline" id="parentTaskDropdown"></span>
+                            </span>
+                            <span class="hidden" id="taskStatus_span"><select
+                                name="taskStatus">{$taskStatus}</select></span>
+                            <button type="submit" id="mass_update" name="mass_update" value="1" class="hidden save_button"
+                              style="margin-left:5px;text-transform:none !important;">Update Tasks<i class="icon-ok-sign"></i></button>
+                          </th>
+                        </tr>
+                        <input type="hidden" name="sessID" value="{$sessID}">
+                        <input type="hidden" name="returnURL" value="{$taskListOptions['returnURL']}">
+                      </form>
+                    HTML;
+            }
+
+            if (isset($_FORM['showTotals']) || isset($_FORM['showEdit'])) {
+                $html .= '</tfoot>';
+            }
+
+            return $html . '</table>';
+        }
+
+        return '<b>No Tasks Found</b>';
     }
 
     public static function get_task_priority_dropdown($priority = false)

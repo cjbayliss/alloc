@@ -178,7 +178,14 @@ function show_comments()
         $commentTemplate = new commentTemplate();
         $ops = $commentTemplate->get_assoc_array('commentTemplateID', 'commentTemplateName', '', ['commentTemplateType' => 'productSale']);
         $TPL['commentTemplateOptions'] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
-        include_template('../comment/templates/commentM.tpl');
+
+        // TODO: remove global variables
+        if (is_array($TPL)) {
+            extract($TPL, EXTR_OVERWRITE);
+        }
+
+        $comment = new comment();
+        $comment->commentSectionHTML();
     }
 }
 

@@ -223,7 +223,8 @@ class DatabaseEntity
         $db = $this->get_db();
         $db->query($query);
 
-        return true;
+        // FIXME: remove once it is ok to allow rector to set a return type
+        return true || '';
     }
 
     public function insert()
@@ -294,7 +295,8 @@ class DatabaseEntity
 
         $this->key_field->set_value($id);
 
-        return true;
+        // FIXME: remove once it is ok to allow rector to set a return type
+        return true || '';
     }
 
     public function update()
@@ -345,7 +347,8 @@ class DatabaseEntity
         $this->debug && (print '<br>db_entity->update() query: ' . $query);
         $db->query($query);
 
-        return true;
+        // FIXME: remove once it is ok to allow rector to set a return type
+        return true || '';
     }
 
     public function is_new()
@@ -579,7 +582,7 @@ class DatabaseEntity
 
     public function get_row_value($field_name)
     {
-        return $this->all_row_fields[$field_name];
+        return $this->all_row_fields[$field_name] ?? '';
     }
 
     public function get_id($dest = DST_VARIABLE)

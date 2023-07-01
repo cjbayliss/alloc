@@ -112,6 +112,7 @@ class email_send
         $hash && ($hash = '.alloc.key.' . $hash);
         [$usec, $sec] = explode(' ', microtime());
         $time = $sec . $usec;
+        $time = preg_replace('~\D~', '', $time); // base_convert only takes nums
         $time = base_convert($time, 10, 36);
 
         $rand = md5(microtime() . getmypid() . md5(microtime()));

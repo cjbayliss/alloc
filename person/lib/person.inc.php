@@ -273,8 +273,13 @@ class person extends DatabaseEntity
         return $tfIDs;
     }
 
-    public function get_valid_login_row($username, $password = '')
+    public function get_valid_login_row(string $username, string $password = ''): array
     {
+        // return early if either username or password are empty
+        if ('' === $username || '' === $password) {
+            return [];
+        }
+
         $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare(
             "SELECT * FROM person WHERE username = '%s' AND personActive = 1",
@@ -369,10 +374,6 @@ class person extends DatabaseEntity
 
         if (isset($p['showTimeSheetItemHome'])) {
             $this->prefs['showTimeSheetItemHome'] = $p['showTimeSheetItemHome'];
-        }
-
-        if (isset($p['showTimeSheetItemHintHome'])) {
-            $this->prefs['showTimeSheetItemHintHome'] = $p['showTimeSheetItemHintHome'];
         }
     }
 
@@ -547,7 +548,7 @@ class person extends DatabaseEntity
         if ($current_user->have_perm(PERM_PERSON_READ_MANAGEMENT) && isset($_FORM['showHours'])) {
             $timeSheetItem = new timeSheetItem();
             [$ts_hrs_col_1, $ts_dollars_col_1] = $timeSheetItem->get_averages(date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 14, date('Y'))));
-            [$ts_hrs_col_2, $ts_dollars_col_2] = $timeSheetItem->get_fortnightly_average();
+            [$ts_hrs_col_2, $ts_dollars_col_2] = $timeSheetItem->getFortnightlyAverage();
         } elseif (isset($_FORM['showHours'])) {
             unset($_FORM['showHours']);
         }

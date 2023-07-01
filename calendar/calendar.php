@@ -7,14 +7,29 @@
 
 require_once __DIR__ . '/../alloc.php';
 
-function show_task_calendar_recursive()
-{
-    $calendar = new calendar(2, 20);
-    $calendar->set_cal_person($_GET['personID']);
-    $calendar->set_return_mode('calendar');
-    $calendar->draw();
-}
+$current_user = &singleton('current_user');
 
-$TPL['username'] = person::get_fullname($_GET['personID']);
+$calendar = new calendar(2, 20);
+$calendar->setPerson($_GET['personID'] ?? $current_user->get_id());
+$calendar->setReturnMode('calendar');
+$showTaskCalendar = $calendar->draw();
 
-include_template('templates/taskCalendarM.tpl');
+$username = (new person())->get_fullname($_GET['personID'] ?? $current_user->get_id());
+
+$page = new Page();
+
+echo $page->header();
+echo $page->toolbar();
+echo <<<HTML
+        <table class="box">
+          <tr>
+            <th>Calendar: {$username}</th>
+          </tr>
+          <tr>
+            <td>
+              {$showTaskCalendar}
+            </td>
+          </tr>
+        </table>
+    HTML;
+echo $page->footer();

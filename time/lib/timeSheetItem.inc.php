@@ -151,65 +151,76 @@ class timeSheetItem extends DatabaseEntity
         return parent::delete();
     }
 
-    public function get_fortnightly_average($personID = false)
+    /**
+     * Calculates the fortnightly averages for a given person or all persons.
+     *
+     * @param int $personID The ID of the person for whom to calculate the
+     *                      averages. Default is 0, which means all persons.
+     *
+     * @return array An array containing two sub-arrays:
+     *               - The first sub-array contains the fortnightly averages for
+     *               each person.
+     *               - The second sub-array contains the fortnightly converted
+     *               averages for each person.
+     */
+    public function getFortnightlyAverage(int $personID = 0): array
     {
-        $done = [];
-        $fortnight = null;
-        $fortnights = [];
-        $how_many_fortnights = [];
-        $personID_sql = null;
-        $rtn_dollars = null;
-        // Need an array of the past years fortnights
-        $x = 0;
-        while ($x < 365) {
-            if (0 == $x % 14) {
-                ++$fortnight;
-            }
-
-            $fortnights[date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 365 + $x, date('Y')))] = $fortnight;
-            ++$x;
+        // populate array of past year's fortnights
+        $days = 0;
+        $fortnightsLookup = [];
+        while ($days < 365) {
+            $fortnight = (int) ($days / 14);
+            $fortnightsLookup[date('Y-m-d', strtotime(sprintf('-365 days +%s days', $days)))] = $fortnight;
+            $days += 14;
         }
 
-        $dateTimeSheetItem = date('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 365, date('Y')));
-        $personID && ($personID_sql = unsafe_prepare(' AND personID = %d', $personID));
-
-        $q = unsafe_prepare("SELECT DISTINCT dateTimeSheetItem, personID
-                        FROM timeSheetItem
-                       WHERE dateTimeSheetItem > '%s'
-                             " . $personID_sql . '
-                    GROUP BY dateTimeSheetItem,personID
-                     ', $dateTimeSheetItem);
+        $startDate = date('Y-m-d', strtotime('-365 days'));
+        $personIDStatement = (0 !== $personID) ? 'AND personID = :personID' : '';
 
         $allocDatabase = new AllocDatabase();
-        $allocDatabase->query($q);
-        while ($allocDatabase->next_record()) {
-            if (!$done[$allocDatabase->f('personID')][$fortnights[$allocDatabase->f('dateTimeSheetItem')]]) {
-                ++$how_many_fortnights[$allocDatabase->f('personID')];
-                $done[$allocDatabase->f('personID')][$fortnights[$allocDatabase->f('dateTimeSheetItem')]] = true;
+        $allocDatabase->connect();
+
+        $dateTimeSheetItemQuery = $allocDatabase->pdo->prepare(
+            "SELECT DISTINCT dateTimeSheetItem, personID
+                FROM timeSheetItem
+                WHERE dateTimeSheetItem > :startDate
+                {$personIDStatement}
+                GROUP BY dateTimeSheetItem, personID"
+        );
+
+        if (0 !== $personID) {
+            $dateTimeSheetItemQuery->bindParam(':personID', $personID, PDO::PARAM_INT);
+        }
+
+        $dateTimeSheetItemQuery->bindParam(':startDate', $startDate, PDO::PARAM_STR);
+
+        $dateTimeSheetItemQuery->execute();
+
+        $countFortnights = [1 => 0]; // initialise to [1 => 0] to prevent 'undefind offset'
+        while ($dateTimeSheetItemRow = $dateTimeSheetItemQuery->fetch(PDO::FETCH_ASSOC)) {
+            $personID = $dateTimeSheetItemRow['personID'];
+            ++$countFortnights[$personID];
+        }
+
+        $fortnightlyAverages = [];
+        [$averages, $currency] = $this->get_averages($startDate, $personID);
+
+        foreach ($averages as $id => $avg) {
+            $fortnightlyAverages[$id] = $avg / $countFortnights[$id];
+        }
+
+        $fortnightlyConvertedAverages = [];
+        $totalConvertedAmounts = [];
+        foreach ($currency as $id => $amounts) {
+            $totalConvertedAmounts[$id] = 0;
+            foreach ($amounts as $amount) {
+                $totalConvertedAmounts[$id] += $amount['amount'];
             }
+
+            $fortnightlyConvertedAverages[$id] = $totalConvertedAmounts[$id] / $countFortnights[$id];
         }
 
-        $rtn = [];
-        [$rows, $rows_dollars] = $this->get_averages($dateTimeSheetItem, $personID);
-        foreach ($rows as $id => $avg) {
-            $rtn[$id] = $avg / $how_many_fortnights[$id];
-            // echo "<br>".$id." ".$how_many_fortnights[$id];
-        }
-
-        // Convert all the monies into native currency
-        $alex = [];
-        foreach ($rows_dollars as $id => $arr) {
-            foreach ($arr as $r) {
-                $alex[$id] += exchangeRate::convert($r['currency'], $r['amount']);
-            }
-        }
-
-        // Get the averages for each
-        foreach ((array) $alex as $id => $sum) {
-            $rtn_dollars[$id] = $sum / $how_many_fortnights[$id];
-        }
-
-        return [$rtn, $rtn_dollars];
+        return [$fortnightlyAverages, $fortnightlyConvertedAverages];
     }
 
     public function is_owner($ignored = null)
@@ -420,15 +431,17 @@ class timeSheetItem extends DatabaseEntity
             $where = unsafe_prepare('timeSheetItem.taskID = %d', $taskID);
         } elseif ($starred) {
             $current_user = &singleton('current_user');
-            $timeSheetItemIDs = [];
             $timeSheetItemIDs = isset($current_user->prefs['stars']) ?
                 (isset($current_user->prefs['stars']['timeSheetItem']) ??
                     array_keys((array) $current_user->prefs['stars']['timeSheetItem'])) :
                 [];
-            $where = unsafe_prepare('(timeSheetItem.timeSheetItemID in (%s))', $timeSheetItemIDs);
+
+            if ([] !== $timeSheetItemIDs) {
+                $where = unsafe_prepare('(timeSheetItem.timeSheetItemID in (%s))', $timeSheetItemIDs);
+            }
         }
 
-        $where || ($where = ' 1 ');
+        $where ??= ' 1 ';
 
         // Get list of comments from timeSheetItem table
         $query = unsafe_prepare('SELECT timeSheetID

@@ -408,11 +408,18 @@ function show_comments()
         $TPL['attach_extra_files'] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
         $TPL['attach_extra_files'] .= 'Attach Invoice ';
         $TPL['attach_extra_files'] .= '<select name="attach_invoice">' . Page::select_options($ops) . '</select><br>';
-        include_template('../comment/templates/commentM.tpl');
+
+        // TODO: remove global variables
+        if (is_array($TPL)) {
+            extract($TPL, EXTR_OVERWRITE);
+        }
+
+        $comment = new comment();
+        $comment->commentSectionHTML();
     }
 }
 
-($invoiceID = $_POST['invoiceID']) || ($invoiceID = $_GET['invoiceID']);
+$invoiceID = $_POST['invoiceID'] ?? $_GET['invoiceID'] ?? 0;
 
 $db = new AllocDatabase();
 $invoice = new invoice();
@@ -425,7 +432,7 @@ if ($invoiceID) {
 }
 
 // If creating a new invoice
-if ($_POST['save'] || $_POST['save_and_MoveForward'] || $_POST['save_and_MoveBack']) {
+if (isset($_POST['save']) || isset($_POST['save_and_MoveForward']) || isset($_POST['save_and_MoveBack'])) {
     $invoice->read_globals();
     // Validation
     if ($invoice->get_value('projectID')) {
@@ -495,7 +502,7 @@ if ($_POST['save'] || $_POST['save_and_MoveForward'] || $_POST['save_and_MoveBac
         $TPL['message_good'][] = 'Invoice saved.';
         alloc_redirect($TPL['url_alloc_invoice'] . 'invoiceID=' . $invoiceID . $extra);
     }
-} elseif ($_POST['delete'] && 'edit' == $invoice->get_value('invoiceStatus')) {
+} elseif (isset($_POST['delete']) && 'edit' == $invoice->get_value('invoiceStatus')) {
     if ($invoiceItemIDs) {
         $db = new AllocDatabase();
         $q = unsafe_prepare('DELETE FROM transaction WHERE invoiceItemID in (%s)', $invoiceItemIDs);
@@ -509,7 +516,7 @@ if ($_POST['save'] || $_POST['save_and_MoveForward'] || $_POST['save_and_MoveBac
     $TPL['message_good'][] = 'Invoice deleted.';
     alloc_redirect($TPL['url_alloc_invoiceList']);
     // Saving editing individual invoiceItems
-} elseif (($_POST['invoiceItem_save'] || $_POST['invoiceItem_edit'] || $_POST['invoiceItem_delete']) && 'edit' == $invoice->get_value('invoiceStatus')) {
+} elseif ((isset($_POST['invoiceItem_save']) || isset($_POST['invoiceItem_edit']) || isset($_POST['invoiceItem_delete'])) && 'edit' == $invoice->get_value('invoiceStatus')) {
     if (is_array($_POST['invoiceItem_edit'])) {
         $invoiceItemID = key($_POST['invoiceItem_edit']);
     }
@@ -566,7 +573,7 @@ if ($_POST['save'] || $_POST['save_and_MoveForward'] || $_POST['save_and_MoveBac
     $invoice->set_id($invoiceID);
     $invoice->select();
     // if someone uploads an attachment
-} elseif ($_POST['save_attachment']) {
+} elseif (isset($_POST['save_attachment'])) {
     move_attachment('invoice', $invoiceID);
     $TPL['message_good'][] = 'Attachment saved.';
     alloc_redirect($TPL['url_alloc_invoice'] . 'invoiceID=' . $invoiceID);
@@ -599,8 +606,11 @@ $invoice->set_values();
 
 $statii = invoice::get_invoice_statii();
 
+$sep = '';
+$TPL['invoice_status_label'] ??= '';
 foreach ($statii as $s => $label) {
-    unset($pre, $suf); // prefix and suffix
+    $pre = '';
+    $suf = '';
     $status = $invoice->get_value('invoiceStatus');
     if (!$invoice->get_id()) {
         $status = 'create';
@@ -631,11 +641,11 @@ $TPL['field_invoiceNum'] = '<input type="text" name="invoiceNum" value="' . $TPL
 $TPL['field_invoiceName'] = '<input type="text" name="invoiceName" value="' . $TPL['invoiceName'] . '">';
 $TPL['field_maxAmount'] = '<input type="text" name="maxAmount" size="10" value="' . $invoice->get_value('maxAmount', DST_HTML_DISPLAY) . '"> ';
 $TPL['field_maxAmount'] .= Page::help('invoice_maxAmount');
-$TPL['field_invoiceDateFrom'] = Page::calendar('invoiceDateFrom', $TPL['invoiceDateFrom']);
-$TPL['field_invoiceDateTo'] = Page::calendar('invoiceDateTo', $TPL['invoiceDateTo']);
+$TPL['field_invoiceDateFrom'] = Page::calendar('invoiceDateFrom', $TPL['invoiceDateFrom'] ?? '');
+$TPL['field_invoiceDateTo'] = Page::calendar('invoiceDateTo', $TPL['invoiceDateTo'] ?? '');
 
-($clientID = $invoice->get_value('clientID')) || ($clientID = $_GET['clientID']);
-($projectID = $invoice->get_value('projectID')) || ($projectID = $_GET['projectID']);
+$clientID = $invoice->get_value('clientID') ?? $_GET['clientID'] ?? 0;
+$projectID = $invoice->get_value('projectID') ?? $_GET['projectID'] ?? 0;
 
 [$client_select, $client_link, $project_select, $project_link]
     = client::get_client_and_project_dropdowns_and_links($clientID, $projectID);
@@ -648,13 +658,16 @@ if ($invoice->get_value('tfID')) {
     $tf_sel = $invoice->get_value('tfID');
 }
 
-$tf_sel || ($tf_sel = config::get_config_item('mainTfID'));
+$tf_sel ??= config::get_config_item('mainTfID');
 $tf_select = "<select id='tfID' name='tfID'>" . Page::select_options($tf->get_assoc_array('tfID', 'tfName'), $tf_sel) . '</select>';
 
 // Main invoice buttons
 if ($current_user->have_role('admin')) {
     if (!$invoiceID) {
-        $_GET['clientID'] && ($TPL['clientID'] = $_GET['clientID']);
+        if (isset($_GET['clientID'])) {
+            $TPL['clientID'] = $_GET['clientID'];
+        }
+
         $TPL['invoice_buttons'] = '
          <button type="submit" name="save" value="1" class="save_button">Create Invoice<i class="icon-ok-sign"></i></button>
     ';

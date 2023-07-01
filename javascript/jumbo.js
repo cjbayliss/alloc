@@ -9114,4 +9114,29 @@ $(document).ready(function() {
 
 });
 
-
+/**
+ * make a POST request using fetch
+ * 
+ * @param {string} url URL for the POST request
+ * @param {string} query the paramater for the request
+ * @param {string} value the value of the query
+ * @param {function} callback the callback function
+ */
+function allocPostRequest(url, query, value, callback) {
+  fetch(url + query + value, {
+    method: 'POST'
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Request failed. Status: ' + response.status);
+      }
+      return response.text();
+    })
+    .then(responseText => {
+      callback(responseText);
+    })
+    .catch(error => {
+      console.log('Request failed. Error: ' + error.message);
+      callback(null);
+    });
+}

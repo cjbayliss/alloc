@@ -75,8 +75,8 @@ $star_entities = [
 ];
 
 $page = new Page();
-$page->header();
-$page->toolbar();
+echo $page->header();
+echo $page->toolbar();
 
 foreach ($star_entities as $entity => $e) {
     $rows = [];
@@ -114,4 +114,4 @@ if (!isset($printed_something)) {
         HTML;
 }
 
-$page->footer();
+echo $page->footer();

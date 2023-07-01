@@ -9,9 +9,9 @@ require_once __DIR__ . '/../alloc.php';
 
 $current_user->check_employee();
 
-$TPL['owner_checked'] = $_REQUEST['owner'] ? ' checked' : '';
+$TPL['owner_checked'] = isset($_REQUEST['owner']) ? ' checked' : '';
 
-if ($_REQUEST['showall']) {
+if (isset($_REQUEST['showall'])) {
     $TPL['showall_checked'] = ' checked';
 }
 

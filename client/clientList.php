@@ -29,7 +29,7 @@ function show_filter()
         $TPL = array_merge($TPL, $arr);
     }
 
-    // FIXME: 😔
+    // TODO: remove global variables
     if (is_array($TPL)) {
         extract($TPL, EXTR_OVERWRITE);
     }
@@ -84,14 +84,14 @@ in the top-right hand corner of the box below.';
 
 $TPL['main_alloc_title'] = 'Client List - ' . APPLICATION_NAME;
 
-// FIXME: 😔
+// TODO: remove global variables
 if (is_array($TPL)) {
     extract($TPL, EXTR_OVERWRITE);
 }
 
 $page = new Page();
-$page->header();
-$page->toolbar();
+echo $page->header();
+echo $page->toolbar();
 $totalRecords = is_countable($clientListRows) ? count($clientListRows) : 0;
 $filter = show_filter();
 $clientListHTML = (new client())->listHTML($clientListRows, $_FORM);
@@ -117,4 +117,5 @@ echo <<<HTML
       </tr>
     </table>
     HTML;
-$page->footer();
+
+echo $page->footer();

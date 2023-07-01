@@ -645,7 +645,7 @@ class client extends DatabaseEntity
         $html = '';
         $page = new Page();
 
-        // FIXME: 😔
+        // TODO: remove global variables
         if (is_array($TPL)) {
             extract($TPL, EXTR_OVERWRITE);
         }

@@ -105,7 +105,13 @@ function show_comments()
     $ops = $commentTemplate->get_assoc_array('commentTemplateID', 'commentTemplateName', '', ['commentTemplateType' => 'task']);
     $TPL['commentTemplateOptions'] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
 
-    include_template('../comment/templates/commentM.tpl');
+    // TODO: remove global variables
+    if (is_array($TPL)) {
+        extract($TPL, EXTR_OVERWRITE);
+    }
+
+    $comment = new comment();
+    $comment->commentSectionHTML();
 }
 
 function show_taskCommentsPrinter()
@@ -114,7 +120,7 @@ function show_taskCommentsPrinter()
     global $taskID;
     global $TPL;
     $TPL['commentsR'] = comment::util_get_comments('task', $taskID, $options);
-    include_template('../comment/templates/commentP.tpl');
+    echo $TPL['commentsR'];
 }
 
 function show_taskHistory()
@@ -419,12 +425,12 @@ if (isset($blockTaskLinks)) {
 
 if (in_str('pending_', $task->get_value('taskStatus'))) {
     $rows = $task->get_reopen_reminders();
-    foreach ($rows as $r) {
+    foreach ($rows as $row) {
         $TPL['message_help_no_esc'][] = 'This task is set to
-                                    <a href="' . $TPL['url_alloc_reminder'] . 'step=3&reminderID=' . $r['rID'] . '&returnToParent=task">
-				    automatically reopen at ' . $r['reminderTime'] . '</a>';
+                                    <a href="' . $TPL['url_alloc_reminder'] . 'step=3&reminderID=' . $row['rID'] . '&returnToParent=task">
+				    automatically reopen at ' . $row['reminderTime'] . '</a>';
         // Which date gets plugged in is arbitrary, but it would be unusual for there to be more than one
-        $TPL['reopen_task'] = strftime('%Y-%m-%d', strtotime($r['reminderTime']));
+        $TPL['reopen_task'] = strftime('%Y-%m-%d', strtotime($row['reminderTime']));
     }
 }
 

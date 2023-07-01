@@ -211,7 +211,7 @@ class expenseForm extends DatabaseEntity
         }
 
         $allocDatabase = new AllocDatabase();
-        $q = unsafe_prepare('SELECT sum(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS amount
+        $q = unsafe_prepare('SELECT sum(amount * pow(10,-currencyType.numberToBasic)) AS amount
                         FROM transaction
                    LEFT JOIN currencyType on transaction.currencyTypeID = currencyType.currencyTypeID
                        WHERE expenseFormID = %d', $id);

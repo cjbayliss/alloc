@@ -35,7 +35,7 @@ class services
         $person = new person();
         $session = new Session();
         $row = $person->get_valid_login_row($username, $password);
-        if ($row) {
+        if ([] !== $row) {
             $session->Start($row, false);
             $session->UseGet();
             $session->Save();

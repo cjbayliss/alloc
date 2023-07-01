@@ -7,15 +7,136 @@
 
 class Page
 {
+    private array $urls = [
+        'url_alloc_absence'                        => 'person/absence.php',
+        'url_alloc_addItem'                        => 'item/addItem.php',
+        'url_alloc_announcement'                   => 'announcement/announcement.php',
+        'url_alloc_announcementList'               => 'announcement/announcementList.php',
+        'url_alloc_checkRepeat'                    => 'finance/checkRepeat.php',
+        'url_alloc_client'                         => 'client/client.php',
+        'url_alloc_clientList'                     => 'client/clientList.php',
+        'url_alloc_comment'                        => 'comment/comment.php',
+        'url_alloc_commentSummary'                 => 'comment/summary.php',
+        'url_alloc_commentTemplate'                => 'comment/commentTemplate.php',
+        'url_alloc_commentTemplateList'            => 'comment/commentTemplateList.php',
+        'url_alloc_config'                         => 'config/config.php',
+        'url_alloc_configEdit'                     => 'config/configEdit.php',
+        'url_alloc_configHtml'                     => 'config/configHtml.php',
+        'url_alloc_configHtmlList'                 => 'config/configHtmlList.php',
+        'url_alloc_costtime'                       => 'tools/costtime.php',
+        'url_alloc_delDoc'                         => 'shared/del_attachment.php',
+        'url_alloc_downloadComments'               => 'email/downloadComments.php',
+        'url_alloc_downloadEmail'                  => 'email/downloadEmail.php',
+        'url_alloc_expenseForm'                    => 'finance/expenseForm.php',
+        'url_alloc_expenseFormList'                => 'finance/expenseFormList.php',
+        'url_alloc_expenseUpload'                  => 'finance/expenseUpload.php',
+        'url_alloc_expenseUploadResults'           => 'finance/expenseUploadResults.php',
+        'url_alloc_exportDoc'                      => 'shared/get_export.php',
+        'url_alloc_fetchBody'                      => 'email/fetchBody.php',
+        'url_alloc_financeMenu'                    => 'finance/menu.php',
+        'url_alloc_getDoc'                         => 'shared/get_attachment.php',
+        'url_alloc_getHelp'                        => 'help/getHelp.php',
+        'url_alloc_getMimePart'                    => 'shared/get_mime_part.php',
+        'url_alloc_help'                           => ALLOC_MOD_DIR . 'help' . DIRECTORY_SEPARATOR,
+        'url_alloc_helpfile'                       => 'help/help.html',
+        'url_alloc_history'                        => 'home/history.php',
+        'url_alloc_home'                           => 'home/home.php',
+        'url_alloc_images'                         => 'images/',
+        'url_alloc_importCSV'                      => 'project/parseCSV.php',
+        'url_alloc_inbox'                          => 'email/inbox.php',
+        'url_alloc_index'                          => 'index.php',
+        'url_alloc_invoice'                        => 'invoice/invoice.php',
+        'url_alloc_invoiceList'                    => 'invoice/invoiceList.php',
+        'url_alloc_invoicePrint'                   => 'invoice/invoicePrint.php',
+        'url_alloc_invoiceRepeat'                  => 'invoice/invoiceRepeat.php',
+        'url_alloc_item'                           => 'item/item.php',
+        'url_alloc_loanAndReturn'                  => 'item/loanAndReturn.php',
+        'url_alloc_loans'                          => 'item/itemLoan.php',
+        'url_alloc_login'                          => 'login/login.php',
+        'url_alloc_logo'                           => 'shared/logo.php',
+        'url_alloc_logout'                         => 'login/logout.php',
+        'url_alloc_menuSubmit'                     => 'shared/menuSubmit.php',
+        'url_alloc_metaEdit'                       => 'config/metaEdit.php',
+        'url_alloc_permission'                     => 'security/permission.php',
+        'url_alloc_permissionList'                 => 'security/permissionList.php',
+        'url_alloc_person'                         => 'person/person.php',
+        'url_alloc_personGraph'                    => 'project/personGraph.php',
+        'url_alloc_personGraphImage'               => 'project/personGraphImage.php',
+        'url_alloc_personList'                     => 'person/personList.php',
+        'url_alloc_personSkillAdd'                 => 'person/personSkillAdd.php',
+        'url_alloc_personSkillMatrix'              => 'person/personSkillMatrix.php',
+        'url_alloc_product'                        => 'sale/product.php',
+        'url_alloc_productList'                    => 'sale/productList.php',
+        'url_alloc_productSale'                    => 'sale/productSale.php',
+        'url_alloc_productSaleList'                => 'sale/productSaleList.php',
+        'url_alloc_project'                        => 'project/project.php',
+        'url_alloc_projectGraph'                   => 'project/projectGraph.php',
+        'url_alloc_projectGraphImage'              => 'project/projectGraphImage.php',
+        'url_alloc_projectList'                    => 'project/projectList.php',
+        'url_alloc_projectPerson'                  => 'project/projectPerson.php',
+        'url_alloc_reconciliationReport'           => 'finance/reconciliationReport.php',
+        'url_alloc_reminder'                       => 'reminder/reminder.php',
+        'url_alloc_reminderList'                   => 'reminder/reminderList.php',
+        'url_alloc_report'                         => 'report/report.php',
+        'url_alloc_saveProjectPerson'              => 'project/saveProjectPerson.php',
+        'url_alloc_search'                         => 'search/search.php',
+        'url_alloc_searchTransaction'              => 'finance/searchTransaction.php',
+        'url_alloc_settings'                       => 'shared/settings.php',
+        'url_alloc_star'                           => 'shared/star.php',
+        'url_alloc_starList'                       => 'shared/starList.php',
+        'url_alloc_styles'                         => ALLOC_MOD_DIR . 'css/',
+        'url_alloc_task'                           => 'task/task.php',
+        'url_alloc_taskCalendar'                   => 'calendar/calendar.php',
+        'url_alloc_taskList'                       => 'task/taskList.php',
+        'url_alloc_taskListCSV'                    => 'task/taskListCSV.php',
+        'url_alloc_taskListPrint'                  => 'task/taskListPrint.php',
+        'url_alloc_tf'                             => 'finance/tf.php',
+        'url_alloc_tfList'                         => 'finance/tfList.php',
+        'url_alloc_timeSheet'                      => 'time/timeSheet.php',
+        'url_alloc_timeSheetGraph'                 => 'time/timeSheetGraph.php',
+        'url_alloc_timeSheetItem'                  => 'time/timeSheetItem.php',
+        'url_alloc_timeSheetList'                  => 'time/timeSheetList.php',
+        'url_alloc_timeSheetPrint'                 => 'time/timeSheetPrint.php',
+        'url_alloc_tools'                          => 'tools/menu.php',
+        'url_alloc_transaction'                    => 'finance/transaction.php',
+        'url_alloc_transactionGroup'               => 'finance/transactionGroup.php',
+        'url_alloc_transactionList'                => 'finance/transactionList.php',
+        'url_alloc_transactionPendingList'         => 'finance/transactionPendingList.php',
+        'url_alloc_transactionRepeat'              => 'finance/transactionRepeat.php',
+        'url_alloc_transactionRepeatList'          => 'finance/transactionRepeatList.php',
+        'url_alloc_updateClientDupes'              => 'client/updateClientDupes.php',
+        'url_alloc_updateCommentTemplate'          => 'comment/updateCommentTemplate.php',
+        'url_alloc_updateCopyProjectList'          => 'project/updateProjectList.php',
+        'url_alloc_updateCostPrice'                => 'sale/updateCostPrice.php',
+        'url_alloc_updateEstimatorPersonList'      => 'task/updateEstimatorPersonList.php',
+        'url_alloc_updateInterestedParties'        => 'task/updateInterestedParties.php',
+        'url_alloc_updateManagerPersonList'        => 'task/updateManagerPersonList.php',
+        'url_alloc_updateParentTasks'              => 'task/updateParentTasks.php',
+        'url_alloc_updatePersonList'               => 'task/updatePersonList.php',
+        'url_alloc_updateProjectClientContactList' => 'project/updateProjectClientContactList.php',
+        'url_alloc_updateProjectClientList'        => 'project/updateProjectClientList.php',
+        'url_alloc_updateProjectList'              => 'task/updateProjectList.php',
+        'url_alloc_updateProjectListByClient'      => 'time/updateProjectListByClient.php',
+        'url_alloc_updateProjectPersonRate'        => 'project/updateProjectPersonRate.php',
+        'url_alloc_updateRecipients'               => 'comment/updateRecipients.php',
+        'url_alloc_updateTaskDupes'                => 'task/updateTaskDupes.php',
+        'url_alloc_updateTaskName'                 => 'task/updateTaskName.php',
+        'url_alloc_updateTFList'                   => 'finance/updateTFList.php',
+        'url_alloc_updateTimeSheetHome'            => 'time/updateTimeSheetHome.php',
+        'url_alloc_updateTimeSheetProjectList'     => 'time/updateProjectListByStatus.php',
+        'url_alloc_updateTimeSheetTaskList'        => 'time/updateTimeSheetTaskList.php',
+        'url_alloc_wagesUpload'                    => 'finance/wagesUpload.php',
+        'url_alloc_weeklyTime'                     => 'time/weeklyTime.php',
+    ];
+
     // Initializer
     public function __construct()
     {
     }
 
-    public static function header()
+    public static function header(string $main_alloc_title = '')
     {
         global $TPL;
-        $main_alloc_title = '';
         $script_path = null;
         $sideBySideLink = null;
 
@@ -23,15 +144,13 @@ class Page
         $page = new Page();
         $config = new config();
 
-        if (!empty($current_user->prefs['showFilters'])) {
-            $TPL['onLoad'][] = 'show_filter();';
+        // TODO: remove $TPL global variable
+        if ('' === $main_alloc_title) {
+            $main_alloc_title = $TPL['main_alloc_title'];
         }
 
-        $TPL['onLoad'] ??= [];
-
-        // FIXME: 😞
-        if (is_array($TPL)) {
-            extract($TPL, EXTR_OVERWRITE);
+        if (null === $script_path) {
+            $script_path = $TPL['script_path'];
         }
 
         $login = '';
@@ -305,7 +424,7 @@ class Page
               <div id="main2"><!-- another div nested for padding -->
             HTML;
 
-        self::messages();
+        echo self::messages();
     }
 
     public static function extra_links(): string
@@ -415,24 +534,30 @@ class Page
         return Page::select_options($category_options, $category);
     }
 
-    public static function help($topic, $hovertext = false)
+    public static function help($topic, $hovertext = '')
     {
+        $page = new Page();
         $img = null;
-        global $TPL;
-        $str = Page::prepare_help_string(@file_get_contents($TPL['url_alloc_help'] . $topic . '.html'));
-        if (0 !== strlen($str)) {
-            $img = "<div id='help_button_" . $topic . "' style='display:inline;'><a href=\"" . $TPL['url_alloc_getHelp'] . 'topic=' . $topic . '" target="_blank">';
+        $str = '';
+
+        $file = $page->getURL('url_alloc_help') . $topic . '.html';
+        if (file_exists($file)) {
+            $str = $page->prepare_help_string(@file_get_contents($file));
+        }
+
+        if (!empty($str)) {
+            $img = "<div id='help_button_" . $topic . "' style='display:inline;'><a href=\"" . $page->getURL('url_alloc_getHelp') . '?topic=' . $topic . '" target="_blank">';
             $img .= "<img border='0' class='help_button' onmouseover=\"help_text_on('help_button_" . $topic . "','" . $str . "');\" onmouseout=\"help_text_off('help_button_" . $topic . "');\" src=\"";
-            $img .= $TPL['url_alloc_images'] . 'help.gif" alt="Help" /></a></div>';
+            $img .= $page->getURL('url_alloc_images') . 'help.gif" alt="Help" /></a></div>';
         } elseif ($topic) {
-            $str = Page::prepare_help_string($topic);
+            $str = $page->prepare_help_string($topic);
             $img = "<div id='help_button_" . md5($topic) . "' style='display:inline;'>";
             if ($hovertext) {
                 $img .= "<span onmouseover=\"help_text_on('help_button_" . md5($topic) . "','" . $str . "');\" onmouseout=\"help_text_off('help_button_" . md5($topic) . "');\">";
                 $img .= $hovertext . '</span>';
             } else {
                 $img .= "<img border='0' class='help_button' onmouseover=\"help_text_on('help_button_" . md5($topic) . "','" . $str . "');\" ";
-                $img .= "onmouseout=\"help_text_off('help_button_" . md5($topic) . "');\" src=\"" . $TPL['url_alloc_images'] . 'help.gif" alt="Help" />';
+                $img .= 'onmouseout="help_text_off(\'help_button_' . md5($topic) . '\');" src="' . $page->getURL('url_alloc_images') . 'help.gif" alt="Help" />';
             }
 
             $img .= '</div>';
@@ -606,6 +731,19 @@ class Page
         return $s;
     }
 
+    /** this is a part of the solution to the old global variable $TPL, instead
+     * of getting the value $TPL[$url] from global state, use this to get the
+     * same url.
+     *
+     * NOTE: you have to add the '?' manually unlike $TPL which did some magic
+     *
+     * @return string the url you want, e.g. 'task/task.php'
+     */
+    public function getURL(string $url): string
+    {
+        return SCRIPT_PATH . $this->urls[$url];
+    }
+
     public static function mandatory($field = '')
     {
         $star = '&lowast;';
@@ -710,7 +848,8 @@ class Page
 
     public static function htmlentities($str = ''): string
     {
-        if (!empty($str)) {
+        // FIXME: stop using this funciton so that this hack can go
+        if (is_string($str)) {
             return (new Page())->escape($str);
         }
 
@@ -808,6 +947,7 @@ class Page
         $str = null;
         $mainCurrency = config::get_config_item('currency');
         foreach ((array) $rows as $row) {
+            $sums[$row['currency']] ??= 0;
             $sums[$row['currency']] += $row['amount'];
             $k = $row['currency'];
         }
@@ -826,7 +966,7 @@ class Page
             if ($mainCurrency == $currency) {
                 $total += $amount;
             } else {
-                $total += exchangeRate::convert($currency, $amount);
+                $total += $amount;
             }
         }
 

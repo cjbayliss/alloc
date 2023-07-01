@@ -832,59 +832,6 @@ How do I Create a New Time Sheet?
           Sheets, you can view them from the 'Time Sheet' section of your
           'Homepage'.
 
-How do I Ensure Staff Effort on Tasks is Captured as Time Sheets?
------------------------------------------------------------------
-
-.. NOTE:: allocPSA provides managers with the ability to add small comments (or
-          hints) to specific tasks, to assist them in tracking the work levels
-          on those tasks by staff. This can be useful in professional services
-          organizations as a truer representation of work-levels being
-          allocated to tasks, and thus in helping improve utilisation and this
-          client-billing. It does obviously mean that managers need to keep
-          regular tabs on staff activity, such that even if staff don't
-          nominate work effort on a task (via a time sheet entry), then a
-          manager can make a note to query the staff member about that effort.
-
-.. NOTE:: In order to make use of this facility, you need to have Manager
-          privileges and you also need to switch on the New Time Sheet Item
-          Hint option for your Home page. The New Time Sheet Item Hint feature
-          provides a text-entry box on the user's Home page. This will allow
-          them to quickly add indications (or hints) of what work different
-          team members are doing. To learn how to enable this feature, please
-          refer to `How do I Customise my Home Page?`_ .
-
-#.  Log in to allocPSA
-
-#.  Click into the Home page.
-
-#.  In the information block titled New Time Sheet Item Hint, enter the
-    following items within the textbox:
-
-    #.  Username - of the person whom you're adding this time sheet hint
-        for.
-    #.  Duration - in the standard time increments for that user (e.g.,
-        hours).
-    #.  Task ID - the ID of the task that you want to add this hint for.
-    #.  Comment - an optional note for your future reference.
-
-    .. NOTE:: As you're typing these details into the textbox, allocPSA will
-              being rendering them into a time-sheet hint entry, in the lower
-              part of the information block, showing you the details in a
-              fuller-form.
-
-#.  Once you're satisfied that the information you've entered and had
-    presented back to you is correct, press the Enter key. This will cause
-    allocPSA to accept the material you've provided, and add it as a hint
-    in the corresponding task.
-
-.. NOTE:: This tool is useful in hinting at (and perhaps capturing) 'time
-          effort' which is performed by staff, if the staff aren't transacting
-          any activities through allocPSA for that task. If, however, the staff
-          are taking actions on the task which allocPSA is capturing, then you
-          can use another tool to capture any missing time-sheet entries, the
-          Effort Exception Report. To learn how to enable this feature, please
-          refer to `How do I Prepare an Un-billed Effort Exception Report?`_ .
-
 How do I Find My Currently Active Timesheets?
 ---------------------------------------------
 
@@ -1679,9 +1626,6 @@ How do I Customise my Home Page?
 
     - Homepage Private Mode: Prevent someone who is standing over your shoulder
       from seeing financial amounts on the homepage.
-
-    - Homepage New Time Sheet Item Hint: Display the add new time sheet item
-      hint box on the home page.
 
 #.  Once you've made the changes you need to make, click the 'Save' button.
 
@@ -2559,17 +2503,6 @@ New Time Sheet Item
 If you've switched on this option, allocPSA can provide you with a
 quick-and-easy mechanism for adding time-sheet data. For more on how to
 use this facility, see: `How do I Quickly Add Time Sheet Entries?`_ .
-
-
-New Time Sheet Item Hint
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you have manager privileges and if you've switched on this option, allocPSA
-can provide you with a quick-and-easy mechanism for noting when you believe
-specific staff are working on specific tasks, which could then be used to
-ensure appropriate billing information is captured. For more on how to use this
-facility, see: `How do I Ensure Staff Effort on Tasks is Captured as Time
-Sheets?`_ .
 
 
 Clients

@@ -5,76 +5,20 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-// Format a time offset in seconds to (+|-)HH:MM
-
-use ZendSearch\Lucene\Document\HTML;
-
-function format_offset($secs): string
+function format_date(string $format = 'Y/m/d', $date = ''): string
 {
-    // sign will be included in the hours
-    $sign = $secs < 0 ? '' : '+';
-    $h = $secs / 3600;
-    $m = $secs % 3600 / 60;
-
-    return sprintf('%s%2d:%02d', $sign, $h, $m);
-}
-
-// List of Timezone => Offset Timezone
-// i.e. Australia/Melbourne => +11:00 Australia/Melbourne
-// Ordered by GMT offset
-function get_timezone_array()
-{
-    $zones = timezone_identifiers_list();
-    $zonelist = [];
-
-    // List format suitable for sorting
-    $now = new DateTime();
-
-    $idx = 0; // to distinguish timezones on the same offset
-    foreach ($zones as $zone) {
-        $tz = new DateTimeZone($zone);
-        $offset = $tz->getOffset($now);
-        // Index is [actual offset]+[arbitrary index]{3}
-        $zonelist[$offset * 10000 + $idx++] = [$zone, format_offset($offset) . ' ' . $zone];
+    if (empty($date)) {
+        return '';
     }
 
-    // Sort and unpack
-    $list = [];
-    ksort($zonelist);
-    foreach ($zonelist as $zone) {
-        $list[$zone[0]] = $zone[1];
+    try {
+        // When $date is an integer, assume it's a Unix timestamp
+        $dateTime = is_int($date) ? (new DateTime())->setTimestamp($date) : new DateTime($date);
+
+        return $dateTime->format($format);
+    } catch (Exception $exception) {
+        return 'Date unrecognized: ' . $date . "\nException: " . $exception;
     }
-
-    return $list;
-}
-
-function format_date($format = 'Y/m/d', $date = '')
-{
-    $t = '::'; // IMPORTANT: explode expects at least this
-    // If looks like this: 2003-07-07 21:37:01
-    if (preg_match('/^[\\d]{4}-[\\d]{1,2}-[\\d]{1,2} [\\d]{2}:[\\d]{2}:[\\d]{2}$/', $date)) {
-        [$d, $t] = explode(' ', $date);
-        // If looks like this: 2003-07-07
-    } elseif (preg_match('/^[\\d]{4}-[\\d]{1,2}-[\\d]{1,2}$/', $date)) {
-        $d = $date;
-        // If looks like this: 12:01:01
-    } elseif (preg_match('/^[\\d]{2}:[\\d]{2}:[\\d]{2}$/', $date)) {
-        $d = '2000-01-01';
-        $t = $date;
-        // Nasty hobbitses!
-    } else {
-        if ($date) {
-            return 'Date unrecognized: ' . $date;
-        }
-
-        return;
-    }
-
-    [$y, $m, $d] = explode('-', $d);
-    [$h, $i, $s] = explode(':', $t);
-    [$y, $m, $d, $h, $i, $s] = [sprintf('%d', $y), sprintf('%d', $m), sprintf('%d', $d), sprintf('%d', $h), sprintf('%d', $i), sprintf('%d', $s)];
-
-    return date($format, mktime(date($h), date($i), date($s), date($m), date($d), date($y)));
 }
 
 function add_brackets($email = '')
@@ -149,26 +93,6 @@ function get_all_form_data(array $array = [], array $fallback = []): array
     }
 
     return $_FORM;
-}
-
-function timetook($start, $friendly_output = true): string
-{
-    $end = microtime();
-    [$start_micro, $start_epoch, $end_micro, $end_epoch] = explode(' ', $start . ' ' . $end);
-    $started = (substr($start_epoch, -4) + $start_micro);
-    $finished = (substr($end_epoch, -4) + $end_micro);
-    $dur = $finished - $started;
-    if ($friendly_output) {
-        $unit = ' seconds.';
-        if ($dur > 60) {
-            $unit = ' mins.';
-            $dur /= 60;
-        }
-
-        return sprintf('%0.5f', $dur) . $unit;
-    }
-
-    return sprintf('%0.5f', $dur);
 }
 
 function sort_by_name($a, $b)
@@ -521,12 +445,15 @@ function parse_email_address(string $email = ''): array
     if ('' !== $email) {
         $mail = new Mail_RFC822();
         $structure = $mail->parseAddressList($email);
-        $name = (string) $structure[0]->personal;
-        if ($structure[0]->mailbox && $structure[0]->host) {
-            $addr = (string) $structure[0]->mailbox . '@' . (string) $structure[0]->host;
-        }
 
-        return [$addr, $name];
+        if (isset($structure[0])) {
+            $name = (string) $structure[0]->personal;
+            if ($structure[0]->mailbox && $structure[0]->host) {
+                $addr = (string) $structure[0]->mailbox . '@' . (string) $structure[0]->host;
+            }
+
+            return [$addr, $name];
+        }
     }
 
     return ['', ''];
@@ -550,13 +477,15 @@ function alloc_redirect($target_url)
         $seperator = '?';
     }
 
-    foreach ([
-        'message',
-        'message_good',
-        'message_help',
-        'message_help_no_esc',
-        'message_good_no_esc',
-    ] as $type) {
+    foreach (
+        [
+            'message',
+            'message_good',
+            'message_help',
+            'message_help_no_esc',
+            'message_good_no_esc',
+        ] as $type
+    ) {
         if (isset($TPL[$type])) {
             if (is_array($TPL[$type])) {
                 $TPL[$type] = implode('<br>', $TPL[$type]);
@@ -621,37 +550,6 @@ function image_create_from_file($path)
     $f = $functions[$info[2]];
 
     return $f($path);
-}
-
-function get_exchange_rate($from, $to)
-{
-    // eg: AUD to AUD == 1
-    if ($from == $to) {
-        return 1;
-    }
-
-    $debug = $_REQUEST['debug'];
-
-    usleep(500000); // So we don't hit their servers too hard
-    $debug && (print '<br>');
-
-    $url = 'http://finance.yahoo.com/d/quotes.csv?f=l1d1t1&s=' . $from . $to . '=X';
-    $data = file_get_contents($url);
-    $debug && (print '<br>Y: ' . htmlentities($data));
-    $results = explode(',', $data);
-    $rate = $results[0];
-    $debug && (print '<br>Yahoo says 5 ' . $from . ' is worth ' . ($rate * 5) . ' ' . $to . ' at this exchange rate: ' . $rate);
-
-    if ('' === $rate || '0' === $rate) {
-        $url = 'http://www.google.com/ig/calculator?hl=en&q=' . urlencode('1' . $from . '=?' . $to);
-        $data = file_get_contents($url);
-        $debug && (print '<br>G: ' . htmlentities($data));
-        $arr = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
-        $rate = current(explode(' ', $arr['rhs']));
-        $debug && (print '<br>Google says 5 ' . $from . ' is worth ' . ($rate * 5) . ' ' . $to . ' at this exchange rate: ' . $rate);
-    }
-
-    return trim($rate);
 }
 
 function array_kv($arr, $k, $v)

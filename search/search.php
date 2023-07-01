@@ -33,7 +33,7 @@ function format_display_fields($str = '')
 
 global $TPL;
 
-($noRedirect = $_POST['idRedirect']) || ($noRedirect = $_GET['idRedirect']);
+$noRedirect = $_POST['idRedirect'] ?? $_GET['idRedirect'] ?? '';
 ($search = $_POST['search']) || ($search = $_GET['search']);
 ($category = $_POST['category']) || ($category = $_GET['category']);
 ($needle = trim($_POST['needle'])) || ($needle = trim($_GET['needle']));

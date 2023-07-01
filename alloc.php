@@ -5,9 +5,8 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-// The order of file processing usually goes:
-// requested_script.php -> alloc.php -> alloc_config.php -> more includes
-// -> back to requested_script.php
+// The order of file processing usually goes: requested_script.php -> alloc.php
+// -> alloc_config.php -> more includes -> back to requested_script.php
 
 require_once __DIR__ . '/vendor/autoload.php';
 use ZendSearch\Lucene\Analysis\Analyzer\Analyzer;

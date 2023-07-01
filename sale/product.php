@@ -65,7 +65,7 @@ function tf_list($selected = '', $remove_these = [])
     echo Page::select_options($temp, $selected);
 }
 
-($productID = $_GET['productID']) || ($productID = $_POST['productID']);
+$productID = $_GET['productID'] ?? $_POST['productID'] ?? '';
 $product = new product();
 
 if ($productID) {
@@ -91,7 +91,7 @@ $TPL['taxTF'] = $tflist[config::get_config_item('taxTfID')];
 $taxRate = config::get_config_item('taxPercent') / 100.0;
 $TPL['taxRate'] = $taxRate;
 
-if ($_POST['save']) {
+if (isset($_POST['save'])) {
     $product->read_globals();
     $product->set_value('productActive', isset($_POST['productActive']) ? 1 : 0);
     if (!$product->get_value('productName')) {
@@ -115,14 +115,14 @@ if ($_POST['save']) {
     }
 
     $product->set_values();
-} elseif ($_POST['delete']) {
+} elseif (isset($_POST['delete'])) {
     $product->read_globals();
     $product->delete();
     alloc_redirect($TPL['url_alloc_productList']);
 }
 
 // Fixed costs
-if ($_POST['save_costs'] || $_POST['save_commissions']) {
+if (isset($_POST['save_costs']) || isset($_POST['save_commissions'])) {
     foreach ((array) $_POST['productCostID'] as $k => $productCostID) {
         // Delete
         if (in_array($productCostID, (array) $_POST['deleteCost'])) {

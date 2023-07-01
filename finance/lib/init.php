@@ -17,5 +17,8 @@ class finance_module extends Module
         'transactionRepeat',
     ];
 
-    public $home_items = ['tfList_home_item', 'pendingAdminExpenseForm'];
+    public $home_items = [
+        'PendingAdminExpenseFormHomeItem',
+        'TaggedFundsListHomeItem',
+    ];
 }

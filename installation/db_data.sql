@@ -1,4 +1,3 @@
-
 -- Info for the new metadata tables
 
 INSERT INTO absenceType (absenceTypeID, absenceTypeSeq, absenceTypeActive) VALUES ('Annual Leave',1,true);
@@ -299,8 +298,6 @@ VALUES
 
 ,('currencyType'             ,0  ,'god'      ,NULL ,1+2+4+8    ,NULL)
 
-,('exchangeRate'             ,0  ,'admin'    ,NULL ,1+2+4+8    ,NULL)
-
 ,('expenseForm'              ,-1 ,'employee' ,NULL ,1+2+4+8    ,NULL)
 ,('expenseForm'              ,0  ,'admin'    ,NULL ,1+2+4+8    ,NULL)
 
@@ -420,8 +417,6 @@ VALUES
 ,('timeSheetItem'            ,0  ,'admin'    ,NULL ,1+2+4+8    ,NULL)
 
 ,('timeSheetItemMultiplier'  ,0  ,'god'      ,NULL ,1+2+4+8    ,NULL)
-
-,('tsiHint'                  ,0  ,'manage'   ,NULL ,1+2+4+8    ,NULL)
 
 ,('token'                    ,0  ,''         ,NULL ,1+2+4+8    ,NULL)
 ,('tokenAction'              ,0  ,''         ,NULL ,1          ,NULL)
@@ -566,7 +561,6 @@ INSERT INTO tokenAction (tokenActionID,tokenAction,tokenActionType,tokenActionMe
 INSERT INTO tokenAction (tokenActionID,tokenAction,tokenActionType,tokenActionMethod) VALUES (4,'Reopen pending task','task','reopen_pending_task');
 
 
-
 INSERT INTO announcement (announcementID, heading, personID,displayFromDate,displayToDate, body) VALUES
                          (1, "Getting Started in allocPSA",1,'2000-01-01','2030-01-01',"
 If you're new to allocPSA, just follow the tabs across left to right at the
@@ -579,9 +573,6 @@ useful automated reminders functionality.
 
 # Check every 10 minutes for any allocPSA Reminders to send
 */10 * * * * wget -q -O /dev/null http://urlforyouralloc/reminder/sendReminders.php
-
-# Update the exchange rates - pick your own time to do it - once per day 
-X Y * * * wget -q -O /dev/null http://urlforyouralloc/finance/updateExchangeRates.php
 
 # Check every 5 minutes for updates to the search index
 */5 * * * * wget -q -O /dev/null http://urlforyouralloc/search/updateIndex.php

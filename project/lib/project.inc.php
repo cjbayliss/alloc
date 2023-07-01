@@ -386,6 +386,7 @@ class project extends DatabaseEntity
         $queryType || ($queryType = 'mine');
         $queryProjectStatus = $projectStatus ? ' AND project.projectStatus = :projectStatus ' : '';
 
+        $usingBaseSQL = true;
         $baseSql = 'SELECT project.projectID, project.projectName
                       FROM project
                  LEFT JOIN projectPerson ON project.projectID = projectPerson.projectID
@@ -413,6 +414,7 @@ class project extends DatabaseEntity
                       ORDER BY projectName';
                 break;
             default:
+                $usingBaseSQL = false;
                 $sql = 'SELECT projectID, projectName FROM project
                          WHERE project.projectStatus = :queryType
                       ORDER BY projectName';
@@ -420,7 +422,9 @@ class project extends DatabaseEntity
         }
 
         $projectIDsAndNamesTypesQuery = $databaseConnection->pdo->prepare($sql);
-        $projectIDsAndNamesTypesQuery->bindValue(':personID', $personID, PDO::PARAM_INT);
+        if ($usingBaseSQL) {
+            $projectIDsAndNamesTypesQuery->bindValue(':personID', $personID, PDO::PARAM_INT);
+        }
 
         if ($projectStatus) {
             $projectIDsAndNamesTypesQuery->bindValue(':projectStatus', $projectStatus, PDO::PARAM_STR);
@@ -732,7 +736,7 @@ class project extends DatabaseEntity
         $rtn['personSelect'] = $personSelect;
         $meta = new Meta('projectStatus');
         $projectStatus_array = $meta->get_assoc_array('projectStatusID', 'projectStatusID');
-        $rtn['projectStatusOptions'] = Page::select_options($projectStatus_array, $_FORM['projectStatus']);
+        $rtn['projectStatusOptions'] = Page::select_options($projectStatus_array, $_FORM['projectStatus'] ?? '');
         $rtn['projectTypeOptions'] = Page::select_options(project::get_project_type_array(), $_FORM['projectType'] ?? '');
         $rtn['projectName'] = $_FORM['projectName'] ?? '';
 
@@ -1032,12 +1036,73 @@ class project extends DatabaseEntity
         return $pp[$p] ?? [];
     }
 
-    public static function get_list_html($rows = [], $ops = [])
+    /**
+     * @deprecated use the non-static listHTML() method instead
+     */
+    public static function get_list_html(array $rows = [], array $ops = []): string
+    {
+        return (new project())->listHTML($rows, $ops);
+    }
+
+    /**
+     * Returns a html list of projects.
+     *
+     * @param array projectsList list of projects
+     * @param array optionsList list of options
+     *
+     * @return string a list of projects as a HTML string
+     */
+    public function listHTML(array $projectsList = [], array $optionsList = []): string
     {
         global $TPL;
-        $TPL['projectListRows'] = $rows;
-        $TPL['_FORM'] = $ops;
-        include_template(__DIR__ . '/../templates/projectListS.tpl');
+        $TPL['projectListRows'] = $projectsList;
+        $TPL['_FORM'] = $optionsList;
+        $html = '';
+        $page = new Page();
+
+        // TODO: remove global variables
+        if (is_array($TPL)) {
+            extract($TPL, EXTR_OVERWRITE);
+        }
+
+        if (isset($projectListRows)) {
+            $html .= <<<'HTML'
+                <table class="list sortable">
+                  <tr>
+                    <th>Project</th>
+                    <th>Nick</th>
+                    <th>Client</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th class="noprint">&nbsp;</th>
+                    <th width="1%" style="font-size:120%"><i class="icon-star"></i></th>
+                  </tr>
+                HTML;
+            foreach ($projectListRows as $projectListRow) {
+                $projectShortName = isset($projectListRow['projectShortName']) ? $page->escape($projectListRow['projectShortName']) : '';
+                $clientName = isset($projectListRow['clientName']) ? $page->escape($projectListRow['clientName']) : '';
+                $projectType = isset($projectListRow['projectType']) ? $page->escape($projectListRow['projectType']) : '';
+                $projectStatus = isset($projectListRow['projectStatus']) ? $page->escape($projectListRow['projectStatus']) : '';
+                $starredProjects = $page->star('project', $projectListRow['projectID']);
+                $html .= <<<HTML
+                      <tr>
+                        <td>{$projectListRow['projectLink']}</td>
+                        <td>{$projectShortName}</td>
+                        <td>{$clientName}</td>
+                        <td>{$projectType}</td>
+                        <td>{$projectStatus}</td>
+                        <td class="noprint" align="right">{$projectListRow['navLinks']}</td>
+                        <td width="1%">
+                          {$starredProjects}
+                        </td>
+                      </tr>
+                    HTML;
+            }
+
+            $html .= '</table>';
+        }
+
+        return $html;
     }
 
     public function get_changes_list(): string

@@ -122,30 +122,24 @@ class projectPerson extends DatabaseEntity
         $defaultTimeSheetRate = $getDefaultTimeSheetRate->fetch(PDO::FETCH_ASSOC);
 
         if ((isset($defaultTimeSheetRate['rate']) && (bool) strlen($defaultTimeSheetRate['rate'])) && $defaultTimeSheetRate['unit']) {
-            if ($project->get_value('currencyTypeID') != config::get_config_item('currency')) {
-                $defaultTimeSheetRate['rate'] = exchangeRate::convert(
-                    config::get_config_item('currency'),
-                    $defaultTimeSheetRate['rate'],
-                    $project->get_value('currencyTypeID')
-                );
-            }
-
             return $defaultTimeSheetRate;
         }
 
         // last, try the global rate
         $rate = config::get_config_item('defaultTimeSheetRate');
         $unit = config::get_config_item('defaultTimeSheetUnit');
-        if ((isset($rate) && (bool) strlen($rate)) && $unit) {
-            if (config::get_config_item('currency') && $project->get_value('currencyTypeID')) {
-                $rate = exchangeRate::convert(
-                    config::get_config_item('currency'),
-                    $rate,
-                    $project->get_value('currencyTypeID')
-                );
-            }
-
-            return ['rate' => $rate, 'unit' => $unit];
+        if (!isset($rate)) {
+            return;
         }
+
+        if (!(bool) strlen($rate)) {
+            return;
+        }
+
+        if (!$unit) {
+            return;
+        }
+
+        return ['rate' => $rate, 'unit' => $unit];
     }
 }

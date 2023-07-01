@@ -162,7 +162,7 @@ class timeSheet extends DatabaseEntity
         $timeUnit = new timeUnit();
         $units = array_reverse($timeUnit->get_assoc_array('timeUnitID', 'timeUnitLabelA'), true);
 
-        if ($rates[$this->get_value('projectID')][$this->get_value('personID')]) {
+        if (isset($rates[$this->get_value('projectID')][$this->get_value('personID')])) {
             [$this->pay_info['project_rate'], $this->pay_info['project_rateUnitID']] = $rates[$this->get_value('projectID')][$this->get_value('personID')];
         } else {
             // Get rate for person for this particular project
@@ -216,8 +216,9 @@ class timeSheet extends DatabaseEntity
         $this->pay_info['total_dollars'] = Page::money($currency, $this->pay_info['total_dollars'], '%m');
 
         $commar = '';
+        $this->pay_info['summary_unit_totals'] ??= '';
         foreach ((array) $timeUnitRows as $r) {
-            if (0 != $row[$r['timeUnitLabelA']]) {
+            if (!empty($row[$r['timeUnitLabelA']])) {
                 $this->pay_info['summary_unit_totals'] .= $commar . ($row[$r['timeUnitLabelA']] + 0) . ' ' . $r['timeUnitLabelA'];
                 $commar = ', ';
             }
@@ -366,7 +367,7 @@ class timeSheet extends DatabaseEntity
 
     public function get_amount_so_far($include_tax = false)
     {
-        $q = unsafe_prepare("SELECT SUM(amount * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
+        $q = unsafe_prepare("SELECT SUM(amount * pow(10,-currencyType.numberToBasic)) AS balance
                         FROM transaction
                    LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                        WHERE timeSheetID = %d AND transactionType != 'invoice'
@@ -593,17 +594,20 @@ class timeSheet extends DatabaseEntity
 
             $t->load_pay_info();
 
-            if ($_FORM['timeSheetItemHours'] && ($_FORM['timeSheetItemHours'] != $t->pay_info['total_duration_hours'])) {
+            if (!empty($_FORM['timeSheetItemHours']) && ($_FORM['timeSheetItemHours'] != $t->pay_info['total_duration_hours'])) {
                 continue;
             }
 
             $row['currencyTypeID'] = $t->get_value('currencyTypeID');
             $row['amount'] = $t->pay_info['total_dollars'];
             $amount_tallies[] = ['amount' => $row['amount'], 'currency' => $row['currencyTypeID']];
-            $extra['amountTotal'] += exchangeRate::convert($row['currencyTypeID'], $row['amount']);
+            $extra['amountTotal'] ??= 0;
+            $extra['amountTotal'] += $row['amount'];
+            $extra['totalHours'] ??= 0;
             $extra['totalHours'] += $t->pay_info['total_duration_hours'];
+            $row['totalHours'] ??= 0;
             $row['totalHours'] += $t->pay_info['total_duration_hours'];
-            $row['duration'] = $t->pay_info['summary_unit_totals'];
+            $row['duration'] = $t->pay_info['summary_unit_totals'] ?? 0;
 
             if (
                 'edit' == $t->get_value('status') && (isset($current_user->prefs['timeSheetHoursWarn']) && (bool) strlen($current_user->prefs['timeSheetHoursWarn']))
@@ -622,10 +626,11 @@ class timeSheet extends DatabaseEntity
             $row['person'] = $people_array[$row['personID']]['name'];
             $row['status'] = $status_array[$row['status']];
             $row['customerBilledDollars'] = $t->pay_info['total_customerBilledDollars'];
-            $extra['customerBilledDollarsTotal'] += exchangeRate::convert($row['currencyTypeID'], $t->pay_info['total_customerBilledDollars']);
+            $extra['customerBilledDollarsTotal'] ??= 0;
+            $extra['customerBilledDollarsTotal'] += $t->pay_info['total_customerBilledDollars'];
             $billed_tallies[] = ['amount' => $row['customerBilledDollars'], 'currency' => $row['currencyTypeID']];
 
-            if ($_FORM['showFinances']) {
+            if (!empty($_FORM['showFinances'])) {
                 [$pos, $neg] = $t->get_transaction_totals();
                 $row['transactionsPos'] = Page::money_print($pos);
                 $row['transactionsNeg'] = Page::money_print($neg);
@@ -656,12 +661,138 @@ class timeSheet extends DatabaseEntity
         return (array) $rows;
     }
 
+    /**
+     * @deprecated use the non-static listHTML() method instead
+     */
     public static function get_list_html($rows = [], $extra = [])
     {
-        global $TPL;
-        $TPL['timeSheetListRows'] = $rows;
-        $TPL['extra'] = $extra;
-        include_template(__DIR__ . '/../templates/timeSheetListS.tpl');
+        echo (new timeSheet())->listHTML($rows, $extra);
+    }
+
+    /**
+     * Returns a html list of timeSheets.
+     *
+     * @param array timeSheets list of timeSheets
+     * @param array optionsList list of options
+     *
+     * @return string a list of timeSheets as a HTML string
+     */
+    public function listHTML(array $timeSheets = [], array $optionsList = []): string
+    {
+        $page = new Page();
+        $html = '';
+
+        if ([] !== $timeSheets) {
+            $html .= <<<'HTML'
+                <table class="list sortable">
+                  <tr>
+                    <th></th>
+                    <th data-sort="num">ID</th>
+                    <th>Project</th>
+                    <th>Owner</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                    <th class="right">Amount</th>
+                HTML;
+
+            if ($optionsList['showFinances']) {
+                $html .= <<<'HTML'
+                    <th class="right">Client Billed</th>
+                    <th class="right">Sum &gt;0</th>
+                    <th class="right">Sum &lt;0</th>
+                    HTML;
+            }
+
+            $html .= <<<'HTML'
+                    <th width="1%" style="font-size:120%"><i class="icon-star"></i></th>
+                    </tr>
+                HTML;
+
+            $allocTimeSheetURL = $page->getURL('url_alloc_timeSheet');
+            $rejected = '';
+            foreach ($timeSheets as $timeSheet) {
+                $projectName = $page->escape($timeSheet['projectName']);
+                $person = $page->escape($timeSheet['person']);
+
+                if ('Rejected' == $timeSheet['status']) {
+                    $rejected = '<span class="warn" title="This timesheet needs to be re-submitted.">' . $timeSheet['status'] . '</span>';
+                }
+
+                $timeSheetAmount = $page->money($timeSheet['currencyTypeID'], $timeSheet['amount'], '%s%m %c');
+                $customerBilledAmount = $page->money($timeSheet['currencyTypeID'], $timeSheet['customerBilledDollars'], '%s%m %c');
+                $starred = $page->star('timeSheet', $timeSheet['timeSheetID']);
+                $timeSheet['daysWarn'] ??= '';
+                $timeSheet['hoursWarn'] ??= '';
+
+                $html .= <<<HTML
+                        <tr>
+                          <td style="width:1%" class="nobr">{$timeSheet['daysWarn']}{$timeSheet['hoursWarn']}</td>
+                          <td><a href="{$allocTimeSheetURL}?timeSheetID={$timeSheet['timeSheetID']}">{$timeSheet['timeSheetID']}</a></td>
+                          <td>{$projectName}</td>
+                          <td>{$person}</td>
+                          <td>{$timeSheet['dateFrom']}</td>
+                          <td>{$timeSheet['dateTo']}</td>
+                          <td>{$rejected}</td>
+                          <td>{$timeSheet['duration']}</td>
+                          <td class="nobr right">{$timeSheetAmount}</td>
+                    HTML;
+
+                if ($optionsList['showFinances']) {
+                    $html .= <<<HTML
+                        <td class="nobr right">{$customerBilledAmount}</td>
+                        <td class="nobr right">{$timeSheet['transactionsPos']}</td>
+                        <td class="nobr right">{$timeSheet['transactionsNeg']}</td>
+                        HTML;
+                }
+
+                $html .= <<<HTML
+                      <td width="1%">
+                        {$starred}
+                      </td>
+                    </tr>
+                    HTML;
+            }
+
+            if (empty($optionsList['noextra'])) {
+                $totalHours = sprintf('%0.2f', $optionsList['totalHours']);
+
+                $html .= <<<HTML
+                        <tfoot>
+                        <tr>
+                          <td></td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td>&nbsp;</td>
+                          <td class="grand_total left nobr">{$totalHours} Hours</td>
+                          <td class="grand_total right nobr">{$optionsList['amount_tallies']}</td>
+                    HTML;
+
+                if ($optionsList['showFinances']) {
+                    $html .= <<<HTML
+                        <td class="grand_total right nobr">{$optionsList['billed_tallies']}</td>
+                        <td class="grand_total right nobr">{$optionsList['positive_tallies']}</td>
+                        <td class="grand_total right nobr">{$optionsList['negative_tallies']}</td>
+                        HTML;
+                }
+
+                $html .= <<<'HTML'
+                      <td>&nbsp;</td>
+                    </tr>
+                    </tfoot>
+                    HTML;
+            }
+
+            $html .= '</table>';
+        } else {
+            $html = '<b>No Time Sheets Found.</b>';
+        }
+
+        return $html;
     }
 
     public function get_transaction_totals()
@@ -798,7 +929,7 @@ class timeSheet extends DatabaseEntity
         $status_array = timeSheet::get_timeSheet_statii();
         unset($status_array['create']);
 
-        if (!$_FORM['status']) {
+        if (empty($_FORM['status'])) {
             $_FORM['status'][] = 'edit';
         }
 
@@ -1043,9 +1174,11 @@ class timeSheet extends DatabaseEntity
             // project manager for the timesheet
             // no project manager and owner of the timesheet
             // the permission flag
-            if (!(in_array($current_user->get_id(), $projectManagers)
+            if (
+                !(in_array($current_user->get_id(), $projectManagers)
                 || (empty($projectManagers) && $this->get_value('personID') == $current_user->get_id())
-                || $this->have_perm(PERM_TIME_APPROVE_TIMESHEETS))) {
+                || $this->have_perm(PERM_TIME_APPROVE_TIMESHEETS))
+            ) {
                 // error, go away
                 alloc_error('You do not have permission to change this timesheet.');
             }
@@ -1231,7 +1364,7 @@ class timeSheet extends DatabaseEntity
         $emailMessageID = $stuff['msg_id'] ?? '';
         $date = $stuff['date'] ?? '';
         $unit = $stuff['unit'] ?? '';
-        $multiplier = $stuff['multiplier'] ?? '';
+        $multiplier = $stuff['multiplier'] ?? 0;
 
         if (!empty($taskID)) {
             $task = new Task();
@@ -1249,7 +1382,7 @@ class timeSheet extends DatabaseEntity
         $row_projectPerson || alloc_error($errstr . 'The person(' . $current_user->get_id() . ') has not been added to the project(' . $projectID . ').');
 
         if ($row_projectPerson && $projectID) {
-            if ($stuff['timeSheetID']) {
+            if (!empty($stuff['timeSheetID'])) {
                 $q = unsafe_prepare("SELECT *
                                 FROM timeSheet
                                WHERE status = 'edit'
@@ -1277,7 +1410,7 @@ class timeSheet extends DatabaseEntity
             }
 
             // If no timeSheets add a new one
-            if (!$row) {
+            if (empty($row)) {
                 $project = new project();
                 $project->set_id($projectID);
                 $project->select();
@@ -1406,7 +1539,7 @@ class timeSheet extends DatabaseEntity
                          ', $this->get_id());
             $allocDatabase->query($q);
             $row = $allocDatabase->row();
-            $invoiceID = $row['invoiceID'];
+            $invoiceID = $row['invoiceID'] ?? 0;
             if ($invoiceID) {
                 $invoice = new invoice();
                 $invoice->set_id($invoiceID);

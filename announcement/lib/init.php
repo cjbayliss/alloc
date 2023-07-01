@@ -11,5 +11,5 @@ class announcement_module extends Module
 
     public $databaseEntities = ['announcement'];
 
-    public $home_items = ['announcements_home_item'];
+    public $home_items = ['AnnouncementsHomeItem'];
 }

@@ -8,27 +8,27 @@
 define('NO_AUTH', 1);
 require_once __DIR__ . '/../alloc.php';
 
-$sess = new Session();
+$page = new Page();
+
+$session = new Session();
 if (isset($_POST['forwardUrl'])) {
     $url = $_POST['forwardUrl'];
 } elseif (isset($_GET['forward'])) {
     $url = $_GET['forward'];
 } else {
-    $url = $sess->GetUrl($TPL['url_alloc_home']);
+    $url = $session->GetUrl($page->getURL('url_alloc_home'));
 }
 
-// If we already have a session
-if ($sess->Started()) {
+if ($session->Started()) {
     alloc_redirect($url);
     exit;
-    // Else log the user in
 }
 
 if (!empty($_POST['login'])) {
     $person = new person();
     $row = $person->get_valid_login_row($_POST['username'], $_POST['password']);
-    if ($row) {
-        $sess->Start($row);
+    if ([] !== $row) {
+        $session->Start($row);
 
         $q = unsafe_prepare(
             "UPDATE person SET lastLoginDate = '%s' WHERE personID = %d",
@@ -38,14 +38,14 @@ if (!empty($_POST['login'])) {
         $db = new AllocDatabase();
         $db->query($q);
 
-        if ($sess->TestCookie()) {
-            $sess->UseCookie();
-            $sess->SetTestCookie($_POST['username']);
+        if ($session->TestCookie()) {
+            $session->UseCookie();
+            $session->SetTestCookie($_POST['username']);
         } else {
-            $sess->UseGet();
+            $session->UseGet();
         }
 
-        $sess->Save();
+        $session->Save();
         alloc_redirect($url);
     }
 
@@ -68,7 +68,7 @@ if (!empty($_POST['login'])) {
         $db2->query($q);
 
         $e = new email_send($_POST['email'], 'New Password', 'Your new temporary password: ' . $password, 'new_password');
-        // echo "Your new temporary password: ".$password;
+
         if ($e->send()) {
             $TPL['message_good'][] = 'New password sent to: ' . $_POST['email'];
         } else {
@@ -79,8 +79,8 @@ if (!empty($_POST['login'])) {
     }
 
     // Else if just visiting the page
-} elseif (!$sess->TestCookie()) {
-    $sess->SetTestCookie();
+} elseif (!$session->TestCookie()) {
+    $session->SetTestCookie();
 }
 
 if (!empty($error)) {
@@ -93,8 +93,8 @@ $TPL['account'] = $account;
 
 if (isset($_POST['username'])) {
     $TPL['username'] = $_POST['username'];
-} elseif ('alloc_test_cookie' != $sess->TestCookie()) {
-    $TPL['username'] = $sess->TestCookie();
+} elseif ('alloc_test_cookie' != $session->TestCookie()) {
+    $TPL['username'] = $session->TestCookie();
 } else {
     $TPL['username'] = '';
 }
@@ -131,4 +131,52 @@ if (is_array($files) && count($files)) {
 
 $TPL['main_alloc_title'] = 'allocPSA login';
 
-include_template('templates/login.tpl');
+// include_template('templates/login.tpl');
+// TODO: remove global variables
+if (is_array($TPL)) {
+    extract($TPL, EXTR_OVERWRITE);
+}
+
+echo $page->header(); ?>
+
+<div class="width">
+<?php echo $page->messages(); ?>
+</div>
+
+<form action="<?php echo $url_alloc_login; ?>" method="post" id="login_form">
+<?php if (!empty($forward_url)) { ?>
+<input type="hidden" name="forwardUrl" value="<?php echo $forward_url; ?>" />
+<?php }
+?>
+<div class="width whitely corner shadow">
+  <div id="links"><a onclick="javascript:$('.toggleable').toggle(); return false;" href="">New Password</a></div>
+
+  <div class="toggleable">
+    <span>Username</span>
+    <span><input type="text" name="username" id="username" value="<?php echo $username; ?>" maxlength="32"></span>
+    <span>Password</span>
+    <span><input type="password" id="password" name="password" maxlength="32"></span>
+    <span>&nbsp;</span>
+    <span style="margin:25px 5px 30px 9px"><input type="submit" name="login" value="&nbsp;&nbsp;Login&nbsp;&nbsp;"></span>
+  </div>
+
+  <div class="toggleable" style="display:none">
+    <span>Email</span>
+    <span><input type="text" name="email" size="20" maxlength="32"></span>
+    <span>&nbsp;</span>
+    <span style="margin:25px 5px 30px 9px"><input type="submit" name="new_pass" value="Send Password"></span>
+  </div>
+
+  <div id="footer"><?php echo $status_line; ?><input type="hidden" name="account" value="<?php echo $account; ?>"></div>
+</div>
+<input type="hidden" name="sessID" value="<?php echo $sessID; ?>">
+</form>
+
+<?php if (!empty($latest_changes)) { ?>
+<div class="width" style="font-size:90%">
+    <?php echo $latest_changes; ?>
+</div>
+    <?php
+}
+
+echo $page->footer(); ?>

@@ -15,5 +15,5 @@ class project_module extends Module
         'projectCommissionPerson',
     ];
 
-    public $home_items = ['project_list_home_item'];
+    public $home_items = ['ProjectListHomeItem'];
 }

@@ -41,7 +41,7 @@ $(document).ready(function() {
   </tr>
   <tr>
     <td>
-      {Page::textarea("frequency",$invoiceRepeat_frequency)}
+      {Page::textarea("frequency",$invoiceRepeat_frequency ?? '')}
     </td>
     <td>
         <span class="calendar_container nobr">
@@ -74,13 +74,13 @@ $(document).ready(function() {
   </tr>
   <tr>
     <td>
-      {Page::textarea("message",$invoiceRepeat_message,array("height"=>"medium"))}
+      {Page::textarea("message",$invoiceRepeat_message ?? '',array("height"=>"medium"))}
     </td>
     <td>
         {$allParties = $invoiceRepeat->get_all_parties($invoiceID)}
-        {echo interestedParty::get_interested_parties_html($allParties)}
+        {echo InterestedParty::get_interested_parties_html($allParties)}
         <input type="hidden" name="invoiceID" value="{$invoiceID}">
-        <input type="hidden" name="invoiceRepeatID" value="{$invoiceRepeat_invoiceRepeatID}">
+        <input type="hidden" name="invoiceRepeatID" value="{$invoiceRepeat_invoiceRepeatID ?? ''}">
     </td>
   </tr>
   <tr>
@@ -116,21 +116,21 @@ $(document).ready(function() {
     <td align="right">Project:</td>
     <td>{$field_projectID}</td>
     <td align="right" class="nobr" width="10%">Total Incoming Funds:</td>
-    <td>{$invoiceTotal}</td>
+    <td>{$invoiceTotal ?? ''}</td>
   </tr>
 
   <tr>
     <td align="right">TF:</td>
     <td id="field_tfID">{$field_tfID}</td>
     <td align="right">Total Amount Paid:</td>
-    <td>{$invoiceTotalPaid}</td>
+    <td>{$invoiceTotalPaid ?? ''}</td>
   </tr>
 
   <tr>
     <td align="right">Invoice Number: </td>
     <td>{$field_invoiceNum}</td>
     <td align="right">Related Entities: </td>
-    <td>{echo invoiceEntity::get_links($invoiceID)}</td>
+    <td>{echo (new invoiceEntity())->get_links($invoiceID)}</td>
   </tr>
   <tr>
     <td align="right">Invoice Name: </td>
@@ -140,8 +140,8 @@ $(document).ready(function() {
   </tr>
   <tr>
     <td colspan="4" align="center">
-      <input type="hidden" name="invoiceItemID" value="{$invoiceItemID}">
-      <input type="hidden" name="mode" value="{$mode}">
+      <input type="hidden" name="invoiceItemID" value="{$invoiceItemID ?? null}">
+      <input type="hidden" name="mode" value="{$mode ?? null}">
       <table width="100%" align="center">
         <tr>
           <td align="center">

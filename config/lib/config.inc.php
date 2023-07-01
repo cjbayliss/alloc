@@ -16,6 +16,11 @@ class config extends DatabaseEntity
     public static function get_config_item($name = '', $anew = false)
     {
         $table = &get_cached_table('config', $anew);
+
+        if (empty($table) || empty($table[$name]) || empty($table[$name]['type'])) {
+            return '';
+        }
+
         if ('array' == $table[$name]['type']) {
             ($val = unserialize($table[$name]['value'])) || ($val = []);
 

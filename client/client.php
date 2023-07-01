@@ -287,7 +287,7 @@ function show_client_contacts()
         </td>
     </tr>
 </table>
-<?php
+    <?php
 }
 
 function show_attachments()
@@ -324,7 +324,7 @@ function show_comments()
     $TPL['commentTemplateOptions'] =
         sprintf('<option value="">Comment Templates</option>{Page::select_options(%s)}', implode(',', $ops));
 
-    // FIXME: 😔
+    // TODO: remove global variables
     if (is_array($TPL)) {
         extract($TPL, EXTR_OVERWRITE);
     }
@@ -463,12 +463,14 @@ $TPL['projectListRows'] = project::getFilteredProjectList($projectListOps);
 $TPL['client_clientPostalAddress'] = $client->format_address('postal');
 $TPL['client_clientStreetAddress'] = $client->format_address('street');
 
+// TODO: remove global variables
 if (is_array($TPL)) {
     extract($TPL, EXTR_OVERWRITE);
 }
 
-echo Page::header();
-echo Page::toolbar(); ?>
+$page = new Page();
+echo $page->header();
+echo $page->toolbar(); ?>
 <script type="text/javascript" language="javascript">
     $(document).ready(function() {
         <?php if (!$client_clientID) { ?>
@@ -489,27 +491,27 @@ echo Page::toolbar(); ?>
 </script>
 
 <?php if (check_optional_client_exists()) { ?>
-<?php $first_div = 'hidden'; ?>
-<?php echo Page::side_by_side_links(
-    $url_alloc_client . 'clientID=' . $client_clientID,
-    [
-        'client'      => 'Main',
-        'reminders'   => 'Reminders',
-        'comments'    => 'Comments',
-        'attachments' => 'Attachments',
-        'projects'    => 'Projects',
-        'invoices'    => 'Invoices',
-        'sales'       => 'Sales',
-        'sbsAll'      => 'All',
-    ],
-    null,
-    $clientSelfLink
-); ?>
+    <?php $first_div = 'hidden'; ?>
+    <?php echo $page->side_by_side_links(
+        $url_alloc_client . 'clientID=' . $client_clientID,
+        [
+            'client'      => 'Main',
+            'reminders'   => 'Reminders',
+            'comments'    => 'Comments',
+            'attachments' => 'Attachments',
+            'projects'    => 'Projects',
+            'invoices'    => 'Invoices',
+            'sales'       => 'Sales',
+            'sbsAll'      => 'All',
+        ],
+        null,
+        $clientSelfLink
+    ); ?>
 <?php }
 ?>
 
 <?php if (null === parse_url($client_clientURL, PHP_URL_SCHEME)) { ?>
-<?php $client_clientURL = 'http://' . $client_clientURL; ?>
+    <?php $client_clientURL = 'http://' . $client_clientURL; ?>
 <?php }
 ?>
 <!-- need to merge this style back into the stylesheets -->
@@ -533,24 +535,24 @@ echo Page::toolbar(); ?>
         <table class="box view">
             <tr>
                 <th class="header">View Details
-                    <span><?php echo Page::star('client', $client_clientID); ?></span>
+                    <span><?php echo $page->star('client', $client_clientID); ?></span>
                 </th>
             </tr>
             <tr>
                 <td valign="top">
                     <div class="task_pane">
                         <h6>Client
-                            Name<?php echo Page::mandatory($client_clientName); ?>
+                            Name<?php echo $page->mandatory($client_clientName); ?>
                         </h6>
                         <h2 style="margin-bottom:0px; display:inline;">
                             <?php echo $client_clientID; ?>
-                            <?php echo Page::htmlentities($client_clientName); ?>
+                            <?php echo $page->htmlentities($client_clientName); ?>
                         </h2>
                         &nbsp;&nbsp;&nbsp;<?php echo $client_clientStatus; ?>
-                        <?php echo Page::htmlentities($client_clientCategoryLabel); ?>
+                        <?php echo $page->htmlentities($client_clientCategoryLabel); ?>
                         <?php if ($client_clientPostalAddress) { ?>
                         <h6>Postal Address</h6>
-                        <?php echo $client_clientPostalAddress; ?>
+                            <?php echo $client_clientPostalAddress; ?>
                         <?php }
                         ?>
                     </div>
@@ -559,21 +561,21 @@ echo Page::toolbar(); ?>
                             <h6>Phone Number<div>Fax Number</div>
                             </h6>
                             <div style="float:left; width:47%;">
-                                <?php echo Page::htmlentities($client_clientPhoneOne); ?>
+                                <?php echo $page->htmlentities($client_clientPhoneOne); ?>
                             </div>
                             <div style="float:right; width:50%;">
-                                <?php echo Page::htmlentities($client_clientFaxOne); ?>
+                                <?php echo $page->htmlentities($client_clientFaxOne); ?>
                             </div>
                         </div>
                         <?php if ($client_clientStreetAddress) { ?>
                         <h6>Street Address</h6>
-                        <?php echo $client_clientStreetAddress; ?>
+                            <?php echo $client_clientStreetAddress; ?>
                         <?php }
                         ?>
                         <?php if ($client_clientURL) { ?>
                         <h6>URL</h6>
                         <a
-                            href="<?php echo Page::htmlentities($client_clientURL); ?>"><?php echo Page::htmlentities($client_clientURL); ?></a>
+                            href="<?php echo $page->htmlentities($client_clientURL); ?>"><?php echo $page->htmlentities($client_clientURL); ?></a>
                         <?php }
                         ?>
                     </div>
@@ -599,7 +601,7 @@ echo Page::toolbar(); ?>
                 <td>
                     <div class="task_pane">
                         <h6>Client
-                            Name<?php echo Page::mandatory($client_clientName); ?>
+                            Name<?php echo $page->mandatory($client_clientName); ?>
                         </h6>
                         <div style="width:100%" class="">
                             <input type="text" size="43" id="clientName" name="clientName"
@@ -735,7 +737,7 @@ echo Page::toolbar(); ?>
     </form>
 
     <?php if (check_optional_client_exists()) { ?>
-    <?php show_client_contacts(); ?>
+        <?php show_client_contacts(); ?>
     <?php }
     ?>
 
@@ -796,13 +798,13 @@ echo Page::toolbar(); ?>
                     <tr>
                         <td><?php echo $projectListRow['projectLink']; ?>
                         </td>
-                        <td><?php echo Page::htmlentities($projectListRow['projectShortName']); ?>
+                        <td><?php echo $page->htmlentities($projectListRow['projectShortName']); ?>
                         </td>
-                        <td><?php echo Page::htmlentities($projectListRow['clientName']); ?>
+                        <td><?php echo $page->htmlentities($projectListRow['clientName']); ?>
                         </td>
-                        <td><?php echo Page::htmlentities($projectListRow['projectType']); ?>
+                        <td><?php echo $page->htmlentities($projectListRow['projectType']); ?>
                         </td>
-                        <td><?php echo Page::htmlentities($projectListRow['projectStatus']); ?>
+                        <td><?php echo $page->htmlentities($projectListRow['projectStatus']); ?>
                         </td>
                         <td class="noprint" align="right">
                             <?php echo $projectListRow['navLinks']; ?>
@@ -857,7 +859,7 @@ echo Page::toolbar(); ?>
     </table>
 </div>
 
-<?php }
-?>
+    <?php
+}
 
-<?php echo Page::footer(); ?>
+echo $page->footer(); ?>

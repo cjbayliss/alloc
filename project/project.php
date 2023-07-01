@@ -7,6 +7,13 @@
 
 require_once __DIR__ . '/../alloc.php';
 
+$page = new Page();
+
+$current_user = &singleton('current_user');
+
+$projectID = $_POST['projectID'] ?? $_GET['projectID'] ?? '';
+$project = new project();
+
 function show_attachments()
 {
     global $projectID;
@@ -89,12 +96,29 @@ function show_invoices()
     echo invoice::get_list_html($rows, $_FORM);
 }
 
-function show_projectHistory()
+function show_projectHistory(project $project): string
 {
-    global $project;
-    global $TPL;
-    $TPL['changeHistory'] = $project->get_changes_list();
-    include_template('templates/projectHistoryM.tpl');
+    $changeHistory = $project->get_changes_list();
+
+    return <<<HTML
+            <table class="box">
+                <tr>
+                  <th class="header">Project History</th>
+                </tr>
+                <tr>
+                  <td>
+                    <table class="sortable list">
+                        <tr>
+                          <th>Date</th>
+                          <th>Change</th>
+                          <th>Created by</th>
+                        </tr>
+                        {$changeHistory}
+                    </table>
+                  </td>
+                </tr>
+            </table>
+        HTML;
 }
 
 function show_commission_list($template_name)
@@ -166,12 +190,11 @@ function show_person_list($template)
     }
 }
 
-function show_projectPerson_list()
+function show_projectPerson_list(): string
 {
     global $db;
-    global $TPL;
     global $projectID;
-    $template = 'templates/projectPersonSummaryViewR.tpl';
+    $html = '';
 
     if ($projectID) {
         $query = unsafe_prepare('SELECT personID, roleName
@@ -184,11 +207,23 @@ function show_projectPerson_list()
         while ($db->next_record()) {
             $projectPerson = new projectPerson();
             $projectPerson->read_db_record($db);
-            $TPL['person_roleName'] = $db->f('roleName');
-            $TPL['person_name'] = person::get_fullname($projectPerson->get_value('personID'));
-            include_template($template);
+            $person_roleName = $db->f('roleName');
+            $person_name = person::get_fullname($projectPerson->get_value('personID'));
+
+            $html .= <<<HTML
+                <tr>
+                  <td>
+                    {$person_name}
+                  </td>
+                  <td>
+                    {$person_roleName}
+                  </td>
+                </tr>
+                HTML;
         }
     }
+
+    return $html;
 }
 
 function show_new_person($template)
@@ -212,13 +247,36 @@ function show_new_person($template)
     include_template($template);
 }
 
-function show_time_sheets($template_name)
+function show_time_sheets(int $projectID, array $timeSheets, array $timeSheetOptions): string
 {
     $current_user = &singleton('current_user');
 
     if ($current_user->is_employee()) {
-        include_template($template_name);
+        $page = new Page();
+        $totalTimeSheetRecords = count($timeSheets);
+        $timeSheetListHTML = (new timeSheet())->listHTML($timeSheets, $timeSheetOptions);
+        $allocTimeSheetURL = $page->getURL('url_alloc_timeSheet');
+
+        return <<<HTML
+                <table class="box">
+                  <tr>
+                    <th class="header">Time Sheets
+                      <b> - {$totalTimeSheetRecords} records</b>
+                      <span>
+                        <a href="{$allocTimeSheetURL}?newTimeSheet_projectID={$projectID}">Time Sheet</a>
+                      </span>
+                    </th>
+                  </tr>
+                  <tr>
+                    <td>
+                      {$timeSheetListHTML}
+                    </td>
+                  </tr>
+                </table>
+            HTML;
     }
+
+    return '';
 }
 
 function show_project_managers($template_name)
@@ -267,7 +325,12 @@ function show_comments()
     $TPL['clientID'] = $project->get_value('clientID');
 
     $commentTemplate = new commentTemplate();
-    $ops = $commentTemplate->get_assoc_array('commentTemplateID', 'commentTemplateName', '', ['commentTemplateType' => 'project']);
+    $ops = $commentTemplate->get_assoc_array(
+        'commentTemplateID',
+        'commentTemplateName',
+        '',
+        ['commentTemplateType' => 'project']
+    );
     $TPL['commentTemplateOptions'] = '<option value="">Comment Templates</option>' . Page::select_options($ops);
 
     $ops = [
@@ -278,21 +341,22 @@ function show_comments()
         'html_plus' => 'HTML+',
     ];
 
+    // FIXME: is this supposed to always attach a task report?
     $TPL['attach_extra_files'] = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     $TPL['attach_extra_files'] .= 'Attach Task Report ';
     $TPL['attach_extra_files'] .= '<select name="attach_tasks">' . Page::select_options($ops) . '</select><br>';
 
-    include_template('../comment/templates/commentM.tpl');
+    $comment = new comment();
+    $comment->commentSectionHTML();
 }
 
-function show_tasks()
+function show_tasks(project $project): string
 {
     $options = [];
-    global $TPL;
-    global $project;
+    $projectID = $project->get_id();
     $options['showHeader'] = true;
     $options['taskView'] = 'byProject';
-    $options['projectIDs'] = [$project->get_id()];
+    $options['projectIDs'] = [$projectID];
     $options['taskStatus'] = ['open', 'pending'];
     $options['showTaskID'] = true;
     $options['showAssigned'] = true;
@@ -301,18 +365,32 @@ function show_tasks()
     $options['showDates'] = true;
     // $options["showTimes"] = true; // performance hit
     $options['return'] = 'html';
-    // $TPL["taskListRows"] is used for the budget estimatation outside of this function
-    $TPL['taskListRows'] = Task::get_list($options);
-    $TPL['_FORM'] = $options;
-    include_template('templates/projectTaskS.tpl');
+
+    $task = new Task();
+    $page = new Page();
+    $taskListRows = $task->get_list($options);
+    $totalRecords = is_countable($taskListRows) ? count($taskListRows) : 0;
+    $taskListHTML = $task->listHTML($taskListRows, $options);
+    $allocTaskURL = $page->getURL('url_alloc_task');
+
+    return <<<HTML
+            <table class="box">
+              <tr>
+                <th class="header">Uncompleted Tasks
+                  <b> - {$totalRecords} records</b>
+                  <span>
+                    <a href="{$allocTaskURL}?projectID={$projectID}">New Task</a>
+                  </span>
+                </th>
+              </tr>
+              <tr>
+                <td>
+                  {$taskListHTML}
+                </td>
+              </tr>
+            </table>
+        HTML;
 }
-
-// END FUNCTIONS
-
-$current_user = &singleton('current_user');
-
-$projectID = $_POST['projectID'] ?? $_GET['projectID'] ?? '';
-$project = new project();
 
 if ($projectID) {
     $project->set_id($projectID);
@@ -700,7 +778,7 @@ if ($new_project && !(is_object($project) && $project->get_id())) {
     $TPL['message_help_no_esc'][] = 'Create a new Project by inputting the Project Name and any other details, and clicking the Save button.';
     $TPL['message_help_no_esc'][] = '';
     $TPL['message_help_no_esc'][] = '<a href="#x" class="magic" id="copy_project_link">Or copy an existing project</a>';
-    $str = <<<DONE
+    $str = <<<HTML
             <div id="copy_project" style="display:none; margin-top:10px;">
               <form action="{$TPL['url_alloc_project']}" method="post">
                 <table>
@@ -729,7 +807,7 @@ if ($new_project && !(is_object($project) && $project->get_id())) {
               <input type="hidden" name="sessID" value="{$TPL['sessID']}">
               </form>
             </div>
-        DONE;
+        HTML;
     $TPL['message_help_no_esc'][] = $str;
 } else {
     $TPL['main_alloc_title'] = 'Project ' . $project->get_id() . ': ' . $project->get_name() . ' - ' . APPLICATION_NAME;
@@ -856,12 +934,715 @@ if ($project->get_id()) {
     }
 
     $rtn = timeSheet::get_list($defaults);
-    $TPL['timeSheetListRows'] = $rtn['rows'];
-    $TPL['timeSheetListExtra'] = $rtn['extra'];
+    $TPL['timeSheets'] = $rtn['rows'];
+    $TPL['timeSheetOptions'] = $rtn['extra'];
 }
 
-if ($project->have_perm(PERM_READ_WRITE)) {
-    include_template('templates/projectFormM.tpl');
-} else {
-    include_template('templates/projectViewM.tpl');
+// TODO: remove global variables
+if (is_array($TPL)) {
+    extract($TPL, EXTR_OVERWRITE);
 }
+
+echo $page->header();
+echo $page->toolbar();
+
+if ($project->have_perm(PERM_READ_WRITE)) {
+    ?>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function() {
+        <?php if (!$project_projectID) { ?>
+        toggle_view_edit();
+        $('#projectName').focus();
+        // fake a click to the client status radio button
+        clickClientStatus();
+        <?php } else { ?>
+        $('#editProject').focus();
+        <?php }
+        ?>
+
+        // This listens to the client radio buttons and refreshes the client dropdown
+        $('input[name=client_status]').bind("click", clickClientStatus);
+
+        // This listens to the client dropdown and refreshes the client contact
+        $(document).on("change", 'select[name=clientID]', function(e) {
+            url =
+                '<?php echo $url_alloc_updateProjectClientContactList; ?>clientID=' +
+                this.value;
+            makeAjaxRequest(url, 'clientContactDropdown');
+        });
+
+        // This listens to the Copy Project radio buttons
+        $('input[name=project_status]').bind("click", function(e) {
+            url =
+                '<?php echo $url_alloc_updateCopyProjectList; ?>projectStatus=' +
+                this.value;
+            makeAjaxRequest(url, 'projectDropdown')
+        });
+
+        // This opens up the copy_project div and loads the dropdown list
+        $('#copy_project_link').bind("click", function(e) {
+            $('#copy_project').slideToggle();
+            url =
+                '<?php echo $url_alloc_updateCopyProjectList; ?>projectStatus=Current';
+            makeAjaxRequest(url, 'projectDropdown')
+        });
+
+    });
+
+    function updatePersonRate(dropdown) {
+        var personID = dropdown.value;
+        var tr = $(dropdown).parent().parent();
+        var ratebox = tr.find('input[name=person_rate\\[\\]]');
+        var rateunit = tr.find('select[name=person_rateUnitID\\[\\]]');
+
+        // ratebox.data['value'] is the auto-set value - only change it if the user
+        // hasn't touched it.
+        if (!ratebox[0].value || !ratebox.data('value') || ratebox[0].value == ratebox.data('value')) {
+            $.getJSON(
+                '<?php echo $url_alloc_updateProjectPersonRate; ?>project=<?php echo $project_projectID; ?>&person=' +
+                personID,
+                function(data) {
+                    ratebox[0].value = data['rate'];
+                    rateunit[0].selectedIndex = data['unit'];
+                    ratebox.data('value', data['rate']);
+                });
+        }
+    }
+
+    function clickClientStatus(e) {
+
+        if (!$('input[name=client_status]:checked').val()) {
+            $('#client_status_current').attr("checked", "checked");
+            this.value = 'current';
+        }
+
+        clientID = $('#clientID').val()
+        url = '<?php echo $url_alloc_updateProjectClientList; ?>clientStatus=' +
+            this.value + '&clientID=' + clientID;
+        makeAjaxRequest(url, 'clientDropdown')
+
+        // If there's a clientID update the Client Contact dropdown as well
+        if (clientID) {
+            clientContactID = $('#clientContactID').val()
+            url =
+                '<?php echo $url_alloc_updateProjectClientContactList; ?>clientID=' +
+                clientID + '&clientContactID=' + clientContactID;
+            makeAjaxRequest(url, 'clientContactDropdown')
+        }
+    }
+</script>
+
+    <?php if (defined('PROJECT_EXISTS')) { ?>
+        <?php $first_div = 'hidden'; ?>
+        <?php echo Page::side_by_side_links(
+            $url_alloc_project . 'projectID=' . $project_projectID,
+            [
+                'project'      => 'Main',
+                'people'       => 'People',
+                'commissions'  => 'Commissions',
+                'comments'     => 'Comments',
+                'attachments'  => 'Attachments',
+                'tasks'        => 'Tasks',
+                'reminders'    => 'Reminders',
+                'time'         => 'Time Sheets',
+                'transactions' => 'Transactions',
+                'invoices'     => 'Invoices',
+                'sales'        => 'Sales',
+                'history'      => 'History',
+                'sbsAll'       => 'All',
+            ],
+            null,
+            $projectSelfLink
+        ); ?>
+    <?php }
+    ?>
+
+<div id="project"
+    class="<?php $first_div ?? ''; ?>">
+    <form action="<?php echo $url_alloc_project; ?>" method="post"
+        id="projectForm">
+        <input type="hidden" name="projectID"
+            value="<?php echo $project_projectID; ?>">
+        <table class="box">
+            <tr>
+                <th class="header" colspan="5">Project Details
+                    <span>
+                        <?php if (defined('PROJECT_EXISTS')) { ?>
+                            <?php echo $navigation_links; ?>
+                            <?php echo Page::star('project', $project_projectID); ?>
+                        <?php }
+                        ?>
+                    </span>
+                </th>
+            </tr>
+            <tr>
+                <td colspan="5" valign="top">
+                    <div style="min-width:400px; width:47%; float:left; padding:0px 12px; vertical-align:top;">
+
+                        <div class="view">
+                            <h6><?php echo $project_projectType; ?><?php echo Page::mandatory($project_projectName); ?>
+                            </h6>
+                            <h2 style="margin-bottom:0px; display:inline;">
+                                <?php echo $project_projectID; ?>
+                                <?php echo Page::htmlentities($project_projectName); ?>
+                            </h2>&nbsp;<?php echo $priorityLabel; ?>
+                        </div>
+
+                        <div class="edit">
+                            <h6><?php echo $project_projectType ?: 'Project'; ?><?php echo Page::mandatory($project_projectName); ?>
+                            </h6>
+                            <input type="text" name="projectName" id="projectName"
+                                value="<?php echo $project_projectName_html; ?>"
+                                size="45">
+                            <select
+                                name="projectPriority"><?php echo $projectPriority_options; ?></select>
+                            <select
+                                name="projectType"><?php echo $projectType_options; ?></select>
+                        </div>
+
+                        <?php if ($project_projectComments_html) { ?>
+                        <div class="view">
+                            <h6>Description</h6>
+                            <?php echo $project_projectComments_html; ?>
+                        </div>
+                        <?php }
+                        ?>
+                        <div class="edit">
+                            <h6>Description</h6>
+                            <?php echo Page::textarea('projectComments', $project_projectComments, ['height' => 'medium', 'width' => '100%']); ?>
+                        </div>
+
+                        <?php if (isset($clientDetails)) { ?>
+                        <div class="view">
+                            <h6>Client</h6>
+                            <?php echo $clientDetails; ?>
+                        </div>
+                        <?php }
+                        ?>
+                        <div class="edit">
+                            <h6>Client</h6>
+                            <?php echo $clientHidden; ?>
+                            <label for="client_status_current">Current Clients</label>
+                            <input id="client_status_current" type="radio" name="client_status" value="Current">
+                            &nbsp;&nbsp;&nbsp;
+                            <label for="client_status_potential">Potential Clients</label>
+                            <input id="client_status_potential" type="radio" name="client_status" value="Potential">
+                            &nbsp;&nbsp;&nbsp;
+                            <label for="client_status_archived">Archived Clients</label>
+                            <input id="client_status_archived" type="radio" name="client_status" value="Archived">
+                            <div id="clientDropdown">
+                                <?php $clientDropdown ?? ''; ?>
+                            </div>
+                            <div id="clientContactDropdown" style="margin-top:10px;">
+                                <?php $clientContactDropdown ?? ''; ?>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div style="min-width:400px; width:47%; float:left; margin:0px 12px; vertical-align:top;">
+
+                        <div class="view">
+                            <h6>Project Nickname<div><span
+                                        style='width:50%; display:inline-block;'>Currency</span><span>Status</span>
+                                </div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <?php echo Page::htmlentities($project_projectShortName); ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <span
+                                    style='width:50%; display:inline-block;'><?php echo Page::money($project_currencyTypeID, 0, '%n'); ?></span>
+                                <span><?php echo $project_projectStatus; ?></span>
+                            </div>
+                        </div>
+
+                        <div class="edit">
+                            <h6>Project Nickname<div><span
+                                        style='width:50%; display:inline-block;'>Currency</span><span>Status</span>
+                                </div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <input type="text" name="projectShortName"
+                                    value="<?php echo $project_projectShortName; ?>"
+                                    size="10">
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <span style='width:50%; display:inline-block;'><select
+                                        name="currencyTypeID"><?php echo $currencyType_options; ?></select></span>
+                                <span><select
+                                        name="projectStatus"><?php echo $projectStatus_options; ?></select></span>
+                            </div>
+                        </div>
+
+                        <?php if ((isset($project_projectBudget) && (bool) strlen($project_projectBudget)) || isset($cost_centre_tfID_label)) { ?>
+                        <div class="view">
+                            <h6>Budget<div>Cost Centre TF</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <?php echo Page::money($project_currencyTypeID, $project_projectBudget, '%s%mo %c'); ?>
+                                <?php if ($taxName && (isset($project_projectBudget) && (bool) strlen($project_projectBudget))) {
+                                    echo sprintf(' (inc. %s)', $taxName);
+                                }
+                            ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <?php echo $cost_centre_tfID_label; ?>
+                            </div>
+                        </div>
+                        <?php }
+                        ?>
+
+                        <div class="edit">
+                            <h6>Budget<div>Cost Centre TF</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <input type="text" name="projectBudget"
+                                    value="<?php echo Page::money($project_currencyTypeID, $project_projectBudget, '%mo'); ?>"
+                                    size="10">
+                                <?php $taxName && (print sprintf(' (inc. %s)', $taxName)); ?>
+                            </div>
+                            <div style="float:right; width:50%;" class="nobr">
+                                <select name="cost_centre_tfID" style="width:95%">
+                                    <option value="">&nbsp;</option>
+                                    <?php echo $cost_centre_tfID_options; ?>
+                                </select>
+                                <?php echo Page::help('project_cost_centre_tf'); ?>
+                            </div>
+                        </div>
+
+                        <?php $tax_string2 = sprintf(' (per unit%s)', $taxName ? ', inc. ' . $taxName : ''); ?>
+                        <?php if ((isset($project_customerBilledDollars) && (bool) strlen($project_customerBilledDollars)) || (bool) strlen($project_defaultTaskLimit)) { ?>
+                        <div class="view">
+                            <h6>Client Billed At<div>Default Task Limit</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <?php echo Page::money($project_currencyTypeID, $project_customerBilledDollars, '%s%mo %c'); ?>
+                                <?php if (isset($project_customerBilledDollars) && (bool) strlen($project_customerBilledDollars)) {
+                                    echo $tax_string2;
+                                }
+                            ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <span><?php echo $project_defaultTaskLimit; ?></span>
+                            </div>
+                        </div>
+                        <?php }
+                        ?>
+
+                        <div class="edit">
+                            <h6>Client Billed At<div>Default Task Limit</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <input type="text" name="customerBilledDollars"
+                                    value="<?php echo Page::money($project_currencyTypeID, $project_customerBilledDollars, '%mo'); ?>"
+                                    size="10">
+                                <?php echo $tax_string2; ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <span><input type="text" size="5" name="defaultTaskLimit"
+                                        value="<?php echo $project_defaultTaskLimit; ?>">
+                                    <?php echo Page::help('project_defaultTaskLimit'); ?></span>
+                            </div>
+                        </div>
+
+                        <div class="edit">
+                            <h6>Default Interested Parties</h6>
+                            <div id="interestedPartyDropdown" style="display:inline">
+                                <?php echo $interestedPartyOptions; ?>
+                            </div>
+                            <?php echo Page::help('project_interested_parties'); ?>
+                        </div>
+                        <?php if (isset($interestedParties)) { ?>
+                        <div class="view">
+                            <h6>Default Interested Parties</h6>
+                            <table class="nopad" style="width:100%;">
+                                <?php foreach ($interestedParties as $interestedParty) { ?>
+                                <tr class="hover">
+                                    <td style="width:50%;">
+                                        <a class='undecorated'
+                                            href='mailto:<?php echo Page::htmlentities($interestedParty['name']); ?> <<?php echo Page::htmlentities($interestedParty['email']); ?>>'><?php echo Page::htmlentities($interestedParty['name']); ?></a>
+                                    </td>
+                                    <td style="width:50%;">
+                                        <?php if ($interestedParty['phone']['p']) {
+                                            ?>Ph:
+                                            <?php echo Page::htmlentities($interestedParty['phone']['p']); ?><?php
+                                        }
+                                    ?>
+                                        <?php if ($interestedParty['phone']['p'] && $interestedParty['phone']['m']) { ?>
+                                        /
+                                        <?php }
+                                        ?>
+                                        <?php if ($interestedParty['phone']['m']) {
+                                            ?>Mob:
+                                            <?php echo Page::htmlentities($interestedParty['phone']['m']); ?><?php
+                                        }
+                                    ?>
+                                    </td>
+                                </tr>
+                                <?php }
+                                ?>
+                            </table>
+                        </div>
+                        <?php }
+                        ?>
+
+                        <?php if ($project_defaultTimeSheetRate || $defaultTimeSheetRateUnits) { ?>
+                        <div class="view">
+                            <h6>Default timesheet rate<div>Default timesheet unit</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <?php echo Page::money($project_currencyTypeID, $project_defaultTimeSheetRate); ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <?php echo $defaultTimeSheetRateUnits; ?>
+                            </div>
+                        </div>
+                        <?php }
+                        ?>
+
+                        <div class="edit">
+                            <h6>Default timesheet rate<div>Default timesheet unit</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <input type="text" name="defaultTimeSheetRate"
+                                    value="<?php echo Page::money($project_currencyTypeID, $project_defaultTimeSheetRate, '%mo'); ?>"
+                                    size="10">
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <select name="defaultTimeSheetRateUnitID">
+                                    <option value="">
+                                        <?php echo $defaultTimeSheetUnit_options; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <?php if ($project_dateTargetStart || $project_dateTargetCompletion) { ?>
+                        <div class="view">
+                            <h6>Estimated Start<div>Estimated Completion</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <?php echo $project_dateTargetStart; ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <?php echo $project_dateTargetCompletion; ?>
+                            </div>
+                        </div>
+                        <?php }
+                        ?>
+
+                        <div class="edit">
+                            <h6>Estimated Start<div>Estimated Completion</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <?php echo Page::calendar('dateTargetStart', $project_dateTargetStart); ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <?php echo Page::calendar('dateTargetCompletion', $project_dateTargetCompletion); ?>
+                            </div>
+                        </div>
+
+                        <?php if ($project_dateActualStart || $project_dateActualCompletion) { ?>
+                        <div class="view">
+                            <h6>Actual Start<div>Actual Completion</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <?php echo $project_dateActualStart; ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <?php echo $project_dateActualCompletion; ?>
+                            </div>
+                        </div>
+                        <?php }
+                        ?>
+
+                        <div class="edit">
+                            <h6>Actual Start<div>Actual Completion</div>
+                            </h6>
+                            <div style="float:left; width:40%;">
+                                <?php echo Page::calendar('dateActualStart', $project_dateActualStart); ?>
+                            </div>
+                            <div style="float:right; width:50%;">
+                                <?php echo Page::calendar('dateActualCompletion', $project_dateActualCompletion); ?>
+                            </div>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" colspan="5">
+                    <div class="view" style="margin-top:20px">
+                        <button type="button" id="editProject" value="1"
+                            onClick="toggle_view_edit();clickClientStatus();">Edit Project<i
+                                class="icon-edit"></i></button>
+                    </div>
+                    <div class="edit" style="margin-top:20px">
+                        <button type="submit" name="delete" value="1" class="delete_button">Delete<i
+                                class="icon-trash"></i></button>
+                        <button type="submit" name="save" value="1" class="save_button default">Save<i
+                                class="icon-ok-sign"></i></button>
+                        <br><br>
+                        <a href="" onClick="return toggle_view_edit(true);">Cancel edit</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" name="sessID"
+            value="<?php echo $sessID; ?>">
+    </form>
+
+    <?php if (defined('PROJECT_EXISTS')) { ?>
+    <table class="box">
+        <tr>
+            <th class="nobr" width="10%">Financial Summary</th>
+            <th class="right" colspan="3">
+                <?php echo Page::help('project_financial_summary'); ?>
+            </th>
+        </tr>
+        <tr>
+            <td class="right nobr">Outstanding Invoices</td>
+            <td class="right">
+                <?php echo $total_invoice_transactions_pending; ?>
+            </td>
+            <td class="right nobr">Pending time sheets</td>
+            <td class="right">
+                <?php echo $total_timeSheet_transactions_pending; ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="right">Paid Invoices</td>
+            <td class="right">
+                <?php echo $total_invoice_transactions_approved; ?>
+            </td>
+            <td class="right">Paid time sheets</td>
+            <td class="right">
+                <?php echo $total_timeSheet_transactions_approved; ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="right nobr">Task Time Estimate</td>
+            <td class="right">
+                <?php $time_remaining ?? ''; ?>
+                <?php echo Page::money($project_currencyTypeID, $cost_remaining ?? ''); ?>
+                <?php $count_not_quoted_tasks ?? ''; ?>
+            </td>
+            <td class="right">Sum Customer Billed for Time Sheets</td>
+            <td class="right">
+                <?php echo $total_timeSheet_customerBilledDollars; ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="right nobr">Expenses</td>
+            <td class="right">
+                <?php echo $total_expenses_transactions_approved; ?>
+            </td>
+            <td colspan="2"></td>
+        </tr>
+    </table>
+    <?php }
+    ?>
+
+</div>
+
+    <?php if (defined('PROJECT_EXISTS')) { ?>
+<div id="people">
+    <form action="<?php echo $url_alloc_project; ?>" method="post">
+
+
+        <table class="box">
+            <tr>
+                <th class="header" align="left">Project People
+                    <span>
+                        <a href="#x" class="magic"
+                            onClick="$('#project_people_footer').before('<tr>'+$('#new_projectPerson').html()+'</tr>');">New
+                            Project Person</a>
+                    </span>
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    <table class="list">
+                        <tr>
+                            <th>Person</th>
+                            <th>Role</th>
+                            <th>Rate</th>
+                            <th colspan="2">Unit</th>
+                        </tr>
+                        <?php show_person_list('templates/projectPersonListR.tpl'); ?>
+                        <?php show_new_person('templates/projectPersonListR.tpl'); ?>
+                        <tr id="project_people_footer">
+                            <td colspan="5" class="center">
+                                <button type="submit" name="person_save" value="1" class="save_button">Save Project
+                                    People<i class="icon-ok-sign"></i></button>
+                                <input type="hidden" name="projectID"
+                                    value="<?php echo $project_projectID; ?>">
+                                <input type="hidden" name="sbs_link" value="people">
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+
+        <input type="hidden" name="sessID"
+            value="<?php echo $sessID; ?>">
+    </form>
+</div>
+
+<div id="comments">
+        <?php show_comments(); ?>
+</div>
+
+
+<div id="commissions">
+    <table class="box">
+        <tr>
+            <th class="header">
+                Time Sheet Commissions
+                <span>
+                    <?php echo Page::help('timesheet_commission'); ?>
+                </span>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <table class="list">
+                    <tr>
+                        <th>Tagged Fund</th>
+                        <th colspan="3">Percentage</th>
+                    </tr>
+                    <?php show_commission_list('templates/commissionListR.tpl'); ?>
+                    <?php show_new_commission('templates/commissionListR.tpl'); ?>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<div id="attachments">
+        <?php show_attachments(); ?>
+</div>
+
+<div id="tasks">
+        <?php echo show_tasks($project); ?>
+</div>
+
+<div id="reminders">
+    <table class="box">
+        <tr>
+            <th class="header">Reminders
+                <span>
+                    <a
+                        href="<?php echo $url_alloc_reminder; ?>step=3&parentType=project&parentID=<?php echo $project_projectID; ?>&returnToParent=project">New
+                        Reminder</a>
+                </span>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <?php reminder::get_list_html('project', $project_projectID); ?>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="time">
+        <?php echo show_time_sheets($projectID, $timeSheets, $timeSheetOptions); ?>
+</div>
+
+<div id="transactions">
+        <?php show_transactions('templates/projectTransactionS.tpl'); ?>
+</div>
+
+<div id="invoices">
+    <table class="box">
+        <tr>
+            <th class="header">Invoices
+                <span>
+                    <?php echo $invoice_links; ?>
+                </span>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <?php show_invoices(); ?>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="sales">
+    <table class="box">
+        <tr>
+            <th class="header">Product Sales
+                <span>
+                    <a
+                        href="<?php echo $url_alloc_productSale; ?>projectID=<?php echo $project_projectID; ?>">New
+                        Sale</a>
+                </span>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                <?php $productSaleRows = productSale::get_list(['projectID' => $project_projectID]); ?>
+                <?php echo productSale::get_list_html($productSaleRows); ?>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="history">
+        <?php echo show_projectHistory($project); ?>
+</div>
+    <?php }
+    ?>
+
+    <?php
+} else {
+    $projectPersonList = show_projectPerson_list();
+    echo <<<HTML
+            <table class="box">
+              <tr>
+                <th><nobr>Project: {$projectSelfLink} </nobr></th>
+                <th class="right">{$navigation_links}</th>
+              </tr>
+              <tr>
+                <td>Name</td>
+                <td>{$project_projectName}</td>
+              </tr>
+              <tr>
+                <td>Priority</td>
+                <td>{$priorityLabel}</td>
+              </tr>
+              <tr>
+                <td>Client</td>
+                <td>{$client_clientName}</td>
+              </tr>
+              <tr>
+                <td>Comments</td>
+                <td>{$project_projectComments}</td>
+              </tr>
+            </table>
+            <table class="box">
+              <tr>
+                <th colspan="2">Project People</th>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  {$projectPersonList}
+                </td>
+              </tr>
+            </table>
+        HTML;
+
+    echo show_time_sheets($projectID, $timeSheets, $timeSheetOptions);
+
+    show_tasks($project);
+    show_comments();
+}
+
+echo $page->footer();
+?>

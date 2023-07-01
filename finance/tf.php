@@ -12,9 +12,10 @@ function show_person_list($template)
     global $TPL;
     global $tf;
     $db = new AllocDatabase();
-    $TPL['person_buttons'] = '
+    $TPL['person_buttons'] = <<<'HTML'
         <button type="submit" name="person_delete" value="1" class="delete_button">Delete<i class="icon-trash"></i></button>
-        <button type="submit" name="person_save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>';
+        <button type="submit" name="person_save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
+        HTML;
 
     $tfID = $tf->get_id();
 
@@ -52,7 +53,7 @@ function show_person_options()
 $db = new AllocDatabase();
 $tf = new tf();
 
-($tfID = $_GET['tfID']) || ($tfID = $_POST['tfID']);
+$tfID = $_GET['tfID'] ?? $_POST['tfID'] ?? 0;
 if ($tfID) {
     $tf->set_id($tfID);
     $tf->select();
@@ -60,7 +61,7 @@ if ($tfID) {
     $tf_is_new = true;
 }
 
-if ($_POST['save']) {
+if (isset($_POST['save'])) {
     $tf->read_globals();
     if ($_POST['isActive']) {
         $tf->set_value('tfActive', 1);
@@ -88,13 +89,13 @@ if ($_POST['save']) {
             $tf_is_new && ($TPL['message_help'][] = 'Please now add the TF Owners who are allowed to access this TF.');
         }
     }
-} elseif ($_POST['delete']) {
+} elseif (isset($_POST['delete'])) {
     $tf->delete();
     alloc_redirect($TPL['url_alloc_tfList']);
     exit;
 }
 
-if ($_POST['person_save'] || $_POST['person_delete']) {
+if (isset($_POST['person_save']) || isset($_POST['person_delete'])) {
     $tfPerson = new tfPerson();
     $tfPerson->read_globals();
     $tfPerson->read_globals('person_');
@@ -122,9 +123,11 @@ if ($tf->get_value('tfActive') || !$tf->get_id()) {
 $TPL['main_alloc_title'] = 'Edit TF - ' . APPLICATION_NAME;
 
 if (!$tf->get_id()) {
-    $TPL['message_help'][] = 'Enter the details below and click the Save button to create a new Tagged Fund.
-                            <br><br>A Tagged Fund or TF, is like a sort of bank account within allocPSA.
-                            It contains transactions which track the transfer of monies.';
+    $TPL['message_help'][] = <<<'HTML'
+        Enter the details below and click the Save button to create a new Tagged
+        Fund. <br><br>A Tagged Fund or TF, is like a sort of bank account within
+        allocPSA. It contains transactions which track the transfer of monies.
+        HTML;
 }
 
 include_template('templates/tfM.tpl');

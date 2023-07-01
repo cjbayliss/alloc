@@ -5,7 +5,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-define('DEFAULT_SEP', "\n");
+if (!defined('DEFAULT_SEP')) {
+    define('DEFAULT_SEP', "\n");
+}
+
 class invoice extends DatabaseEntity
 {
     public $classname = 'invoice';
@@ -753,13 +756,13 @@ class invoice extends DatabaseEntity
 
         $_FORM = get_all_form_data($page_vars, $defaults);
 
-        if (!$_FORM['applyFilter']) {
-            $_FORM = $current_user->prefs[$_FORM['form_name']];
+        if (empty($_FORM['applyFilter'])) {
+            $_FORM = $current_user->prefs[$_FORM['form_name']] ?? $_FORM;
             if (!isset($current_user->prefs[$_FORM['form_name']])) {
                 // defaults go here
                 $_FORM['invoiceStatus'] = 'edit';
             }
-        } elseif ($_FORM['applyFilter'] && is_object($current_user) && !$_FORM['dontSave']) {
+        } elseif (!empty($_FORM['applyFilter']) && is_object($current_user) && empty($_FORM['dontSave'])) {
             $url = $_FORM['url_form_action'];
             unset($_FORM['url_form_action']);
             $current_user->prefs[$_FORM['form_name']] = $_FORM;
@@ -776,26 +779,26 @@ class invoice extends DatabaseEntity
         global $TPL;
 
         // Load up the forms action url
-        $rtn['url_form_action'] = $_FORM['url_form_action'];
+        $rtn['url_form_action'] = $_FORM['url_form_action'] ?? '';
 
         $statii = invoice::get_invoice_statii();
         unset($statii['create']);
         $rtn['statusOptions'] = Page::select_options($statii, $_FORM['invoiceStatus']);
         $statii_payment = (new invoice())->get_invoice_statii_payment();
-        $rtn['statusPaymentOptions'] = Page::select_options($statii_payment, $_FORM['invoiceStatusPayment']);
-        $rtn['status'] = $_FORM['status'];
-        $rtn['dateOne'] = $_FORM['dateOne'];
-        $rtn['dateTwo'] = $_FORM['dateTwo'];
-        $rtn['invoiceID'] = $_FORM['invoiceID'];
-        $rtn['invoiceName'] = $_FORM['invoiceName'];
-        $rtn['invoiceNum'] = $_FORM['invoiceNum'];
-        $rtn['invoiceItemID'] = $_FORM['invoiceItemID'];
+        $rtn['statusPaymentOptions'] = Page::select_options($statii_payment, $_FORM['invoiceStatusPayment'] ?? '');
+        $rtn['status'] = $_FORM['status'] ?? null;
+        $rtn['dateOne'] = $_FORM['dateOne'] ?? null;
+        $rtn['dateTwo'] = $_FORM['dateTwo'] ?? null;
+        $rtn['invoiceID'] = $_FORM['invoiceID'] ?? null;
+        $rtn['invoiceName'] = $_FORM['invoiceName'] ?? null;
+        $rtn['invoiceNum'] = $_FORM['invoiceNum'] ?? null;
+        $rtn['invoiceItemID'] = $_FORM['invoiceItemID'] ?? null;
 
         $options['clientStatus'] = 'Current';
         $options['return'] = 'dropdown_options';
         $ops = client::get_list($options);
         $ops = array_kv($ops, 'clientID', 'clientName');
-        $rtn['clientOptions'] = Page::select_options($ops, $_FORM['clientID']);
+        $rtn['clientOptions'] = Page::select_options($ops, $_FORM['clientID'] ?? null);
 
         // Get
         $rtn['FORM'] = 'FORM=' . urlencode(serialize($_FORM));

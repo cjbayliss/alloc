@@ -5,9 +5,11 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-// This file basically provides static template values that are used throughout the application and is included by alloc.php
+// This file basically provides static template values that are used throughout
+// the application and is included by alloc.php
 function get_alloc_urls($TPL, $sess = false)
 {
+    // TODO: remove global variables
     $alloc_urls = [
         'url_alloc_logout'                         => 'login/logout.php',
         'url_alloc_home'                           => 'home/home.php',
@@ -69,7 +71,6 @@ function get_alloc_urls($TPL, $sess = false)
         'url_alloc_timeSheetPrint'                 => 'time/timeSheetPrint.php',
         'url_alloc_timeSheetList'                  => 'time/timeSheetList.php',
         'url_alloc_timeSheetGraph'                 => 'time/timeSheetGraph.php',
-        'url_alloc_updateTsiHintHome'              => 'time/updateTsiHintHome.php',
         'url_alloc_updateTimeSheetHome'            => 'time/updateTimeSheetHome.php',
         'url_alloc_updateTimeSheetTaskList'        => 'time/updateTimeSheetTaskList.php',
         'url_alloc_updateTimeSheetProjectList'     => 'time/updateProjectListByStatus.php',

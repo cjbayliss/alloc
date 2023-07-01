@@ -49,7 +49,7 @@ class productSaleItem extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
-                    (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount
+                    (amount * pow(10,-currencyType.numberToBasic)) as amount
                FROM transaction
           LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
               WHERE tfID = %d
@@ -75,7 +75,7 @@ class productSaleItem extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         $q = unsafe_prepare(
             "SELECT fromTfID, tfID,
-                    (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount
+                    (amount * pow(10,-currencyType.numberToBasic)) as amount
                FROM transaction
           LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
               WHERE fromTfID = %d
@@ -101,8 +101,7 @@ class productSaleItem extends DatabaseEntity
         $allocDatabase = new AllocDatabase();
         // Don't need to do numberToBasic conversion here
         $q = unsafe_prepare(
-            "SELECT fromTfID, tfID,
-                    (amount * exchangeRate) as amount
+            "SELECT fromTfID, tfID, amount
                FROM transaction
           LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
               WHERE fromTfID != %d
@@ -130,24 +129,24 @@ class productSaleItem extends DatabaseEntity
 
     public function get_amount_margin()
     {
-        $costs = null;
+        $costs = 0;
         $productSale = $this->get_foreign_object('productSale');
-        $sellPrice = null;
-        $tax = null;
+        $sellPrice = 0;
+        $tax = 0;
         $transactions = $productSale->get_transactions($this->get_id());
 
         // margin = sellPrice - GST - costs
         foreach ($transactions as $transaction) {
             if ('sellPrice' == $transaction['saleTransactionType']) {
-                $sellPrice = exchangeRate::convert($transaction['currencyTypeID'], $transaction['amount']);
+                $sellPrice = $transaction['amount'];
             }
 
             if ('tax' == $transaction['saleTransactionType']) {
-                $tax += exchangeRate::convert($transaction['currencyTypeID'], $transaction['amount']);
+                $tax += $transaction['amount'];
             }
 
             if ('aCost' == $transaction['saleTransactionType']) {
-                $costs += exchangeRate::convert($transaction['currencyTypeID'], $transaction['amount']);
+                $costs += $transaction['amount'];
             }
         }
 
@@ -274,7 +273,6 @@ class productSaleItem extends DatabaseEntity
 
         // If this price includes tax, then perform a tax transfer
         $amount_of_tax = $this->get_value('sellPrice') * ($taxPercent / 100);
-        $amount_of_tax = exchangeRate::convert($this->get_value('sellPriceCurrencyTypeID'), $amount_of_tax, null, null, '%mo');
         $this->create_transaction(
             $mainTfID,
             $taxTfID,
@@ -301,7 +299,6 @@ class productSaleItem extends DatabaseEntity
         $amount_minus_tax = null;
         while ($productCost_row = $db2->next_record()) {
             $amount_of_tax = $productCost_row['amount'] * ($taxPercent / 100);
-            $amount_of_tax = exchangeRate::convert($productCost_row['currencyTypeID'], $amount_of_tax, null, null, '%mo');
             $productCost_row['amount'] = $amount_minus_tax;
             $this->create_transaction(
                 $mainTfID,

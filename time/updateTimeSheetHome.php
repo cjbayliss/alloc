@@ -8,9 +8,7 @@
 define('NO_REDIRECT', 1);
 require_once __DIR__ . '/../alloc.php';
 
-// usleep(1000);
-
-$t = timeSheetItem::parse_time_string($_REQUEST['time_item']);
+$parsedTimeString = timeSheetItem::parse_time_string($_REQUEST['time_item']);
 
 $timeUnit = new timeUnit();
 $units = $timeUnit->get_assoc_array('timeUnitID', 'timeUnitLabelA');
@@ -18,27 +16,27 @@ $units = $timeUnit->get_assoc_array('timeUnitID', 'timeUnitLabelA');
 $timeSheetItemMultiplier = new Meta('timeSheetItemMultiplier');
 $tsims = $timeSheetItemMultiplier->get_list();
 
-foreach ($t as $k => $v) {
-    if ($v) {
-        if ('taskID' == $k) {
+foreach ($parsedTimeString as $key => $value) {
+    if ($value) {
+        if ('taskID' == $key) {
             $task = new Task();
-            $task->set_id($v);
-            $v = $task->select() ? $task->get_id() . ' ' . $task->get_link() : 'Task ' . $v . ' not found.';
-        } elseif ('unit' == $k) {
-            $v = $units[$v];
-        } elseif ('multiplier' == $k) {
-            $v = $tsims[sprintf('%0.2f', $v)]['timeSheetItemMultiplierName'];
+            $task->set_id($value);
+            $value = $task->select() ? $task->get_id() . ' ' . $task->get_link() : 'Task ' . $value . ' not found.';
+        } elseif ('unit' == $key) {
+            $value = $units[$value];
+        } elseif ('multiplier' == $key) {
+            $value = $tsims[sprintf('%0.2f', $value)]['timeSheetItemMultiplierName'];
         }
 
-        $rtn[$k] = $v;
+        $rtn[$key] = $value;
     }
 }
 
 // 2010-10-01  1 Days x Double Time
 // Task: 102 This is the task
 // Comment: This is the comment
-$rtn['unit'] ??= '';
-$str[] = '<tr><td>' . $rtn['date'] . " </td><td class='nobr bold'> " . $rtn['duration'] . ' ' . $rtn['unit'] . "</td><td class='nobr'>&times; " . $rtn['multiplier'] . '</td></tr>';
+$str[] = '<table>';
+$str[] = '<tr><td>' . $rtn['date'] . " </td><td class='nobr bold'> " . ($rtn['duration'] ?? '') . ' ' . ($rtn['unit'] ?? '') . "</td><td class='nobr'>&times; " . $rtn['multiplier'] . '</td></tr>';
 if (isset($rtn['taskID'])) {
     $str[] = "<tr><td colspan='3'>" . $rtn['taskID'] . '</td></tr>';
 }
@@ -47,37 +45,6 @@ if (isset($rtn['comment'])) {
     $str[] = "<tr><td colspan='3'>" . $rtn['comment'] . '</td></tr>';
 }
 
-if (isset($_REQUEST['save'], $_REQUEST['time_item'])) {
-    $t = timeSheetItem::parse_time_string($_REQUEST['time_item']);
+$str[] = '</table>';
 
-    if (!is_numeric($t['duration'])) {
-        $status = 'bad';
-        $extra = 'Time not added. Duration not found.';
-    } elseif (!is_numeric($t['taskID'])) {
-        $status = 'bad';
-        $extra = 'Time not added. Task not found.';
-    }
-
-    if (isset($status) && 'bad' != $status) {
-        $timeSheet = new timeSheet();
-        $tsi_row = $timeSheet->add_timeSheetItem($t);
-
-        if ($TPL['message']) {
-            $status = 'bad';
-            $extra = 'Time not added.<br>' . implode('<br>', $TPL['message']);
-        } else {
-            $status = 'good';
-            $tsid = $tsi_row['message'];
-            $extra = "Added time to time sheet <a href='" . $TPL['url_alloc_timeSheet'] . 'timeSheetID=' . $tsid . "'>#" . $tsid . '</a>';
-        }
-    }
-}
-
-// $extra and array_unshift($str, "<tr><td colspan='3' class='".$status." bold'>".$extra."</td></tr>");
-if (isset($extra, $status)) {
-    $str[] = "<tr><td colspan='3' class='" . $status . " bold'>" . $extra . '</td></tr>';
-}
-
-if (isset($status)) {
-    echo json_encode(['status' => $status, 'table' => "<table class='" . $status . "'>" . implode("\n", $str) . '</table>'], JSON_THROW_ON_ERROR);
-}
+echo implode("\n", $str);

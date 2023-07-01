@@ -16,5 +16,5 @@ class sale_module extends Module
         'productSaleItem',
     ];
 
-    public $home_items = ['saleListHomeItemAdmin', 'saleListHomeItem'];
+    public $home_items = ['SaleListHomeItemAdmin', 'SaleListHomeItem'];
 }

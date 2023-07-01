@@ -108,7 +108,7 @@ $(document).ready(function() {
         <button type="button" id="editProduct" value="1" onClick="toggle_view_edit();">Edit Product<i class="icon-edit"></i></button>
       </div>
       <div class="edit" style="margin-top:20px">
-        <input type="hidden" name="productSaleID" value="{$_REQUEST.productSaleID}">
+        <input type="hidden" name="productSaleID" value="{if isset($_REQUEST['productSaleID'])}{$_REQUEST.productSaleID}{/}">
         <button type="submit" name="save" value="1" class="save_button">Save<i class="icon-ok-sign"></i></button>
         {if $productID}
         <br><br>

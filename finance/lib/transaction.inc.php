@@ -7,6 +7,8 @@
 
 class transaction extends DatabaseEntity
 {
+    public $all_row_fields;
+
     public $classname = 'transaction';
 
     public $data_table = 'transaction';
@@ -21,7 +23,6 @@ class transaction extends DatabaseEntity
         'amount'         => ['type' => 'money'],
         'currencyTypeID',
         'destCurrencyTypeID',
-        'exchangeRate',
         'status',
         'dateApproved',
         'expenseFormID',
@@ -47,48 +48,24 @@ class transaction extends DatabaseEntity
 
     public function save()
     {
-        $field_changed = null;
-        $date = null;
-        // These need to be in here instead of validate(), because
-        // validate is called after save() and we need these values set for save().
-        $this->get_value('currencyTypeID') || $this->set_value('currencyTypeID', config::get_config_item('currency'));
-        $this->get_value('destCurrencyTypeID') || $this->set_value('destCurrencyTypeID', config::get_config_item('currency'));
+        // These need to be in here instead of validate(), because validate is
+        // called after save() and we need these values set for save().
+        $this->get_value('currencyTypeID') || $this->set_value(
+            'currencyTypeID',
+            config::get_config_item('currency')
+        );
+        $this->get_value('destCurrencyTypeID') || $this->set_value(
+            'destCurrencyTypeID',
+            config::get_config_item('currency')
+        );
 
-        // The data prior to the save
-        $old = $this->all_row_fields;
-        if ($old['status'] != $this->get_value('status') && 'approved' == $this->get_value('status')) {
+        if (
+            $this->all_row_fields['status'] != $this->get_value('status')
+             && 'approved' == $this->get_value('status')
+        ) {
             $this->set_value('dateApproved', date('Y-m-d'));
-            $field_changed = true;
         } elseif ('approved' != $this->get_value('status')) {
             $this->set_value('dateApproved', '');
-        }
-
-        if ($old['currencyTypeID'] != $this->get_value('currencyTypeID')) {
-            $field_changed = true;
-        }
-
-        if ($old['destCurrencyTypeID'] != $this->get_value('destCurrencyTypeID')) {
-            $field_changed = true;
-        }
-
-        $allocDatabase = new AllocDatabase();
-
-        // If there already is an exchange rate set for an approved
-        // transaction, then there's no need to update the exchange rate
-        if ($this->get_value('exchangeRate') && $this->get_value('dateApproved') && !$field_changed) {
-            // Else update the transaction's exchange rate
-        } else {
-            $this->get_value('transactionCreatedTime') && ($date = format_date('Y-m-d', $this->get_value('transactionCreatedTime')));
-            $this->get_value('transactionModifiedTime') && ($date = format_date('Y-m-d', $this->get_value('transactionModifiedTime')));
-            $this->get_value('transactionDate') && ($date = $this->get_value('transactionDate'));
-            $this->get_value('dateApproved') && ($date = $this->get_value('dateApproved'));
-
-            $er = exchangeRate::get_er($this->get_value('currencyTypeID'), $this->get_value('destCurrencyTypeID'), $date);
-            if (!$er) {
-                alloc_error('Unable to determine exchange rate for ' . $this->get_value('currencyTypeID') . ' to ' . $this->get_value('destCurrencyTypeID') . ' for date: ' . $date);
-            } else {
-                $this->set_value('exchangeRate', $er);
-            }
         }
 
         return parent::save();
@@ -370,7 +347,7 @@ class transaction extends DatabaseEntity
 
         // Determine opening balance
         if (is_array($_FORM['tfIDs']) && count($_FORM['tfIDs'])) {
-            $q = unsafe_prepare('SELECT SUM( IF(fromTfID IN (%s),-amount,amount) * pow(10,-currencyType.numberToBasic) * exchangeRate) AS balance
+            $q = unsafe_prepare('SELECT SUM( IF(fromTfID IN (%s),-amount,amount) * pow(10,-currencyType.numberToBasic)) AS balance
                             FROM transaction
                       LEFT JOIN currencyType ON currencyType.currencyTypeID = transaction.currencyTypeID
                          ' . $filter2, $_FORM['tfIDs']);
@@ -384,7 +361,7 @@ class transaction extends DatabaseEntity
 
         $q = 'SELECT *,
                      (amount * pow(10,-currencyType.numberToBasic)) as amount1,
-                     (amount * pow(10,-currencyType.numberToBasic) * exchangeRate) as amount2,
+                     (amount * pow(10,-currencyType.numberToBasic)) as amount2,
                      if(transactionModifiedTime,transactionModifiedTime,transactionCreatedTime) AS transactionSortDate,
                      tf1.tfName as fromTfName,
                      tf2.tfName as tfName
@@ -472,7 +449,6 @@ class transaction extends DatabaseEntity
             'product',
             'status',
             'currencyTypeID',
-            'exchangeRate',
             'destCurrencyTypeID',
             'amount_positive',
             'amount_negative',
@@ -586,7 +562,7 @@ class transaction extends DatabaseEntity
             $monthDate = date('Y-m-d', mktime(0, 0, 0, $m, 1, $y));
 
             $bold = false;
-            if ($monthDate == format_date('Y-m-d', $_FORM['monthDate'])) {
+            if ($monthDate === format_date('Y-m-d', $_FORM['monthDate'])) {
                 $bold = true;
             }
 

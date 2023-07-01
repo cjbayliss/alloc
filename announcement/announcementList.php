@@ -7,31 +7,56 @@
 
 require_once __DIR__ . '/../alloc.php';
 
-function show_announcements($template_name)
-{
-    global $TPL;
-    $people = &get_cached_table('person');
+$page = new Page();
+$announcements = (new announcement())->getAnnouncements();
 
-    $database = new AllocDatabase();
-    $database->connect();
+$allocAnnouncementURL = $page->getURL('url_alloc_announcement');
+$announcementListHTML = '';
 
-    $getAnnouncements = $database->pdo->query(
-        'SELECT announcement.*
-           FROM announcement
-       ORDER BY displayFromDate DESC'
-    );
+foreach ($announcements as $announcement) {
+    $postedBy = $page->escape((new person($announcement['personID']))->get_name());
+    $heading = $page->escape($announcement['heading']);
 
-    $TPL['odd_even'] ??= 'even';
-    while ($announcementRow = $getAnnouncements->fetch(PDO::FETCH_ASSOC)) {
-        $announcement = new announcement();
-        $announcement->read_row_record($announcementRow);
-        $announcement->set_values();
-        $TPL['personName'] = $people[$announcement->get_value('personID')]['name'];
-        $TPL['odd_even'] = 'odd' == $TPL['odd_even'] ? 'even' : 'odd';
-        include_template($template_name);
-    }
+    $announcementListHTML .= <<<HTML
+            <tr>
+                <td>{$heading}</td>
+                <td>{$postedBy}</td>
+                <td>{$announcement['displayFromDate']}</td>
+                <td>{$announcement['displayToDate']}</td>
+                <td><a href="{$allocAnnouncementURL}?announcementID={$announcement['announcementID']}">Edit</a></td>
+            </tr>
+        HTML;
 }
 
-$TPL['main_alloc_title'] = 'Announcement List - ' . APPLICATION_NAME;
+$main_alloc_title = 'Announcement List - ' . APPLICATION_NAME;
 
-include_template('templates/announcementListM.tpl');
+echo $page->header($main_alloc_title);
+echo $page->toolbar();
+
+echo <<<HTML
+        <table class="box">
+              <tr>
+                  <th class="header">Announcements
+                      <span>
+                          <a href="{$allocAnnouncementURL}">New Announcement</a>
+                      </span>
+                  </th>
+              </tr>
+              <tr>
+                  <td>
+                      <table class="list sortable"> 
+                          <tr>
+                              <th>Heading</th>
+                              <th>Posted By</th>
+                              <th>Display From</th>
+                              <th>Display To</th>
+                              <th>Action</th>
+                          </tr>
+                          {$announcementListHTML}
+                      </table>
+                  </td>
+              </tr>
+        </table>
+    HTML;
+
+echo $page->footer();

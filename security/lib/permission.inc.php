@@ -29,12 +29,14 @@ class permission extends DatabaseEntity
 
         $entity_class = $this->get_value('tableName');
 
-        if (Meta::$tables[$entity_class]) {
+        if (isset(Meta::$tables[$entity_class])) {
             $entity = new Meta($entity_class);
             $permissions = $entity->permissions;
         } elseif (class_exists($entity_class)) {
             $entity = new $entity_class();
             $permissions = $entity->permissions;
+        } else {
+            return '';
         }
 
         foreach ((array) $permissions as $a => $d) {
