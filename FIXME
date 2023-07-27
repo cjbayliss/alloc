@@ -1,2 +1,3 @@
  * fix broken attatchments system
  * remove dangerous global variable system
+ * remove sellPriceIncTax
