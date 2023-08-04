@@ -3,13 +3,13 @@ services:
   alloc:
     build:
       context: .
-      dockerfile: docker/alloc/Dockerfile
+      dockerfile: containers/alloc/Containerfile
     volumes:
       - .:/var/www/html
     ports:
       - 4000:80
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "host.docker.internal:127.0.0.1"
     environment:
       XDEBUG_MODE: develop,debug
       XDEBUG_CONFIG:
@@ -22,7 +22,7 @@ services:
   database:
     build:
       context: .
-      dockerfile: docker/database/Dockerfile
+      dockerfile: containers/database/Containerfile
     volumes:
       - database_data:/var/lib/mysql
     ports:
