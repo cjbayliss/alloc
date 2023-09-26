@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: containers/alloc/Containerfile
     volumes:
-      - .:/var/www/html
+      - .:/var/www/html:z
     ports:
       - 4000:80
     extra_hosts:
