@@ -18,9 +18,8 @@ RUN echo "\n[xdebug]\n\
 zend_extension=xdebug\n\
 xdebug.mode=develop,debug\n\
 xdebug.start_with_request=yes\n\
-xdebug.remote_port=9003\n\
-xdebug.client_port=9003\n\
-xdebug.remote_host=host.docker.internal\n" >> "$PHP_INI_DIR/php.ini"
+xdebug.client_host=host.docker.internal\n\
+xdebug.client_port=9003\n" >> "$PHP_INI_DIR/php.ini"
 
 RUN mkdir -p /var/local/alloc; chown www-data /var/local/alloc/
 RUN for i in task client project invoice comment whatsnew logos search tmp; do \

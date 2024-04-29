@@ -7,13 +7,6 @@ services:
       - .:/var/www/html:z
     ports:
       - 4000:80
-    extra_hosts:
-      - "host.docker.internal:127.0.0.1"
-    environment:
-      XDEBUG_MODE: develop,debug
-      XDEBUG_CONFIG:
-        client_host=host.docker.internal
-        start_with_request=yes
     depends_on:
       - "database"
     networks:
