@@ -1,3 +1,10 @@
+# UNMAINTAINED
+
+Don't use this project, it is unmaintained. There are lots of other bug trackers
+and PSAs out there, try those instead.
+
+---
+
 # allocPSA
 allocPSA is the web-app that takes care of your projects, employees,
 time sheets, invoicing and customers.
