@@ -112,7 +112,7 @@ $(document).ready(function() {
         </div>
 
         <h6>Description</h6>
-        {page::textarea("reminder_content",$reminder_default_content,array("height"=>"small"))}
+        {page::textarea("reminder_content",$reminder_default_content,array("height"=>"medium"))}
       </div>
 
       <div class="pane">
