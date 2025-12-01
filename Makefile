@@ -21,12 +21,11 @@ SHELL = /bin/bash
 
 help:
 	@echo "Targets: "
-	@echo "  css       - rebuild css/* after a modification to css/src/*"
 	@echo "  doc_html  - makes html alloc help"
 	@echo "  doc_pdf   - makes pdf alloc help"
 	@echo "  doc_clean - makes pdf alloc help"
 	@echo "  dist      - makes doc_html, doc_clean, and makes an alloc tarball"
-	@echo "  cache     - copies/concatenates all the javascript and css files to a cache directory"
+	@echo "  cache     - copies/concatenates all the javascript files to a cache directory"
 	@echo "  patches   - combines all DB schema patches into installation file"
 
 doc_html:
@@ -69,10 +68,6 @@ dist:
 	tar -czvf allocPSA-`cat util/alloc_version`.tgz allocPSA-`cat util/alloc_version`;
 	rm -rf ./allocPSA-`cat util/alloc_version`;
 
-css: css/src/*
-	./util/make_stylesheets.py
-	$(MAKE) cache
-
 clean: ;
 none: ;
 all: ;
@@ -81,7 +76,6 @@ install: ;
 cache:
 	rm -rf cache_`cat util/alloc_version`
 	mkdir cache_`cat util/alloc_version`
-	cp css/*.css cache_`cat util/alloc_version`/
 	for i in javascript/*; do\
 	  cat $$i >> cache_`cat util/alloc_version`/javascript.js;\
 	done
@@ -99,4 +93,4 @@ patches:
 
 
 
-.PHONY: css help doc services cache patches
+.PHONY: help doc services cache patches
